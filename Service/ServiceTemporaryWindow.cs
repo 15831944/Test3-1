@@ -90,6 +90,7 @@ namespace Service
       ClientServiceProtocol.DeleteGroupHandler clientDeleteGroup = new ClientServiceProtocol.DeleteGroupHandler(DeleteGroup);
 
       ClientServiceProtocol.CreateItemHandler clientCreateItem = new ClientServiceProtocol.CreateItemHandler(CreateItem);
+      ClientServiceProtocol.RequestPortInfoHandler clientRequestPortInfo = new ClientServiceProtocol.RequestPortInfoHandler(ClientRequestPortInfo);
       ClientServiceProtocol.ModifyItemHandler clientModifyItem = new ClientServiceProtocol.ModifyItemHandler(ModifyItem);
       ClientServiceProtocol.ModifyItemPathHandler clientModifyItemPath = new ClientServiceProtocol.ModifyItemPathHandler(ModifyItemPath);
       ClientServiceProtocol.ModifyItemBoundingRectHandler clientModifyItemBoundingRect = new ClientServiceProtocol.ModifyItemBoundingRectHandler(ModifyItemBoundingRect);
@@ -104,8 +105,6 @@ namespace Service
       ClientServiceProtocol.ModifyThingPathHandler clientModifyThingPath = new ClientServiceProtocol.ModifyThingPathHandler(ModifyThingPath);
       ClientServiceProtocol.DeleteThingHandler clientDeleteThing = new ClientServiceProtocol.DeleteThingHandler(DeleteThing);
 
-      ClientServiceProtocol.PortCheckHandler clientPortCheck = new ClientServiceProtocol.PortCheckHandler(PortCheck);
-
       ClientServiceProtocol.PropertyListHandler clientPropertyListCheck = new ClientServiceProtocol.PropertyListHandler(PropertyListCheck);
 
       ClientServiceProtocol.LogMessageHandler clientLogMessage = new ClientServiceProtocol.LogMessageHandler(LogMessage);
@@ -115,21 +114,23 @@ namespace Service
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               clientChangePermissions, clientGetPropertyValues, clientGetSubTags,
                                                               clientCreateGroup, clientModifyGroup, clientDeleteGroup,
-                                                              clientCreateItem, clientModifyItem, clientModifyItemPath, clientModifyItemBoundingRect, 
+                                                              clientCreateItem, clientRequestPortInfo, 
+                                                              clientModifyItem, clientModifyItemPath, clientModifyItemBoundingRect, 
                                                               clientDeleteItem,
                                                               clientCreateLink, clientModifyLink, clientDeleteLink,
                                                               clientCreateThing, clientModifyThing, clientModifyThingPath,
-                                                              clientDeleteThing, clientPortCheck, clientPropertyListCheck, clientLogMessage);
+                                                              clientDeleteThing, clientPropertyListCheck, clientLogMessage);
 
 
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + projectName);
 
       EngineServiceProtocol.LogMessageHandler engineLogMessage = new EngineServiceProtocol.LogMessageHandler(LogMessage);
       EngineServiceProtocol.StateChangedHandler engineStateChanged = new EngineServiceProtocol.StateChangedHandler(StateChanged);
+      EngineServiceProtocol.RequestPortInfoHandler engineRequestPortInfo = new EngineServiceProtocol.RequestPortInfoHandler(EngineRequestPortInfo);
 
       engineClientServiceProtocol = new EngineServiceProtocol(projectName,
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings, 
-                                                              engineLogMessage, engineStateChanged);
+                                                              engineLogMessage, engineStateChanged, engineRequestPortInfo);
 
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + projectName);
     }
@@ -419,6 +420,44 @@ namespace Service
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
+    bool ClientRequestPortInfo(out Int64 requestId, Guid guid, String tag)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+
+      if (graphicItems.ContainsKey(guid))
+      {
+        // Raise event(s).
+        eventId++;
+        engineClientServiceProtocol.DoPortInfoRequested(eventId, requestId, guid, tag);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
+    bool EngineRequestPortInfo(out Int64 requestId, Guid guid, String tag, PortInfo portInfo)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+
+      if (graphicItems.ContainsKey(guid))
+      {
+        // Raise event(s).
+        eventId++;
+        clientClientServiceProtocol.DoPortInfoRequested(eventId, requestId, guid, tag, portInfo);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
     bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       this.requestId++;
@@ -606,18 +645,6 @@ namespace Service
       { // We're not going to do it.
         return false;
       }
-    }
-
-    PortStatus PortCheck(out Int64 requestId, Guid guid, Anchor anchor)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicItems.ContainsKey(guid))
-        return PortStatus.Available;
-
-      else
-        return PortStatus.Unavailable;
     }
 
     ArrayList PropertyListCheck(out Int64 requestId, Guid guid, String tag, String path)

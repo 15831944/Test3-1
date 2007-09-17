@@ -24,13 +24,15 @@ namespace SysCAD.Protocol
   {
     public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
     public delegate bool StateChangedHandler(out long requestId, RunState runState);
+    public delegate bool RequestPortInfoHandler(out Int64 requestId, Guid guid, String tag, PortInfo portInfo);
 
     private LogMessageHandler logMessageHandler;
     private StateChangedHandler stateChangedHandler;
+    private RequestPortInfoHandler requestPortInfoHandler;
 
     public EngineServiceProtocol(String name,
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
-      LogMessageHandler logMessageHandler, StateChangedHandler stateChangedHandler)
+      LogMessageHandler logMessageHandler, StateChangedHandler stateChangedHandler, RequestPortInfoHandler requestPortInfoHandler)
     {
       this.Name = name;
 
@@ -42,6 +44,7 @@ namespace SysCAD.Protocol
 
       this.logMessageHandler = logMessageHandler;
       this.stateChangedHandler = stateChangedHandler;
+      this.requestPortInfoHandler = requestPortInfoHandler;
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
@@ -52,6 +55,16 @@ namespace SysCAD.Protocol
     public bool ChangeState(out long requestId, RunState runState)
     {
       return stateChangedHandler(out requestId, runState);
+    }
+
+    public bool RequestPortInfo(out Int64 requestId, Guid guid, String tag, PortInfo portInfo)
+    {
+      return requestPortInfoHandler(out requestId, guid, tag, portInfo);
+    }
+
+    public void DoPortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag)
+    {
+      OnPortInfoRequested(eventId, requestId, guid, tag);
     }
   }
 }

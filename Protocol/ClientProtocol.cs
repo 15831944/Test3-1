@@ -33,6 +33,7 @@ namespace SysCAD.Protocol
 
     private ClientServiceProtocol.ItemCreatedHandler serviceGraphicItemCreatedHandler = null;
     private ClientServiceProtocol.ItemDeletedHandler serviceGraphicItemDeletedHandler = null;
+    private ClientServiceProtocol.PortInfoRequestedHandler serviceGraphicPortInfoRequestedHandler = null;
     private ClientServiceProtocol.ItemModifiedHandler serviceGraphicItemModifiedHandler = null;
 
     private ClientServiceProtocol.LinkCreatedHandler serviceGraphicLinkCreatedHandler = null;
@@ -76,6 +77,7 @@ namespace SysCAD.Protocol
         serviceGraphicGroupDeletedHandler = new ClientServiceProtocol.GroupDeletedHandler(ServiceGraphicGroupDeleted);
 
         serviceGraphicItemCreatedHandler = new ClientServiceProtocol.ItemCreatedHandler(ServiceGraphicItemCreated);
+        serviceGraphicPortInfoRequestedHandler = new ClientServiceProtocol.PortInfoRequestedHandler(ServiceGraphicPortInfoRequested);
         serviceGraphicItemModifiedHandler = new ClientServiceProtocol.ItemModifiedHandler(ServiceGraphicItemModified);
         serviceGraphicItemDeletedHandler = new ClientServiceProtocol.ItemDeletedHandler(ServiceGraphicItemDeleted);
 
@@ -98,6 +100,7 @@ namespace SysCAD.Protocol
         serviceGraphic.GroupDeleted += serviceGraphicGroupDeletedHandler;
 
         serviceGraphic.ItemCreated += serviceGraphicItemCreatedHandler;
+        serviceGraphic.PortInfoRequested += serviceGraphicPortInfoRequestedHandler;
         serviceGraphic.ItemModified += serviceGraphicItemModifiedHandler;
         serviceGraphic.ItemDeleted += serviceGraphicItemDeletedHandler;
 
@@ -182,6 +185,11 @@ namespace SysCAD.Protocol
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
+    public bool RequestPortInfo(out Int64 requestId, Guid guid, String tag)
+    {
+      return serviceGraphic.RequestPortInfo(out requestId, guid, tag);
+    }
+
     public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       return serviceGraphic.ModifyItem(out requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
@@ -210,11 +218,6 @@ namespace SysCAD.Protocol
     public bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
     {
       return serviceGraphic.ModifyThingPath(out requestId, guid, path);
-    }
-
-    public PortStatus PortCheck(out Int64 requestId, Guid itemGuid, Anchor anchor)
-    {
-      return serviceGraphic.PortCheck(out requestId, itemGuid, anchor);
     }
 
     public ArrayList PropertyList(out Int64 requestId, Guid guid, String tag, String path)
@@ -288,6 +291,11 @@ namespace SysCAD.Protocol
 
         OnItemDeleted(eventId, requestId, guid);
       }
+    }
+
+    public void ServiceGraphicPortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo)
+    {
+      OnPortInfoRequested(eventId, requestId, guid, tag, portInfo);
     }
 
     public void ServiceGraphicItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
@@ -524,6 +532,12 @@ namespace SysCAD.Protocol
         try
         {
           if (serviceGraphicItemCreatedHandler != null) serviceGraphic.ItemCreated -= serviceGraphicItemCreatedHandler;
+        }
+        catch (InvalidOperationException) { }
+
+        try
+        {
+          if (serviceGraphicPortInfoRequestedHandler != null) serviceGraphic.PortInfoRequested -= serviceGraphicPortInfoRequestedHandler;
         }
         catch (InvalidOperationException) { }
 

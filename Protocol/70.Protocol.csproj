@@ -92,6 +92,7 @@
     <Compile Include="ModelStencil1.cs" />
     <Compile Include="PortStatus.cs" />
     <Compile Include="ModelProperty.cs" />
+    <Compile Include="StatusCodes.cs" />
     <Compile Include="Stencil.cs" />
     <Compile Include="StencilConverter.cs" />
     <Compile Include="ThingStencil.cs" />

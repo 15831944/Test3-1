@@ -21,9 +21,21 @@ namespace SysCAD.Protocol
   [Serializable]
   abstract public class EngineBaseProtocol : BaseProtocol
   {
+    public PortInfoRequestedHandler PortInfoRequested;
+    public delegate void PortInfoRequestedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag);
+
     public enum RunState
     {
       Edit, Run, Idle
+    }
+
+    public void OnPortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag)
+    {
+      if (PortInfoRequested != null)
+      {
+        try { PortInfoRequested(eventId, requestId, guid, tag); }
+        catch (SocketException) { }
+      }
     }
   }
 }

@@ -536,6 +536,7 @@ void CSvcConnect::GCBCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
 //------------------------------------------------------------------------
 
+
 void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, LPCSTR path, 
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect,
                                float angle, const CRectangleF & textArea, float textAngle, COLORREF FillColor, 

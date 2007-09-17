@@ -423,6 +423,7 @@ namespace SysCAD.Editor
         new ClientProtocol.GroupModifiedHandler(fcFlowChart_GroupModified),
         new ClientProtocol.GroupDeletedHandler(fcFlowChart_GroupDeleted),
         new ClientProtocol.ItemCreatedHandler(fcFlowChart_ItemCreated),
+        new ClientProtocol.PortInfoRequestedHandler(fcFlowChart_PortInfoRequested),
         new ClientProtocol.ItemModifiedHandler(fcFlowChart_ItemModified),
         new ClientProtocol.ItemDeletedHandler(fcFlowChart_ItemDeleted),
         new ClientProtocol.LinkCreatedHandler(fcFlowChart_LinkCreated),
@@ -477,6 +478,7 @@ namespace SysCAD.Editor
           fcFlowChart_GroupModified,
           fcFlowChart_GroupDeleted,
           fcFlowChart_ItemCreated,
+          fcFlowChart_PortInfoRequested,
           fcFlowChart_ItemModified,
           fcFlowChart_ItemDeleted,
           fcFlowChart_LinkCreated,
@@ -1230,7 +1232,7 @@ namespace SysCAD.Editor
 
                 Int64 requestId;
 
-                if (state.PortCheck(out requestId, (originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
+               // if (state.PortCheck(out requestId, (originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
                 {
                   PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
                     originAnchorChosen.Position.X,
@@ -1286,7 +1288,7 @@ namespace SysCAD.Editor
 
                 Int64 requestId;
 
-                if (state.PortCheck(out requestId, (destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
+                //if (state.PortCheck(out requestId, (destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
                 {
                   PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
                     destinationAnchorChosen.Position.X,
@@ -1334,6 +1336,11 @@ namespace SysCAD.Editor
     private void fcFlowChart_ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       state.DeleteItem(guid, fcFlowChart);
+    }
+
+    private void fcFlowChart_PortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     private void fcFlowChart_ItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)

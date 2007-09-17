@@ -187,6 +187,8 @@ ref class CSvcConnectCLRThread
           __int64 requestId;
           engineProtocol->ChangeState(requestId, SysCAD::Protocol::EngineBaseProtocol::RunState::Edit);
 
+					engineProtocol->PortInfoRequested += gcnew EngineProtocol::PortInfoRequestedHandler(this, &CSvcConnectCLRThread::PortInfoRequested);
+
           /*
           This is where import goes
           */
@@ -314,6 +316,12 @@ ref class CSvcConnectCLRThread
         Color::Empty, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
       ItemGuid = guid.ToString();
       };
+
+    void PortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String^ tag)
+      {
+				PortInfo^ portInfo = gcnew PortInfo(PortStatusEnum::Available);
+				engineProtocol->RequestPortInfo(requestId, guid, tag, portInfo);
+      }
 
     void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {

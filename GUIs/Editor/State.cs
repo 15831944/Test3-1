@@ -356,6 +356,7 @@ namespace SysCAD.Editor
       ClientProtocol.GroupModifiedHandler GroupModifiedHandler,
       ClientProtocol.GroupDeletedHandler GroupDeletedHandler,
       ClientProtocol.ItemCreatedHandler itemCreatedHandler,
+      ClientProtocol.PortInfoRequestedHandler portInfoRequestedHandler,
       ClientProtocol.ItemModifiedHandler itemModifiedHandler,
       ClientProtocol.ItemDeletedHandler itemDeletedHandler,
       ClientProtocol.LinkCreatedHandler linkCreatedHandler,
@@ -376,7 +377,8 @@ namespace SysCAD.Editor
       clientProtocol.GroupDeleted += GroupDeletedHandler;
 
       clientProtocol.ItemCreated += itemCreatedHandler;
-      clientProtocol.ItemModified += itemModifiedHandler;
+      clientProtocol.PortInfoRequested += portInfoRequestedHandler;
+      clientProtocol.ItemModified -= itemModifiedHandler;
       clientProtocol.ItemDeleted += itemDeletedHandler;
 
       clientProtocol.LinkCreated += linkCreatedHandler;
@@ -543,7 +545,14 @@ namespace SysCAD.Editor
           //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
 
           if (modelStencil != null)
+          {
             modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
+
+            {
+              Int64 requestId2;
+              RequestGraphicPortInfo(out requestId2, graphicItem.Guid, ((Anchor)(modelStencil.Anchors[0])).Tag);
+            }
+          }
           else
             modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
@@ -869,6 +878,7 @@ namespace SysCAD.Editor
       ClientProtocol.GroupModifiedHandler GroupModifiedHandler,
       ClientProtocol.GroupDeletedHandler GroupDeletedHandler,
       ClientProtocol.ItemCreatedHandler itemCreatedHandler,
+      ClientProtocol.PortInfoRequestedHandler portInfoRequestedHandler,
       ClientProtocol.ItemModifiedHandler itemModifiedHandler,
       ClientProtocol.ItemDeletedHandler itemDeletedHandler,
       ClientProtocol.LinkCreatedHandler linkCreatedHandler,
@@ -889,6 +899,7 @@ namespace SysCAD.Editor
       clientProtocol.GroupDeleted -= GroupDeletedHandler;
 
       clientProtocol.ItemCreated -= itemCreatedHandler;
+      clientProtocol.PortInfoRequested -= portInfoRequestedHandler;
       clientProtocol.ItemModified -= itemModifiedHandler;
       clientProtocol.ItemDeleted -= itemDeletedHandler;
 
@@ -1150,6 +1161,11 @@ namespace SysCAD.Editor
       return clientProtocol.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
+    internal bool RequestGraphicPortInfo(out Int64 requestId, Guid guid, String tag)
+    {
+      return clientProtocol.RequestPortInfo(out requestId, guid, tag);
+    }
+
     internal bool ModifyGraphicItemPath(out Int64 requestId, Guid guid, String path)
     {
       return clientProtocol.ModifyItemPath(out requestId, guid, path);
@@ -1168,11 +1184,6 @@ namespace SysCAD.Editor
     internal bool ModifyGraphicThingPath(out Int64 requestId, Guid guid, String path)
     {
       return clientProtocol.ModifyThingPath(out requestId, guid, path);
-    }
-
-    internal PortStatus PortCheck(out Int64 requestId, Guid itemGuid, Anchor anchor)
-    {
-      return clientProtocol.PortCheck(out requestId, itemGuid, anchor);
     }
 
     internal ArrayList PropertyList(out Int64 requestId, Guid guid, String tag, String path)

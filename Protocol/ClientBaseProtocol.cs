@@ -27,6 +27,7 @@ namespace SysCAD.Protocol
 
     public ItemCreatedHandler ItemCreated;
     public ItemDeletedHandler ItemDeleted;
+    public PortInfoRequestedHandler PortInfoRequested;
     public ItemModifiedHandler ItemModified;
 
     public LinkCreatedHandler LinkCreated;
@@ -49,6 +50,7 @@ namespace SysCAD.Protocol
 
     public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
+    public delegate void PortInfoRequestedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo);
     public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
 
     public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle);
@@ -157,11 +159,20 @@ namespace SysCAD.Protocol
       }
     }
 
+    public void OnPortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo)
+    {
+      if (PortInfoRequested != null)
+      {
+        try { PortInfoRequested(eventId, requestId, guid, tag, portInfo); }
+        catch (SocketException) { }
+      }
+    }
+
     public void OnItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (ItemModified != null)
       {
-        try {ItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, mirrorX, mirrorY);}
+        try { ItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, mirrorX, mirrorY); }
         catch (SocketException) { }
       }
     }

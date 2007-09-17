@@ -40,14 +40,13 @@ namespace SysCAD.Protocol
     private GetPropertyValuesHandler getPropertyValuesHandler;
     private GetSubTagsHandler getSubTagsHandler;
     private ModifyGroupHandler modifyGroupHandler;
+    private RequestPortInfoHandler requestPortInfoHandler;
     private ModifyItemHandler modifyItemHandler;
     private ModifyItemPathHandler modifyItemPathHandler;
     private ModifyItemBoundingRectHandler modifyItemBoundingRectHandler;
     private ModifyLinkHandler modifyLinkHandler;
     private ModifyThingHandler modifyThingHandler;
     private ModifyThingPathHandler modifyThingPathHandler;
-
-    private PortCheckHandler portCheckHandler;
 
     private PropertyListHandler propertyListHandler;
 
@@ -72,6 +71,7 @@ namespace SysCAD.Protocol
     public delegate void GetSubTagsHandler(out Int64 requestId, String propertyPath, out ArrayList propertyList);
 
     public delegate bool ModifyGroupHandler(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect);
+    public delegate bool RequestPortInfoHandler(out Int64 requestId, Guid guid, String tag);
     public delegate bool ModifyItemHandler(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool ModifyItemPathHandler(out Int64 requestId, Guid guid, String path);
     public delegate bool ModifyItemBoundingRectHandler(out Int64 requestId, Guid guid, RectangleF boundingRect);
@@ -81,7 +81,7 @@ namespace SysCAD.Protocol
     public delegate bool ModifyThingHandler(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
     public delegate bool ModifyThingPathHandler(out Int64 requestId, Guid guid, String path);
 
-    public delegate PortStatus PortCheckHandler(out Int64 requestId, Guid itemGuid, Anchor anchor);
+    public delegate PortStatus PortCheckHandler(out Int64 requestId, Guid itemGuid, String tag);
     public delegate ArrayList PropertyListHandler(out Int64 requestId, Guid guid, String tag, String path);
 
     public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
@@ -91,11 +91,12 @@ namespace SysCAD.Protocol
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
       ChangePermissionsHandler clientChangePermissions, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateGroupHandler createGroupHandler, ModifyGroupHandler modifyGroupHandler, DeleteGroupHandler deleteGroupHandler,
-      CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, ModifyItemBoundingRectHandler modifyItemBoundingRectHandler, 
+      CreateItemHandler createItemHandler, RequestPortInfoHandler requestPortInfoHandler,
+      ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, ModifyItemBoundingRectHandler modifyItemBoundingRectHandler, 
       DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, ModifyThingPathHandler modifyThingPathHandler, DeleteThingHandler deleteThingHandler,
-      PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler, LogMessageHandler logMessageHandler)
+      PropertyListHandler propertyListHandler, LogMessageHandler logMessageHandler)
     {
       this.Name = name;
 
@@ -118,6 +119,7 @@ namespace SysCAD.Protocol
       this.deleteGroupHandler = deleteGroupHandler;
 
       this.createItemHandler = createItemHandler;
+      this.requestPortInfoHandler = requestPortInfoHandler;
       this.modifyItemHandler = modifyItemHandler;
       this.modifyItemPathHandler = modifyItemPathHandler;
       this.modifyItemBoundingRectHandler = modifyItemBoundingRectHandler;
@@ -131,8 +133,6 @@ namespace SysCAD.Protocol
       this.modifyThingHandler = modifyThingHandler;
       this.modifyThingPathHandler = modifyThingPathHandler;
       this.deleteThingHandler = deleteThingHandler;
-
-      this.portCheckHandler = portCheckHandler;
 
       this.propertyListHandler = propertyListHandler;
 
@@ -207,6 +207,11 @@ namespace SysCAD.Protocol
     public void DoItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       OnItemDeleted(eventId, requestId, guid);
+    }
+
+    public void DoPortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo)
+    {
+      OnPortInfoRequested(eventId, requestId, guid, tag, portInfo);
     }
 
     public void DoItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -285,6 +290,11 @@ namespace SysCAD.Protocol
       return modifyGroupHandler(out requestId, guid, tag, path, boundingRect);
     }
 
+    public bool RequestPortInfo(out Int64 requestId, Guid guid, String tag)
+    {
+      return requestPortInfoHandler(out requestId, guid, tag);
+    }
+
     public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       return modifyItemHandler(out requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
@@ -313,11 +323,6 @@ namespace SysCAD.Protocol
     public bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
     {
       return modifyThingPathHandler(out requestId, guid, path);
-    }
-
-    public PortStatus PortCheck(out Int64 requestId, Guid itemGuid, Anchor anchor)
-    {
-      return portCheckHandler(out requestId, itemGuid, anchor);
     }
 
     public ArrayList PropertyList(out Int64 requestId, Guid guid, String tag, String path)

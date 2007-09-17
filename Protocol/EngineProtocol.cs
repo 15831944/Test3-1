@@ -25,6 +25,8 @@ namespace SysCAD.Protocol
     private String connectionError = String.Empty;
     private EngineServiceProtocol serviceGraphic;
 
+    private EngineServiceProtocol.PortInfoRequestedHandler serviceGraphicPortInfoRequestedHandler = null;
+
     Uri url = null;
 
     public EngineProtocol()
@@ -45,6 +47,10 @@ namespace SysCAD.Protocol
         serviceGraphic = Activator.GetObject(typeof(BaseProtocol), url.ToString()) as EngineServiceProtocol;
 
         Name = serviceGraphic.Name; // Force a test of the connection.
+
+        serviceGraphicPortInfoRequestedHandler = new EngineServiceProtocol.PortInfoRequestedHandler(ServiceGraphicPortInfoRequested);
+
+        serviceGraphic.PortInfoRequested += serviceGraphicPortInfoRequestedHandler;
 
         Syncxxx();
 
@@ -112,11 +118,26 @@ namespace SysCAD.Protocol
       }
     }
 
+    public bool RequestPortInfo(out Int64 requestId, Guid guid, String tag, PortInfo portInfo)
+    {
+      return serviceGraphic.RequestPortInfo(out requestId, guid, tag, portInfo);
+    }
+
+    public void ServiceGraphicPortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag)
+    {
+      OnPortInfoRequested(eventId, requestId, guid, tag);
+    }
+
     ~EngineProtocol()
     {
 
       if (serviceGraphic != null)
       {
+        try
+        {
+          if (serviceGraphicPortInfoRequestedHandler != null) serviceGraphic.PortInfoRequested -= serviceGraphicPortInfoRequestedHandler;
+        }
+        catch (InvalidOperationException) { }
 
       }
     }
