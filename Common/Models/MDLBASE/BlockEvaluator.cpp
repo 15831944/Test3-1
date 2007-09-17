@@ -644,24 +644,14 @@ void CBlockEvaluator::EvalProductsInline(int iJoinNo, SpConduit & Fo, double Len
 
       case BEId_Makeup:  
         CheckFlowsConsistent(iJoinNo, true);
-        //if (pFTB)
-        //  pFTB->AddEvapBegin();
         m_pMakeups[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
-        //if (pFTB)
-        //  pFTB->AddEvapEnd();
-        break;
-      case BEId_Bleed:  
-        CheckFlowsConsistent(iJoinNo, false);
-        //if (pFTB)
-        //  pFTB->AddEvapBegin();
-        m_pBleeds[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
-        //m_Blks[i]->EvalProducts(Fo, Po); 
-        //if (pFTB)
-        //  pFTB->AddEvapEnd();
         break;
 
+      case BEId_Bleed:  
+        CheckFlowsConsistent(iJoinNo, false);
+        m_pBleeds[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
+        break;
       }
-    //}
     }
   if (dbgBlkEvalProd && m_nBlocks>0)
     dbgpln("                                  << Qm:%10.3f", Fo.QMass());
