@@ -548,10 +548,11 @@ namespace SysCAD.Editor
           {
             modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
 
-            {
-              Int64 requestId2;
-              RequestGraphicPortInfo(out requestId2, graphicItem.Guid, ((Anchor)(modelStencil.Anchors[0])).Tag);
-            }
+            //RequestPortInfo test code.
+            //{
+            //  Int64 requestId2;
+            //  RequestGraphicPortInfo(out requestId2, graphicItem.Guid, ((Anchor)(modelStencil.Anchors[0])).Tag);
+            //}
           }
           else
             modelBox.Shape = ShapeTemplate.FromId("Decision2");
