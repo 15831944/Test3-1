@@ -521,7 +521,10 @@ XID xidThTmExecTotal                  = xidThTmLockTotal   + ThTmSpacing;
 XID xidThTmUnLockTotal                = xidThTmExecTotal   + ThTmSpacing;
 XID xidThTmWaitTotal                  = xidThTmUnLockTotal + ThTmSpacing;
 XID xidThTmLast                       = xidThTmWaitTotal   + ThTmSpacing;
+
 // Leave 8(ThreadCnt) * eFITMaxCmds
+
+// NBNBNBNBNB - FlwNode uses  FlwXID(10000) and Up
 
 //===========================================================================
 //

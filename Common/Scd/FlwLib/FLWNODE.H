@@ -4690,11 +4690,7 @@ XID xidSetStatePBInit             = FlwXID(54);
 XID xidSetStateDynStatsRunInit    = FlwXID(55);
 XID xidSetStateEmptySpillTargets  = FlwXID(56);
 
-#if WITHMDLRANGECHECKS
-XID xidRngChkCount                = FlwXID(1000);
-XID xidRngChkDesc0                = FlwXID(1010);
-XID xidRngChkDescN                = FlwXID(1060);
-#endif
+// NBNBNBNBNB - FlwSolve uses  FlwXID(1000) and Up to FlwXID(1000)
 
 XID xidFBMeanTemp                 = FlwXID(30000);  // User Info passes Additional Info
 XID xidFBMeanPress                = FlwXID(30001);  // User Info passes Additional Info
@@ -4721,6 +4717,12 @@ XID xidFRBMeasRho                 = FlwXID(30200);
 XID xidFRBMeasRhoStep             = FlwXID(30201);
 
 XID xidProcsEnable                = FlwXID(30202);
+
+#if WITHMDLRANGECHECKS
+XID xidRngChkCount                = FlwXID(303000);
+XID xidRngChkDesc0                = FlwXID(303010);
+XID xidRngChkDescN                = FlwXID(303060);
+#endif
 
 //===========================================================================
 
