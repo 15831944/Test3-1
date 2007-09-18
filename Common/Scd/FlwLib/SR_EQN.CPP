@@ -70,7 +70,7 @@ void CR_EqnControl::Clear()
   m_ddDefinedResTime.Clear(&Eq);
   m_ddDefinedResTime=-1.0;
   m_sExtentSpc="";
-  m_bExtentType=RBXT_Strict;
+  m_ExtentType=-1;
   };
 
 //---------------------------------------------------------------------------
@@ -79,6 +79,39 @@ flag CR_EqnControl::DataXchg(DataChangeBlk & DCB)
   {
   switch (DCB.lHandle)
     {
+    case xid_RCTExtentType:
+      if (DCB.rpC)
+        {
+        if(_stricmp(DCB.rpC, "Strict")==0)
+          m_ExtentType=RBXT_Strict;
+        else if(_stricmp(DCB.rpC, "Target")==0)
+          m_ExtentType=RBXT_Target;
+        else
+          m_ExtentType=-1;
+        }
+      switch (m_ExtentType)
+        {
+        case RBXT_Strict:
+          DCB.pC = "Strict";
+          break;
+        case RBXT_Target:
+          DCB.pC = "Target";
+          break;
+        default:    
+          switch (Eq.RB.ExtentType())
+            {
+            case RBXT_Strict:
+              DCB.pC = "<Strict>";
+              break;
+            case RBXT_Target:
+              DCB.pC = "<Target>";
+              break;
+            default:
+              _asm int 3; // should not get here
+              break;
+            }
+        }
+      return 1;
     case xid_ExtentError: 
       DCB.D=ExtentError();
       return 1;
@@ -398,9 +431,9 @@ double CR_EqnControl::ExtentError()
 
 //---------------------------------------------------------------------------
 
-flag CR_EqnControl::ExtentType()
+int CR_EqnControl::ExtentType()
   {
-  return Eq.RB.ExtentType()==RBXT_Individual ? m_bExtentType : Eq.RB.ExtentType();
+  return (m_ExtentType<0) ? Eq.RB.ExtentType() : m_ExtentType;
   }
 
 //===========================================================================

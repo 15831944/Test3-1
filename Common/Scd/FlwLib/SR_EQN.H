@@ -48,6 +48,7 @@ XID xid_ExtentError       = RctXID(1022);
 XID xid_RCTFracRate       = RctXID(1023);
 XID xid_RCTKEquilibrium   = RctXID(1024);
 XID xid_RCTFinalConcT     = RctXID(1025);
+XID xid_RCTExtentType     = RctXID(1026);
 
 //===========================================================================
 // Stoichometry classes
@@ -105,7 +106,7 @@ class DllImportExport CR_EqnControl
     virtual double ExtentReqdOveride()                    { return m_ddExtentRqd.Ovr(); };
     virtual double ExtentActual(double ProdMoles=0.0) { return dNAN; };
     virtual double ExtentError();
-    virtual flag   ExtentType();
+    virtual int    ExtentType();
     virtual double FwdRctExtent();
     virtual double RevRctExtent();
 
@@ -133,7 +134,7 @@ class DllImportExport CR_EqnControl
     double         m_dRelRate;
 
     Strng          m_sExtentSpc;
-    byte           m_bExtentType;
+    int            m_ExtentType;
     CString        m_AsString;
   };
 

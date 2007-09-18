@@ -33,7 +33,7 @@ static CDbgMngr dbgRctSolve("Reactions", "Solve");
 static DDBValueLst DDBExtentTypes[] = {
   { RBXT_Strict,   "Strict"},
   { RBXT_Target,   "Target"},
-  //{ RBXT_Individual,  "Individual"},
+  { -1,            "<Default>"},
   {0}};
 
 flag CEqnSpRef::SetUp(CReactionBlock & RB, CR_Eqn & Eq)
@@ -76,20 +76,20 @@ flag CEqnSpRef::SetUp(CReactionBlock & RB, CR_Eqn & Eq)
 
 void CR_EqnControl::ParseExtent(CRCTTokenFile &TF)
   {
-  m_bExtentType=RBXT_Target;
+  m_ExtentType=-1;
   if (TF.TokenIs("Strict"))
     {
     if (DynamicRate())
       CReactionBlock::Error(&RB, 'B', -1, "'Strict' not Allowed in a container");
     else
-      m_bExtentType=RBXT_Strict;
+      m_ExtentType=RBXT_Strict;
     }
   else if (TF.TokenIs("Target"))
     {
     if (DynamicRate())
       CReactionBlock::Error(&RB, 'B', -1, "'Target' not Allowed in a container");
     else
-      m_bExtentType=RBXT_Target;
+      m_ExtentType=RBXT_Target;
     }
   }
 
@@ -201,7 +201,7 @@ LPCTSTR CEC_Equilibrium::GetRctString()
 void CEC_Equilibrium::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.Text  ("Equilibrium");
-  DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
+  DDB.String("ExtentType",        "",        DC_,     "",      xid_RCTExtentType,   &Eq, SetOnChange|isParm, DDBExtentTypes);
 
   m_ddKEq.BuildDataDefn(DDB, "K_Eq",  "",      DC_,     "",    xid_RCTKEquilibrium, &Eq, "Rct", "Rqd");
 
@@ -231,13 +231,6 @@ void CEC_Equilibrium::BuildDataDefn(DataDefnBlk & DDB)
 
 flag CEC_Equilibrium::DataXchg(DataChangeBlk & DCB)
   {
-  switch (DCB.lHandle)
-    {
-    case xid_ExtentError:
-      DCB.D=ExtentError();
-      return 1;
-    }
-
   if (m_ddKEq.DataXchg(DCB, xid_RCTKEquilibrium, &Eq))
     return 1;
   if (m_ddDefinedResTime.DataXchg(DCB, xid_RTRef, &Eq))
@@ -247,7 +240,7 @@ flag CEC_Equilibrium::DataXchg(DataChangeBlk & DCB)
   if (m_ddExtentRqd.DataXchg(DCB, xid_RCTExtent, &Eq))
     return 1;
 
-  return 0;
+  return CR_EqnControl::DataXchg(DCB);
   };
 
 //---------------------------------------------------------------------------
@@ -358,8 +351,7 @@ void CEC_EquilTXPoly::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.Text  ("EquilTXPoly");
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
-  DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
+  DDB.String("ExtentType",        "",        DC_,     "",      xid_RCTExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
   DDB.Double("K_Eq",             "",        DC_,     "",      &dK_Eq,                  &Eq, isResult);
@@ -389,13 +381,6 @@ void CEC_EquilTXPoly::BuildDataDefn(DataDefnBlk & DDB)
 
 flag CEC_EquilTXPoly::DataXchg(DataChangeBlk & DCB)
   {
-  switch (DCB.lHandle)
-    {
-    case xid_ExtentError:
-      DCB.D=ExtentError();
-      return 1;
-    }
-
   if (m_ddDefinedResTime.DataXchg(DCB, xid_RTRef, &Eq))
     return 1;
   if (m_ddActualResTime.DataXchg(DCB, xid_ResTime, &Eq))
@@ -403,7 +388,7 @@ flag CEC_EquilTXPoly::DataXchg(DataChangeBlk & DCB)
   if (m_ddExtentRqd.DataXchg(DCB, xid_RCTExtent, &Eq))
     return 1;
 
-  return 0;
+  return CR_EqnControl::DataXchg(DCB);
   };
 
 //---------------------------------------------------------------------------
@@ -581,8 +566,7 @@ void CEC_Ratio::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.Text  ("Ratio");
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
-  DDB.Byte  ("ExtentType",        "",                       DC_,     "",    &m_bExtentType,   &Eq, SetOnChange|isParm, DDBExtentTypes);
+  DDB.String("ExtentType",        "",                       DC_,     "",    xid_RCTExtentType,   &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
   m_ddKEq.BuildDataDefn(DDB, "K_Eq",  "EquilbriumRatio",    DC_,     "",    xid_RCTKEquilibrium, &Eq, "Rct", "Rqd");
@@ -619,13 +603,6 @@ void CEC_Ratio::BuildDataDefn(DataDefnBlk & DDB)
 
 flag CEC_Ratio::DataXchg(DataChangeBlk & DCB)
   {
-  switch (DCB.lHandle)
-    {
-    case xid_ExtentError:
-      DCB.D=ExtentError();
-      return 1;
-    }
-
   if (m_ddKEq.DataXchg(DCB, xid_RCTKEquilibrium, &Eq))
     return 1;
   if (m_ddDefinedResTime.DataXchg(DCB, xid_RTRef, &Eq))
@@ -788,13 +765,26 @@ LPCTSTR CEC_FracExt::GetRctString()
     {
     m_AsString=m_pFactory->ClassId();
 
-    switch (m_bExtentType)
+    switch (m_ExtentType)
       {
       case RBXT_Target:
         m_AsString += " Strict";
         break;
       case RBXT_Strict:
         m_AsString += " Target";
+        break;
+      default:
+        switch (RB.ExtentType())
+          {
+          case RBXT_Target:
+            m_AsString += " Strict";
+            break;
+          case RBXT_Strict:
+            m_AsString += " Target";
+            break;
+          default:
+            _asm int 3; // should not get here
+          }
       }
     }
 
@@ -828,8 +818,7 @@ void CEC_FracExt::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text  (T());
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
-  DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
+  DDB.String("ExtentType",        "",        DC_,     "",      xid_RCTExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
   if (m_iXSpcId>=0)
@@ -891,19 +880,11 @@ void CEC_FracExt::BuildDataDefnEnd(DataDefnBlk & DDB)
 
 flag CEC_FracExt::DataXchg(DataChangeBlk & DCB)
   {
-  switch (DCB.lHandle)
-    {
-    case xid_ExtentError:
-      DCB.D=ExtentError();
-      return 1;
-    default:
-      break;
-    }
   if (m_ddFracRate.DataXchg(DCB, xid_RCTFracRate, &Eq))
     return 1;
   if (m_ddExtentRqd.DataXchg(DCB, xid_RCTExtent, &Eq))
     return 1;
-  return 0;
+  return CR_EqnControl::DataXchg(DCB);
   };
 
 //---------------------------------------------------------------------------
@@ -1065,8 +1046,7 @@ void CEC_FinalConc::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text  (T());
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
-  DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
+  DDB.String("ExtentType",        "",        DC_,     "",      xid_RCTExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
   if (m_Spc.m_ReactTerm>=0 || m_Spc.m_ProdTerm>=0)
@@ -1107,7 +1087,7 @@ flag CEC_FinalConc::DataXchg(DataChangeBlk & DCB)
 
   if (m_ddRqdConc.DataXchg(DCB, xid_RCTExtent, &Eq))
     return 1;
-  return 0;
+  return CR_EqnControl::DataXchg(DCB);
   };
 
 //---------------------------------------------------------------------------
@@ -1266,8 +1246,7 @@ void CEC_MSFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text  (T());
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
-  DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,    &Eq, SetOnChange|isParm, DDBExtentTypes);
+  DDB.String("ExtentType",        "",        DC_,     "",      xid_RCTExtentType,    &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
   if (m_Spc.m_ReactTerm>=0 || m_Spc.m_ProdTerm>=0)
@@ -1286,16 +1265,9 @@ void CEC_MSFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
 
 flag CEC_MSFinalFrac::DataXchg(DataChangeBlk & DCB)
   {
-  switch (DCB.lHandle)
-    {
-    case xid_ExtentError:
-      DCB.D=ExtentError();
-      return 1;
-    }
-
   if (m_ddRqdFrac.DataXchg(DCB, xid_RCTExtent, &Eq))
     return 1;
-  return 0;
+  return CR_EqnControl::DataXchg(DCB);
   };
 
 //---------------------------------------------------------------------------
@@ -1412,8 +1384,7 @@ void CEC_MLFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text  (T());
   DDEF_Flags VFlags=DDB.GetVisibility();
-  DDB.Visibility(NSHM_All, Eq.RB.ExtentType()==RBXT_Individual);
-  DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,    &Eq, SetOnChange|isParm, DDBExtentTypes);
+  DDB.String("ExtentType",        "",        DC_,     "",      xid_RCTExtentType,    &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
   if (m_Spc.m_ReactTerm>=0 || m_Spc.m_ProdTerm>=0)
@@ -1432,16 +1403,9 @@ void CEC_MLFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
 
 flag CEC_MLFinalFrac::DataXchg(DataChangeBlk & DCB)
   {
-  switch (DCB.lHandle)
-    {
-    case xid_ExtentError:
-      DCB.D=ExtentError();
-      return 1;
-    }
-
   if (m_ddRqdFrac.DataXchg(DCB, xid_RCTExtent, &Eq))
     return 1;
-  return 0;
+  return CR_EqnControl::DataXchg(DCB);
   };
 
 //---------------------------------------------------------------------------

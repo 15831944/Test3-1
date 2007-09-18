@@ -1005,9 +1005,10 @@ static DDBValueLst DDBVersion[] = {
   {0}};
 
 static DDBValueLst DDBExtentTypes[] = {
-  { RBXT_Strict,      "All_Strict"},
-  { RBXT_Target,      "All_Target"},   
-  { RBXT_Individual,  "Individual"},  
+  { RBXT_Strict,      "All_Strict", MDD_Hidden},
+  { RBXT_Target,      "All_Target", MDD_Hidden},   
+  { RBXT_Strict,      "Strict"      },
+  { RBXT_Target,      "Target"      },   
   {0}};
 
 static DDBValueLst DDBExtraInfo[] = {
@@ -1056,7 +1057,7 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
       DDB.Button("Reload_RCT",      "",    DC_,     "",      xidReloadRCTBtn, this, isParm);
       DDB.Button("Browse_RCT",      "",    DC_,     "",      xidBrowseRCTBtn, this, isParm);
       DDB.Text  ("");
-      DDB.Byte  ("ExtentType",      "",    DC_,     "",      &m_ExtentType,   this, isParm|SetOnChange, DDBExtentTypes);
+      DDB.Int  ("ExtentType",      "",    DC_,     "",      &m_ExtentType,   this, isParm|SetOnChange, DDBExtentTypes);
       DDB.Text  ("");
       }
 

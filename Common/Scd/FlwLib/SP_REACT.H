@@ -293,9 +293,8 @@ class DllImportExport CRCTTokenFile : public CTokenFile
 
 enum RBStates { RBS_Empty, RBS_Error, RBS_OK};
 
-const byte RBXT_Strict      = 1;
-const byte RBXT_Target      = 2;
-const byte RBXT_Individual  = 3;
+const sint RBXT_Strict      = 0;
+const sint RBXT_Target      = 1;
 
 const int MaxRctCIs = 16;
 
@@ -553,7 +552,7 @@ class DllImportExport CReactionBlock : public TaggedObject
 
     bool           m_bFindFinalT;
 
-    byte           m_ExtentType;
+    int            m_ExtentType;
 
     double         m_TimeIncAtSolve;
 
