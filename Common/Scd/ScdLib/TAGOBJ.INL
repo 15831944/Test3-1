@@ -2834,7 +2834,7 @@ INLINE int TaggedObject::TestValidTag(char* pTag, int NumStartBad)
     return 2;
   if (pTag[0]=='\'' || pTag[0]=='=')
     return 3;
-  if (strpbrk(pTag, " ,%\t\n\v\f\r"))
+  if (strpbrk(pTag, " ,%\t\n\v\f\r{"))
     return 4;
 //  if (strchr(pTag, ' ') || 
 //      strchr(pTag, ',') || 
@@ -2864,7 +2864,7 @@ INLINE int TaggedObject::TestValidTagDot(char* pTag, int NumStartBad)
     return 2;
   if (pTag[0]=='\'' || pTag[0]=='=')
     return 3;
-  if (strpbrk(pTag, " .,%\t\n\v\f\r"))
+  if (strpbrk(pTag, " .,%\t\n\v\f\r{"))
     return 4;
   //if (strchr(pTag, ' ') || 
   //    strchr(pTag, '.') || 
