@@ -37,7 +37,24 @@ COleVariant GetVariant(PkDataUnion* pItem, CCnvIndex iCnv, char* pCnvTxt)
     case tt_Double : V.ChangeType(VT_R8); V.dblVal = ((iCnv)==0 ? pItem->Double : Cnvs[(iCnv)]->Human(pItem->Double, pCnvTxt)); break;
     case tt_pChar  :
     case tt_ppChar :
-    case tt_Strng  : V = (const char*)((char*)&(pItem->Len)+sizeof(pItem->Len)); break;
+    case tt_Strng  : 
+      if (IsTimeCnv(iCnv) && pCnvTxt)
+        {
+        CDataCnv & C=*Cnvs[iCnv];
+        CTimeValue Value((LPCTSTR)((char*)&(pItem->Len)+sizeof(pItem->Len)));
+        CString sValue; 
+        if (0) // Force As String in Excel!
+          {
+          sValue = "'";
+          sValue += Value.Format(pCnvTxt);
+          }
+        else
+          sValue=Value.Format(pCnvTxt);
+        V = sValue; 
+        }
+      else
+        V = (const char*)((char*)&(pItem->Len)+sizeof(pItem->Len)); 
+      break;
     case tt_NULL : break;
     default : VERIFY(0); break;
     }
