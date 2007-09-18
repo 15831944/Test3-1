@@ -72,7 +72,7 @@ void CR_Src::BuildDataDefn(DataDefnBlk & DDB)
       Strng Spc(Spcs[k].m_SpcName());
       if (PrjFileVerNo()<22)
         Spc+=".Dmnd";
-      DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  xidRCTSrcMs, this, isResult|0);
+      DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  xidRCTSrcMs+k, this, isResult|0);
       }
 
     if (!HeatSkipMethod())
@@ -449,7 +449,7 @@ void CR_Snk::BuildDataDefn(DataDefnBlk & DDB)
       Strng Spc(Spcs[k].m_SpcName());
       if (PrjFileVerNo()<22)
         Spc+=".Excs";
-      DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  xidRCTSnkMs, this, isResult|0);
+      DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  xidRCTSnkMs+k, this, isResult|0);
       }
 
     if (!HeatSkipMethod())
