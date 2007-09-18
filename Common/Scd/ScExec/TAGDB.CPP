@@ -25,6 +25,8 @@
 
 #define dbgShowTiming       0
 
+#define QUOTETAGS           0
+
 typedef char BigBuffer[65536];
 
 //#define ConnectClassName "Connects"
@@ -772,7 +774,9 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                     case tt_Text  :
                       {
                       CString V(pItem->Value()->GetString());
-                      if (V.GetLength()>0 && V.FindOneOf("<[(\"")>=0)
+#if QUOTETAGS 
+// why was this here ??????
+                      if (V.GetLength()>0 && V.FindOneOf("<[(\"")>=0) 
                         {
                         CString S("\"");
                         S+=V;
@@ -780,6 +784,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                         KWData[nKWFlds]=T2BSTR(S); 
                         }
                       else
+#endif
                         KWData[nKWFlds]=T2BSTR(V);//pItem->Value()->GetString()); 
                       break;
                       }
@@ -1249,13 +1254,35 @@ int CTagDBMDB::LoadObject(pchar Tag, CXM_ObjectData *pObjData)
 //#endif
 
 //------------------------------------------------------------------------
+
+#if QUOTETAGS
+
+CString SafeDBKey(LPSTR Tag)
+  {
+  CString T("\"");
+  T+=Tag;
+  T+="\"";
+  dbgpln("SafeDBKey %-30s > %s", Tag, T);
+  return T;
+  }
+
+#else 
+
+LPCSTR SafeDBKey(LPCSTR Tag)
+  {
+  return Tag; 
+  }
+
+#endif
+
+
+//------------------------------------------------------------------------
 /*Load the actual data for an object based on info from a record in the 
 TagReg table. Note that this function can be called recursivly if a field
 in a record refers to another table. Tag names are built using a dot
 notation for each level.*/
 int CTagDBMDB::LoadObj(flag IsConn, pchar pFullTag, pchar pTag, pchar pClass, CXM_ObjectData *pObjData, /*CPkDataItem * &pItem,*/ flag LoadArray)
   {
-  /**/
 #if dbgLoadObjMDB
   static long LoadObjCall=0;
   dbgpln("LoadObj[%4i]:%s %s %s", LoadObjCall++, pFullTag, pTag, pClass);
@@ -1304,19 +1331,22 @@ ReTry:
         if (m_bWithRevisionNo)
           {
           if (UseIndex)
-            pRS->Seek(MyKeyArray(m_lRevisionNo, pFullTag), ADODB::adSeekAfterEQ);
+            pRS->Seek(MyKeyArray(m_lRevisionNo, (LPCSTR)SafeDBKey(pFullTag)), ADODB::adSeekAfterEQ);
           else
             pRS->Filter=(LPCTSTR)TagFilterString(m_lRevisionNo, pFullTag, ">=");
           }
         else
           {
           if (UseIndex)
-            pRS->Seek(MyKeyArray(pFullTag), ADODB::adSeekAfterEQ);
+            pRS->Seek(MyKeyArray((LPCSTR)SafeDBKey(pFullTag)), ADODB::adSeekAfterEQ);
           else
             pRS->Filter=(LPCTSTR)TagFilterString(pFullTag, ">=");
           }
         //dbgpln("RecCount: %i", pRS->RecordCount);
         flag Exists = (!pRS->adEOF);
+#if dbgLoadObjectMDB
+        dbgpln("%s", Exists?"Exists":"Missing");
+#endif
         if (Exists)
           //if (pRS->Seek(">=", &VTag, &VRev))
           {
@@ -1375,20 +1405,22 @@ ReTry:
         if (m_bWithRevisionNo)
           {
           if(UseIndex)
-            pRS->Seek(MyKeyArray(m_lRevisionNo, pFullTag), ADODB::adSeekFirstEQ);
+            pRS->Seek(MyKeyArray(m_lRevisionNo, (LPCSTR)SafeDBKey(pFullTag)), ADODB::adSeekFirstEQ);
           else
             pRS->Filter=(LPCTSTR)TagFilterString(m_lRevisionNo, pFullTag, "=");
           }
         else
           {
           if (UseIndex)
-            pRS->Seek(MyKeyArray(pFullTag), ADODB::adSeekFirstEQ);
+            pRS->Seek(MyKeyArray((LPCSTR)SafeDBKey(pFullTag)), ADODB::adSeekFirstEQ);
           else
             pRS->Filter=(LPCTSTR)TagFilterString(pFullTag, "=");
           }
         //dbgpln("RecCount: %i", pRS->RecordCount);
         flag Exists = (!pRS->adEOF);
-
+#if dbgLoadObjectMDB
+        dbgpln("%s", Exists?"Exists":"Missing");
+#endif
         if (Exists)
           nRecs=1; //one record for a single item
         }
