@@ -697,12 +697,24 @@ int CCmdSetTag::ExecCmd(CCmdExec* pXCmd)
 class CCmdLoadSnapshot : public CCmdBase
   {
   public:
-    Strng sFilename;
 
-    CCmdLoadSnapshot(char* pFilename) : CCmdBase(ComCmd_LoadSnapshot) { sFilename.FnSearchExpand(pFilename, AF_All|AF_BackupFiles); flags |= CmdFlagDoNotExecNext; };
+    CCmdLoadSnapshot(char* pFilename) : \
+      CCmdBase(ComCmd_LoadSnapshot) 
+      { 
+      m_Data.m_sFileName.FnSearchExpand(pFilename, AF_All|AF_BackupFiles); 
+      flags |= CmdFlagDoNotExecNext; 
+      };
+    CCmdLoadSnapshot(const CScdCmdSnapshot & Data) : \
+      CCmdBase(ComCmd_LoadSnapshot) 
+      { 
+      m_Data.m_sFileName = Data.m_sFileName; 
+      flags |= CmdFlagDoNotExecNext; 
+      };
     virtual ~CCmdLoadSnapshot(){};
-    virtual int ExecCmd(CCmdExec* pXCmd) { gs_pPrj->DoLoadSnapShotScenario(True, sFilename()); return 0; };
-    virtual char* Desc(char* Buff) { sprintf(Buff, "%s(\"%s\")", CmdNames(CmdID), sFilename()); return Buff; };
+    virtual int ExecCmd(CCmdExec* pXCmd) { gs_pPrj->DoLoadSnapShotScenario(True, m_Data.m_sFileName()); return 0; };
+    virtual char* Desc(char* Buff) { sprintf(Buff, "%s(\"%s\")", CmdNames(CmdID), m_Data.m_sFileName()); return Buff; };
+
+    CScdCmdSnapshot m_Data;
   };
 
 //---------------------------------------------------------------------------
@@ -710,12 +722,31 @@ class CCmdLoadSnapshot : public CCmdBase
 class CCmdSaveSnapshot : public CCmdBase
   {
   public:
-    Strng sFilename;
-
-    CCmdSaveSnapshot(char* pFilename) : CCmdBase(ComCmd_SaveSnapshot) { sFilename.FnSearchExpand(pFilename, AF_All|AF_BackupFiles); flags |= CmdFlagDoNotExecNext; };
+    CCmdSaveSnapshot(char* pFilename) : \
+      CCmdBase(ComCmd_SaveSnapshot) 
+      { 
+      m_Data.m_sFileName.FnSearchExpand(pFilename, AF_All|AF_BackupFiles);
+      flags |= CmdFlagDoNotExecNext; 
+      };
+    CCmdSaveSnapshot(const CScdCmdSnapshot & Data) : \
+      CCmdBase(ComCmd_LoadSnapshot) 
+      { 
+      m_Data.m_sFileName = Data.m_sFileName; 
+      flags |= CmdFlagDoNotExecNext; 
+      };
     virtual ~CCmdSaveSnapshot(){};
-    virtual int ExecCmd(CCmdExec* pXCmd) { gs_pPrj->DoSaveSnapShotScenario(True, sFilename.Len()>0 ? sFilename() : "AutoInc"); return 0; };
-    virtual char* Desc(char* Buff) { sprintf(Buff, "%s(\"%s\")", CmdNames(CmdID), sFilename.Len()>0 ? sFilename() : ""); return Buff; };
+    virtual int ExecCmd(CCmdExec* pXCmd)
+      {
+      gs_pPrj->DoSaveSnapShotScenario(True, m_Data.m_sFileName.Len()>0 ? m_Data.m_sFileName() : "AutoInc"); 
+      return 0; 
+      };
+    virtual char* Desc(char* Buff) 
+      { 
+      sprintf(Buff, "%s(\"%s\")", CmdNames(CmdID), m_Data.m_sFileName.Len()>0 ? m_Data.m_sFileName() : ""); 
+      return Buff; 
+      };
+
+    CScdCmdSnapshot m_Data;
   };
 
 //---------------------------------------------------------------------------
@@ -1058,9 +1089,9 @@ int CCmdExec::AddCmd(char* Txt)
   else if (_stricmp(f[0], CmdNames(ComCmd_CloseProject))==0 && nParms==0)
     AddCmd(new CCmdCloseProject());
   else if (_stricmp(f[0], CmdNames(ComCmd_LoadSnapshot))==0 && nParms==1)
-    AddCmd(new CCmdLoadSnapshot(StrQuotesTrim(f[1])));
+    AddCmd(new CCmdLoadSnapshot(CScdCmdSnapshot(StrQuotesTrim(f[1]))));
   else if (_stricmp(f[0], CmdNames(ComCmd_SaveSnapshot))==0 && nParms==1)
-    AddCmd(new CCmdSaveSnapshot(StrQuotesTrim(f[1])));
+    AddCmd(new CCmdSaveSnapshot(CScdCmdSnapshot(StrQuotesTrim(f[1]))));
   else if (_stricmp(f[0], CmdNames(ComCmd_LoadScenario))==0 && nParms==1)
     AddCmd(new CCmdLoadScenario(StrQuotesTrim(f[1])));
   else if (_stricmp(f[0], CmdNames(ComCmd_SaveScenario))==0 && nParms==1)
@@ -1627,12 +1658,12 @@ if (dbgDoComCmd())
       CScdCmdImportExport *pCmd=(CScdCmdImportExport*)Data;
 
       CNeutralImportExport NExport;
-      bool Failed=!NExport.DoExport(pCmd->m_iOptions, pCmd->m_pGraphicsDatabase, pCmd->m_pModelDatabase);
+      bool Failed=!NExport.DoExport(pCmd->m_iOptions, pCmd->m_sGraphicsDatabase, pCmd->m_sModelDatabase);
 
       gs_Events.Send(ComCmd_ExportNeutralDB, Failed? 1:0);
 
       if (Failed)
-        LogError("COMCmd", 0, "Neutral Database import %s:%s failed!", pCmd->m_pGraphicsDatabase, pCmd->m_pModelDatabase);
+        LogError("COMCmd", 0, "Neutral Database import %s:%s failed!", pCmd->m_sGraphicsDatabase, pCmd->m_sModelDatabase);
       break;
       }
 
@@ -1641,19 +1672,20 @@ if (dbgDoComCmd())
       CScdCmdImportExport *pCmd=(CScdCmdImportExport*)Data;
 
       CNeutralImportExport NImport;
-      NImport.SetImportTagFixups(pCmd->m_iRule, pCmd->m_pPrefix, pCmd->m_pSuffix, NULL, NULL);
-      bool Failed=!NImport.DoImportDB(pCmd->m_iOptions, pCmd->m_pGraphicsDatabase, pCmd->m_pModelDatabase);
+      NImport.SetImportTagFixups(pCmd->m_iRule, pCmd->m_sPrefix, pCmd->m_sSuffix, NULL, NULL);
+      bool Failed=!NImport.DoImportDB(pCmd->m_iOptions, pCmd->m_sGraphicsDatabase, pCmd->m_sModelDatabase);
 
       gs_Events.Send(ComCmd_ImportNeutralDB, Failed? 1:0);
 
       if (Failed)
-        LogError("COMCmd", 0, "Neutral Database import %s:%s failed!", pCmd->m_pGraphicsDatabase, pCmd->m_pModelDatabase);
+        LogError("COMCmd", 0, "Neutral Database import %s:%s failed!", pCmd->m_sGraphicsDatabase, pCmd->m_sModelDatabase);
       break;
       }
     case ComCmd_LoadSnapshot :
     case ComCmd_LoadScenario:
       {
-      LPTSTR pNm=(LPTSTR)Data;
+      CScdCmdSnapshot &Cmd=*(CScdCmdSnapshot*)Data;
+      LPTSTR pNm=Cmd.m_sFileName();
       long Res=gs_pPrj->DoLoadSnapShotScenario(ThisCmd==ComCmd_LoadSnapshot, pNm)?0:1;
       delete pCmdBlk;
       gs_Events.Send(ThisCmd, /*pCmdBlk,*/ Res);
@@ -1662,7 +1694,8 @@ if (dbgDoComCmd())
     case ComCmd_SaveSnapshot:
     case ComCmd_SaveScenario:
       {
-      LPTSTR pNm=(LPTSTR)Data;
+      CScdCmdSnapshot &Cmd=*(CScdCmdSnapshot*)Data;
+      LPTSTR pNm=Cmd.m_sFileName();
       long Res=gs_pPrj->DoSaveSnapShotScenario(ThisCmd==ComCmd_SaveSnapshot, pNm)?0:1;
       delete pCmdBlk;
       gs_Events.Send(ThisCmd, /*pCmdBlk,*/ Res);

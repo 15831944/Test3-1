@@ -15,6 +15,52 @@ _FWDDEF(CCmdExec)
 
 // ==========================================================================
 
+class /*DllImportExport*/ CScdCmdImportExport
+  {
+  public:
+    CScdCmdImportExport()
+      {
+      m_iOptions=eNDB_StdExport;
+
+      m_iRule=eFixup_NoChange;
+      }
+
+    eScdNDBOptions      m_iOptions;
+    CString             m_sGraphicsDatabase;
+    CString             m_sModelDatabase;
+
+    eScdTagFixupRules   m_iRule;
+    CString             m_sPrefix;
+    CString             m_sSuffix;
+  };
+
+class /*DllImportExport*/ CScdCmdSnapshot
+  {
+  public:
+    CScdCmdSnapshot()
+      {
+      }
+    CScdCmdSnapshot(LPCTSTR pFileName)
+      {
+      m_sFileName = pFileName;
+      }
+
+    CScdCmdSnapshot(const CScdCmdSnapshot & Data)
+      {
+      *this=Data;
+      }
+    CScdCmdSnapshot&operator=(const CScdCmdSnapshot & Data)
+      {
+      m_sFileName = Data.m_sFileName;
+      return * this;
+      }
+
+
+    Strng               m_sFileName;
+  };
+
+// ==========================================================================
+
 class CCmdBase
   {
   public:

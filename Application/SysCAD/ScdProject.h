@@ -22,6 +22,7 @@ class ATL_NO_VTABLE CScdProject :
     CScdProject() : CScdCOCmdBase(WMU_COM_APP)
       {
       //m_pUnkMarshaler = NULL;
+      m_iSeqNo=-1;
       }
 
     DECLARE_REGISTRY_RESOURCEID(IDR_SCDPROJECT)
@@ -59,7 +60,7 @@ class ATL_NO_VTABLE CScdProject :
     CComPtr<IScdAppTags   > m_pAppTags  ;
     CComPtr<IScdSolver    > m_pSolver   ;
     CComPtr<IScdReports   > m_pReports  ;
-    CComPtr<IScdSnapshot  > m_pSnapshot ;
+    //CComPtr<IScdSnapshot  > m_pSnapshot ;
     CComPtr<IScdReplay    > m_pReplay   ;
     CComPtr<IScdOPCServer > m_pOPCServer;
     CComPtr<IScdIOMarshal > m_pIOMarshal;
@@ -82,7 +83,7 @@ class ATL_NO_VTABLE CScdProject :
     STDMETHOD(get_Tags)(/*[out, retval]*/ IScdAppTags ** pTags);
     STDMETHOD(get_SpecieDefns)(/*[out, retval]*/ IScdSpecieDefns ** pSpecieDefns);
     STDMETHOD(get_Solver)(/*[out, retval]*/ IScdSolver ** pSolver);
-    STDMETHOD(get_Snapshot)(/*[out, retval]*/ IScdSnapshot ** pSnapshot);
+    //STDMETHOD(get_Snapshot)(/*[out, retval]*/ IScdSnapshot ** pSnapshot);
     STDMETHOD(get_Reports)(/*[out, retval]*/ IScdReports ** pReport);
     STDMETHOD(get_Historian)(/*[out, retval]*/ IScdHistorian ** pHistorian);
     STDMETHOD(get_Trends)(/*[out, retval]*/ IScdTrends ** pTrends);
@@ -95,6 +96,12 @@ class ATL_NO_VTABLE CScdProject :
     STDMETHOD(get_PrjFolder)(BSTR* pVal);
     STDMETHOD(ExportNeutralDB)(eScdNDBOptions Options, BSTR GraphicsDatabase, BSTR ModelDatabase);
     STDMETHOD(ImportNeutralDB)(eScdNDBOptions Options, BSTR GraphicsDatabase, BSTR ModelDatabase, IScdTagFixup * TagFixups);
+    STDMETHOD(SaveSnapshot)(BSTR FileName, long SeqStart);
+    STDMETHOD(LoadSnapshot)(BSTR FileName, long NoInSeq);
+
+    long    m_iSeqNo;
+    CString m_sSnapName;
+
   };
 
 #endif //__SCDPROJECT_H_

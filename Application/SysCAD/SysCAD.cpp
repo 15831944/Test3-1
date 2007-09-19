@@ -23,7 +23,7 @@
 #include "ScdReplay.h"
 #include "ScdReport.h"
 #include "ScdReports.h"
-#include "ScdSnapshot.h"
+//#include "ScdSnapshot.h"
 #include "ScdOPCServer.h"
 #include "ScdIOMarshal.h"
 #include "ScdDDEServer.h"
@@ -3689,7 +3689,7 @@ BEGIN_OBJECT_MAP(ObjectMap)
   OBJECT_ENTRY(CLSID_ScdReplay      , CScdReplay     )
   OBJECT_ENTRY(CLSID_ScdReport      , CScdReport     )
   OBJECT_ENTRY(CLSID_ScdReports     , CScdReports    )
-  OBJECT_ENTRY(CLSID_ScdSnapshot    , CScdSnapshot   )
+  //OBJECT_ENTRY(CLSID_ScdSnapshot    , CScdSnapshot   )
   OBJECT_ENTRY(CLSID_ScdOPCServer   , CScdOPCServer  )
   OBJECT_ENTRY(CLSID_ScdIOMarshal   , CScdIOMarshal  )
   OBJECT_ENTRY(CLSID_ScdDDEServer   , CScdDDEServer  )

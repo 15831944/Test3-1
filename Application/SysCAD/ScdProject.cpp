@@ -2,9 +2,11 @@
 #include "stdafx.h"
 #include "SysCAD_i.h"
 #include "ScdProject.h"
+#include "scdcomcmds.h"
 #include "licbase.h"
-#include ".\scdproject.h"
-#include ".\neutralmdl.h"
+#include "scdproject.h"
+#include "neutralmdl.h"
+#include "cmd_mngr.h"
 
 #include "project.h"
 #include "tagvdoc.h"
@@ -21,7 +23,7 @@ HRESULT CScdProject::FinalConstruct()
   FC_ROF(m_pAppTags   .CoCreateInstance(CLSID_ScdAppTags  ));
   FC_ROF(m_pSolver    .CoCreateInstance(CLSID_ScdSolver   ));
   FC_ROF(m_pReports   .CoCreateInstance(CLSID_ScdReports  ));
-  FC_ROF(m_pSnapshot  .CoCreateInstance(CLSID_ScdSnapshot ));
+  //FC_ROF(m_pSnapshot  .CoCreateInstance(CLSID_ScdSnapshot ));
   FC_ROF(m_pReplay    .CoCreateInstance(CLSID_ScdReplay   ));
   FC_ROF(m_pOPCServer .CoCreateInstance(CLSID_ScdOPCServer));
   FC_ROF(m_pIOMarshal .CoCreateInstance(CLSID_ScdIOMarshal));
@@ -33,7 +35,7 @@ HRESULT CScdProject::FinalConstruct()
   AddChildEvents(m_pAppTags.p  );
   AddChildEvents(m_pSolver.p   );
   AddChildEvents(m_pReports.p  );
-  AddChildEvents(m_pSnapshot.p );
+  //AddChildEvents(m_pSnapshot.p );
   AddChildEvents(m_pReplay.p   );
   AddChildEvents(m_pOPCServer.p);
   AddChildEvents(m_pIOMarshal.p);
@@ -50,7 +52,7 @@ void CScdProject::FinalRelease()
   m_pAppTags   .Release();
   m_pSolver    .Release();
   m_pReports   .Release();
-  m_pSnapshot  .Release();
+  //m_pSnapshot  .Release();
   m_pReplay    .Release();
   m_pOPCServer .Release();
   m_pIOMarshal .Release();
@@ -123,14 +125,14 @@ STDMETHODIMP CScdProject::get_Reports(IScdReports **pReports)
   SCD_COMEXIT
   }
 
-STDMETHODIMP CScdProject::get_Snapshot(IScdSnapshot **pSnapshot)
-  {
-  appSCD_COMENTRYGET(long, pSnapshot)
-    {
-    Scd.ReturnH(m_pSnapshot.CopyTo(pSnapshot));
-    }
-  SCD_COMEXIT
-  }
+//STDMETHODIMP CScdProject::get_Snapshot(IScdSnapshot **pSnapshot)
+//  {
+//  appSCD_COMENTRYGET(long, pSnapshot)
+//    {
+//    Scd.ReturnH(m_pSnapshot.CopyTo(pSnapshot));
+//    }
+//  SCD_COMEXIT
+//  }
 
 STDMETHODIMP CScdProject::get_Solver(IScdSolver **pSolver)
   {
@@ -239,8 +241,8 @@ STDMETHODIMP CScdProject::ExportNeutralDB(eScdNDBOptions Options, BSTR bsGraphic
     SCD_LclStr(ModelDatabase, bsModelDatabase);
     CScdCmdImportExport Cmd;
     Cmd.m_iOptions=Options;
-    Cmd.m_pGraphicsDatabase=GraphicsDatabase;
-    Cmd.m_pModelDatabase=ModelDatabase;
+    Cmd.m_sGraphicsDatabase=GraphicsDatabase;
+    Cmd.m_sModelDatabase=ModelDatabase;
 
     switch(PostComCmd(ComCmd_ExportNeutralDB, (long)&Cmd))
       {
@@ -289,8 +291,8 @@ STDMETHODIMP CScdProject::ImportNeutralDB(eScdNDBOptions Options, BSTR bsGraphic
     SCD_LclStr(ModelDatabase, bsModelDatabase);
     CScdCmdImportExport Cmd;
     Cmd.m_iOptions=Options;
-    Cmd.m_pGraphicsDatabase=GraphicsDatabase;
-    Cmd.m_pModelDatabase=ModelDatabase;
+    Cmd.m_sGraphicsDatabase=GraphicsDatabase;
+    Cmd.m_sModelDatabase=ModelDatabase;
 
     bool Failed=false;
     if (TagFixups)
@@ -302,8 +304,8 @@ STDMETHODIMP CScdProject::ImportNeutralDB(eScdNDBOptions Options, BSTR bsGraphic
       Failed=Failed||FAILED(TagFixups->get_String2(String2.GetAddress()));
       
       Cmd.m_iRule=iFixupRule;
-      Cmd.m_pPrefix=String1;
-      Cmd.m_pSuffix=String2;
+      Cmd.m_sPrefix=(LPCTSTR)String1;
+      Cmd.m_sSuffix=(LPCTSTR)String2;
       }
 
     if (Failed)
@@ -323,3 +325,82 @@ STDMETHODIMP CScdProject::ImportNeutralDB(eScdNDBOptions Options, BSTR bsGraphic
     }
   SCD_COMEXIT
   }
+
+
+STDMETHODIMP CScdProject::SaveSnapshot(BSTR bsFileName, long SeqStart)
+  {
+  appSCD_COMENTRY(long)
+    {
+    SCD_LclStr(FileName, bsFileName);
+    CScdCmdSnapshot Cmd;
+    
+    if (strlen(FileName)>0)
+      {
+      m_iSeqNo = SeqStart;
+      if (m_iSeqNo>=0)
+        m_sSnapName = FileName;
+      else
+        Cmd.m_sFileName = FileName;
+      }
+    if (m_iSeqNo>=0)
+      {
+      if (m_sSnapName.GetLength()==0)
+        m_sSnapName="Snap";
+
+      Cmd.m_sFileName.Set("%s%03i", m_sSnapName, m_iSeqNo++);
+      }
+  
+    bool Failed=false;
+
+    if (Failed)
+      return Scd.Return(eScdGraphicCode_GrfNotCreated, "SaveSnapshot %s:%s failed!", Cmd.m_sFileName());
+
+    switch(PostComCmd(ComCmd_SaveSnapshot, (long)&Cmd))
+      {
+      case CScdCOCmdBase::SS_CallTimeout:
+        Scd.Return(HRESULT_ERR(2), "Async Call Timeout");
+        break;
+      case CScdCOCmdBase::SS_CallReturned:
+      case CScdCOCmdBase::SS_CallASync:
+        break;
+      }
+    //    if (Scd.HResultOK())
+    //      Scd.ReturnH(m_pProject.CopyTo(pProject));
+    }
+  SCD_COMEXIT
+  };
+
+STDMETHODIMP CScdProject::LoadSnapshot(BSTR bsFileName, long NoInSeq)
+  {
+  appSCD_COMENTRY(long)
+    {
+    SCD_LclStr(FileName, bsFileName);
+    CScdCmdSnapshot Cmd;
+
+    if (strlen(FileName)==0)
+      Cmd.m_sFileName="Snap";
+    else
+      Cmd.m_sFileName=FileName;
+
+    if (NoInSeq>=0)
+      Cmd.m_sFileName.Set("%s%03i", FileName, NoInSeq);
+
+    bool Failed=false;
+
+    if (Failed)
+      return Scd.Return(eScdGraphicCode_GrfNotCreated, "LoadSnapshot %s:%s failed!", Cmd.m_sFileName());
+
+    switch(PostComCmd(ComCmd_LoadSnapshot, (long)&Cmd))
+      {
+      case CScdCOCmdBase::SS_CallTimeout:
+        Scd.Return(HRESULT_ERR(2), "Async Call Timeout");
+        break;
+      case CScdCOCmdBase::SS_CallReturned:
+      case CScdCOCmdBase::SS_CallASync:
+        break;
+      }
+    //    if (Scd.HResultOK())
+    //      Scd.ReturnH(m_pProject.CopyTo(pProject));
+    }
+  SCD_COMEXIT
+  };

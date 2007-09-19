@@ -84,6 +84,11 @@ Friend Class Form1
   Friend WithEvents ExportBlank As System.Windows.Forms.Button
   Public WithEvents LdAndRunMineServe As System.Windows.Forms.Button
   Public WithEvents OpenCloseMS As System.Windows.Forms.Button
+  Friend WithEvents GroupBox2 As System.Windows.Forms.GroupBox
+  Friend WithEvents LoadSnap As System.Windows.Forms.Button
+  Friend WithEvents SaveNextSnap As System.Windows.Forms.Button
+  Friend WithEvents SaveSnap As System.Windows.Forms.Button
+  Friend WithEvents SaveFirstSnap As System.Windows.Forms.Button
   Public WithEvents MSOpn As System.Windows.Forms.CheckBox
   <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
     Me.components = New System.ComponentModel.Container
@@ -114,6 +119,11 @@ Friend Class Form1
     Me.Standard = New System.Windows.Forms.Button
     Me.List2 = New System.Windows.Forms.ListBox
     Me.Frame3 = New System.Windows.Forms.GroupBox
+    Me.GroupBox2 = New System.Windows.Forms.GroupBox
+    Me.LoadSnap = New System.Windows.Forms.Button
+    Me.SaveNextSnap = New System.Windows.Forms.Button
+    Me.SaveSnap = New System.Windows.Forms.Button
+    Me.MSOpn = New System.Windows.Forms.CheckBox
     Me.CreateElec = New System.Windows.Forms.Button
     Me.CloseNoSave = New System.Windows.Forms.Button
     Me.QueryInfo = New System.Windows.Forms.Button
@@ -128,14 +138,15 @@ Friend Class Form1
     Me.FlwsheetExport = New System.Windows.Forms.Button
     Me.ImportUser = New System.Windows.Forms.Button
     Me.LdAndRunMineServe = New System.Windows.Forms.Button
+    Me.OpenCloseMS = New System.Windows.Forms.Button
     Me.Label1 = New System.Windows.Forms.Label
     Me.Label2 = New System.Windows.Forms.Label
-    Me.OpenCloseMS = New System.Windows.Forms.Button
-    Me.MSOpn = New System.Windows.Forms.CheckBox
+    Me.SaveFirstSnap = New System.Windows.Forms.Button
     Me.Frame5.SuspendLayout()
     Me.Frame1.SuspendLayout()
     Me.Frame4.SuspendLayout()
     Me.Frame3.SuspendLayout()
+    Me.GroupBox2.SuspendLayout()
     Me.Frame2.SuspendLayout()
     Me.GroupBox1.SuspendLayout()
     Me.SuspendLayout()
@@ -149,10 +160,10 @@ Friend Class Form1
     Me.Frame5.Controls.Add(Me.Label3)
     Me.Frame5.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.Frame5.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.Frame5.Location = New System.Drawing.Point(672, 48)
+    Me.Frame5.Location = New System.Drawing.Point(8, 191)
     Me.Frame5.Name = "Frame5"
     Me.Frame5.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.Frame5.Size = New System.Drawing.Size(145, 73)
+    Me.Frame5.Size = New System.Drawing.Size(120, 73)
     Me.Frame5.TabIndex = 22
     Me.Frame5.TabStop = False
     Me.Frame5.Text = "Conditions"
@@ -160,32 +171,30 @@ Friend Class Form1
     'm_sPress
     '
     Me.m_sPress.AcceptsReturn = True
-    Me.m_sPress.AutoSize = False
     Me.m_sPress.BackColor = System.Drawing.SystemColors.Window
     Me.m_sPress.Cursor = System.Windows.Forms.Cursors.IBeam
     Me.m_sPress.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.m_sPress.ForeColor = System.Drawing.SystemColors.WindowText
-    Me.m_sPress.Location = New System.Drawing.Point(80, 40)
+    Me.m_sPress.Location = New System.Drawing.Point(66, 40)
     Me.m_sPress.MaxLength = 0
     Me.m_sPress.Name = "m_sPress"
     Me.m_sPress.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.m_sPress.Size = New System.Drawing.Size(57, 19)
+    Me.m_sPress.Size = New System.Drawing.Size(44, 20)
     Me.m_sPress.TabIndex = 26
     Me.m_sPress.Text = "0"
     '
     'm_sTemp
     '
     Me.m_sTemp.AcceptsReturn = True
-    Me.m_sTemp.AutoSize = False
     Me.m_sTemp.BackColor = System.Drawing.SystemColors.Window
     Me.m_sTemp.Cursor = System.Windows.Forms.Cursors.IBeam
     Me.m_sTemp.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.m_sTemp.ForeColor = System.Drawing.SystemColors.WindowText
-    Me.m_sTemp.Location = New System.Drawing.Point(80, 16)
+    Me.m_sTemp.Location = New System.Drawing.Point(66, 16)
     Me.m_sTemp.MaxLength = 0
     Me.m_sTemp.Name = "m_sTemp"
     Me.m_sTemp.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.m_sTemp.Size = New System.Drawing.Size(57, 19)
+    Me.m_sTemp.Size = New System.Drawing.Size(44, 20)
     Me.m_sTemp.TabIndex = 25
     Me.m_sTemp.Text = "25"
     '
@@ -221,12 +230,13 @@ Friend Class Form1
     Me.DoSleep.Cursor = System.Windows.Forms.Cursors.Default
     Me.DoSleep.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.DoSleep.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.DoSleep.Location = New System.Drawing.Point(744, 128)
+    Me.DoSleep.Location = New System.Drawing.Point(144, 248)
     Me.DoSleep.Name = "DoSleep"
     Me.DoSleep.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.DoSleep.Size = New System.Drawing.Size(73, 25)
+    Me.DoSleep.Size = New System.Drawing.Size(73, 23)
     Me.DoSleep.TabIndex = 21
     Me.DoSleep.Text = "Sleep"
+    Me.DoSleep.UseVisualStyleBackColor = False
     '
     'List1
     '
@@ -235,10 +245,10 @@ Friend Class Form1
     Me.List1.Font = New System.Drawing.Font("Lucida Console", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.List1.ForeColor = System.Drawing.SystemColors.WindowText
     Me.List1.ItemHeight = 11
-    Me.List1.Location = New System.Drawing.Point(8, 280)
+    Me.List1.Location = New System.Drawing.Point(8, 299)
     Me.List1.Name = "List1"
     Me.List1.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.List1.Size = New System.Drawing.Size(401, 521)
+    Me.List1.Size = New System.Drawing.Size(401, 499)
     Me.List1.TabIndex = 2
     '
     'WideList
@@ -247,12 +257,13 @@ Friend Class Form1
     Me.WideList.Cursor = System.Windows.Forms.Cursors.Default
     Me.WideList.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.WideList.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.WideList.Location = New System.Drawing.Point(664, 160)
+    Me.WideList.Location = New System.Drawing.Point(144, 225)
     Me.WideList.Name = "WideList"
     Me.WideList.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.WideList.Size = New System.Drawing.Size(73, 25)
+    Me.WideList.Size = New System.Drawing.Size(73, 23)
     Me.WideList.TabIndex = 20
     Me.WideList.Text = "WideList"
+    Me.WideList.UseVisualStyleBackColor = False
     '
     'ScdOpn
     '
@@ -266,6 +277,7 @@ Friend Class Form1
     Me.ScdOpn.RightToLeft = System.Windows.Forms.RightToLeft.No
     Me.ScdOpn.Size = New System.Drawing.Size(17, 25)
     Me.ScdOpn.TabIndex = 18
+    Me.ScdOpn.UseVisualStyleBackColor = False
     '
     'OpenCloseLic
     '
@@ -279,11 +291,11 @@ Friend Class Form1
     Me.OpenCloseLic.Size = New System.Drawing.Size(97, 25)
     Me.OpenCloseLic.TabIndex = 17
     Me.OpenCloseLic.Text = "Open/Close Lic"
+    Me.OpenCloseLic.UseVisualStyleBackColor = False
     '
     'CfgFileBox
     '
     Me.CfgFileBox.AcceptsReturn = True
-    Me.CfgFileBox.AutoSize = False
     Me.CfgFileBox.BackColor = System.Drawing.SystemColors.Window
     Me.CfgFileBox.Cursor = System.Windows.Forms.Cursors.IBeam
     Me.CfgFileBox.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -292,14 +304,13 @@ Friend Class Form1
     Me.CfgFileBox.MaxLength = 0
     Me.CfgFileBox.Name = "CfgFileBox"
     Me.CfgFileBox.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.CfgFileBox.Size = New System.Drawing.Size(297, 19)
+    Me.CfgFileBox.Size = New System.Drawing.Size(297, 20)
     Me.CfgFileBox.TabIndex = 15
     Me.CfgFileBox.Text = "\SysCAD82\xxx\xxx.cfg"
     '
     'RootPath
     '
     Me.RootPath.AcceptsReturn = True
-    Me.RootPath.AutoSize = False
     Me.RootPath.BackColor = System.Drawing.SystemColors.Window
     Me.RootPath.Cursor = System.Windows.Forms.Cursors.IBeam
     Me.RootPath.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -308,7 +319,7 @@ Friend Class Form1
     Me.RootPath.MaxLength = 0
     Me.RootPath.Name = "RootPath"
     Me.RootPath.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.RootPath.Size = New System.Drawing.Size(313, 19)
+    Me.RootPath.Size = New System.Drawing.Size(313, 20)
     Me.RootPath.TabIndex = 11
     Me.RootPath.Text = "D:"
     '
@@ -324,6 +335,7 @@ Friend Class Form1
     Me.SpecieDefn.Size = New System.Drawing.Size(105, 25)
     Me.SpecieDefn.TabIndex = 5
     Me.SpecieDefn.Text = "Specie Defn"
+    Me.SpecieDefn.UseVisualStyleBackColor = False
     '
     'ClearList
     '
@@ -331,12 +343,13 @@ Friend Class Form1
     Me.ClearList.Cursor = System.Windows.Forms.Cursors.Default
     Me.ClearList.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.ClearList.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.ClearList.Location = New System.Drawing.Point(744, 160)
+    Me.ClearList.Location = New System.Drawing.Point(144, 202)
     Me.ClearList.Name = "ClearList"
     Me.ClearList.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.ClearList.Size = New System.Drawing.Size(73, 25)
+    Me.ClearList.Size = New System.Drawing.Size(73, 23)
     Me.ClearList.TabIndex = 4
     Me.ClearList.Text = "Clear Lists"
+    Me.ClearList.UseVisualStyleBackColor = False
     '
     'CreateFlwSheet
     '
@@ -347,9 +360,10 @@ Friend Class Form1
     Me.CreateFlwSheet.Location = New System.Drawing.Point(392, 88)
     Me.CreateFlwSheet.Name = "CreateFlwSheet"
     Me.CreateFlwSheet.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.CreateFlwSheet.Size = New System.Drawing.Size(113, 25)
+    Me.CreateFlwSheet.Size = New System.Drawing.Size(97, 25)
     Me.CreateFlwSheet.TabIndex = 3
     Me.CreateFlwSheet.Text = "Create Flwsheet"
+    Me.CreateFlwSheet.UseVisualStyleBackColor = False
     '
     'Demo
     '
@@ -363,6 +377,7 @@ Friend Class Form1
     Me.Demo.Size = New System.Drawing.Size(105, 25)
     Me.Demo.TabIndex = 1
     Me.Demo.Text = "Demo"
+    Me.Demo.UseVisualStyleBackColor = False
     '
     'LoadTestFlwSheet
     '
@@ -373,9 +388,10 @@ Friend Class Form1
     Me.LoadTestFlwSheet.Location = New System.Drawing.Point(392, 56)
     Me.LoadTestFlwSheet.Name = "LoadTestFlwSheet"
     Me.LoadTestFlwSheet.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.LoadTestFlwSheet.Size = New System.Drawing.Size(113, 25)
+    Me.LoadTestFlwSheet.Size = New System.Drawing.Size(97, 25)
     Me.LoadTestFlwSheet.TabIndex = 0
-    Me.LoadTestFlwSheet.Text = "Load Test Flwsheet"
+    Me.LoadTestFlwSheet.Text = "Load Flwsheet"
+    Me.LoadTestFlwSheet.UseVisualStyleBackColor = False
     '
     'Frame1
     '
@@ -404,6 +420,7 @@ Friend Class Form1
     Me.VecDefn.Size = New System.Drawing.Size(105, 25)
     Me.VecDefn.TabIndex = 33
     Me.VecDefn.Text = "VecDefn"
+    Me.VecDefn.UseVisualStyleBackColor = False
     '
     'Conversions
     '
@@ -417,6 +434,7 @@ Friend Class Form1
     Me.Conversions.Size = New System.Drawing.Size(105, 25)
     Me.Conversions.TabIndex = 31
     Me.Conversions.Text = "Conversions"
+    Me.Conversions.UseVisualStyleBackColor = False
     '
     'Frame4
     '
@@ -446,6 +464,7 @@ Friend Class Form1
     Me.VecOther.Size = New System.Drawing.Size(105, 25)
     Me.VecOther.TabIndex = 32
     Me.VecOther.Text = "Other"
+    Me.VecOther.UseVisualStyleBackColor = False
     '
     'ABayer
     '
@@ -459,6 +478,7 @@ Friend Class Form1
     Me.ABayer.Size = New System.Drawing.Size(105, 25)
     Me.ABayer.TabIndex = 16
     Me.ABayer.Text = "ABayer"
+    Me.ABayer.UseVisualStyleBackColor = False
     '
     'Standard
     '
@@ -472,6 +492,7 @@ Friend Class Form1
     Me.Standard.Size = New System.Drawing.Size(105, 25)
     Me.Standard.TabIndex = 13
     Me.Standard.Text = "Standard"
+    Me.Standard.UseVisualStyleBackColor = False
     '
     'List2
     '
@@ -480,15 +501,16 @@ Friend Class Form1
     Me.List2.Font = New System.Drawing.Font("Lucida Console", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.List2.ForeColor = System.Drawing.SystemColors.WindowText
     Me.List2.ItemHeight = 11
-    Me.List2.Location = New System.Drawing.Point(424, 280)
+    Me.List2.Location = New System.Drawing.Point(424, 299)
     Me.List2.Name = "List2"
     Me.List2.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.List2.Size = New System.Drawing.Size(393, 521)
+    Me.List2.Size = New System.Drawing.Size(393, 499)
     Me.List2.TabIndex = 6
     '
     'Frame3
     '
     Me.Frame3.BackColor = System.Drawing.SystemColors.Control
+    Me.Frame3.Controls.Add(Me.GroupBox2)
     Me.Frame3.Controls.Add(Me.MSOpn)
     Me.Frame3.Controls.Add(Me.CreateElec)
     Me.Frame3.Controls.Add(Me.CloseNoSave)
@@ -505,10 +527,64 @@ Friend Class Form1
     Me.Frame3.Location = New System.Drawing.Point(264, 40)
     Me.Frame3.Name = "Frame3"
     Me.Frame3.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.Frame3.Size = New System.Drawing.Size(385, 232)
+    Me.Frame3.Size = New System.Drawing.Size(552, 251)
     Me.Frame3.TabIndex = 8
     Me.Frame3.TabStop = False
     Me.Frame3.Text = "Application"
+    '
+    'GroupBox2
+    '
+    Me.GroupBox2.Controls.Add(Me.SaveFirstSnap)
+    Me.GroupBox2.Controls.Add(Me.LoadSnap)
+    Me.GroupBox2.Controls.Add(Me.SaveNextSnap)
+    Me.GroupBox2.Controls.Add(Me.SaveSnap)
+    Me.GroupBox2.Location = New System.Drawing.Point(136, 115)
+    Me.GroupBox2.Name = "GroupBox2"
+    Me.GroupBox2.Size = New System.Drawing.Size(113, 129)
+    Me.GroupBox2.TabIndex = 43
+    Me.GroupBox2.TabStop = False
+    Me.GroupBox2.Text = "Snapshots"
+    '
+    'LoadSnap
+    '
+    Me.LoadSnap.Location = New System.Drawing.Point(6, 103)
+    Me.LoadSnap.Name = "LoadSnap"
+    Me.LoadSnap.Size = New System.Drawing.Size(97, 21)
+    Me.LoadSnap.TabIndex = 42
+    Me.LoadSnap.Text = "Load"
+    Me.LoadSnap.UseVisualStyleBackColor = True
+    '
+    'SaveNextSnap
+    '
+    Me.SaveNextSnap.Location = New System.Drawing.Point(6, 73)
+    Me.SaveNextSnap.Name = "SaveNextSnap"
+    Me.SaveNextSnap.Size = New System.Drawing.Size(97, 21)
+    Me.SaveNextSnap.TabIndex = 41
+    Me.SaveNextSnap.Text = "Save Next"
+    Me.SaveNextSnap.UseVisualStyleBackColor = True
+    '
+    'SaveSnap
+    '
+    Me.SaveSnap.Location = New System.Drawing.Point(6, 16)
+    Me.SaveSnap.Name = "SaveSnap"
+    Me.SaveSnap.Size = New System.Drawing.Size(97, 21)
+    Me.SaveSnap.TabIndex = 40
+    Me.SaveSnap.Text = "Save"
+    Me.SaveSnap.UseVisualStyleBackColor = True
+    '
+    'MSOpn
+    '
+    Me.MSOpn.BackColor = System.Drawing.SystemColors.Control
+    Me.MSOpn.Cursor = System.Windows.Forms.Cursors.Default
+    Me.MSOpn.Enabled = False
+    Me.MSOpn.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+    Me.MSOpn.ForeColor = System.Drawing.SystemColors.ControlText
+    Me.MSOpn.Location = New System.Drawing.Point(8, 80)
+    Me.MSOpn.Name = "MSOpn"
+    Me.MSOpn.RightToLeft = System.Windows.Forms.RightToLeft.No
+    Me.MSOpn.Size = New System.Drawing.Size(17, 25)
+    Me.MSOpn.TabIndex = 39
+    Me.MSOpn.UseVisualStyleBackColor = False
     '
     'CreateElec
     '
@@ -519,9 +595,10 @@ Friend Class Form1
     Me.CreateElec.Location = New System.Drawing.Point(128, 80)
     Me.CreateElec.Name = "CreateElec"
     Me.CreateElec.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.CreateElec.Size = New System.Drawing.Size(113, 25)
+    Me.CreateElec.Size = New System.Drawing.Size(97, 25)
     Me.CreateElec.TabIndex = 35
-    Me.CreateElec.Text = "Create Elec Flwsht"
+    Me.CreateElec.Text = "Create Elec FS"
+    Me.CreateElec.UseVisualStyleBackColor = True
     '
     'CloseNoSave
     '
@@ -529,12 +606,13 @@ Friend Class Form1
     Me.CloseNoSave.Cursor = System.Windows.Forms.Cursors.Default
     Me.CloseNoSave.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.CloseNoSave.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.CloseNoSave.Location = New System.Drawing.Point(320, 96)
+    Me.CloseNoSave.Location = New System.Drawing.Point(479, 48)
     Me.CloseNoSave.Name = "CloseNoSave"
     Me.CloseNoSave.RightToLeft = System.Windows.Forms.RightToLeft.No
     Me.CloseNoSave.Size = New System.Drawing.Size(57, 25)
     Me.CloseNoSave.TabIndex = 29
     Me.CloseNoSave.Text = "NoSave"
+    Me.CloseNoSave.UseVisualStyleBackColor = False
     '
     'QueryInfo
     '
@@ -542,12 +620,13 @@ Friend Class Form1
     Me.QueryInfo.Cursor = System.Windows.Forms.Cursors.Default
     Me.QueryInfo.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.QueryInfo.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.QueryInfo.Location = New System.Drawing.Point(248, 16)
+    Me.QueryInfo.Location = New System.Drawing.Point(235, 15)
     Me.QueryInfo.Name = "QueryInfo"
     Me.QueryInfo.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.QueryInfo.Size = New System.Drawing.Size(113, 25)
+    Me.QueryInfo.Size = New System.Drawing.Size(97, 25)
     Me.QueryInfo.TabIndex = 28
     Me.QueryInfo.Text = "Query Info"
+    Me.QueryInfo.UseVisualStyleBackColor = False
     '
     'CloseSave
     '
@@ -555,12 +634,13 @@ Friend Class Form1
     Me.CloseSave.Cursor = System.Windows.Forms.Cursors.Default
     Me.CloseSave.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.CloseSave.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.CloseSave.Location = New System.Drawing.Point(320, 72)
+    Me.CloseSave.Location = New System.Drawing.Point(479, 24)
     Me.CloseSave.Name = "CloseSave"
     Me.CloseSave.RightToLeft = System.Windows.Forms.RightToLeft.No
     Me.CloseSave.Size = New System.Drawing.Size(57, 25)
     Me.CloseSave.TabIndex = 27
     Me.CloseSave.Text = "Save"
+    Me.CloseSave.UseVisualStyleBackColor = False
     '
     'LicOpn
     '
@@ -574,6 +654,7 @@ Friend Class Form1
     Me.LicOpn.RightToLeft = System.Windows.Forms.RightToLeft.No
     Me.LicOpn.Size = New System.Drawing.Size(17, 25)
     Me.LicOpn.TabIndex = 19
+    Me.LicOpn.UseVisualStyleBackColor = False
     '
     'OpenCloseApp
     '
@@ -587,6 +668,7 @@ Friend Class Form1
     Me.OpenCloseApp.Size = New System.Drawing.Size(97, 25)
     Me.OpenCloseApp.TabIndex = 9
     Me.OpenCloseApp.Text = "Open/Close Scd"
+    Me.OpenCloseApp.UseVisualStyleBackColor = False
     '
     'Frame2
     '
@@ -594,7 +676,7 @@ Friend Class Form1
     Me.Frame2.Controls.Add(Me.ReleaseAll)
     Me.Frame2.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.Frame2.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.Frame2.Location = New System.Drawing.Point(312, 56)
+    Me.Frame2.Location = New System.Drawing.Point(471, 8)
     Me.Frame2.Name = "Frame2"
     Me.Frame2.RightToLeft = System.Windows.Forms.RightToLeft.No
     Me.Frame2.Size = New System.Drawing.Size(73, 97)
@@ -614,6 +696,7 @@ Friend Class Form1
     Me.ReleaseAll.Size = New System.Drawing.Size(57, 25)
     Me.ReleaseAll.TabIndex = 34
     Me.ReleaseAll.Text = "Release"
+    Me.ReleaseAll.UseVisualStyleBackColor = False
     '
     'GroupBox1
     '
@@ -621,26 +704,26 @@ Friend Class Form1
     Me.GroupBox1.Controls.Add(Me.FlwsheetImport)
     Me.GroupBox1.Controls.Add(Me.FlwsheetExport)
     Me.GroupBox1.Controls.Add(Me.ImportUser)
-    Me.GroupBox1.Location = New System.Drawing.Point(8, 144)
+    Me.GroupBox1.Location = New System.Drawing.Point(8, 115)
     Me.GroupBox1.Name = "GroupBox1"
-    Me.GroupBox1.Size = New System.Drawing.Size(200, 80)
+    Me.GroupBox1.Size = New System.Drawing.Size(113, 131)
     Me.GroupBox1.TabIndex = 38
     Me.GroupBox1.TabStop = False
     Me.GroupBox1.Text = "Neutral DB"
     '
     'ExportBlank
     '
-    Me.ExportBlank.Location = New System.Drawing.Point(8, 48)
+    Me.ExportBlank.Location = New System.Drawing.Point(8, 45)
     Me.ExportBlank.Name = "ExportBlank"
-    Me.ExportBlank.Size = New System.Drawing.Size(88, 24)
+    Me.ExportBlank.Size = New System.Drawing.Size(97, 21)
     Me.ExportBlank.TabIndex = 41
     Me.ExportBlank.Text = "Export Blank"
     '
     'FlwsheetImport
     '
-    Me.FlwsheetImport.Location = New System.Drawing.Point(104, 16)
+    Me.FlwsheetImport.Location = New System.Drawing.Point(8, 74)
     Me.FlwsheetImport.Name = "FlwsheetImport"
-    Me.FlwsheetImport.Size = New System.Drawing.Size(88, 24)
+    Me.FlwsheetImport.Size = New System.Drawing.Size(97, 21)
     Me.FlwsheetImport.TabIndex = 40
     Me.FlwsheetImport.Text = "Import "
     '
@@ -648,15 +731,15 @@ Friend Class Form1
     '
     Me.FlwsheetExport.Location = New System.Drawing.Point(8, 16)
     Me.FlwsheetExport.Name = "FlwsheetExport"
-    Me.FlwsheetExport.Size = New System.Drawing.Size(88, 24)
+    Me.FlwsheetExport.Size = New System.Drawing.Size(97, 21)
     Me.FlwsheetExport.TabIndex = 36
     Me.FlwsheetExport.Text = "Build/Export"
     '
     'ImportUser
     '
-    Me.ImportUser.Location = New System.Drawing.Point(104, 48)
+    Me.ImportUser.Location = New System.Drawing.Point(8, 103)
     Me.ImportUser.Name = "ImportUser"
-    Me.ImportUser.Size = New System.Drawing.Size(88, 24)
+    Me.ImportUser.Size = New System.Drawing.Size(97, 21)
     Me.ImportUser.TabIndex = 39
     Me.ImportUser.Text = "Import User"
     '
@@ -666,12 +749,27 @@ Friend Class Form1
     Me.LdAndRunMineServe.Cursor = System.Windows.Forms.Cursors.Default
     Me.LdAndRunMineServe.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
     Me.LdAndRunMineServe.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.LdAndRunMineServe.Location = New System.Drawing.Point(256, 192)
+    Me.LdAndRunMineServe.Location = New System.Drawing.Point(423, 191)
     Me.LdAndRunMineServe.Name = "LdAndRunMineServe"
     Me.LdAndRunMineServe.RightToLeft = System.Windows.Forms.RightToLeft.No
     Me.LdAndRunMineServe.Size = New System.Drawing.Size(120, 25)
     Me.LdAndRunMineServe.TabIndex = 23
     Me.LdAndRunMineServe.Text = "Ld && Rn MineServe"
+    Me.LdAndRunMineServe.UseVisualStyleBackColor = False
+    '
+    'OpenCloseMS
+    '
+    Me.OpenCloseMS.BackColor = System.Drawing.SystemColors.Control
+    Me.OpenCloseMS.Cursor = System.Windows.Forms.Cursors.Default
+    Me.OpenCloseMS.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+    Me.OpenCloseMS.ForeColor = System.Drawing.SystemColors.ControlText
+    Me.OpenCloseMS.Location = New System.Drawing.Point(24, 80)
+    Me.OpenCloseMS.Name = "OpenCloseMS"
+    Me.OpenCloseMS.RightToLeft = System.Windows.Forms.RightToLeft.No
+    Me.OpenCloseMS.Size = New System.Drawing.Size(97, 25)
+    Me.OpenCloseMS.TabIndex = 23
+    Me.OpenCloseMS.Text = "Open/Close MS"
+    Me.OpenCloseMS.UseVisualStyleBackColor = False
     '
     'Label1
     '
@@ -699,31 +797,14 @@ Friend Class Form1
     Me.Label2.TabIndex = 10
     Me.Label2.Text = "Path:"
     '
-    'OpenCloseMS
+    'SaveFirstSnap
     '
-    Me.OpenCloseMS.BackColor = System.Drawing.SystemColors.Control
-    Me.OpenCloseMS.Cursor = System.Windows.Forms.Cursors.Default
-    Me.OpenCloseMS.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-    Me.OpenCloseMS.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.OpenCloseMS.Location = New System.Drawing.Point(24, 80)
-    Me.OpenCloseMS.Name = "OpenCloseMS"
-    Me.OpenCloseMS.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.OpenCloseMS.Size = New System.Drawing.Size(97, 32)
-    Me.OpenCloseMS.TabIndex = 23
-    Me.OpenCloseMS.Text = "Open/Close MineServe"
-    '
-    'MSOpn
-    '
-    Me.MSOpn.BackColor = System.Drawing.SystemColors.Control
-    Me.MSOpn.Cursor = System.Windows.Forms.Cursors.Default
-    Me.MSOpn.Enabled = False
-    Me.MSOpn.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-    Me.MSOpn.ForeColor = System.Drawing.SystemColors.ControlText
-    Me.MSOpn.Location = New System.Drawing.Point(8, 80)
-    Me.MSOpn.Name = "MSOpn"
-    Me.MSOpn.RightToLeft = System.Windows.Forms.RightToLeft.No
-    Me.MSOpn.Size = New System.Drawing.Size(17, 25)
-    Me.MSOpn.TabIndex = 39
+    Me.SaveFirstSnap.Location = New System.Drawing.Point(6, 45)
+    Me.SaveFirstSnap.Name = "SaveFirstSnap"
+    Me.SaveFirstSnap.Size = New System.Drawing.Size(97, 21)
+    Me.SaveFirstSnap.TabIndex = 43
+    Me.SaveFirstSnap.Text = "Save First"
+    Me.SaveFirstSnap.UseVisualStyleBackColor = True
     '
     'Form1
     '
@@ -757,46 +838,49 @@ Friend Class Form1
     Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
     Me.Text = "Scd COM Test"
     Me.Frame5.ResumeLayout(False)
+    Me.Frame5.PerformLayout()
     Me.Frame1.ResumeLayout(False)
     Me.Frame4.ResumeLayout(False)
     Me.Frame3.ResumeLayout(False)
+    Me.GroupBox2.ResumeLayout(False)
     Me.Frame2.ResumeLayout(False)
     Me.GroupBox1.ResumeLayout(False)
     Me.ResumeLayout(False)
+    Me.PerformLayout()
 
   End Sub
-#End Region 
+#End Region
 #Region "Upgrade Support "
-	Private Shared m_vb6FormDefInstance As Form1
-	Private Shared m_InitializingDefInstance As Boolean
-	Public Shared Property DefInstance() As Form1
-		Get
-			If m_vb6FormDefInstance Is Nothing OrElse m_vb6FormDefInstance.IsDisposed Then
-				m_InitializingDefInstance = True
-				m_vb6FormDefInstance = New Form1()
-				m_InitializingDefInstance = False
-			End If
-			DefInstance = m_vb6FormDefInstance
-		End Get
-		Set
-			m_vb6FormDefInstance = Value
-		End Set
-	End Property
-#End Region 
-	
-	
-	Private Declare Sub Sleep Lib "Kernel32" (ByVal dwMilliseconds As Integer)
-	
-	'Private CfgFile As String
-	Private LdPrjFile As String
-	Private CreateFlwPrj As String
-	Private CreateElecPrj As String
+  Private Shared m_vb6FormDefInstance As Form1
+  Private Shared m_InitializingDefInstance As Boolean
+  Public Shared Property DefInstance() As Form1
+    Get
+      If m_vb6FormDefInstance Is Nothing OrElse m_vb6FormDefInstance.IsDisposed Then
+        m_InitializingDefInstance = True
+        m_vb6FormDefInstance = New Form1()
+        m_InitializingDefInstance = False
+      End If
+      DefInstance = m_vb6FormDefInstance
+    End Get
+    Set(ByVal value As Form1)
+      m_vb6FormDefInstance = Value
+    End Set
+  End Property
+#End Region
+
+
+  Private Declare Sub Sleep Lib "Kernel32" (ByVal dwMilliseconds As Integer)
+
+  'Private CfgFile As String
+  Private LdPrjFile As String
+  Private CreateFlwPrj As String
+  Private CreateElecPrj As String
   Private ReportFile As String
   Private NeutralFiles As String
-	
-	Private m_Temp As Double
-	Private m_Press As Double
-	
+
+  Private m_Temp As Double
+  Private m_Press As Double
+
   Private Lic As ScdLicenseApp
   Private Solver As ScdSolver
   Private WithEvents App As ScdApplication
@@ -888,7 +972,7 @@ ErrorHandler:
 
     ShiftLists()
 
-    Const GoodTagSetPlace = 1
+    Const GoodTagSetPlace As Integer = 1
 
     Dim RetCode As Integer
     Dim I As Integer
@@ -896,7 +980,7 @@ ErrorHandler:
     Dim Trends As ScdTrends
     Dim Tags As ScdAppTags
     Dim Historian As ScdHistorian
-    Dim Snapshot As ScdSnapshot
+    'Dim Snapshot As ScdSnapshot
     Dim Dbg As ScdDebug
     Dim Test As ScdTest
     Dim Messages As ScdMessages
@@ -1041,8 +1125,8 @@ ErrorHandler:
   End Sub
 
   Private Function ValStr(ByVal X As Double) As String
-    Dim l As Object
-    Dim I As Integer
+    'Dim l As Object
+    'Dim I As Integer
     ValStr = VB6.Format(X, "+0.0000E+00")
     '  ValStr = Format(x, "0.00000000000")
     '  l = InStr(ValStr, ".")
@@ -1079,10 +1163,10 @@ ErrorHandler:
     Dim Solver As ScdSolver
     Dim Cnvs As ScdConversions
     Dim Cnv As ScdConversion
-    Dim N As Object
-    Dim Names() As String
-    Dim I, Index As Object
-    Dim IndexA() As Integer
+    'Dim N As Object
+    'Dim Names() As String
+    'Dim I, Index As Object
+    'Dim IndexA() As Integer
 
     Solver = New ScdSolver
 
@@ -1125,11 +1209,11 @@ Done:
   End Sub
 
   Private Sub Form1_Load(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles MyBase.Load
-    RootPath.Text = "d:\Projects\_Tests\COMTests\"
+    RootPath.Text = "Y:\SysCAD\Projects\#Tests\COMTests\"
     CfgFileBox.Text = "COMTests.cfg"
     CreateFlwPrj = "CF-01.spf\"
     CreateElecPrj = "EL-01.spf\"
-    LdPrjFile = "3Feeders.spf\Project.spj"
+    LdPrjFile = "3Feeders-00.spf\Project.spj"
     ReportFile = "TestAC.xls"
     NeutralFiles = "NeutralFiles\"
 
@@ -1211,10 +1295,10 @@ Done:
   'LPTSTR lpFileSystemNameBuffer,
   'DWORD nFileSystemNameSize
 
-  Function GetDiskSerial(Drive as string) As String
-    Dim etVal As Integer
+  Function GetDiskSerial(ByVal Drive As String) As String
+    'Dim etVal As Integer
     Dim DS As String
-    Dim Buffer As String
+    'Dim Buffer As String
     Dim VolumeName As String
     Dim FSName As String
     Dim VolumeSerialNumber As Long
@@ -1239,10 +1323,10 @@ Done:
   Private Sub SetMSLicense()
     Dim Key As String
     Dim Str As String
-    Dim Lic As String
+    Dim Lic As String = ""
     Dim Ret As Long
     Dim iKey As Long
-    Dim iLic As Long
+    Dim iLic As Long = 0
     Dim iChar As Byte
     Dim sChar As String
 
@@ -1418,10 +1502,10 @@ ErrorHandler:
     Dim Solver As ScdSolver
     Dim SpDefns As ScdSpecieDefns
     Dim SpDefn As ScdSpecieDefn
-    Dim N As Object
-    Dim Names() As String
-    Dim I, Index As Object
-    Dim IndexA() As Integer
+    'Dim N As Object
+    'Dim Names() As String
+    'Dim I, Index As Object
+    'Dim IndexA() As Integer
 
     Solver = New ScdSolver
 
@@ -1582,7 +1666,7 @@ Done:
     Dim Tags As ScdAppTags
     Dim Historian As ScdHistorian
     Dim Report As ScdReport
-    Dim Snapshot As ScdSnapshot
+    'Dim Snapshot As ScdSnapshot
     Dim Species As ScdSpecieDefns
     Dim Specie As ScdSpecieDefn
     Dim SpDef As ScdSpecieDefn
@@ -1721,7 +1805,7 @@ ErrorHandler:
     Dim Trends As ScdTrends
     Dim Tags As ScdAppTags
     Dim Historian As ScdHistorian
-    Dim Snapshot As ScdSnapshot
+    'Dim Snapshot As ScdSnapshot
     Dim Dbg As ScdDebug
     Dim Test As ScdTest
     Dim Messages As ScdMessages
@@ -1872,7 +1956,7 @@ ErrorHandler:
 
     Dim Solver As ScdSolver
     Dim SpDefns As ScdSpecieDefns 'collection of specie definitions
-    Dim SpDefn As ScdSpecieDefn 'a specie definition
+    'Dim SpDefn As ScdSpecieDefn 'a specie definition
     Dim Specie As ScdSpecieDefn
 
 
@@ -1928,7 +2012,7 @@ Done:
 
     Exit Sub
 
-    Dim Solver As ScdSolver
+    'Dim Solver As ScdSolver
     Dim Spcs As ScdSpecieDefns
     'Dim VecDefn As ScdSpVectorDefn
     'Dim SpMdl As ScdSpModel  'Standard Specie Properties Model
@@ -1974,7 +2058,7 @@ Done:
 
     ShiftLists()
 
-    Const GoodTagSetPlace = 1
+    Const GoodTagSetPlace As Integer = 1
 
     Dim RetCode As Integer
     Dim I As Integer
@@ -1982,7 +2066,7 @@ Done:
     Dim Trends As ScdTrends
     Dim Tags As ScdAppTags
     Dim Historian As ScdHistorian
-    Dim Snapshot As ScdSnapshot
+    'Dim Snapshot As ScdSnapshot
     Dim Dbg As ScdDebug
     Dim Test As ScdTest
     Dim Messages As ScdMessages
@@ -2066,7 +2150,7 @@ ErrorHandler:
     Dim Trends As ScdTrends
     Dim Tags As ScdAppTags
     Dim Historian As ScdHistorian
-    Dim Snapshot As ScdSnapshot
+    'Dim Snapshot As ScdSnapshot
     Dim Dbg As ScdDebug
     Dim Test As ScdTest
     Dim Messages As ScdMessages
@@ -2237,7 +2321,7 @@ ErrorHandler:
 
     ShiftLists()
 
-    Const GoodTagSetPlace = 1
+    Const GoodTagSetPlace As Integer = 1
 
     Dim RetCode As Integer
     Dim I As Integer
@@ -2245,7 +2329,7 @@ ErrorHandler:
     Dim Trends As ScdTrends
     Dim Tags As ScdAppTags
     Dim Historian As ScdHistorian
-    Dim Snapshot As ScdSnapshot
+    'Dim Snapshot As ScdSnapshot
     Dim Dbg As ScdDebug
     Dim Test As ScdTest
     Dim Messages As ScdMessages
@@ -2311,4 +2395,20 @@ ErrorHandler:
 
   End Sub
 
+  Private Sub SaveSnap_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SaveSnap.Click
+    Prj.SaveSnapshot("ABC")
+  End Sub
+
+  Private Sub SaveFirstSnap_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SaveFirstSnap.Click
+    Prj.SaveSnapshot("Seq", 0)
+  End Sub
+
+  Private Sub SaveNextSnap_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SaveNextSnap.Click
+    Prj.SaveSnapshot("")
+  End Sub
+
+  Private Sub LoadSnap_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LoadSnap.Click
+
+    Prj.LoadSnapshot("ABC")
+  End Sub
 End Class

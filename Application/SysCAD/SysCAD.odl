@@ -33,7 +33,7 @@ library ScdApp
   interface IScdReplay; 
   interface IScdReport; 
   interface IScdReports; 
-  interface IScdSnapshot; 
+  //interface IScdSnapshot; 
   interface IScdTrend; 
   interface IScdTrends; 
   interface IScdAppTag; 
@@ -301,38 +301,38 @@ methods:
     [default] interface IScdReport;
     [default, source] dispinterface _IScdReportEvents;
   };
-  //----------------------------------------------
-  [
-    object,
-    uuid(AD006B0A-7A2E-41FA-9E4A-A21CF142F95A),
-    dual,
-    helpstring("IScdSnapshot Interface"),
-    pointer_default(unique)
-  ]
-  interface IScdSnapshot : IDispatch
-  {
-  };
-  //----------------------------------------------
-  [
-    uuid(347D49D9-6D03-4CCA-8331-80771CA09F38),
-    helpstring("_IScdSnapshotEvents Interface")
-  ]
-  dispinterface _IScdSnapshotEvents
-  {
-properties:
-methods:
-  };
-  //----------------------------------------------
+  ////----------------------------------------------
+  //[
+  //  object,
+  //  uuid(AD006B0A-7A2E-41FA-9E4A-A21CF142F95A),
+  //  dual,
+  //  helpstring("IScdSnapshot Interface"),
+  //  pointer_default(unique)
+  //]
+  //interface IScdSnapshot : IDispatch
+  //{
+  //};
+//  //----------------------------------------------
+//  [
+//    uuid(347D49D9-6D03-4CCA-8331-80771CA09F38),
+//    helpstring("_IScdSnapshotEvents Interface")
+//  ]
+//  dispinterface _IScdSnapshotEvents
+//  {
+//properties:
+//methods:
+//  };
+//  //----------------------------------------------
 
-  [
-    uuid(9125AC56-6485-4E8C-9AE8-DB7B71687139),
-    helpstring("ScdSnapshot Class")
-  ]
-  coclass ScdSnapshot
-  {
-    [default] interface IScdSnapshot;
-    [default, source] dispinterface _IScdSnapshotEvents;
-  };
+  //[
+  //  uuid(9125AC56-6485-4E8C-9AE8-DB7B71687139),
+  //  helpstring("ScdSnapshot Class")
+  //]
+  //coclass ScdSnapshot
+  //{
+  //  [default] interface IScdSnapshot;
+  //  [default, source] dispinterface _IScdSnapshotEvents;
+  //};
   //----------------------------------------------
   [
     object,
@@ -413,18 +413,20 @@ methods:
     [propget, id(2), helpstring("property Trends")] HRESULT Trends([out, retval] IScdTrends ** pTrends);
     [propget, id(3), helpstring("property Historian")] HRESULT Historian([out, retval] IScdHistorian ** pHistorian);
     [propget, id(4), helpstring("property Reports")] HRESULT Reports([out, retval] IScdReports ** pReports);
-    [propget, id(5), helpstring("property Snapshot")] HRESULT Snapshot([out, retval] IScdSnapshot ** pSnapshot);
-    [propget, id(6), helpstring("property Solver")] HRESULT Solver([out, retval] IScdSolver ** pSolver);
-    [propget, id(7), helpstring("property SpecieDefns")] HRESULT SpecieDefns([out, retval] IScdSpecieDefns ** pSpecieDefns);
-    [propget, id(8), helpstring("property Tags")] HRESULT Tags([out, retval] IScdAppTags ** pTags);
-    [id(9), helpstring("method Save")] HRESULT Save([in,defaultvalue("")] BSTR Filename, [in,defaultvalue(FALSE)] VARIANT_BOOL NewVersion);
-    [propget, id(10), helpstring("property OPCServer")] HRESULT OPCServer([out, retval] IScdOPCServer ** pVal);
-    [propget, id(11), helpstring("property IOMarshal")] HRESULT IOMarshal([out, retval] IScdIOMarshal ** pVal);
-    [propget, id(12), helpstring("property DDEServer")] HRESULT DDEServer([out, retval] IScdDDEServer** pVal);
-    [propget, id(13), helpstring("property CfgFolder")] HRESULT CfgFolder([out, retval] BSTR* pVal);
-    [propget, id(14), helpstring("property PrjFolder")] HRESULT PrjFolder([out, retval] BSTR* pVal);
-    [id(15), helpstring("method ExportNeutralDB")] HRESULT ExportNeutralDB([in] eScdNDBOptions Options, [in] BSTR GraphicsDatabase, [in] BSTR ModelDatabase);
-    [id(16), helpstring("method ImportNeutralDB")] HRESULT ImportNeutralDB([in] eScdNDBOptions Options, [in] BSTR GraphicsDatabase, [in] BSTR ModelDatabase, [in] IScdTagFixup * TagFixups);
+    //[propget, id(5), helpstring("property Snapshot")] HRESULT Snapshot([out, retval] IScdSnapshot ** pSnapshot);
+    [propget, id(5), helpstring("property Solver")] HRESULT Solver([out, retval] IScdSolver ** pSolver);
+    [propget, id(6), helpstring("property SpecieDefns")] HRESULT SpecieDefns([out, retval] IScdSpecieDefns ** pSpecieDefns);
+    [propget, id(7), helpstring("property Tags")] HRESULT Tags([out, retval] IScdAppTags ** pTags);
+    [id(8), helpstring("method Save")] HRESULT Save([in,defaultvalue("")] BSTR Filename, [in,defaultvalue(FALSE)] VARIANT_BOOL NewVersion);
+    [propget, id(9), helpstring("property OPCServer")] HRESULT OPCServer([out, retval] IScdOPCServer ** pVal);
+    [propget, id(10), helpstring("property IOMarshal")] HRESULT IOMarshal([out, retval] IScdIOMarshal ** pVal);
+    [propget, id(11), helpstring("property DDEServer")] HRESULT DDEServer([out, retval] IScdDDEServer** pVal);
+    [propget, id(12), helpstring("property CfgFolder")] HRESULT CfgFolder([out, retval] BSTR* pVal);
+    [propget, id(13), helpstring("property PrjFolder")] HRESULT PrjFolder([out, retval] BSTR* pVal);
+    [id(14), helpstring("method ExportNeutralDB")] HRESULT ExportNeutralDB([in] eScdNDBOptions Options, [in] BSTR GraphicsDatabase, [in] BSTR ModelDatabase);
+    [id(15), helpstring("method ImportNeutralDB")] HRESULT ImportNeutralDB([in] eScdNDBOptions Options, [in] BSTR GraphicsDatabase, [in] BSTR ModelDatabase, [in] IScdTagFixup * TagFixups);
+    [id(16), helpstring("method SaveSnapshot")] HRESULT SaveSnapshot([in] BSTR SnapshotName, [in, defaultvalue(-1)] long SeqStart);
+    [id(17), helpstring("method LoadSnapshot")] HRESULT LoadSnapshot([in] BSTR SnapshotName, [in, defaultvalue(-1)] long NoInSeq);
   };
   //----------------------------------------------
   [

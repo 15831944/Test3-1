@@ -38,29 +38,6 @@ class DllImportExport CScdCmdTag
   
   };
 
-class DllImportExport CScdCmdImportExport
-  {
-  public:
-    CScdCmdImportExport()
-      {
-      m_iOptions=eNDB_StdExport;
-      m_pGraphicsDatabase=NULL;
-      m_pModelDatabase=NULL;
-
-      m_iRule=eFixup_NoChange;
-      m_pPrefix=NULL;
-      m_pSuffix=NULL;
-      }
-
-    eScdNDBOptions      m_iOptions;
-    LPCTSTR             m_pGraphicsDatabase;
-    LPCTSTR             m_pModelDatabase;
-
-    eScdTagFixupRules   m_iRule;
-    LPCTSTR             m_pPrefix;
-    LPCTSTR             m_pSuffix;
-  };
-
 //inline GetCS(DWORD d) { return (d >> 16) & 0xffff; }
 //inline GetCC(DWORD d) { return d & 0xffff; }
 //
