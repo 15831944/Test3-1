@@ -2336,6 +2336,10 @@ BOOL CMdlCfgOpt::OnInitDialog()
 #else
   GetDlgItem(IDC_STDFNS4H2O)->EnableWindow(TRUE);
 #endif
+#if !WithNumericTags
+  GetDlgItem(IDC_TAGSNUMERIC)->EnableWindow(FALSE);
+  //GetDlgItem(IDC_TAGSNUMERIC)->ShowWindow(SW_HIDE);
+#endif
 
   //int iSel;
   //S=Cfg.RdStr("General", CfgItemsO[iFC].Name, CfgItemsO[iFC].StrDef);
