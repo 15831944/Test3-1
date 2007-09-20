@@ -16,7 +16,7 @@ namespace SysCAD.Protocol
   internal class ModelLink
   {
 
-    public List<PointF> controlPoints;
+    public List<Point> controlPoints;
 
     private String classId;
     private Guid destination;
@@ -59,13 +59,13 @@ namespace SysCAD.Protocol
       linkReader.Close();
 
       if (controlPoints == null)
-        controlPoints = new List<PointF>();
+        controlPoints = new List<Point>();
       controlPoints.Clear();
       OleDbDataReader linklineReader = (new OleDbCommand("SELECT VertexX, VertexY FROM GraphicsLinkLines WHERE Tag='" + tag + "'", connection)).ExecuteReader();
 
       while (linklineReader.Read())
       {
-        controlPoints.Add(new PointF((Single)linklineReader.GetDouble(0), -(Single)linklineReader.GetDouble(1)));
+        controlPoints.Add(new Point(linklineReader.GetDouble(0), -linklineReader.GetDouble(1)));
       }
 
       // Reverse the list if the first is closer to the destination and vice versa...
@@ -74,29 +74,29 @@ namespace SysCAD.Protocol
       graphicItems.TryGetValue(origin, out sourceItem);
       graphicItems.TryGetValue(destination, out destinationItem);
 
-      Single distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
+      Double distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
 
       if ((sourceItem != null) && (controlPoints.Count > 0))
       {
-        distanceSource0 = distance(controlPoints[0], (RectangleF)sourceItem.BoundingRect);
-        distanceSourceN = distance(controlPoints[controlPoints.Count - 1], (RectangleF)sourceItem.BoundingRect);
+        distanceSource0 = distance(controlPoints[0], (Rectangle)sourceItem.BoundingRect);
+        distanceSourceN = distance(controlPoints[controlPoints.Count - 1], (Rectangle)sourceItem.BoundingRect);
       }
 
       else // make so that it won't ever reverse.
       {
         distanceSource0 = 0.0F;
-        distanceSourceN = System.Single.MaxValue;
+        distanceSourceN = System.Double.MaxValue;
       }
 
       if ((destinationItem != null) && (controlPoints.Count > 0))
       {
-        distanceDestination0 = distance(controlPoints[0], (RectangleF)destinationItem.BoundingRect);
-        distanceDestinationN = distance(controlPoints[controlPoints.Count - 1], (RectangleF)destinationItem.BoundingRect);
+        distanceDestination0 = distance(controlPoints[0], (Rectangle)destinationItem.BoundingRect);
+        distanceDestinationN = distance(controlPoints[controlPoints.Count - 1], (Rectangle)destinationItem.BoundingRect);
       }
 
       else // make so that it won't ever reverse.
       {
-        distanceDestination0 = System.Single.MaxValue;
+        distanceDestination0 = System.Double.MaxValue;
         distanceDestinationN = 0.0F;
       }
 
@@ -111,7 +111,7 @@ namespace SysCAD.Protocol
     public void Populate(String guid, String classId,
       String source, String destination,
       String sourcePort, String destinationPort,
-      List<PointF> controlPts,
+      List<Point> controlPts,
       Dictionary<Guid, GraphicItem> graphicItems)
     {
       this.classId = classId;
@@ -129,29 +129,29 @@ namespace SysCAD.Protocol
       graphicItems.TryGetValue(origin, out sourceItem);
       graphicItems.TryGetValue(this.destination, out destinationItem);
 
-      Single distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
+      Double distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
 
       if ((sourceItem != null) && (controlPoints.Count > 0))
       {
-        distanceSource0 = distance(controlPoints[0], (RectangleF)sourceItem.BoundingRect);
-        distanceSourceN = distance(controlPoints[controlPoints.Count - 1], (RectangleF)sourceItem.BoundingRect);
+        distanceSource0 = distance(controlPoints[0], (Rectangle)sourceItem.BoundingRect);
+        distanceSourceN = distance(controlPoints[controlPoints.Count - 1], (Rectangle)sourceItem.BoundingRect);
       }
 
       else // make so that it won't ever reverse.
       {
         distanceSource0 = 0.0F;
-        distanceSourceN = System.Single.MaxValue;
+        distanceSourceN = System.Double.MaxValue;
       }
 
       if ((destinationItem != null) && (controlPoints.Count > 0))
       {
-        distanceDestination0 = distance(controlPoints[0], (RectangleF)destinationItem.BoundingRect);
-        distanceDestinationN = distance(controlPoints[controlPoints.Count - 1], (RectangleF)destinationItem.BoundingRect);
+        distanceDestination0 = distance(controlPoints[0], (Rectangle)destinationItem.BoundingRect);
+        distanceDestinationN = distance(controlPoints[controlPoints.Count - 1], (Rectangle)destinationItem.BoundingRect);
       }
 
       else // make so that it won't ever reverse.
       {
-        distanceDestination0 = System.Single.MaxValue;
+        distanceDestination0 = System.Double.MaxValue;
         distanceDestinationN = 0.0F;
       }
 
@@ -164,11 +164,11 @@ namespace SysCAD.Protocol
     }
 
     // Norm-1 distance between the closest side of the rectangle to the point.
-    static private Single distance(PointF pointF, RectangleF rectangleF)
+    static private Double distance(Point pointF, Rectangle Rectangle)
     {
-      Single dXL = System.Math.Abs(pointF.X - rectangleF.Left);
-      Single dXR = System.Math.Abs(pointF.X - rectangleF.Right);
-      Single dX;
+      Double dXL = System.Math.Abs(pointF.X - Rectangle.Left);
+      Double dXR = System.Math.Abs(pointF.X - Rectangle.Right);
+      Double dX;
 
       if (dXL < dXR)
         dX = dXL;
@@ -176,9 +176,9 @@ namespace SysCAD.Protocol
       else
         dX = dXR;
 
-      Single dYT = System.Math.Abs(pointF.Y - rectangleF.Top);
-      Single dYB = System.Math.Abs(pointF.Y - rectangleF.Bottom);
-      Single dY;
+      Double dYT = System.Math.Abs(pointF.Y - Rectangle.Top);
+      Double dYB = System.Math.Abs(pointF.Y - Rectangle.Bottom);
+      Double dY;
 
       if (dYT < dYB)
         dY = dYT;

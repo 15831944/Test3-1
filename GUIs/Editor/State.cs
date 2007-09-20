@@ -197,12 +197,12 @@ namespace SysCAD.Editor
           graphicItem.anchorIntToTag.Add(anchorInt, anchor.Tag);
           graphicItem.anchorTagToInt.Add(anchor.Tag, anchorInt);
           anchorInt++;
-          float x = anchor.Position.X;
+          Double x = (anchor.Positions[0] as SysCAD.Protocol.Point).X;
 
-          if (graphicItem.MirrorX) x = 100.0F - x;
-          float y = anchor.Position.Y;
+          if (graphicItem.MirrorX) x = 100.0 - x;
+          Double y = (anchor.Positions[0] as SysCAD.Protocol.Point).Y;
 
-          if (graphicItem.MirrorY) y = 100.0F - y;
+          if (graphicItem.MirrorY) y = 100.0 - y;
           AnchorPoint anchorPoint = new AnchorPoint((short)x, (short)y, true, true, MarkStyle.Circle, System.Drawing.Color.Green);
           anchorPoint.Tag = anchor;
           anchorPointCollection.Add(anchorPoint);
@@ -329,21 +329,21 @@ namespace SysCAD.Editor
       links.Add(guid, link);
     }
 
-    static public void SetControlPoints(Arrow arrow, List<PointF> points)
+    static public void SetControlPoints(Arrow arrow, List<SysCAD.Protocol.Point> points)
     {
       arrow.SegmentCount = (short)(points.Count - 1);
       int i = 0;
-      PointF keepPoint = PointF.Empty;
+      SysCAD.Protocol.Point keepPoint = SysCAD.Protocol.Point.Empty;
 
-      foreach (PointF point in points)
+      foreach (SysCAD.Protocol.Point point in points)
       {
-        arrow.ControlPoints[i++] = point;
+        arrow.ControlPoints[i++] = point.ToPointF();
         keepPoint = point;
       }
 
       while (i <= arrow.SegmentCount)
       {
-        arrow.ControlPoints[i++] = keepPoint;
+        arrow.ControlPoints[i++] = keepPoint.ToPointF();
       }
       arrow.UpdateFromPoints();
     }
@@ -390,17 +390,17 @@ namespace SysCAD.Editor
       clientProtocol.ThingDeleted += thingDeletedHandler;
     }
 
-    internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       return clientProtocol.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    internal bool CreateGraphicLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+    internal bool CreateGraphicLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       return clientProtocol.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
     }
 
-    internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
     {
       return clientProtocol.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
@@ -417,7 +417,7 @@ namespace SysCAD.Editor
         Box box = null;
 
         {
-          box = flowchart.CreateBox(graphicGroup.X, graphicGroup.Y, graphicGroup.Width, graphicGroup.Height);
+          box = flowchart.CreateBox((float)graphicGroup.X, (float)graphicGroup.Y, (float)graphicGroup.Width, (float)graphicGroup.Height);
           box.ToolTip = graphicGroup.Tag;
           box.Style = BoxStyle.Rectangle;
 
@@ -479,27 +479,27 @@ namespace SysCAD.Editor
         Box textBox=null, graphicBox=null, modelBox=null;
 
         {
-          RectangleF textArea = graphicItem.TextArea;
+          SysCAD.Protocol.Rectangle textArea = graphicItem.TextArea;
 
           if (textArea.IsEmpty) // We haven't got a TextArea stored in the item yet.
           {
             if (graphicStencil != null)
             {
-              textArea = new RectangleF(graphicItem.X + graphicStencil.TextArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
+              textArea = new SysCAD.Protocol.Rectangle(graphicItem.X + graphicStencil.TextArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
                                         graphicItem.Y + graphicStencil.TextArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
                                         graphicStencil.TextArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
                                         graphicStencil.TextArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
             }
             else
             {
-              textArea = new RectangleF(graphicItem.X,
+              textArea = new SysCAD.Protocol.Rectangle(graphicItem.X,
                                         graphicItem.Y + 1.1F * graphicItem.Height,
                                         graphicItem.Width,
                                         graphicItem.Height / 2.0F);
             }
           }
 
-          textBox = flowchart.CreateBox(textArea.X, textArea.Y, textArea.Width, textArea.Height);
+          textBox = flowchart.CreateBox((float)textArea.X, (float)textArea.Y, (float)textArea.Width, (float)textArea.Height);
           textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
           textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
           textBox.Style = BoxStyle.Shape;
@@ -513,8 +513,8 @@ namespace SysCAD.Editor
         }
 
         {
-          graphicBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
-          graphicBox.RotationAngle = graphicItem.Angle;
+          graphicBox = flowchart.CreateBox((float)graphicItem.X, (float)graphicItem.Y, (float)graphicItem.Width, (float)graphicItem.Height);
+          graphicBox.RotationAngle = (float)graphicItem.Angle;
           graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
           graphicBox.Style = BoxStyle.Shape;
 
@@ -537,8 +537,8 @@ namespace SysCAD.Editor
         creatingItem = false; // we want any events to happen for the last created piece.
 
         {
-          modelBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
-          modelBox.RotationAngle = graphicItem.Angle;
+          modelBox = flowchart.CreateBox((float)graphicItem.X, (float)graphicItem.Y, (float)graphicItem.Width, (float)graphicItem.Height);
+          modelBox.RotationAngle = (float)graphicItem.Angle;
           modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
           modelBox.Style = BoxStyle.Shape;
 
@@ -622,28 +622,28 @@ namespace SysCAD.Editor
         Box textBox = null;
 
         {
-          RectangleF textArea = graphicLink.TextArea;
+          SysCAD.Protocol.Rectangle textArea = graphicLink.TextArea;
 
           if (textArea.IsEmpty) // We haven't got a TextArea stored in the item yet.
           {
-            PointF pointOrigin = new PointF();
-            PointF pointDestination = new PointF();
-            PointF pointCenter = new PointF();
+            SysCAD.Protocol.Point pointOrigin = new SysCAD.Protocol.Point();
+            SysCAD.Protocol.Point pointDestination = new SysCAD.Protocol.Point();
+            SysCAD.Protocol.Point pointCenter = new SysCAD.Protocol.Point();
 
             if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
             {
               pointOrigin = graphicLink.ControlPoints[0];
               pointDestination = graphicLink.ControlPoints[graphicLink.ControlPoints.Count - 1];
-              pointCenter = new PointF((pointDestination.X + pointOrigin.X) / 2.0F, (pointDestination.Y + pointOrigin.Y) / 2.0F);
+              pointCenter = new SysCAD.Protocol.Point((pointDestination.X + pointOrigin.X) / 2.0F, (pointDestination.Y + pointOrigin.Y) / 2.0F);
             }
 
-            textArea = new RectangleF(pointCenter.X,
-                                      pointCenter.Y + 4.0F,
-                                      20.0F,
-                                      4.0F);
+            textArea = new SysCAD.Protocol.Rectangle(pointCenter.X,
+                                      pointCenter.Y + 4.0,
+                                      20.0,
+                                      4.0);
           }
 
-          textBox = flowchart.CreateBox(textArea.X, textArea.Y, textArea.Width, textArea.Height);
+          textBox = flowchart.CreateBox((float)textArea.X, (float)textArea.Y, (float)textArea.Width, (float)textArea.Height);
           textBox.FillColor = System.Drawing.Color.FromArgb(100, System.Drawing.Color.Black);
           textBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.Black);
           textBox.Style = BoxStyle.Shape;
@@ -680,8 +680,8 @@ namespace SysCAD.Editor
 
           if (graphicLink.Destination != Guid.Empty) destination = Item(graphicLink.Destination);
 
-          PointF pointOrigin = new PointF();
-          PointF pointDestination = new PointF();
+          SysCAD.Protocol.Point pointOrigin = new SysCAD.Protocol.Point();
+          SysCAD.Protocol.Point pointDestination = new SysCAD.Protocol.Point();
 
           if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
           {
@@ -754,8 +754,8 @@ namespace SysCAD.Editor
       {
         flowchart.SuspendLayout();
 
-        Box box = flowchart.CreateBox(graphicThing.X, graphicThing.Y, graphicThing.Width, graphicThing.Height);
-        box.RotationAngle = graphicThing.Angle;
+        Box box = flowchart.CreateBox((float)graphicThing.X, (float)graphicThing.Y, (float)graphicThing.Width, (float)graphicThing.Height);
+        box.RotationAngle = (float)graphicThing.Angle;
         box.ToolTip = graphicThing.Tag;
         box.Style = BoxStyle.Rectangle;
 
@@ -954,13 +954,13 @@ namespace SysCAD.Editor
       return false;
     }
 
-    internal static List<PointF> GetControlPoints(MindFusion.FlowChartX.PointCollection pointCollection)
+    internal static List<SysCAD.Protocol.Point> GetControlPoints(MindFusion.FlowChartX.PointCollection pointCollection)
     {
-      List<PointF> list = new List<PointF>(pointCollection.Capacity);
+      List<SysCAD.Protocol.Point> list = new List<SysCAD.Protocol.Point>(pointCollection.Capacity);
 
       foreach (PointF point in pointCollection)
       {
-        list.Add(point);
+        list.Add(new SysCAD.Protocol.Point(point));
       }
 
       return list;
@@ -1140,11 +1140,11 @@ namespace SysCAD.Editor
       return link;
     }
 
-    static internal float Mirrored(float x, bool mirrored)
+    static internal double Mirrored(double x, bool mirrored)
     {
 
       if (mirrored)
-        return 100.0F - x;
+        return 100.0 - x;
 
       else
         return x;
@@ -1157,7 +1157,7 @@ namespace SysCAD.Editor
       return modelStencil;
     }
 
-    internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       return clientProtocol.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
@@ -1172,12 +1172,12 @@ namespace SysCAD.Editor
       return clientProtocol.ModifyItemPath(out requestId, guid, path);
     }
 
-    internal bool ModifyGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+    internal bool ModifyGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       return clientProtocol.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
     }
 
-    internal bool ModifyGraphicThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    internal bool ModifyGraphicThing(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
     {
       return clientProtocol.ModifyThing(out requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
@@ -1251,7 +1251,7 @@ namespace SysCAD.Editor
 
       if (item != null)
       {
-        RectangleF boundingRect = item.Model.BoundingRect;
+        SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.Model.BoundingRect);
         boundingRect.Height = height;
         item.Model.BoundingRect = boundingRect;
         item.Graphic.BoundingRect = boundingRect;
@@ -1323,7 +1323,7 @@ namespace SysCAD.Editor
 
       if (item != null)
       {
-        RectangleF boundingRect = item.Model.BoundingRect;
+        SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.Model.BoundingRect);
         boundingRect.Width = width;
         item.Model.BoundingRect = boundingRect;
         item.Graphic.BoundingRect = boundingRect;
@@ -1337,7 +1337,7 @@ namespace SysCAD.Editor
 
       if (item != null)
       {
-        RectangleF boundingRect = item.Model.BoundingRect;
+        SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.Model.BoundingRect);
         boundingRect.X = x;
         item.Model.BoundingRect = boundingRect;
         item.Graphic.BoundingRect = boundingRect;
@@ -1351,7 +1351,7 @@ namespace SysCAD.Editor
 
       if (item != null)
       {
-        RectangleF boundingRect = item.Model.BoundingRect;
+        SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.Model.BoundingRect);
         boundingRect.Y = y;
         item.Model.BoundingRect = boundingRect;
         item.Graphic.BoundingRect = boundingRect;
@@ -1380,20 +1380,20 @@ namespace SysCAD.Editor
     {
       SysCAD.Protocol.Line line = element as SysCAD.Protocol.Line;
 
-      if (line != null) return new LineTemplate(Mirrored(line.x1, mirrorX), Mirrored(line.y1, mirrorY),
-                                                Mirrored(line.x2, mirrorX), Mirrored(line.y2, mirrorY));
+      if (line != null) return new LineTemplate((float)Mirrored(line.x1, mirrorX), (float)Mirrored(line.y1, mirrorY),
+            (float)Mirrored(line.x2, mirrorX), (float)Mirrored(line.y2, mirrorY));
 
       Arc arc = element as Arc;
 
-      if (arc != null) return new ArcTemplate(Mirrored(arc.x, mirrorX), Mirrored(arc.y, mirrorY),
-                                              arc.w, arc.h, arc.a, arc.s);
+      if (arc != null) return new ArcTemplate((float)Mirrored(arc.x, mirrorX), (float)Mirrored(arc.y, mirrorY),
+        (float)arc.w, (float)arc.h, (float)arc.a, (float)arc.s);
 
       Bezier bezier = element as Bezier;
 
-      if (bezier != null) return new BezierTemplate(Mirrored(bezier.x1, mirrorX), Mirrored(bezier.y1, mirrorY),
-                                                    Mirrored(bezier.x2, mirrorX), Mirrored(bezier.y2, mirrorY),
-                                                    Mirrored(bezier.x3, mirrorX), Mirrored(bezier.y3, mirrorY),
-                                                    Mirrored(bezier.x4, mirrorX), Mirrored(bezier.y4, mirrorY));
+      if (bezier != null) return new BezierTemplate((float)Mirrored(bezier.x1, mirrorX), (float)Mirrored(bezier.y1, mirrorY),
+            (float)Mirrored(bezier.x2, mirrorX), (float)Mirrored(bezier.y2, mirrorY),
+            (float)Mirrored(bezier.x3, mirrorX), (float)Mirrored(bezier.y3, mirrorY),
+            (float)Mirrored(bezier.x4, mirrorX), (float)Mirrored(bezier.y4, mirrorY));
 
       return null;
     }
@@ -1495,11 +1495,11 @@ namespace SysCAD.Editor
         foreach (String key in config.ModelStencils.Keys)
         {
           ModelStencil stencil = config.ModelStencils[key];
-          flowchart.DocExtents = flowchart.ClientToDoc(new Rectangle(0, 0, 17, 17));
+          flowchart.DocExtents = flowchart.ClientToDoc(new System.Drawing.Rectangle(0, 0, 17, 17));
           flowchart.ShadowsStyle = ShadowsStyle.None;
           flowchart.BackColor = System.Drawing.SystemColors.Window;
           flowchart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-          RectangleF boxRect = flowchart.ClientToDoc(new Rectangle(1, 1, 13, 13));
+          RectangleF boxRect = flowchart.ClientToDoc(new System.Drawing.Rectangle(1, 1, 13, 13));
           Box box = flowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
           box.Style = BoxStyle.Shape;
           box.Shape = GetShapeTemplate(stencil, false, false);
@@ -1519,11 +1519,11 @@ namespace SysCAD.Editor
         foreach (String key in config.GraphicStencils.Keys)
         {
           GraphicStencil stencil = config.GraphicStencils[key];
-          flowchart.DocExtents = flowchart.ClientToDoc(new Rectangle(0, 0, 17, 17));
+          flowchart.DocExtents = flowchart.ClientToDoc(new System.Drawing.Rectangle(0, 0, 17, 17));
           flowchart.ShadowsStyle = ShadowsStyle.None;
           flowchart.BackColor = System.Drawing.SystemColors.Window;
           flowchart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-          RectangleF boxRect = flowchart.ClientToDoc(new Rectangle(1, 1, 13, 13));
+          RectangleF boxRect = flowchart.ClientToDoc(new System.Drawing.Rectangle(1, 1, 13, 13));
           Box box = flowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
           box.Style = BoxStyle.Shape;
           box.Shape = GetShapeTemplate(stencil, false, false);

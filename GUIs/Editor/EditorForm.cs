@@ -980,10 +980,10 @@ namespace SysCAD.Editor
 
             foreach (GraphicLink graphicLink in pasteData.graphicLinks.Values)
             {
-              List<PointF> newControlPoints = new List<PointF>();
-              foreach (PointF point in graphicLink.ControlPoints)
+              List<SysCAD.Protocol.Point> newControlPoints = new List<SysCAD.Protocol.Point>();
+              foreach (SysCAD.Protocol.Point point in graphicLink.ControlPoints)
               {
-                newControlPoints.Add(new PointF(point.X + dx, point.Y + dy));
+                newControlPoints.Add(new SysCAD.Protocol.Point(point.X + dx, point.Y + dy));
               }
               graphicLink.ControlPoints = newControlPoints;
 
@@ -1102,7 +1102,7 @@ namespace SysCAD.Editor
           copyGraphicLink.Origin = graphicLink.Origin;
           copyGraphicLink.Destination = graphicLink.Destination;
 
-          foreach (PointF point in graphicLink.ControlPoints)
+          foreach (SysCAD.Protocol.Point point in graphicLink.ControlPoints)
           {
             copyGraphicLink.ControlPoints.Add(point);
           }

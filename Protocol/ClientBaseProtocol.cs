@@ -44,18 +44,18 @@ namespace SysCAD.Protocol
     public ThingDeletedHandler ThingDeleted;
     public ThingModifiedHandler ThingModified;
 
-    public delegate void GroupCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect);
+    public delegate void GroupCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect);
     public delegate void GroupDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
-    public delegate void GroupModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect);
+    public delegate void GroupModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect);
 
-    public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, Rectangle boundingRect, Double angle, Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
     public delegate void PortInfoRequestedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo);
-    public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, Rectangle boundingRect, Double angle, Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
 
-    public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle);
+    public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle);
     public delegate void LinkDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
-    public delegate void LinkModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle);
+    public delegate void LinkModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle);
 
     public delegate void PermissionsChangedHandler(Int64 eventId, Int64 requestId, Permissions permissions);
 
@@ -63,9 +63,9 @@ namespace SysCAD.Protocol
 
     public delegate void SyncHandler(Int64 eventId);
 
-    public delegate void ThingCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate void ThingCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY);
     public delegate void ThingDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
-    public delegate void ThingModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate void ThingModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY);
 
     [Serializable]
     public class Permissions
@@ -114,7 +114,7 @@ namespace SysCAD.Protocol
       return null;
     }
 
-    public void OnGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
+    public void OnGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect)
     {
       if (GroupCreated != null)
       {
@@ -132,7 +132,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnGroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
+    public void OnGroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect)
     {
       if (GroupModified != null)
       {
@@ -141,7 +141,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void OnItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, Rectangle boundingRect, Double angle, Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (ItemCreated != null)
       {
@@ -168,7 +168,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void OnItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, Rectangle boundingRect, Double angle, Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (ItemModified != null)
       {
@@ -177,7 +177,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+    public void OnLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
       if (LinkCreated != null)
       {
@@ -195,7 +195,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnLinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+    public void OnLinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
       if (LinkModified != null)
       {
@@ -231,7 +231,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    public void OnThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
     {
       if (ThingCreated != null)
       {
@@ -249,7 +249,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    public void OnThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
     {
       if (ThingModified != null)
       {

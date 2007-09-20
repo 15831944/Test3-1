@@ -30,7 +30,7 @@ namespace SysCAD.Protocol
 
     private ArrayList elements;
     private String tag;
-    private RectangleF textArea;
+    private Rectangle textArea;
 
     public GraphicStencil1()
     {
@@ -57,7 +57,7 @@ namespace SysCAD.Protocol
       set { tag = value; }
     }
 
-    public RectangleF TextArea
+    public Rectangle TextArea
     {
       get { return textArea; }
 

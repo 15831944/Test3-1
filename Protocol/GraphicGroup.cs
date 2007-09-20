@@ -14,7 +14,7 @@ namespace SysCAD.Protocol
   [Serializable]
   public class GraphicGroup
   {
-    private RectangleF boundingRect;
+    private Rectangle boundingRect;
 
     private Guid guid;
     private String tag;
@@ -35,7 +35,7 @@ namespace SysCAD.Protocol
       this.tag = tag;
     }
 
-    public ARectangleF BoundingRect
+    public Rectangle BoundingRect
     {
       get { return boundingRect; }
       set { boundingRect = value; }
@@ -47,7 +47,7 @@ namespace SysCAD.Protocol
       set { guid = value; }
     }
 
-    public Single Height
+    public Double Height
     {
       get { return boundingRect.Height; }
       set { boundingRect.Height = value; }
@@ -65,19 +65,19 @@ namespace SysCAD.Protocol
       set { path = value; }
     }
 
-    public Single Width
+    public Double Width
     {
       get { return boundingRect.Width; }
       set { boundingRect.Width = value; }
     }
 
-    public Single X
+    public Double X
     {
       get { return boundingRect.X; }
       set { boundingRect.X = value; }
     }
 
-    public Single Y
+    public Double Y
     {
       get { return boundingRect.Y; }
       set { boundingRect.Y = value; }

@@ -35,7 +35,7 @@ namespace SysCAD.Editor
       InitializeComponent();
 
       graphicImageList = new ImageList();
-      graphicImageList.ImageSize = new Size(16, 16);
+      graphicImageList.ImageSize = new System.Drawing.Size(16, 16);
       graphicImageList.Images.Add("Empty", new Bitmap(16, 16)); // Used when no imagekey listed.
       foreach (String key in graphicUnselectedThumbnails.Keys)
       {

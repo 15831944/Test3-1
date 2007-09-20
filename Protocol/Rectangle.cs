@@ -1,5 +1,5 @@
 //
-// System.Drawing.RectangleF.cs
+// System.Drawing.Rectangle.cs
 //
 // Author:
 //   Mike Kestner (mkestner@speakeasy.net)
@@ -42,24 +42,32 @@ namespace SysCAD.Protocol
 
   [Serializable]
   [ComVisible(false)]
-  public struct ARectangleF
+  public class Rectangle
   {
 
-    private Single x, y, width, height;
+    private Double x, y, width, height;
 
     /// <summary>
     ///	FromLTRB Shared Method
     /// </summary>
     ///
     /// <remarks>
-    ///	Produces a RectangleF structure from left, top, right,
+    ///	Produces a Rectangle structure from left, top, right,
     ///	and bottom coordinates.
     /// </remarks>
 
-    private static ARectangleF FromLTRB(Single left, Single top,
-               Single right, Single bottom)
+    public Rectangle(RectangleF rectF)
     {
-      return new ARectangleF(left, top, right - left, bottom - top);
+      x = rectF.X;
+      y = rectF.Y;
+      width = rectF.Width;
+      height = rectF.Height;
+    }
+
+    private static Rectangle FromLTRB(Double left, Double top,
+               Double right, Double bottom)
+    {
+      return new Rectangle(left, top, right - left, bottom - top);
     }
 
     /// <summary>
@@ -67,14 +75,14 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Produces a new RectangleF by inflating an existing 
-    ///	RectangleF by the specified coordinate values.
+    ///	Produces a new Rectangle by inflating an existing 
+    ///	Rectangle by the specified coordinate values.
     /// </remarks>
 
-    internal static ARectangleF Inflate(ARectangleF rect,
-              Single x, Single y)
+    internal static Rectangle Inflate(Rectangle rect,
+              Double x, Double y)
     {
-      ARectangleF ir = new ARectangleF(rect.X, rect.Y, rect.Width, rect.Height);
+      Rectangle ir = new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
       ir.Inflate(x, y);
       return ir;
     }
@@ -84,10 +92,10 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Inflates the RectangleF by a specified width and height.
+    ///	Inflates the Rectangle by a specified width and height.
     /// </remarks>
 
-    internal void Inflate(Single width, Single height)
+    public void Inflate(Double width, Double height)
     {
       x -= width;
       y -= height;
@@ -100,7 +108,7 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Inflates the RectangleF by a specified Size.
+    ///	Inflates the Rectangle by a specified Size.
     /// </remarks>
 
     internal void Inflate(SizeF sz)
@@ -113,13 +121,13 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Produces a new RectangleF by intersecting 2 existing 
-    ///	RectangleFs. Returns null if there is no intersection.
+    ///	Produces a new Rectangle by intersecting 2 existing 
+    ///	Rectangles. Returns null if there is no intersection.
     /// </remarks>
 
-    public static ARectangleF Intersect(ARectangleF rect1, ARectangleF rect2)
+    public static Rectangle Intersect(Rectangle rect1, Rectangle rect2)
     {
-      ARectangleF rect = new ARectangleF(rect1.X, rect1.Y, rect1.Width, rect1.Height);
+      Rectangle rect = new Rectangle(rect1.X, rect1.Y, rect1.Width, rect1.Height);
       rect.Intersect(rect2);
       return rect;
     }
@@ -129,11 +137,11 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Replaces the RectangleF with the intersection of itself
-    ///	and another RectangleF.
+    ///	Replaces the Rectangle with the intersection of itself
+    ///	and another Rectangle.
     /// </remarks>
 
-    public void Intersect(ARectangleF rect)
+    public void Intersect(Rectangle rect)
     {
 
       if (!IntersectsWith(rect))
@@ -155,11 +163,11 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Produces a new RectangleF from the union of 2 existing 
-    ///	RectangleFs.
+    ///	Produces a new Rectangle from the union of 2 existing 
+    ///	Rectangles.
     /// </remarks>
 
-    public static ARectangleF Union(ARectangleF r1, ARectangleF r2)
+    public static Rectangle Union(Rectangle r1, Rectangle r2)
     {
       return FromLTRB(Math.Min(r1.Left, r2.Left),
            Math.Min(r1.Top, r2.Top),
@@ -172,12 +180,12 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Compares two RectangleF objects. The return value is
+    ///	Compares two Rectangle objects. The return value is
     ///	based on the equivalence of the Location and Size 
-    ///	properties of the two RectangleFs.
+    ///	properties of the two Rectangles.
     /// </remarks>
 
-    public static bool operator ==(ARectangleF r1, ARectangleF r2)
+    public static bool operator ==(Rectangle r1, Rectangle r2)
     {
       return (r1.X == r2.X) && (r1.Y == r2.Y) &&
                                 (r1.Width == r2.Width) && (r1.Height == r2.Height);
@@ -188,46 +196,41 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Compares two RectangleF objects. The return value is
+    ///	Compares two Rectangle objects. The return value is
     ///	based on the equivalence of the Location and Size 
-    ///	properties of the two RectangleFs.
+    ///	properties of the two Rectangles.
     /// </remarks>
 
-    public static bool operator !=(ARectangleF r1, ARectangleF r2)
+    public static bool operator !=(Rectangle r1, Rectangle r2)
     {
       return (r1.X != r2.X) && (r1.Y != r2.Y) &&
                                 (r1.Width != r2.Width) && (r1.Height != r2.Height);
     }
 
     /// <summary>
-    ///	Rectangle to RectangleF Conversion
+    ///	Rectangle to Rectangle Conversion
     /// </summary>
     ///
     /// <remarks>
-    ///	Converts a Rectangle object to a RectangleF.
+    ///	Converts a Rectangle object to a Rectangle.
     /// </remarks>
 
-    public static implicit operator ARectangleF(Rectangle rect)
+    public static implicit operator System.Drawing.RectangleF(Rectangle rect)
     {
-      return new ARectangleF(rect.X, rect.Y, rect.Width, rect.Height);
+      return new System.Drawing.RectangleF((float)rect.X, (float)rect.Y, (float)rect.Width, (float)rect.Height);
     }
 
     /// <summary>
-    ///	System.Drawing.RectangleF to RectangleF Conversion
+    ///	System.Drawing.Rectangle to Rectangle Conversion
     /// </summary>
     ///
     /// <remarks>
-    ///	Converts a Rectangle object to a RectangleF.
+    ///	Converts a Rectangle object to a Rectangle.
     /// </remarks>
 
-    public static implicit operator ARectangleF(System.Drawing.RectangleF rect)
+    public static implicit operator Rectangle(System.Drawing.Rectangle rect)
     {
-      return new ARectangleF(rect.X, rect.Y, rect.Width, rect.Height);
-    }
-
-    public static implicit operator System.Drawing.RectangleF(ARectangleF rect)
-    {
-      return new System.Drawing.RectangleF(rect.X, rect.Y, rect.Width, rect.Height);
+      return new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
     }
 
     // -----------------------
@@ -235,14 +238,38 @@ namespace SysCAD.Protocol
     // -----------------------
 
     /// <summary>
-    ///	RectangleF Constructor
+    ///	Rectangle Constructor
     /// </summary>
     ///
     /// <remarks>
-    ///	Creates a RectangleF from PointF and SizeF values.
+    ///	Creates a Rectangle from PointF and SizeF values.
     /// </remarks>
 
-    public ARectangleF(PointF loc, SizeF sz)
+    public Rectangle(Point loc, Size sz)
+    {
+      x = loc.X;
+      y = loc.Y;
+      width = sz.Width;
+      height = sz.Height;
+    }
+
+    public Rectangle(PointF loc, Size sz)
+    {
+      x = loc.X;
+      y = loc.Y;
+      width = sz.Width;
+      height = sz.Height;
+    }
+
+    public Rectangle(Point loc, SizeF sz)
+    {
+      x = loc.X;
+      y = loc.Y;
+      width = sz.Width;
+      height = sz.Height;
+    }
+
+    public Rectangle(PointF loc, SizeF sz)
     {
       x = loc.X;
       y = loc.Y;
@@ -251,15 +278,15 @@ namespace SysCAD.Protocol
     }
 
     /// <summary>
-    ///	RectangleF Constructor
+    ///	Rectangle Constructor
     /// </summary>
     ///
     /// <remarks>
-    ///	Creates a RectangleF from a specified x,y location and
+    ///	Creates a Rectangle from a specified x,y location and
     ///	width and height values.
     /// </remarks>
 
-    public ARectangleF(Single x, Single y, Single width, Single height)
+    public Rectangle(Double x, Double y, Double width, Double height)
     {
       this.x = x;
       this.y = y;
@@ -272,12 +299,12 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The Y coordinate of the bottom edge of the RectangleF.
+    ///	The Y coordinate of the bottom edge of the Rectangle.
     ///	Read only.
     /// </remarks>
 
     [Browsable(false)]
-    public Single Bottom
+    public Double Bottom
     {
       get
       {
@@ -290,10 +317,10 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The Height of the RectangleF.
+    ///	The Height of the Rectangle.
     /// </remarks>
 
-    public Single Height
+    public Double Height
     {
       get
       {
@@ -314,7 +341,7 @@ namespace SysCAD.Protocol
     /// </remarks>
     //
     // LAMESPEC: Documentation says "This property returns true if 
-    // the Width, Height, X, and Y properties of this RectangleF all 
+    // the Width, Height, X, and Y properties of this Rectangle all 
     // have values of zero; otherwise, false.". Reality returns TRUE if
     // width or height are equal 0		
 
@@ -332,12 +359,12 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The X coordinate of the left edge of the RectangleF.
+    ///	The X coordinate of the left edge of the Rectangle.
     ///	Read only.
     /// </remarks>
 
     [Browsable(false)]
-    public Single Left
+    public Double Left
     {
       get
       {
@@ -350,15 +377,15 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The Location of the top-left corner of the RectangleF.
+    ///	The Location of the top-left corner of the Rectangle.
     /// </remarks>
 
     [Browsable(false)]
-    public PointF Location
+    public Point Location
     {
       get
       {
-        return new PointF(x, y);
+        return new Point(x, y);
       }
       set
       {
@@ -372,12 +399,12 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The X coordinate of the right edge of the RectangleF.
+    ///	The X coordinate of the right edge of the Rectangle.
     ///	Read only.
     /// </remarks>
 
     [Browsable(false)]
-    public Single Right
+    public Double Right
     {
       get
       {
@@ -390,15 +417,15 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The Size of the RectangleF.
+    ///	The Size of the Rectangle.
     /// </remarks>
 
     [Browsable(false)]
-    public SizeF Size
+    public Size Size
     {
       get
       {
-        return new SizeF(width, height);
+        return new Size(width, height);
       }
       set
       {
@@ -412,12 +439,12 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The Y coordinate of the top edge of the RectangleF.
+    ///	The Y coordinate of the top edge of the Rectangle.
     ///	Read only.
     /// </remarks>
 
     [Browsable(false)]
-    public Single Top
+    public Double Top
     {
       get
       {
@@ -430,10 +457,10 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The Width of the RectangleF.
+    ///	The Width of the Rectangle.
     /// </remarks>
 
-    public Single Width
+    public Double Width
     {
       get
       {
@@ -450,10 +477,10 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The X coordinate of the RectangleF.
+    ///	The X coordinate of the Rectangle.
     /// </remarks>
 
-    public Single X
+    public Double X
     {
       get
       {
@@ -470,10 +497,10 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	The Y coordinate of the RectangleF.
+    ///	The Y coordinate of the Rectangle.
     /// </remarks>
 
-    public Single Y
+    public Double Y
     {
       get
       {
@@ -490,10 +517,10 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Checks if an x,y coordinate lies within this RectangleF.
+    ///	Checks if an x,y coordinate lies within this Rectangle.
     /// </remarks>
 
-    public bool Contains(Single positionX, Single positionY)
+    public bool Contains(Double positionX, Double positionY)
     {
       return ((positionX >= Left) && (positionX <= Right) &&
         (positionY >= Top) && (positionY <= Bottom));
@@ -504,7 +531,7 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Checks if a Point lies within this RectangleF.
+    ///	Checks if a Point lies within this Rectangle.
     /// </remarks>
 
     public bool Contains(PointF point)
@@ -517,11 +544,11 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Checks if a RectangleF lies entirely within this 
-    ///	RectangleF.
+    ///	Checks if a Rectangle lies entirely within this 
+    ///	Rectangle.
     /// </remarks>
 
-    public bool Contains(ARectangleF rect)
+    public bool Contains(Rectangle rect)
     {
       return (rect == Intersect(this, rect));
     }
@@ -531,16 +558,16 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Checks equivalence of this RectangleF and an object.
+    ///	Checks equivalence of this Rectangle and an object.
     /// </remarks>
 
     public override bool Equals(object obj)
     {
 
-      if (!(obj is ARectangleF))
+      if (!(obj is Rectangle))
         return false;
 
-      return (this == (ARectangleF)obj);
+      return (this == (Rectangle)obj);
     }
 
     /// <summary>
@@ -561,10 +588,10 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Checks if a RectangleF intersects with this one.
+    ///	Checks if a Rectangle intersects with this one.
     /// </remarks>
 
-    public bool IntersectsWith(ARectangleF rect)
+    public bool IntersectsWith(Rectangle rect)
     {
       return !((Left > rect.Right) || (Right < rect.Left) ||
           (Top > rect.Bottom) || (Bottom < rect.Top));
@@ -575,10 +602,10 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Moves the RectangleF a specified distance.
+    ///	Moves the Rectangle a specified distance.
     /// </remarks>
 
-    public void Offset(Single dx, Single dy)
+    public void Offset(Double dx, Double dy)
     {
       X += dx;
       Y += dy;
@@ -589,7 +616,7 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Moves the RectangleF a specified distance.
+    ///	Moves the Rectangle a specified distance.
     /// </remarks>
 
     public void Offset(PointF pt)
@@ -602,7 +629,7 @@ namespace SysCAD.Protocol
     /// </summary>
     ///
     /// <remarks>
-    ///	Formats the RectangleF in (x,y,w,h) notation.
+    ///	Formats the Rectangle in (x,y,w,h) notation.
     /// </remarks>
 
     public override String ToString()
@@ -610,6 +637,5 @@ namespace SysCAD.Protocol
       return String.Format(CultureInfo.InvariantCulture, "{{X={0},Y={1},Width={2},Height={3}}}",
              x, y, width, height);
     }
-
   }
 }

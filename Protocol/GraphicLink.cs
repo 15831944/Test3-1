@@ -18,7 +18,7 @@ namespace SysCAD.Protocol
 
     private String classId;
 
-    private List<PointF> controlPoints;
+    private List<Point> controlPoints;
     private Guid destination;
     private String destinationPort;
     private Guid guid;
@@ -26,14 +26,14 @@ namespace SysCAD.Protocol
     private String originPort;
     private String tag;
 
-    private RectangleF textArea;
-    private Single textAngle;
+    private Rectangle textArea;
+    private Double textAngle;
 
     [NonSerialized]
     public Object other = null;
 
     public GraphicLink(Guid guid, String tag, String classId, Guid source, String sourcePort, Guid destination,
-      String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+      String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
       this.guid = guid;
       this.tag = tag;
@@ -43,9 +43,9 @@ namespace SysCAD.Protocol
       this.destination = destination;
       this.destinationPort = destinationPort;
 
-      this.controlPoints = new List<PointF>();
+      this.controlPoints = new List<Point>();
 
-      foreach (PointF controlPoint in controlPoints)
+      foreach (Point controlPoint in controlPoints)
         this.controlPoints.Add(controlPoint);
 
       this.textArea = textArea;
@@ -59,11 +59,11 @@ namespace SysCAD.Protocol
     }
 
     // Norm-1 distance between the closest side of the rectangle to the point.
-    static private Single distance(PointF pointF, RectangleF rectangleF)
+    static private Double distance(PointF pointF, Rectangle Rectangle)
     {
-      Single dXL = System.Math.Abs(pointF.X - rectangleF.Left);
-      Single dXR = System.Math.Abs(pointF.X - rectangleF.Right);
-      Single dX;
+      Double dXL = System.Math.Abs(pointF.X - Rectangle.Left);
+      Double dXR = System.Math.Abs(pointF.X - Rectangle.Right);
+      Double dX;
 
       if (dXL < dXR)
         dX = dXL;
@@ -71,9 +71,9 @@ namespace SysCAD.Protocol
       else
         dX = dXR;
 
-      Single dYT = System.Math.Abs(pointF.Y - rectangleF.Top);
-      Single dYB = System.Math.Abs(pointF.Y - rectangleF.Bottom);
-      Single dY;
+      Double dYT = System.Math.Abs(pointF.Y - Rectangle.Top);
+      Double dYB = System.Math.Abs(pointF.Y - Rectangle.Bottom);
+      Double dY;
 
       if (dYT < dYB)
         dY = dYT;
@@ -90,7 +90,7 @@ namespace SysCAD.Protocol
       set { classId = value; }
     }
 
-    public List<PointF> ControlPoints
+    public List<Point> ControlPoints
     {
       get { return controlPoints; }
       set { controlPoints = value; }
@@ -131,13 +131,13 @@ namespace SysCAD.Protocol
       set { tag = value; }
     }
 
-    public RectangleF TextArea
+    public Rectangle TextArea
     {
       get { return textArea; }
       set { textArea = value; }
     }
 
-    public Single TextAngle
+    public Double TextAngle
     {
       get { return textAngle; }
       set { textAngle = value; }

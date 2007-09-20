@@ -90,22 +90,46 @@
 <a1:Anchor id="ref-20" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-22">Feed</tag>
 <type>Process</type>
-<position>
-<x>50</x>
-<y>0</y>
-</position>
+  <positions href="#ref-101"/>
 
   <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-21" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-23">Prod</tag>
 <type>Process</type>
-<position>
-<x>50</x>
-<y>0</y>
-</position>
+  <positions href="#ref-102"/>
 
   <look>0</look>
 </a1:Anchor>
+
+
+<a2:ArrayList id="ref-101" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+    <_items href="#ref-201"/>
+    <_size>1</_size>
+    <_version>1</_version>
+  </a2:ArrayList>
+
+  <a2:ArrayList id="ref-102" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+    <_items href="#ref-202"/>
+    <_size>1</_size>
+    <_version>1</_version>
+  </a2:ArrayList>
+
+
+  <SOAP-ENC:Array id="ref-201" SOAP-ENC:arrayType="xsd:anyType[4]">
+    <a1:Point id="ref-301" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+      <x>50</x>
+      <y>0</y>
+    </a1:Point>
+  </SOAP-ENC:Array>
+
+  <SOAP-ENC:Array id="ref-202" SOAP-ENC:arrayType="xsd:anyType[4]">
+    <a1:Point id="ref-302" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+      <x>50</x>
+      <y>0</y>
+      </a1:Point>
+    </SOAP-ENC:Array>
+
+
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

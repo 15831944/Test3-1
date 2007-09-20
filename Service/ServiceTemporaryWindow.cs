@@ -157,7 +157,7 @@ namespace Service
       }
     }
 
-    bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect)
+    bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
     {
       // Need to check for runstate here, and decide if we'll fire DoGroupCreated.
       // This is required in case a rogue client tries to create an Group even when not supposed to.
@@ -187,7 +187,7 @@ namespace Service
       }
     }
 
-    bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       // Need to check for runstate here, and decide if we'll fire DoItemCreated.
       // This is required in case a rogue client tries to create an item even when not supposed to.
@@ -226,7 +226,7 @@ namespace Service
       }
     }
 
-    bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+    bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       GraphicItem originGraphicItem;
       GraphicItem destinationGraphicItem;
@@ -266,7 +266,7 @@ namespace Service
       }
     }
 
-    bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
     {
       if (true) // Decide whether to create an Thing.
       { // We're going to do it.
@@ -415,7 +415,7 @@ namespace Service
       }
     }
 
-    bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
+    bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
@@ -458,7 +458,7 @@ namespace Service
       }
     }
 
-    bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -538,7 +538,7 @@ namespace Service
       }
     }
 
-    bool ModifyItemBoundingRect(out Int64 requestId, Guid guid, RectangleF boundingRect)
+    bool ModifyItemBoundingRect(out Int64 requestId, Guid guid, SysCAD.Protocol.Rectangle boundingRect)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -563,7 +563,7 @@ namespace Service
       }
     }
 
-    bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+    bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -583,7 +583,7 @@ namespace Service
 
         graphicLink.ControlPoints.Clear();
 
-        foreach (PointF controlPoint in controlPoints)
+        foreach (SysCAD.Protocol.Point controlPoint in controlPoints)
           graphicLink.ControlPoints.Add(controlPoint);
 
         graphicLink.TextArea = textArea;
@@ -601,7 +601,7 @@ namespace Service
       }
     }
 
-    bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -847,45 +847,54 @@ namespace Service
         {
           String fullpath = dirs[i];
 
-          ////Create dummy ModelStencil for comparison...
-          //{
-          //  ModelStencil modelStencil2 = new ModelStencil();
-          //  modelStencil2.Tag = "";
-          //  modelStencil2.GroupName = "Control";
-          //  ArrayList elements = new ArrayList();
-          //  SysCAD.Protocol.Arc arc = new SysCAD.Protocol.Arc(0, 0, 100, 100, 10, 360);
-          //  elements.Add(arc);
-          //  modelStencil2.Elements = elements;
-
-          //  modelStencil2.Decorations = new ArrayList();
-          //  ArrayList anchors = new ArrayList();
-          //  Anchor anchor = new Anchor("tag", AnchorType.Electrical, 0, 0.0f, 1.0f);
-          //  anchors.Add(anchor);
-          //  modelStencil2.Anchors = anchors;
-          //  modelStencil2.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-
-          //  SoapFormatter sf2 = new SoapFormatter();
-          //  StreamWriter streamWriter = new StreamWriter(fullpath + ".new");
-          //  Stream stream2 = streamWriter.BaseStream;
-          //  sf2.Serialize(stream2, modelStencil2);
-          //  stream2.Close();
-          //}
-
-          SoapFormatter sf = new SoapFormatter();
-          StreamReader streamRdr = new StreamReader(fullpath);
-          Stream stream = streamRdr.BaseStream;
-          ModelStencil modelStencil = (ModelStencil)sf.Deserialize(stream);
-          modelStencil.Tag = Path.GetFileNameWithoutExtension(fullpath);
-
-          if (ConfirmModelStencil(modelStencil))
+          //Create dummy ModelStencil for comparison...
           {
-            TrimAnchorPoints(modelStencil);
-            configData.ModelStencils.Add(Path.GetFileNameWithoutExtension(fullpath), modelStencil);
+            ModelStencil modelStencil2 = new ModelStencil();
+            modelStencil2.Tag = "";
+            modelStencil2.GroupName = "Control";
+            ArrayList elements = new ArrayList();
+            SysCAD.Protocol.Arc arc = new SysCAD.Protocol.Arc(0, 0, 100, 100, 10, 360);
+            elements.Add(arc);
+            modelStencil2.Elements = elements;
+
+            modelStencil2.Decorations = new ArrayList();
+            ArrayList anchors = new ArrayList();
+            Anchor anchor = new Anchor("tag", AnchorType.Electrical, 0, 0.0f, 1.0f);
+            anchors.Add(anchor);
+            Anchor anchor2 = new Anchor("tag2", AnchorType.Electrical, 0, 0.0f, 1.0f);
+            anchors.Add(anchor2);
+            modelStencil2.Anchors = anchors;
+            modelStencil2.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+
+            SoapFormatter sf2 = new SoapFormatter();
+            StreamWriter streamWriter = new StreamWriter(fullpath + ".new");
+            Stream stream2 = streamWriter.BaseStream;
+            sf2.Serialize(stream2, modelStencil2);
+            stream2.Close();
           }
 
-          stream.Close();
-          //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
-          LogNote("Srvr", 0, "  %i] %s", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
+          try
+          {
+            SoapFormatter sf = new SoapFormatter();
+            StreamReader streamRdr = new StreamReader(fullpath);
+            Stream stream = streamRdr.BaseStream;
+            ModelStencil modelStencil = (ModelStencil)sf.Deserialize(stream);
+            modelStencil.Tag = Path.GetFileNameWithoutExtension(fullpath);
+
+            if (ConfirmModelStencil(modelStencil))
+            {
+              TrimAnchorPoints(modelStencil);
+              configData.ModelStencils.Add(Path.GetFileNameWithoutExtension(fullpath), modelStencil);
+            }
+
+            stream.Close();
+            //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
+            LogNote("Srvr", 0, "  %i] %s", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
+          }
+          catch (Exception e)
+          {
+            Message("Error '" + e.Message + "' loading ModelStencil: " + fullpath, MessageType.Error);
+          }
         }
 
         Console.WriteLine("\n");
@@ -1062,12 +1071,14 @@ namespace Service
 
     private void LogNote(string p, int p_2, string p_3)
     {
+      Message(p + " : " + p_2 + " : " + p_3, MessageType.Error);
       Console.WriteLine(p + " : " + p_2 + " : " + p_3);
     }
 
     private void LogNote(string p, int p_2, string p_3, int p_4, string p_5)
     {
-      Console.WriteLine(p + " : " + p_2 + " : " + p_3 + " : " + p_4 + " : " + p_5);
+      Message(p + " : " + p_2 + " : " + p_3 + " : " + p_4 + " : " + p_5, MessageType.Error);
+      //Console.WriteLine(p + " : " + p_2 + " : " + p_3 + " : " + p_4 + " : " + p_5);
     }
 
     void TrimAnchorPoints(ModelStencil modelStencil)

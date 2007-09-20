@@ -35,7 +35,7 @@ namespace SysCAD.Editor
     private Arrow hoverArrow;
     private Box hoverBox;
 
-    Point mousePressed;
+    System.Drawing.Point mousePressed;
     int newDestinationAnchor = -1;
     Box newDestinationBox;
 
@@ -45,7 +45,7 @@ namespace SysCAD.Editor
 
     Guid newOriginGuid = Guid.Empty;
 
-    List<PointF> oldControlPoints = new List<PointF>();
+    List<SysCAD.Protocol.Point> oldControlPoints = new List<SysCAD.Protocol.Point>();
     int oldDestinationAnchor = -1;
     Box oldDestinationBox;
 
@@ -78,8 +78,8 @@ namespace SysCAD.Editor
 
     public void FixDocExtents()
     {
-      float minX = Single.MaxValue, minY = Single.MaxValue;
-      float maxX = -Single.MaxValue, maxY = -Single.MaxValue;
+      float minX = float.MaxValue, minY = float.MaxValue;
+      float maxX = -float.MaxValue, maxY = -float.MaxValue;
 
       bool foundObject = false;
 
@@ -130,7 +130,7 @@ namespace SysCAD.Editor
         guid = Guid.Empty;
     }
 
-    public void NewGraphicItem(out Guid guid, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void NewGraphicItem(out Guid guid, String path, String model, String shape, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       Int64 requestId;
 
@@ -147,8 +147,8 @@ namespace SysCAD.Editor
       else
         guid = Guid.Empty;
     }
-    
-    public void NewGraphicLink(out Guid guid, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+
+    public void NewGraphicLink(out Guid guid, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       Int64 requestId;
 
@@ -188,7 +188,7 @@ namespace SysCAD.Editor
         guid = Guid.Empty;
     }
 
-    public void NewGraphicThing(out Guid guid, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    public void NewGraphicThing(out Guid guid, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
     {
       Int64 requestId;
 
@@ -245,8 +245,8 @@ namespace SysCAD.Editor
     {
       FixDocExtents();
 
-      float minX = Single.MaxValue, minY = Single.MaxValue;
-      float maxX = -Single.MaxValue, maxY = -Single.MaxValue;
+      float minX = float.MaxValue, minY = float.MaxValue;
+      float maxX = -float.MaxValue, maxY = -float.MaxValue;
 
       bool foundSelectedObject = false;
 
@@ -298,8 +298,8 @@ namespace SysCAD.Editor
     {
       FixDocExtents();
 
-      float minX = Single.MaxValue, minY = Single.MaxValue;
-      float maxX = -Single.MaxValue, maxY = -Single.MaxValue;
+      float minX = float.MaxValue, minY = float.MaxValue;
+      float maxX = -float.MaxValue, maxY = -float.MaxValue;
 
       bool foundVisibleObject = false;
 
@@ -359,9 +359,9 @@ namespace SysCAD.Editor
       }
     }
 
-    internal static PointF getCenter(RectangleF rect)
+    internal static SysCAD.Protocol.Point getCenter(SysCAD.Protocol.Rectangle rect)
     {
-      return new PointF(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
+      return new SysCAD.Protocol.Point(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
     }
 
     internal static float getMinArrowheadSize(GraphicsUnit currUnit)
@@ -392,21 +392,21 @@ namespace SysCAD.Editor
       }
     }
 
-    internal bool mergePoints(PointF point1, PointF point2)
+    internal bool MergePoints(SysCAD.Protocol.Point point1, SysCAD.Protocol.Point point2)
     {
       return
         Math.Abs(point1.X - point2.X) <= fcFlowChart.MergeThreshold &&
         Math.Abs(point1.Y - point2.Y) <= fcFlowChart.MergeThreshold;
     }
 
-    internal static PointF rotatePointAt(PointF point, PointF pivot, float angle)
+    internal static SysCAD.Protocol.Point rotatePointAt(SysCAD.Protocol.Point point, SysCAD.Protocol.Point pivot, Double angle)
     {
-      PointF[] points = new PointF[] { point };
+      PointF[] points = new PointF[] { point.ToPointF() };
       Matrix rotation = new Matrix();
-      rotation.RotateAt(angle, pivot);
+      rotation.RotateAt((float)angle, pivot.ToPointF());
       rotation.TransformPoints(points);
       rotation.Dispose();
-      return points[0];
+      return new SysCAD.Protocol.Point(points[0]);
     }
 
     internal void SetProject(ClientProtocol clientProtocol, Config config, PureComponents.TreeView.TreeView tvNavigation)
@@ -505,9 +505,9 @@ namespace SysCAD.Editor
       State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).GraphicLink.ControlPoints);
     }
 
-    static private float Distance(PointF a, PointF b)
+    static private Double Distance(SysCAD.Protocol.Point a, SysCAD.Protocol.Point b)
     {
-      return (float)Math.Sqrt(((a.X - b.X) * (a.X - b.X)) + ((a.Y - b.Y) * (a.Y - b.Y)));
+      return Math.Sqrt(((a.X - b.X) * (a.X - b.X)) + ((a.Y - b.Y) * (a.Y - b.Y)));
     }
 
     private void DoArrowModifyingOperations(Arrow arrow, int selectionHandle)
@@ -537,8 +537,8 @@ namespace SysCAD.Editor
 
       if (arrowBeingModifiedSelectionHandle == 0)
       {
-        PointF originPos = arrowBeingModified.ControlPoints[0];
-        Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
+        SysCAD.Protocol.Point originPos = new SysCAD.Protocol.Point(arrowBeingModified.ControlPoints[0]);
+        Box originBox = fcFlowChart.GetBoxAt(originPos.ToPointF(), 2.0F);
 
         if ((selectionHandle == 0) && (originBox != null) && (!(arrowBeingModified.Origin is Box)))
         {
@@ -547,18 +547,18 @@ namespace SysCAD.Editor
           if (originBox != null)
           {
             int closestI = 0;
-            float closestDistance = float.MaxValue;
+            Double closestDistance = Double.MaxValue;
 
             for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
             {
 
               if (originBox.AnchorPattern.Points[i].AllowOutgoing)
               {
-                PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
+                SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(originBox.BoundingRect),
                   originBox.AnchorPattern.Points[i].X,
                   originBox.AnchorPattern.Points[i].Y,
                   originBox.RotationAngle);
-                float thisDistance = Distance(originPos, anchorPointPos);
+                Double thisDistance = Distance(originPos, anchorPointPos);
 
                 if (thisDistance < closestDistance)
                 {
@@ -585,8 +585,8 @@ namespace SysCAD.Editor
 
       if (selectionHandle == arrowBeingModified.ControlPoints.Count - 1)
       {
-        PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1];
-        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2.0F);
+        SysCAD.Protocol.Point destinationPos = new SysCAD.Protocol.Point(arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1]);
+        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos.ToPointF(), 2.0F);
 
         if ((destinationBox != null) && (!(arrowBeingModified.Destination is Box)))
         {
@@ -595,18 +595,18 @@ namespace SysCAD.Editor
           if (destinationBox != null)
           {
             int closestI = 0;
-            float closestDistance = float.MaxValue;
+            Double closestDistance = Double.MaxValue;
 
             for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
             {
 
               if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
               {
-                PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
+                SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(destinationBox.BoundingRect),
                   destinationBox.AnchorPattern.Points[i].X,
                   destinationBox.AnchorPattern.Points[i].Y,
                   destinationBox.RotationAngle);
-                float thisDistance = Distance(destinationPos, anchorPointPos);
+                Double thisDistance = Distance(destinationPos, anchorPointPos);
 
                 if (thisDistance < closestDistance)
                 {
@@ -737,27 +737,27 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ArrowCreating(object sender, AttachConfirmArgs e)
     {
-      PointF originPos = e.Arrow.ControlPoints[0];
-      Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
+      SysCAD.Protocol.Point originPos = new SysCAD.Protocol.Point(e.Arrow.ControlPoints[0]);
+      Box originBox = fcFlowChart.GetBoxAt(originPos.ToPointF(), 2.0F);
 
       originBox = (originBox.Tag as Item).Model;
 
       if (originBox != null)
       {
         int closestI = 0;
-        float closestDistance = float.MaxValue;
+        Double closestDistance = Double.MaxValue;
 
         for (int i = 0; i < originBox.AnchorPattern.Points.Count; i++)
         {
 
           if (originBox.AnchorPattern.Points[i].AllowOutgoing)
           {
-            PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
+            SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(originBox.BoundingRect),
               originBox.AnchorPattern.Points[i].X,
               originBox.AnchorPattern.Points[i].Y,
               originBox.RotationAngle);
 
-            float thisDistance = Distance(originPos, anchorPointPos);
+            Double thisDistance = Distance(originPos, anchorPointPos);
 
             if (thisDistance < closestDistance)
             {
@@ -794,7 +794,7 @@ namespace SysCAD.Editor
         while ((oldControlPoints.Count > 3) && (i < oldControlPoints.Count - 1))
         {
 
-          if (mergePoints(oldControlPoints[i - 1], oldControlPoints[i]))
+          if (MergePoints(oldControlPoints[i - 1], oldControlPoints[i]))
           {
             oldControlPoints.RemoveAt(i - 1);
             oldControlPoints.RemoveAt(i - 1);
@@ -808,7 +808,7 @@ namespace SysCAD.Editor
         }
       }
 
-      if (mergePoints(oldControlPoints[0], oldControlPoints[1]))
+      if (MergePoints(oldControlPoints[0], oldControlPoints[1]))
       {
         oldControlPoints.RemoveAt(0);
 
@@ -819,7 +819,7 @@ namespace SysCAD.Editor
           e.Arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
       }
 
-      if (mergePoints(oldControlPoints[oldControlPoints.Count - 1], oldControlPoints[oldControlPoints.Count - 2]))
+      if (MergePoints(oldControlPoints[oldControlPoints.Count - 1], oldControlPoints[oldControlPoints.Count - 2]))
       {
         oldControlPoints.RemoveAt(oldControlPoints.Count - 1);
       }
@@ -968,7 +968,7 @@ namespace SysCAD.Editor
           state.CurrentPath,
           currentModel,
           currentStencil,
-          new RectangleF(fcFlowChart.ClientToDoc(me.Location), state.GraphicShape(currentStencil).defaultSize),
+          new SysCAD.Protocol.Rectangle(fcFlowChart.ClientToDoc(me.Location), state.GraphicShape(currentStencil).defaultSize),
           0.0F,
           state.GraphicShape(currentStencil).TextArea, // ???? I think this needs to be converted from relative (stencil) to absolute (graphicItem)
           0.0F,
@@ -1046,10 +1046,10 @@ namespace SysCAD.Editor
             if ((box != null) && (arrow.DestAnchor != -1))
             {
 
-              PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect,
+              PointF anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(box.BoundingRect),
                 box.AnchorPattern.Points[arrow.DestAnchor].X,
                 box.AnchorPattern.Points[arrow.DestAnchor].Y,
-                box.RotationAngle);
+                box.RotationAngle).ToPointF();
 
               PointF[] extensionPoints =
                 new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
@@ -1058,8 +1058,8 @@ namespace SysCAD.Editor
               e.Graphics.DrawLines(pen, extensionPoints);
 
               pen = new System.Drawing.Pen(Color.Green, 0.0F);
-              RectangleF anchorPointRect = new RectangleF(anchorPointPos, SizeF.Empty);
-              anchorPointRect.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
+              SysCAD.Protocol.Rectangle anchorPointRect = new SysCAD.Protocol.Rectangle(anchorPointPos, SysCAD.Protocol.Size.Empty);
+              anchorPointRect.Inflate((double)fcFlowChart.SelHandleSize, (double)fcFlowChart.SelHandleSize);
               e.Graphics.DrawEllipse(pen, anchorPointRect);
             }
 
@@ -1073,7 +1073,7 @@ namespace SysCAD.Editor
 
               System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
               PointF controlPoint = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
-              RectangleF controlPointRect = new RectangleF(controlPoint, SizeF.Empty);
+              SysCAD.Protocol.Rectangle controlPointRect = new SysCAD.Protocol.Rectangle(controlPoint, SysCAD.Protocol.Size.Empty);
               controlPointRect.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
               e.Graphics.DrawEllipse(pen, controlPointRect);
             }
@@ -1088,10 +1088,10 @@ namespace SysCAD.Editor
 
             if ((box != null) && (arrow.OrgnAnchor != -1))
             {
-              PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect,
+              PointF anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(box.BoundingRect),
                 box.AnchorPattern.Points[arrow.OrgnAnchor].X,
                 box.AnchorPattern.Points[arrow.OrgnAnchor].Y,
-                box.RotationAngle);
+                box.RotationAngle).ToPointF();
 
               PointF[] extensionPoints =
                 new PointF[] { arrow.ControlPoints[0], anchorPointPos };
@@ -1100,7 +1100,7 @@ namespace SysCAD.Editor
               e.Graphics.DrawLines(pen, extensionPoints);
 
               pen = new System.Drawing.Pen(Color.Green, 0.0F);
-              RectangleF r = new RectangleF(anchorPointPos, SizeF.Empty);
+              SysCAD.Protocol.Rectangle r = new SysCAD.Protocol.Rectangle(anchorPointPos, SysCAD.Protocol.Size.Empty);
               r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
               e.Graphics.DrawEllipse(pen, r);
             }
@@ -1115,7 +1115,7 @@ namespace SysCAD.Editor
 
               System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
               PointF p = arrow.ControlPoints[0];
-              RectangleF r = new RectangleF(p, SizeF.Empty);
+              SysCAD.Protocol.Rectangle r = new SysCAD.Protocol.Rectangle(p, SysCAD.Protocol.Size.Empty);
               r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
               e.Graphics.DrawEllipse(pen, r);
             }
@@ -1129,13 +1129,13 @@ namespace SysCAD.Editor
 
           if (newDestinationAnchor != -1)
           {
-            PointF anchorPointPos = GetRelativeAnchorPosition(newDestinationBox.BoundingRect,
+            SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(newDestinationBox.BoundingRect),
               newDestinationBox.AnchorPattern.Points[newDestinationAnchor].X,
               newDestinationBox.AnchorPattern.Points[newDestinationAnchor].Y,
               newDestinationBox.RotationAngle);
 
             PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos.ToPointF() };
 
             System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
 
@@ -1144,13 +1144,13 @@ namespace SysCAD.Editor
 
           else if (oldDestinationAnchor != -1)
           {
-            PointF anchorPointPos = GetRelativeAnchorPosition(oldDestinationBox.BoundingRect,
+            SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(oldDestinationBox.BoundingRect),
               oldDestinationBox.AnchorPattern.Points[oldDestinationAnchor].X,
               oldDestinationBox.AnchorPattern.Points[oldDestinationAnchor].Y,
               oldDestinationBox.RotationAngle);
 
             PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos.ToPointF() };
 
             System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
 
@@ -1162,13 +1162,13 @@ namespace SysCAD.Editor
 
           if (newOriginAnchor != -1)
           {
-            PointF anchorPointPos = GetRelativeAnchorPosition(newOriginBox.BoundingRect,
+            SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(newOriginBox.BoundingRect),
               newOriginBox.AnchorPattern.Points[newOriginAnchor].X,
               newOriginBox.AnchorPattern.Points[newOriginAnchor].Y,
               newOriginBox.RotationAngle);
 
             PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+              new PointF[] { arrow.ControlPoints[0], anchorPointPos.ToPointF() };
 
             System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
 
@@ -1177,13 +1177,13 @@ namespace SysCAD.Editor
 
           else if (oldOriginAnchor != -1)
           {
-            PointF anchorPointPos = GetRelativeAnchorPosition(oldOriginBox.BoundingRect,
+            SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(oldOriginBox.BoundingRect),
               oldOriginBox.AnchorPattern.Points[oldOriginAnchor].X,
               oldOriginBox.AnchorPattern.Points[oldOriginAnchor].Y,
               oldOriginBox.RotationAngle);
 
             PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+              new PointF[] { arrow.ControlPoints[0], anchorPointPos.ToPointF() };
 
             System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
 
@@ -1198,8 +1198,8 @@ namespace SysCAD.Editor
 
       if (arrowBeingModified != null)
       {
-        PointF originPos = arrowBeingModified.ControlPoints[0];
-        Box originBox = fcFlowChart.GetBoxAt(originPos, 2.0F);
+        SysCAD.Protocol.Point originPos = new SysCAD.Protocol.Point(arrowBeingModified.ControlPoints[0]);
+        Box originBox = fcFlowChart.GetBoxAt(originPos.ToPointF(), 2.0F);
 
         if (originBox != null)
         {
@@ -1212,16 +1212,16 @@ namespace SysCAD.Editor
             {
               //if (originAnchorChosen == null)
               {
-                float closest = float.MaxValue;
+                Double closest = Double.MaxValue;
 
                 foreach (AnchorPoint anchorPoint in originBox.AnchorPattern.Points)
                 {
-                  PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
+                  SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(originBox.BoundingRect),
                     anchorPoint.X,
                     anchorPoint.Y,
                     originBox.RotationAngle);
 
-                  float distance = Distance(anchorPointPos, originPos);
+                  Double distance = Distance(anchorPointPos, originPos);
 
                   if (distance < closest)
                   {
@@ -1234,19 +1234,19 @@ namespace SysCAD.Editor
 
                // if (state.PortCheck(out requestId, (originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
                 {
-                  PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
-                    originAnchorChosen.Position.X,
-                    originAnchorChosen.Position.Y,
+                  SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(originBox.BoundingRect),
+                    (originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).X,
+                    (originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).Y,
                     originBox.RotationAngle);
 
                   PointF[] extensionPoints =
-                    new PointF[] { anchorPointPos, anchorPointPos };
+                    new PointF[] { anchorPointPos.ToPointF(), anchorPointPos.ToPointF() };
                   System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, fcFlowChart.SelHandleSize);
                   e.Graphics.DrawEllipse(pen, RectangleF.FromLTRB(
-                    anchorPointPos.X - fcFlowChart.SelHandleSize,
-                    anchorPointPos.Y - fcFlowChart.SelHandleSize,
-                    anchorPointPos.X + fcFlowChart.SelHandleSize,
-                    anchorPointPos.Y + fcFlowChart.SelHandleSize));
+                    anchorPointPos.ToPointF().X - fcFlowChart.SelHandleSize,
+                    anchorPointPos.ToPointF().Y - fcFlowChart.SelHandleSize,
+                    anchorPointPos.ToPointF().X + fcFlowChart.SelHandleSize,
+                    anchorPointPos.ToPointF().Y + fcFlowChart.SelHandleSize));
                   e.Graphics.DrawLines(pen, extensionPoints);
                 }
               }
@@ -1254,8 +1254,8 @@ namespace SysCAD.Editor
           }
         }
 
-        PointF destinationPos = arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1];
-        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos, 2.0F);
+        SysCAD.Protocol.Point destinationPos = new SysCAD.Protocol.Point(arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1]);
+        Box destinationBox = fcFlowChart.GetBoxAt(destinationPos.ToPointF(), 2.0F);
 
         if (destinationBox != null)
         {
@@ -1268,16 +1268,16 @@ namespace SysCAD.Editor
             {
               //if (destinationAnchorChosen == null)
               {
-                float closest = float.MaxValue;
+                Double closest = Double.MaxValue;
 
                 foreach (AnchorPoint anchorPoint in destinationBox.AnchorPattern.Points)
                 {
-                  PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
+                  SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(destinationBox.BoundingRect),
                     anchorPoint.X,
                     anchorPoint.Y,
                     destinationBox.RotationAngle);
 
-                  float distance = Distance(anchorPointPos, destinationPos);
+                  Double distance = Distance(anchorPointPos, destinationPos);
 
                   if (distance < closest)
                   {
@@ -1290,19 +1290,19 @@ namespace SysCAD.Editor
 
                 //if (state.PortCheck(out requestId, (destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
                 {
-                  PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
-                    destinationAnchorChosen.Position.X,
-                    destinationAnchorChosen.Position.Y,
+                  SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(destinationBox.BoundingRect),
+                    (float)((originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).X),
+                    (float)((originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).Y),
                     destinationBox.RotationAngle);
 
                   PointF[] extensionPoints =
-                    new PointF[] { anchorPointPos, anchorPointPos };
+                    new PointF[] { anchorPointPos.ToPointF(), anchorPointPos.ToPointF() };
                   System.Drawing.Pen pen = new System.Drawing.Pen(Color.Yellow, fcFlowChart.SelHandleSize);
                   e.Graphics.DrawEllipse(pen, RectangleF.FromLTRB(
-                    anchorPointPos.X - fcFlowChart.SelHandleSize,
-                    anchorPointPos.Y - fcFlowChart.SelHandleSize,
-                    anchorPointPos.X + fcFlowChart.SelHandleSize,
-                    anchorPointPos.Y + fcFlowChart.SelHandleSize));
+                    anchorPointPos.ToPointF().X - fcFlowChart.SelHandleSize,
+                    anchorPointPos.ToPointF().Y - fcFlowChart.SelHandleSize,
+                    anchorPointPos.ToPointF().X + fcFlowChart.SelHandleSize,
+                    anchorPointPos.ToPointF().Y + fcFlowChart.SelHandleSize));
                   e.Graphics.DrawLines(pen, extensionPoints);
                 }
 
@@ -1313,7 +1313,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
+    private void fcFlowChart_GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
     {
       state.CreateGroup(state.GraphicGroup(guid), true, fcFlowChart);
     }
@@ -1323,12 +1323,12 @@ namespace SysCAD.Editor
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
+    private void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       state.CreateItem(state.GraphicItem(guid), state.TVNavigation.GetNodeByPath(path).IsSelected, fcFlowChart);
     }
@@ -1343,14 +1343,14 @@ namespace SysCAD.Editor
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_ItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       Item item = state.Item(guid);
 
       if (item != null)
       {
         item.Model.BoundingRect = boundingRect;
-        item.Model.RotationAngle = angle;
+        item.Model.RotationAngle = (float)angle;
 
         ModelStencil modelShape = state.ModelShape(model);
 
@@ -1362,7 +1362,7 @@ namespace SysCAD.Editor
         item.Model.AnchorPattern = State.GetAnchorPattern(modelShape, item.GraphicItem);
 
         item.Graphic.BoundingRect = boundingRect;
-        item.Graphic.RotationAngle = angle;
+        item.Graphic.RotationAngle = (float)angle;
         item.Graphic.FillColor = fillColor;
 
         //item.Graphic.Shape = shape.ShapeTemplate(item.MirrorX, iItem.MirrorY);
@@ -1377,7 +1377,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+    private void fcFlowChart_LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       state.CreateLink(state.GraphicLink(guid), true, fcFlowChart);
     }
@@ -1387,7 +1387,7 @@ namespace SysCAD.Editor
       // TBD
     }
 
-    private void fcFlowChart_LinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
+    private void fcFlowChart_LinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       Link link = state.Link(guid);
 
@@ -1683,7 +1683,7 @@ namespace SysCAD.Editor
       form1.LoadProject(state.ClientProtocol, state.Config);
     }
 
-    private void fcFlowChart_ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
     {
       state.CreateThing(state.GraphicThing(guid), true, fcFlowChart);
     }
@@ -1693,14 +1693,14 @@ namespace SysCAD.Editor
       state.DeleteThing(guid, fcFlowChart);
     }
 
-    private void fcFlowChart_ThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
     {
       Thing thing = state.Thing(guid);
 
       if (thing != null)
       {
         thing.Box.BoundingRect = boundingRect;
-        thing.Box.RotationAngle = angle;
+        thing.Box.RotationAngle = (float)angle;
       }
     }
 
@@ -1721,9 +1721,9 @@ namespace SysCAD.Editor
           graphicItem.Path,
           graphicItem.Model,
           graphicItem.Shape,
-          modelBox.BoundingRect, // this is the new boundingbox from the user move.
+          new SysCAD.Protocol.Rectangle(modelBox.BoundingRect), // this is the new boundingbox from the user move.
           modelBox.RotationAngle, // this is the new rotationangle from the user move.
-          textBox.BoundingRect,
+          new SysCAD.Protocol.Rectangle(textBox.BoundingRect),
           textBox.RotationAngle,
           graphicItem.FillColor,
           graphicItem.FillMode,
@@ -1731,7 +1731,7 @@ namespace SysCAD.Editor
           graphicItem.MirrorY))
         { // failure, revert back to previous.
           modelBox.BoundingRect = graphicItem.BoundingRect;
-          modelBox.RotationAngle = graphicItem.Angle;
+          modelBox.RotationAngle = (float)graphicItem.Angle;
         }
 
         ArrowCollection incomingArrows = modelBox.IncomingArrows.Clone();
@@ -1790,19 +1790,19 @@ namespace SysCAD.Editor
             graphicThing.Guid,
             graphicThing.Tag,
             graphicThing.Path,
-            box.BoundingRect, // this is the new boundingbox from the user move.
+            new SysCAD.Protocol.Rectangle(box.BoundingRect), // this is the new boundingbox from the user move.
             graphicThing.Xaml,
             box.RotationAngle, // this is the new rotationangle from the user move.
             graphicThing.MirrorX,
             graphicThing.MirrorY))
         {
           box.BoundingRect = graphicThing.BoundingRect;
-          box.RotationAngle = graphicThing.Angle;
+          box.RotationAngle = (float)graphicThing.Angle;
         }
 
         else
         {
-          graphicThing.BoundingRect = box.BoundingRect;
+          graphicThing.BoundingRect = new SysCAD.Protocol.Rectangle(box.BoundingRect);
           graphicThing.Angle = box.RotationAngle;
         }
 
@@ -1832,14 +1832,13 @@ namespace SysCAD.Editor
       }
     }
 
-    static private PointF GetRelativeAnchorPosition(RectangleF nodeRect, float x, float y, float angle)
+    static private SysCAD.Protocol.Point GetRelativeAnchorPosition(SysCAD.Protocol.Rectangle nodeRect, Double x, Double y, Double angle)
     {
-      PointF point = new PointF(nodeRect.X + nodeRect.Width * x / 100, nodeRect.Y + nodeRect.Height * y / 100);
+      SysCAD.Protocol.Point point = new SysCAD.Protocol.Point(nodeRect.X + nodeRect.Width * x / 100.0, nodeRect.Y + nodeRect.Height * y / 100.0);
 
       if (angle != 0)
       {
-        point = rotatePointAt(point,
-          getCenter(nodeRect), angle);
+        point = rotatePointAt(point, getCenter(nodeRect), angle);
       }
       return point;
     }
@@ -1890,7 +1889,7 @@ namespace SysCAD.Editor
       arrow.Route();
 
       {
-        List<PointF> controlPoints = State.GetControlPoints(arrow.ControlPoints);
+        List<SysCAD.Protocol.Point> controlPoints = State.GetControlPoints(arrow.ControlPoints);
 
         if (Math.Abs(controlPoints[0].X - controlPoints[1].X) <= fcFlowChart.MergeThreshold)
           arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;

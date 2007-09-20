@@ -17,7 +17,7 @@ namespace SysCAD.Log
     protected Stack<MessageSource> sourceStack = new Stack<MessageSource>();
 
     private int maxEntries = 1000;
-    private string logFile = string.Empty;
+    private string logFile = String.Empty;
 
     public string LogFile
     {

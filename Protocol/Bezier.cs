@@ -13,20 +13,20 @@ namespace SysCAD.Protocol
   public class Bezier : Element
   {
 
-    public Single x1;
-    public Single x2;
-    public Single x3;
-    public Single x4;
-    public Single y1;
-    public Single y2;
-    public Single y3;
-    public Single y4;
+    public Double x1;
+    public Double x2;
+    public Double x3;
+    public Double x4;
+    public Double y1;
+    public Double y2;
+    public Double y3;
+    public Double y4;
 
     public Bezier()
     {
     }
 
-    public Bezier(Single x1, Single y1, Single x2, Single y2, Single x3, Single y3, Single x4, Single y4)
+    public Bezier(Double x1, Double y1, Double x2, Double y2, Double x3, Double y3, Double x4, Double y4)
     {
       this.x1 = x1;
       this.y1 = y1;

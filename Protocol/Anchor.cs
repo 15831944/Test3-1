@@ -18,7 +18,7 @@ namespace SysCAD.Protocol
   {
 
     [System.Xml.Serialization.XmlIgnoreAttribute()]
-    private PointF position;
+    private ArrayList positions;
     private String tag;
     private AnchorType type;
     private Int16 look;
@@ -27,12 +27,13 @@ namespace SysCAD.Protocol
     {
     }
 
-    public Anchor(String tag, AnchorType type, Int16 look, Single positionX, Single positionY)//, uint min, uint max)
+    public Anchor(String tag, AnchorType type, Int16 look, Double positionX, Double positionY)//, uint min, uint max)
     {
       this.tag = tag;
       this.type = type;
       this.look = look;
-      this.position = new PointF(positionX, positionY);
+      this.positions = new ArrayList();
+      this.positions.Add(new Point(positionX, positionY));
       //this.min = min;
       //this.max = max;
     }
@@ -42,15 +43,26 @@ namespace SysCAD.Protocol
       this.tag = tag;
       this.type = type;
       this.look = look;
-      this.position = position;
+      this.positions = new ArrayList();
+      this.positions.Add(new Point(position.X, position.Y));
       //this.min = min;
       //this.max = max;
     }
 
-    public PointF Position
+    private Anchor(String tag, AnchorType type, Int16 look, ArrayList positions)//, uint min, uint max)
     {
-      get { return position; }
-      set { position = value; }
+      this.tag = tag;
+      this.type = type;
+      this.look = look;
+      this.positions = positions;
+      //this.min = min;
+      //this.max = max;
+    }
+
+    public ArrayList Positions
+    {
+      get { return positions; }
+      set { positions = value; }
     }
 
     //public uint min = 0;

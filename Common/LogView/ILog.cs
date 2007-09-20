@@ -17,7 +17,7 @@ namespace SysCAD.Log
   }
 
   /// <summary>
-  /// A single threaded log. If used on multiple threads, each thread should have its own ILog object.
+  /// A Double threaded log. If used on multiple threads, each thread should have its own ILog object.
   /// </summary>
   public interface ILog
   {

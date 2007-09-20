@@ -286,16 +286,16 @@ ref class CSvcConnectCLRThread
     void DoCreateGroup(__int64 & requestId, CString & GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
       {
       Guid guid;//Guid(gcnew String(GrpGuid))
-      RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+      SysCAD::Protocol::Rectangle^ BR = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
       clientProtocol->CreateGroup(requestId, guid, gcnew String(Tag), gcnew String(Path), BR);
       GrpGuid = guid.ToString();
       }
 
 
-    void GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect)
+		void GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, SysCAD::Protocol::Rectangle^ boundingRect)
       {
       m_pConn->OnCreateGroup(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
-        CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height));
+        CRectangleF(boundingRect->Left, boundingRect->Top, boundingRect->Width, boundingRect->Height));
       }
 
     // ====================================================================
@@ -308,8 +308,8 @@ ref class CSvcConnectCLRThread
       bool MirrorX, bool MirrorY)
       {
       Guid guid;//X(gcnew String(guid))
-      RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
-      RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+      SysCAD::Protocol::Rectangle^ BR = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+      SysCAD::Protocol::Rectangle^ TA = gcnew SysCAD::Protocol::Rectangle(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
 
       bool a = clientProtocol->CreateItem(requestId, guid, gcnew String(Tag), gcnew String(Path), 
         gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA, TextAngle, 
@@ -323,13 +323,13 @@ ref class CSvcConnectCLRThread
 				engineProtocol->RequestPortInfo(requestId, guid, tag, portInfo);
       }
 
-    void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, SysCAD::Protocol::Rectangle^ boundingRect, double angle, SysCAD::Protocol::Rectangle^ textArea, double textAngle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
       m_pConn->OnCreateItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         ToCString(model->ToString()), ToCString(shape->ToString()), //boundingRect, 
-        CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height), 
+        CRectangleF(boundingRect->Left, boundingRect->Top, boundingRect->Width, boundingRect->Height), 
         angle, 
-        CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height),
+        CRectangleF(textArea->Left, textArea->Top, textArea->Width, textArea->Height),
 				textAngle,
         RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
@@ -355,7 +355,7 @@ ref class CSvcConnectCLRThread
 
     void DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta)
       {
-      //RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+      //SysCAD::Protocol::Rectangle^ TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
       
 
       Guid itemGuid(gcnew String(ItemGuid));
@@ -363,9 +363,9 @@ ref class CSvcConnectCLRThread
       if (clientProtocol->graphicItems->TryGetValue(itemGuid, Item))
         {
 
-        RectangleF BR=Item->BoundingRect;
-        BR.X+=(float)Delta.X;
-        BR.Y+=(float)Delta.Y;
+        SysCAD::Protocol::Rectangle^ BR=Item->BoundingRect;
+        BR->X+=(float)Delta.X;
+        BR->Y+=(float)Delta.Y;
         //(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
 
 
@@ -381,23 +381,23 @@ ref class CSvcConnectCLRThread
     //  float Angle, const CRectangleF & textArea, COLORREF FillColor, 
     //  bool MirrorX, bool MirrorY)
     //  {
-    //  RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
-    //  RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+    //  SysCAD::Protocol::Rectangle^ BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+    //  SysCAD::Protocol::Rectangle^ TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
     //  
-    //  //clientProtocol->ModifyItem(requestId, guid, gcnew String(Tag), gcnew String(Path), gcnew String(ClassId), gcnew String(Symbol), RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    //  //clientProtocol->ModifyItem(requestId, guid, gcnew String(Tag), gcnew String(Path), gcnew String(ClassId), gcnew String(Symbol), SysCAD::Protocol::Rectangle^ boundingRect, double angle, SysCAD::Protocol::Rectangle^ textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     //  clientProtocol->ModifyItem(requestId, Guid(gcnew String(ItemGuid)), gcnew String(Tag), gcnew String(Path), 
     //    gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA,
     //    Color::Empty, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
     //    
     //  };
 
-    void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, SysCAD::Protocol::Rectangle^ boundingRect, double angle, SysCAD::Protocol::Rectangle^ textArea, double textAngle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
       m_pConn->OnModifyItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         ToCString(model->ToString()), ToCString(stencil->ToString()), //boundingRect, 
-        CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height), 
+        CRectangleF(boundingRect->Left, boundingRect->Top, boundingRect->Width, boundingRect->Height), 
         angle, 
-        CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height), 
+        CRectangleF(textArea->Left, textArea->Top, textArea->Width, textArea->Height), 
 				textAngle,
         RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
@@ -413,31 +413,32 @@ ref class CSvcConnectCLRThread
 
     void DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
       {
-      List<PointF> ^ Pts = gcnew List<PointF>;
+      List<SysCAD::Protocol::Point^> ^ Pts = gcnew List<SysCAD::Protocol::Point^>;
       POSITION Pos=ControlPoints.GetHeadPosition();
       while (Pos)
         {
         CPointF & Pt=ControlPoints.GetNext(Pos);
-        Pts->Add(PointF(Pt.X(), Pt.Y()));
+        Pts->Add(gcnew SysCAD::Protocol::Point(Pt.X(), Pt.Y()));
         }
 
-      RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+      SysCAD::Protocol::Rectangle^ TA = gcnew SysCAD::Protocol::Rectangle(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
 
       Guid guid;
       clientProtocol->CreateLink(requestId, guid, gcnew String(Tag), /*gcnew String(Path), */ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), gcnew String(OriginPort), gcnew String(DestinationPort), Pts, TA, textAngle);
       LinkGuid = guid.ToString();
       };
 
-    void LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String ^ tag, String ^ classId, Guid origin, Guid destination, String ^ originPort, String ^destinationPort, List<PointF> ^ controlPoints, RectangleF textArea, Single textAngle)
+		void LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String ^ tag, String ^ classId, Guid origin, Guid destination, String ^ originPort, String ^destinationPort, List<SysCAD::Protocol::Point^> ^ controlPoints, SysCAD::Protocol::Rectangle^ textArea, double textAngle)
       {
       CPointFList Pts;
 
-      for each (PointF ^ Pt in controlPoints)
+      for each (SysCAD::Protocol::Point^ Pt in controlPoints)
         {
         Pts.AddTail(CPointF(Pt->X, Pt->Y));
         }
 
-      m_pConn->OnCreateLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), Pts, CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height), textAngle);
+      m_pConn->OnCreateLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), 
+				Pts, CRectangleF(textArea->Left, textArea->Top, textArea->Width, textArea->Height), textAngle);
       }
 
     // ====================================================================
@@ -461,22 +462,22 @@ ref class CSvcConnectCLRThread
 
     void DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
       {
-      List<PointF> ^ Pts = gcnew List<PointF>;
+      List<SysCAD::Protocol::Point^> ^ Pts = gcnew List<SysCAD::Protocol::Point^>;
       POSITION Pos=ControlPoints.GetHeadPosition();
       while (Pos)
         {
         CPointF & Pt=ControlPoints.GetNext(Pos);
-        Pts->Add(PointF(Pt.X(), Pt.Y()));
+        Pts->Add(gcnew SysCAD::Protocol::Point(Pt.X(), Pt.Y()));
         }
-      RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+      SysCAD::Protocol::Rectangle^ TA = gcnew SysCAD::Protocol::Rectangle(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
 
       clientProtocol->ModifyLink(requestId, Guid(gcnew String(LinkGuid)), gcnew String(Tag), /*LPCSTR Path,*/ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), gcnew String(OriginPort), gcnew String(DestinationPort), Pts, TA, textAngle);
       };
 
-    void LinkModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> ^ controlPoints, RectangleF textArea, Single textAngle)
+    void LinkModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<SysCAD::Protocol::Point^> ^ controlPoints, SysCAD::Protocol::Rectangle^ textArea, double textAngle)
       {
       CPointFList Pts;
-      for each (PointF ^ Pt in controlPoints)
+      for each (SysCAD::Protocol::Point ^ Pt in controlPoints)
         {
         Pts.AddTail(CPointF(Pt->X, Pt->Y));
         }
@@ -486,7 +487,8 @@ ref class CSvcConnectCLRThread
       if (String::IsNullOrEmpty(originPort))      originPort = String::Empty;
       if (String::IsNullOrEmpty(destinationPort)) destinationPort = String::Empty;
 
-      m_pConn->OnModifyLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), Pts, CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height), 
+      m_pConn->OnModifyLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), 
+				Pts, CRectangleF(textArea->Left, textArea->Top, textArea->Width, textArea->Height), 
 				textAngle);
       }
 
@@ -500,7 +502,7 @@ ref class CSvcConnectCLRThread
     //  }
 
 
-    void ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
+    void ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, SysCAD::Protocol::Rectangle^ boundingRect, String^ xaml, double angle, bool mirrorX, bool mirrorY)
       {
       }
 
@@ -512,7 +514,7 @@ ref class CSvcConnectCLRThread
       {
       }
 
-    void ThingModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
+    void ThingModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, SysCAD::Protocol::Rectangle^ boundingRect, String^ xaml, double angle, bool mirrorX, bool mirrorY)
       {
       }
 
@@ -530,7 +532,7 @@ ref class CSvcConnectCLRThread
     //String ^ path;
     //String ^ model;
     //String ^ shape;
-    //RectangleF boundingRect;
+    //SysCAD::Protocol::Rectangle^ boundingRect;
     //Single angle;
     //System::Drawing::Color fillColor;
     //System::Drawing::Drawing2D::FillMode fillMode;
