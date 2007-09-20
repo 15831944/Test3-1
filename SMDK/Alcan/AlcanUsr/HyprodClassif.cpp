@@ -197,16 +197,14 @@ bool Classifier::ExchangeDataFields()
 
 bool Classifier::ValidateDataFields()
   {//ensure parameters are within expected ranges
-   if (m_eModel==eMdl_Cyclone && m_eInputMethod==eIM_Model)
-			m_eInputMethod = eIM_Recovery;
-   m_dD50      = DV.ValidateRange("", 0.000001,  m_dD50 , 0.0005);
-   m_dD50Used  = DV.ValidateRange("", 0.000001,  m_dD50 , 0.0005);
-   m_dRqdRecoveryFrac = DV.ValidateRange("", 0.01,  m_dRqdRecoveryFrac , 0.995);
+  if (m_eModel==eMdl_Cyclone && m_eInputMethod==eIM_Model)
+    m_eInputMethod = eIM_Recovery;
+  m_dD50      = DV.ValidateRange("CutSize", 0.000001,  m_dD50 , 0.0005);
+  //m_dD50Used  = DV.ValidateRange("", 0.000001,  m_dD50 , 0.0005);
+  m_dD50Used  = Range(0.000001,  m_dD50 , 0.0005); //is this needed???
+  m_dRqdRecoveryFrac = DV.ValidateRange("RqdRecovery", 0.01,  m_dRqdRecoveryFrac , 0.995);
 
-
-//!!!! NEED TO PUT A LOT OF SAFETY CHECKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
+  //!!!! NEED TO PUT A LOT OF SAFETY CHECKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   return true;
   }
 

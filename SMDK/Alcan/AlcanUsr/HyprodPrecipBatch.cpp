@@ -235,17 +235,17 @@ bool BatchPrecip::ExchangeDataFields()
 
 bool BatchPrecip::ValidateDataFields()
   {//ensure parameters are within expected ranges
-  m_dVolume  = DV.ValidateRange("", 1.0,  m_dVolume , 1000000);
-  m_dSurface = DV.ValidateRange("", 1.0,  m_dSurface , 300000);
-  m_dKvFac   = DV.ValidateRange("", 0.0,     m_dKvFac , 30);
-  m_dUCoef   = DV.ValidateRange("", 0.0,     m_dUCoef , 2000);
-  m_dLevel   = DV.ValidateRange("", 1.0e-6,  m_dLevel , 1);
+  m_dVolume  = DV.ValidateRange("Volume", 1.0, m_dVolume, 1000000);
+  m_dSurface = DV.ValidateRange("Surface", 1.0, m_dSurface, 300000);
+  m_dKvFac   = DV.ValidateRange("KvFac", 0.0, m_dKvFac, 30);
+  m_dUCoef   = DV.ValidateRange("UCoef", 0.0, m_dUCoef, 2000);
+  m_dLevel   = DV.ValidateRange("Level", 0.01, m_dLevel, 1);
   
   if ( m_eHeatBalance == eHBal_ImposedTemp)
-    m_dTempImpos = DV.ValidateRange("", C2K(1.0e-6), m_dTempImpos, C2K(150.0));
+    m_dTempImpos = DV.ValidateRange("TempImposed", C2K(1.0e-6), m_dTempImpos, C2K(150.0));
 
   return true;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
