@@ -482,8 +482,8 @@ void MdlNode::Xfer_EvalProducts(Xfer_EvalProducts_Info & S1,
   {
   SpConduit *Sd1 = (S1.m_pQo!=NULL) ? S1.m_pQo : GetWrkConduit("Xfer1", chLINEID());
   SpConduit *Sd2 = (S2.m_pQo!=NULL) ? S2.m_pQo : GetWrkConduit("Xfer2", chLINEID());
-  Xfer_EvalProductsIn_(S1.m_iJoinId, S1.m_dPress, S1.m_pQo, Sd1, S1.m_pPBP);
-  Xfer_EvalProductsIn_(S2.m_iJoinId, S2.m_dPress, S2.m_pQo, Sd2, S2.m_pPBP);
+  Xfer_EvalProductsIn_(S1.m_iJoinId, S1.m_dPress, S1.m_pQi, Sd1, S1.m_pPBP);
+  Xfer_EvalProductsIn_(S2.m_iJoinId, S2.m_dPress, S2.m_pQi, Sd2, S2.m_pPBP);
 
   flag HX_PreReact = (pHX && NetProbalMethod() && pHX->PreReact()); //should this HX sequencing option be enabled for dynamic?
   if (HX_PreReact)

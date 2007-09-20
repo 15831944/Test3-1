@@ -399,7 +399,7 @@ void MN_Surge::ConfigureJoins()
       else
         SetIO_Direct(i, JnId_Surge);
       }
-    for (int ii=NoProcessIOs(), jj=JnId_Surge+1; ii<NoFlwIOs(); ii++, jj++)
+    for (int ii=NoProcessIOs(), jj=JnId_Spill; ii<NoFlwIOs(); ii++, jj++)
       SetIO_Direct(ii, jj);
     }   
   else
@@ -417,7 +417,7 @@ void MN_Surge::ConfigureJoins()
       else
         SetIO_Direct(i, JnId_Surge);
       }
-    for (int ii=NoProcessIOs(), jj=JnId_Surge+1; ii<NoFlwIOs(); ii++, jj++)
+    for (int ii=NoProcessIOs(), jj=JnId_Spill; ii<NoFlwIOs(); ii++, jj++)
       SetIO_Direct(ii, jj);
     }
   };
@@ -584,7 +584,7 @@ of the surge unit.*/
 void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
   {
   if (fDoDbgBrk)
-    { int xxx=0; }
+      { int xxx=0; }
   switch (SolveMethod())
     {
     case SM_Direct:
@@ -592,7 +592,7 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
         {
         SetCyclicStorageOut();
         }
-      else if (NoProcessJoins()==2)
+      else if (NoProcessJoins()>=2)
         {
 //? Makeup
         Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, RB(), m_EHX(), &m_BlkEval);

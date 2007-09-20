@@ -5,6 +5,7 @@
 #define __BLOCKEVALUATOR_CPP
 #include "BlockEvaluator.h"
 #include "m_link.h"
+//#include "optoff.h"
 
 #define dbgBlkEvalProd 0
 
@@ -492,7 +493,9 @@ void CBlockEvaluator::CheckFlowsConsistent(int iJoinNo, bool ForMakeup)
         {
         bool LinkDrawnToHere = (ioIdRmt>0);
         double QmIn = m_pNd->IOQm_In(io);
-        if ((LinkDrawnToHere && (QmIn < SmallPosFlow)) || (!LinkDrawnToHere && (QmIn > SmallPosFlow)))
+        //if ((LinkDrawnToHere && (QmIn < SmallPosFlow)) || (!LinkDrawnToHere && (QmIn > SmallPosFlow)))
+        //this gives an error message when the flow is exactly 0.0!!!
+        if ((LinkDrawnToHere && (QmIn < (SmallPosFlow*-1.0))) || (!LinkDrawnToHere && (QmIn > SmallPosFlow)))
           LogError(m_pNd->FullObjTag(), 0, "%s: Bad flow direction @ %s", ForMakeup?"MakeUp":"Bleed", pRmt->FullObjTag());
         }
       }

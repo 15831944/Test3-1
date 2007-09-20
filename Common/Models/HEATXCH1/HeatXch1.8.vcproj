@@ -1,21 +1,13 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioProject
+<?xml version="1.0" encoding="Windows-1252"?><VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="km.HeatXch1"
 	ProjectGUID="{752A118C-C655-4F1C-AB24-0A698A274E52}"
 	RootNamespace="HeatXch1"
 	Keyword="MFCProj"
-	>
-	<Platforms>
-		<Platform
+	><Platforms><Platform
 			Name="Win32"
-		/>
-	</Platforms>
-	<ToolFiles>
-	</ToolFiles>
-	<Configurations>
-		<Configuration
+		/></Platforms><ToolFiles></ToolFiles><Configurations><Configuration
 			Name="Release_Dbg|Win32"
 			OutputDirectory=".\RDb8"
 			IntermediateDirectory=".\RDb8"
@@ -24,26 +16,20 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				MkTypLibCompatible="true"
 				TargetEnvironment="1"
 				TypeLibraryName=".\RDb8/HeatXch1.tlb"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
@@ -72,19 +58,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_AFXDLL;NDEBUG"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				OutputFile="..\..\..\Bin\HeatXch1.dll"
@@ -95,33 +77,23 @@
 				SubSystem="2"
 				BaseAddress="0x12000000"
 				ImportLibrary=".\RDb8/HeatXch1.lib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
+			/></Configuration><Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Rls8"
 			IntermediateDirectory=".\Rls8"
@@ -130,26 +102,20 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				MkTypLibCompatible="true"
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rls8/HeatXch1.tlb"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
@@ -178,19 +144,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_AFXDLL;_RELEASE;NDEBUG"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				OutputFile="..\..\..\Bin\HeatXch1.dll"
@@ -201,33 +163,23 @@
 				SubSystem="2"
 				BaseAddress="0x12000000"
 				ImportLibrary=".\Rls8/HeatXch1.lib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
+			/></Configuration><Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Dbg8"
 			IntermediateDirectory=".\Dbg8"
@@ -236,26 +188,20 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				MkTypLibCompatible="true"
 				TargetEnvironment="1"
 				TypeLibraryName=".\Dbg8/HeatXch1.tlb"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
@@ -281,19 +227,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_AFXDLL;_DEBUG"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				OutputFile="..\..\..\Bin\HeatXch1.dll"
@@ -304,33 +246,23 @@
 				SubSystem="2"
 				BaseAddress="0x12000000"
 				ImportLibrary=".\Dbg8/HeatXch1.lib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
+			/></Configuration><Configuration
 			Name="Release Marshal|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
@@ -339,26 +271,20 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				MkTypLibCompatible="true"
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rls8/HeatXch1.tlb"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
 				InlineFunctionExpansion="2"
@@ -382,19 +308,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_AFXDLL;_RELEASE;NDEBUG"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				OutputFile="..\..\..\Bin\HeatXch1.dll"
@@ -405,33 +327,23 @@
 				SubSystem="2"
 				BaseAddress="0x12000000"
 				ImportLibrary=".\Rls8/HeatXch1.lib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
+			/></Configuration><Configuration
 			Name="Distribution|Win32"
 			OutputDirectory="Distribution8"
 			IntermediateDirectory="Distribution8"
@@ -440,26 +352,20 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				MkTypLibCompatible="true"
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rls8/HeatXch1.tlb"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
 				InlineFunctionExpansion="2"
@@ -482,19 +388,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="0"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_AFXDLL;_RELEASE;NDEBUG"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				OutputFile="..\..\..\Bin\HeatXch1.dll"
@@ -504,238 +406,129 @@
 				SubSystem="2"
 				BaseAddress="0x12000000"
 				ImportLibrary="$(IntDir)/$(TargetName).lib"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-	</Configurations>
-	<References>
-	</References>
-	<Files>
-		<Filter
+			/></Configuration></Configurations><References></References><Files><Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
-			>
-			<File
+			><File
 				RelativePath=".\BaroCon.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Boiler.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\ContctHt.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\CoolTwr.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\DeSupHt.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\FFEvap.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\FlashTk.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Heater.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\HeatX1.CPP"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\HeatXch1.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\HeatXch1.rc"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\ShellTube2.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\ShlTube.CPP"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\stdafx.cpp"
-				>
-				<FileConfiguration
+				><FileConfiguration
 					Name="Release_Dbg|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Release Marshal|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Distribution|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
+					/></FileConfiguration></File><File
 				RelativePath=".\STHx.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Turbine.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
+				></File></Filter><Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;fi;fd"
-			>
-			<File
+			><File
 				RelativePath=".\BAROCON.H"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Boiler.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\ContctHt.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\CoolTwr.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\DeSupHt.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\FFEvap.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\FlashTk.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Heater.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\HeatX1.H"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\HeatXch1.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Resource.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\ShellTube2.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\ShlTube.H"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\stdafx.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\STHx.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Turbine.h"
-				>
-			</File>
-		</Filter>
-		<Filter
+				></File></Filter><Filter
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe"
-			>
-			<File
+			><File
 				RelativePath=".\res\HeatXch1.rc2"
-				>
-			</File>
-		</Filter>
-		<Filter
+				></File></Filter><Filter
 			Name="Packages"
 			Filter="vcx;vcp;vcw"
-			>
-		</Filter>
-		<Filter
+			></Filter><Filter
 			Name="Packages No. 1"
 			Filter="vcx;vcp;vcw"
-			>
-		</Filter>
-	</Files>
-	<Globals>
-		<Global
+			></Filter></Files><Globals><Global
 			Name="DevPartner_IsInstrumented"
 			Value="1"
-		/>
-	</Globals>
-</VisualStudioProject>
+		/></Globals></VisualStudioProject>
