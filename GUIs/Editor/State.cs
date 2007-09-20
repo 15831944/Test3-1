@@ -197,15 +197,29 @@ namespace SysCAD.Editor
           graphicItem.anchorIntToTag.Add(anchorInt, anchor.Tag);
           graphicItem.anchorTagToInt.Add(anchor.Tag, anchorInt);
           anchorInt++;
-          Double x = (anchor.Positions[0] as SysCAD.Protocol.Point).X;
 
-          if (graphicItem.MirrorX) x = 100.0 - x;
-          Double y = (anchor.Positions[0] as SysCAD.Protocol.Point).Y;
+          foreach (SysCAD.Protocol.Point point in anchor.Positions)
+          {
+            Double x = point.X;
+            if (graphicItem.MirrorX)
+              x = 100.0 - x;
+            Double y = point.Y;
+            if (graphicItem.MirrorY)
+              y = 100.0 - y;
 
-          if (graphicItem.MirrorY) y = 100.0 - y;
-          AnchorPoint anchorPoint = new AnchorPoint((short)x, (short)y, true, true, MarkStyle.Circle, System.Drawing.Color.Green);
-          anchorPoint.Tag = anchor;
-          anchorPointCollection.Add(anchorPoint);
+            MarkStyle markStyle = MarkStyle.Circle;
+            switch (anchor.Look)
+            {
+              case 0: markStyle = MarkStyle.Circle; break;
+              case 1: markStyle = MarkStyle.Cross; break;
+              case 2: markStyle = MarkStyle.Rectangle; break;
+              case 3: markStyle = MarkStyle.X; break;
+              // Use circle in any other case.
+            }
+            AnchorPoint anchorPoint = new AnchorPoint((short)x, (short)y, true, true, markStyle, System.Drawing.Color.Green);
+            anchorPoint.Tag = anchor;
+            anchorPointCollection.Add(anchorPoint);
+          }
         }
       }
       return new AnchorPattern(anchorPointCollection);

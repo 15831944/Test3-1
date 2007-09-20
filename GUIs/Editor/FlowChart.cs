@@ -1291,8 +1291,8 @@ namespace SysCAD.Editor
                 //if (state.PortCheck(out requestId, (destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
                 {
                   SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(destinationBox.BoundingRect),
-                    (float)((originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).X),
-                    (float)((originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).Y),
+                    (originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).X,
+                    (originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).Y,
                     destinationBox.RotationAngle);
 
                   PointF[] extensionPoints =
