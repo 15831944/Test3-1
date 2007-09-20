@@ -4249,12 +4249,12 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
     {
     m_Liq[0].xm_LoT           = C_2_K(0);
     m_Liq[0].xm_HiT           = 500.0;
-    m_Liq[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL),                         C_2_K(0), 500.0);
-    m_Liq[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), C_2_K(0), 500.0);
-    m_Liq[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), C_2_K(0), 500.0);
-    m_Liq[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), C_2_K(0), 500.0);
-    m_Liq[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"),                        C_2_K(0), 500.0);
-    m_Liq[0].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(69.948)"),                             C_2_K(0), 500.0);
+    m_Liq[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL, NULL),                         C_2_K(0), 500.0);
+    m_Liq[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL, NULL), C_2_K(0), 500.0);
+    m_Liq[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL, NULL), C_2_K(0), 500.0);
+    m_Liq[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL, NULL), C_2_K(0), 500.0);
+    m_Liq[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)", NULL, NULL),                        C_2_K(0), 500.0);
+    m_Liq[0].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(69.948)", NULL, NULL),                             C_2_K(0), 500.0);
     m_Liq[0].m_CpOK           = true;
     m_Liq[0].m_H25OK          = true;
     m_Liq[0].m_S25OK          = true;
@@ -4262,12 +4262,12 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
     m_Vap[0].xm_LoT           = 298.15;                                                                      
     m_Vap[0].xm_HiT           = 500.0;
 
-    m_Vap[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "IdealGasDensity(18.01528)", NULL),                        298.15, 500.0);//CSpDBEqn::Construct(NULL, NULL, "0.8037", NULL);
-    m_Vap[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 500.0);       
-    m_Vap[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 500.0);       
-    m_Vap[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 500.0);       
-    m_Vap[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"),                                     298.15, 500.0);                                                                 
-    m_Vap[0].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(188.832)"),                                         298.15, 500.0);                                                                      
+    m_Vap[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "IdealGasDensity(18.01528)", NULL, NULL),                        298.15, 500.0);//CSpDBEqn::Construct(NULL, NULL, "0.8037", NULL, NULL);
+    m_Vap[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL, NULL), 298.15, 500.0);       
+    m_Vap[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL, NULL), 298.15, 500.0);       
+    m_Vap[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL, NULL), 298.15, 500.0);       
+    m_Vap[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)", NULL, NULL),                                     298.15, 500.0);                                                                 
+    m_Vap[0].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(188.832)", NULL, NULL),                                         298.15, 500.0);                                                                      
     m_Vap[0].m_CpOK           = true;
     m_Vap[0].m_H25OK          = true;
     m_Vap[0].m_S25OK          = true;
@@ -4278,8 +4278,8 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
     m_Liq[1].m_Cp.SetEqn      (ET_Std,           new IF97_WaterHeatCapacity(NULL, NULL),                273.16, 623.16);
     m_Liq[1].m_H.SetEqn       (ET_Std,           new IF97_WaterEnthalpy(NULL, NULL),                    273.16, 623.16);
     m_Liq[1].m_S.SetEqn       (ET_Std,           new IF97_WaterEntropy(NULL, NULL),                     273.16, 623.16);
-    m_Liq[1].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"), 273.16, 623.16);
-    m_Liq[1].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(69.948)"),      273.16, 623.16);
+    m_Liq[1].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)", NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(69.948)", NULL, NULL),      273.16, 623.16);
     m_Liq[1].m_CpOK           = true;
     m_Liq[1].m_H25OK          = true;
     m_Liq[1].m_S25OK          = true;
@@ -4292,14 +4292,14 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
     m_Vap[1].m_Cp.SetEqn      (ET_Std,           new IF97_SteamHeatCapacity(NULL, NULL),                273.16, 1073.16);
     m_Vap[1].m_H.SetEqn       (ET_Std,           new IF97_SteamEnthalpy(NULL, NULL),                    273.16, 1073.16);
     m_Vap[1].m_S.SetEqn       (ET_Std,           new IF97_SteamEntropy(NULL, NULL),                     273.16, 1073.16);
-    m_Vap[1].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"), 273.16, 1073.16); 
-    m_Vap[1].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(188.832)"),     273.16, 1073.16);
+    m_Vap[1].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)", NULL, NULL), 273.16, 1073.16); 
+    m_Vap[1].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(188.832)", NULL, NULL),     273.16, 1073.16);
     m_Vap[1].m_CpOK           = true;
     m_Vap[1].m_H25OK          = true;
     m_Vap[1].m_S25OK          = true;
 
     m_Common[0].m_VpOK        = true;
-    m_Common[0].m_Vp.SetEqn   (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Vp(-3433.74,-12.0063,0.004782,41.1767)", NULL), 273.15, 623.16);
+    m_Common[0].m_Vp.SetEqn   (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Vp(-3433.74,-12.0063,0.004782,41.1767)", NULL, NULL), 273.15, 623.16);
     m_Common[1].m_VpOK        = true;
     m_Common[1].m_Vp.SetEqn   (ET_Std,           new IF97_WaterVapourPress(NULL, NULL), 273.15, 623.16);
     }
@@ -4310,17 +4310,17 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
     //m_Liq[0].m_LoT           = 372.78;
     m_Liq[0].xm_HiT           = 500;
 
-    m_Liq[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL),                         298.15, 372.78);
-    m_Liq[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL), 298.15, 372.78);
-    m_Liq[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL), 298.15, 372.78);
-    m_Liq[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL), 298.15, 372.78);
-    m_Liq[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"),                        298.15, 372.78);
-    m_Liq[0].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(69.948)"),                             298.15, 372.78);
+    m_Liq[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL, NULL),                         298.15, 372.78);
+    m_Liq[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL, NULL), 298.15, 372.78);
+    m_Liq[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL, NULL), 298.15, 372.78);
+    m_Liq[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL, NULL), 298.15, 372.78);
+    m_Liq[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)", NULL, NULL),                        298.15, 372.78);
+    m_Liq[0].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(69.948)", NULL, NULL),                             298.15, 372.78);
 
-    m_Liq[0].m_Rho.AddEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL),                         372.78, 500);
-    m_Liq[0].m_Cp.AddEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), 372.78, 500);
-    m_Liq[0].m_H.AddEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), 372.78, 500);
-    m_Liq[0].m_S.AddEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), 372.78, 500);
+    m_Liq[0].m_Rho.AddEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL, NULL),                         372.78, 500);
+    m_Liq[0].m_Cp.AddEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL, NULL), 372.78, 500);
+    m_Liq[0].m_H.AddEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL, NULL), 372.78, 500);
+    m_Liq[0].m_S.AddEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL, NULL), 372.78, 500);
     m_Liq[0].m_CpOK           = true;
     m_Liq[0].m_H25OK          = true;
     m_Liq[0].m_S25OK          = true;
@@ -4328,12 +4328,12 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
 
     m_Vap[0].xm_LoT           = 298.15;                                                                      
     m_Vap[0].xm_HiT           = 500;                                                                      
-    m_Vap[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "0.8037", NULL),                                           298.15, 500);                               
-    m_Vap[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 500);       
-    m_Vap[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 500);       
-    m_Vap[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 500);       
-    m_Vap[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"),                                     298.15, 500);                                                                 
-    m_Vap[0].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(188.832)"),                                         298.15, 500);                                                                      
+    m_Vap[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "0.8037", NULL, NULL),                                           298.15, 500);                               
+    m_Vap[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL, NULL), 298.15, 500);       
+    m_Vap[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL, NULL), 298.15, 500);       
+    m_Vap[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL, NULL), 298.15, 500);       
+    m_Vap[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)", NULL, NULL),                                     298.15, 500);                                                                 
+    m_Vap[0].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(188.832)", NULL, NULL),                                         298.15, 500);                                                                      
     m_Vap[0].m_CpOK           = true;
     m_Vap[0].m_H25OK          = true;
     m_Vap[0].m_S25OK          = true;
@@ -4344,8 +4344,8 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
     m_Liq[1].m_Cp.SetEqn      (ET_Std,           new IF97_WaterHeatCapacity(NULL, NULL),                273.16, 623.16);
     m_Liq[1].m_H.SetEqn       (ET_Std,           new IF97_WaterEnthalpy(NULL, NULL),                    273.16, 623.16);
     m_Liq[1].m_S.SetEqn       (ET_Std,           new IF97_WaterEntropy(NULL, NULL),                     273.16, 623.16);
-    m_Liq[1].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"), 273.16, 623.16);
-    m_Liq[1].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(69.948)"),       273.16, 623.16);
+    m_Liq[1].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)", NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(69.948)", NULL, NULL),       273.16, 623.16);
     m_Liq[1].m_CpOK           = true;
     m_Liq[1].m_H25OK          = true;
     m_Liq[1].m_S25OK          = true;
@@ -4356,14 +4356,14 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
     m_Vap[1].m_Cp.SetEqn      (ET_Std,           new IF97_SteamHeatCapacity(NULL, NULL),                273.16, 1073.16);
     m_Vap[1].m_H.SetEqn       (ET_Std,           new IF97_SteamEnthalpy(NULL, NULL),                    273.16, 1073.16);
     m_Vap[1].m_S.SetEqn       (ET_Std,           new IF97_SteamEntropy(NULL, NULL),                     273.16, 1073.16);
-    m_Vap[1].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"), 273.16, 1073.16);
-    m_Vap[1].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(188.832)"),     273.16, 1073.16);
+    m_Vap[1].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)", NULL, NULL), 273.16, 1073.16);
+    m_Vap[1].m_S25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(188.832)", NULL, NULL),     273.16, 1073.16);
     m_Vap[1].m_CpOK           = true;
     m_Vap[1].m_H25OK          = true;
     m_Vap[1].m_S25OK          = true;
 
     m_Common[0].m_VpOK        = true;
-    m_Common[0].m_Vp.SetEqn   (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Vp(-3433.74,-12.0063,0.004782,41.1767)", NULL), 273.15, 623.16);
+    m_Common[0].m_Vp.SetEqn   (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Vp(-3433.74,-12.0063,0.004782,41.1767)", NULL, NULL), 273.15, 623.16);
     m_Common[1].m_VpOK        = true;
     m_Common[1].m_Vp.SetEqn   (ET_Std,            new IF97_WaterVapourPress(NULL, NULL),                                           273.15, 623.16);
     }

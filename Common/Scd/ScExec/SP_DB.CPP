@@ -159,8 +159,118 @@ double FracMeasTolerance = 1.0e-8;
 
 // ==========================================================================
 
+CSDB_DataRecord::CSDB_DataRecord()
+  {
+  m_iOC_Solvent=-1;
+  m_iOC_OtherSpecie=-1;
+  m_iOC_Dissociation=-1;
+  m_iOC_MolecularDiam=-1;
+  m_iOC_MolVol=-1;
+  m_iOC_CpCv=-1;
+  m_iOC_Reference=-1;
+  for (int i=0; i<MaxTableCols; i++)
+    m_iOC_Tables[i++]=-1;
+  m_iErrRet=0;
+  }
+
+int CSDB_DataRecord::ParseTable(LPCSTR TableName, LPCSTR ColNameX, LPCSTR ColNameY)
+  {
+  m_iErrRet=0;
+  // Find Table -----------------------------------
+  m_iRowNo=-1;
+  if (strnicmp(TableName, "Table", 5)!=0)
+    return (m_iErrRet=-1);
+
+  int iTableCol = SafeAtoL(&TableName[5], -1)-1;
+  if (iTableCol<0 || iTableCol>=MaxTableCols)
+    return (m_iErrRet=-1);
+
+  if (m_iOC_Tables[iTableCol]<0)
+    return (m_iErrRet=-2);
+
+  // Extract Columns ------------------------------
+  CString Table=m_Values[m_iOC_Tables[iTableCol]];
+  CStringArray Col0, Col1; 
+  CString Row;
+  for (bool Done=false; !Done; )
+    {
+    int iEnd=Table.FindOneOf("\r\n");
+    if (iEnd>=0)
+      {
+      Row=Table.Left(iEnd);
+      while (iEnd<Table.GetLength() && Table[iEnd]<' ')
+        iEnd++;
+      Table.Delete(0, iEnd);
+      }
+    else
+      {
+      Row=Table;
+      Done=true;
+      }
+    CSVColArray Cols;
+    int Quote=0;
+    if (ParseCSVTokens(Row.GetBuffer(), Cols, Quote)>=2)
+      {
+      Col0.Add(Cols[0]);
+      Col1.Add(Cols[1]);
+      }
+    else
+      Done=true;
+    }
+
+  if (Col0.GetCount()<3)
+    return (m_iErrRet=-3);
+
+  // Parse Columns --------------------------------
+  bool ColsReversed=false;
+  if (stricmp(ColNameX, Col0[0])==0 && stricmp(ColNameY, Col1[0])==0)
+    { }
+  else if (stricmp(ColNameX, Col1[0])==0 && stricmp(ColNameY, Col0[0])==0)
+    ColsReversed=true;
+  else
+    return (m_iErrRet==-4);
+
+  m_X.SetSize(Col0.GetCount()-1);
+  m_Y.SetSize(Col0.GetCount()-1);
+  for (int i=0; i<m_X.GetCount(); i++)
+    {
+    m_X[i] = SafeAtoF(ColsReversed ? Col1[i+1] :  Col0[i+1]);
+    m_Y[i] = SafeAtoF(ColsReversed ? Col0[i+1] :  Col1[i+1]);
+    }
+  return m_X.GetCount();
+  };
+int CSDB_DataRecord::RowCount()
+  {
+  return m_X.GetCount();
+  };
+bool CSDB_DataRecord::GetRow()
+  {
+  return (++m_iRowNo<m_X.GetCount());
+  };
+double CSDB_DataRecord::XValue()
+  {
+  return m_X[m_iRowNo];
+  };
+double CSDB_DataRecord::YValue()
+  {
+  return m_Y[m_iRowNo];
+  };
+LPCSTR CSDB_DataRecord::ErrorMsg()
+  {
+  switch (m_iErrRet)
+    {
+    case -1:  return "Bad Table Name - Must be 'Table1..Table5'";
+    case -2:  return "Table Data not found";
+    case -3:  return "At least 3 Rows needed: Header + 2 Data rows";
+    case -4:  return "Column Names MisMatch";
+    default:  return "Unknown Error";
+    }
+  return "OK";
+  }
+
+// ==========================================================================
+
 bool CSpDBEqn::sm_bDoTheBreak=0;
-Strng CSpDBEqn::sm_sDataFileName;
 
 CSpDBEqn::CSpDBEqn(CSpConstData * pConst, CSpFidelData * pFData)
   {
@@ -302,7 +412,7 @@ void CSpDBEqnSet::Clear()
 
 // --------------------------------------------------------------------------
 
-void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFData, LPCSTR List, double CfgLoT, double CfgHiT)
+void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFData, LPCSTR List, double CfgLoT, double CfgHiT, CSDB_DataRecord * pRecord)
   {
   Strng Tmp;
   int ParenCnt=0;
@@ -322,7 +432,7 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
         if (ParenCnt==0)
           {
           Tmp.LRTrim(" \"\'");
-          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, Tmp()), CfgLoT, CfgHiT);
+          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, Tmp(), NULL, pRecord), CfgLoT, CfgHiT);
           }
         Tmp="";
         break;
@@ -331,7 +441,7 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
         if (Tmp.GetLength()>0)
           {
           Strng S("Const(", Tmp(), ")");
-          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S()), CfgLoT, CfgHiT);
+          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S(), NULL, pRecord), CfgLoT, CfgHiT);
           Tmp="";
           }
 
@@ -385,7 +495,7 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
   if (Tmp.GetLength()>0)
     {
     Strng S("Const(", Tmp(), ")");
-    AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S()), CfgLoT, CfgHiT);
+    AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S(), NULL, pRecord), CfgLoT, CfgHiT);
     }
   }
 
@@ -1721,7 +1831,7 @@ static void ParseAValue(CSpecie *pSp, bool &OK, double & Value, Strng & Str, fla
     }
   }
 
-static void ParseAnEqnSet(CSpecie *pSp, bool &OK, CSpDBEqnSet & Eqns, /*Strng & Str,*/ flag & Specd, CSpConstData * pConst, CSpFidelData * pFData, LPCSTR StrValue, LPCSTR SpName, LPCSTR Name, double CfgLoT, double CfgHiT)
+static void ParseAnEqnSet(CSpecie *pSp, bool &OK, CSpDBEqnSet & Eqns, /*Strng & Str,*/ flag & Specd, CSpConstData * pConst, CSpFidelData * pFData, LPCSTR StrValue, LPCSTR SpName, LPCSTR Name, double CfgLoT, double CfgHiT, CSDB_DataRecord * pRecord)
   {
   if (StrValue && strlen(StrValue)>0)
     {
@@ -1729,7 +1839,7 @@ static void ParseAnEqnSet(CSpecie *pSp, bool &OK, CSpDBEqnSet & Eqns, /*Strng & 
     SEqn.LRTrim(" \"\'");
     //if (!OK)
     //  {
-      Eqns.AddEqnSet(ET_Std, pConst, pFData, SEqn(), CfgLoT, CfgHiT);
+      Eqns.AddEqnSet(ET_Std, pConst, pFData, SEqn(), CfgLoT, CfgHiT, pRecord);
       //Str=SEqn();
       Specd=true;
     //  OK=true;
@@ -1761,7 +1871,7 @@ static void DumpSpEqns(CSpecie & Sp, LPCSTR Tag=NULL)
     }                                                                                                                  
   }
 
-flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*/ flag UseH2OFns)
+flag CSpecie::LoadADO(CComponent * pC, CSDB_DataRecord & Record, /*CSpecie *pPrvSp,*/ flag UseH2OFns)
   {
   m_bPrjDB=true;
 
@@ -1770,11 +1880,11 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
 
   CSpFidelData & DataLo=m_FData[0];
 
-  m_sPhaseSymVisible = (LPCSTR)Values[3];
-  m_sPhaseSymActual  = (LPCSTR)Values[3];
+  m_sPhaseSymVisible = (LPCSTR)Record.m_Values[3];
+  m_sPhaseSymActual  = (LPCSTR)Record.m_Values[3];
 
   DataLo.m_dCpCv=1.4;
-  Strng Phase = (LPCSTR)Values[4];
+  Strng Phase = (LPCSTR)Record.m_Values[4];
   // work around for old projects / databases
   //if (PhaseName.XStrICmp("aq")==0 || PhaseName.XStrICmp("a")==0)
   //  Phase=PhaseName;
@@ -1790,10 +1900,10 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
   iCId=-1;
 
   int ColNo=5;
-  const char* pChecked = (LPCSTR)Values[ColNo++];
+  const char* pChecked = (LPCSTR)Record.m_Values[ColNo++];
 
-  CString sTs(Values[ColNo++]);
-  CString sTe(Values[ColNo++]);
+  CString sTs(Record.m_Values[ColNo++]);
+  CString sTe(Record.m_Values[ColNo++]);
 
   double CfgLoT = SafeAtoF(sTs, DataLo.xm_LoT);
   double CfgHiT = SafeAtoF(sTe, DataLo.xm_HiT);
@@ -1830,7 +1940,7 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
     }
   else
     {
-    if (Values[ColNo].GetLength()==0)
+    if (Record.m_Values[ColNo].GetLength()==0)
       {
       //DataLo.m_pRho=NULL;
       }
@@ -1838,7 +1948,7 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
       {
       // Check to see if this is a Vapour and whether
       // only a constant RHo has been is specified
-      Strng S((LPCSTR)Values[ColNo]);
+      Strng S((LPCSTR)Record.m_Values[ColNo]);
       if (m_eOcc==BOT_Gas)
         {
         Strng SU=S;
@@ -1846,39 +1956,39 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
         if (SU.XStrStr("IDEALGASDENSITY"))
           S.Set("IdealGasDensity(%.10g)", m_Const.m_dMoleWt);
         else if (S.XStrChr('(')==NULL)
-          S.Set("LinearGasDensity(%s)", (LPCSTR)Values[ColNo]);
+          S.Set("LinearGasDensity(%s)", (LPCSTR)Record.m_Values[ColNo]);
         }
       //DataLo.m_Rho.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, S()), CfgLoT, CfgHiT);
-      DataLo.m_Rho.AddEqnSet(ET_Std, pC, &DataLo, S(), CfgLoT, CfgHiT);
+      DataLo.m_Rho.AddEqnSet(ET_Std, pC, &DataLo, S(), CfgLoT, CfgHiT, &Record);
       }
     ColNo++;
 
     // Heat of formation @ 298
-    Strng sH25=(LPSTR)(LPCSTR)Values[ColNo++];
+    Strng sH25=(LPSTR)(LPCSTR)Record.m_Values[ColNo++];
     sH25.Trim(" \"\'");
     DataLo.m_H25OK  = sH25.GetLength()>0;
     if (!DataLo.m_H25OK)
       sH25="Const(0.0)";
-    DataLo.m_H25.AddEqnSet(ET_Std, pC, &DataLo, sH25(), CfgLoT, CfgHiT);
+    DataLo.m_H25.AddEqnSet(ET_Std, pC, &DataLo, sH25(), CfgLoT, CfgHiT, &Record);
 
     // Entropy @ 298
-    Strng sS25=(LPSTR)(LPCSTR)Values[ColNo++];
+    Strng sS25=(LPSTR)(LPCSTR)Record.m_Values[ColNo++];
     sS25.Trim(" \"\'");
     DataLo.m_S25OK  = sS25.GetLength()>0;
     if (!DataLo.m_S25OK)
       sS25="Const(0.0)";
-    DataLo.m_S25.AddEqnSet(ET_Std, pC, &DataLo, sS25(), CfgLoT, CfgHiT);
+    DataLo.m_S25.AddEqnSet(ET_Std, pC, &DataLo, sS25(), CfgLoT, CfgHiT, &Record);
 
     // Ref Temps
     DataLo.m_H.m_TRef   = C2K(DataLo.m_H25OK ? 25:0);
     DataLo.m_S.m_TRef   = C2K(DataLo.m_H25OK ? 25:0);
 
     // Cp
-    Strng sCp=(LPCSTR)Values[ColNo++];
+    Strng sCp=(LPCSTR)Record.m_Values[ColNo++];
     sCp.Trim(" \"\'");
     DataLo.m_CpOK = (sCp.Len()>0);
     if (DataLo.m_CpOK)
-      DataLo.m_Cp.AddEqnSet(ET_Std, pC, &DataLo, sCp(), CfgLoT, CfgHiT);
+      DataLo.m_Cp.AddEqnSet(ET_Std, pC, &DataLo, sCp(), CfgLoT, CfgHiT, &Record);
 
     Strng ID;
     ID.Set("%s[%s->%s]", pC->SymOrTag(), sTs, sTe);
@@ -1887,12 +1997,12 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
       // parsing of Vp equation moved down so that crit consts are valid
       const int VpColNo=ColNo++;
 
-      ParseAValue(this, m_Const.m_bPcOK, m_Const.m_dPc, m_Const.m_sPc, m_bPcSpecd,    1.0, 1000.0, (LPCSTR)Values[ColNo++], ID(), "Critical Pressure");
-      ParseAValue(this, m_Const.m_bTcOK, m_Const.m_dTc, m_Const.m_sTc, m_bTcSpecd, 1000.0,    1.0, (LPCSTR)Values[ColNo++], ID(), "Critical Temp");
-      ParseAValue(this, m_Const.m_bVcOK, m_Const.m_dVc, m_Const.m_sVc, m_bVcSpecd,    1.0,    1.0, (LPCSTR)Values[ColNo++], ID(), "Critical Volume");
-      ParseAValue(this, m_Const.m_bAcOK, m_Const.m_dAc, m_Const.m_sAc, m_bAcSpecd,    1.0,    1.0, (LPCSTR)Values[ColNo++], ID(), "Acentricity");
+      ParseAValue(this, m_Const.m_bPcOK, m_Const.m_dPc, m_Const.m_sPc, m_bPcSpecd,    1.0, 1000.0, (LPCSTR)Record.m_Values[ColNo++], ID(), "Critical Pressure");
+      ParseAValue(this, m_Const.m_bTcOK, m_Const.m_dTc, m_Const.m_sTc, m_bTcSpecd, 1000.0,    1.0, (LPCSTR)Record.m_Values[ColNo++], ID(), "Critical Temp");
+      ParseAValue(this, m_Const.m_bVcOK, m_Const.m_dVc, m_Const.m_sVc, m_bVcSpecd,    1.0,    1.0, (LPCSTR)Record.m_Values[ColNo++], ID(), "Critical Volume");
+      ParseAValue(this, m_Const.m_bAcOK, m_Const.m_dAc, m_Const.m_sAc, m_bAcSpecd,    1.0,    1.0, (LPCSTR)Record.m_Values[ColNo++], ID(), "Acentricity");
 
-      ParseAnEqnSet(this, m_Common[0].m_VpOK, m_Common[0].m_Vp, m_bVpSpecd, pC, NULL, (LPCSTR)Values[VpColNo], ID(), "Vapour Pressure", CfgLoT, CfgHiT);
+      ParseAnEqnSet(this, m_Common[0].m_VpOK, m_Common[0].m_Vp, m_bVpSpecd, pC, NULL, (LPCSTR)Record.m_Values[VpColNo], ID(), "Vapour Pressure", CfgLoT, CfgHiT, &Record);
 
       if (m_Common[0].m_VpOK && !m_Const.m_bTcOK)
         AppendErrorMsg(this, LogFlag_Warning, "%s: Critical Temperature not defined (required for vapour pressure)", ID());
@@ -1900,11 +2010,11 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
     else
       {
       const int VpColNo=ColNo++;
-      if (Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Critical Pressure");
-      if (Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Critical Temp");
-      if (Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Critical Volume");
-      if (Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Acentricity");
-      if (Values[VpColNo].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Vapour Pressure");
+      if (Record.m_Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Critical Pressure");
+      if (Record.m_Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Critical Temp");
+      if (Record.m_Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Critical Volume");
+      if (Record.m_Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Acentricity");
+      if (Record.m_Values[VpColNo].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Vapour Pressure");
       }
 
     flag DummySpecd=false;
@@ -1912,14 +2022,14 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
     m_iDaType=DaType_IsNull;
     if (m_eOcc==BOT_Liquid)
       {
-      if (m_SDB.m_iOC_Dissociation>=0)
+      if (Record.m_iOC_Dissociation>=0)
         {
         Strng TmpSym;
         TmpSym.Set("%s(%s)", pC->SymOrTag(), Phase);
         CSVColArray C;
         Strng TheString;
         int Quote=0;
-        int N=ParseCSVFunction((LPSTR)(LPCSTR)Values[m_SDB.m_iOC_Dissociation], C, Quote);
+        int N=ParseCSVFunction((LPSTR)(LPCSTR)Record.m_Values[Record.m_iOC_Dissociation], C, Quote);
         if (N>=2)
           {
           if (stricmp(C[0], "Ka")==0)
@@ -1942,29 +2052,29 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
         }
       }
 
-    if (m_SDB.m_iOC_MolecularDiam>=0)
-      ParseAValue(NULL, m_Const.m_bMdOK, m_Const.m_dMd, m_Const.m_sMd, DummySpecd, dNAN, 1.0, (LPCSTR)Values[m_SDB.m_iOC_MolecularDiam], ID(), "Molecular Diam");
+    if (Record.m_iOC_MolecularDiam>=0)
+      ParseAValue(NULL, m_Const.m_bMdOK, m_Const.m_dMd, m_Const.m_sMd, DummySpecd, dNAN, 1.0, (LPCSTR)Record.m_Values[Record.m_iOC_MolecularDiam], ID(), "Molecular Diam");
     else
       m_Const.m_dMd=dNAN;
 
-    if (m_SDB.m_iOC_MolVol>=0)
-      ParseAValue(NULL, m_Const.m_bMvOK, m_Const.m_dMv, m_Const.m_sMv, DummySpecd, 22.414, 1.0, (LPCSTR)Values[m_SDB.m_iOC_MolVol], ID(), "Molar Volume"); // 22.414 is Ideal
+    if (Record.m_iOC_MolVol>=0)
+      ParseAValue(NULL, m_Const.m_bMvOK, m_Const.m_dMv, m_Const.m_sMv, DummySpecd, 22.414, 1.0, (LPCSTR)Record.m_Values[Record.m_iOC_MolVol], ID(), "Molar Volume"); // 22.414 is Ideal
     else
       m_Const.m_dMv=22.414;
 
-    if (m_SDB.m_iOC_CpCv>=0)
-      DataLo.m_dCpCv=SpDB_TokenValue((LPSTR)(LPCSTR)Values[m_SDB.m_iOC_CpCv], 1.37);              // Cp/Cv Ratio
+    if (Record.m_iOC_CpCv>=0)
+      DataLo.m_dCpCv=SpDB_TokenValue((LPSTR)(LPCSTR)Record.m_Values[Record.m_iOC_CpCv], 1.37);              // Cp/Cv Ratio
     else
       DataLo.m_dCpCv=1.37;
 
-    if (m_SDB.m_iOC_Solvent>=0)
+    if (Record.m_iOC_Solvent>=0)
       {
-      m_Aq.m_sSolvent = (LPSTR)(LPCSTR)Values[m_SDB.m_iOC_Solvent];
+      m_Aq.m_sSolvent = (LPSTR)(LPCSTR)Record.m_Values[Record.m_iOC_Solvent];
       m_Aq.m_sSolvent.LRTrim();
       }
-    if (m_SDB.m_iOC_OtherSpecie>=0)
+    if (Record.m_iOC_OtherSpecie>=0)
       {
-      m_Aq.m_sOtherSpecie = (LPSTR)(LPCSTR)Values[m_SDB.m_iOC_OtherSpecie];
+      m_Aq.m_sOtherSpecie = (LPSTR)(LPCSTR)Record.m_Values[Record.m_iOC_OtherSpecie];
       int iComma=m_Aq.m_sOtherSpecie.Find(",");
       if (iComma>=0)
         {
@@ -1979,8 +2089,8 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
     }
 
   char *pRef;
-  if (m_SDB.m_iOC_Reference>=0)
-    pRef=(LPSTR)(LPCSTR)Values[m_SDB.m_iOC_Reference];
+  if (Record.m_iOC_Reference>=0)
+    pRef=(LPSTR)(LPCSTR)Record.m_Values[Record.m_iOC_Reference];
   else
     pRef=NULL;
 
@@ -2048,15 +2158,15 @@ flag CSpecie::FixMissingData(CComponent * pC)
   m_Common[0].m_pConst = pC;
 
   if (!m_Common[0].m_Vp.Exists())
-    m_Common[0].m_Vp.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, "0.0"), DataLo.xm_LoT, DataLo.xm_HiT);
+    m_Common[0].m_Vp.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, "0.0", NULL, NULL), DataLo.xm_LoT, DataLo.xm_HiT);
 
   if (!DataLo.m_Rho.Exists())
     {
     switch (m_eOcc)
       {
-      case BOT_Solid: DataLo.m_Rho.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, "2000.0"), DataLo.xm_LoT, DataLo.xm_HiT);                                          break;
-      case BOT_Gas:   DataLo.m_Rho.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, S.Set("IdealGasDensity(%.10g)", m_Const.MoleWt())), DataLo.xm_LoT, DataLo.xm_HiT); break;
-      default :       DataLo.m_Rho.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, "1000.0"), DataLo.xm_LoT, DataLo.xm_HiT);                                          break;
+      case BOT_Solid: DataLo.m_Rho.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, "2000.0", NULL, NULL), DataLo.xm_LoT, DataLo.xm_HiT);                                          break;
+      case BOT_Gas:   DataLo.m_Rho.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, S.Set("IdealGasDensity(%.10g)", m_Const.MoleWt()), NULL, NULL), DataLo.xm_LoT, DataLo.xm_HiT); break;
+      default :       DataLo.m_Rho.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, "1000.0", NULL, NULL), DataLo.xm_LoT, DataLo.xm_HiT);                                          break;
       }
     }
 
@@ -2071,7 +2181,7 @@ flag CSpecie::FixMissingData(CComponent * pC)
       }
     LogNote(SpecieDBLogHdr, 0, "Cp Data for %s(%s) assumed to be %s", pC->Sym/*OrTag*/(), m_sPhaseSymVisible(), S());
     pC->m_nAssumedCps++;
-    DataLo.m_Cp.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, S()), DataLo.xm_LoT, DataLo.xm_HiT);
+    DataLo.m_Cp.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, S(), NULL, NULL), DataLo.xm_LoT, DataLo.xm_HiT);
     }
 
 
@@ -2169,7 +2279,7 @@ int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* pDensCo
           {
           char DensCorrStr[2048];
           strcpy(DensCorrStr, Str());
-          pDensCorrFn = CSpDBEqn::Construct(&m_Const, &m_FData[0], DensCorrStr);
+          pDensCorrFn = CSpDBEqn::Construct(&m_Const, &m_FData[0], DensCorrStr, NULL, NULL);
           }
         Str="";
         //SkipComma
@@ -2209,7 +2319,7 @@ DensOK:
       Ret=2;
       goto CpOK;
       }
-  CSpDBEqn * pCpCorrFn   = (pCpCorr && strlen(pCpCorr)>0) ? CSpDBEqn::Construct(&m_Const, &m_FData[0], pCpCorr) : NULL;
+  CSpDBEqn * pCpCorrFn   = (pCpCorr && strlen(pCpCorr)>0) ? CSpDBEqn::Construct(&m_Const, &m_FData[0], pCpCorr, NULL, NULL) : NULL;
   m_bHasCpCorrs   = (pCpCorrFn!=NULL);
   double CpOffSet = m_bHasCpCorrs ? pCpCorrFn->AtT(0.0) : 0.0;
   //m_bHasCpCorrs   = (pCpCorrFn!=NULL); why was this line here?
@@ -2225,7 +2335,7 @@ CpOK:
   CSpDBEqn * pSolubleFn  = NULL;
   if (iSoluteS>=0 && pSoluble && strlen(pSoluble)>0)
     {
-    pSolubleFn = CSpDBEqn::Construct(&m_Const, &m_FData[0], pSoluble);
+    pSolubleFn = CSpDBEqn::Construct(&m_Const, &m_FData[0], pSoluble, NULL, NULL);
     m_Solubilities.Add(CSolubility(iSoluteA, iSoluteS, pSolubleFn,  NULL));
     }
 SolOK:
@@ -2514,13 +2624,7 @@ void CSpecieDataBase::Init()
   m_AqueousSps.SetSize(0);
   //  Term();
   m_pExtraProps=NULL;
-  m_iOC_Solvent=-1;
-  m_iOC_OtherSpecie=-1;
-  m_iOC_Dissociation=-1;
-  m_iOC_MolecularDiam=-1;
-  m_iOC_MolVol=-1;
-  m_iOC_CpCv=-1;
-  m_iOC_Reference=-1;
+
   m_iH2Ol=-1;
   m_iCO2l=-1;
   m_iH2Og=-1;
@@ -3869,7 +3973,6 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
   CFileStatus State;
   if (CFile::GetStatus(DataFile, State))
     {
-    CSpDBEqn::sm_sDataFileName=DataFile;
 
     //NBNB: The '°' in 'S°298' causes problems with other language utilities (eg chinese characters)
     const int iOC_S298 = 10; //index of S298 in columns
@@ -3889,33 +3992,48 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
         }
       if (ColNamesOK)
         {
-        char* OptColNames[] = { "Solvent", "OtherSpecie", "Dissociation", "MolecularDiam", "MolarVol", "CpCv", "Reference", NULL };
+        char* OptColNames[] = 
+          { 
+          "Solvent", "OtherSpecie", "Dissociation", "MolecularDiam", "MolarVol", "CpCv", "Reference", 
+          "Table1", "Table2", "Table3", "Table4", "Table5", 
+          NULL 
+          };
+        ASSERT_ALWAYS(sizeof(OptColNames)/sizeof(OptColNames[0])==(7+MaxTableCols+1), "Bad OptCols Count", __FILE__, __LINE__);
+        
         DB.CheckOptionalFieldNames(OptColNames);
 
-        m_SDB.m_iOC_Solvent       = (DB.FieldIndex(DB.NFieldIndexes()-7)<0 ? -1 : DB.NFieldIndexes()-7);
-        m_SDB.m_iOC_OtherSpecie   = (DB.FieldIndex(DB.NFieldIndexes()-6)<0 ? -1 : DB.NFieldIndexes()-6);
-        m_SDB.m_iOC_Dissociation  = (DB.FieldIndex(DB.NFieldIndexes()-5)<0 ? -1 : DB.NFieldIndexes()-5);
-        m_SDB.m_iOC_MolecularDiam = (DB.FieldIndex(DB.NFieldIndexes()-4)<0 ? -1 : DB.NFieldIndexes()-4);
-        m_SDB.m_iOC_MolVol        = (DB.FieldIndex(DB.NFieldIndexes()-3)<0 ? -1 : DB.NFieldIndexes()-3);
-        m_SDB.m_iOC_CpCv          = (DB.FieldIndex(DB.NFieldIndexes()-2)<0 ? -1 : DB.NFieldIndexes()-2);
-        m_SDB.m_iOC_Reference     = (DB.FieldIndex(DB.NFieldIndexes()-1)<0 ? -1 : DB.NFieldIndexes()-1);
+        int iIOC=sizeof(OptColNames)/sizeof(OptColNames[0])-1;
+        
+        CSDB_DataRecord Record;
 
-        CStringArray Values;
+        Record.m_iOC_Solvent       = (DB.FieldIndex(DB.NFieldIndexes()-iIOC)<0 ? -1 : DB.NFieldIndexes()-iIOC);  iIOC--;
+        Record.m_iOC_OtherSpecie   = (DB.FieldIndex(DB.NFieldIndexes()-iIOC)<0 ? -1 : DB.NFieldIndexes()-iIOC);  iIOC--;
+        Record.m_iOC_Dissociation  = (DB.FieldIndex(DB.NFieldIndexes()-iIOC)<0 ? -1 : DB.NFieldIndexes()-iIOC);  iIOC--;
+        Record.m_iOC_MolecularDiam = (DB.FieldIndex(DB.NFieldIndexes()-iIOC)<0 ? -1 : DB.NFieldIndexes()-iIOC);  iIOC--;
+        Record.m_iOC_MolVol        = (DB.FieldIndex(DB.NFieldIndexes()-iIOC)<0 ? -1 : DB.NFieldIndexes()-iIOC);  iIOC--;
+        Record.m_iOC_CpCv          = (DB.FieldIndex(DB.NFieldIndexes()-iIOC)<0 ? -1 : DB.NFieldIndexes()-iIOC);  iIOC--;
+        Record.m_iOC_Reference     = (DB.FieldIndex(DB.NFieldIndexes()-iIOC)<0 ? -1 : DB.NFieldIndexes()-iIOC);  iIOC--;
+        for (int it=0; it<MaxTableCols; it++)
+          {
+          Record.m_iOC_Tables[it]  = (DB.FieldIndex(DB.NFieldIndexes()-iIOC)<0 ? -1 : DB.NFieldIndexes()-iIOC);  iIOC--;
+          }
+
+        //CStringArray Values;
         flag DataReqd=0, EndFound=0, AppendComp=0, PrevWasLoaded=0;
         CComponent * pC=NULL;
         while (!DB.IsEOF())
           {
-          DB.GetNextRow(Values);
+          DB.GetNextRow(Record.m_Values);
 
           Strng SymBuff;
-          const char* pTag = (LPCSTR)Values[0];
-          const char* pSym = CheckSymbolName((LPCSTR)Values[1], SymBuff);
+          const char* pTag = (LPCSTR)Record.m_Values[0];
+          const char* pSym = CheckSymbolName((LPCSTR)Record.m_Values[1], SymBuff);
           if (strlen(pSym)==0)
             break;
           if (strlen(pTag)==0)
             pTag = pSym;
 
-          const char* pElDef = (LPCSTR)Values[2];
+          const char* pElDef = (LPCSTR)Record.m_Values[2];
 
           flag UseH2OFns=UseStdFns4H2O && (_stricmp(pElDef, "H2O1")==0);
           // Now decide on the new Component
@@ -3995,7 +4113,7 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
           if (pC)
             {
             CSpecie * pSp = new CSpecie(pC, m_SDB, m_CDB, m_H2O, pTag);
-            if (pSp->LoadADO(pC, Values, UseH2OFns))
+            if (pSp->LoadADO(pC, Record, UseH2OFns))
               {
               if (UseH2OFns)
                 {
@@ -4075,7 +4193,6 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
       Ok = false;
       }
 
-    CSpDBEqn::sm_sDataFileName="";
     return Ok;
     }
   return false;
@@ -4629,7 +4746,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
               {
               // Change to use IdealGasForms for all Gasses BUT HiFidelity Steam
               //  delete FD.m_pRho[i]; // This data is owned by the H2ODB
-              FD.m_Rho.SetEqn(ET_Std, CSpDBEqn::Construct(&Sp.m_Const, &FD, S.Set("IdealGasDensity(%.10g)", Sp.MoleWt())), FD.xm_LoT, FD.xm_HiT);
+              FD.m_Rho.SetEqn(ET_Std, CSpDBEqn::Construct(&Sp.m_Const, &FD, S.Set("IdealGasDensity(%.10g)", Sp.MoleWt()), NULL, NULL), FD.xm_LoT, FD.xm_HiT);
               }
             }
           }

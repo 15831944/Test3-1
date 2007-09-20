@@ -17,8 +17,10 @@
 
 #if dbgBuildSDB
 #include "dbgmngr.h"
-static CDbgMngr dbgBuild("SpecieDB", "Build"); 
+static CDbgMngr dbgBuild        ("SpecieDB", "Build"); 
+static CDbgMngr dbgDumpSpline   ("SpecieDB", "DumpSpline"); 
 #endif
+//static CDbgMngr dbgDumpSplineLog("SpecieDB", "DumpSplineLog"); 
 
 // ==========================================================================
 //
@@ -37,7 +39,7 @@ class SDBE_Const : protected CSpDBEqn
     virtual ~SDBE_Const() {};
     static const char * Name() { return "Const"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   	  {
   	  if (strlen(Cols[0])==0) return 2;
   	  C=SpDB_TokenValue(Cols[0], 0.0);
@@ -72,7 +74,7 @@ class SDBE_Poly : protected CSpDBEqn
     virtual ~SDBE_Poly() {};
     static const char * Name() { return "Poly"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
       {
   	  //if (strlen(Cols[4])==0) return 2;
   	  a=SpDB_TokenValue(Cols[0], 1.0);
@@ -113,7 +115,7 @@ class SDBE_LinearGasDensity : protected CSpDBEqn
     virtual ~SDBE_LinearGasDensity() {};
     static const char * Name() { return "LinearGasDensity"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   	  {
   	  if (strlen(Cols[0])==0) return 2;
   	  Rho=SpDB_TokenValue(Cols[0], 1.0);
@@ -144,7 +146,7 @@ class SDBE_IdealGasDensity : protected CSpDBEqn
     virtual ~SDBE_IdealGasDensity() {};
     static const char * Name() { return "IdealGasDensity"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   	  {
   	  if (strlen(Cols[0])==0) return 2;
   	  m_dMoleWt=SpDB_TokenValue(Cols[0], 1.0);
@@ -174,7 +176,7 @@ class SDBE_LiqH2ORho : protected CSpDBEqn
     virtual ~SDBE_LiqH2ORho() {};
     static const char * Name() { return "LiqH2ORho"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   	  {
   	  if (strlen(Cols[0])!=0) return 2;
   	  return 0;
@@ -217,7 +219,7 @@ class SDBE_Ts : protected CSpDBEqn
     virtual ~SDBE_Ts() {};
     static const char * Name() { return "Ts"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
       {
   	  if (strlen(Cols[3])==0) return 2;
   	  a=SpDB_TokenValue(Cols[0], 1.0);
@@ -255,7 +257,7 @@ class SDBE_Cp : protected CSpDBEqn
     virtual ~SDBE_Cp() {};
     static const char * Name() { return "Cp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_Cp*pc=(SDBE_Cp*)p; a=pc->a;;};
     
     virtual double AtT(double T) { return a; };
@@ -266,7 +268,7 @@ class SDBE_Cp : protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[0])==0) return 2;
   a=SpDB_TokenValue(Cols[0], 1.0);
@@ -303,7 +305,7 @@ class SDBE_CRC_Cp : protected CSpDBEqn
     virtual ~SDBE_CRC_Cp() {};
     static const char * Name() { return "CRC_Cp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_CRC_Cp*pc=(SDBE_CRC_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; };
 
     virtual double AtT(double T) 
@@ -322,7 +324,7 @@ class SDBE_CRC_Cp : protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_CRC_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_CRC_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[3])==0) return 2;
   a=SpDB_TokenValue(Cols[0], 1.0);
@@ -412,7 +414,7 @@ class SDBE_CRC1_Cp : protected CSpDBEqn
     virtual ~SDBE_CRC1_Cp() {};
     static const char * Name() { return "CRC1_Cp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_CRC1_Cp*pc=(SDBE_CRC1_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
     
     virtual double AtT(double T) 
@@ -431,7 +433,7 @@ class SDBE_CRC1_Cp : protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_CRC1_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_CRC1_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[3])==0) return 2;
   a=SpDB_TokenValue(Cols[0], 1.0);
@@ -513,7 +515,7 @@ class SDBE_CRC2_Cp : protected CSpDBEqn
     static const char * AltName() { return "QAL_Cp"; };
     static const char * Name() { return "CRC2_Cp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_CRC2_Cp*pc=(SDBE_CRC2_Cp*)p; a=pc->a; b=pc->b; c=pc->c;};
 
     virtual double AtT(double T);// { return a + (b * T) - (c / GTZ(T*T)); };
@@ -536,7 +538,7 @@ double SDBE_CRC2_Cp::AtTP(double T, double P)
 
 //---------------------------------------------------------------------------
 
-int SDBE_CRC2_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_CRC2_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[2])==0) return 2;
   a=SpDB_TokenValue(Cols[0], 1.0) * m_pConst->MoleWt();//m_pConst->MoleWt();
@@ -630,7 +632,7 @@ class SDBE_Poly_Cp : protected CSpDBEqn
     virtual ~SDBE_Poly_Cp() {};
     static const char * Name() { return "Poly_Cp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_Poly_Cp*pc=(SDBE_Poly_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
 
     virtual double AtT(double T) 
@@ -649,7 +651,7 @@ class SDBE_Poly_Cp : protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_Poly_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_Poly_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[3])==0) return 2;
   a=SpDB_TokenValue(Cols[0], 1.0);
@@ -735,7 +737,7 @@ class SDBE_GenPoly_Cp : protected CSpDBEqn
     virtual ~SDBE_GenPoly_Cp() {};
     static const char * Name() { return "GenPoly_Cp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) 
       { 
       SDBE_GenPoly_Cp*pc=(SDBE_GenPoly_Cp*)p; 
@@ -784,7 +786,7 @@ class SDBE_GenPoly : protected SDBE_GenPoly_Cp
 
 //---------------------------------------------------------------------------
 
-int SDBE_GenPoly_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_GenPoly_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[3])==0) return 2;
   m_nTerms=0;
@@ -911,7 +913,7 @@ class SDBE_API_Cp : protected CSpDBEqn
     virtual ~SDBE_API_Cp() {};
     static const char * Name() { return "API_Cp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_API_Cp*pc=(SDBE_API_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; e=pc->e; f=pc->f;};
     
     virtual double AtT(double T) 
@@ -929,7 +931,7 @@ class SDBE_API_Cp : protected CSpDBEqn
 
   };
 
-int SDBE_API_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_API_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[5])==0) return 2;
   a=SpDB_TokenValue(Cols[0], 1.0) * m_pConst->MoleWt();
@@ -1005,7 +1007,7 @@ class SDBE_HTE_Cp : protected CSpDBEqn
     virtual ~SDBE_HTE_Cp() {};
     static const char * Name() { return "HTE_Cp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_HTE_Cp*pc=(SDBE_HTE_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
     
     virtual double AtT(double T) 
@@ -1025,7 +1027,7 @@ class SDBE_HTE_Cp : protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_HTE_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_HTE_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[3])==0) return 2;
   a=SpDB_TokenValue(Cols[0], 1.0);
@@ -1104,7 +1106,7 @@ class SDBE_Shomate_Cp : protected CSpDBEqn
     virtual ~SDBE_Shomate_Cp() {};
     static const char * Name() { return "Shomate_Cp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) 
       { 
       SDBE_Shomate_Cp*pc=(SDBE_Shomate_Cp*)p; 
@@ -1129,7 +1131,7 @@ class SDBE_Shomate_Cp : protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_Shomate_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_Shomate_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[0])==0) return 2;
   a=SpDB_TokenValue(Cols[0], 1.0);
@@ -1223,7 +1225,7 @@ class SDBE_Vp: protected CSpDBEqn
     virtual ~SDBE_Vp() {};
     static const char * Name() { return "Vp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_Vp*pc=(SDBE_Vp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
     
     virtual double AtT(double T); 
@@ -1231,7 +1233,7 @@ class SDBE_Vp: protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_Vp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_Vp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[3])==0) 
     {
@@ -1272,7 +1274,7 @@ class SDBE_VpKPa: protected CSpDBEqn
     virtual ~SDBE_VpKPa() {};
     static const char * Name() { return "VpKPa"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_VpKPa*pc=(SDBE_VpKPa*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
     
     virtual double AtT(double T); 
@@ -1280,7 +1282,7 @@ class SDBE_VpKPa: protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_VpKPa::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_VpKPa::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[3])==0) 
     {
@@ -1322,7 +1324,7 @@ class SDBE_VpAtm: protected CSpDBEqn
     virtual ~SDBE_VpAtm() {};
     static const char * Name() { return "VpAtm"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_VpAtm*pc=(SDBE_VpAtm*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
     
     virtual double AtT(double T); 
@@ -1330,7 +1332,7 @@ class SDBE_VpAtm: protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_VpAtm::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_VpAtm::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[3])==0) 
     {
@@ -1378,7 +1380,7 @@ class SDBE_VpAnt: protected CSpDBEqn
     virtual ~SDBE_VpAnt() {};
     static const char * Name() { return "VpAnt"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
     virtual void Copy(CSpDBEqn* p) { SDBE_VpAnt*pc=(SDBE_VpAnt*)p; 
          a=pc->a; b=pc->b; c=pc->c; tmin=pc->tmin; tmax=pc->tmax; };
     
@@ -1397,7 +1399,7 @@ double SDBE_VpAnt::milCalc(double T)
 
 //---------------------------------------------------------------------------
 
-int SDBE_VpAnt::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_VpAnt::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[0])==0) // No data given, fall back to Miller curve 
     {
@@ -1506,7 +1508,7 @@ class SDBE_HFC134a_GasCp : protected CSpDBEqn
     virtual ~SDBE_HFC134a_GasCp() {};
     static const char * Name() { return "HFC134a_GasCp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
    	  {
   	  if (strlen(Cols[0])!=0) return 2;
   	  return 0;
@@ -1596,7 +1598,7 @@ class SDBE_HFC134a_Vp: protected CSpDBEqn
     virtual ~SDBE_HFC134a_Vp() {};
     static const char * Name() { return "HFC134a_Vp"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
    	  {
   	  if (strlen(Cols[0])!=0) return 2;
   	  return 0;
@@ -1627,7 +1629,7 @@ class SDBE_HFC134a_LiqRho : protected CSpDBEqn
     virtual ~SDBE_HFC134a_LiqRho() {};
     static const char * Name() { return "HFC134a_LiqRho"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   	  {
   	  if (strlen(Cols[0])!=0) return 2;
   	  return 0;
@@ -1891,7 +1893,7 @@ class SDBE_TSpline : protected CSpDBEqn
     virtual ~SDBE_TSpline() {};
     static const char * Name() { return "TSpline"; };
     virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
 
     virtual void Copy(CSpDBEqn* p) 
       { 
@@ -1908,7 +1910,7 @@ class SDBE_TSpline : protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-int SDBE_TSpline::Load(const char * pInitString, char* Cols[MaxSPDBCols])
+int SDBE_TSpline::Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
   {
   if (strlen(Cols[0])==0) return 2;
   m_Table=Cols[0];
@@ -1941,63 +1943,121 @@ int SDBE_TSpline::Load(const char * pInitString, char* Cols[MaxSPDBCols])
       }
     }
 
-  LPSTR ColNames[] = { "MassFraction", "Hf", NULL };
-  CDBHelper DB(sm_sDataFileName(), m_Table());
-  if (DB.Open(DBConnect_Default, ColNames[0], DBH_HasHeadings|DBH_ReadOnly|DBH_ForwardOnly|DBH_TrimStrings))
+  int Ret=pRecord->ParseTable(m_Table(), "MassFraction", "Hf");
+  if (Ret>0)
     {
-    BOOL ColNamesOK = DB.CheckFieldNames(ColNames);
-    if (ColNamesOK)
+    while (pRecord->GetRow())
       {
-      CStringArray Values;
-      while (!DB.IsEOF())
-        {
-        DB.GetNextRow(Values);
-
-        double MassFrac = SafeAtoF(Values[0]);
-        double Hf       = SafeAtoF(Values[1]);
-        m_Spline.AddPt(MassFrac, Hf);
-        }
-      if (!m_Spline.Fit())
-        {
-        LogError(SpecieDBLogHdr, 0, "Cannot fit TSpline Data : Table '%s' in '%s'", m_Table(), sm_sDataFileName());
-        return 3;
-        }
-
-      if (1)
-        {
-        double prevx, prevy; 
-        int n=m_Spline.NPts();
-        for (int i=0; i<n-1; i++)
-          {
-          for (int j=0; j<4; j++)
-            {
-            double x=m_Spline.X[i]+(m_Spline.X[i+1]-m_Spline.X[i])*(j/4.0);
-            double y=m_Spline.Yx(x);
-            double dy=(i||j) ? (y-prevy)/NZ(x-prevx):0;
-            if (j==0)
-              dbgpln("TSpline: %s %20.9f %20.9f %20.9f %20.9f", m_Table(), x, y, m_Spline.Y[i], dy); 
-            else
-              dbgpln("TSpline: %s %20.9f %20.9f %20s %20.9f", m_Table(), x, y, "", dy); 
-            prevx=x;
-            prevy=y; 
-            }
-          }
-        double x=m_Spline.X[i];
-        double y=m_Spline.Yx(x);
-        double dy=(i) ? (y-prevy)/NZ(x-prevx):0;
-        dbgpln("TSpline: %s %20.9f %20.9f %20.9f %20.9f", m_Table(), x, y, m_Spline.Y[i], dy); 
-        }
+      double MassFrac = pRecord->XValue();
+      double Hf       = pRecord->YValue();
+      m_Spline.AddPt(MassFrac, Hf);
       }
-    else
+    if (!m_Spline.Fit())
       {
-      LogError(SpecieDBLogHdr, 0, "Incorrect field names: Table '%s' in '%s'", m_Table(), sm_sDataFileName());
+      LogError(SpecieDBLogHdr, 0, "Cannot fit TSpline Data : Table '%s'", m_Table());
       return 3;
       }
-    DB.Close();
+
+    bool dbgDump=false;
+#if dbgBuildSDB
+    dbgDump=dbgDumpSpline()!=0;
+#endif
+    if (dbgDump)
+      {
+      Strng S;
+      double prevx, prevy; 
+      int n=m_Spline.NPts();
+      for (int i=0; i<n-1; i++)
+        {
+        for (int j=0; j<4; j++)
+          {
+          double x=m_Spline.X[i]+(m_Spline.X[i+1]-m_Spline.X[i])*(j/4.0);
+          double y=m_Spline.Yx(x);
+          double dy=(i||j) ? (y-prevy)/NZ(x-prevx):0;
+          if (j==0)
+            S.Set("TSpline: %s %20.9f %20.9f %20.9f %20.9f", m_Table(), x, y, m_Spline.Y[i], dy); 
+          else
+            S.Set("TSpline: %s %20.9f %20.9f %20s %20.9f", m_Table(), x, y, "", dy); 
+          //if (dbgDumpSplineLog())
+          //  LogNote(SpecieDBLogHdr, 0, "%s", S());
+          //else
+            dbgpln("%s", S());
+          prevx=x;
+          prevy=y; 
+          }
+        }
+      double x=m_Spline.X[i];
+      double y=m_Spline.Yx(x);
+      double dy=(i) ? (y-prevy)/NZ(x-prevx):0;
+      S.Set("TSpline: %s %20.9f %20.9f %20.9f %20.9f", m_Table(), x, y, m_Spline.Y[i], dy); 
+      
+      //if (dbgDumpSplineLog())
+      //  LogNote(SpecieDBLogHdr, 0, "%s", S());
+      //else
+        dbgpln("%s", S());
+      }
+
+
+
+
+
+
+  //CDBHelper DB(sm_sDataFileName(), m_Table());
+  //if (DB.Open(DBConnect_Default, ColNames[0], DBH_HasHeadings|DBH_ReadOnly|DBH_ForwardOnly|DBH_TrimStrings))
+  //  {
+  //  BOOL ColNamesOK = DB.CheckFieldNames(ColNames);
+  //  if (ColNamesOK)
+  //    {
+  //    CStringArray Values;
+  //    while (!DB.IsEOF())
+  //      {
+  //      DB.GetNextRow(Values);
+
+  //      double MassFrac = SafeAtoF(Values[0]);
+  //      double Hf       = SafeAtoF(Values[1]);
+  //      m_Spline.AddPt(MassFrac, Hf);
+  //      }
+  //    if (!m_Spline.Fit())
+  //      {
+  //      LogError(SpecieDBLogHdr, 0, "Cannot fit TSpline Data : Table '%s' in '%s'", m_Table(), sm_sDataFileName());
+  //      return 3;
+  //      }
+
+  //    if (1)
+  //      {
+  //      double prevx, prevy; 
+  //      int n=m_Spline.NPts();
+  //      for (int i=0; i<n-1; i++)
+  //        {
+  //        for (int j=0; j<4; j++)
+  //          {
+  //          double x=m_Spline.X[i]+(m_Spline.X[i+1]-m_Spline.X[i])*(j/4.0);
+  //          double y=m_Spline.Yx(x);
+  //          double dy=(i||j) ? (y-prevy)/NZ(x-prevx):0;
+  //          if (j==0)
+  //            dbgpln("TSpline: %s %20.9f %20.9f %20.9f %20.9f", m_Table(), x, y, m_Spline.Y[i], dy); 
+  //          else
+  //            dbgpln("TSpline: %s %20.9f %20.9f %20s %20.9f", m_Table(), x, y, "", dy); 
+  //          prevx=x;
+  //          prevy=y; 
+  //          }
+  //        }
+  //      double x=m_Spline.X[i];
+  //      double y=m_Spline.Yx(x);
+  //      double dy=(i) ? (y-prevy)/NZ(x-prevx):0;
+  //      dbgpln("TSpline: %s %20.9f %20.9f %20.9f %20.9f", m_Table(), x, y, m_Spline.Y[i], dy); 
+  //      }
+  //    }
+  //  else
+  //    {
+  //    LogError(SpecieDBLogHdr, 0, "Incorrect field names: Table '%s' in '%s'", m_Table(), sm_sDataFileName());
+  //    return 3;
+  //    }
+  //  DB.Close();
     }
   else
     {
-    LogError(SpecieDBLogHdr, 0, "Unable to open Table '%s' in '%s'", m_Table(), sm_sDataFileName());
+    LogError(SpecieDBLogHdr, 0, "Unable to read Data in Table '%s' %s", m_Table(), pRecord->ErrorMsg());
     return 3;
     }
   return 0;
@@ -2014,10 +2074,10 @@ int SDBE_TSpline::Load(const char * pInitString, char* Cols[MaxSPDBCols])
 CSpDBEqn* CSpDBEqn::ConstructCopy(CSpConstData * pConst, CSpFidelData * pSpPh)
   {
   CSpDBEqn *pEqn=this;//pSpPh->m_pRho[pSpPh->m_iLastTPoint];
-  return CSpDBEqn::Construct(pConst, pSpPh, NULL, pEqn);
+  return CSpDBEqn::Construct(pConst, pSpPh, NULL, pEqn, NULL);
   }
 
-CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const char *pInitString, CSpDBEqn* pCopyFrom/*=NULL*/)
+CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const char *pInitString, CSpDBEqn* pCopyFrom/*=NULL*/, CSDB_DataRecord * pRecord)
   {
   CSpDBEqn* p=NULL;
   char Str[1024], *Cols[MaxSPDBCols];
@@ -2245,7 +2305,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
         }
       else
         {
-        if (p->Load(pInitString, Cols)!=0)
+        if (p->Load(pInitString, Cols, pRecord)!=0)
           {
           LogError("SpecieDB", LF_Exclamation, "Bad Parameters %s for %s", pInitString, pSpD->m_pSp->sCmpTag());
           }
@@ -2260,7 +2320,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
     pn=SDBE_Const::Name();
     SpDB_ParseTokens(Str, Cols);
     p=new SDBE_Const(pConst, pSpD);
-    p->Load(Str, Cols);
+    p->Load(Str, Cols, pRecord);
     p->m_sEqn.Set("Const(%s)", pInitString);
     }
   
@@ -2271,7 +2331,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
     strcpy(Str, "Const(1.0,0,0,0)");
     SpDB_ParseTokens(Str, Cols);
     p=new SDBE_Const(pConst, pSpD);
-    p->Load(Str, Cols);
+    p->Load(Str, Cols, NULL);
     p->m_sEqn = pInitString;
     }
 
@@ -2308,8 +2368,8 @@ H2OPropertiesBlock::H2OPropertiesBlock(pTagObjClass pClass_, pchar pTag, pTagged
   m_Liq[0].m_CpOK       = true;
   m_Liq[0].m_H25OK      = true;
   m_Liq[0].m_S25OK      = true;
-  m_Liq[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"), 273.16, 623.16);
-  m_Liq[0].m_S25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(69.948)"),      273.16, 623.16);
+  m_Liq[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)", NULL, NULL), 273.16, 623.16);
+  m_Liq[0].m_S25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(69.948)", NULL, NULL),      273.16, 623.16);
   m_Liq[0].m_dCpCv       = 1.37;           // Cp/Cv Ratio
                         
   m_Vap[0].m_pSp         = NULL;
@@ -2318,8 +2378,8 @@ H2OPropertiesBlock::H2OPropertiesBlock(pTagObjClass pClass_, pchar pTag, pTagged
   m_Vap[0].m_CpOK       = true;
   m_Vap[0].m_H25OK      = true;
   m_Vap[0].m_S25OK      = true;
-  m_Vap[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"), 273.16, 1073.16);
-  m_Vap[0].m_S25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(188.832)"),     273.16, 1073.16);
+  m_Vap[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)", NULL, NULL), 273.16, 1073.16);
+  m_Vap[0].m_S25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(188.832)", NULL, NULL),     273.16, 1073.16);
   m_Vap[0].m_dCpCv       = 1.37;           // Cp/Cv Ratio
        
   };

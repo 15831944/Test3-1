@@ -186,6 +186,41 @@ class H2OPropertiesBlock;
 
 // ===========================================================================
 
+const int MaxTableCols = 5;
+
+class CSDB_DataRecord
+  {
+  public:
+    CSDB_DataRecord();
+
+    int             ParseTable(LPCSTR TableName, LPCSTR ColNameX, LPCSTR ColNameY);
+    int             RowCount();
+    bool            GetRow();
+    double          XValue();
+    double          YValue();
+    LPCSTR          ErrorMsg();
+
+  public:
+    int             m_iOC_Tables[MaxTableCols];
+    int             m_iOC_Solvent;
+    int             m_iOC_OtherSpecie;
+    int             m_iOC_Dissociation;
+    int             m_iOC_MolecularDiam;
+    int             m_iOC_MolVol;
+    int             m_iOC_CpCv;
+    int             m_iOC_Reference;
+
+    CStringArray    m_Values;
+
+    CString         m_sTable;
+    int             m_iRowNo;
+    int             m_iErrRet;
+    CArray<double, double> m_X, m_Y;
+
+  };
+
+// ===========================================================================
+
 class CCompFrac
   {
   public:
@@ -288,7 +323,7 @@ class DllImportExport CSpDBEqn
   public:
     CSpDBEqn(CSpConstData *pConst, CSpFidelData *pFData);
     virtual ~CSpDBEqn();
-    virtual int    Load(const char * pInitString, char* Cols[MaxSPDBCols]) = 0;
+    virtual int    Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord) = 0;
     virtual void   Copy(CSpDBEqn *p)=0;
     virtual const char * VName()=0;
     // return Values 0 = OK
@@ -317,7 +352,7 @@ class DllImportExport CSpDBEqn
     virtual double Integrate_dT(double T1, double T2, double P) { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
     virtual double IntegrateOverT_dT(double T1, double T2, double P) { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
 
-    static CSpDBEqn *Construct(CSpConstData *pConst, CSpFidelData *pFData, const char *pInitString, CSpDBEqn *pCopyFrom=NULL);
+    static CSpDBEqn *Construct(CSpConstData *pConst, CSpFidelData *pFData, const char *pInitString, CSpDBEqn *pCopyFrom, CSDB_DataRecord * pRecord);
     CSpDBEqn        *ConstructCopy(CSpConstData *pConst, CSpFidelData *pFData);
 
   public:
@@ -332,7 +367,7 @@ class DllImportExport CSpDBEqn
     CSpConstData    * m_pConst;
     
     static bool       sm_bDoTheBreak;
-    static Strng      sm_sDataFileName;
+    //Strng         sm_sDataFileName;
   };
 
 static const byte ET_Null=0;
@@ -361,7 +396,7 @@ class DllImportExport CSpDBEqnSet
     CSpDBEqn *    SetEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te);
     CSpDBEqn *    AddEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te);
     
-    void          AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFData, LPCSTR List, double CfgLoT, double CfgHiT);
+    void          AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFData, LPCSTR List, double CfgLoT, double CfgHiT, CSDB_DataRecord * pRecord);
 
     void          Merge(CSpDBEqnSet & Eqns);
     void          Clear();
@@ -836,7 +871,7 @@ class DllImportExport CSpecie : public CPropertyBase
     char *        Sym();
     char *        CmpTag();
 
-    flag          LoadADO(CComponent * pC, CStringArray& Values, flag UseH2OFns);
+    flag          LoadADO(CComponent * pC, CSDB_DataRecord & Record, flag UseH2OFns);
 
     flag          FixMissingData(CComponent * pC);
     flag          CopyDataForMultiFidelity();
@@ -1143,13 +1178,6 @@ class DllImportExport CSpecieDataBase
     CSVLongArray   m_Bases;
 
     int            m_iNo;
-    int            m_iOC_Solvent;
-    int            m_iOC_OtherSpecie;
-    int            m_iOC_Dissociation;
-    int            m_iOC_MolecularDiam;
-    int            m_iOC_MolVol;
-    int            m_iOC_CpCv;
-    int            m_iOC_Reference;
 
     long           m_iH2Ol;
     long           m_iCO2l;
@@ -1251,7 +1279,7 @@ class TYPE : public CSpDBEqn                                               \
     virtual ~TYPE () {};                                                  \
     static const char * Name() { return TEXT; };                          \
     virtual const char * VName() { return Name(); };                      \
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols])   \
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)   \
             { if (strlen(Cols[0])!=0) return 2; return 0;};               \
     virtual void Copy(CSpDBEqn* p) { };                                    \
 
