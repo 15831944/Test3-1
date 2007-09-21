@@ -757,8 +757,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges();
 
-    static  int    DoDCBEqOption(DataChangeBlk & DCB, sint & iEqOptionRqd, sint & iEqOption, sint iDefEqOption);
-    static  int    DoDCBRhoMethod(DataChangeBlk & DCB, sint & iRhoMethodRqd, sint & iRhoMethod);
+    static  int    DoDCBOption(DataChangeBlk & DCB, sint & iEqOptionRqd, sint & iEqOption, sint iDefEqOption, CSDBOptions & Opts);
+    //static  int    DoDCBRhoMethod(DataChangeBlk & DCB, sint & iRhoMethodRqd, sint & iRhoMethod);
 
     static  int    DoDCBSatComp(DataChangeBlk & DCB, int & iSatCmpRqd, int & iSatCmp);
     static  int    DoDCBSatMethod(DataChangeBlk & DCB, sint & iSatMethodRqd, sint & iSatMethod);

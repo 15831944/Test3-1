@@ -629,7 +629,7 @@ class DllImportExport CSD_Distribution
                         for (int s=0; s<NPriIds(); s++)
                           TotalM+=M[PriSzId(s)];
                         TotalM=GTZ(TotalM);
-                        CDensityInfo C(SpModel::Fidelity(), SMDensM_None/*SpModel::DensityMethod()*/, T, P, pOvr, M); 
+                        CDensityInfo C(SpModel::Fidelity(), SMOption_DensNone/*SpModel::DensityMethod()*/, T, P, pOvr, M); 
                         for (int s=0; s<NPriIds(); s++)
                           {
                           if (SDB[PriSzId(s)].DensityX(C))
@@ -650,7 +650,7 @@ class DllImportExport CSD_Distribution
                         }
     double           SpecificSurfaceAreaV(double T, double P, SpPropOveride * pOvr, double *M, double LiqVol) 
                         { 
-                        CDensityInfo C(SpModel::Fidelity(), SMDensM_None/*SpModel::DensityMethod()*/, T, P, pOvr, M); 
+                        CDensityInfo C(SpModel::Fidelity(), SMOption_DensNone/*SpModel::DensityMethod()*/, T, P, pOvr, M); 
                         double TotalF=0.0;
                         double TotalA=0.0;
                         for (int s=0; s<NPriIds(); s++)

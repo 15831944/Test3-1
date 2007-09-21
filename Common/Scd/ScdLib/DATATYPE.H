@@ -177,7 +177,7 @@ class DllImportExport DDBValueLstMem
     ~DDBValueLstMem() { };
 
     void Empty () { Len=0; Str.Clear(); };
-    void Add(int i, char * S, dword flags=0) 
+    void Add(int i, LPCSTR S, dword flags=0) 
       { 
       Lst.SetSize(Max(Len+2, Lst.GetSize()));
       Str.Append(S);
@@ -187,7 +187,7 @@ class DllImportExport DDBValueLstMem
       Lst.SetAtGrow(Len+1, D2);
       Len++;
       };
-    void Add(char * S, dword flags=0) { Add(Len, S, flags); };
+    void Add(LPCSTR S, dword flags=0) { Add(Len, S, flags); };
 
     //    DDBValueLst* operator()(int i=0) { return &Lst[i]; };
     DDBValueLstMem* operator()() { return this; };
@@ -195,7 +195,7 @@ class DllImportExport DDBValueLstMem
     DDBValueLst* Item(int i=0) { return &Lst[i]; };
     DDBValueLst & operator[](int i) { return Lst[i]; };
     int Length() { return Len; };
-    int Find(char * Str) 
+    int Find(LPCSTR Str) 
       { 
       if (Str)
         for (int i=0; i<Len; i++)

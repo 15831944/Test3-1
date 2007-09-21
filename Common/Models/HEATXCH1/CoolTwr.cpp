@@ -316,7 +316,7 @@ CToleranceBlock EvapFnd::s_Tol(TBF_Both, "CoolTower:EvapFnd", 0.0, 1.0e-9);
 
 double EvapFnd::Function(double x)
   {
-  m_VLE.SetFlashVapFrac(Cd, x, 0);
+  m_VLE.SetSatPVapFrac(Cd, x, 0);
   //Cd.Model()->ClrStatesOK();
   Cd.SetTemp(RqdT);
   Cd.SetPress(RqdP);
@@ -521,7 +521,7 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
           if (!Ok)
             {
             SigmaQInPMin(QMix(), som_ALL, Id_2_Mask(ioid_Feed));
-            m_VLE.SetFlashVapFrac(QMix(), dEvapFrac, 0);
+            m_VLE.SetSatPVapFrac(QMix(), dEvapFrac, 0);
             QMix().SetPress(POut);
             RqdLiqTempUsed = QMix().Temp();
             }
@@ -606,7 +606,7 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
 
           dEvapFrac = Min(dMaxEvapFrac, (dEvapLossQm+QmWaterVapIn)/GTZ(QmWaterLiqIn+QmWaterVapIn));
           const double h1 = QMix().totHf();
-          m_VLE.SetFlashVapFrac(QMix(), dEvapFrac, 0);
+          m_VLE.SetSatPVapFrac(QMix(), dEvapFrac, 0);
           QMix().SetPress(POut);
           QMix().SetTemp(RqdLiqTempUsed);
           const double h2 = QMix().totHf();

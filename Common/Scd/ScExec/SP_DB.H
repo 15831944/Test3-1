@@ -1474,31 +1474,35 @@ class CPhaseInfo
 
 // ===========================================================================
 
-const int SMOption_Default    = -1;
-const int SMOption_Off        = 0;
-const int SMOption_On         = 1;
+const int SMOption_Default         = -1;
 
 // ===========================================================================
 
-const int SMDensM_Default     = -1;
-const int SMDensM_None        = 0;
-const int SMDensM_Original    = 1;
-const int SMDensM_Version1    = 2;
-const int SMDensM_Version2    = 3;
+const int SMOption_Off             = 0; 
+const int SMOption_On              = 1; 
 
 // ===========================================================================
 
-const int SMSatPM_Default     = -1;
-const int SMSatPM_PartialP    = 0;
-const int SMSatPM_TotalP      = 1;
-const int SMSatPM_Undefined   = 2;
+const int SMOption_DensNone        = 0; 
+const int SMOption_DensOriginal    = 1; 
+const int SMOption_DensVersion1    = 2;
+const int SMOption_DensVersion2    = 3;
+
+// ===========================================================================
+
+const int SMOption_SatPPartialP    = 0; 
+const int SMOption_SatPTotalP      = 1; 
+const int SMOption_SatPUndefined   = 2;
+
+inline int SMOption_2Opt(int AllOption) { return -(2+AllOption); }
+inline int SMOption_2All(int Option)    { return -(2+Option); }
 
 class CSaturationDefn
   {
   public:
     CSaturationDefn() 
       {
-      m_iMethod    = SMSatPM_Default;
+      m_iMethod    = SMOption_Default;
       m_iCmpIndex  = -1;
       };
     CSaturationDefn(CSaturationDefn * pSatDefn) 
@@ -1510,7 +1514,7 @@ class CSaturationDefn
         }
       else
         {
-        m_iMethod    = SMSatPM_Default;
+        m_iMethod    = SMOption_Default;
         m_iCmpIndex  = -1;
         }
       };
@@ -1533,7 +1537,7 @@ class CSaturationDefn
 
     int Method()
       {
-      //if (m_iMethod==SMSatPM_Default)
+      //if (m_iMethod==SMOption_SatPDefault)
       //  return MdlMethod;
       return m_iMethod;
       }
@@ -1559,6 +1563,21 @@ template <class T> int FindString(T & A, LPSTR S)
     }
   return -1;
   }
+
+class CSDBOptions
+  {
+  public:
+    CSDBOptions();
+    void     Clear();
+    void     Add(int Value, LPCSTR Name, bool DDBDefOnly=false);
+
+  public:
+    DDBValueLstMem        m_DDBOptions;
+    DDBValueLstMem        m_DDBDefOptions;
+    CArray<Strng, Strng>  m_Options;
+    CArray<Strng, Strng>  m_DefOptions;
+    CArray<Strng, Strng>  m_InhOptions;
+  };
 
 class DllImportExport CComponentDataBase
   {
@@ -1612,14 +1631,14 @@ class DllImportExport CComponentDataBase
 
     int            DefDensityMethod()  { return m_DefDensityMethod; };
 
-    CSaturationDefn DefFlashDefn()     { return CSaturationDefn(m_DefFlashMethod, m_DefFlashCmpIndex); }
-    int            DefFlashMethod()    { return m_DefFlashMethod; };
-    int            DefFlashCmpIndex()  { return m_DefFlashCmpIndex; };
-    int            DefFlashLiqIndex()  { return m_DefFlashLiqIndex; };
-    int            DefFlashVapIndex()  { return m_DefFlashVapIndex; };
-    CComponent &   DefFlashCmpDesc()   { return *(m_DefFlashCmpIndex >=0 ? CmD[m_DefFlashCmpIndex] : NULL); };
-    CSpecie &      DefFlashLiqDesc()   { return m_DefFlashLiqIndex >=0  ? m_SDB[m_DefFlashLiqIndex] : *((CSpecie*)NULL); };
-    CSpecie &      DefFlashVapDesc()   { return m_DefFlashVapIndex >=0  ? m_SDB[m_DefFlashVapIndex] : *((CSpecie*)NULL); };
+    CSaturationDefn DefSatPDefn()     { return CSaturationDefn(m_DefSatPMethod, m_DefSatPCmpIndex); }
+    int            DefSatPMethod()    { return m_DefSatPMethod; };
+    int            DefSatPCmpIndex()  { return m_DefSatPCmpIndex; };
+    int            DefSatPLiqIndex()  { return m_DefSatPLiqIndex; };
+    int            DefSatPVapIndex()  { return m_DefSatPVapIndex; };
+    CComponent &   DefSatPCmpDesc()   { return *(m_DefSatPCmpIndex >=0 ? CmD[m_DefSatPCmpIndex] : NULL); };
+    CSpecie &      DefSatPLiqDesc()   { return m_DefSatPLiqIndex >=0  ? m_SDB[m_DefSatPLiqIndex] : *((CSpecie*)NULL); };
+    CSpecie &      DefSatPVapDesc()   { return m_DefSatPVapIndex >=0  ? m_SDB[m_DefSatPVapIndex] : *((CSpecie*)NULL); };
 
   private:
     CComponent *          CmD[MaxComponents];
@@ -1670,40 +1689,45 @@ class DllImportExport CComponentDataBase
     int                   m_PhInfoLast[BOT_All+1];
     CPhaseInfo            m_PhInfo[MaxPhases];
 
+    CSDBOptions           m_OptsOnOff;
+    CSDBOptions           m_OptsDens;
+    CSDBOptions           m_OptsSatP;
+    
     int                   m_DefEqAqPhChg;
     int                   m_DefEqSoluble;
     int                   m_DefEqAutoVLE;
 
-    DDBValueLstMem        m_DDBEqOptions;
-    DDBValueLstMem        m_DDBDefEqOptions;
-    CArray<Strng, Strng>  m_EqOptions;
-    CArray<Strng, Strng>  m_EqOptionsDef;
-    CArray<Strng, Strng>  m_EqOptionsInh;
+    //DDBValueLstMem        m_DDBEqOptions;
+    //DDBValueLstMem        m_DDBDefEqOptions;
+    //CArray<Strng, Strng>  m_EqOptions;
+    //CArray<Strng, Strng>  m_EqOptionsDef;
+    //CArray<Strng, Strng>  m_EqOptionsInh;
 
     int                   m_DefDensityMethod;
 
-    DDBValueLstMem        m_DDBDensityMethods;
-    DDBValueLstMem        m_DDBDefDensityMethods;
-    CArray<Strng, Strng>  m_DensityMethods;
-    CArray<Strng, Strng>  m_DensityMethodsDef;
-    CArray<Strng, Strng>  m_DensityMethodsInh;
+    //DDBValueLstMem        m_DDBDensityMethods;
+    //DDBValueLstMem        m_DDBDefDensityMethods;
+    //CArray<Strng, Strng>  m_DensityMethods;
+    //CArray<Strng, Strng>  m_DensityMethodsDef;
+    //CArray<Strng, Strng>  m_DensityMethodsInh;
 
-    int                   m_DefFlashMethod;
-    int                   m_DefFlashCmpIndex;
-    int                   m_DefFlashLiqIndex;
-    int                   m_DefFlashVapIndex;
+    int                   m_DefSatPMethod;
+    DDBValueLstMem        m_DDBSatPMethods;
+    DDBValueLstMem        m_DDBDefSatPMethods;
+    CArray<Strng, Strng>  m_SatPMethods;
+    CArray<Strng, Strng>  m_SatPMethodsDef;
+    CArray<Strng, Strng>  m_SatPMethodsInh;
+
+    int                   m_DefSatPCmpIndex;
+    int                   m_DefSatPLiqIndex;
+    int                   m_DefSatPVapIndex;
 
 
     DDBValueLstMem        m_DDBFlashable;
-    CArray<Strng, Strng>  m_FlashCmps;
-    CArray<Strng, Strng>  m_FlashCmpsDef;
-    CArray<Strng, Strng>  m_FlashCmpsInh;
+    CArray<Strng, Strng>  m_SatPCmps;
+    CArray<Strng, Strng>  m_SatPCmpsDef;
+    CArray<Strng, Strng>  m_SatPCmpsInh;
 
-    DDBValueLstMem        m_DDBFlashMethods;
-    DDBValueLstMem        m_DDBDefFlashMethods;
-    CArray<Strng, Strng>  m_FlashMethods;
-    CArray<Strng, Strng>  m_FlashMethodsDef;
-    CArray<Strng, Strng>  m_FlashMethodsInh;
 
   public:
     DDBValueLstMem        DDBCompList;

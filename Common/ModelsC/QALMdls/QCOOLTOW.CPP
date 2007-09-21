@@ -228,7 +228,7 @@ class EvapFnd : public MRootFinderBase
     LPCTSTR ObjTag() { return (LPCTSTR)pMdl->FullObjTag(); };
     double Function(double x)
       {
-      m_VLE.SetFlashVapFrac(*pMdl, x, 0);
+      m_VLE.SetSatPVapFrac(*pMdl, x, 0);
       pMdl->ClrStatesOK();
       pMdl->SetTemp(T);
       pMdl->SetPress(P);

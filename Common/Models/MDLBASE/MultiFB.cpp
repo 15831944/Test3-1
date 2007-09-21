@@ -1949,7 +1949,7 @@ void MFCommonBlk::SetProperties(SpConduit & Cd, double P, double MaxT, flag DoDb
       dbgpln("X(%)\tT\tPsat\tMass SL\tMass \tH SL\tH Vap\tH Tot");
       for (double x=0.0; x<1.0; x+=(x<0.1) ? 0.01 : 0.05)
         {
-        pVLE->SetFlashVapFrac(*(W.Model()), t, p, x, 0);
+        pVLE->SetSatPVapFrac(*(W.Model()), t, p, x, 0);
 
         double h1 = W.totHf(som_SL, t, p, W.pMArray());
         double h2 = W.totHf(som_Gas, t, p, W.pMArray());
@@ -2087,7 +2087,7 @@ flag MFCommonBlk::TestPressureOK(double &P0, double &P1)
 
 //--------------------------------------------------------------------------
 
-flag MFCommonBlk::DoFlashLiqAtStart(flag AtEntry, CFlwBlkBase & FE,
+flag MFCommonBlk::DoSatPLiqAtStart(flag AtEntry, CFlwBlkBase & FE,
                                     double Regulation, SpConduit &Cd,
                                     double K, double DI, double DE, double DO)//, double D2)
   {
@@ -2244,7 +2244,7 @@ flag MFCommonBlk::DoFlashLiqAtStart(flag AtEntry, CFlwBlkBase & FE,
 
 //--------------------------------------------------------------------------
 
-flag MFCommonBlk::DoFlashVapAtStart(flag AtEntry, CFlwBlkBase & FE,
+flag MFCommonBlk::DoSatPVapAtStart(flag AtEntry, CFlwBlkBase & FE,
                                     double Regulation, SpConduit &Cd,
                                     double K, double DI, double DE, double DO)//, double D2)
   {
@@ -2496,9 +2496,9 @@ flag MFCommonBlk::DoFlash(flag AtEntry, CFlwBlkBase & FE,
   if (VfIn>MinMFBVapFrac || VfOut>MinMFBVapFrac)
     {
     if (VfIn<MinMFBVapFrac && VfOut>MinMFBVapFrac)
-      Done=DoFlashLiqAtStart(/*How,*/ AtEntry, FE, Regulation, Cd, K, DI, DE, DO);//, D2);
+      Done=DoSatPLiqAtStart(/*How,*/ AtEntry, FE, Regulation, Cd, K, DI, DE, DO);//, D2);
     else
-      Done=DoFlashVapAtStart(/*How,*/ AtEntry, FE, Regulation, Cd, K, DI, DE, DO);//, D2);
+      Done=DoSatPVapAtStart(/*How,*/ AtEntry, FE, Regulation, Cd, K, DI, DE, DO);//, D2);
     //CHECK Flash End
 
     //pVLE->PFlash(Cd, POut, 0.0, VLEF_SaturationLimit);

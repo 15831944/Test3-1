@@ -320,7 +320,7 @@ double DSH_FinalTempFnd::Function(double x)
   {
   Mx.QSetF(HS, som_ALL, 1.0, dRqdP);
   Mx.QAddM(CW, som_ALL, x);
-  DSH.m_VLE.SetFlashVapFrac(Mx, 1.0, 0);
+  DSH.m_VLE.SetSatPVapFrac(Mx, 1.0, 0);
   double dFinalT = Mx.Temp();
   return dFinalT;
   }
@@ -425,7 +425,7 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
         const double hi = Mixture().totHf();
         Mixture().SetPress(SteamInP);
         double VF = 1.0;
-        m_VLE.SetFlashVapFrac(Mixture(), VF, 0);
+        m_VLE.SetSatPVapFrac(Mixture(), VF, 0);
         Mixture().Set_totHf(hi);
         Fo.QCopy(Mixture());
         }

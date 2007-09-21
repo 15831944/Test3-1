@@ -314,10 +314,10 @@ class DllImportExport CHXSide
 
     void           BuildDataDefn(char*Tag, DataDefnBlk & DDB, TaggedObject* pTagObj, flag Conduit, flag Connected, flag PriSide);
     flag           DataXchg(DataChangeBlk & DCB);
-    void           MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pFlashDefn);
-    void           MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pFlashDefn);
-    void           SetInput(SpConduit *pCdIn, SpContainer& rCn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pFlashDefn, SpConduit * pFeed, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst);
-    void           SetInput(SpConduit *pCdIn, SpConduit& rCd, double PIn, CSaturationDefn * pFlashDefn, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst, bool PreReact);
+    void           MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pSatPDefn);
+    void           MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pSatPDefn);
+    void           SetInput(SpConduit *pCdIn, SpContainer& rCn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pSatPDefn, SpConduit * pFeed, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst);
+    void           SetInput(SpConduit *pCdIn, SpConduit& rCd, double PIn, CSaturationDefn * pSatPDefn, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst, bool PreReact);
     void           ClrInput();
     void           NoJoinInput();
 
@@ -427,14 +427,14 @@ class DllImportExport CHXBlock : public TaggedObject
     void           SetVent(SpConduit& rCd, /*double QVentRqd,*/ double VentP);
     void           ClrVent();
 
-    void           SetPrimary(SpConduit *pCdIn, SpConduit & Qp, double PIn, CSaturationDefn * pFlashDefn, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN, bool PreReact=false)
-      { m_Pri.SetInput(pCdIn, Qp, PIn, pFlashDefn, pEHX, pRB, FinalTEst, PreReact); };
-    void           SetPrimary(SpConduit *pCdIn, SpContainer & Cn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pFlashDefn, SpConduit * pFeed=NULL, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN)
-      { m_Pri.SetInput(pCdIn, Cn, CnPhase, CnFraction, PIn, pFlashDefn, pFeed, pEHX, pRB, FinalTEst); };
-    void           SetSecondary(SpConduit *pCdIn, SpConduit & Qp, double PIn, CSaturationDefn * pFlashDefn, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN, bool PreReact=false)
-      { m_Sec.SetInput(pCdIn, Qp, PIn, pFlashDefn, pEHX, pRB, FinalTEst, PreReact); };
-    void           SetSecondary(SpConduit *pCdIn, SpContainer & Cn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pFlashDefn, SpConduit * pFeed=NULL, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN)
-      { m_Sec.SetInput(pCdIn, Cn, CnPhase, CnFraction, PIn, pFlashDefn, pFeed, pEHX, pRB, FinalTEst); };
+    void           SetPrimary(SpConduit *pCdIn, SpConduit & Qp, double PIn, CSaturationDefn * pSatPDefn, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN, bool PreReact=false)
+      { m_Pri.SetInput(pCdIn, Qp, PIn, pSatPDefn, pEHX, pRB, FinalTEst, PreReact); };
+    void           SetPrimary(SpConduit *pCdIn, SpContainer & Cn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pSatPDefn, SpConduit * pFeed=NULL, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN)
+      { m_Pri.SetInput(pCdIn, Cn, CnPhase, CnFraction, PIn, pSatPDefn, pFeed, pEHX, pRB, FinalTEst); };
+    void           SetSecondary(SpConduit *pCdIn, SpConduit & Qp, double PIn, CSaturationDefn * pSatPDefn, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN, bool PreReact=false)
+      { m_Sec.SetInput(pCdIn, Qp, PIn, pSatPDefn, pEHX, pRB, FinalTEst, PreReact); };
+    void           SetSecondary(SpConduit *pCdIn, SpContainer & Cn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pSatPDefn, SpConduit * pFeed=NULL, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN)
+      { m_Sec.SetInput(pCdIn, Cn, CnPhase, CnFraction, PIn, pSatPDefn, pFeed, pEHX, pRB, FinalTEst); };
 
     void           ClrPrimary()
       { m_Pri.ClrInput(); };
@@ -499,16 +499,16 @@ class DllImportExport CHXBase : public CBlockEvalBase
     void           ClrVent()
       { if (Enabled()) pHX->ClrVent(); };
 
-    void           SetPrimary(SpConduit *pCdIn, SpConduit & Qp, double PIn, CSaturationDefn * pFlashDefn, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN, bool PreReact=false)
-      { if (Enabled()) pHX->m_Pri.SetInput(pCdIn, Qp, PIn, pFlashDefn, pEHX, pRB, FinalTEst, PreReact); };
-    void           SetPrimary(SpConduit *pCdIn, SpContainer & Cn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pFlashDefn, SpConduit * pFeed=NULL, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN)
-      { if (Enabled()) pHX->m_Pri.SetInput(pCdIn, Cn, CnPhase, CnFraction, PIn, pFlashDefn, pFeed, pEHX, pRB, FinalTEst); };
+    void           SetPrimary(SpConduit *pCdIn, SpConduit & Qp, double PIn, CSaturationDefn * pSatPDefn, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN, bool PreReact=false)
+      { if (Enabled()) pHX->m_Pri.SetInput(pCdIn, Qp, PIn, pSatPDefn, pEHX, pRB, FinalTEst, PreReact); };
+    void           SetPrimary(SpConduit *pCdIn, SpContainer & Cn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pSatPDefn, SpConduit * pFeed=NULL, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN)
+      { if (Enabled()) pHX->m_Pri.SetInput(pCdIn, Cn, CnPhase, CnFraction, PIn, pSatPDefn, pFeed, pEHX, pRB, FinalTEst); };
     //void           SetPrimaryVent(SpConduit & Cd, double QVentRqd, double VentP)
     //  { if (Enabled()) pHX->m_Pri.SetVent(Cd, QVentRqd, VentP); };
-    void           SetSecondary(SpConduit *pCdIn, SpConduit & Qp, double PIn, CSaturationDefn * pFlashDefn, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN, bool PreReact=false)
-      { if (Enabled()) pHX->m_Sec.SetInput(pCdIn, Qp, PIn, pFlashDefn, pEHX, pRB, FinalTEst, PreReact); };
-    void           SetSecondary(SpConduit *pCdIn, SpContainer & Cn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pFlashDefn, SpConduit * pFeed=NULL, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN)
-      { if (Enabled()) pHX->m_Sec.SetInput(pCdIn, Cn, CnPhase, CnFraction, PIn, pFlashDefn, pFeed, pEHX, pRB, FinalTEst); };
+    void           SetSecondary(SpConduit *pCdIn, SpConduit & Qp, double PIn, CSaturationDefn * pSatPDefn, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN, bool PreReact=false)
+      { if (Enabled()) pHX->m_Sec.SetInput(pCdIn, Qp, PIn, pSatPDefn, pEHX, pRB, FinalTEst, PreReact); };
+    void           SetSecondary(SpConduit *pCdIn, SpContainer & Cn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pSatPDefn, SpConduit * pFeed=NULL, CEnvironHX* pEHX=NULL, CReactionBlock *pRB=NULL, double FinalTEst=dNAN)
+      { if (Enabled()) pHX->m_Sec.SetInput(pCdIn, Cn, CnPhase, CnFraction, PIn, pSatPDefn, pFeed, pEHX, pRB, FinalTEst); };
     //void           SetSecondaryVent(SpConduit & Cd, double QVentRqd, double VentP)
     //  { if (Enabled()) pHX->m_Sec.SetVent(Cd, QVentRqd, VentP); };
 

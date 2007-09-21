@@ -1180,15 +1180,15 @@ class DllImportExport MVLEBlk : public MMethodUtility
 
   public:
     // Flash the contents
-    double          FlashVapFrac(MVector &Mdl);
+    double          SatPVapFrac(MVector &Mdl);
     // Flash the contents such that the mass fraction of vapour is VapFrac
-    void            SetFlashVapFrac(MVector &Mdl, double Temp, double Press, double VapFrac, DWORD Flags);
+    void            SetSatPVapFrac(MVector &Mdl, double Temp, double Press, double VapFrac, DWORD Flags);
     // Flash the contents such that the mass fraction of vapour is VapFrac
-    void            SetFlashVapFrac(MVector &Mdl, double VapFrac, DWORD Flags);
+    void            SetSatPVapFrac(MVector &Mdl, double VapFrac, DWORD Flags);
     // Flash the contents such that the mass fraction of vapour is VapFrac
-    void            SetFlashVapFrac(MStream &Q, double Temp, double Press, double VapFrac, DWORD Flags);
+    void            SetSatPVapFrac(MStream &Q, double Temp, double Press, double VapFrac, DWORD Flags);
     // Flash the contents such that the mass fraction of vapour is VapFrac
-    void            SetFlashVapFrac(MStream &Q, double VapFrac, DWORD Flags);
+    void            SetSatPVapFrac(MStream &Q, double VapFrac, DWORD Flags);
 
     // Flash the contents given Temperature & Pressure (adjust VapMassFrac)
     void            TPFlash(MVector &Mdl, double Temp, double Press, DWORD Flags);

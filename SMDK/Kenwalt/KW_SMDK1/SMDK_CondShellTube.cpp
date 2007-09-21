@@ -211,7 +211,7 @@ double CST_CondensateFinder::Function(double Amount)
 
   double FTemp=m_ShellI.SaturationT();
   double FPress=m_ShellI.SaturationP();
-  m_VLE.SetFlashVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null);
+  m_VLE.SetSatPVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null);
   m_ShellO.SetTP(FTemp, FPress);
   m_Unit.m_dDuty=-(m_ShellO.totHf()-ShtotHf);
 

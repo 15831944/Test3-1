@@ -304,7 +304,7 @@ CToleranceBlock TurbineVapFracFnd::s_Tol(TBF_Both, "Turbine:VapFracFnd", 0.0, 1.
 
 double TurbineVapFracFnd::Function(double x)
   {
-  Turb.m_VLE.SetFlashVapFrac(C, x, 0);
+  Turb.m_VLE.SetSatPVapFrac(C, x, 0);
   C.SetTempPress(RqdT, RqdP);
   double d = EnthalpyCalc ? C.totHf() : C.totSf();
   return d;
@@ -387,7 +387,7 @@ void CTurbine::EvalProducts(CNodeEvalIndex & NEI)
       //change feed to superheated steam...
       const double hi = Fi->totHf();
       double VF = 1.0;
-      m_VLE.SetFlashVapFrac(Fi(), VF, 0);
+      m_VLE.SetSatPVapFrac(Fi(), VF, 0);
       Fi->Set_totHf(hi);
       //temperature and entropy will now be different...
       }
@@ -561,7 +561,7 @@ void CTurbine::EvalProducts(CNodeEvalIndex & NEI)
           if (Valid(dCalcVF2))
             {
             VF = dCalcVF2;
-            m_VLE.SetFlashVapFrac(Fo, VF, 0);
+            m_VLE.SetSatPVapFrac(Fo, VF, 0);
             Fo.SetTempPress(SatTo, dPoutRqd);
             Fo.Set_totHf(ho);//do this again for numerical accuaracy conserving exact energy?
             }
@@ -571,7 +571,7 @@ void CTurbine::EvalProducts(CNodeEvalIndex & NEI)
             SuperHeatedExhaust=true;
             iExhaustMode = TEM_SuperHeated;
             double VF = 1.0;
-            m_VLE.SetFlashVapFrac(Fo, VF, 0);
+            m_VLE.SetSatPVapFrac(Fo, VF, 0);
             Fo.Set_totHf(ho);
             //Error=true;
             #ifndef _RELEASE
@@ -586,7 +586,7 @@ void CTurbine::EvalProducts(CNodeEvalIndex & NEI)
           SuperHeatedExhaust=true;
           iExhaustMode = TEM_SuperHeated;
           double VF = 1.0;
-          m_VLE.SetFlashVapFrac(Fo, VF, 0);
+          m_VLE.SetSatPVapFrac(Fo, VF, 0);
           Fo.Set_totHf(ho);
           dCalcVF2 = dNAN;
           }

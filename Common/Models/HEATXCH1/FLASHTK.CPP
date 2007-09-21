@@ -222,7 +222,7 @@ m_FTF(this)
   m_fSolnVapQmValid=false;
   m_dSolnVapQm=0.0;
 #endif
-  m_dFlashVapFracToLiq = 0.0;
+  m_dSatPVapFracToLiq = 0.0;
   m_dOtherVapFracToLiq = 0.0;
   m_bTrackVapFdStatus  = 1;
 
@@ -263,7 +263,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Bool    ("On_Line",      "",      DC_,     "",       &fOnLine,       this, isParmStopped, DDBYesNo);
   DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
 #if WITHOTHERVAPSPLIT
-  DDB.Double ("FlashVapSplitToLiq",   "", DC_Frac, "%",      &m_dFlashVapFracToLiq, this, isParm);
+  DDB.Double ("SatPVapSplitToLiq",   "", DC_Frac, "%",      &m_dSatPVapFracToLiq, this, isParm);
   DDB.Double ("OtherVapSplitToLiq",   "", DC_Frac, "%",      &m_dOtherVapFracToLiq, this, isParm);
 #endif
   long PBAllowed  = PC_Atmos|PC_Reqd|PC_ReqdSatT|PC_SatP;
@@ -360,7 +360,7 @@ flag FlashTank::ValidateData(ValidateDataBlk & VDB)
   if (sVapSpModel.XStrICmp(SteamWaterSpModelName)==0)
     sVapSpModel=BaseSpModelName;
 
-  m_dFlashVapFracToLiq = Range(0.0, m_dFlashVapFracToLiq, 1.0);
+  m_dSatPVapFracToLiq = Range(0.0, m_dSatPVapFracToLiq, 1.0);
   m_dOtherVapFracToLiq = Range(0.0, m_dOtherVapFracToLiq, 1.0);
 
   DDBValueLstMem DDB0;
@@ -446,7 +446,7 @@ double FlashTank::GetFlashPressure(SpConduit &Q)
       FlashP=m_PCtrl0.PRqd();
     else if (m_PCtrl0.Method()==PC_ReqdSatT)
       {
-      if (m_VLE.FlashMethod()==SMSatPM_PartialP)
+      if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
         FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
       else
         FlashP=Q.SaturationP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
@@ -462,7 +462,7 @@ double FlashTank::GetFlashPressure(SpConduit &Q)
       FlashP=m_PCtrl0.PRqd();
     else if (m_PCtrl0.Method()==PC_ReqdSatT)
       {
-      if (m_VLE.FlashMethod()==SMSatPM_PartialP)
+      if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
         FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
       else
         FlashP=Q.SaturationP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
@@ -695,7 +695,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
           SpecieIter It(som_Gas);
           for (int g=-1; It.Loop(g); )
             {
-            double Splt= (g==m_VLE.FlashVapIndex()) ? m_dFlashVapFracToLiq : m_dOtherVapFracToLiq;
+            double Splt= (g==m_VLE.SatPVapIndex()) ? m_dSatPVapFracToLiq : m_dOtherVapFracToLiq;
             double G=Qv.VValue[g]+Ql.VValue[g];
             Qv.VValue[g]=G*(1.0-Splt);
             Ql.VValue[g]=G*Splt;

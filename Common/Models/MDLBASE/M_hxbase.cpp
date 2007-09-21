@@ -1111,7 +1111,7 @@ flag CHXSide::DataXchg(DataChangeBlk & DCB)
 
 //--------------------------------------------------------------------------
 
-void CHXSide::MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pFlashDefn)
+void CHXSide::MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pSatPDefn)
   {
   if (pCd==NULL)
     pCd=m_pCd;
@@ -1124,26 +1124,26 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pFlashDefn)
   Cp = pCd->msCp();
   Qm = pCd->QMass();
 
-  if (pFlashDefn && pFlashDefn->Method()==SMSatPM_PartialP)
-    m_PPFrac = pCd->PartialPressFracC(pFlashDefn->CmpIndex(), -1);
+  if (pSatPDefn && pSatPDefn->Method()==SMOption_SatPPartialP)
+    m_PPFrac = pCd->PartialPressFracC(pSatPDefn->CmpIndex(), -1);
   else
     m_PPFrac = 1;
 
 #if HX_MEASURE_LIQVAP
-  m_LiqQm = pCd->VMass[pCd->FlashLiqIndex()];
-  m_VapQm = pCd->VMass[pCd->FlashVapIndex()];
+  m_LiqQm = pCd->VMass[pCd->SatPLiqIndex()];
+  m_VapQm = pCd->VMass[pCd->SatPVapIndex()];
 #endif
 
   //dbgpln("CHXSide::MeasureHXDataCd Liq:%12.5f Vap:%12.5f Ti:%12.4f Pi:%12.4f %s", 
-  //  pCd->VMass[pCd->FlashLiqIndex()], pCd->VMass[pCd->FlashVapIndex()], 
+  //  pCd->VMass[pCd->SatPLiqIndex()], pCd->VMass[pCd->SatPVapIndex()], 
   //  Ti, m_Pi,
   //  pCd->FullObjTag());
 
   m_Po=m_Pi;
   if (m_PPFrac>1.0e-6)
-    m_SatT = pCd->SaturationT(FlashPressOut(), pFlashDefn);
+    m_SatT = pCd->SaturationT(FlashPressOut(), pSatPDefn);
   else
-    m_SatT = pCd->SaturationT(m_Po, pFlashDefn);
+    m_SatT = pCd->SaturationT(m_Po, pSatPDefn);
   m_pCd->QSaveMass(MassImg);
 
   To=Ti;
@@ -1152,7 +1152,7 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pFlashDefn)
 
 //--------------------------------------------------------------------------
 
-void CHXSide::MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pFlashDefn)
+void CHXSide::MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pSatPDefn)
   {
   if (pCn==NULL)
     pCn=m_pCn;
@@ -1164,22 +1164,22 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pFlashDefn)
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
-  if (pFlashDefn && pFlashDefn->Method()==SMSatPM_PartialP)
-    m_PPFrac = pCn->PartialPressFracC(pFlashDefn->CmpIndex(), -1);
+  if (pSatPDefn && pSatPDefn->Method()==SMOption_SatPPartialP)
+    m_PPFrac = pCn->PartialPressFracC(pSatPDefn->CmpIndex(), -1);
   else
     m_PPFrac = 1.0;
 
 #if HX_MEASURE_LIQVAP
-  m_LiqQm = pCn->VMass[pCn->FlashLiqIndex()/* H2OLiq()*/];
-  m_VapQm = pCn->VMass[pCn->FlashVapIndex()/* H2OVap()*/];
+  m_LiqQm = pCn->VMass[pCn->SatPLiqIndex()/* H2OLiq()*/];
+  m_VapQm = pCn->VMass[pCn->SatPVapIndex()/* H2OVap()*/];
 #endif
   m_Po=m_Pi;
   //m_SatT = pCn->SaturationT(FlashPressOut());
   _asm int 3;
   if (m_PPFrac>1.0e-6)
-    m_SatT = pCn->SaturationT(FlashPressOut(), pFlashDefn);
+    m_SatT = pCn->SaturationT(FlashPressOut(), pSatPDefn);
   else
-    m_SatT = pCn->SaturationT(m_Po, pFlashDefn);
+    m_SatT = pCn->SaturationT(m_Po, pSatPDefn);
   //m_pCnd->QSaveMass(MassImg);
 
   To=Ti;
@@ -1188,7 +1188,7 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pFlashDefn)
 
 //--------------------------------------------------------------------------
 
-void CHXSide::SetInput(SpConduit *pCdIn, SpContainer& rCn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pFlashDefn, SpConduit * pFeed, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst)
+void CHXSide::SetInput(SpConduit *pCdIn, SpContainer& rCn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pSatPDefn, SpConduit * pFeed, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst)
   {
   fConnected=1;
   m_pCdIn=pCdIn;
@@ -1208,12 +1208,12 @@ void CHXSide::SetInput(SpConduit *pCdIn, SpContainer& rCn, PhMask CnPhase, doubl
   
   dFinalTEst=FinalTEst;
 
-  MeasureHXDataCd(m_pWrkCd, pFlashDefn);
+  MeasureHXDataCd(m_pWrkCd, pSatPDefn);
   }
 
 //--------------------------------------------------------------------------
 
-void CHXSide::SetInput(SpConduit *pCdIn, SpConduit & Cd, double PIn, CSaturationDefn * pFlashDefn, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst, bool PreReact)
+void CHXSide::SetInput(SpConduit *pCdIn, SpConduit & Cd, double PIn, CSaturationDefn * pSatPDefn, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst, bool PreReact)
   {
   fConnected=1;
   fPreReact=PreReact;
@@ -1233,7 +1233,7 @@ void CHXSide::SetInput(SpConduit *pCdIn, SpConduit & Cd, double PIn, CSaturation
 
   dFinalTEst=FinalTEst;
 
-  MeasureHXDataCd(m_pCd, pFlashDefn);
+  MeasureHXDataCd(m_pCd, pSatPDefn);
 
   }
 
@@ -1335,7 +1335,7 @@ double CHXSide::SendGasToVent(bool FullyCondensing)
         {
         CVLEBase & VLE = *m_pCd->VLEBlk();
         const double QmTotalVap=m_pCd->QMass(som_Gas);
-        const double QmSteam=m_pCd->VMass[VLE.FlashVapIndex()/*H2OVap()*/];
+        const double QmSteam=m_pCd->VMass[VLE.SatPVapIndex()/*H2OVap()*/];
         const double QmOtherVap=QmTotalVap-QmSteam;
         if (QmVentRqd>0.0 || (pHX->m_dNonCondVentFrac>0.0 && QmOtherVap>0.0))
           {
@@ -1345,8 +1345,8 @@ double CHXSide::SendGasToVent(bool FullyCondensing)
           pVent->QSetM(*m_pCd, som_Gas, qm, VentPress);
           m_pCd->QAdjustQmTo(som_Gas, QmTotalVap-qm);
           //fix steam...
-          pVent->VValue[VLE.FlashVapIndex()/*H2OVap()*/] = QmSteamVent;
-          m_pCd->VValue[VLE.FlashVapIndex()/*H2OVap()*/] = QmSteam-QmSteamVent;
+          pVent->VValue[VLE.SatPVapIndex()/*H2OVap()*/] = QmSteamVent;
+          m_pCd->VValue[VLE.SatPVapIndex()/*H2OVap()*/] = QmSteam-QmSteamVent;
           // Remeasure Total Measurements
           //MeasureHXDataCd(NULL);
           QmVent = QmSteamVent;
@@ -1935,10 +1935,10 @@ double CHXDutyFinder::Function(double Extent)
   m_Sec.Duty=m_Blk.m_dDuty*m_Sec.Sgn + m_Sec.dHEnv;
   if (m_Pri.m_pCd)
     m_Pri.m_pCd->QRestoreMass(m_Pri.MassImg);
-//    m_Pri.m_pCd->SetFlashVapFraction(m_Pri.FlFrac);
+//    m_Pri.m_pCd->SetSatPVapFraction(m_Pri.FlFrac);
   if (m_Sec.m_pCd)
     m_Sec.m_pCd->QRestoreMass(m_Sec.MassImg);
-//    m_Sec.m_pCd->SetFlashVapFraction(m_Sec.FlFrac);
+//    m_Sec.m_pCd->SetSatPVapFraction(m_Sec.FlFrac);
   Set_Enth_and_TOut(m_Pri, m_Pri.Hi+m_Pri.Duty);
   Set_Enth_and_TOut(m_Sec, m_Sec.Hi+m_Sec.Duty);
 

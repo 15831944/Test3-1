@@ -320,7 +320,7 @@ void Boiler::EvalProducts(CNodeEvalIndex & NEI)
             const double err = htot-h1;*/
             SO.SetPress(dFinalPRqd);
             m_VLE.SetHfInAtZero(SO);
-            m_VLE.SetFlashVapFrac(SO, 1.0, 0);
+            m_VLE.SetSatPVapFrac(SO, 1.0, 0);
             m_VLE.AddHfOutAtZero(SO);
             SO.SetTemp(dFinalTRqd);
             const double h2 = SO.totHf();
@@ -333,7 +333,7 @@ void Boiler::EvalProducts(CNodeEvalIndex & NEI)
             const double h1_ = SO.totHf();
             SO.SetPress(dFinalPRqd);
             m_VLE.SetHfInAtZero(SO);
-            m_VLE.SetFlashVapFrac(SO, 1.0, 0);
+            m_VLE.SetSatPVapFrac(SO, 1.0, 0);
             m_VLE.AddHfOutAtZero(SO);
             SO.SetTemp(dFinalTRqd);
             const double h2 = SO.totHf();
@@ -346,7 +346,7 @@ void Boiler::EvalProducts(CNodeEvalIndex & NEI)
         //  BD.QSetF(Mixture(), som_ALL, dBlowDownFrac, dDrumPress);
         //  SO.QSetF(Mixture(), som_ALL, 1.0-dBlowDownFrac, dFinalPRqd);
         //  VLE.SetHfInAtZero(SO);
-        //  VLE.SetFlashVapFrac(SO, 1.0, 0);
+        //  VLE.SetSatPVapFrac(SO, 1.0, 0);
         //  VLE.AddHfOutAtZero(SO);
         //  SO.SetTemp(dFinalTRqd);
         //  const double h2 = SO.totHf();

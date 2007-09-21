@@ -1467,7 +1467,7 @@ double SQSzDist1::SurfaceAreaPerGram(int DistNo, int PriId)
   double Temp=pModel->Temp();
   double Press=pModel->Press();
 
-  CDensityInfo C(pModel->Fidelity(), SMDensM_None, Temp, Press, NULL, pModel->SVData());
+  CDensityInfo C(pModel->Fidelity(), SMOption_DensNone, Temp, Press, NULL, pModel->SVData());
 
   double SAM=0;
   double TotMass=0;
@@ -1513,7 +1513,7 @@ double SQSzDist1::SurfaceAreaPerLitre(int DistNo, int PriId)
   double Temp=pModel->Temp();
   double Press=pModel->Press();
 
-  CDensityInfo C(pModel->Fidelity(), SMDensM_None, Temp, Press, NULL, pModel->SVData());
+  CDensityInfo C(pModel->Fidelity(), SMOption_DensNone, Temp, Press, NULL, pModel->SVData());
 
   double SAL=0;
   double TotMass=0;
@@ -1558,7 +1558,7 @@ double SQSzDist1::ParticleCountPerMass(int DistNo, int PriId)
     double Temp=pModel->Temp();
     double Press=pModel->Press();
 
-    CDensityInfo C(pModel->Fidelity(), SMDensM_None, Temp, Press, NULL, pModel->SVData());
+    CDensityInfo C(pModel->Fidelity(), SMOption_DensNone, Temp, Press, NULL, pModel->SVData());
 
     double Cnt=0;
     double TotMass=0;

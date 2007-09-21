@@ -340,7 +340,7 @@ class CCondensingSolverFn : public MRootFinder
 
       if (q<m_qDeSupHt)
         {
-        m_TR.m_VLE.SetFlashVapFrac(m_ShellO, m_FdVapFrac, 0);
+        m_TR.m_VLE.SetSatPVapFrac(m_ShellO, m_FdVapFrac, 0);
         m_ShellO.P=m_SatP;
         m_ShellO.Set_totHf(m_ShellI.totHf()-q);
         }
@@ -381,14 +381,14 @@ class CCondensingSolverFn : public MRootFinder
       m_ShellO(ShellO),
       m_VLE(pTH->m_VLE)
       {
-      m_FdVapFrac=m_VLE.FlashVapFrac(ShellI);
+      m_FdVapFrac=m_VLE.SatPVapFrac(ShellI);
       m_SatP=ShellI.P;
       m_SatT=ShellI.SaturationT(ShellI.P);
       m_qDeSupHt=0;
       if (m_SatT<ShellI.T)
         m_qDeSupHt=ShellI.totHf()-ShellI.totHf(MP_All, m_SatT, m_SatP);
 
-      m_VLE.SetFlashVapFrac(ShellO,m_FdVapFrac, 0);
+      m_VLE.SetSatPVapFrac(ShellO,m_FdVapFrac, 0);
       ShellO.SetTP(m_SatT, m_SatP);
       }
   };
@@ -455,7 +455,7 @@ double CCondensateFinder::Function(double Amount)
   //double FTemp=Max(m_TubeO.T, m_ShellI.SaturationT());
   double FTemp=m_ShellI.SaturationT();
   double FPress=m_ShellI.SaturationP();
-  m_VLE.SetFlashVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null);
+  m_VLE.SetSatPVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null);
   m_ShellO.SetTP(FTemp, FPress);//m_ShellO.m_pCd->Temp();
   m_TR.m_dDuty=-(m_ShellO.totHf()-ShtotHf);
 
@@ -541,7 +541,7 @@ void CTubeReactor::DoCondensingHeater(MStream & ShellI, MStream & TubeI, MStream
       // simplistic protection against crossover
       // assume all vapour condensed
       double qCond=ShellI.totHf();
-      m_VLE.SetFlashVapFrac(ShellO, 0, 0);
+      m_VLE.SetSatPVapFrac(ShellO, 0, 0);
       ShellO.SetTP(ShellI.T, ShellI.P);
       qCond=qCond-ShellO.totHf(MP_All);//, ShellI.SaturationT(ShellI.P), ShellI.P);
 

@@ -328,7 +328,7 @@ FFE_FinalTempFnd::FFE_FinalTempFnd(FFEvap &FFE_, SpConduit &Cond):
 
 double FFE_FinalTempFnd::Function(double x)
   {
-  FFE.VLE_Tubes.SetFlashVapFrac(C, x, 0);
+  FFE.VLE_Tubes.SetSatPVapFrac(C, x, 0);
   const double sp = C.SaturationP(dTarget);
   C.SetPress(sp);
   C.Set_totHf(H);
@@ -410,7 +410,7 @@ void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
           Shell.dPo = Cshell().SaturationP(Shell.dTo);
           Cshell().SetPress(Shell.dPo); //change pressure
           Cshell().Set_totHf(Shell.dHi); //ensure enthalpy is same
-          m_VLE.SetFlashVapFrac(Cshell(), 0.0, 0); //condense all steam
+          m_VLE.SetSatPVapFrac(Cshell(), 0.0, 0); //condense all steam
           Cshell().SetTemp(Shell.dTo); //change to required sat temp
           Shell.dHo = Cshell().totHf(); //get new enthalpy
           dDuty = Shell.dHi - Shell.dHo; //calc duty
@@ -423,7 +423,7 @@ void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
             Tubes.dPo = Ctubes().SaturationP(Tubes.dTo); //estimate required pressure
             if (Tubes.dPo<dTubeMinPout)
               {
-              VLE_Tubes.SetFlashVapFrac(Ctubes(), 0.0, 0); //condense all steam
+              VLE_Tubes.SetSatPVapFrac(Ctubes(), 0.0, 0); //condense all steam
               Ctubes().Set_totHf(Tubes.dHi+dDuty); //ensure enthalpy is same
               Tubes.dPo = Ctubes().SaturationP(Tubes.dTo);
               if (Tubes.dPo<dTubeMinPout)//check again

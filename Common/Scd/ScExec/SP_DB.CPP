@@ -767,11 +767,11 @@ double CSpDBEqnSet::EvalMassRatio(double R)
   };
 
 //double AtV() { return dNAN; };
-    //virtual double AtT(double T)                                      { return dNAN; };
-    //virtual double AtP(double P)                                      { return dNAN; };
-    //virtual double AtTP(double T, double P)                           { return dNAN; };
-    //virtual double Integrate_dT(double T1, double T2, double P)       { return dNAN; };
-    //virtual double IntegrateOverT_dT(double T1, double T2, double P)  { return dNAN; };
+//virtual double AtT(double T)                                      { return dNAN; };
+//virtual double AtP(double P)                                      { return dNAN; };
+//virtual double AtTP(double T, double P)                           { return dNAN; };
+//virtual double Integrate_dT(double T1, double T2, double P)       { return dNAN; };
+//virtual double IntegrateOverT_dT(double T1, double T2, double P)  { return dNAN; };
 
 // ==========================================================================
 //
@@ -1252,7 +1252,7 @@ CAcidBaseData * FindAcidBaseData(LPCSTR Compound)
   for (int i=0; s_AcidData[i].m_sName; i++)
     {
     if ((strncmp(s_AcidData[i].m_sName, Compound, strlen(s_AcidData[i].m_sName))==0) &&
-        ((strlen(Compound)==strlen(s_AcidData[i].m_sName)) || (Compound[strlen(s_AcidData[i].m_sName)]=='(')))
+      ((strlen(Compound)==strlen(s_AcidData[i].m_sName)) || (Compound[strlen(s_AcidData[i].m_sName)]=='(')))
       return &s_AcidData[i];
     }
   return NULL;
@@ -1267,10 +1267,10 @@ CAcidBaseData * FindAcidBaseData(LPCSTR Compound)
 LPCTSTR OccurenceNames[] =
   {
   "Solid",
-    "Liquid",
-    "Vapour",
-    "Last",
-    "Null",
+  "Liquid",
+  "Vapour",
+  "Last",
+  "Null",
   };
 
 // ==========================================================================
@@ -1307,8 +1307,8 @@ CSpConstData::CSpConstData()
 //
 // ==========================================================================
 
-CSpCommonData::CSpCommonData() :
-  m_Vp("Vp", "Temperature")
+CSpCommonData::CSpCommonData() : \
+m_Vp("Vp", "Temperature")
   {
   m_VpOK = false;
   //m_pVp   = NULL;
@@ -1370,12 +1370,12 @@ double CSpCommonData::VapourT(double P, double dPrvVapT)
 //
 // ==========================================================================
 
-CSpFidelData::CSpFidelData() :
-  m_Cp("Cp", "Temperature"),
-  m_Rho("Rho", "Temperature"),
-  m_H("H", "Temperature"),
-  m_S("S", "Temperature"),
-  m_H25("H25", "MassFraction")
+CSpFidelData::CSpFidelData() :  \
+m_Cp("Cp", "Temperature"),
+m_Rho("Rho", "Temperature"),
+m_H("H", "Temperature"),
+m_S("S", "Temperature"),
+m_H25("H25", "MassFraction")
   {
   m_pSp=NULL;
   m_pConst=NULL;
@@ -1807,7 +1807,7 @@ static void AppendErrorMsg(CSpecie *pSp, DWORD Type, LPCTSTR fmt, ...)
       case LogFlag_Warning: LogWarning(SpecieDBLogHdr, 0, "%s", Buff);    break;
       case LogFlag_Note:    LogNote   (SpecieDBLogHdr, 0, "%s", Buff);    break;
       default:
-      INCOMPLETECODE(__FILE__, __LINE__);
+        INCOMPLETECODE(__FILE__, __LINE__);
       }
     }
 
@@ -1839,9 +1839,9 @@ static void ParseAnEqnSet(CSpecie *pSp, bool &OK, CSpDBEqnSet & Eqns, /*Strng & 
     SEqn.LRTrim(" \"\'");
     //if (!OK)
     //  {
-      Eqns.AddEqnSet(ET_Std, pConst, pFData, SEqn(), CfgLoT, CfgHiT, pRecord);
-      //Str=SEqn();
-      Specd=true;
+    Eqns.AddEqnSet(ET_Std, pConst, pFData, SEqn(), CfgLoT, CfgHiT, pRecord);
+    //Str=SEqn();
+    Specd=true;
     //  OK=true;
     //  }
     //else if (Str.Len()>0 && Str.XStrICmp(SEqn())!=0)
@@ -2190,11 +2190,27 @@ flag CSpecie::FixMissingData(CComponent * pC)
   DataLo.m_H.Attach(pC, &DataLo);
   DataLo.m_S.Attach(pC, &DataLo);
 
+  if (DataLo.m_Cp.Exists() && !DataLo.m_H.Exists())
+    {
+    for (int i=0; i<DataLo.m_Cp.m_Eqns.GetCount(); i++)
+      {
+      CSpDBEqn *Cp=DataLo.m_Cp.m_Eqns[i];
+      DataLo.m_H.AddEqn(ET_Integral, Cp->CSpDBEqn::ConstructCopy(Cp->m_pConst, Cp->m_pFData), Cp->m_Ts, Cp->m_Te);
+      }
+    }
+  if (DataLo.m_Cp.Exists() && !DataLo.m_S.Exists())
+    {
+    for (int i=0; i<DataLo.m_Cp.m_Eqns.GetCount(); i++)
+      {
+      CSpDBEqn *Cp=DataLo.m_Cp.m_Eqns[i];
+      DataLo.m_S.AddEqn(ET_IntegralOverT, Cp->CSpDBEqn::ConstructCopy(Cp->m_pConst, Cp->m_pFData), Cp->m_Ts, Cp->m_Te);
+      }
+    }
 
-//#if dbgBuildSDB
-//  if (dbgBuildSpc())
-//    DumpSpEqns(*this, pC->Sym());
-//#endif
+  //#if dbgBuildSDB
+  //  if (dbgBuildSpc())
+  //    DumpSpEqns(*this, pC->Sym());
+  //#endif
   return true;
   }
 
@@ -2319,32 +2335,32 @@ DensOK:
       Ret=2;
       goto CpOK;
       }
-  CSpDBEqn * pCpCorrFn   = (pCpCorr && strlen(pCpCorr)>0) ? CSpDBEqn::Construct(&m_Const, &m_FData[0], pCpCorr, NULL, NULL) : NULL;
-  m_bHasCpCorrs   = (pCpCorrFn!=NULL);
-  double CpOffSet = m_bHasCpCorrs ? pCpCorrFn->AtT(0.0) : 0.0;
-  //m_bHasCpCorrs   = (pCpCorrFn!=NULL); why was this line here?
-  m_CpCorrs.Add(CCpCorr(iSoluteA, pCpCorrFn, CpOffSet));
+    CSpDBEqn * pCpCorrFn   = (pCpCorr && strlen(pCpCorr)>0) ? CSpDBEqn::Construct(&m_Const, &m_FData[0], pCpCorr, NULL, NULL) : NULL;
+    m_bHasCpCorrs   = (pCpCorrFn!=NULL);
+    double CpOffSet = m_bHasCpCorrs ? pCpCorrFn->AtT(0.0) : 0.0;
+    //m_bHasCpCorrs   = (pCpCorrFn!=NULL); why was this line here?
+    m_CpCorrs.Add(CCpCorr(iSoluteA, pCpCorrFn, CpOffSet));
 CpOK:
 
-  for (int i=0; i<m_Solubilities.GetSize(); i++)
-    if (m_Solubilities[i].m_iAqueous==iSoluteA)
-      {
-      Ret=2;
-      goto SolOK;
-      }
-  CSpDBEqn * pSolubleFn  = NULL;
-  if (iSoluteS>=0 && pSoluble && strlen(pSoluble)>0)
-    {
-    pSolubleFn = CSpDBEqn::Construct(&m_Const, &m_FData[0], pSoluble, NULL, NULL);
-    m_Solubilities.Add(CSolubility(iSoluteA, iSoluteS, pSolubleFn,  NULL));
-    }
+    for (int i=0; i<m_Solubilities.GetSize(); i++)
+      if (m_Solubilities[i].m_iAqueous==iSoluteA)
+        {
+        Ret=2;
+        goto SolOK;
+        }
+      CSpDBEqn * pSolubleFn  = NULL;
+      if (iSoluteS>=0 && pSoluble && strlen(pSoluble)>0)
+        {
+        pSolubleFn = CSpDBEqn::Construct(&m_Const, &m_FData[0], pSoluble, NULL, NULL);
+        m_Solubilities.Add(CSolubility(iSoluteA, iSoluteS, pSolubleFn,  NULL));
+        }
 SolOK:
 
-  if (pDensCorrFn==NULL && pCpCorrFn==NULL && pSolubleFn==NULL)
-    Ret=3;
+      if (pDensCorrFn==NULL && pCpCorrFn==NULL && pSolubleFn==NULL)
+        Ret=3;
 
 
-  return Ret;
+      return Ret;
   }
 
 //---------------------------------------------------------------------------
@@ -2414,7 +2430,7 @@ double CSpecie::mlHf(long Fidelity, double T, double P, SpPropOveride *Ovr, doub
   CSpFidelData & FD=m_FData[Fidelity];
   //if (Ovr && (Ovr->bUse & m_bCpOvrMask))
   //  return FD.m_dCHf[FD.m_iHfBase]+MoleWt()*Ovr->fCp[m_iOverIndex]*(T-C_2_K(0));
-    //return m_FData[Fidelity].m_dCHf[m_FData[Fidelity].m_iHfBase]+MoleWt()*Ovr->fCp[m_iOverIndex]*(T-C_2_K(0));
+  //return m_FData[Fidelity].m_dCHf[m_FData[Fidelity].m_iHfBase]+MoleWt()*Ovr->fCp[m_iOverIndex]*(T-C_2_K(0));
   double X=0;
   if (!m_bCpInDirect)
     {
@@ -2790,7 +2806,7 @@ double CSpecieDataBase::Density(long Fidelity, int Method, CIArray & SpIds, doub
   CDensityInfo C(Fidelity, Method, T, P, Ovr, M);
 
   DBGDENS0
-  double Mt=0.0;
+    double Mt=0.0;
   double Vt=0.0;
   for (int j=0, i=0; j<SpIds.GetSize() && (i=SpIds[j])>=0; j++)
     {
@@ -2815,7 +2831,7 @@ double CSpecieDataBase::Density(long Fidelity, int Method, CSysVector & Scale, d
   CDensityInfo C(Fidelity, Method, T, P, Ovr, M);
 
   DBGDENS0
-  double Mt=0.0;
+    double Mt=0.0;
   double Vt=0.0;
   SpecieIter I(som_ALL);
   for (int i=-1; I.Loop(i); )
@@ -2841,7 +2857,7 @@ double CSpecieDataBase::msVolume(long Fidelity, int Method, PhMask Phase, double
   CDensityInfo C(Fidelity, Method, T, P, Ovr, M);
 
   DBGDENS0
-  double Mt=0.0;
+    double Mt=0.0;
   double Vt=0.0;
   SpecieIter I(Phase);
   for (int i=-1; I.Loop(i); )
@@ -2899,7 +2915,7 @@ double CSpecieDataBase::Volume(long Fidelity, int Method, PhMask Phase, double T
   {
   CDensityInfo C(Fidelity, Method, T, P, Ovr, M);
   DBGDENS0
-  double v=0.0;
+    double v=0.0;
   SpecieIter I(Phase);
   for (int i=-1; I.Loop(i); )
     {
@@ -2916,7 +2932,7 @@ double CSpecieDataBase::Volume(long Fidelity, int Method, CIArray & SpIds, doubl
   {
   CDensityInfo C(Fidelity, Method, T, P, Ovr, M);
   DBGDENS0
-  double v=0.0;
+    double v=0.0;
   int i;
   for (int j=0; j<SpIds.GetSize() && (i=SpIds[j])>=0; j++)
     {
@@ -2933,7 +2949,7 @@ double CSpecieDataBase::Volume(long Fidelity, int Method, CSysVector &Scale, dou
   {
   CDensityInfo C(Fidelity, Method, T, P, Ovr, M);
   DBGDENS0
-  double v=0.0;
+    double v=0.0;
   SpecieIter I(som_ALL);
   for (int i=-1; I.Loop(i); )
     {
@@ -2977,7 +2993,7 @@ double CSpecieDataBase::NDensity(long Fidelity, int Method, CSysVector & Scale, 
   CDensityInfo C(Fidelity, Method, Norm_T, Norm_P, Ovr, M);
 
   DBGDENS0
-  double Mt=0.0;
+    double Mt=0.0;
   double Vt=0.0;
   SpecieIter I(som_ALL);
   for (int i=-1; I.Loop(i); )
@@ -3186,8 +3202,8 @@ double CSpecieDataBase::msHs(long Fidelity, PhMask Phase, double T_, double P_, 
 
 double CSpecieDataBase::msHz(long Fidelity, PhMask Phase, double T_, double P_, SpPropOveride *Ovr, double *M, double *pTotalM)
   {
-//CStopWatch SW;
-//SW.Start();
+  //CStopWatch SW;
+  //SW.Start();
   double Et=0.0, Mt=0.0;
   SpecieIter I(Phase);
   for (int i=-1; I.Loop(i); )
@@ -3200,7 +3216,7 @@ double CSpecieDataBase::msHz(long Fidelity, PhMask Phase, double T_, double P_, 
     }
   if (pTotalM)
     *pTotalM=Mt;
-//dbgpln("msHz                                                  %10.2f", SW.LapTime()*1e6);
+  //dbgpln("msHz                                                  %10.2f", SW.LapTime()*1e6);
   return Et/GTZ(Mt);
   }
 
@@ -3208,8 +3224,8 @@ double CSpecieDataBase::msHz(long Fidelity, PhMask Phase, double T_, double P_, 
 
 double CSpecieDataBase::totHf(long Fidelity, PhMask Phase, double T_, double P_, SpPropOveride *Ovr, double *M)
   {
-//CStopWatch SW;
-//SW.Start();
+  //CStopWatch SW;
+  //SW.Start();
   double Et=0.0;
   SpecieIter I(Phase);
 #if WITHDEBUGDUMPENTHALPY
@@ -3235,7 +3251,7 @@ double CSpecieDataBase::totHf(long Fidelity, PhMask Phase, double T_, double P_,
       int xxx=0;
       }
     }
-//dbgpln("totHf                                                 %10.2f", SW.LapTime()*1e6);
+  //dbgpln("totHf                                                 %10.2f", SW.LapTime()*1e6);
   return Et;
   }
 
@@ -3550,7 +3566,7 @@ double CSpecieDataBase::RhoMix(long Fidelity, long DensMethod, double FSol, doub
     }
 
 #if DODBGDENS
-dbgpln("RhoMix %24.16f %24.16f %24.16f %24.16f %24.16f %24.16f %24.16f", FSol, Ds, FLiq, Dl, FVap, Dv, 1.0/GTZ(d));
+  dbgpln("RhoMix %24.16f %24.16f %24.16f %24.16f %24.16f %24.16f %24.16f", FSol, Ds, FLiq, Dl, FVap, Dv, 1.0/GTZ(d));
 #endif
 
   return 1.0/GTZ(d);
@@ -3918,28 +3934,30 @@ void CComponentDataBase::Term()
   for (int i=0; i<MaxPhases; i++)
     m_PhInfo[i].Clear();
 
-  m_DefEqAqPhChg      = SMOption_On;
-  m_DefEqSoluble      = SMOption_Off;
-  m_DefEqAutoVLE      = SMOption_Off;
+  m_DefEqAqPhChg      = SMOption_2All(SMOption_On);
+  m_DefEqSoluble      = SMOption_2All(SMOption_Off);
+  m_DefEqAutoVLE      = SMOption_2All(SMOption_Off);
 
-  m_DefDensityMethod  = SMDensM_Default;
+  m_DefDensityMethod  = SMOption_Default;
 
-  m_DDBEqOptions.Empty();
-  m_DDBDefEqOptions.Empty();
-  m_EqOptions.RemoveAll();
-  m_EqOptionsDef.RemoveAll();
-  m_EqOptionsInh.RemoveAll();
+  m_OptsOnOff.Clear();
 
-  m_DDBDensityMethods.Empty();
-  m_DDBDefDensityMethods.Empty();
-  m_DensityMethods.RemoveAll();
-  m_DensityMethodsInh.RemoveAll();
-  m_DensityMethodsDef.RemoveAll();
+  //m_DDBEqOptions.Empty();
+  //m_DDBDefEqOptions.Empty();
+  //m_EqOptions.RemoveAll();
+  //m_EqOptionsDef.RemoveAll();
+  //m_EqOptionsInh.RemoveAll();
 
-  m_DefFlashMethod   = SMSatPM_Default;
-  m_DefFlashCmpIndex = -1;
-  m_DefFlashLiqIndex = -1;
-  m_DefFlashVapIndex = -1;
+  //m_DDBDensityMethods.Empty();
+  //m_DDBDefDensityMethods.Empty();
+  //m_DensityMethods.RemoveAll();
+  //m_DensityMethodsInh.RemoveAll();
+  //m_DensityMethodsDef.RemoveAll();
+
+  m_DefSatPMethod   = SMOption_Default;
+  m_DefSatPCmpIndex = -1;
+  m_DefSatPLiqIndex = -1;
+  m_DefSatPVapIndex = -1;
 
   DDBCompList.Empty();
   DDBCompListMix.Empty();
@@ -3953,15 +3971,15 @@ void CComponentDataBase::Term()
   m_Flashable.RemoveAll();
 
   m_DDBFlashable.Empty();
-  m_FlashCmps.RemoveAll();
-  m_FlashCmpsInh.RemoveAll();
-  m_FlashCmpsDef.RemoveAll();
+  m_SatPCmps.RemoveAll();
+  m_SatPCmpsInh.RemoveAll();
+  m_SatPCmpsDef.RemoveAll();
 
-  m_DDBFlashMethods.Empty();
-  m_DDBDefFlashMethods.Empty();
-  m_FlashMethods.RemoveAll();
-  m_FlashMethodsInh.RemoveAll();
-  m_FlashMethodsDef.RemoveAll();
+  m_DDBSatPMethods.Empty();
+  m_DDBDefSatPMethods.Empty();
+  m_SatPMethods.RemoveAll();
+  m_SatPMethodsInh.RemoveAll();
+  m_SatPMethodsDef.RemoveAll();
   };
 
 //---------------------------------------------------------------------------
@@ -3999,11 +4017,11 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
           NULL 
           };
         ASSERT_ALWAYS(sizeof(OptColNames)/sizeof(OptColNames[0])==(7+MaxTableCols+1), "Bad OptCols Count", __FILE__, __LINE__);
-        
+
         DB.CheckOptionalFieldNames(OptColNames);
 
         int iIOC=sizeof(OptColNames)/sizeof(OptColNames[0])-1;
-        
+
         CSDB_DataRecord Record;
 
         Record.m_iOC_Solvent       = (DB.FieldIndex(DB.NFieldIndexes()-iIOC)<0 ? -1 : DB.NFieldIndexes()-iIOC);  iIOC--;
@@ -4126,13 +4144,13 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
                 //DoBreak(); // should not get here
                 }
 
-             if (H2OAsAqueous && _stricmp(pC->m_sElDef(), "H2O1")==0)
-               {
-               if ((pSp->m_eOcc==BOT_Liquid) && (pSp->m_sPhaseSymActual=="l"))
-                 pSp->m_sPhaseSymActual="aq";
-               }
+              if (H2OAsAqueous && _stricmp(pC->m_sElDef(), "H2O1")==0)
+                {
+                if ((pSp->m_eOcc==BOT_Liquid) && (pSp->m_sPhaseSymActual=="l"))
+                  pSp->m_sPhaseSymActual="aq";
+                }
 
-             ASSERT(pC->m_nPhaseData<MaxPhases);
+              ASSERT(pC->m_nPhaseData<MaxPhases);
               //flag GotIt=false;
               CSpecie * pSpPh = NULL;
               for (int i=0; i<pC->m_nPhaseData; i++)
@@ -4395,13 +4413,13 @@ flag CComponentDataBase::LoadSolnInfo(CDBInitRec & CDBInit, char* DataFile)
 const long SysVecFnStkSize=32;
 //MaxPhases Dependent
 static PhMask Fn2PhMasks[]={0/*som_ALL*/, 0/*som_Sol*/, 0/*som_Liq*/, 0/*som_Gas*/, // 0/*som_SL*/,
-                            0/*som_ALL*/, 0/*som_Sol*/, 0/*som_Liq*/, 0/*som_Gas*/,
-                            0/*som_ALL*/,
-                            0x00000001, 0x00000002, 0x00000004, 0x00000008, 0x00000010, 0x00000020, 0x00000040, 0x00000080,
-                            0x00000100, 0x00000200, 0x00000400, 0x00000800, 0x00001000, 0x00002000, 0x00004000, 0x00008000,
-                            0x00010000, 0x00020000, 0x00040000, 0x00080000, 0x00100000, 0x00200000, 0x00400000, 0x00800000,
-                            0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 0x20000000, 0x40000000, 0x80000000
-                            };
+0/*som_ALL*/, 0/*som_Sol*/, 0/*som_Liq*/, 0/*som_Gas*/,
+0/*som_ALL*/,
+0x00000001, 0x00000002, 0x00000004, 0x00000008, 0x00000010, 0x00000020, 0x00000040, 0x00000080,
+0x00000100, 0x00000200, 0x00000400, 0x00000800, 0x00001000, 0x00002000, 0x00004000, 0x00008000,
+0x00010000, 0x00020000, 0x00040000, 0x00080000, 0x00100000, 0x00200000, 0x00400000, 0x00800000,
+0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 0x20000000, 0x40000000, 0x80000000
+  };
 //--------------------------------------------------------------------------
 
 //MaxPhases Dependent
@@ -4537,24 +4555,6 @@ flag CComponentDataBase::CheckCommonData()
           //    }
           }
 
-        if (FD.m_Cp.Exists() && !FD.m_H.Exists())
-          {
-          for (int i=0; i<FD.m_Cp.m_Eqns.GetCount(); i++)
-            {
-            CSpDBEqn *Cp=FD.m_Cp.m_Eqns[i];
-            FD.m_H.AddEqn(ET_Integral, Cp->CSpDBEqn::ConstructCopy(Cp->m_pConst, Cp->m_pFData), Cp->m_Ts, Cp->m_Te);
-            }
-          }
-        if (FD.m_Cp.Exists() && !FD.m_S.Exists())
-          {
-          for (int i=0; i<FD.m_Cp.m_Eqns.GetCount(); i++)
-            {
-            CSpDBEqn *Cp=FD.m_Cp.m_Eqns[i];
-            FD.m_S.AddEqn(ET_IntegralOverT, Cp->CSpDBEqn::ConstructCopy(Cp->m_pConst, Cp->m_pFData), Cp->m_Ts, Cp->m_Te);
-            }
-          }
-
-
         //double TLastEnd=S.m_FData[f].m_HiT[0];
         //
         //for (int t=1; t<S.m_FData[f].m_iLastTPoint; t++)
@@ -4639,7 +4639,7 @@ flag CComponentDataBase::CheckCommonData()
           case LogFlag_Warning: LogWarning(SpecieDBLogHdr, 0, "%s", (*pS)());                    break;
           case LogFlag_Note:    LogNote   (SpecieDBLogHdr, 0, "%s", (*pS)());                    break;
           default:
-          INCOMPLETECODE(__FILE__, __LINE__);
+            INCOMPLETECODE(__FILE__, __LINE__);
           }
         }
       S.m_sVpErrors.Clear();
@@ -4689,13 +4689,13 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     //FixAValC(C.m_dAc, C.m_bAcOK, 1., CmD[c], pSpData);
 
 #if dbgBuildSDB
-  if (dbgBuildSpc())
-    {
-    dbgpln("Component :%-15.15s %-15.15s %10.2f %10.2f %10.2f %10.2f Cnst:%08x Cmn0:%08x Cmn1:%08x Vp0:%-10s Vp1:%-10s",
-      C.SymOrTag(), C.m_sElDef(), C.m_dPc, C.m_dTc, C.m_dVc, C.m_dAc,
-      dynamic_cast<CSpConstData*>(&C), &C.m_Common[0], &C.m_Common[1],
-      C.m_Common[0].m_Vp.VName(), C.m_Common[1].m_Vp.VName());
-    }
+    if (dbgBuildSpc())
+      {
+      dbgpln("Component :%-15.15s %-15.15s %10.2f %10.2f %10.2f %10.2f Cnst:%08x Cmn0:%08x Cmn1:%08x Vp0:%-10s Vp1:%-10s",
+        C.SymOrTag(), C.m_sElDef(), C.m_dPc, C.m_dTc, C.m_dVc, C.m_dAc,
+        dynamic_cast<CSpConstData*>(&C), &C.m_Common[0], &C.m_Common[1],
+        C.m_Common[0].m_Vp.VName(), C.m_Common[1].m_Vp.VName());
+      }
 #endif
 
     for (int p=0; p<C.m_nPhaseData; p++)
@@ -4760,7 +4760,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       flag RemoveItTmp=0;
       flag RemoveItLst=0;
 
-      RemoveItTmp = (C.m_nPhaseData>1) && (C.m_PhaseData[p]->xLoT(0) > CDBInit.MaxT) || (C.m_PhaseData[p]->xHiT(0) < CDBInit.MinT);
+      RemoveItTmp = (C.m_nPhaseData>1) && ((C.m_PhaseData[p]->xLoT(0) > CDBInit.MaxT) || (C.m_PhaseData[p]->xHiT(0) < CDBInit.MinT));
       Strng *pC=RqdCmp.Find(C.Sym(), true);
       if (pC && pC->Index()==0)
         if (!RqdSpc.Find(Sp.Sym(), true))
@@ -5289,10 +5289,10 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       CSpFidelData & FD=m_SDB[s].m_FData[Fidelity];
       CSpCommonData & Com=m_SDB[s].m_Common[Fidelity];
       SOK=(ChkRngMsg(Com.m_Vp.CheckRanges(), &Sp, Com.m_Vp)==0 && 
-          ChkRngMsg(FD.m_Rho.CheckRanges(), &Sp, FD.m_Rho)==0 && 
-          ChkRngMsg(FD.m_Cp.CheckRanges(), &Sp, FD.m_Cp)==0 && 
-          ChkRngMsg(FD.m_H.CheckRanges(), &Sp, FD.m_H)==0 && 
-          ChkRngMsg(FD.m_S.CheckRanges(), &Sp, FD.m_S)==0);
+        ChkRngMsg(FD.m_Rho.CheckRanges(), &Sp, FD.m_Rho)==0 && 
+        ChkRngMsg(FD.m_Cp.CheckRanges(), &Sp, FD.m_Cp)==0 && 
+        ChkRngMsg(FD.m_H.CheckRanges(), &Sp, FD.m_H)==0 && 
+        ChkRngMsg(FD.m_S.CheckRanges(), &Sp, FD.m_S)==0);
       }
     if (!SOK)
       {
@@ -5598,17 +5598,17 @@ bool CSpecie::DensityX(CDensityInfo & C, double SpMass)
   {
   switch (C.m_iMethod)
     {
-    case SMDensM_None:
+    case SMOption_DensNone:
       C.m_SpM = SpMass;
       C.m_Rho = GTZ(DensityNCFn(C));
       return true;
 
-    case SMDensM_Original:
+    case SMOption_DensOriginal:
       C.m_SpM = SpMass;
       C.m_Rho = GTZ(DensityFn(C));
       return true;
 
-    case SMDensM_Version1:
+    case SMOption_DensVersion1:
       {
       switch (DensContribution())
         {
@@ -5650,7 +5650,8 @@ bool CSpecie::DensityX(CDensityInfo & C, double SpMass)
         }
       break;
       }
-    case SMDensM_Version2:
+    case SMOption_Default:
+    case SMOption_DensVersion2:
       {
       INCOMPLETECODE(__FILE__, __LINE__);
       C.m_SpM = dNAN;
@@ -5671,19 +5672,19 @@ bool CSpecie::DensityX(CDensityInfo & C, double SpMass)
 //  {
 //  switch (C.m_iMethod)
 //    {
-//    case SMDensM_None:
+//    case SMOption_DensNone:
 //      C.m_msV=1.0/GTZ(DensityNCFn(C));
 //      C.m_Mt+=Scale*SpMass;
 //      C.m_Vt+=Scale*SpMass*C.m_msV;
 //      return true;
 //
-//    case SMDensM_Original:
+//    case SMOption_DensOriginal:
 //      C.m_msV=1.0/GTZ(DensityFn(C));
 //      C.m_Mt+=Scale*SpMass;
 //      C.m_Vt+=Scale*SpMass*C.m_msV;
 //      return true;
 //
-//    case SMDensM_Version1:
+//    case SMOption_DensVersion1:
 //      {
 //      switch (DensContribution())
 //        {
@@ -5727,7 +5728,7 @@ bool CSpecie::DensityX(CDensityInfo & C, double SpMass)
 //        }
 //      break;
 //      }
-//    case SMDensM_Version2:
+//    case SMOption_DensVersion2:
 //      {
 //      INCOMPLETECODE(__FILE__, __LINE__);
 //      return true;
@@ -5780,11 +5781,11 @@ void CSpecie::Dump(LPCTSTR Location, long NPts)
   TmpNames TmpData[]=
     {
     "Cp", true,
-      "H", true,
-      "S", true,
-      "Rho", true,
-      "Vp", false,
-      NULL
+    "H", true,
+    "S", true,
+    "Rho", true,
+    "Vp", false,
+    NULL
     };
   if (Location==NULL)
     Location=TemporaryFiles();
@@ -5999,8 +6000,8 @@ flag CComponentDataBase::FixOffsetConstants()
   const double T100=C_2_K(100);
 
 #if dbgBuildSDB
-    if (dbgBuildEqns())
-      dbgpln("FixOffsetConstants");
+  if (dbgBuildEqns())
+    dbgpln("FixOffsetConstants");
 #endif
 
   for (int Fidelity=0; Fidelity<MaxFidelity; Fidelity++)
@@ -6009,7 +6010,7 @@ flag CComponentDataBase::FixOffsetConstants()
       {
       CComponent & C=*CmD[c];
       int iPh, iPhCorr=-1;
-      
+
       double HfFromFn[MaxPhases];
       double HfFromRef[MaxPhases];
 
@@ -6120,7 +6121,7 @@ flag CComponentDataBase::FixOffsetConstants()
             }
           }
         }
-      
+
 
       int iMinHfFromFn=-1;
       double MinHfFromFn=1e100;
@@ -6138,7 +6139,7 @@ flag CComponentDataBase::FixOffsetConstants()
         else
           AllFromFn = false;
         }
-      
+
       // adjust the constants so that the differences in Hf (LatentHeat) is defined by the Functions
       // maybe make this optional
       if (AllFromFn && (C.m_sSym.XStrICmp("H2O")==0)) 
@@ -6275,7 +6276,7 @@ flag CComponentDataBase::FixOffsetConstants()
               //if (D.m_dTs[iSeg]<=C_2_K(100) && D.m_dTe[iSeg]>=C_2_K(100))
               //  dbgp(" %12.3f", D.CalcH(C_2_K(100), true)*Scl);
               //else
-                dbgp(" %12s", "");
+              dbgp(" %12s", "");
               dbgpln("  %-10s %s", E.VName(), Sp.SymOrTag());
               }
             }
@@ -6330,7 +6331,7 @@ flag CComponentDataBase::FixOffsetConstants()
         dbgpln(" Basis : kg");
       else
         dbgpln(" Basis : kmol");
-                                                           dbgp("  %3s", "Seg");
+      dbgp("  %3s", "Seg");
       dbgp(" %4s", "");
       dbgp(" %6s", "TRef");
       dbgp(" %4s", "");
@@ -6441,6 +6442,36 @@ flag CComponentDataBase::FixOffsetConstants()
 
 //---------------------------------------------------------------------------
 
+CSDBOptions::CSDBOptions()
+  {
+  }
+
+void CSDBOptions::Clear()
+  {
+  m_DDBOptions.Empty();
+  m_DDBDefOptions.Empty();
+  m_Options.RemoveAll();
+  m_DefOptions.RemoveAll();
+  m_InhOptions.RemoveAll();
+
+  m_DDBOptions.Add(SMOption_Default, "<Default>");
+  };
+
+void CSDBOptions::Add(int Value, LPCSTR Name, bool DDBDefOnly)
+  {
+  m_DDBDefOptions.Add(Value, Name);
+  if (!DDBDefOnly)
+    {
+    m_DDBOptions.Add(Value, Name);
+    m_Options.SetAtGrow(Value, Name);
+    m_DefOptions.SetAtGrow(Value, Strng("<", Name, ">")());
+    m_InhOptions.SetAtGrow(Value, Strng("[", Name, "]")());
+    }
+  };
+
+
+//---------------------------------------------------------------------------
+
 void TrimZeros(Strng & S)
   {
   int l=S.GetLength();
@@ -6473,16 +6504,16 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   m_pWater=NULL;
   m_pSteam=NULL;
 
-  m_DefEqAqPhChg      = SMOption_On;
-  m_DefEqSoluble      = SMOption_Off;
-  m_DefEqAutoVLE      = SMOption_Off;
+  m_DefEqAqPhChg      = SMOption_2All(SMOption_On);
+  m_DefEqSoluble      = SMOption_2All(SMOption_Off);
+  m_DefEqAutoVLE      = SMOption_2All(SMOption_Off);
 
-  m_DefDensityMethod = OrigPrjFileVerNo()<114 ? SMDensM_Original : SMDensM_Version1;
+  m_DefDensityMethod  = SMOption_2All(OrigPrjFileVerNo()<114 ? SMOption_DensOriginal : SMOption_DensVersion1);
 
-  m_DefFlashMethod   = OrigPrjFileVerNo()<103 ? SMSatPM_TotalP : SMSatPM_PartialP;
-  m_DefFlashCmpIndex = -1;
-  m_DefFlashLiqIndex = -1;
-  m_DefFlashVapIndex = -1;
+  m_DefSatPMethod     = SMOption_2All(OrigPrjFileVerNo()<103 ? SMOption_SatPTotalP : SMOption_SatPPartialP);
+  m_DefSatPCmpIndex   = -1;
+  m_DefSatPLiqIndex   = -1;
+  m_DefSatPVapIndex   = -1;
 
   bCDBBad=false;
 
@@ -6952,55 +6983,70 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   m_SDB.m_iH2Og = SDB.Find("H2O(g)");
   m_SDB.m_iCO2g = SDB.Find("CO2(g)");
 
-  m_DDBEqOptions.Add(SMOption_Default,             "<Default>"   );
-  m_DDBEqOptions.Add(SMOption_Off,                 "Off"         );
-  m_DDBEqOptions.Add(SMOption_On,                  "On"          );
+  m_OptsOnOff.Add(SMOption_Off,                      "Off");
+  m_OptsOnOff.Add(SMOption_On,                       "On");
+  m_OptsOnOff.Add(SMOption_2All(SMOption_Off),       "All-Off", true);
+  m_OptsOnOff.Add(SMOption_2All(SMOption_On),        "All-On",  true);
 
-  m_DDBDefEqOptions.Add(SMOption_Off,              "Off"         );
-  m_DDBDefEqOptions.Add(SMOption_On,               "On"          );
+  //m_DDBEqOptions.Add(SMOption_Default,             "<Default>"   );
+  //m_DDBEqOptions.Add(SMOption_Off,                 "Off"         );
+  //m_DDBEqOptions.Add(SMOption_On,                  "On"          );
 
-  m_EqOptions.SetAtGrow(SMOption_Off,              "Off"         );
-  m_EqOptions.SetAtGrow(SMOption_On,               "On"          );
-  m_EqOptionsDef.SetAtGrow(SMOption_Off,           "<Off>"       );
-  m_EqOptionsDef.SetAtGrow(SMOption_On,            "<On>"        );
-  m_EqOptionsInh.SetAtGrow(SMOption_Off,           "[Off]"       );
-  m_EqOptionsInh.SetAtGrow(SMOption_On,            "[On]"        );
+  //m_DDBDefEqOptions.Add(SMOption_Off,              "Off"         );
+  //m_DDBDefEqOptions.Add(SMOption_On,               "On"          );
 
-  m_DDBDensityMethods.Add(SMDensM_Default,          "<Default>"   );
-  m_DDBDensityMethods.Add(SMDensM_None,             "None"        );
-  m_DDBDensityMethods.Add(SMDensM_Original,         "Original"    );
-  m_DDBDensityMethods.Add(SMDensM_Version1,         "Version1"    );
-  //m_DDBDensityMethods.Add(SMDensM_Version2,         "Version2"    );  // TOGO Back
+  //m_EqOptions.SetAtGrow(SMOption_Off,              "Off"         );
+  //m_EqOptions.SetAtGrow(SMOption_On,               "On"          );
+  //m_EqOptionsDef.SetAtGrow(SMOption_Off,           "<Off>"       );
+  //m_EqOptionsDef.SetAtGrow(SMOption_On,            "<On>"        );
+  //m_EqOptionsInh.SetAtGrow(SMOption_Off,           "[Off]"       );
+  //m_EqOptionsInh.SetAtGrow(SMOption_On,            "[On]"        );
 
-  m_DDBDefDensityMethods.Add(SMDensM_None,          "None"        );
-  m_DDBDefDensityMethods.Add(SMDensM_Original,      "Original"    );
-  m_DDBDefDensityMethods.Add(SMDensM_Version1,      "Version1"    );
-  //m_DDBDefDensityMethods.Add(SMDensM_Version2,      "Version2"    );
+  m_OptsDens.Add(SMOption_DensNone,                       "None"        );
+  m_OptsDens.Add(SMOption_DensOriginal,                   "Original"    );
+  m_OptsDens.Add(SMOption_DensVersion1,                   "Version1"    );
+  m_OptsDens.Add(SMOption_2All(SMOption_DensNone),        "All-None",     true);
+  m_OptsDens.Add(SMOption_2All(SMOption_DensOriginal),    "All-Original", true);
+  m_OptsDens.Add(SMOption_2All(SMOption_DensVersion1),    "All-Version1", true);
 
-  m_DensityMethods.SetAtGrow(SMDensM_None,          "None"        );
-  m_DensityMethods.SetAtGrow(SMDensM_Original,      "Original"    );
-  m_DensityMethods.SetAtGrow(SMDensM_Version1,      "Version1"    );
-  //m_DensityMethods.SetAtGrow(SMDensM_Version2,      "Version2"    );
 
-  m_DensityMethodsDef.SetAtGrow(SMDensM_None,       "<None>"      );
-  m_DensityMethodsDef.SetAtGrow(SMDensM_Original,   "<Original>"  );
-  m_DensityMethodsDef.SetAtGrow(SMDensM_Version1,   "<Version1>"  );
-  //m_DensityMethodsDef.SetAtGrow(SMDensM_Version2,   "<Version2>"  );
+  //m_DDBDensityMethods.Add(SMOption_Default,              "<Default>"   );
+  //m_DDBDensityMethods.Add(SMOption_DensNone,             "None"        );
+  //m_DDBDensityMethods.Add(SMOption_DensOriginal,         "Original"    );
+  //m_DDBDensityMethods.Add(SMOption_DensVersion1,         "Version1"    );
+  ////m_DDBDensityMethods.Add(SMOption_DensVersion2,         "Version2"    );  // TOGO Back
 
-  m_DensityMethodsInh.SetAtGrow(SMDensM_None,       "[None]"      );
-  m_DensityMethodsInh.SetAtGrow(SMDensM_Original,   "[Original]"  );
-  m_DensityMethodsInh.SetAtGrow(SMDensM_Version1,   "[Version1]"  );
-  //m_DensityMethodsInh.SetAtGrow(SMDensM_Version2,   "[Version2]"  );
+  //m_DDBDefDensityMethods.Add(SMOption_DensNone,                      "None"        );
+  //m_DDBDefDensityMethods.Add(SMOption_DensOriginal,                  "Original"    );
+  //m_DDBDefDensityMethods.Add(SMOption_DensVersion1,                  "Version1"    );
+  //m_DDBDefDensityMethods.Add(SMOption_2All(SMOption_DensOriginal),   "All-Original"    );
+  //m_DDBDefDensityMethods.Add(SMOption_2All(SMOption_DensVersion1),   "All-Version1"    );
+  ////m_DDBDefDensityMethods.Add(SMOption_DensVersion2,      "Version2"    );
+
+  //m_DensityMethods.SetAtGrow(SMOption_DensNone,          "None"        );
+  //m_DensityMethods.SetAtGrow(SMOption_DensOriginal,      "Original"    );
+  //m_DensityMethods.SetAtGrow(SMOption_DensVersion1,      "Version1"    );
+  ////m_DensityMethods.SetAtGrow(SMOption_DensVersion2,      "Version2"    );
+
+  //m_DensityMethodsDef.SetAtGrow(SMOption_DensNone,       "<None>"      );
+  //m_DensityMethodsDef.SetAtGrow(SMOption_DensOriginal,   "<Original>"  );
+  //m_DensityMethodsDef.SetAtGrow(SMOption_DensVersion1,   "<Version1>"  );
+  ////m_DensityMethodsDef.SetAtGrow(SMOption_DensVersion2,   "<Version2>"  );
+
+  //m_DensityMethodsInh.SetAtGrow(SMOption_DensNone,       "[None]"      );
+  //m_DensityMethodsInh.SetAtGrow(SMOption_DensOriginal,   "[Original]"  );
+  //m_DensityMethodsInh.SetAtGrow(SMOption_DensVersion1,   "[Version1]"  );
+  ////m_DensityMethodsInh.SetAtGrow(SMOption_DensVersion2,   "[Version2]"  );
 
 
   LPCTSTR Flash_Component= "H2O";
-  m_DefFlashCmpIndex=CDB.Find(Flash_Component);
-  m_DefFlashLiqIndex=SDB.Find(CString(Flash_Component)+="(l)");
-  m_DefFlashVapIndex=SDB.Find(CString(Flash_Component)+="(g)");
-  if (m_DefFlashLiqIndex<0 || m_DefFlashVapIndex<0)
-    m_DefFlashCmpIndex=-1;
+  m_DefSatPCmpIndex=CDB.Find(Flash_Component);
+  m_DefSatPLiqIndex=SDB.Find(CString(Flash_Component)+="(l)");
+  m_DefSatPVapIndex=SDB.Find(CString(Flash_Component)+="(g)");
+  if (m_DefSatPLiqIndex<0 || m_DefSatPVapIndex<0)
+    m_DefSatPCmpIndex=-1;
 
-  if (m_DefFlashCmpIndex<0)
+  if (m_DefSatPCmpIndex<0)
     LogError("Specie Database",0,"Default Flash Component %s not found", Flash_Component);
 
   m_Flashable.SetSize(0);
@@ -7012,51 +7058,53 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
       }
     else
       {
-      if (i==m_DefFlashCmpIndex)
+      if (i==m_DefSatPCmpIndex)
         {
-        m_DefFlashCmpIndex=-1;
-        m_DefFlashLiqIndex=-1;
-        m_DefFlashVapIndex=-1;
+        m_DefSatPCmpIndex=-1;
+        m_DefSatPLiqIndex=-1;
+        m_DefSatPVapIndex=-1;
         LogError("Specie Database",0,"Default Flash Component %s not flashable", Flash_Component);
         }
       }
     }
 
   m_DDBFlashable.Add(CDB.No(), "<Default>");
-  m_FlashCmps.SetSize(CDB.No());
-  m_FlashCmpsDef.SetSize(CDB.No());
-  m_FlashCmpsInh.SetSize(CDB.No());
+  m_SatPCmps.SetSize(CDB.No());
+  m_SatPCmpsDef.SetSize(CDB.No());
+  m_SatPCmpsInh.SetSize(CDB.No());
 
   // Prevent blanks being found
   for (int i=0; i<CDB.No(); i++)
     {
-    m_FlashCmps[i]="?BadComponentName?";
-    m_FlashCmpsDef[i]="?BadComponentName?";
-    m_FlashCmpsInh[i]="?BadComponentName?";
+    m_SatPCmps[i]="?BadComponentName?";
+    m_SatPCmpsDef[i]="?BadComponentName?";
+    m_SatPCmpsInh[i]="?BadComponentName?";
     }
   for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
     {
     int c=CDB.m_Flashable[i];
     m_DDBFlashable.Add(c, CDB[c].SymOrTag());
-    m_FlashCmps[c]=CDB[c].SymOrTag();
-    m_FlashCmpsDef[c].Set("<%s>", CDB[c].SymOrTag());
-    m_FlashCmpsInh[c].Set("[%s]", CDB[c].SymOrTag());
+    m_SatPCmps[c]=CDB[c].SymOrTag();
+    m_SatPCmpsDef[c].Set("<%s>", CDB[c].SymOrTag());
+    m_SatPCmpsInh[c].Set("[%s]", CDB[c].SymOrTag());
     }
 
-  m_DDBFlashMethods.Add(SMSatPM_Default,      "<Default>");
-  m_DDBFlashMethods.Add(SMSatPM_PartialP,     "PartialP");
-  m_DDBFlashMethods.Add(SMSatPM_TotalP,       "TotalP");
-  m_DDBFlashMethods.Add(SMSatPM_Undefined,    "Undefined", MDD_NoSelect|MDD_Hidden);
+  m_DDBSatPMethods.Add(SMOption_Default,          "<Default>");
+  m_DDBSatPMethods.Add(SMOption_SatPPartialP,     "PartialP");
+  m_DDBSatPMethods.Add(SMOption_SatPTotalP,       "TotalP");
+  m_DDBSatPMethods.Add(SMOption_SatPUndefined,    "Undefined", MDD_NoSelect|MDD_Hidden);
 
-  m_DDBDefFlashMethods.Add(SMSatPM_PartialP,     "PartialP");
-  m_DDBDefFlashMethods.Add(SMSatPM_TotalP,       "TotalP");
+  m_DDBDefSatPMethods.Add(SMOption_SatPPartialP,                  "PartialP");
+  m_DDBDefSatPMethods.Add(SMOption_SatPTotalP,                    "TotalP");
+  m_DDBDefSatPMethods.Add(SMOption_2All(SMOption_SatPPartialP),   "All-PartialP");
+  m_DDBDefSatPMethods.Add(SMOption_2All(SMOption_SatPTotalP),     "All-TotalP");
 
-  m_FlashMethods.SetAtGrow(SMSatPM_PartialP,  "PartialP");
-  m_FlashMethods.SetAtGrow(SMSatPM_TotalP,    "TotalP");
-  m_FlashMethodsDef.SetAtGrow(SMSatPM_PartialP, "<PartialP>");
-  m_FlashMethodsDef.SetAtGrow(SMSatPM_TotalP,   "<TotalP>");
-  m_FlashMethodsInh.SetAtGrow(SMSatPM_PartialP, "[PartialP]");
-  m_FlashMethodsInh.SetAtGrow(SMSatPM_TotalP,   "[TotalP]");
+  m_SatPMethods.SetAtGrow(SMOption_SatPPartialP,  "PartialP");
+  m_SatPMethods.SetAtGrow(SMOption_SatPTotalP,    "TotalP");
+  m_SatPMethodsDef.SetAtGrow(SMOption_SatPPartialP, "<PartialP>");
+  m_SatPMethodsDef.SetAtGrow(SMOption_SatPTotalP,   "<TotalP>");
+  m_SatPMethodsInh.SetAtGrow(SMOption_SatPPartialP, "[PartialP]");
+  m_SatPMethodsInh.SetAtGrow(SMOption_SatPTotalP,   "[TotalP]");
 
 
   if (1)
@@ -7163,6 +7211,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   }
 
 //---------------------------------------------------------------------------
+
 inline double LclChkZero(double x) { return ((fabs(x) > 1e-4) ? x : 0.0);}
 
 void CComponentDataBase::DumpTest()
@@ -7191,7 +7240,7 @@ void CComponentDataBase::DumpTest()
       dbgp(
         //"  %6s %6s %6s nT Ti %10s %10s %10s %10s %10s %10s %10s",
         //" %6s %6s %6s nT Ti %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s",
-        " %6s %6s Ti %7s ", "tK", "tC", "Hf");
+        "%5s) %6s %6s Ti %7s ", "Line", "tK", "tC", "Hf");
 
       dbgp("%10s %10s %10s%3s ", "mlHs", "mlHz", "mlHf","(i)");
       dbgp("%10s %10s %10s %10s ", "Hf:R=0", "Hf:R=.1", "Hf:R=.5", "Hf:R=1");
@@ -7209,7 +7258,7 @@ void CComponentDataBase::DumpTest()
 
         double prevHf=0;
         double prevT=0;
-        for (int i=0; i <= 30; i++)
+        for (int i=0; i <= /*30*/100; i++)
           {
           tp=t;
           vpp=vp;
@@ -7226,6 +7275,9 @@ void CComponentDataBase::DumpTest()
             t1=t1+dt;
             t=t1;
             }
+
+          static int xxxx=0;
+          dbgp  ("%5i)",xxxx++);
 
           //INCOMPLETECODE(__FILE__, __LINE__);
           ////dbgp  (" %6.1f %6.1f %6.1f %2i %2i",t, K_2_C(t), K_2_F(t), Sp.m_iLastTPoint+1, Sp.FindTIndex(t));
@@ -7401,8 +7453,8 @@ void CSpecieBlk::TestInitialiseOK()
     }
   };
 
-CSpecieBlk::CSpecieBlk(MInitialiseTest & InitTest, LPCTSTR pName, LPCTSTR pFile, LPCTSTR pDll) :
-  m_InitTest(InitTest)
+CSpecieBlk::CSpecieBlk(MInitialiseTest & InitTest, LPCTSTR pName, LPCTSTR pFile, LPCTSTR pDll) : \
+m_InitTest(InitTest)
   {
   ASSERT_ALWAYS(strchr(pName, '(')!=0, "must be the full specie name", __FILE__, __LINE__);
   //m_pTagObjClass=ObjClass;
@@ -7548,7 +7600,7 @@ long CSpecie::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
   switch(Inx)
     {
     case  0: Info.SetStructName("SpecieProps", 0);
-             Info.Set(ePT_String,    "Tag",                      "",           DC_,         "",  0,      0,  MP_HardMin,    ""); return Inx;
+      Info.Set(ePT_String,    "Tag",                      "",           DC_,         "",  0,      0,  MP_HardMin,    ""); return Inx;
     case  1: Info.Set(ePT_String,    "Symbol",                   "",           DC_,         "",  0,      0,  MP_HardMin,    ""); return Inx;
     case  2: Info.Set(ePT_String,    "Definition",               "",           DC_,         "",  0,      0,  MP_HardMin,    ""); return Inx;
     case  3: Info.Set(ePT_Double,    "MolecularWt",              "MoleWt",     DC_,         "",  0,      0,  MP_HardMin,    ""); return Inx;
@@ -7677,43 +7729,43 @@ static CSV_ViewCnv gs_SPMDC_Conc    = {&DC_Conc,      "g/L"       };
 static CSV_ViewCnv * SPMDC_[]       = { &gs_SPMDC_,         };
 //MaxPhases Dependent
 static CSV_ViewCnv * SPMDC_Frac[]   = {
-                                        &gs_SPMDC_Frac     ,
-                                        &gs_SPMDC_FracSol  ,
-                                        &gs_SPMDC_FracLiq  ,
-                                        &gs_SPMDC_FracGas  ,
-                                        &gs_SPMDC_FracPh[0] ,
-                                        &gs_SPMDC_FracPh[1] ,
-                                        &gs_SPMDC_FracPh[2] ,
-                                        &gs_SPMDC_FracPh[3] ,
-                                        &gs_SPMDC_FracPh[4] ,
-                                        &gs_SPMDC_FracPh[5] ,
-                                        &gs_SPMDC_FracPh[6] ,
-                                        &gs_SPMDC_FracPh[7] ,
-                                        &gs_SPMDC_FracPh[8] ,
-                                        &gs_SPMDC_FracPh[9] ,
-                                        &gs_SPMDC_FracPh[10] ,
-                                        &gs_SPMDC_FracPh[11] ,
-                                        &gs_SPMDC_FracPh[12] ,
-                                        &gs_SPMDC_FracPh[13] ,
-                                        &gs_SPMDC_FracPh[14] ,
-                                        &gs_SPMDC_FracPh[15] ,
-                                        &gs_SPMDC_FracPh[16] ,
-                                        &gs_SPMDC_FracPh[17] ,
-                                        &gs_SPMDC_FracPh[18] ,
-                                        &gs_SPMDC_FracPh[19] ,
-                                        &gs_SPMDC_FracPh[20] ,
-                                        &gs_SPMDC_FracPh[21] ,
-                                        &gs_SPMDC_FracPh[22] ,
-                                        &gs_SPMDC_FracPh[23] ,
-                                        &gs_SPMDC_FracPh[24] ,
-                                        &gs_SPMDC_FracPh[25] ,
-                                        &gs_SPMDC_FracPh[26] ,
-                                        &gs_SPMDC_FracPh[27] ,
-                                        &gs_SPMDC_FracPh[28] ,
-                                        &gs_SPMDC_FracPh[29] ,
-                                        &gs_SPMDC_FracPh[30] ,
-                                        &gs_SPMDC_FracPh[31] ,
-                                        };
+  &gs_SPMDC_Frac     ,
+  &gs_SPMDC_FracSol  ,
+  &gs_SPMDC_FracLiq  ,
+  &gs_SPMDC_FracGas  ,
+  &gs_SPMDC_FracPh[0] ,
+  &gs_SPMDC_FracPh[1] ,
+  &gs_SPMDC_FracPh[2] ,
+  &gs_SPMDC_FracPh[3] ,
+  &gs_SPMDC_FracPh[4] ,
+  &gs_SPMDC_FracPh[5] ,
+  &gs_SPMDC_FracPh[6] ,
+  &gs_SPMDC_FracPh[7] ,
+  &gs_SPMDC_FracPh[8] ,
+  &gs_SPMDC_FracPh[9] ,
+  &gs_SPMDC_FracPh[10] ,
+  &gs_SPMDC_FracPh[11] ,
+  &gs_SPMDC_FracPh[12] ,
+  &gs_SPMDC_FracPh[13] ,
+  &gs_SPMDC_FracPh[14] ,
+  &gs_SPMDC_FracPh[15] ,
+  &gs_SPMDC_FracPh[16] ,
+  &gs_SPMDC_FracPh[17] ,
+  &gs_SPMDC_FracPh[18] ,
+  &gs_SPMDC_FracPh[19] ,
+  &gs_SPMDC_FracPh[20] ,
+  &gs_SPMDC_FracPh[21] ,
+  &gs_SPMDC_FracPh[22] ,
+  &gs_SPMDC_FracPh[23] ,
+  &gs_SPMDC_FracPh[24] ,
+  &gs_SPMDC_FracPh[25] ,
+  &gs_SPMDC_FracPh[26] ,
+  &gs_SPMDC_FracPh[27] ,
+  &gs_SPMDC_FracPh[28] ,
+  &gs_SPMDC_FracPh[29] ,
+  &gs_SPMDC_FracPh[30] ,
+  &gs_SPMDC_FracPh[31] ,
+  };
 static CSV_ViewCnv * SPMDC_M[]      = { &gs_SPMDC_M,        };
 static CSV_ViewCnv * SPMDC_P[]      = { &gs_SPMDC_P,        };
 static CSV_ViewCnv * SPMDC_Qm[]     = { &gs_SPMDC_Qm,       };
@@ -7726,33 +7778,33 @@ static CSV_ViewCnv * SPMDC_NQv[]    = { &gs_SPMDC_NQv,      };
 static CSV_ViewCnv * SPMDC_Conc[]   = { &gs_SPMDC_Conc,     };
 
 CSV_ViewBasis SVV_NameF[] =
-                                      {
-                                        {SVVB_All, ""},
-                                        {SVVB_End, NULL}
-                                      };
+  {
+    {SVVB_All, ""},
+    {SVVB_End, NULL}
+  };
 CSV_ViewBasis SVV_NameS[] =
-                                      {
-                                        {SVVB_All,   ""},
-                                        {SVVB_Occ,   ":Ph"},
-                                        {SVVB_Phase, ":IPh"},
-                                        {SVVB_End,   NULL}
-                                      };
+  {
+    {SVVB_All,   ""},
+    {SVVB_Occ,   ":Ph"},
+    {SVVB_Phase, ":IPh"},
+    {SVVB_End,   NULL}
+  };
 CSV_ViewBasis SVV_NameE[] =
-                                      {
-                                        {SVVB_All, ""},
-                                        {SVVB_Sol, ":S"},
-                                        {SVVB_Liq, ":L"},
-                                        {SVVB_Gas, ":V"},
-                                        {SVVB_End, NULL}
-                                      };
+  {
+    {SVVB_All, ""},
+    {SVVB_Sol, ":S"},
+    {SVVB_Liq, ":L"},
+    {SVVB_Gas, ":V"},
+    {SVVB_End, NULL}
+  };
 CSV_ViewBasis SVV_NameC[] =
-                                      {
-                                        {SVVB_All, ""},
-                                        {SVVB_Sol, ":S"},
-                                        {SVVB_Liq, ":L"},
-                                        {SVVB_Gas, ":V"},
-                                        {SVVB_End, NULL}
-                                      };
+  {
+    {SVVB_All, ""},
+    {SVVB_Sol, ":S"},
+    {SVVB_Liq, ":L"},
+    {SVVB_Gas, ":V"},
+    {SVVB_End, NULL}
+  };
 
 const CSV_ViewInfo gs_ViewInfo[] =
   {
@@ -7788,17 +7840,17 @@ const CSV_ViewInfo gs_ViewInfo[] =
   };
 
 const LPCTSTR SV_ViewStr[] = {"NULL",
-        "AsRawFrac",
-        "AsRawMass",   "AsRawMassFlow",
-        "AsMass",      "AsMassFlow",      "AsMassFrac",
-        "AsMole",      "AsMoleFlow",      "AsMoleFrac",
-        "AsVol",       "AsVolFlow",       "AsVolFrac",
-        "AsPartialP",  "AsPartailPFrac",
-        "AsNVol",      "AsNVolFlow",      "AsNVolFrac",
-        "AsSpcConc",
-        "AsElem",      "AsElemFlow",      "AsElemFrac",    "AsElemConc",    "AsElemConc25",
-        "AsComp",      "AsCompFlow",      "AsCompFrac",    "AsCompConc",    "AsCompConc25"
-        };
+"AsRawFrac",
+"AsRawMass",   "AsRawMassFlow",
+"AsMass",      "AsMassFlow",      "AsMassFrac",
+"AsMole",      "AsMoleFlow",      "AsMoleFrac",
+"AsVol",       "AsVolFlow",       "AsVolFrac",
+"AsPartialP",  "AsPartailPFrac",
+"AsNVol",      "AsNVolFlow",      "AsNVolFrac",
+"AsSpcConc",
+"AsElem",      "AsElemFlow",      "AsElemFrac",    "AsElemConc",    "AsElemConc25",
+"AsComp",      "AsCompFlow",      "AsCompFrac",    "AsCompConc",    "AsCompConc25"
+  };
 const LPCTSTR SV_ViewBasisStr[] = { "All", "Sol", "Liq", "Gas", "Occ", "Phase", "End" };
 const LPCTSTR SV_CalcTypesStr[] = {"Null", "General", "Sum", "Total", "PhSum", "PhTotal", "IPhSum", "IPhTotal" };
 
@@ -7961,16 +8013,16 @@ enum eInfixType
 //MaxPhases Dependent
 const LPSTR PhSumNames[] =
   {"SumIPh00", "SumIPh01", "SumIPh02", "SumIPh03", "SumIPh04", "SumIPh05", "SumIPh06", "SumIPh07",
-   "SumIPh08", "SumIPh09", "SumIPh10", "SumIPh11", "SumIPh12", "SumIPh13", "SumIPh14", "SumIPh15",
-   "SumIPh16", "SumIPh17", "SumIPh18", "SumIPh19", "SumIPh20", "SumIPh21", "SumIPh22", "SumIPh23",
-   "SumIPh24", "SumIPh25", "SumIPh26", "SumIPh27", "SumIPh28", "SumIPh29", "SumIPh30", "SumIPh31"
+  "SumIPh08", "SumIPh09", "SumIPh10", "SumIPh11", "SumIPh12", "SumIPh13", "SumIPh14", "SumIPh15",
+  "SumIPh16", "SumIPh17", "SumIPh18", "SumIPh19", "SumIPh20", "SumIPh21", "SumIPh22", "SumIPh23",
+  "SumIPh24", "SumIPh25", "SumIPh26", "SumIPh27", "SumIPh28", "SumIPh29", "SumIPh30", "SumIPh31"
   };
 //MaxPhases Dependent
 const int   PhSumSyms[]  =
   {SFS_SumIPh00, SFS_SumIPh01, SFS_SumIPh02, SFS_SumIPh03, SFS_SumIPh04, SFS_SumIPh05, SFS_SumIPh06, SFS_SumIPh07,
-   SFS_SumIPh08, SFS_SumIPh09, SFS_SumIPh10, SFS_SumIPh11, SFS_SumIPh12, SFS_SumIPh13, SFS_SumIPh14, SFS_SumIPh15,
-   SFS_SumIPh16, SFS_SumIPh17, SFS_SumIPh18, SFS_SumIPh19, SFS_SumIPh20, SFS_SumIPh21, SFS_SumIPh22, SFS_SumIPh23,
-   SFS_SumIPh24, SFS_SumIPh25, SFS_SumIPh26, SFS_SumIPh27, SFS_SumIPh28, SFS_SumIPh29, SFS_SumIPh30, SFS_SumIPh31,
+  SFS_SumIPh08, SFS_SumIPh09, SFS_SumIPh10, SFS_SumIPh11, SFS_SumIPh12, SFS_SumIPh13, SFS_SumIPh14, SFS_SumIPh15,
+  SFS_SumIPh16, SFS_SumIPh17, SFS_SumIPh18, SFS_SumIPh19, SFS_SumIPh20, SFS_SumIPh21, SFS_SumIPh22, SFS_SumIPh23,
+  SFS_SumIPh24, SFS_SumIPh25, SFS_SumIPh26, SFS_SumIPh27, SFS_SumIPh28, SFS_SumIPh29, SFS_SumIPh30, SFS_SumIPh31,
   };
 
 static struct CFnTkns
@@ -8129,7 +8181,7 @@ class CSysVecFnCtx
 
     CSysVecFnCtx(CSysVector &Data)
       {
-      #if (CTX_FORCEFULLINIT)
+#if (CTX_FORCEFULLINIT)
       m_Op          = -1;
       m_pData1      = NULL;
       m_pData2      = NULL;
@@ -8142,7 +8194,7 @@ class CSysVecFnCtx
       m_iFidelity   = -1;
       m_Temperature = dNAN;
       m_Pressure    = dNAN;
-      #endif
+#endif
 
       m_iFidelity   = -1;
       m_iDensMethod = -1;
@@ -8152,7 +8204,7 @@ class CSysVecFnCtx
 
     CSysVecFnCtx(CSysVector &Data, byte Op, long Fidelity, long DensMethod, double Temperature, double Pressure)
       {
-      #if (CTX_FORCEFULLINIT)
+#if (CTX_FORCEFULLINIT)
       m_Op          = -1;
       m_pData1      = NULL;
       m_pData2      = NULL;
@@ -8165,7 +8217,7 @@ class CSysVecFnCtx
       m_iFidelity   = -1;
       m_Temperature = dNAN;
       m_Pressure    = dNAN;
-      #endif
+#endif
 
       m_Op          = Op;
       m_pData1      = &Data;
@@ -8177,7 +8229,7 @@ class CSysVecFnCtx
 
     CSysVecFnCtx(CSysVector &Data1, CSysVector &Data2, double Scale)
       {
-      #if (CTX_FORCEFULLINIT)
+#if (CTX_FORCEFULLINIT)
       m_Op          = -1;
       m_pData1      = NULL;
       m_pData2      = NULL;
@@ -8190,7 +8242,7 @@ class CSysVecFnCtx
       m_iFidelity   = -1;
       m_Temperature = dNAN;
       m_Pressure    = dNAN;
-      #endif
+#endif
 
       m_iFidelity   = -1;
       m_iDensMethod = -1;
@@ -8201,7 +8253,7 @@ class CSysVecFnCtx
       };
     CSysVecFnCtx(int Sgn, double dTime, CSysVector &Flw, CSysVector &M, double Advance)
       {
-      #if (CTX_FORCEFULLINIT)
+#if (CTX_FORCEFULLINIT)
       m_Op          = -1;
       m_pData1      = NULL;
       m_pData2      = NULL;
@@ -8214,7 +8266,7 @@ class CSysVecFnCtx
       m_iFidelity   = -1;
       m_Temperature = dNAN;
       m_Pressure    = dNAN;
-      #endif
+#endif
 
       m_iFidelity   = -1;
       m_iDensMethod = -1;
@@ -8337,7 +8389,7 @@ double CSysVecFn::Evaluate(CSysVecFnCtx & C)
         case SFS_SumS:
         case SFS_SumL:
         case SFS_SumG:
-        //case SFS_SumSL:
+          //case SFS_SumSL:
         case SFS_SumPhSLG:
         case SFS_SumPhS:
         case SFS_SumPhL:
@@ -8375,16 +8427,16 @@ double CSysVecFn::Evaluate(CSysVecFnCtx & C)
         case SFS_SumIPh29:
         case SFS_SumIPh30:
         case SFS_SumIPh31:
-        //MaxPhases Dependent
+          //MaxPhases Dependent
           switch (C.m_Op)
             {
             case SVOP_:       Stk[++iStk]=-1;  break;
             case SVOP_Mass:   Stk[++iStk]=C.m_pData1->Mass(Fn2PhMasks[T.m_iSym-SFS_SumSLG]);  break;
             case SVOP_Mole:   Stk[++iStk]=C.m_pData1->Moles(Fn2PhMasks[T.m_iSym-SFS_SumSLG]); break;
             case SVOP_Vol:    ASSERT(C.m_iFidelity>=0);
-                              Stk[++iStk]=C.m_pData1->Volume(C.m_iFidelity, C.m_iDensMethod, Fn2PhMasks[T.m_iSym-SFS_SumSLG], C.m_Temperature, C.m_Pressure, NULL); break;
+              Stk[++iStk]=C.m_pData1->Volume(C.m_iFidelity, C.m_iDensMethod, Fn2PhMasks[T.m_iSym-SFS_SumSLG], C.m_Temperature, C.m_Pressure, NULL); break;
             case SVOP_NVol:   ASSERT(C.m_iFidelity>=0);
-                              Stk[++iStk]=C.m_pData1->NVolume(C.m_iFidelity, C.m_iDensMethod, Fn2PhMasks[T.m_iSym-SFS_SumSLG], NULL); break;
+              Stk[++iStk]=C.m_pData1->NVolume(C.m_iFidelity, C.m_iDensMethod, Fn2PhMasks[T.m_iSym-SFS_SumSLG], NULL); break;
             }
           break;
         case SFS_MW:          Stk[iStk]  = Stk[iStk];                                               break;
@@ -8461,18 +8513,18 @@ bool CSysVecFn::SimpleParse(LPCSTR Str)
             }
           p++;
           }
-        while (*p && BraceLvl>=0);
-        // this is a specie/attname
-        for (long i=0; i<SVCfgCount(); i++)
-          {
-          if (Tkn.XStrICmp(SVI.Cfg(i)->FullTag())==0)
+          while (*p && BraceLvl>=0);
+          // this is a specie/attname
+          for (long i=0; i<SVCfgCount(); i++)
             {
-            m_Tkns.Add(CSysVecFnSymbol(SFS_SVIndex, SVI.Cfg(i)->SVIndex()));
-            break;
+            if (Tkn.XStrICmp(SVI.Cfg(i)->FullTag())==0)
+              {
+              m_Tkns.Add(CSysVecFnSymbol(SFS_SVIndex, SVI.Cfg(i)->SVIndex()));
+              break;
+              }
             }
-          }
-        if (i>=SVCfgCount())
-          LogError("SpecieConfig", LF_Exclamation, "Invalid Data Name %s", Tkn());
+          if (i>=SVCfgCount())
+            LogError("SpecieConfig", LF_Exclamation, "Invalid Data Name %s", Tkn());
         }
       else
         {
@@ -8554,9 +8606,9 @@ bool CSysVecFn::ParseToken(Strng &Tkn, long &TknType, LPCSTR &pStr)
         }
       pStr++;
       }
-    while (*pStr && BraceLvl>=0);
-    // this is a specie/attname
-    TknType=Tkn_Specie;
+      while (*pStr && BraceLvl>=0);
+      // this is a specie/attname
+      TknType=Tkn_Specie;
     }
   else
     {
@@ -8832,10 +8884,10 @@ DoneTkn:;
         ErrorOccurred=SetError(SVErrType_Load, 123);
       First = FALSE;
 
-      #if dbgSysVec
+#if dbgSysVec
       if (dbgExpressionLoad())
-          dbgpln("Tkn:%-25s  Valid:%d  opStackPos:%d", Tkn, Valid, opStackPos);
-       #endif
+        dbgpln("Tkn:%-25s  Valid:%d  opStackPos:%d", Tkn, Valid, opStackPos);
+#endif
 
       if (Valid)
         {
@@ -8966,7 +9018,7 @@ bool CSysVecFn::CheckForPureSum(CIArray & SumIndices, CIArray & Done)
       case SFS_SumS:
       case SFS_SumL:
       case SFS_SumG:
-      //case SFS_SumSL:
+        //case SFS_SumSL:
       case SFS_SumPhSLG:
       case SFS_SumPhS:
       case SFS_SumPhL:
@@ -9004,7 +9056,7 @@ bool CSysVecFn::CheckForPureSum(CIArray & SumIndices, CIArray & Done)
       case SFS_SumIPh29:
       case SFS_SumIPh30:
       case SFS_SumIPh31:
-      //MaxPhases Dependent
+        //MaxPhases Dependent
         {
         PhMask Ph=0;
         switch (Sym.m_iSym)
@@ -9013,7 +9065,7 @@ bool CSysVecFn::CheckForPureSum(CIArray & SumIndices, CIArray & Done)
           case SFS_SumS:      Ph=gs_CDB.m_som_Sol;  break;
           case SFS_SumL:      Ph=gs_CDB.m_som_Liq;  break;
           case SFS_SumG:      Ph=gs_CDB.m_som_Gas;  break;
-          //case SFS_SumSL:     Ph=gs_CDB.m_som_SL;   break;
+            //case SFS_SumSL:     Ph=gs_CDB.m_som_SL;   break;
           case SFS_SumPhSLG:  Ph=gs_CDB.m_som_ALL;  break;
           case SFS_SumPhS:    Ph=gs_CDB.m_som_Sol;  break;
           case SFS_SumPhL:    Ph=gs_CDB.m_som_Liq;  break;
@@ -9051,7 +9103,7 @@ bool CSysVecFn::CheckForPureSum(CIArray & SumIndices, CIArray & Done)
           case SFS_SumIPh29:  Ph=0x20000000;        break;
           case SFS_SumIPh30:  Ph=0x40000000;        break;
           case SFS_SumIPh31:  Ph=0x80000000;        break;
-          //MaxPhases Dependent
+            //MaxPhases Dependent
           }
         for (int i=0; i<SVSpcCount(); i++)
           {
@@ -9495,7 +9547,7 @@ bool CSysVecInfo::ParseSpecieTemplateValues2(int nToks, CSVColArray & C, CDBInit
       goto Found;
 
   LogWarning("SpecieTemplate",0,"Entry %s not found", Name);
-   return false;
+  return false;
 
 Found:
   POSITION Pos=m_Templates.GetHeadPosition();
@@ -9555,7 +9607,7 @@ void CSysVecInfo::FinaliseSpecieTemplateValues()
       switch (Img(i)->Type())
         {
         case SVT_Specie:
-        //case SVT_Calculation:
+          //case SVT_Calculation:
         case SVT_Attribute:
           {
           POSITION Pos=m_Templates.GetHeadPosition();
@@ -9568,7 +9620,7 @@ void CSysVecInfo::FinaliseSpecieTemplateValues()
               dbgp("%15s ", "*");
             }
           }
-        break;
+          break;
         }
       dbgpln("");
       }
@@ -9812,7 +9864,7 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
     if (Type(InsertAt)!=SVT_Annotation)
       {
       I=ParseAnnotation("Text", " ", CDBI, 0, InsertAt++);
-//      I->m_bIsPhaseCalc=true;
+      //      I->m_bIsPhaseCalc=true;
       }
     }
 
@@ -10327,7 +10379,7 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
     dbgpln("");
     dbgpln("Cfg --------------------------------------------------------");
     dbgpln("SDI:%-12s %3s %3s %3s %3s %10s %3s %3s %10s %3s %3s %3s %-12s %-30s %-12s ",
-             "Type","Cfg","SV","Ty","PIx","PhMsk", "Cnt","OIx","OccMsk","Par","#Ch","Lvl","Cnv", "Tag", "Sym");
+      "Type","Cfg","SV","Ty","PIx","PhMsk", "Cnt","OIx","OccMsk","Par","#Ch","Lvl","Cnv", "Tag", "Sym");
     for (int iCfg=0; iCfg<SVCfgCount(); iCfg++)
       {
       CSysVecItem *p=Cfg(iCfg);
@@ -10402,11 +10454,11 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
       for (eScdSVViewBasis b=SVVB_Start; b<SVVB_End; b++)
         {
         dbgp("|%s%s%2i %-4s %#010x ",
-              p->ViewBasisUsed(b)?"U":" ",
-              p->ViewBasisEditable(SVV_AsMassFrac, b)?"E":" ",
-              p->m_ViewBasisRules[b].m_iSpVwMaskIndex,
-              p->ViewBasisName(b),
-              p->ViewBasisMask(b));
+          p->ViewBasisUsed(b)?"U":" ",
+          p->ViewBasisEditable(SVV_AsMassFrac, b)?"E":" ",
+          p->m_ViewBasisRules[b].m_iSpVwMaskIndex,
+          p->ViewBasisName(b),
+          p->ViewBasisMask(b));
         }
       dbgp("|%-30s ", p->FullTag());
 
@@ -11542,7 +11594,7 @@ void DumpSysVec(bool Start, LPSTR Hd, CSysVector & Vec)
         dbgp(" %10s", "0");
       else
         dbgp(" %10.2f", Vec[i]);
-    dbgpln("");
+      dbgpln("");
     }
 #endif
   }

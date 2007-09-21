@@ -4005,7 +4005,7 @@ void CSDBTest::TestRelDens(int &nGood, int &nBad)
   CDArray M;
   M.SetSize(m_SDB.Count());
   long iFidelity=0; 
-  long iDensMethod=SMDensM_Version1; 
+  long iDensMethod=SMOption_DensVersion1; 
   for (int j=0; j<m_SDB.m_DensCorrSps.GetSize(); j++)
     {
     int iSolvent=m_SDB.m_DensCorrSps[j];

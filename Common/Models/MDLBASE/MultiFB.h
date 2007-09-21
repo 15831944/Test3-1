@@ -159,10 +159,10 @@ class MFCommonBlk
             
             
     flag    TestPressureOK(double &P0, double &P1);
-    flag    DoFlashLiqAtStart(flag AtEntry, CFlwBlkBase & FE, 
+    flag    DoSatPLiqAtStart(flag AtEntry, CFlwBlkBase & FE, 
                               double Regulation, SpConduit &Cd, 
                               double K, double DI, double DE, double DO);//, double D2);
-    flag    DoFlashVapAtStart(flag AtEntry, CFlwBlkBase & FE, 
+    flag    DoSatPVapAtStart(flag AtEntry, CFlwBlkBase & FE, 
                               double Regulation, SpConduit &Cd, 
                               double K, double DI, double DE, double DO);//, double D2);
     flag    DoFlash(flag AtEntry, CFlwBlkBase & FE, 

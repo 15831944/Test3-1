@@ -343,7 +343,7 @@ class BCSteamFinder : public MRootFinderBase
       BC.RB.EvalProducts(Cd);
       BC.m_EHX.EvalProducts(Cd);
 
-      BC.m_VLE.SetFlashVapFrac(*Cd.Model(), 0.0, 0);
+      BC.m_VLE.SetSatPVapFrac(*Cd.Model(), 0.0, 0);
       double tt = Cd.Temp();
       return tt;
       };
@@ -415,7 +415,7 @@ void BarometricCondenser::EvalProducts(CNodeEvalIndex & NEI)
           double TRqd = Min(TSteam - ApproachTemp, TSat - ApproachTemp); //hss 6/8/98
           
           Cd().QSetF(CdSteam(), som_ALL, 1.0, PFlash);//CdSteam().Press());
-          m_VLE.SetFlashVapFrac(Cd(), 0.0, 0);
+          m_VLE.SetSatPVapFrac(Cd(), 0.0, 0);
           double Psat = Cd().SaturationP(TRqd);
 
           double LHVap   = Cd().msLatentHeatVap(TSat, Psat);
@@ -464,7 +464,7 @@ void BarometricCondenser::EvalProducts(CNodeEvalIndex & NEI)
 //double T3=Cd().Temp(), P3=Cd().Temp();
       m_VLE.SetHfInAtZero(Cd());
 
-      m_VLE.SetFlashVapFrac(Cd(), 0.0, 0);
+      m_VLE.SetSatPVapFrac(Cd(), 0.0, 0);
       //double T4=Cd().Temp(), P4=Cd().Temp();
       dFlashP = Cd().Press();
       dFlashT = Cd().Temp();

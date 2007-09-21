@@ -309,32 +309,32 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
       {
       case VLEO_SatLiqT:
       case VLEO_SatVapT:
-        m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
-        if (m_VLE.FlashMethod()==SMSatPM_PartialP)
+        m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
+        if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
           {
-          PSat=Contents.SaturationP(TRequired(), &m_VLE.FlashDefn());
-          double PPFrac = Contents.PartialPressFracC(m_VLE.FlashCmpIndex(), -1, PRequired());
+          PSat=Contents.SaturationP(TRequired(), &m_VLE.SatPDefn());
+          double PPFrac = Contents.PartialPressFracC(m_VLE.SatPCmpIndex(), -1, PRequired());
           if (PPFrac>1e-6)
             PSat=PSat/PPFrac;
           else
             PSat=PRequired();
           }
         else
-          PSat=Contents.SaturationP(TRequired(), &m_VLE.FlashDefn());
+          PSat=Contents.SaturationP(TRequired(), &m_VLE.SatPDefn());
         Contents.SetPRqdTo(PSat);
-        m_VLE.SetFlashVapFrac(CMdl, TRequired(), PSat, (iVLEOpt==VLEO_SatLiqT ? 0.0:1.0), 0);
+        m_VLE.SetSatPVapFrac(CMdl, TRequired(), PSat, (iVLEOpt==VLEO_SatLiqT ? 0.0:1.0), 0);
         break;
 
       case VLEO_SatLiqP:
       case VLEO_SatVapP:
         {
-        if (m_VLE.FlashMethod()==SMSatPM_PartialP)
+        if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
           {
-          m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
+          m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
           double PPress0=-1;
           for (int Iter=0; ; Iter++)
             {
-            double PPress = Contents.PartialPressC(m_VLE.FlashCmpIndex(), -1, PRequired());
+            double PPress = Contents.PartialPressC(m_VLE.SatPCmpIndex(), -1, PRequired());
             if (fabs(PPress-PPress0)<1e-6)
               break;
             if (Iter>50)
@@ -342,54 +342,54 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
               LogError(FullObjTag(), 0, "Saturated VapourPress not converged");
               break;
               }
-            TSat=Contents.SaturationT(PPress, &m_VLE.FlashDefn());
+            TSat=Contents.SaturationT(PPress, &m_VLE.SatPDefn());
             PPress0=PPress;
             }
           }
         else
-          TSat=Contents.SaturationT(PRequired(), &m_VLE.FlashDefn());
+          TSat=Contents.SaturationT(PRequired(), &m_VLE.SatPDefn());
 
         Contents.SetTRqdTo(TSat);
-        m_VLE.SetFlashVapFrac(CMdl, TSat, PRequired(), (iVLEOpt==VLEO_SatLiqP ? 0.0:1.0), 0);
+        m_VLE.SetSatPVapFrac(CMdl, TSat, PRequired(), (iVLEOpt==VLEO_SatLiqP ? 0.0:1.0), 0);
         break;
         }
 
       case VLEO_SupVap:
-        m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
-        if (m_VLE.FlashMethod()==SMSatPM_PartialP)
+        m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
+        if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
           {
-          PSat=Contents.SaturationP(TRequired(), &m_VLE.FlashDefn());
-          double PPFrac = Contents.PartialPressFracC(m_VLE.FlashCmpIndex(), -1, PRequired());
+          PSat=Contents.SaturationP(TRequired(), &m_VLE.SatPDefn());
+          double PPFrac = Contents.PartialPressFracC(m_VLE.SatPCmpIndex(), -1, PRequired());
           if (PPFrac>1e-6)
             PSat=PSat/PPFrac;
           else
             PSat=PRequired();
           }
         else
-          PSat=Contents.SaturationP(TRequired(), &m_VLE.FlashDefn());
+          PSat=Contents.SaturationP(TRequired(), &m_VLE.SatPDefn());
         if (PRequired()>PSat)
           {
           Contents.SetPRqdTo(PSat);
-          m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
+          m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
           }
         break;
       case VLEO_SubLiq:
-        m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
-        if (m_VLE.FlashMethod()==SMSatPM_PartialP)
+        m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
+        if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
           {
-          PSat=Contents.SaturationP(TRequired(), &m_VLE.FlashDefn());
-          double PPFrac = Contents.PartialPressFracC(m_VLE.FlashCmpIndex(), -1, PRequired());
+          PSat=Contents.SaturationP(TRequired(), &m_VLE.SatPDefn());
+          double PPFrac = Contents.PartialPressFracC(m_VLE.SatPCmpIndex(), -1, PRequired());
           if (PPFrac>1e-6)
             PSat=PSat/PPFrac;
           else
             PSat=PRequired();
           }
         else
-          PSat=Contents.SaturationP(TRequired(), &m_VLE.FlashDefn());
+          PSat=Contents.SaturationP(TRequired(), &m_VLE.SatPDefn());
         if (PRequired()<PSat)
           {
           Contents.SetPRqdTo(PSat);
-          m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
+          m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
           }
         break;
       }

@@ -1474,16 +1474,16 @@ void    MVLEBlk::BuildDataFields()              { if (m_pVLE->Enabled()) m_pVLE-
 bool    MVLEBlk::ExchangeDataFields()           { return m_pVLE->DataXchg(*m_pCommon->m_pDCB)!=0; };
 bool    MVLEBlk::ValidateDataFields()           { return m_pVLE->ValidateData(*m_pCommon->m_pVDB)!=0; };
 
-double  MVLEBlk::FlashVapFrac(MVector &Mdl)
-  { return m_pVLE->FlashVapFrac(*Mdl.SpMdl); };
-void    MVLEBlk::SetFlashVapFrac(MVector &Mdl, double Temp, double Press, double VapFrac, DWORD Flags)
-  { return m_pVLE->SetFlashVapFrac(*Mdl.SpMdl, Temp, Press, VapFrac, Flags); };
-void    MVLEBlk::SetFlashVapFrac(MVector &Mdl, double VapFrac, DWORD Flags)
-  { return m_pVLE->SetFlashVapFrac(*Mdl.SpMdl, VapFrac, Flags); };
-void    MVLEBlk::SetFlashVapFrac(MStream &Q, double Temp, double Press, double VapFrac, DWORD Flags)
-  { return m_pVLE->SetFlashVapFrac(*Q.SpMdl, Temp, Press, VapFrac, Flags); };
-void    MVLEBlk::SetFlashVapFrac(MStream &Q, double VapFrac, DWORD Flags)
-  { return m_pVLE->SetFlashVapFrac(*Q.SpMdl, VapFrac, Flags); };
+double  MVLEBlk::SatPVapFrac(MVector &Mdl)
+  { return m_pVLE->SatPVapFrac(*Mdl.SpMdl); };
+void    MVLEBlk::SetSatPVapFrac(MVector &Mdl, double Temp, double Press, double VapFrac, DWORD Flags)
+  { return m_pVLE->SetSatPVapFrac(*Mdl.SpMdl, Temp, Press, VapFrac, Flags); };
+void    MVLEBlk::SetSatPVapFrac(MVector &Mdl, double VapFrac, DWORD Flags)
+  { return m_pVLE->SetSatPVapFrac(*Mdl.SpMdl, VapFrac, Flags); };
+void    MVLEBlk::SetSatPVapFrac(MStream &Q, double Temp, double Press, double VapFrac, DWORD Flags)
+  { return m_pVLE->SetSatPVapFrac(*Q.SpMdl, Temp, Press, VapFrac, Flags); };
+void    MVLEBlk::SetSatPVapFrac(MStream &Q, double VapFrac, DWORD Flags)
+  { return m_pVLE->SetSatPVapFrac(*Q.SpMdl, VapFrac, Flags); };
 void    MVLEBlk::TPFlash(MVector &Mdl, double Temp, double Press, DWORD Flags)
   { return m_pVLE->TPFlash(*Mdl.SpMdl, Temp, Press, Flags); };
 
@@ -1498,10 +1498,10 @@ void    MVLEBlk::VFlash(MContainer &Cn, double Duty, DWORD Flags)
 
 
 double MVLEBlk::SaturationP(MVector & Mdl, double T)
-  { return Mdl.SpMdl->SaturationP(T, NULL, &m_pVLE->FlashDefn()); };
+  { return Mdl.SpMdl->SaturationP(T, NULL, &m_pVLE->SatPDefn()); };
 
 double MVLEBlk::SaturationTotalP(MVector & Mdl, double T)
-  { return Mdl.SpMdl->SaturationTotalP(T, NULL, &m_pVLE->FlashDefn()); };
+  { return Mdl.SpMdl->SaturationTotalP(T, NULL, &m_pVLE->SatPDefn()); };
 
 void    MVLEBlk::MVapFlash(MStream &Q, double VapMass, double Duty, DWORD Flags)
   { return m_pVLE->MVapFlash(Q.Cd, VapMass, Duty, Flags); };

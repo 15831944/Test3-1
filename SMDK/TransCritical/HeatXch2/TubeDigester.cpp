@@ -534,7 +534,7 @@ bool CCARTubeDigester::ConfigureJoins()
     double FTemp=m_ShellI.SaturationT();
     double FPress=m_ShellI.SaturationP();
 
-    m_VLE.SetFlashVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null); // Set the shell out stream to all liq
+    m_VLE.SetSatPVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null); // Set the shell out stream to all liq
     m_ShellO.SetTP(FTemp, FPress);                                  // at the flash temperature and pressure
     m_TD.m_dTotDuty = ShtotHz-m_ShellO.totHz();         // This is the total duty incl env loss for Amount
     m_TD.m_dDuty = m_TD.m_dTotDuty;                     // This is Hx duty: tot - env

@@ -43,7 +43,7 @@ _FWDDEF(CVLEBlock);
 XID xidVLEEnable        = MdlBsXID(2000);
 XID xidVLEEqnNm         = MdlBsXID(2001);
 XID xidVLENettVapQm     = MdlBsXID(2002);
-XID xidVLEFlashMethod   = MdlBsXID(2003);
+XID xidVLESatPMethod   = MdlBsXID(2003);
 XID xidVLEFlashComp     = MdlBsXID(2004);
 
 //============================================================================
@@ -91,15 +91,15 @@ class DllImportExport CVLEBlock : public TaggedObject
     CVLEBlock(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CVLEBlock();
 
-    virtual CSaturationDefn FlashDefn() { return CSaturationDefn(FlashMethod(), FlashCmpIndex()); };
-    virtual int    FlashMethod()=0;
-    virtual int    FlashCmpIndex()=0;
-    virtual int    FlashLiqIndex()=0;
-    virtual int    FlashVapIndex()=0;
+    virtual CSaturationDefn SatPDefn() { return CSaturationDefn(SatPMethod(), SatPCmpIndex()); };
+    virtual int    SatPMethod()=0;
+    virtual int    SatPCmpIndex()=0;
+    virtual int    SatPLiqIndex()=0;
+    virtual int    SatPVapIndex()=0;
     virtual LPTSTR FlashDescription()=0;
 
-    virtual double FlashVapFrac(SpModel &Mdl) = 0;
-    virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags)  {};
+    virtual double SatPVapFrac(SpModel &Mdl) = 0;
+    virtual void   SetSatPVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags)  {};
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags)                          {};
     virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags)                           {};
     virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags)           {};
@@ -162,18 +162,18 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
-    virtual CSaturationDefn FlashDefn();
-    virtual int    FlashMethod();
-    virtual int    FlashCmpIndex();
-    virtual int    FlashLiqIndex();
-    virtual int    FlashVapIndex();
+    virtual CSaturationDefn SatPDefn();
+    virtual int    SatPMethod();
+    virtual int    SatPCmpIndex();
+    virtual int    SatPLiqIndex();
+    virtual int    SatPVapIndex();
     LPTSTR         FlashDescription();
 
-    virtual double FlashVapFrac(SpModel &Mdl);
-    virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
-    virtual void   SetFlashVapFrac(SpModel &Mdl, double VapFrac, dword Flags);
-    virtual void   SetFlashVapFrac(SpConduit &Q, double Temp, double Press, double VapFrac, dword Flags);
-    virtual void   SetFlashVapFrac(SpConduit &Q, double VapFrac, dword Flags);
+    virtual double SatPVapFrac(SpModel &Mdl);
+    virtual void   SetSatPVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
+    virtual void   SetSatPVapFrac(SpModel &Mdl, double VapFrac, dword Flags);
+    virtual void   SetSatPVapFrac(SpConduit &Q, double Temp, double Press, double VapFrac, dword Flags);
+    virtual void   SetSatPVapFrac(SpConduit &Q, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
     virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
     virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
@@ -253,10 +253,10 @@ inline void CVLEBase::SetMixFrac(double dVMixFrac, double dLMixFrac)
   { if (m_pVLE) m_pVLE->SetMixFrac(dVMixFrac, dLMixFrac); };
 inline void CVLEBase::SetMixFrac(int CompNo, double dVMixFrac, double dLMixFrac) 
   { if (m_pVLE) m_pVLE->SetMixFrac(CompNo, dVMixFrac, dLMixFrac); };
-inline void CVLEBase::SetFlashVapFrac(SpConduit &Q, double Temp, double Press, double VapFrac, dword Flags)
-  { SetFlashVapFrac(*Q.Model(), Temp, Press, VapFrac, Flags);}
-inline void CVLEBase::SetFlashVapFrac(SpConduit &Q, double VapFrac, dword Flags)
-  { SetFlashVapFrac(*Q.Model(), VapFrac, Flags);}
+inline void CVLEBase::SetSatPVapFrac(SpConduit &Q, double Temp, double Press, double VapFrac, dword Flags)
+  { SetSatPVapFrac(*Q.Model(), Temp, Press, VapFrac, Flags);}
+inline void CVLEBase::SetSatPVapFrac(SpConduit &Q, double VapFrac, dword Flags)
+  { SetSatPVapFrac(*Q.Model(), VapFrac, Flags);}
 
 // =========================================================================
 
@@ -293,14 +293,14 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
-    virtual int    FlashMethod();
-    virtual int    FlashCmpIndex();
-    virtual int    FlashLiqIndex();
-    virtual int    FlashVapIndex();
+    virtual int    SatPMethod();
+    virtual int    SatPCmpIndex();
+    virtual int    SatPLiqIndex();
+    virtual int    SatPVapIndex();
     virtual LPTSTR FlashDescription();
 
-    virtual double FlashVapFrac(SpModel &Mdl);
-    virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
+    virtual double SatPVapFrac(SpModel &Mdl);
+    virtual void   SetSatPVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
     virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
     virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
@@ -336,7 +336,7 @@ class DllImportExport CVLEVapPress : public CVLEBlock
 
     SpecieIter     OtherVapSp;
 
-    long           m_iFlashMethod;
+    long           m_iSatPMethod;
     long           m_iCmpNoReqd, m_iCmpNo, m_iLiqNo, m_iVapNo;
     double         Mt,Ht,Vf;
     long           m_iState;
@@ -373,8 +373,8 @@ class DllImportExport CVLEFixdPerc : public CVLEBlock
 
     virtual LPTSTR FlashDescription();
 
-    virtual double FlashVapFrac(SpModel &Mdl);
-    virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
+    virtual double SatPVapFrac(SpModel &Mdl);
+    virtual void   SetSatPVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
     virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
     virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
@@ -423,14 +423,14 @@ class DllImportExport CVLERootK : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
-    virtual int    FlashMethod()   { return SMSatPM_Undefined; };
-    virtual int    FlashCmpIndex() { return -1; };
-    virtual int    FlashLiqIndex() { return -1; };
-    virtual int    FlashVapIndex() { return -1; };
+    virtual int    SatPMethod()   { return SMOption_SatPUndefined; };
+    virtual int    SatPCmpIndex() { return -1; };
+    virtual int    SatPLiqIndex() { return -1; };
+    virtual int    SatPVapIndex() { return -1; };
     virtual LPTSTR FlashDescription();
 
-    virtual double FlashVapFrac(SpModel &Mdl);
-    virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
+    virtual double SatPVapFrac(SpModel &Mdl);
+    virtual void   SetSatPVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
     virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
     virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);

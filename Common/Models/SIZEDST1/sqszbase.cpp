@@ -2706,7 +2706,7 @@ void CSD_Distribution::DistTotals(SpPropOveride *Ovr, CSysVector &M1, int iSpPri
   {
   Mass=0.0;
   Volume=0.0;
-  CDensityInfo C(SpModel::Fidelity(), SMDensM_None, Std_T, Std_P, Ovr, M1.SVData());
+  CDensityInfo C(SpModel::Fidelity(), SMOption_DensNone, Std_T, Std_P, Ovr, M1.SVData());
   for (int l=0; l<NSecIds(iSpPriId); l++)
     {
     int Id=SzId(iSpPriId,l);
@@ -2724,7 +2724,7 @@ void CSD_Distribution::CalcDensity(SpPropOveride *Ovr, CSysVector &M1, int iSpId
 
   int s0=(iSpId>=0) ? iSpId : 0;
   int sN=(iSpId>=0) ? iSpId : NPriIds()-1;
-  CDensityInfo C(SpModel::Fidelity(), SMDensM_None, Std_T, Std_P, Ovr, M1.SVData());
+  CDensityInfo C(SpModel::Fidelity(), SMOption_DensNone, Std_T, Std_P, Ovr, M1.SVData());
   for (int s=s0; s<=sN; s++)
     {
     SpMass[s]=0.0;
