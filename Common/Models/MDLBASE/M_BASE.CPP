@@ -275,7 +275,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
   //dbgpln("======================================================= %s", FullObjTag());
 
   #ifndef _RELEASE
-  flag dbg=0;//fDoDbgBrk;
+  flag dbg=fDoDbgBrk;
   #endif
   if (NetProbalMethod())
     {
@@ -311,7 +311,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
 
   //dbgpln("Ini T,P,Qm  = %14.3f %14.3f %14.3f ",Qi.Temp(),Qi.Press(), Qi.QMass());
 
-  if (0 && fDoDbgBrk)
+  if (1 && fDoDbgBrk)
     {
     double T=Qi.Temp();
     double M=Qi.QMass();
@@ -336,7 +336,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
 
       //dbgpln("Add T1,T2   = %14.3f %14.3f %s",Qi.Temp(),IOConduit(i)->Temp(),Nd_Rmt(i)->Tag());
 
-      if (0 && fDoDbgBrk)
+      if (1 && fDoDbgBrk)
         {
         double T1=Qi.Temp();
         double M1=Qi.QMass();
@@ -369,9 +369,9 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
   #ifndef _RELEASE
   if (dbg)
     {
-    double Ti=Qi.Temp();
-    double To=Qo.Temp();
-    dbgpln("Ti/To = %14.6g %14.6g",Ti,To);
+    //double Ti=Qi.Temp();
+    //double To=Qo.Temp();
+    //dbgpln("Ti/To = %14.6g %14.6g",K2C(Ti),K2C(To));
     dbgpln("o-Xfr %-12.12s : %14.6g, %14.6g | %14.6g (%14.6g)","", Qo.QMass(som_SL), Qo.QMass(som_Gas), K_2_C(Qo.Temp()), Qo.totHz());
     }
   #endif

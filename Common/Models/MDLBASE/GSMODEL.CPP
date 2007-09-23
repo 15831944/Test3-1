@@ -968,7 +968,7 @@ void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
       }
     }
   if (m_bTrackStatus && nShort)
-    SetCI(1, "W\tRequirements not met in %i stream%s", nShort, nShort>1 ? "s":"");
+    SetCI(1, "W\tGM:Requirements not met in %i stream%s", nShort, nShort>1 ? "s":"");
   else
     ClrCI(1);
   }
@@ -2163,7 +2163,7 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, bool FirstPass, double Pres
       }
     }
   if (m_bTrackStatus && nShort && QmInTotal>UsableMass)
-    SetCI(1, "W\tRequirements not met in %i stream%s", nShort, nShort>1 ? "s":"");
+    SetCI(1, "W\tGM:Requirements not met in %i stream%s", nShort, nShort>1 ? "s":"");
   else
     ClrCI(1);
   }
@@ -3454,14 +3454,14 @@ flag GSModel::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case  1: pS="W\tRequirements not met in 1 stream";    return 1;
-    case  2: pS="W\tRecovery Specification not met";      return 1;
-    case  3: pS="W\tNo Outputs";                          return 1;
-    case  4: pS="W\tConnected outlet pipes should NOT have 'numeric' tags!"; return 1;
-    case  5: pS="W\tThermal Solution not Found";          return 1;
-    case  6: pS="W\tThermal Solution not Started";        return 1;
-    case  7: pS="W\tThermal Solution OverSpecfied";       return 1;
-    case  8: pS="W\tFeed Temperature Out of Range";       return 1;
+    case  1: pS="W\tGM:Requirements not met in 1 stream";    return 1;
+    case  2: pS="W\tGM:Recovery Specification not met";      return 1;
+    case  3: pS="W\tGM:No Outputs";                          return 1;
+    case  4: pS="W\tGM:Connected outlet pipes should NOT have 'numeric' tags!"; return 1;
+    case  5: pS="W\tGM:Thermal Solution not Found";          return 1;
+    case  6: pS="W\tGM:Thermal Solution not Started";        return 1;
+    case  7: pS="W\tGM:Thermal Solution OverSpecfied";       return 1;
+    case  8: pS="W\tGM:Feed Temperature Out of Range";       return 1;
     default:
       return TaggedObject::CIStrng(No, pS);
     }

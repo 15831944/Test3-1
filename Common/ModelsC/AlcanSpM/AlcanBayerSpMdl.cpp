@@ -2334,7 +2334,32 @@ double ASMBayer::msHm(PhMask Phase, double T_, double P_, CSysVector * pMA, doub
       Hl = dNAN;
     else
     #endif
-      Hl = LiqCpCalc(Mn, FLiq, T_) * Tc;
+      {                                          
+      if (Tc!=0 && DoDbgBrk())
+        {
+        double PrevH=0;
+        double PrevT=0;
+        for (int ii=0; ii<50; ii++)
+          {
+          double Tc=1000;
+          double T=ii*(Tc/50);
+          double H = LiqCpCalc(Mn, FLiq, C2K(T)) * T;
+          dbgpln("ASMBayer  %10.2fC H%16.8f dH%16.8f Mn%16.8f %16.8f", T, H, ii>0?((H-PrevH)/(T-PrevT)):0.0, 
+                     0.5*(LiqCpCalc(Mn, FLiq, C2K(T))+LiqCpCalc(Mn, FLiq, C2K(0))) * T,
+                     0.5*(LiqCpCalc(Mn, FLiq, C2K(T/2))+LiqCpCalc(Mn, FLiq, C2K(0))) * T/2+
+                     0.5*(LiqCpCalc(Mn, FLiq, C2K(T))+LiqCpCalc(Mn, FLiq, C2K(T/2))) * T/2
+                     );
+          PrevH=H;
+          PrevT=T;
+          }
+        }
+      // Cp only appears to be valid for T< +- 350C)
+      Hl = LiqCpCalc(Mn, FLiq, T_) * Range(0.0, Tc, 350.0);
+      if (Tc>400)
+        Hl += LiqCpCalc(Mn, FLiq, C2K(350)) * (Tc-350);
+      else if (Tc<0)
+        Hl += LiqCpCalc(Mn, FLiq, C2K(0)) * (Tc-0);
+      }
     }
   
   double Hs=0.0;
