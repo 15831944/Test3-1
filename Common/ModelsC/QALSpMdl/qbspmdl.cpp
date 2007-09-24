@@ -702,7 +702,7 @@ double QSMBayer::THADens(double T_)
   //todo : check!
   //ASSERT_ALWAYS(0, "Not implemented", __FILE__, __LINE__);
   //return 0.0;
-  CDensityInfo C(Fidelity(), SMOption_DensNone, T_, Std_P, &m_Ovr, NULL);
+  CDensityInfo C(Fidelity(), SMO_DensNone, T_, Std_P, &m_Ovr, NULL);
   return SDB[::THA.SolPhInx()].DensityXZero(C);
   }
 

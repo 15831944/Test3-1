@@ -639,20 +639,20 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
 
   m_pVLE = NULL;
 
-  m_iRhoMethodRqd = SMOption_Default;
-  m_iRhoMethod    = SMOption_Default;
+  m_iRhoMethodRqd = SMO_Default;
+  m_iRhoMethod    = SMO_Default;
 
-  m_iEqAqPhChg    = SMOption_Default;
-  m_iEqAqPhChgRqd = SMOption_Default;
-  m_iEqSoluble    = SMOption_Default;
-  m_iEqSolubleRqd = SMOption_Default;
-  m_iEqAutoVLE    = SMOption_Default;
-  m_iEqAutoVLERqd = SMOption_Default;
+  m_iEqAqPhChg    = SMO_Default;
+  m_iEqAqPhChgRqd = SMO_Default;
+  m_iEqSoluble    = SMO_Default;
+  m_iEqSolubleRqd = SMO_Default;
+  m_iEqAutoVLE    = SMO_Default;
+  m_iEqAutoVLERqd = SMO_Default;
 
   m_iSatCmpRqd    = -1;
   m_iSatCmp       = -1;//CDB.DefSatPCmpIndex();
-  m_iSatMethodRqd = SMOption_Default;
-  m_iSatMethod    = SMOption_Default;
+  m_iSatMethodRqd = SMO_Default;
+  m_iSatMethod    = SMO_Default;
 
   //m_iEquilAct=SQA_Xfer;
   //m_bEquilOn=false;
@@ -844,12 +844,12 @@ void SpModel::SetQualityPresent(int q, flag Present)
 
 void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
   {
-  m_iEqAqPhChg  = (m_iEqAqPhChgRqd>SMOption_Default ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
-  m_iEqSoluble  = (m_iEqSolubleRqd>SMOption_Default ? m_iEqSolubleRqd : SrcModel->EqSoluble());
-  m_iEqAutoVLE  = (m_iEqAutoVLERqd>SMOption_Default ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
+  m_iEqAqPhChg  = (m_iEqAqPhChgRqd>SMO_Default ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
+  m_iEqSoluble  = (m_iEqSolubleRqd>SMO_Default ? m_iEqSolubleRqd : SrcModel->EqSoluble());
+  m_iEqAutoVLE  = (m_iEqAutoVLERqd>SMO_Default ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
   
-  m_iRhoMethod  = (m_iRhoMethodRqd>SMOption_Default ? m_iRhoMethodRqd : SrcModel->DensityMethod());
-  m_iSatMethod  = (m_iSatMethodRqd>SMOption_Default ? m_iSatMethodRqd : SrcModel->SaturationMethod());
+  m_iRhoMethod  = (m_iRhoMethodRqd>SMO_Default ? m_iRhoMethodRqd : SrcModel->DensityMethod());
+  m_iSatMethod  = (m_iSatMethodRqd>SMO_Default ? m_iSatMethodRqd : SrcModel->SaturationMethod());
   m_iSatCmp     = (m_iSatCmpRqd>=0                  ? m_iSatCmpRqd   : SrcModel->SaturationCmpIndex());
 
   //if (m_iEquilAct==SQA_Create)
@@ -887,12 +887,12 @@ void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
 
 void SpModel::SetQualities(SpModel * SrcModel)
   {
-  m_iEqAqPhChg  = (m_iEqAqPhChgRqd>SMOption_Default ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
-  m_iEqSoluble  = (m_iEqSolubleRqd>SMOption_Default ? m_iEqSolubleRqd : SrcModel->EqSoluble());
-  m_iEqAutoVLE  = (m_iEqAutoVLERqd>SMOption_Default ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
+  m_iEqAqPhChg  = (m_iEqAqPhChgRqd>SMO_Default ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
+  m_iEqSoluble  = (m_iEqSolubleRqd>SMO_Default ? m_iEqSolubleRqd : SrcModel->EqSoluble());
+  m_iEqAutoVLE  = (m_iEqAutoVLERqd>SMO_Default ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
 
-  m_iRhoMethod  = (m_iRhoMethodRqd>SMOption_Default ? m_iRhoMethodRqd : SrcModel->DensityMethod());
-  m_iSatMethod  = (m_iSatMethodRqd>SMOption_Default ? m_iSatMethodRqd : SrcModel->SaturationMethod());
+  m_iRhoMethod  = (m_iRhoMethodRqd>SMO_Default ? m_iRhoMethodRqd : SrcModel->DensityMethod());
+  m_iSatMethod  = (m_iSatMethodRqd>SMO_Default ? m_iSatMethodRqd : SrcModel->SaturationMethod());
   m_iSatCmp     = (m_iSatCmpRqd>=0   ? m_iSatCmpRqd    : SrcModel->SaturationCmpIndex());
 
   //if (m_iEquilAct==SQA_Create)
@@ -928,12 +928,12 @@ void SpModel::AddQualities(SpModel * SrcModel, CSysVector & Cm)
   {
   if (SrcModel->Mass(som_ALL)>Mass(som_ALL)) // should test rel masses
     {
-    m_iEqAqPhChg  = (m_iEqAqPhChgRqd>SMOption_Default ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
-    m_iEqSoluble  = (m_iEqSolubleRqd>SMOption_Default ? m_iEqSolubleRqd : SrcModel->EqSoluble());
-    m_iEqAutoVLE  = (m_iEqAutoVLERqd>SMOption_Default ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
+    m_iEqAqPhChg  = (m_iEqAqPhChgRqd>SMO_Default ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
+    m_iEqSoluble  = (m_iEqSolubleRqd>SMO_Default ? m_iEqSolubleRqd : SrcModel->EqSoluble());
+    m_iEqAutoVLE  = (m_iEqAutoVLERqd>SMO_Default ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
 
-    m_iRhoMethod  = (m_iRhoMethodRqd>SMOption_Default ? m_iRhoMethodRqd : SrcModel->DensityMethod());
-    m_iSatMethod  = (m_iSatMethodRqd>SMOption_Default ? m_iSatMethodRqd : SrcModel->SaturationMethod());
+    m_iRhoMethod  = (m_iRhoMethodRqd>SMO_Default ? m_iRhoMethodRqd : SrcModel->DensityMethod());
+    m_iSatMethod  = (m_iSatMethodRqd>SMO_Default ? m_iSatMethodRqd : SrcModel->SaturationMethod());
     m_iSatCmp     = (m_iSatCmpRqd>=0   ? m_iSatCmpRqd    : SrcModel->SaturationCmpIndex());
     }
 
@@ -1443,9 +1443,9 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   {
   DDB.Text("Rules");
 
-  DDB.String  ("AqPhaseChange", "",         DC_,      "",     xidSMAqPhChg,  this, (CDB.DefEqAqPhChg()>=SMOption_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBOptions());
-  DDB.String  ("Solubility",    "",         DC_,      "",     xidSMSoluble,  this, (CDB.DefEqSoluble()>=SMOption_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBOptions());
-  DDB.String  ("AutoVLE",       "",         DC_,      "",     xidSMAutoVLE,  this, (CDB.DefEqAutoVLE()>=SMOption_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBOptions());
+  DDB.String  ("AqPhaseChange", "",         DC_,      "",     xidSMAqPhChg,  this, (CDB.DefEqAqPhChg()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
+  DDB.String  ("Solubility",    "",         DC_,      "",     xidSMSoluble,  this, (CDB.DefEqSoluble()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
+  DDB.String  ("AutoVLE",       "",         DC_,      "",     xidSMAutoVLE,  this, (CDB.DefEqAutoVLE()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
 
   DDB.Text("Density");
 
@@ -1470,7 +1470,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     //if (DDB.BeginObject(this, "DensCorr", "Sp_DensCorr", NULL, DDB_NoPage))
     if (DDB.BeginStruct(this, "DensCorr", NULL, DDB_NoPage))
       {
-      DDB.String  ("Method",    "",         DC_,      "",     xidSMRhoMethod,  this, (CDB.DefDensityMethod()>=SMOption_Default?isParm:0)|SetOnChange, CDB.m_OptsDens.m_DDBOptions());
+      DDB.String  ("Method",    "",         DC_,      "",     xidSMRhoMethod,  this, (CDB.DefDensityMethod()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsDensMeth.m_DDBValues());
 
       bool ShowExtended = ((sm_VarsAvail|m_VarsAvail)& VAMsk_DensCorrsX) != 0;
    
@@ -1695,8 +1695,8 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
 
     if (DDB.BeginStruct(this, "Saturation"))
       {
-      DDB.String  ("Method",        "",         DC_,      "",         xidSMSatMethod,   this, (CDB.DefSatPMethod()>=SMOption_Default?isParm:0)|SetOnChange, CDB.m_DDBSatPMethods());
-      DDB.String  ("Component",     "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, CDB.m_DDBFlashable());
+      DDB.String  ("Method",        "",         DC_,      "",         xidSMSatMethod,   this, (CDB.DefSatPMethod()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsSatPMeth.m_DDBValues());
+      DDB.String  ("Component",     "",         DC_,      "",         xidSMSatComp,     this, (CDB.DefSatPCmpIndex()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsSatPCmp.m_DDBValues());
       DDB.Double  ("TotalP",        "",         DC_P,     "kPag",     xidSMPress,       this, isResult|noFileAtAll);
       DDB.Double  ("PartialP",      "",         DC_P,     "kPag",     xidSMSatPPress,   this, isResult|noFileAtAll);
       DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
@@ -1713,8 +1713,8 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
 
     if (0)
       {
-      DDB.String  ("SatMethod",     "",         DC_,      "",         xidSMSatMethod,   this, isParm|SetOnChange, CDB.m_DDBSatPMethods());
-      DDB.String  ("SatComponent",  "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, CDB.m_DDBFlashable());
+      DDB.String  ("SatMethod",     "",         DC_,      "",         xidSMSatMethod,   this, isParm|SetOnChange, CDB.m_OptsSatPMeth.m_DDBValues());
+      DDB.String  ("SatComponent",  "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, CDB.m_OptsSatPCmp.m_DDBValues());
       DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
       DDB.Double  ("SatPP@T",       "",         DC_P,     "kPag",     xidSMSatPPress,   this, isResult|noFileAtAll);
       DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFileAtAll|NAN_OK);
@@ -2476,7 +2476,7 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
                       {
                       switch (DensityMethod())
                         {
-                        case SMOption_DensOriginal:
+                        case SMO_DensOriginal:
                           {
                           switch (SDB[iSp].DensContribution())
                             {
@@ -2487,8 +2487,8 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
                             }
                           break;
                           }
-                        case SMOption_DensVersion1:
-                        case SMOption_DensVersion2:
+                        case SMO_DensVersion1:
+                        case SMO_DensVersion2:
                           {
                           switch (SDB[iSp].DensContribution())
                             {
@@ -2998,7 +2998,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
                 SetCfgImage(DCB, RqdVw, RqdBasis, s, fabs(M) / (m_dMassScale>0.0?m_dMassScale:1.0));
                 }
               }
-            if (Op==SVOP_Vol && DensityMethod()>=SMOption_DensVersion1 && s>=0 && SDB[s].DensContribution()==SDensContrib_Solute)
+            if (Op==SVOP_Vol && DensityMethod()>=SMO_DensVersion1 && s>=0 && SDB[s].DensContribution()==SDensContrib_Solute)
               DCB.D=dNAN;
             else
               DCB.D=((m_bUsableMass || !DCB.ForView()) && ((SVI.Img(s)->OccMask()&PhM)!=0)) ? m_iDataSgn * m_dMassScale * m_M.ValueOp(s, Op, Fidelity(), DensityMethod(), Temp(), Press()) : 0.0;
@@ -3056,7 +3056,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
                 SetCfgImage(DCB, RqdVw, RqdBasis, s, M);
                 }
               }
-            if (Op==SVOP_Vol && DensityMethod()>=SMOption_DensVersion1 && s>=0 && SDB[s].DensContribution()==SDensContrib_Solute)
+            if (Op==SVOP_Vol && DensityMethod()>=SMO_DensVersion1 && s>=0 && SDB[s].DensContribution()==SDensContrib_Solute)
               DCB.D=dNAN;
             else
               DCB.D=((SVI.Img(s)->OccMask()&PhM)!=0 ? m_M.ValueOp(s, Op, Fidelity(), DensityMethod(), Temp(), Press()) : 0.0) / GTZ(PhTotal);
@@ -4666,16 +4666,17 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMMlLFrac     : DCB.D = MoleFrac(som_Liq);              return 1;
     case xidSMMlVFrac     : DCB.D = MoleFrac(som_Gas);              return 1;
 
-    case xidSMAqPhChg     : return DoDCBOption(DCB, m_iEqAqPhChgRqd, m_iEqAqPhChg, CDB.DefEqAqPhChg(), CDB.m_OptsOnOff);
-    case xidSMSoluble     : return DoDCBOption(DCB, m_iEqSolubleRqd, m_iEqSoluble, CDB.DefEqSoluble(), CDB.m_OptsOnOff);
-    case xidSMAutoVLE     : return DoDCBOption(DCB, m_iEqAutoVLERqd, m_iEqAutoVLE, CDB.DefEqAutoVLE(), CDB.m_OptsOnOff);
+    case xidSMAqPhChg     : return CDB.m_OptsOnOff.DoDCBOption(DCB, m_iEqAqPhChgRqd, m_iEqAqPhChg, (sint)CDB.DefEqAqPhChg());
+    case xidSMSoluble     : return CDB.m_OptsOnOff.DoDCBOption(DCB, m_iEqSolubleRqd, m_iEqSoluble, (sint)CDB.DefEqSoluble());
+    case xidSMAutoVLE     : return CDB.m_OptsOnOff.DoDCBOption(DCB, m_iEqAutoVLERqd, m_iEqAutoVLE, (sint)CDB.DefEqAutoVLE());
 
-    case xidSMRhoMethod   : return DoDCBOption(DCB, m_iRhoMethodRqd, m_iRhoMethod, CDB.DefDensityMethod(), CDB.m_OptsDens);
+    case xidSMRhoMethod   : return CDB.m_OptsDensMeth.DoDCBOption(DCB, m_iRhoMethodRqd, m_iRhoMethod, (sint)CDB.DefDensityMethod());
     //case xidSMRhoMethod   : return DoDCBRhoMethod(DCB, m_iRhoMethodRqd, m_iRhoMethod);
 
     case xidSMPureSatTemp : DCB.D = PureSaturationT(Press());       return 1;
-    case xidSMSatComp     : return DoDCBSatComp(DCB, m_iSatCmpRqd, m_iSatCmp);
-    case xidSMSatMethod   : return DoDCBSatMethod(DCB, m_iSatMethodRqd, m_iSatMethod);
+    case xidSMSatMethod   : return CDB.m_OptsSatPMeth.DoDCBOption(DCB, m_iSatMethodRqd, m_iSatMethod, (sint)CDB.DefSatPMethod());
+    //case xidSMSatComp     : return DoDCBSatComp(DCB, m_iSatCmpRqd, m_iSatCmp);
+    case xidSMSatComp     : return CDB.m_OptsSatPCmp.DoDCBOption(DCB, m_iSatCmpRqd,    m_iSatCmp,    CDB.DefSatPCmpIndex());
 
     case xidSMSatTempP    : DCB.D = SaturationT(Press(), NULL);     return 1;
     case xidSMSatTempPP   : DCB.D = Mass(som_Gas)>SmallMassFrac ? SaturationT(
@@ -5361,40 +5362,40 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
 
 // --------------------------------------------------------------------------
 
-int SpModel::DoDCBOption(DataChangeBlk & DCB, sint & iEqOptionRqd, sint & iEqOption, sint iDefEqOption, CSDBOptions & Opts)
-  {
-  if (DCB.rpC)
-    {
-    int i = FindString(Opts.m_Options, DCB.rpC);
-    if (i>=0)  
-      {
-      iEqOption    = i;
-      iEqOptionRqd = i;
-      goto Done;
-      }
-    i = FindString(Opts.m_InhOptions, DCB.rpC);
-    if (i>=0)  
-      {
-      iEqOption    = i;
-      iEqOptionRqd = SMOption_Default;
-      goto Done;
-      }
-    iEqOption    = SMOption_Default;
-    iEqOptionRqd = SMOption_Default;
-    }
-
-Done:
-  if (iDefEqOption<SMOption_Default)
-    DCB.pC = Opts.m_Options[SMOption_2Opt(iDefEqOption)]();
-  else if (iEqOptionRqd>SMOption_Default)
-    DCB.pC = Opts.m_Options[iEqOptionRqd]();
-  else if (iEqOption>SMOption_Default)
-    DCB.pC = Opts.m_InhOptions[iEqOption]();
-  else
-    DCB.pC = Opts.m_DefOptions[iDefEqOption]();
-  //DCB.pC = "DoDCBRhoMethod";
-  return 1;
-  };
+//int SpModel::DoDCBOption(DataChangeBlk & DCB, sint & iEqOptionRqd, sint & iEqOption, sint iDefEqOption, CSDBOptions & Opts)
+//  {
+//  if (DCB.rpC)
+//    {
+//    int i = FindString(Opts.m_Options, DCB.rpC);
+//    if (i>=0)  
+//      {
+//      iEqOption    = i;
+//      iEqOptionRqd = i;
+//      goto Done;
+//      }
+//    i = FindString(Opts.m_InhValues, DCB.rpC);
+//    if (i>=0)  
+//      {
+//      iEqOption    = i;
+//      iEqOptionRqd = SMO_Default;
+//      goto Done;
+//      }
+//    iEqOption    = SMO_Default;
+//    iEqOptionRqd = SMO_Default;
+//    }
+//
+//Done:
+//  if (iDefEqOption<SMO_Default)
+//    DCB.pC = Opts.m_Options[SMO_2Opt(iDefEqOption)]();
+//  else if (iEqOptionRqd>SMO_Default)
+//    DCB.pC = Opts.m_Options[iEqOptionRqd]();
+//  else if (iEqOption>SMO_Default)
+//    DCB.pC = Opts.m_InhValues[iEqOption]();
+//  else
+//    DCB.pC = Opts.m_DefValues[iDefEqOption]();
+//  //DCB.pC = "DoDCBRhoMethod";
+//  return 1;
+//  };
 
 // --------------------------------------------------------------------------
 
@@ -5413,19 +5414,19 @@ Done:
 //    if (i>=0)  
 //      {
 //      iRhoMethod    = i;
-//      iRhoMethodRqd = SMOption_Default;
+//      iRhoMethodRqd = SMO_Default;
 //      goto Done;
 //      }
-//    iRhoMethod    = SMOption_Default;
-//    iRhoMethodRqd = SMOption_Default;
+//    iRhoMethod    = SMO_Default;
+//    iRhoMethodRqd = SMO_Default;
 //    }
 //
 //Done:
-//  if (CDB.DefDensityMethod()<SMOption_Default)
-//    DCB.pC = CDB.m_DensityMethods[SMOption_2Option(CDB.DefDensityMethod())]();
-//  else if (iRhoMethodRqd>SMOption_Default)
+//  if (CDB.DefDensityMethod()<SMO_Default)
+//    DCB.pC = CDB.m_DensityMethods[SMO_2Option(CDB.DefDensityMethod())]();
+//  else if (iRhoMethodRqd>SMO_Default)
 //    DCB.pC = CDB.m_DensityMethods[iRhoMethodRqd]();
-//  else if (iRhoMethod>SMOption_Default)
+//  else if (iRhoMethod>SMO_Default)
 //    DCB.pC = CDB.m_DensityMethodsInh[iRhoMethod]();
 //  else
 //    DCB.pC = CDB.m_DensityMethodsDef[CDB.DefDensityMethod()]();
@@ -5435,73 +5436,73 @@ Done:
 
 // --------------------------------------------------------------------------
 
-int SpModel::DoDCBSatComp(DataChangeBlk & DCB, int & iSatCmpRqd, int & iSatCmp)
-  {
-  if (DCB.rpC)
-    {
-    int i = FindString(CDB.m_SatPCmps, DCB.rpC);
-    if (i>=0)  
-      {
-      iSatCmp    = i;
-      iSatCmpRqd = i;
-      goto Done;
-      }
-    i = FindString(CDB.m_SatPCmpsInh, DCB.rpC);
-    if (i>=0)  
-      {
-      iSatCmp    = i;
-      iSatCmpRqd = -1;
-      goto Done;
-      }
-    iSatCmp    = -1;
-    iSatCmpRqd = -1;
-    }
+//int SpModel::DoDCBSatComp(DataChangeBlk & DCB, int & iSatCmpRqd, int & iSatCmp)
+//  {
+//  if (DCB.rpC)
+//    {
+//    int i = FindString(CDB.m_SatPCmps, DCB.rpC);
+//    if (i>=0)  
+//      {
+//      iSatCmp    = i;
+//      iSatCmpRqd = i;
+//      goto Done;
+//      }
+//    i = FindString(CDB.m_SatPCmpsInh, DCB.rpC);
+//    if (i>=0)  
+//      {
+//      iSatCmp    = i;
+//      iSatCmpRqd = -1;
+//      goto Done;
+//      }
+//    iSatCmp    = -1;
+//    iSatCmpRqd = -1;
+//    }
+//
+//Done:
+//  if (iSatCmpRqd>=0)
+//    DCB.pC = CDB.m_SatPCmps[iSatCmpRqd]();
+//  else if (iSatCmp>=0)
+//    DCB.pC = CDB.m_SatPCmpsInh[iSatCmp]();
+//  else
+//    DCB.pC = CDB.m_SatPCmpsDef[CDB.DefSatPCmpIndex()]();
+//  //DCB.pC = "DoDCBSatComp";
+//  return 1;
+//  }
 
-Done:
-  if (iSatCmpRqd>=0)
-    DCB.pC = CDB.m_SatPCmps[iSatCmpRqd]();
-  else if (iSatCmp>=0)
-    DCB.pC = CDB.m_SatPCmpsInh[iSatCmp]();
-  else
-    DCB.pC = CDB.m_SatPCmpsDef[CDB.DefSatPCmpIndex()]();
-  //DCB.pC = "DoDCBSatComp";
-  return 1;
-  }
-
-int SpModel::DoDCBSatMethod(DataChangeBlk & DCB, sint & iSatMethodRqd, sint & iSatMethod)
-  {
-  if (DCB.rpC)
-    {
-    int i = FindString(CDB.m_SatPMethods, DCB.rpC);
-    if (i>=0)  
-      {
-      iSatMethod    = i;
-      iSatMethodRqd = i;
-      goto Done;
-      }
-    i = FindString(CDB.m_SatPMethodsInh, DCB.rpC);
-    if (i>=0)  
-      {
-      iSatMethod    = i;
-      iSatMethodRqd = SMOption_Default;
-      goto Done;
-      }
-    iSatMethod    = SMOption_Default;
-    iSatMethodRqd = SMOption_Default;
-    }
-
-Done:
-  if (CDB.DefSatPMethod()<SMOption_Default)
-    DCB.pC = CDB.m_SatPMethods[SMOption_2Opt(CDB.DefSatPMethod())]();
-  else if (iSatMethodRqd>SMOption_Default)
-    DCB.pC = CDB.m_SatPMethods[iSatMethodRqd]();
-  else if (iSatMethod>SMOption_Default)
-    DCB.pC = CDB.m_SatPMethodsInh[iSatMethod]();
-  else
-    DCB.pC = CDB.m_SatPMethodsDef[CDB.DefSatPMethod()]();
-  //DCB.pC = "DoDCBSatMethod";
-  return 1;
-  }
+//int SpModel::DoDCBSatMethod(DataChangeBlk & DCB, sint & iSatMethodRqd, sint & iSatMethod)
+//  {
+//  if (DCB.rpC)
+//    {
+//    int i = FindString(CDB.m_SatPMethods, DCB.rpC);
+//    if (i>=0)  
+//      {
+//      iSatMethod    = i;
+//      iSatMethodRqd = i;
+//      goto Done;
+//      }
+//    i = FindString(CDB.m_SatPMethodsInh, DCB.rpC);
+//    if (i>=0)  
+//      {
+//      iSatMethod    = i;
+//      iSatMethodRqd = SMO_Default;
+//      goto Done;
+//      }
+//    iSatMethod    = SMO_Default;
+//    iSatMethodRqd = SMO_Default;
+//    }
+//
+//Done:
+//  if (CDB.DefSatPMethod()<SMO_Default)
+//    DCB.pC = CDB.m_SatPMethods[SMO_2Opt(CDB.DefSatPMethod())]();
+//  else if (iSatMethodRqd>SMO_Default)
+//    DCB.pC = CDB.m_SatPMethods[iSatMethodRqd]();
+//  else if (iSatMethod>SMO_Default)
+//    DCB.pC = CDB.m_SatPMethodsInh[iSatMethod]();
+//  else
+//    DCB.pC = CDB.m_SatPMethodsDef[CDB.DefSatPMethod()]();
+//  //DCB.pC = "DoDCBSatMethod";
+//  return 1;
+//  }
 
 // --------------------------------------------------------------------------
 
@@ -9162,33 +9163,33 @@ double SpModel::msLatentHeatVap(double T, double P, CSysVector * pMA)
 
 int SpModel::EqAqPhChg()
   { 
-  if (CDB.DefEqAqPhChg()<SMOption_Default)
-    return SMOption_2Opt(CDB.DefEqAqPhChg());
-  if (m_iEqAqPhChgRqd>SMOption_Default)
+  if (CDB.DefEqAqPhChg()<SMO_Default)
+    return SMO_2Opt(CDB.DefEqAqPhChg());
+  if (m_iEqAqPhChgRqd>SMO_Default)
     return m_iEqAqPhChgRqd;
-  if (m_iEqAqPhChg>SMOption_Default)
+  if (m_iEqAqPhChg>SMO_Default)
     return m_iEqAqPhChg;
   return CDB.DefEqAqPhChg();
   };
 
 int SpModel::EqSoluble()
   { 
-  if (CDB.DefEqSoluble()<SMOption_Default)
-    return SMOption_2Opt(CDB.DefEqSoluble());
-  if (m_iEqSolubleRqd>SMOption_Default)
+  if (CDB.DefEqSoluble()<SMO_Default)
+    return SMO_2Opt(CDB.DefEqSoluble());
+  if (m_iEqSolubleRqd>SMO_Default)
     return m_iEqSolubleRqd;
-  if (m_iEqSoluble>SMOption_Default)
+  if (m_iEqSoluble>SMO_Default)
     return m_iEqSoluble;
   return CDB.DefEqSoluble();
   };
 
 int SpModel::EqAutoVLE()
   { 
-  if (CDB.DefEqAutoVLE()<SMOption_Default)
-    return SMOption_2Opt(CDB.DefEqAutoVLE());
-  if (m_iEqAutoVLERqd>SMOption_Default)
+  if (CDB.DefEqAutoVLE()<SMO_Default)
+    return SMO_2Opt(CDB.DefEqAutoVLE());
+  if (m_iEqAutoVLERqd>SMO_Default)
     return m_iEqAutoVLERqd;
-  if (m_iEqAutoVLE>SMOption_Default)
+  if (m_iEqAutoVLE>SMO_Default)
     return m_iEqAutoVLE;
   return CDB.DefEqAutoVLE();
   };
@@ -9197,11 +9198,11 @@ int SpModel::EqAutoVLE()
 
 int SpModel::DensityMethod()
   { 
-  if (CDB.DefDensityMethod()<SMOption_Default)
-    return SMOption_2Opt(CDB.DefDensityMethod());
-  if (m_iRhoMethodRqd>SMOption_Default)
+  if (CDB.DefDensityMethod()<SMO_Default)
+    return SMO_2Opt(CDB.DefDensityMethod());
+  if (m_iRhoMethodRqd>SMO_Default)
     return m_iRhoMethodRqd;
-  if (m_iRhoMethod>SMOption_Default)
+  if (m_iRhoMethod>SMO_Default)
     return m_iRhoMethod;
   return CDB.DefDensityMethod();
   };
@@ -9221,7 +9222,7 @@ void SpModel::SetFlashDescription(LPCSTR Desc)
 LPTSTR SpModel::SaturationDescription()    
   { 
   static CString X;
-  if (m_iSatCmpRqd<0)
+   if (m_iSatCmpRqd<0)
     {
     X="(";
     X+=CDB[SaturationCmpIndex()].SymOrTag();
@@ -9234,7 +9235,9 @@ LPTSTR SpModel::SaturationDescription()
 
 int SpModel::SaturationCmpIndex()
   { 
- if (m_iSatCmpRqd>=0)
+  if (CDB.DefSatPCmpIndex()<SMO_Default)
+    return SMO_2Opt(CDB.DefSatPCmpIndex());
+  if (m_iSatCmpRqd>=0)
     return m_iSatCmpRqd;
   if (m_iSatCmp>=0)
     return m_iSatCmp;
@@ -9263,11 +9266,11 @@ int SpModel::SaturationMethod()
   //  if (iM>=0)
   //    return iM;
   //  }
-  if (CDB.DefSatPMethod()<SMOption_Default)
-    return SMOption_2Opt(CDB.DefSatPMethod());
-  if (m_iSatMethodRqd>SMOption_Default)
+  if (CDB.DefSatPMethod()<SMO_Default)
+    return SMO_2Opt(CDB.DefSatPMethod());
+  if (m_iSatMethodRqd>SMO_Default)
     return m_iSatMethodRqd;
-  if (m_iSatMethod>SMOption_Default)
+  if (m_iSatMethod>SMO_Default)
     return m_iSatMethod;
   return CDB.DefSatPMethod();
   };
@@ -9292,7 +9295,7 @@ double SpModel::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatD
     }
 
   int iCmp=SaturationCmpIndex();
-  //if (CDB.DefSatPCmpIndex()>=0)
+  //if (CDB. DefSatPCmpIndex()>=0)
   if (iCmp>=0)
     {
     //dbgpln("SpModel::SaturationP %-20s T:%12.4f = %12.f %s", "DefFlash", T_, CDB.DefSatPCmpDesc().VapourP(m_iFidelity, T_), FullObjTag());

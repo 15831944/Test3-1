@@ -3934,28 +3934,19 @@ void CComponentDataBase::Term()
   for (int i=0; i<MaxPhases; i++)
     m_PhInfo[i].Clear();
 
-  m_DefEqAqPhChg      = SMOption_2All(SMOption_On);
-  m_DefEqSoluble      = SMOption_2All(SMOption_Off);
-  m_DefEqAutoVLE      = SMOption_2All(SMOption_Off);
+  m_DefEqAqPhChg      = SMO_2All(SMO_On);
+  m_DefEqSoluble      = SMO_2All(SMO_Off);
+  m_DefEqAutoVLE      = SMO_2All(SMO_Off);
 
-  m_DefDensityMethod  = SMOption_Default;
+  m_DefDensityMethod  = SMO_Default;
 
   m_OptsOnOff.Clear();
+  m_OptsDensMeth.Clear();
+  m_OptsSatPMeth.Clear();
+  m_OptsSatPCmp.Clear();
 
-  //m_DDBEqOptions.Empty();
-  //m_DDBDefEqOptions.Empty();
-  //m_EqOptions.RemoveAll();
-  //m_EqOptionsDef.RemoveAll();
-  //m_EqOptionsInh.RemoveAll();
-
-  //m_DDBDensityMethods.Empty();
-  //m_DDBDefDensityMethods.Empty();
-  //m_DensityMethods.RemoveAll();
-  //m_DensityMethodsInh.RemoveAll();
-  //m_DensityMethodsDef.RemoveAll();
-
-  m_DefSatPMethod   = SMOption_Default;
-  m_DefSatPCmpIndex = -1;
+  m_DefSatPMethod   = SMO_Default;
+  m_DefSatPCmpIndex = SMO_Default;
   m_DefSatPLiqIndex = -1;
   m_DefSatPVapIndex = -1;
 
@@ -3969,17 +3960,6 @@ void CComponentDataBase::Term()
   DDBCompListDashVapLiq.Empty();
 
   m_Flashable.RemoveAll();
-
-  m_DDBFlashable.Empty();
-  m_SatPCmps.RemoveAll();
-  m_SatPCmpsInh.RemoveAll();
-  m_SatPCmpsDef.RemoveAll();
-
-  m_DDBSatPMethods.Empty();
-  m_DDBDefSatPMethods.Empty();
-  m_SatPMethods.RemoveAll();
-  m_SatPMethodsInh.RemoveAll();
-  m_SatPMethodsDef.RemoveAll();
   };
 
 //---------------------------------------------------------------------------
@@ -5598,17 +5578,17 @@ bool CSpecie::DensityX(CDensityInfo & C, double SpMass)
   {
   switch (C.m_iMethod)
     {
-    case SMOption_DensNone:
+    case SMO_DensNone:
       C.m_SpM = SpMass;
       C.m_Rho = GTZ(DensityNCFn(C));
       return true;
 
-    case SMOption_DensOriginal:
+    case SMO_DensOriginal:
       C.m_SpM = SpMass;
       C.m_Rho = GTZ(DensityFn(C));
       return true;
 
-    case SMOption_DensVersion1:
+    case SMO_DensVersion1:
       {
       switch (DensContribution())
         {
@@ -5650,8 +5630,8 @@ bool CSpecie::DensityX(CDensityInfo & C, double SpMass)
         }
       break;
       }
-    case SMOption_Default:
-    case SMOption_DensVersion2:
+    case SMO_Default:
+    case SMO_DensVersion2:
       {
       INCOMPLETECODE(__FILE__, __LINE__);
       C.m_SpM = dNAN;
@@ -5672,19 +5652,19 @@ bool CSpecie::DensityX(CDensityInfo & C, double SpMass)
 //  {
 //  switch (C.m_iMethod)
 //    {
-//    case SMOption_DensNone:
+//    case SMO_DensNone:
 //      C.m_msV=1.0/GTZ(DensityNCFn(C));
 //      C.m_Mt+=Scale*SpMass;
 //      C.m_Vt+=Scale*SpMass*C.m_msV;
 //      return true;
 //
-//    case SMOption_DensOriginal:
+//    case SMO_DensOriginal:
 //      C.m_msV=1.0/GTZ(DensityFn(C));
 //      C.m_Mt+=Scale*SpMass;
 //      C.m_Vt+=Scale*SpMass*C.m_msV;
 //      return true;
 //
-//    case SMOption_DensVersion1:
+//    case SMO_DensVersion1:
 //      {
 //      switch (DensContribution())
 //        {
@@ -5728,7 +5708,7 @@ bool CSpecie::DensityX(CDensityInfo & C, double SpMass)
 //        }
 //      break;
 //      }
-//    case SMOption_DensVersion2:
+//    case SMO_DensVersion2:
 //      {
 //      INCOMPLETECODE(__FILE__, __LINE__);
 //      return true;
@@ -6448,24 +6428,25 @@ CSDBOptions::CSDBOptions()
 
 void CSDBOptions::Clear()
   {
-  m_DDBOptions.Empty();
-  m_DDBDefOptions.Empty();
-  m_Options.RemoveAll();
-  m_DefOptions.RemoveAll();
-  m_InhOptions.RemoveAll();
+  m_DDBValues.Empty();
+  m_DDBDefValues.Empty();
+  m_Values.RemoveAll();
+  m_DefValues.RemoveAll();
+  m_InhValues.RemoveAll();
 
-  m_DDBOptions.Add(SMOption_Default, "<Default>");
   };
 
-void CSDBOptions::Add(int Value, LPCSTR Name, bool DDBDefOnly)
+void CSDBOptions::Add(int Value, LPCSTR Name, bool DDBDefOnly, long DDBDefOpts, long DDBOpts)
   {
-  m_DDBDefOptions.Add(Value, Name);
+  m_DDBDefValues.Add(Value, Name, DDBDefOpts);
   if (!DDBDefOnly)
     {
-    m_DDBOptions.Add(Value, Name);
-    m_Options.SetAtGrow(Value, Name);
-    m_DefOptions.SetAtGrow(Value, Strng("<", Name, ">")());
-    m_InhOptions.SetAtGrow(Value, Strng("[", Name, "]")());
+    if (m_DDBValues.Length()==0)
+      m_DDBValues.Add(SMO_Default, "<Default>");
+    m_DDBValues.Add(Value, Name, DDBOpts);
+    m_Values.SetAtGrow(Value, Name);
+    m_DefValues.SetAtGrow(Value, Strng("<", Name, ">")());
+    m_InhValues.SetAtGrow(Value, Strng("[", Name, "]")());
     }
   };
 
@@ -6504,13 +6485,13 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   m_pWater=NULL;
   m_pSteam=NULL;
 
-  m_DefEqAqPhChg      = SMOption_2All(SMOption_On);
-  m_DefEqSoluble      = SMOption_2All(SMOption_Off);
-  m_DefEqAutoVLE      = SMOption_2All(SMOption_Off);
+  m_DefEqAqPhChg      = SMO_2All(SMO_On);
+  m_DefEqSoluble      = SMO_2All(SMO_Off);
+  m_DefEqAutoVLE      = SMO_2All(SMO_Off);
 
-  m_DefDensityMethod  = SMOption_2All(OrigPrjFileVerNo()<114 ? SMOption_DensOriginal : SMOption_DensVersion1);
+  m_DefDensityMethod  = SMO_2All(OrigPrjFileVerNo()<114 ? SMO_DensOriginal : SMO_DensVersion1);
 
-  m_DefSatPMethod     = SMOption_2All(OrigPrjFileVerNo()<103 ? SMOption_SatPTotalP : SMOption_SatPPartialP);
+  m_DefSatPMethod     = SMO_2All(OrigPrjFileVerNo()<103 ? SMO_SatPTotalP : SMO_SatPPartialP);
   m_DefSatPCmpIndex   = -1;
   m_DefSatPLiqIndex   = -1;
   m_DefSatPVapIndex   = -1;
@@ -6983,61 +6964,23 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   m_SDB.m_iH2Og = SDB.Find("H2O(g)");
   m_SDB.m_iCO2g = SDB.Find("CO2(g)");
 
-  m_OptsOnOff.Add(SMOption_Off,                      "Off");
-  m_OptsOnOff.Add(SMOption_On,                       "On");
-  m_OptsOnOff.Add(SMOption_2All(SMOption_Off),       "All-Off", true);
-  m_OptsOnOff.Add(SMOption_2All(SMOption_On),        "All-On",  true);
+  m_OptsOnOff.Add(SMO_Off,                      "Off");
+  m_OptsOnOff.Add(SMO_On,                       "On");
+  m_OptsOnOff.Add(SMO_2All(SMO_Off),       "All-Off", true);
+  m_OptsOnOff.Add(SMO_2All(SMO_On),        "All-On",  true);
 
-  //m_DDBEqOptions.Add(SMOption_Default,             "<Default>"   );
-  //m_DDBEqOptions.Add(SMOption_Off,                 "Off"         );
-  //m_DDBEqOptions.Add(SMOption_On,                  "On"          );
+  m_OptsDensMeth.Add(SMO_DensNone,                       "None"        );
+  m_OptsDensMeth.Add(SMO_DensOriginal,                   "Original"    );
+  m_OptsDensMeth.Add(SMO_DensVersion1,                   "Version1"    );
+  m_OptsDensMeth.Add(SMO_2All(SMO_DensNone),        "All-None",     true);
+  m_OptsDensMeth.Add(SMO_2All(SMO_DensOriginal),    "All-Original", true);
+  m_OptsDensMeth.Add(SMO_2All(SMO_DensVersion1),    "All-Version1", true);
 
-  //m_DDBDefEqOptions.Add(SMOption_Off,              "Off"         );
-  //m_DDBDefEqOptions.Add(SMOption_On,               "On"          );
-
-  //m_EqOptions.SetAtGrow(SMOption_Off,              "Off"         );
-  //m_EqOptions.SetAtGrow(SMOption_On,               "On"          );
-  //m_EqOptionsDef.SetAtGrow(SMOption_Off,           "<Off>"       );
-  //m_EqOptionsDef.SetAtGrow(SMOption_On,            "<On>"        );
-  //m_EqOptionsInh.SetAtGrow(SMOption_Off,           "[Off]"       );
-  //m_EqOptionsInh.SetAtGrow(SMOption_On,            "[On]"        );
-
-  m_OptsDens.Add(SMOption_DensNone,                       "None"        );
-  m_OptsDens.Add(SMOption_DensOriginal,                   "Original"    );
-  m_OptsDens.Add(SMOption_DensVersion1,                   "Version1"    );
-  m_OptsDens.Add(SMOption_2All(SMOption_DensNone),        "All-None",     true);
-  m_OptsDens.Add(SMOption_2All(SMOption_DensOriginal),    "All-Original", true);
-  m_OptsDens.Add(SMOption_2All(SMOption_DensVersion1),    "All-Version1", true);
-
-
-  //m_DDBDensityMethods.Add(SMOption_Default,              "<Default>"   );
-  //m_DDBDensityMethods.Add(SMOption_DensNone,             "None"        );
-  //m_DDBDensityMethods.Add(SMOption_DensOriginal,         "Original"    );
-  //m_DDBDensityMethods.Add(SMOption_DensVersion1,         "Version1"    );
-  ////m_DDBDensityMethods.Add(SMOption_DensVersion2,         "Version2"    );  // TOGO Back
-
-  //m_DDBDefDensityMethods.Add(SMOption_DensNone,                      "None"        );
-  //m_DDBDefDensityMethods.Add(SMOption_DensOriginal,                  "Original"    );
-  //m_DDBDefDensityMethods.Add(SMOption_DensVersion1,                  "Version1"    );
-  //m_DDBDefDensityMethods.Add(SMOption_2All(SMOption_DensOriginal),   "All-Original"    );
-  //m_DDBDefDensityMethods.Add(SMOption_2All(SMOption_DensVersion1),   "All-Version1"    );
-  ////m_DDBDefDensityMethods.Add(SMOption_DensVersion2,      "Version2"    );
-
-  //m_DensityMethods.SetAtGrow(SMOption_DensNone,          "None"        );
-  //m_DensityMethods.SetAtGrow(SMOption_DensOriginal,      "Original"    );
-  //m_DensityMethods.SetAtGrow(SMOption_DensVersion1,      "Version1"    );
-  ////m_DensityMethods.SetAtGrow(SMOption_DensVersion2,      "Version2"    );
-
-  //m_DensityMethodsDef.SetAtGrow(SMOption_DensNone,       "<None>"      );
-  //m_DensityMethodsDef.SetAtGrow(SMOption_DensOriginal,   "<Original>"  );
-  //m_DensityMethodsDef.SetAtGrow(SMOption_DensVersion1,   "<Version1>"  );
-  ////m_DensityMethodsDef.SetAtGrow(SMOption_DensVersion2,   "<Version2>"  );
-
-  //m_DensityMethodsInh.SetAtGrow(SMOption_DensNone,       "[None]"      );
-  //m_DensityMethodsInh.SetAtGrow(SMOption_DensOriginal,   "[Original]"  );
-  //m_DensityMethodsInh.SetAtGrow(SMOption_DensVersion1,   "[Version1]"  );
-  ////m_DensityMethodsInh.SetAtGrow(SMOption_DensVersion2,   "[Version2]"  );
-
+  m_OptsSatPMeth.Add(SMO_SatPPartialP,                    "PartialP"       );    
+  m_OptsSatPMeth.Add(SMO_SatPTotalP,                      "TotalP"         );    
+  m_OptsSatPMeth.Add(SMO_SatPUndefined,                   "Undefined",     false, 0, MDD_NoSelect|MDD_Hidden);
+  m_OptsSatPMeth.Add(SMO_2All(SMO_SatPPartialP),     "All-PartialP",  true);
+  m_OptsSatPMeth.Add(SMO_2All(SMO_SatPTotalP),       "All-TotalP",    true);
 
   LPCTSTR Flash_Component= "H2O";
   m_DefSatPCmpIndex=CDB.Find(Flash_Component);
@@ -7046,7 +6989,9 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   if (m_DefSatPLiqIndex<0 || m_DefSatPVapIndex<0)
     m_DefSatPCmpIndex=-1;
 
-  if (m_DefSatPCmpIndex<0)
+  if (m_DefSatPCmpIndex>=0)
+    m_DefSatPCmpIndex=SMO_2All(m_DefSatPCmpIndex);
+  else
     LogError("Specie Database",0,"Default Flash Component %s not found", Flash_Component);
 
   m_Flashable.SetSize(0);
@@ -7068,44 +7013,33 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
       }
     }
 
-  m_DDBFlashable.Add(CDB.No(), "<Default>");
-  m_SatPCmps.SetSize(CDB.No());
-  m_SatPCmpsDef.SetSize(CDB.No());
-  m_SatPCmpsInh.SetSize(CDB.No());
+  m_OptsSatPCmp.m_DDBValues.Add(CDB.No(), "<Default>");
+  m_OptsSatPCmp.m_Values.SetSize(CDB.No());
+  m_OptsSatPCmp.m_DefValues.SetSize(CDB.No());
+  m_OptsSatPCmp.m_InhValues.SetSize(CDB.No());
 
   // Prevent blanks being found
   for (int i=0; i<CDB.No(); i++)
     {
-    m_SatPCmps[i]="?BadComponentName?";
-    m_SatPCmpsDef[i]="?BadComponentName?";
-    m_SatPCmpsInh[i]="?BadComponentName?";
+    m_OptsSatPCmp.m_Values[i]="?BadComponentName?";
+    m_OptsSatPCmp.m_DefValues[i]="?BadComponentName?";
+    m_OptsSatPCmp.m_InhValues[i]="?BadComponentName?";
     }
   for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
     {
     int c=CDB.m_Flashable[i];
-    m_DDBFlashable.Add(c, CDB[c].SymOrTag());
-    m_SatPCmps[c]=CDB[c].SymOrTag();
-    m_SatPCmpsDef[c].Set("<%s>", CDB[c].SymOrTag());
-    m_SatPCmpsInh[c].Set("[%s]", CDB[c].SymOrTag());
+    m_OptsSatPCmp.m_DDBDefValues.Add(c, CDB[c].SymOrTag());
+    m_OptsSatPCmp.m_DDBValues.Add(c, CDB[c].SymOrTag());
+    m_OptsSatPCmp.m_Values[c]=CDB[c].SymOrTag();
+    m_OptsSatPCmp.m_DefValues[c].Set("<%s>", CDB[c].SymOrTag());
+    m_OptsSatPCmp.m_InhValues[c].Set("[%s]", CDB[c].SymOrTag());
     }
-
-  m_DDBSatPMethods.Add(SMOption_Default,          "<Default>");
-  m_DDBSatPMethods.Add(SMOption_SatPPartialP,     "PartialP");
-  m_DDBSatPMethods.Add(SMOption_SatPTotalP,       "TotalP");
-  m_DDBSatPMethods.Add(SMOption_SatPUndefined,    "Undefined", MDD_NoSelect|MDD_Hidden);
-
-  m_DDBDefSatPMethods.Add(SMOption_SatPPartialP,                  "PartialP");
-  m_DDBDefSatPMethods.Add(SMOption_SatPTotalP,                    "TotalP");
-  m_DDBDefSatPMethods.Add(SMOption_2All(SMOption_SatPPartialP),   "All-PartialP");
-  m_DDBDefSatPMethods.Add(SMOption_2All(SMOption_SatPTotalP),     "All-TotalP");
-
-  m_SatPMethods.SetAtGrow(SMOption_SatPPartialP,  "PartialP");
-  m_SatPMethods.SetAtGrow(SMOption_SatPTotalP,    "TotalP");
-  m_SatPMethodsDef.SetAtGrow(SMOption_SatPPartialP, "<PartialP>");
-  m_SatPMethodsDef.SetAtGrow(SMOption_SatPTotalP,   "<TotalP>");
-  m_SatPMethodsInh.SetAtGrow(SMOption_SatPPartialP, "[PartialP]");
-  m_SatPMethodsInh.SetAtGrow(SMOption_SatPTotalP,   "[TotalP]");
-
+  for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
+    {
+    int c=CDB.m_Flashable[i];
+    Strng S("All-", CDB[c].SymOrTag());
+    m_OptsSatPCmp.m_DDBDefValues.Add(SMO_2All(c), S());
+    }
 
   if (1)
     {

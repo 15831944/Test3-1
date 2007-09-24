@@ -1474,35 +1474,35 @@ class CPhaseInfo
 
 // ===========================================================================
 
-const int SMOption_Default         = -1;
+const int SMO_Default         = -1;
 
 // ===========================================================================
 
-const int SMOption_Off             = 0; 
-const int SMOption_On              = 1; 
+const int SMO_Off             = 0; 
+const int SMO_On              = 1; 
 
 // ===========================================================================
 
-const int SMOption_DensNone        = 0; 
-const int SMOption_DensOriginal    = 1; 
-const int SMOption_DensVersion1    = 2;
-const int SMOption_DensVersion2    = 3;
+const int SMO_DensNone        = 0; 
+const int SMO_DensOriginal    = 1; 
+const int SMO_DensVersion1    = 2;
+const int SMO_DensVersion2    = 3;
 
 // ===========================================================================
 
-const int SMOption_SatPPartialP    = 0; 
-const int SMOption_SatPTotalP      = 1; 
-const int SMOption_SatPUndefined   = 2;
+const int SMO_SatPPartialP    = 0; 
+const int SMO_SatPTotalP      = 1; 
+const int SMO_SatPUndefined   = 2;
 
-inline int SMOption_2Opt(int AllOption) { return -(2+AllOption); }
-inline int SMOption_2All(int Option)    { return -(2+Option); }
+inline int SMO_2Opt(int AllOption) { return -(2+AllOption); }
+inline int SMO_2All(int Option)    { return -(2+Option); }
 
 class CSaturationDefn
   {
   public:
     CSaturationDefn() 
       {
-      m_iMethod    = SMOption_Default;
+      m_iMethod    = SMO_Default;
       m_iCmpIndex  = -1;
       };
     CSaturationDefn(CSaturationDefn * pSatDefn) 
@@ -1514,7 +1514,7 @@ class CSaturationDefn
         }
       else
         {
-        m_iMethod    = SMOption_Default;
+        m_iMethod    = SMO_Default;
         m_iCmpIndex  = -1;
         }
       };
@@ -1537,7 +1537,7 @@ class CSaturationDefn
 
     int Method()
       {
-      //if (m_iMethod==SMOption_SatPDefault)
+      //if (m_iMethod==SMO_SatPDefault)
       //  return MdlMethod;
       return m_iMethod;
       }
@@ -1569,14 +1569,49 @@ class CSDBOptions
   public:
     CSDBOptions();
     void     Clear();
-    void     Add(int Value, LPCSTR Name, bool DDBDefOnly=false);
+    void     Add(int Value, LPCSTR Name, bool DDBDefOnly=false, long DDBDefOpts=0, long DDBOpts=0);
+
+    template<class TYPE> int DoDCBOption(DataChangeBlk & DCB, TYPE & iEqOptionRqd, TYPE & iEqOption, TYPE iDefEqOption, bool AllowAll=true)
+      {
+      if (DCB.rpC)
+        {
+        int i = FindString(m_Values, DCB.rpC);
+        if (i>=0)  
+          {
+          iEqOption    = i;
+          iEqOptionRqd = i;
+          goto Done;
+          }
+        i = FindString(m_InhValues, DCB.rpC);
+        if (i>=0)  
+          {
+          iEqOption    = i;
+          iEqOptionRqd = SMO_Default;
+          goto Done;
+          }
+        iEqOption    = SMO_Default;
+        iEqOptionRqd = SMO_Default;
+        }
+
+Done:
+      if (iDefEqOption<SMO_Default && AllowAll)
+        DCB.pC = m_Values[SMO_2Opt(iDefEqOption)]();
+      else if (iEqOptionRqd>SMO_Default)
+        DCB.pC = m_Values[iEqOptionRqd]();
+      else if (iEqOption>SMO_Default)
+        DCB.pC = m_InhValues[iEqOption]();
+      else
+        DCB.pC = m_DefValues[iDefEqOption]();
+      //DCB.pC = "DoDCBRhoMethod";
+      return 1;
+      };
 
   public:
-    DDBValueLstMem        m_DDBOptions;
-    DDBValueLstMem        m_DDBDefOptions;
-    CArray<Strng, Strng>  m_Options;
-    CArray<Strng, Strng>  m_DefOptions;
-    CArray<Strng, Strng>  m_InhOptions;
+    DDBValueLstMem        m_DDBValues;
+    DDBValueLstMem        m_DDBDefValues;
+    CArray<Strng, Strng>  m_Values;
+    CArray<Strng, Strng>  m_DefValues;
+    CArray<Strng, Strng>  m_InhValues;
   };
 
 class DllImportExport CComponentDataBase
@@ -1690,44 +1725,18 @@ class DllImportExport CComponentDataBase
     CPhaseInfo            m_PhInfo[MaxPhases];
 
     CSDBOptions           m_OptsOnOff;
-    CSDBOptions           m_OptsDens;
-    CSDBOptions           m_OptsSatP;
+    CSDBOptions           m_OptsDensMeth;
+    CSDBOptions           m_OptsSatPMeth;
+    CSDBOptions           m_OptsSatPCmp;
     
     int                   m_DefEqAqPhChg;
     int                   m_DefEqSoluble;
     int                   m_DefEqAutoVLE;
-
-    //DDBValueLstMem        m_DDBEqOptions;
-    //DDBValueLstMem        m_DDBDefEqOptions;
-    //CArray<Strng, Strng>  m_EqOptions;
-    //CArray<Strng, Strng>  m_EqOptionsDef;
-    //CArray<Strng, Strng>  m_EqOptionsInh;
-
     int                   m_DefDensityMethod;
-
-    //DDBValueLstMem        m_DDBDensityMethods;
-    //DDBValueLstMem        m_DDBDefDensityMethods;
-    //CArray<Strng, Strng>  m_DensityMethods;
-    //CArray<Strng, Strng>  m_DensityMethodsDef;
-    //CArray<Strng, Strng>  m_DensityMethodsInh;
-
     int                   m_DefSatPMethod;
-    DDBValueLstMem        m_DDBSatPMethods;
-    DDBValueLstMem        m_DDBDefSatPMethods;
-    CArray<Strng, Strng>  m_SatPMethods;
-    CArray<Strng, Strng>  m_SatPMethodsDef;
-    CArray<Strng, Strng>  m_SatPMethodsInh;
-
     int                   m_DefSatPCmpIndex;
     int                   m_DefSatPLiqIndex;
     int                   m_DefSatPVapIndex;
-
-
-    DDBValueLstMem        m_DDBFlashable;
-    CArray<Strng, Strng>  m_SatPCmps;
-    CArray<Strng, Strng>  m_SatPCmpsDef;
-    CArray<Strng, Strng>  m_SatPCmpsInh;
-
 
   public:
     DDBValueLstMem        DDBCompList;

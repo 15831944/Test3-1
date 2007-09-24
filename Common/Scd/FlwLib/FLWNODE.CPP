@@ -7856,7 +7856,7 @@ void CRqdPressCtrl::CalculateResult(flag ForProbal)
     case PC_ReqdSatT:
       {
       SpModel &Mdl=*m_pMdl;//->pModel;
-      if (Mdl.SaturationMethod()==SMOption_SatPPartialP)
+      if (Mdl.SaturationMethod()==SMO_SatPPartialP)
         {
         m_dP2Set=Mdl.SaturationP(m_dTRqd);
         }

@@ -310,7 +310,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
       case VLEO_SatLiqT:
       case VLEO_SatVapT:
         m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
-        if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
+        if (m_VLE.SatPMethod()==SMO_SatPPartialP)
           {
           PSat=Contents.SaturationP(TRequired(), &m_VLE.SatPDefn());
           double PPFrac = Contents.PartialPressFracC(m_VLE.SatPCmpIndex(), -1, PRequired());
@@ -328,7 +328,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
       case VLEO_SatLiqP:
       case VLEO_SatVapP:
         {
-        if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
+        if (m_VLE.SatPMethod()==SMO_SatPPartialP)
           {
           m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
           double PPress0=-1;
@@ -356,7 +356,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
 
       case VLEO_SupVap:
         m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
-        if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
+        if (m_VLE.SatPMethod()==SMO_SatPPartialP)
           {
           PSat=Contents.SaturationP(TRequired(), &m_VLE.SatPDefn());
           double PPFrac = Contents.PartialPressFracC(m_VLE.SatPCmpIndex(), -1, PRequired());
@@ -375,7 +375,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
         break;
       case VLEO_SubLiq:
         m_VLE.SetSatPVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
-        if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
+        if (m_VLE.SatPMethod()==SMO_SatPPartialP)
           {
           PSat=Contents.SaturationP(TRequired(), &m_VLE.SatPDefn());
           double PPFrac = Contents.PartialPressFracC(m_VLE.SatPCmpIndex(), -1, PRequired());

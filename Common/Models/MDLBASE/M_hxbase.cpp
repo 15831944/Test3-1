@@ -1124,7 +1124,7 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pSatPDefn)
   Cp = pCd->msCp();
   Qm = pCd->QMass();
 
-  if (pSatPDefn && pSatPDefn->Method()==SMOption_SatPPartialP)
+  if (pSatPDefn && pSatPDefn->Method()==SMO_SatPPartialP)
     m_PPFrac = pCd->PartialPressFracC(pSatPDefn->CmpIndex(), -1);
   else
     m_PPFrac = 1;
@@ -1164,7 +1164,7 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pSatPDefn)
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
-  if (pSatPDefn && pSatPDefn->Method()==SMOption_SatPPartialP)
+  if (pSatPDefn && pSatPDefn->Method()==SMO_SatPPartialP)
     m_PPFrac = pCn->PartialPressFracC(pSatPDefn->CmpIndex(), -1);
   else
     m_PPFrac = 1.0;

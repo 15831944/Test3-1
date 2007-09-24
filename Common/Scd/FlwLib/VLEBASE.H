@@ -336,8 +336,8 @@ class DllImportExport CVLEVapPress : public CVLEBlock
 
     SpecieIter     OtherVapSp;
 
-    long           m_iSatPMethod;
-    long           m_iCmpNoReqd, m_iCmpNo, m_iLiqNo, m_iVapNo;
+    int            m_iSatPMethod;
+    int            m_iCmpNoReqd, m_iCmpNo, m_iLiqNo, m_iVapNo;
     double         Mt,Ht,Vf;
     long           m_iState;
     byte           m_fModelSatP;
@@ -423,7 +423,7 @@ class DllImportExport CVLERootK : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
-    virtual int    SatPMethod()   { return SMOption_SatPUndefined; };
+    virtual int    SatPMethod()   { return SMO_SatPUndefined; };
     virtual int    SatPCmpIndex() { return -1; };
     virtual int    SatPLiqIndex() { return -1; };
     virtual int    SatPVapIndex() { return -1; };

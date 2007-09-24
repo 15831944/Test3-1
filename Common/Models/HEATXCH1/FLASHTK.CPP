@@ -446,7 +446,7 @@ double FlashTank::GetFlashPressure(SpConduit &Q)
       FlashP=m_PCtrl0.PRqd();
     else if (m_PCtrl0.Method()==PC_ReqdSatT)
       {
-      if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
+      if (m_VLE.SatPMethod()==SMO_SatPPartialP)
         FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
       else
         FlashP=Q.SaturationP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
@@ -462,7 +462,7 @@ double FlashTank::GetFlashPressure(SpConduit &Q)
       FlashP=m_PCtrl0.PRqd();
     else if (m_PCtrl0.Method()==PC_ReqdSatT)
       {
-      if (m_VLE.SatPMethod()==SMOption_SatPPartialP)
+      if (m_VLE.SatPMethod()==SMO_SatPPartialP)
         FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
       else
         FlashP=Q.SaturationP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());

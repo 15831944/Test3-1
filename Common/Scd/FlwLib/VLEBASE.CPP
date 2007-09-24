@@ -338,8 +338,8 @@ flag CVLEBase::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-CSaturationDefn CVLEBase::SatPDefn()         { return Enabled() ? m_pVLE->SatPDefn()     : CSaturationDefn(SMOption_Default, -1); };
-int CVLEBase::SatPMethod()                   { return Enabled() ? m_pVLE->SatPMethod()   : SMOption_Default; };
+CSaturationDefn CVLEBase::SatPDefn()         { return Enabled() ? m_pVLE->SatPDefn()     : CSaturationDefn(SMO_Default, -1); };
+int CVLEBase::SatPMethod()                   { return Enabled() ? m_pVLE->SatPMethod()   : SMO_Default; };
 int CVLEBase::SatPCmpIndex()                 { return Enabled() ? m_pVLE->SatPCmpIndex() : -1; };
 int CVLEBase::SatPLiqIndex()                 { return Enabled() ? m_pVLE->SatPLiqIndex() : -1; };
 int CVLEBase::SatPVapIndex()                 { return Enabled() ? m_pVLE->SatPVapIndex() : -1; };
@@ -1212,7 +1212,7 @@ CVLEBlock(pClass_, TagIn, pAttach, eAttach)//,
   m_dPrvVapPress=Std_P;
   m_fModelSatP=true;
   m_dApproachTemp=0.0;
-  m_iSatPMethod=SMOption_Default;
+  m_iSatPMethod=SMO_Default;
   };
 
 //--------------------------------------------------------------------------
@@ -1243,10 +1243,10 @@ void CVLEVapPress::BuildDataDefn(DataDefnBlk &DDB)//, pchar pTag_, DDBPages Page
 
 
 //DDB.String  ("Method",        "",         DC_,      "",         xidSMSatMethod,   this, isParm|SetOnChange, CDB.m_DDBSatPMethods());
-//DDB.String  ("Component",     "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, CDB.m_DDBFlashable());
+//DDB.String  ("Component",     "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, CDB.m_DDBSatPCmps());
 
-    DDB.String("Method",       "",  DC_,     "",    xidVLESatPMethod, this, isParm|SetOnChange, CDB.m_DDBSatPMethods());
-    DDB.String("Component",    "",  DC_,     "",    xidVLEFlashComp,   this, isParm|SetOnChange, CDB.m_DDBFlashable());
+    DDB.String("Method",       "",  DC_,     "",    xidVLESatPMethod, this, isParm|SetOnChange, CDB.m_OptsSatPMeth.m_DDBValues());
+    DDB.String("Component",    "",  DC_,     "",    xidVLEFlashComp,   this, isParm|SetOnChange, CDB.m_OptsSatPCmp.m_DDBValues());
     DDB.Double("PrvVapFrac",   "",  DC_Frac, "%",   &m_dPrvVapFrac,    this, isParm|InitHidden);
     DDB.Double("PrvVapPress",  "",  DC_P,    "kPa", &m_dPrvVapPress,   this, isParm|InitHidden);
     if (m_pVLEBase->ApproachTempOn())
@@ -1263,56 +1263,60 @@ flag CVLEVapPress::DataXchg(DataChangeBlk & DCB)
     {
     case xidVLESatPMethod:
       {
+      int Rqd=SMO_Default;
+      return CDB.m_OptsSatPMeth.DoDCBOption(DCB, Rqd, m_iSatPMethod, CDB.DefSatPMethod(), false);
       //m_iSatPMethod
-      if (DCB.rpC)
-        {
-        if (stricmp(DCB.rpC, "<Default>")==0)
-          {
-          m_iSatPMethod=SMOption_Default; 
-          }
-        else
-          {
-          int i=CDB.m_DDBSatPMethods.Find(DCB.rpC);
-          if (i>=0)  
-            {
-            i=CDB.m_DDBSatPMethods[i].m_lVal;
-            m_iSatPMethod=i;
-            }
-          }
-        }
-      if (m_iSatPMethod>=0)
-        DCB.pC = CDB.m_SatPMethods[m_iSatPMethod]();
-      else
-        DCB.pC = CDB.m_SatPMethodsDef[CDB.DefSatPMethod()]();
-      return 1;
+      //if (DCB.rpC)
+      //  {
+      //  if (stricmp(DCB.rpC, "<Default>")==0)
+      //    {
+      //    m_iSatPMethod=SMO_Default; 
+      //    }
+      //  else
+      //    {
+      //    int i=CDB.m_OptsSatPMeth.m_DDBValues.Find(DCB.rpC);
+      //    if (i>=0)  
+      //      {
+      //      i=CDB.m_OptsSatPMeth.m_DDBValues[i].m_lVal;
+      //      m_iSatPMethod=i;
+      //      }
+      //    }
+      //  }
+      //if (m_iSatPMethod>=0)
+      //  DCB.pC = CDB.m_OptsSatPMeth.m_DDBValues[m_iSatPMethod].m_pStr;
+      //else
+      //  DCB.pC = CDB.m_OptsSatPMeth.m_DDBDefValues[CDB.DefSatPMethod()].m_pStr;
+      //return 1;
       }
     case xidVLEFlashComp:
       {
-      if (DCB.rpC)
-        {
-        if (stricmp(DCB.rpC, "<Default>")==0)
-          {
-          m_iCmpNoReqd=-1;
-          m_iCmpNo=CDB.DefSatPCmpIndex();
-          }
-        else
-          {
-          int i=CDB.m_DDBFlashable.Find(DCB.rpC);
-          if (i>=0)  
-            {
-            i=CDB.m_DDBFlashable[i].m_lVal;
-            m_iCmpNoReqd=i;
-            m_iCmpNo=i;
-            }
-          }
-        }
-      if (m_iCmpNoReqd>=0)
-        DCB.pC = CDB.m_SatPCmps[m_iCmpNoReqd]();
-      else if (m_iCmpNo>=0)
-        DCB.pC = CDB.m_SatPCmpsInh[m_iCmpNo]();
-      else
-        DCB.pC = CDB.m_SatPCmpsDef[CDB.DefSatPCmpIndex()]();
-      return 1;
+      return CDB.m_OptsSatPCmp.DoDCBOption(DCB, m_iCmpNoReqd, m_iCmpNo, CDB.DefSatPCmpIndex(), false);
+
+      //if (DCB.rpC)
+      //  {
+      //  if (stricmp(DCB.rpC, "<Default>")==0)
+      //    {
+      //    m_iCmpNoReqd=-1;
+      //    m_iCmpNo=CDB.DefSatPCmpIndex();
+      //    }
+      //  else
+      //    {
+      //    int i=CDB.m_OptsSatPCmps.m_DDBValues.Find(DCB.rpC);
+      //    if (i>=0)  
+      //      {
+      //      i=CDB.m_OptsSatPCmps.m_DDBValues[i].m_lVal;
+      //      m_iCmpNoReqd=i;
+      //      m_iCmpNo=i;
+      //      }
+      //    }
+      //  }
+      //if (m_iCmpNoReqd>=0)
+      //  DCB.pC = CDB.m_SatPCmps[m_iCmpNoReqd]();
+      //else if (m_iCmpNo>=0)
+      //  DCB.pC = CDB.m_SatPCmpsInh[m_iCmpNo]();
+      //else
+      //  DCB.pC = CDB.m_SatPCmpsDef[CDB.DefSatPCmpIndex()]();
+      //return 1;
       }
     default:
       break;
@@ -1427,7 +1431,7 @@ void CVLEVapPress::SetVapFrac(double VapFrac)//, double RqdH)
 LPTSTR CVLEVapPress::FlashDescription()
   {
   m_sFlashDesc="Vp:";
-  m_sFlashDesc+= (SatPMethod()==SMOption_SatPPartialP) ? "PartialP":"TotalP";
+  m_sFlashDesc+= (SatPMethod()==SMO_SatPPartialP) ? "PartialP":"TotalP";
   m_sFlashDesc+=":";
   if (m_iCmpNo>=0)
     m_sFlashDesc+=CDB[m_iCmpNo].SymOrTag();
@@ -1475,7 +1479,7 @@ void CVLEVapPress::TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags)
 
     CSaturationDefn &SD=SatPDefn();
     double OtherPP;
-    if (SD.Method()==SMOption_SatPPartialP)
+    if (SD.Method()==SMO_SatPPartialP)
       OtherPP=pMdlL->PartialPress(OtherVapSp, Temp);
     else
       OtherPP=0.0;
@@ -1540,7 +1544,7 @@ class QPRootFnd : public MRootFinderBase
       SpModel * pWrk=(pMdlV ? pMdlV : pMdlL);
       CSaturationDefn &SD=VLE.SatPDefn();
       double OtherPFrac;
-      if (SD.Method()==SMOption_SatPPartialP)
+      if (SD.Method()==SMO_SatPPartialP)
         OtherPFrac=pWrk->PartialPressFrac(VLE.OtherVapSp, pMdlL->Temp(), m_P);
       else
         OtherPFrac=0.0;
