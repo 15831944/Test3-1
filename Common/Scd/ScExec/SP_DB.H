@@ -2011,6 +2011,7 @@ const byte SVOP_Mole = 2;
 const byte SVOP_Vol  = 3;
 const byte SVOP_NVol = 4;
 
+inline eScdSVView      operator++( eScdSVView &b, int )      { return b = (eScdSVView )(b + 1); }
 inline eScdSVViewBasis operator++( eScdSVViewBasis &b, int ) { return b = (eScdSVViewBasis )(b + 1); }
 
 extern DllImportExport const LPCTSTR SV_ViewStr[];

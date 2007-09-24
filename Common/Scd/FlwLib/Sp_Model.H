@@ -542,14 +542,20 @@ class CSpView
   protected:
     flag         m_bOn;
     eScdSVView      m_iView;
-    eScdSVViewBasis m_iViewBasis;
+    eScdSVViewBasis m_iViewBasis[SVV_End];
 
   public:
     CSpView(eScdSVView View=SVV_AsMass)
       {
       m_bOn=false;
       m_iView=View;//SVV_AsMass;
-      m_iViewBasis=SVVB_All;
+      for (eScdSVView i=SVV_NULL; i<SVV_End; i++)
+        m_iViewBasis[i]=SVVB_All;
+      m_iViewBasis[SVV_AsSpcConc]=SVVB_Liq;
+      m_iViewBasis[SVV_AsCompConc]=SVVB_Liq;
+      m_iViewBasis[SVV_AsCompConc25]=SVVB_Liq;
+      m_iViewBasis[SVV_AsElemConc]=SVVB_Liq;
+      m_iViewBasis[SVV_AsElemConc25]=SVVB_Liq;
       };
   };
 
@@ -1077,9 +1083,9 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     CSpView       & WhichView(eSVForce Force);
     void            SetView(eScdSVView View, eSVForce Force=SVForce_None);
-    eScdSVView         GetView(eSVForce Force=SVForce_None)                               { return WhichView(Force).m_iView; };
+    eScdSVView      GetView(eSVForce Force=SVForce_None)                               { return WhichView(Force).m_iView; };
     void            SetViewBasis(eScdSVViewBasis ViewBasis, eSVForce Force=SVForce_None);
-    eScdSVViewBasis    GetViewBasis(eSVForce Force=SVForce_None)                          { return WhichView(Force).m_iViewBasis; };
+    eScdSVViewBasis GetViewBasis(eSVForce Force=SVForce_None)                          { return WhichView(Force).m_iViewBasis[WhichView(Force).m_iView]; };
     long            GenVarsAvail() { return sm_VarsAvail|m_VarsAvail; };
     long            SpVarsAvail() { return sm_SpVarsAvail|m_SpVarsAvail; };
 

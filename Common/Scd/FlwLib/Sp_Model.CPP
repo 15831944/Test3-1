@@ -2018,7 +2018,7 @@ void SpModel::SetView(eScdSVView View, eSVForce Force)
 
 void SpModel::SetViewBasis(eScdSVViewBasis ViewBasis, eSVForce Force)
   {
-  WhichView(Force).m_iViewBasis = ViewBasis;
+  WhichView(Force).m_iViewBasis[WhichView(Force).m_iView] = ViewBasis;
   StructureChanged(this);
   };
 
@@ -5911,7 +5911,8 @@ void SpModel::CopyPutOtherData(SpModel & Src)
   m_dGasMixAlpha          = Src.m_dGasMixAlpha;
   m_Vw.m_bOn              = Src.m_Vw.m_bOn;
   m_Vw.m_iView            = Src.m_Vw.m_iView;
-  m_Vw.m_iViewBasis       = Src.m_Vw.m_iViewBasis;
+  for (int vv=SVV_NULL; vv<SVV_End; vv++)
+    m_Vw.m_iViewBasis[vv]   = Src.m_Vw.m_iViewBasis[vv];
   m_pGlblView             = Src.m_pGlblView;
   m_dPrvSatT              = Src.m_dPrvSatT;
 
