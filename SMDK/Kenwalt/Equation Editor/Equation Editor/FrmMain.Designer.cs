@@ -53,6 +53,8 @@ namespace Reaction_Editor
             this.menuCut = new System.Windows.Forms.ToolStripMenuItem();
             this.menuCopy = new System.Windows.Forms.ToolStripMenuItem();
             this.menuPaste = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuAutoCompleteSets = new System.Windows.Forms.ToolStripMenuItem();
             this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.arrangeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuCascade = new System.Windows.Forms.ToolStripMenuItem();
@@ -109,8 +111,6 @@ namespace Reaction_Editor
             this.btnPaste = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnRevert = new System.Windows.Forms.ToolStripButton();
-            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
-            this.menuAutoCompleteSets = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
@@ -274,6 +274,18 @@ namespace Reaction_Editor
             this.menuPaste.Size = new System.Drawing.Size(192, 22);
             this.menuPaste.Text = "&Paste";
             this.menuPaste.Click += new System.EventHandler(this.menuPaste_Click);
+            // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(189, 6);
+            // 
+            // menuAutoCompleteSets
+            // 
+            this.menuAutoCompleteSets.Name = "menuAutoCompleteSets";
+            this.menuAutoCompleteSets.Size = new System.Drawing.Size(192, 22);
+            this.menuAutoCompleteSets.Text = "&Auto Complete Sets...";
+            this.menuAutoCompleteSets.Click += new System.EventHandler(this.menuAutoCompleteSets_Click);
             // 
             // windowToolStripMenuItem
             // 
@@ -797,20 +809,9 @@ namespace Reaction_Editor
             this.btnRevert.Text = "Revert";
             this.btnRevert.Click += new System.EventHandler(this.btnRevert_Click);
             // 
-            // toolStripMenuItem5
-            // 
-            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(189, 6);
-            // 
-            // menuAutoCompleteSets
-            // 
-            this.menuAutoCompleteSets.Name = "menuAutoCompleteSets";
-            this.menuAutoCompleteSets.Size = new System.Drawing.Size(192, 22);
-            this.menuAutoCompleteSets.Text = "&Auto Complete Sets...";
-            this.menuAutoCompleteSets.Click += new System.EventHandler(this.menuAutoCompleteSets_Click);
-            // 
             // FrmMain
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(734, 383);

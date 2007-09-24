@@ -423,7 +423,7 @@ namespace Reaction_Editor
         private string m_sSymbol;
         private Dictionary<Element, Fraction> m_Elements = new Dictionary<Element, Fraction>();
         private int m_nIndex;
-        private bool m_bHoFOK = true;
+        private bool m_bHeatOK = true;
         #endregion Internal Variables
         public static bool SilentAddFail = true;
         public static bool AddCompound(Compound comp)
@@ -495,10 +495,10 @@ namespace Reaction_Editor
             set { m_nIndex = value; }
         }
 
-        public bool HoFOK
+        public bool HeatOK
         {
-            get { return m_bHoFOK; }
-            set { m_bHoFOK = value; }
+            get { return m_bHeatOK; }
+            set { m_bHeatOK = value; }
         }
 
         public string Annotation;
@@ -963,12 +963,20 @@ namespace Reaction_Editor
         {
             get
             {
+                if (this.Reactants.Count == 0)
+                    return false;
+
                 Matrix m = GetBalanceMatrix();
                 if (!m.IsSolveable())
                     return false;
                 Matrix.RemovalInfo info = m.GetRemovalInfo();
                 return info.DegreesOfFreedom > 0 && info.m_bCanRemove;
             }
+        }
+
+        public bool CanBalance
+        {
+            get { return m_Reactants.Count > 0; }
         }
 
         public Dictionary<Element, Fraction> UnbalancedDetails
@@ -982,7 +990,7 @@ namespace Reaction_Editor
             {
                 if (!CustomHeatOfReaction)
                     foreach (Compound c in Compounds)
-                        if (!c.HoFOK)
+                        if (!c.HeatOK)
                             return false;
                 return true;
             }
@@ -1351,6 +1359,30 @@ namespace Reaction_Editor
                 ProductsChanged(this, new EventArgs());
         }
 
+        public void RemoveReactant(int charIndex)
+        {
+            int i = GetMovingIndex(m_OrderedReactants, m_Reactants, charIndex);
+            Compound comp = m_OrderedReactants[i];
+            m_Reactants.Remove(comp);
+            m_OrderedReactants.RemoveAt(i);
+
+            FireChanged();
+            if (ReactantsChanged != null)
+                ReactantsChanged(this, new EventArgs());
+        }
+
+        public void RemoveProduct(int charIndex)
+        {
+            int i = GetMovingIndex(m_OrderedProducts, m_Products, charIndex);
+            Compound comp = m_OrderedProducts[i];
+            m_Products.Remove(comp);
+            m_OrderedProducts.RemoveAt(i);
+
+            FireChanged();
+            if (ProductsChanged != null)
+                ProductsChanged(this, new EventArgs());
+        }
+
         public string ToString(string numberFormat)
         {
             if (m_bUseOriginalString)
@@ -1707,6 +1739,8 @@ namespace Reaction_Editor
 
         public Matrix GetBalanceMatrix(List<Compound> extraComps)
         {
+            if (m_Reactants.Count == 0)
+                return Matrix.InvalidMatrix;
             foreach (Compound c in Compounds)
                 while (extraComps.Contains(c))
                     extraComps.Remove(c);
@@ -2068,21 +2102,30 @@ namespace Reaction_Editor
                 m_Data[i] = new Fraction[columns];
             m_CanGoNegative = new bool[columns];
         }
+
+        private Matrix()
+        {}
         #endregion Constructors
 
         #region Public Functions
         public void CanGoNegative(int Col, bool Val)
         {
+            if (this == InvalidMatrix)
+                return;
             m_CanGoNegative[Col] = Val;
         }
 
         public bool CanGoNegative(int Col)
         {
+            if (this == InvalidMatrix)
+                return false;
             return m_CanGoNegative[Col];
         }
 
         public void RowReduce()
         {
+            if (this == InvalidMatrix)
+                return;
             if (m_bReduced)
                 return;
             int k;
@@ -2136,6 +2179,9 @@ namespace Reaction_Editor
 
         public bool IsSolveable()
         {
+            if (this == InvalidMatrix)
+                return false;
+
             RowReduce();
             for (int i = 0; i < Rows; i++)
                 if (FirstNZElem(m_Data[i]) == Columns - 1)
@@ -2145,6 +2191,9 @@ namespace Reaction_Editor
 
         public Fraction[] getVariableValues()
         {
+            if (this == InvalidMatrix)
+                return null;
+
             RowReduce();
             Fraction[] ret = new Fraction[Columns - 1];
             for (int i = 0; i < Columns - 1; i++)
@@ -2162,6 +2211,9 @@ namespace Reaction_Editor
 
         public Matrix Clone()
         {
+            if (this == InvalidMatrix)
+                return this;
+
             Matrix ret = new Matrix(this.Rows, this.Columns);
             for (int i = 0; i < Rows; i++)
                 Array.Copy(m_Data[i], ret.m_Data[i], Columns);
@@ -2175,6 +2227,9 @@ namespace Reaction_Editor
         /// <returns>A list describing whether each column can be changed or removed.</returns>
         public bool[] ColumnsRemoveable()
         {
+            if (this == InvalidMatrix)
+                return null;
+
             RowReduce();
             bool[] removeable = new bool[Columns - 1];
             for (int i = 0; i < Columns - 1; i++)
@@ -2203,6 +2258,9 @@ namespace Reaction_Editor
 
         public Matrix RemoveColumn(int col)
         {
+            if (this == InvalidMatrix)
+                return null;
+
             Fraction[][] newData = new Fraction[Rows][];
             for (int i = 0; i < Rows; i++)
             {
@@ -2225,6 +2283,9 @@ namespace Reaction_Editor
 
         public Vector GetColumn(int col)
         {
+            if (this == InvalidMatrix)
+                return null;
+
             Vector ret = new Vector(Rows);
             for (int i = 0; i < Rows; i++)
                 ret[i] = this[i, col];
@@ -2233,6 +2294,9 @@ namespace Reaction_Editor
 
         public Matrix InsertColumn(int loc, Vector newCol)
         {
+            if (this == InvalidMatrix)
+                return null;
+
             Fraction[][] newData = new Fraction[Rows][];
             for (int i = 0; i < Rows; i++)
             {
@@ -2251,12 +2315,18 @@ namespace Reaction_Editor
 
         public void SetColumn(int col, Vector newVal)
         {
+            if (this == InvalidMatrix)
+                return;
+
             for (int i = 0; i < Rows; i++)
                 this[i, col] = newVal[i];
         }
 
         public RemovalInfo GetRemovalInfo()
         {
+            if (this == InvalidMatrix)
+                return null;
+
             return RecursiveRemoveableChecks(this);
         }
         #endregion Public Functions
@@ -2413,7 +2483,23 @@ namespace Reaction_Editor
             return sb.ToString();
         }
         #endregion Overrides
+
+        public static Matrix InvalidMatrix = new Matrix();
     }
+
+    public class CompoundDrag
+    {
+        public CompoundDrag(Control _ctrl, int _startIndex, FrmReaction _frm)
+        {
+            ctrl = _ctrl;
+            startIndex = _startIndex;
+            frm = _frm;
+        }
+        public FrmReaction frm;
+        public Control ctrl;
+        public int startIndex;
+    }
+
     #endregion Matrix
 
     #region Fraction

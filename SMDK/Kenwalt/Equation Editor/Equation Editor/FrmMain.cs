@@ -16,8 +16,6 @@ namespace Reaction_Editor
     public partial class FrmMain : Form
     {
         #region Internal Variables
-        //Rectangle m_DragRect = Rectangle.Empty;
-        //Compound m_DraggedCompound = null;
         protected int m_nUntitledNo = 1;
         protected ILog Log;
         protected RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
@@ -31,7 +29,7 @@ namespace Reaction_Editor
             @"^E\d{3}=(?<Sym>[^,\s]{1,3})\s*,\s*(?<AtmNo>\d{1,3})\s*,\s*(?<AtmWt>(\d+(\.\d+)?|\.\d+))\s*$",
             RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
         protected static Regex s_CompoundRegex = new Regex(
-            @"^S(?<Index>\d{3})=Specie\s*,\s*(?<Name>[^\r\n,]*)\s*,\s*(?<Sym>[^\r\n\s,]*)\s*,\s*(?<Phase>Solid|Liquid|Vapour)\s*,\s*(?<MolWt>(\d+(.\d+)?|.\d+))(\s*,\s*(?<ElementSym>[^,\r\n\s]*)\s*,\s*(?<ElemCount>\d*(\.\d+)?)\s*)+$",
+            @"^S(?<Index>\d{3})=Specie\s*,\s*(?<Name>[^\r\n,]*)\s*,\s*(?<Sym>[^\s,]*)\s*,\s*(?<Phase>Solid|Liquid|Vapour)\s*,\s*(?<MolWt>(\d+(.\d+)?|.\d+))\s*,\s*(?<HfOK>[^,\s]*)\s*,\s*(?<CpOK>[^,\s])([^,\r\n]*,){5}(\s*,\s*(?<ElementSym>[^,\r\n\s]*)\s*,\s*(?<ElemCount>\d*(\.\d+)?)\s*)+$",
             RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
         protected static Regex s_GroupRegex = new Regex(
             @"^S(?<Index>\d{3})=Annotation\s*,\s*(?<Name>[^\r\n,]*)",
@@ -43,6 +41,7 @@ namespace Reaction_Editor
         /// If an element is found in the specie list that is not present in the element databse, attempt to guess its properties.
         /// </summary>
         public static bool CreateElems = true;
+
         protected void OpenSpecieDB(string filename)
         {
             try
@@ -86,6 +85,10 @@ namespace Reaction_Editor
                     comp.Name = m.Groups["Name"].Value;
                     comp.Symbol = m.Groups["Sym"].Value;
                     comp.Index = int.Parse(m.Groups["Index"].Value);
+                    int HfOK, CpOK;
+                    int.TryParse(m.Groups["HfOK"].Value, out HfOK);
+                    int.TryParse(m.Groups["CpOK"].Value, out CpOK);
+                    comp.HeatOK = HfOK != 0 && CpOK != 0;
                     int j = 0;
                     while (j < groupIndices.Count && groupIndices[j] < comp.Index)
                         j++;
@@ -1125,6 +1128,26 @@ namespace Reaction_Editor
             }
             else
                 temp.Dispose();*/
+        }
+
+        protected override void OnDragDrop(DragEventArgs drgevent)
+        {
+            if (drgevent.Data.GetDataPresent(typeof(CompoundDrag)))
+            {
+                CompoundDrag data = (CompoundDrag) drgevent.Data.GetData(typeof(CompoundDrag));
+                data.frm.DropCompound(data);
+                drgevent.Effect = DragDropEffects.Move;
+            }
+
+            base.OnDragDrop(drgevent);
+        }
+
+        protected override void OnDragEnter(DragEventArgs drgevent)
+        {
+            if (drgevent.Data.GetDataPresent(typeof(CompoundDrag)))
+                drgevent.Effect = DragDropEffects.Move;
+
+            base.OnDragEnter(drgevent);
         }
     }
 

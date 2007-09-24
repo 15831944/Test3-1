@@ -135,12 +135,6 @@ namespace Auto_Complete
 
         protected override void WndProc(ref Message m)
         {
-            /*if (m.Msg == Messaging.WM_KILLFOCUS) //I don't think it's ever called
-            {
-                if (!(m_OwnerBox.IsDisposed || m_OwnerBox.TopLevelControl.IsDisposed ||
-                    m.WParam != m_OwnerBox.TopLevelControl.Handle))
-                    this.Hide();
-            }*/
             if (m.Msg == Messaging.WM_ACTIVATEAPP && m.WParam == (IntPtr)0)
             {
                 this.Hide();
@@ -157,6 +151,11 @@ namespace Auto_Complete
         public new int FindString(String s)
         {
             object lastObj = null;
+
+            int exact = base.FindStringExact(s);
+            if (exact != ListBox.NoMatches)
+                return exact;
+
             int lastUse = -1;
             foreach (KeyValuePair<object, int> kvp in m_HitCounts)
                 if (kvp.Key.ToString().ToLower().StartsWith(s.ToLower()) && kvp.Value > lastUse)

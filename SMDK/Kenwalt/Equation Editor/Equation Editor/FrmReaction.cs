@@ -221,11 +221,11 @@ namespace Reaction_Editor
                     text += " Invalid extent specified.";
                 if (!m_CurrentReaction.HeatOfReactionOK)
                 {
-                    text += " Heat of Formation undefined for: {";
+                    text += " Thermodynamic properties undefined for: {";
                     foreach (Compound c in m_CurrentReaction.Compounds)
-                        if (!c.HoFOK)
+                        if (!c.HeatOK)
                             text += c.Symbol + ", ";
-                    text = text.Substring(0, text.Length - 2) + "}";
+                    text = text.Substring(0, text.Length - 2) + "}.";
                 }
                 if (!m_CurrentReaction.Balanced)
                 {
@@ -233,6 +233,7 @@ namespace Reaction_Editor
                     foreach (KeyValuePair<Element, Fraction> kvp in m_CurrentReaction.UnbalancedDetails)
                         text += "{" + kvp.Key.Symbol + " = " + kvp.Value.ToString() + "}, ";
                     text = text.Substring(0, text.Length - 2);
+                    text += ".";
                 }
                 if (m_CurrentReaction.Reducible)
                     text += " (Reduced Reaction Possible.)";
@@ -769,6 +770,14 @@ namespace Reaction_Editor
             if (SourcesSinksChanged != null)
                 SourcesSinksChanged(this, new EventArgs());
         }
+
+        public void DropCompound(CompoundDrag data)
+        {
+            if (data.ctrl == txtProducts)
+                m_CurrentReaction.RemoveProduct(data.startIndex);
+            else if (data.ctrl == txtReactants)
+                m_CurrentReaction.RemoveReactant(data.startIndex);
+        }
         #endregion Public Functions
 
         #region Protected Functions
@@ -1153,6 +1162,7 @@ namespace Reaction_Editor
                 numSequence.Text = numSequence.Value.ToString();
             }
             //pnlReaction.Enabled = true;
+            btnBalance.Enabled = rxn.CanBalance;
             statusLabel.Text = StatusMessage;
             m_bLoading = false;
         }
@@ -2504,18 +2514,7 @@ namespace Reaction_Editor
 
         private void txtFormula_CompoundDragged(object sender, EventArgs e)
         {
-            DoDragDrop(new CompoundDrag((Control)sender, ((BoxAutoComplete)sender).SelectionStart), DragDropEffects.Move);
-        }
-
-        private class CompoundDrag
-        {
-            public CompoundDrag(Control _ctrl, int _startIndex)
-            {
-                ctrl = _ctrl;
-                startIndex = _startIndex;
-            }
-            public Control ctrl;
-            public int startIndex;
+            DoDragDrop(new CompoundDrag((Control)sender, ((BoxAutoComplete)sender).SelectionStart, this), DragDropEffects.Move);
         }
 
         private void txtReactants_PreCompSelect(object sender, CancelEventArgs e)
@@ -2535,6 +2534,11 @@ namespace Reaction_Editor
         private void menuRevert_Click(object sender, EventArgs e)
         {
             RevertCurrent();
+        }
+
+        private void pnlReaction_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.None;
         }
     }
 }
