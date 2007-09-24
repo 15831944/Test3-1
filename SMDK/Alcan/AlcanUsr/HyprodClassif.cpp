@@ -524,12 +524,12 @@ bool Classifier::CalcSeparation(MVector & Feed, MVector & OF, MVector & UF)
     case eIM_Recovery:
       {
       if (m_eInputMethod==eIM_Overflow)
-	      {
-		    double UFmass = Max(0.0, FdSolMass - m_dRqdOFSolidsTons);
-		    m_dRqdUFVolFlow = UFmass/m_dRqdUFSolidsConc;
-			m_dRqdRecoveryFracUsed =  UFmass/FdSolMass;
-			m_dRf = (TtlVolFlow - m_dRqdUFVolFlow) / TtlVolFlow;
-	      }
+        {
+        double UFmass = Max(0.0, FdSolMass - m_dRqdOFSolidsTons);
+        m_dRqdUFVolFlow = UFmass/m_dRqdUFSolidsConc;
+        m_dRqdRecoveryFracUsed =  UFmass/FdSolMass;
+        m_dRf = (TtlVolFlow - m_dRqdUFVolFlow) / TtlVolFlow;
+        }
       if (m_eInputMethod==eIM_Underflow)
         {
         //m_dRqdRecoveryFrac = m_dRqdUFVolFlow * m_dRqdUFSolidsConc / FdSolMass; do not want to override this!!!?!
@@ -539,21 +539,19 @@ bool Classifier::CalcSeparation(MVector & Feed, MVector & OF, MVector & UF)
       if (m_eInputMethod==eIM_Recovery)
         {
         m_dRqdRecoveryFracUsed = m_dRqdRecoveryFrac;
-		double UFmass = Max(0.0, FdSolMass * m_dRqdRecoveryFracUsed);
-		m_dRqdUFVolFlow = UFmass/m_dRqdUFSolidsConc;
-		m_dRf = (TtlVolFlow - m_dRqdUFVolFlow) / TtlVolFlow;
+        double UFmass = Max(0.0, FdSolMass * m_dRqdRecoveryFracUsed);
+        m_dRqdUFVolFlow = UFmass/m_dRqdUFSolidsConc;
+        m_dRf = (TtlVolFlow - m_dRqdUFVolFlow) / TtlVolFlow;
         }
 
+      if ( (m_dRqdRecoveryFracUsed >= 1) || ( (m_dRf < 0) && (m_dRf > 1)) )
+        {
+        SetStopRequired("Insufficient Feed : revise flowsheet!");
+        Log.SetCondition( true , 12, MMsg_Error, "Insufficient Feed to Classifier!use Recovery Mode");
+        break;
+        }
 
-if ( (m_dRqdRecoveryFracUsed >= 1) || ( (m_dRf < 0) && (m_dRf > 1)) )
-			{
-			SetStopRequired("Insufficient Feed : revise flowsheet!");
-			Log.SetCondition( true , 12, MMsg_Error, "Insufficient Feed to Classifier!use Recovery Mode");
-			break;
-			}
-
-
-const bool UseBrentSolver = m_bBrentSolverSelected;
+      const bool UseBrentSolver = m_bBrentSolverSelected;
 
       if (UseBrentSolver)
         {
@@ -587,32 +585,33 @@ const bool UseBrentSolver = m_bBrentSolverSelected;
         }
       else
         {     // ---------    SECANT  Root Finding Method   -----------------
-		double beta = 1.0 - m_dRf;
+        double beta = 1.0 - m_dRf;
         m_dD50Used = m_dD50;
         ComputeEfficiency(Feed, OF, UF, beta);
         m_dRf = UF.Volume() / TtlVolFlow;
-		beta = 1.0 - m_dRf;
+        beta = 1.0 - m_dRf;
         ComputeEfficiency(Feed, OF, UF, beta);
-		double NewFdSolMass = Feed.Mass(MP_Sol);
+        double NewFdSolMass = Feed.Mass(MP_Sol);
         double y0 = FdSolMass * m_dRqdRecoveryFracUsed - UF.Mass(MP_Sol);
         double Cut0 = m_dD50Used *1.0e6 ;
-        
-		m_dD50Used = m_dD50Used *1.1;
+
+        m_dD50Used = m_dD50Used *1.1;
         ComputeEfficiency(Feed, OF, UF, beta);
         double y1 = FdSolMass * m_dRqdRecoveryFracUsed - UF.Mass(MP_Sol);
         double Cut1 = m_dD50Used *1.0e6 ;
-     
-		int reply=0;
+
+        int reply=0;
         while ((fabs(y1) > 0.00001) && (reply <= 100))
           {
-		  if ( (y0 >0.0)&& (y1 > y0)) // the secant goes the wrong way so we have to invert the pair of points
-		   { double y_temp = y1;
-			 double Cut_temp = Cut1;
-			 y1	  = y0;
-			 Cut1 = Cut0;
-			 y0	  = y_temp;
-			 Cut0 = Cut_temp;
-			}
+          if ( (y0 >0.0)&& (y1 > y0)) // the secant goes the wrong way so we have to invert the pair of points
+            {
+            double y_temp = y1;
+            double Cut_temp = Cut1;
+            y1	  = y0;
+            Cut1 = Cut0;
+            y0	  = y_temp;
+            Cut0 = Cut_temp;
+            }
           m_dRf = UF.Volume() / TtlVolFlow;
           beta = 1.0 - m_dRf; // This line SHOULD NOT be commented .. Except to simulate HYPROD results
           m_dD50Used = ( Cut0 - y0* (Cut1-Cut0)/(y1 - y0) ) / 1.0e6;
@@ -799,18 +798,18 @@ void Classifier::ClosureInfo(MClosureInfo & CI)
 bool Classifier::PreStartCheck()
   {
   if (!sm_bCompletePopulation )
-   {
-	m_eInputMethod = eIM_Recovery; // force the method to be recovery 
-	if ( m_dCalcRecoveryFrac<= 0)
-	  {
-	  m_sErrorMsg = "Invalid Method"; 
-	  return false;
-	  }
-	else
-	 {
-	m_dRqdRecoveryFrac = m_dCalcRecoveryFrac;
-     }
-   }
+    {
+    m_eInputMethod = eIM_Recovery; // force the method to be recovery 
+    if ( m_dCalcRecoveryFrac<= 0)
+      {
+      m_sErrorMsg = "Invalid Method"; 
+      return false;
+      }
+    else
+      {
+      //m_dRqdRecoveryFrac = m_dCalcRecoveryFrac; //24/9/2007: What is this for? This code overrides user specified RqdRecovery at startup!!!
+      }
+    }
   return true; 
   }
 

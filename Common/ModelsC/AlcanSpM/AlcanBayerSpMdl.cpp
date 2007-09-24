@@ -2267,7 +2267,8 @@ double ASMBayer::LiqCpCalc(CSysVector & Mn, double FLiq, double T)
 
 //---------------------------------------------------------------------------
 
-const double MaxTforCp = 350.0;
+const double MinTforHyprodCp = 0.0;
+const double MaxTforHyprodCp = 350.0;
 
 double ASMBayer::msCp(PhMask Phase, double T_, double P_, CSysVector * pMA, double *pTotalM)
   {
@@ -2291,10 +2292,17 @@ double ASMBayer::msCp(PhMask Phase, double T_, double P_, CSysVector * pMA, doub
     {// Liquid
     #if TestBayerForWater
     if (Mn[Water.LiqPhInx()]/FLiq>H2OTestFrac)
+      {
       Cpl = dNAN;
+      }
     else
     #endif
-      Cpl = LiqCpCalc(Mn, FLiq, Range(C2K(0.0), T_, C2K(MaxTforCp)));
+      {
+      if (ASMBayer::sm_iCpMethod==CPM_Hyprod)
+        Cpl = LiqCpCalc(Mn, FLiq, Range(C2K(MinTforHyprodCp), T_, C2K(MaxTforHyprodCp)));
+      else
+        Cpl = LiqCpCalc(Mn, FLiq, T_);
+      }
     }
 
   double Cps=0.0;
@@ -2355,12 +2363,19 @@ double ASMBayer::msHm(PhMask Phase, double T_, double P_, CSysVector * pMA, doub
           PrevT=T;
           }
         }
-      // Cp only appears to be valid for T< +- 350C)
-      Hl = LiqCpCalc(Mn, FLiq, Range(C2K(0.0), T_, C2K(MaxTforCp))) * Range(0.0, Tc, MaxTforCp);
-      if (Tc>MaxTforCp)
-        Hl += LiqCpCalc(Mn, FLiq, C2K(MaxTforCp)) * (Tc-MaxTforCp);
-      else if (Tc<0)
-        Hl += LiqCpCalc(Mn, FLiq, C2K(0)) * (Tc-0);
+      if (ASMBayer::sm_iCpMethod==CPM_Hyprod)
+        {
+        // Cp only appears to be valid for T< +- 350C)
+        Hl = LiqCpCalc(Mn, FLiq, Range(C2K(MinTforHyprodCp), T_, C2K(MaxTforHyprodCp))) * Range(MinTforHyprodCp, Tc, MaxTforHyprodCp);
+        if (Tc>MaxTforHyprodCp)
+          Hl += LiqCpCalc(Mn, FLiq, C2K(MaxTforHyprodCp)) * (Tc-MaxTforHyprodCp);
+        else if (Tc<MinTforHyprodCp)
+          Hl += LiqCpCalc(Mn, FLiq, C2K(MinTforHyprodCp)) * (Tc-MinTforHyprodCp);
+        }
+      else
+        {
+        Hl = LiqCpCalc(Mn, FLiq, T_) * Tc;
+        }
       }
     }
   
