@@ -420,6 +420,9 @@ namespace Reaction_Editor
 
             SetFocusChanged(this);
             lstReactions.SelectedIndexChanged += new EventHandler(FireRecheckCutCopyPaste);
+
+            if (Program.Dynamic)
+                comboExtentType.Items.Add("Rate");
         }
 
         private void SetFocusChanged(Control ctrl)
@@ -1829,7 +1832,8 @@ namespace Reaction_Editor
                 else
                     e.Effect = DragDropEffects.Link;
             }
-            else if (e.Data.GetDataPresent(typeof(CompoundDrag)))
+            else if (e.Data.GetDataPresent(typeof(CompoundDrag)) &&
+                ((CompoundDrag)e.Data.GetData(typeof(CompoundDrag))).frm == this)
                 e.Effect = DragDropEffects.Move;
             else
                 e.Effect = DragDropEffects.None;
@@ -1858,7 +1862,8 @@ namespace Reaction_Editor
                 txtProducts.Select();
                 txtProducts.Select(m_CurrentReaction.LastAddedNumStart, 1);
             }
-            else if (e.Data.GetDataPresent(typeof(CompoundDrag)))
+            else if (e.Data.GetDataPresent(typeof(CompoundDrag)) &&
+                ((CompoundDrag)e.Data.GetData(typeof(CompoundDrag))).frm == this)
             {
                 CompoundDrag data = (CompoundDrag)e.Data.GetData(typeof(CompoundDrag));
                 if (data.ctrl == txtProducts)
@@ -1887,7 +1892,8 @@ namespace Reaction_Editor
                 else
                     e.Effect = DragDropEffects.Link;
             }
-            else if (e.Data.GetDataPresent(typeof(CompoundDrag)))
+            else if (e.Data.GetDataPresent(typeof(CompoundDrag)) &&
+                ((CompoundDrag)e.Data.GetData(typeof(CompoundDrag))).frm == this)
                 e.Effect = DragDropEffects.Move;
             else
                 e.Effect = DragDropEffects.None;
@@ -1911,7 +1917,8 @@ namespace Reaction_Editor
                 txtReactants.Select();
                 txtReactants.Select(m_CurrentReaction.LastAddedNumStart, 1);
             }
-            else if (e.Data.GetDataPresent(typeof(CompoundDrag)))
+            else if (e.Data.GetDataPresent(typeof(CompoundDrag)) &&
+                ((CompoundDrag)e.Data.GetData(typeof(CompoundDrag))).frm == this)
             {
                 CompoundDrag data = (CompoundDrag)e.Data.GetData(typeof(CompoundDrag));
                 if (data.ctrl == txtReactants)

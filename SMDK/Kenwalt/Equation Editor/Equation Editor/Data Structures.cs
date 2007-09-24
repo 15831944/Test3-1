@@ -91,7 +91,7 @@ namespace Reaction_Editor
                 throw new RxnEdException("Unsupported extent token");
             if (m.Groups["Fraction"].Success)
             {
-                if (s.Contains(" Rate "))
+                if (s.Contains(" Rate ") && Program.Dynamic)
                     retType = ExtentTypes.Rate;
                 else
                     retType = ExtentTypes.Fraction;
@@ -153,7 +153,7 @@ namespace Reaction_Editor
             if (!m.Success)
                 throw new Exception("Unable to Parse Fraction Extent");
             FractionExtent ret;
-            if (m.Groups["Rate"].Success)
+            if (m.Groups["Rate"].Success && Program.Dynamic)
                 ret = new RateExtent(null);
             else
                 ret = new FractionExtent();
@@ -162,7 +162,7 @@ namespace Reaction_Editor
             ret.Value = double.Parse(m.Groups["Value"].Value);
             if (m.Groups["Percent"].Success)
                 ret.Value *= 0.01;
-            if (m.Groups["Rate"].Success && m.Groups["Stabilised"].Success)
+            if (m.Groups["Rate"].Success && Program.Dynamic && m.Groups["Stabilised"].Success)
                 ((RateExtent)ret).Stabilised = true;
             return ret;
         }

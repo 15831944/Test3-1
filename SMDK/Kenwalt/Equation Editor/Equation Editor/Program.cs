@@ -31,6 +31,13 @@ namespace Reaction_Editor
                     Console.WriteLine("Image " + de.Key + " cannot be properly cast");
             }
 
+            foreach (string s in Args)
+                if (s.ToLowerInvariant() == "/dyn" || s.ToLowerInvariant() == "/dynamic")
+                {
+                    Dynamic = true;
+                    break;
+                }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FrmMain());
@@ -39,6 +46,7 @@ namespace Reaction_Editor
         public static ImageList Images = new ImageList();
         public static Random Rnd = new Random();
         public static FrmAutobalanceExtraComps FrmAutobalanceExtraComps;
+        public static bool Dynamic = false;
         public static String[] Args;
         public static Dictionary<object, int> AutocompleteHitCounts = new Dictionary<object, int>();
     }

@@ -22,8 +22,9 @@ namespace Reaction_Editor
         protected List<ToolStripMenuItem> m_RecentFiles = new List<ToolStripMenuItem>();
         protected int m_nRecentFileCount = 6;
 
-        protected static Regex s_RctRegex = new Regex(@"\s*(?<Filename>.*\.rct)\s*", RegexOptions.IgnoreCase);
-        protected static Regex s_SpecieRegex = new Regex(@"\s*(?<Filename>.*\.ini)\s*", RegexOptions.IgnoreCase);
+        protected static Regex s_RctRegex = new Regex(@"$(?<Filename>.*\.rct)^", RegexOptions.IgnoreCase);
+        protected static Regex s_SpecieRegex = new Regex(@"$(?<Filename>.*\.ini)^", RegexOptions.IgnoreCase);
+        protected static Regex s_DirRegex = new Regex(@"$(?<Filename>.*\\)^", RegexOptions.IgnoreCase);
 
         protected static Regex s_ElementRegex = new Regex(
             @"^E\d{3}=(?<Sym>[^,\s]{1,3})\s*,\s*(?<AtmNo>\d{1,3})\s*,\s*(?<AtmWt>(\d+(\.\d+)?|\.\d+))\s*$",
@@ -431,28 +432,65 @@ namespace Reaction_Editor
             Program.FrmAutobalanceExtraComps = new FrmAutobalanceExtraComps(regKey.CreateSubKey("Autobalance Sets"));
 
             bool bDBOpen = false;
+            //Check for a specified specieDB:
             foreach (string s in Program.Args)
             {
-                Match specieData = s_SpecieRegex.Match(s);
-                if (specieData.Success)
+                try
                 {
-                    OpenSpecieDB(specieData.Groups["Filename"].Value);
-                    bDBOpen = true;
-                    break;
+                    if (Path.GetExtension(s).ToLowerInvariant() == ".ini")
+                    {
+                        OpenSpecieDB(s);
+                        bDBOpen = true;
+                        break;
+                    }
                 }
+                catch { }
             }
+            
+            //Check for a specified folder with a specieDB:
             if (!bDBOpen)
+            {
+                foreach (string s in Program.Args)
+                    try
+                    {
+                        if (Directory.Exists(s) && File.Exists(Path.Combine(s, "speciedata.ini")))
+                        {
+                            OpenSpecieDB(s + "speciedata.ini");
+                            bDBOpen = true;
+                            break;
+                        }
+                    }
+                    catch { }
+            }
+
+            if (!bDBOpen) //Load the last open specieDB:
             {
                 string fn = (string)regKey.GetValue("Last Database", "");
                 if (!string.IsNullOrEmpty(fn) && File.Exists(fn))
                     OpenSpecieDB(fn);
             }
 
+            //Load any reactions:
             foreach (string s in Program.Args)
             {
-                Match rct = s_RctRegex.Match(s);
-                if (rct.Success)
-                    Open(rct.Groups["Filename"].Value);
+                try
+                {
+                    if (Path.GetExtension(s).ToLowerInvariant() == ".rct")
+                        Open(s);
+                }
+                catch { }
+            }
+
+            //Load any folders specified:
+            foreach (string s in Program.Args)
+            {
+                try
+                {
+                    if (Directory.Exists(s))
+                        foreach (string f in Directory.GetFiles(s, "*.rct"))
+                            Open(f);
+                }
+                catch { }
             }
 
             Program.FrmAutobalanceExtraComps.VisibleChanged += new EventHandler(FrmAutobalanceExtraComps_VisibleChanged);
@@ -1132,7 +1170,8 @@ namespace Reaction_Editor
 
         protected override void OnDragDrop(DragEventArgs drgevent)
         {
-            if (drgevent.Data.GetDataPresent(typeof(CompoundDrag)))
+            if (drgevent.Data.GetDataPresent(typeof(CompoundDrag)) &&
+                ((CompoundDrag)drgevent.Data.GetData(typeof(CompoundDrag))).frm.MdiParent == this)
             {
                 CompoundDrag data = (CompoundDrag) drgevent.Data.GetData(typeof(CompoundDrag));
                 data.frm.DropCompound(data);
@@ -1144,8 +1183,11 @@ namespace Reaction_Editor
 
         protected override void OnDragEnter(DragEventArgs drgevent)
         {
-            if (drgevent.Data.GetDataPresent(typeof(CompoundDrag)))
+            if (drgevent.Data.GetDataPresent(typeof(CompoundDrag)) &&
+                ((CompoundDrag)drgevent.Data.GetData(typeof(CompoundDrag))).frm.MdiParent == this)
                 drgevent.Effect = DragDropEffects.Move;
+            else
+                drgevent.Effect = DragDropEffects.None;
 
             base.OnDragEnter(drgevent);
         }
