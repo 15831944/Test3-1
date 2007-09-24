@@ -207,14 +207,13 @@ namespace SysCAD.Editor
             if (graphicItem.MirrorY)
               y = 100.0 - y;
 
-            MarkStyle markStyle = MarkStyle.Circle;
+            MarkStyle markStyle = MarkStyle.Circle; // Use circle in any other case.
             switch (anchor.Look)
             {
               case 0: markStyle = MarkStyle.Circle; break;
               case 1: markStyle = MarkStyle.Cross; break;
               case 2: markStyle = MarkStyle.Rectangle; break;
               case 3: markStyle = MarkStyle.X; break;
-              // Use circle in any other case.
             }
             AnchorPoint anchorPoint = new AnchorPoint((short)x, (short)y, true, true, markStyle, System.Drawing.Color.Green);
             anchorPoint.Tag = anchor;

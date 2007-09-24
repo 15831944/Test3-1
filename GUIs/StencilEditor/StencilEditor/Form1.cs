@@ -95,7 +95,7 @@ namespace StencilEditor
         Parse(graphicStencil.Elements, elementTextBox);
         Parse(graphicStencil.Decorations, decorationTextBox);
 
-        RectangleF textArea = graphicStencil.TextArea;
+        SysCAD.Protocol.Rectangle textArea = graphicStencil.TextArea;
         ParseTextArea(ref textArea, textAreaTextBox);
         graphicStencil.TextArea = textArea;
 
@@ -108,7 +108,7 @@ namespace StencilEditor
       }
     }
 
-    private bool ParseTextArea(ref RectangleF rectangleF, TextBox textBox)
+    private bool ParseTextArea(ref SysCAD.Protocol.Rectangle rectangleF, TextBox textBox)
     {
       if (textBox.Text.Length > 0)
       {
@@ -176,10 +176,10 @@ namespace StencilEditor
         string tag = atoms[0];
         AnchorType type = AnchorType.Process;
 
-        float x = float.Parse(atoms[1]);
-        float y = float.Parse(atoms[2]);
+        double x = double.Parse(atoms[1]);
+        double y = double.Parse(atoms[2]);
 
-        Anchor anchor = new Anchor(tag, type, x, y);
+        Anchor anchor = new Anchor(tag, type, 0, x, y);
 
         arrayList.Add(anchor);
       }
@@ -793,29 +793,29 @@ namespace StencilEditor
 
     private void UpdateStencil(GraphicStencil graphicStencil)
     {
-      float minX = float.MaxValue;
-      float maxX = float.MinValue;
-      float minY = float.MaxValue;
-      float maxY = float.MinValue;
+      double minX = double.MaxValue;
+      double maxX = double.MinValue;
+      double minY = double.MaxValue;
+      double maxY = double.MinValue;
 
       UpdateStencil(graphicStencil.Elements, ref minX, ref minY, ref maxX, ref maxY);
       UpdateStencil(graphicStencil.Decorations, ref minX, ref minY, ref maxX, ref maxY);
 
-      float textMinX = float.MaxValue;
-      float textMaxX = float.MinValue;
-      float textMinY = float.MaxValue;
-      float textMaxY = float.MinValue;
+      double textMinX = double.MaxValue;
+      double textMaxX = double.MinValue;
+      double textMinY = double.MaxValue;
+      double textMaxY = double.MinValue;
 
       UpdateStencil(graphicStencil.TextArea, ref textMinX, ref textMinY, ref textMaxX, ref textMaxY);
 
       ScaleStencil(graphicStencil.Elements, minX, minY, maxX, maxY);
       ScaleStencil(graphicStencil.Decorations, minX, minY, maxX, maxY);
 
-      float scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
+      double scale = 1000.0 / Math.Max((maxX - minX), (maxY - minY));
 
-      RectangleF rect = new RectangleF(minX * scale, minY * scale, (maxX - minX) * scale, (maxY - minY) * scale);
+      SysCAD.Protocol.Rectangle rect = new SysCAD.Protocol.Rectangle(minX * scale, minY * scale, (maxX - minX) * scale, (maxY - minY) * scale);
 
-      graphicStencil.defaultSize = new SizeF((maxX - minX), (maxY - minY));
+      graphicStencil.defaultSize = new SysCAD.Protocol.Size((maxX - minX), (maxY - minY));
 
       box1.BoundingRect = rect;
       
@@ -833,86 +833,86 @@ namespace StencilEditor
             if (element is Arc)
             {
               elementTemplate[i] = new ArcTemplate(
-                (element as Arc).x,
-                (element as Arc).y,
-                (element as Arc).w,
-                (element as Arc).h,
-                (element as Arc).a,
-                (element as Arc).s);
+                (float)(element as Arc).x,
+                (float)(element as Arc).y,
+                (float)(element as Arc).w,
+                (float)(element as Arc).h,
+                (float)(element as Arc).a,
+                (float)(element as Arc).s);
             }
             if (element is Line)
             {
               Line line = element as Line;
-              float x1, y1, x2, y2;
+              double x1, y1, x2, y2;
 
               if (mirrorX)
-                x1 = 100.0F - line.x1;
+                x1 = 100.0 - line.x1;
               else
                 x1 = line.x1;
 
               if (mirrorY)
-                y1 = 100.0F - line.y1;
+                y1 = 100.0 - line.y1;
               else
                 y1 = line.y1;
 
               if (mirrorX)
-                x2 = 100.0F - line.x2;
+                x2 = 100.0 - line.x2;
               else
                 x2 = line.x2;
 
               if (mirrorY)
-                y2 = 100.0F - line.y2;
+                y2 = 100.0 - line.y2;
               else
                 y2 = line.y2;
 
-              elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+              elementTemplate[i] = new LineTemplate((float)x1, (float)y1, (float)x2, (float)y2);
             }
             if (element is Bezier)
             {
               Bezier bezier = element as Bezier;
-              float x1, y1, x2, y2, x3, y3, x4, y4;
+              double x1, y1, x2, y2, x3, y3, x4, y4;
 
               if (mirrorX)
-                x1 = 100.0F - bezier.x1;
+                x1 = 100.0 - bezier.x1;
               else
                 x1 = bezier.x1;
 
               if (mirrorY)
-                y1 = 100.0F - bezier.y1;
+                y1 = 100.0 - bezier.y1;
               else
                 y1 = bezier.y1;
 
               if (mirrorX)
-                x2 = 100.0F - bezier.x2;
+                x2 = 100.0 - bezier.x2;
               else
                 x2 = bezier.x2;
 
               if (mirrorY)
-                y2 = 100.0F - bezier.y2;
+                y2 = 100.0 - bezier.y2;
               else
                 y2 = bezier.y2;
 
               if (mirrorX)
-                x3 = 100.0F - bezier.x3;
+                x3 = 100.0 - bezier.x3;
               else
                 x3 = bezier.x3;
 
               if (mirrorY)
-                y3 = 100.0F - bezier.y3;
+                y3 = 100.0 - bezier.y3;
               else
                 y3 = bezier.y3;
 
               if (mirrorX)
-                x4 = 100.0F - bezier.x4;
+                x4 = 100.0 - bezier.x4;
               else
                 x4 = bezier.x4;
 
               if (mirrorY)
-                y4 = 100.0F - bezier.y4;
+                y4 = 100.0 - bezier.y4;
               else
                 y4 = bezier.y4;
 
-              elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+              elementTemplate[i] = new BezierTemplate((float)x1, (float)y1, (float)x2, (float)y2, (float)x3, (float)y3, (float)x4, (float)y4);
             }
             i++;
           }
@@ -925,30 +925,33 @@ namespace StencilEditor
           {
             if (decoration is Arc)
             {
-              decorationTemplate[i] = new ArcTemplate((decoration as Arc).x,
-                (decoration as Arc).y,
-                (decoration as Arc).w,
-                (decoration as Arc).h,
-                (decoration as Arc).a,
-                (decoration as Arc).s);
+              decorationTemplate[i] = new ArcTemplate(
+                (float)(decoration as Arc).x,
+                (float)(decoration as Arc).y,
+                (float)(decoration as Arc).w,
+                (float)(decoration as Arc).h,
+                (float)(decoration as Arc).a,
+                (float)(decoration as Arc).s);
             }
             if (decoration is Line)
             {
-              decorationTemplate[i] = new LineTemplate((decoration as Line).x1,
-                (decoration as Line).y1,
-                (decoration as Line).x2,
-                (decoration as Line).y2);
+              decorationTemplate[i] = new LineTemplate(
+                (float)(decoration as Line).x1,
+                (float)(decoration as Line).y1,
+                (float)(decoration as Line).x2,
+                (float)(decoration as Line).y2);
             }
             if (decoration is Bezier)
             {
-              decorationTemplate[i] = new BezierTemplate((decoration as Bezier).x1,
-                (decoration as Bezier).y1,
-                (decoration as Bezier).x2,
-                (decoration as Bezier).y2,
-                (decoration as Bezier).x3,
-                (decoration as Bezier).y3,
-                (decoration as Bezier).x4,
-                (decoration as Bezier).y4);
+              decorationTemplate[i] = new BezierTemplate(
+                (float)(decoration as Bezier).x1,
+                (float)(decoration as Bezier).y1,
+                (float)(decoration as Bezier).x2,
+                (float)(decoration as Bezier).y2,
+                (float)(decoration as Bezier).x3,
+                (float)(decoration as Bezier).y3,
+                (float)(decoration as Bezier).x4,
+                (float)(decoration as Bezier).y4);
             }
             i++;
           }
@@ -957,19 +960,19 @@ namespace StencilEditor
         box1.Shape = (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
       }
 
-      RectangleF textRect = new RectangleF(textMinX * scale, textMinY * scale, (textMaxX - textMinX) * scale, (textMaxY - textMinY) * scale);
+      SysCAD.Protocol.Rectangle textRect = new SysCAD.Protocol.Rectangle(textMinX * scale, textMinY * scale, (textMaxX - textMinX) * scale, (textMaxY - textMinY) * scale);
 
       textBox1.BoundingRect = textRect;
       //textBox1.Shape = graphicStencil.TextShapeTemplate(false, false);
       textBox1.ZTop();
       textBox1.FillColor = Color.FromArgb(100, Color.HotPink);
 
-      float bothMinX = Math.Min(minX, textMinX);
-      float bothMaxX = Math.Max(maxX, textMaxX);
-      float bothMinY = Math.Min(minY, textMinY);
-      float bothMaxY = Math.Max(maxY, textMaxY);
+      double bothMinX = Math.Min(minX, textMinX);
+      double bothMaxX = Math.Max(maxX, textMaxX);
+      double bothMinY = Math.Min(minY, textMinY);
+      double bothMaxY = Math.Max(maxY, textMaxY);
 
-      RectangleF bothRect = new RectangleF(bothMinX * scale, bothMinY * scale, (bothMaxX - bothMinX) * scale, (bothMaxY - bothMinY) * scale);
+      SysCAD.Protocol.Rectangle bothRect = new SysCAD.Protocol.Rectangle(bothMinX * scale, bothMinY * scale, (bothMaxX - bothMinX) * scale, (bothMaxY - bothMinY) * scale);
 
       bothRect.Inflate((maxX - minX) * scale / 10.0F, (maxY - minY) * scale / 10.0F);
       flowChart1.DocExtents = bothRect;
@@ -978,18 +981,18 @@ namespace StencilEditor
 
     private void UpdateStencil(ModelStencil modelStencil)
     {
-      float minX = float.MaxValue;
-      float maxX = float.MinValue;
-      float minY = float.MaxValue;
-      float maxY = float.MinValue;
+      double minX = float.MaxValue;
+      double maxX = float.MinValue;
+      double minY = float.MaxValue;
+      double maxY = float.MinValue;
 
       UpdateStencil(modelStencil.Elements, ref minX, ref minY, ref maxX, ref maxY);
       UpdateStencil(modelStencil.Decorations, ref minX, ref minY, ref maxX, ref maxY);
 
-      float anchorMinX = minX;
-      float anchorMaxX = maxX;
-      float anchorMinY = minY;
-      float anchorMaxY = maxY;
+      double anchorMinX = minX;
+      double anchorMaxX = maxX;
+      double anchorMinY = minY;
+      double anchorMaxY = maxY;
 
       UpdateStencil(modelStencil.Anchors, ref anchorMinX, ref anchorMinY, ref anchorMaxX, ref anchorMaxY);
 
@@ -998,9 +1001,9 @@ namespace StencilEditor
       
       ScaleStencil(modelStencil.Anchors, minX, minY, maxX, maxY);
 
-      float scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
+      double scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
 
-      RectangleF rect = new RectangleF(minX * scale, minY * scale, (maxX - minX) * scale, (maxY - minY) * scale);
+      SysCAD.Protocol.Rectangle rect = new SysCAD.Protocol.Rectangle(minX * scale, minY * scale, (maxX - minX) * scale, (maxY - minY) * scale);
 
       box2.BoundingRect = rect;
       {
@@ -1017,20 +1020,20 @@ namespace StencilEditor
           if (element is Arc)
           {
             Arc arc = element as Arc;
-            elementTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+            elementTemplate[i] = new ArcTemplate((float)arc.x, (float)arc.y, (float)arc.w, (float)arc.h, (float)arc.a, (float)arc.s);
           }
           if (element is Line)
           {
             Line line = element as Line;
-            float x1, y1, x2, y2;
+            double x1, y1, x2, y2;
 
             if (mirrorX)
-              x1 = 100.0F - line.x1;
+              x1 = 100.0 - line.x1;
             else
               x1 = line.x1;
 
             if (mirrorY)
-              y1 = 100.0F - line.y1;
+              y1 = 100.0 - line.y1;
             else
               y1 = line.y1;
 
@@ -1040,58 +1043,58 @@ namespace StencilEditor
               x2 = line.x2;
 
             if (mirrorY)
-              y2 = 100.0F - line.y2;
+              y2 = 100.0 - line.y2;
             else
               y2 = line.y2;
 
-            elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+            elementTemplate[i] = new LineTemplate((float)x1, (float)y1, (float)x2, (float)y2);
           }
           if (element is Bezier)
           {
             Bezier bezier = element as Bezier;
-            float x1, y1, x2, y2, x3, y3, x4, y4;
+            double x1, y1, x2, y2, x3, y3, x4, y4;
 
             if (mirrorX)
-              x1 = 100.0F - bezier.x1;
+              x1 = 100.0 - bezier.x1;
             else
               x1 = bezier.x1;
 
             if (mirrorY)
-              y1 = 100.0F - bezier.y1;
+              y1 = 100.0 - bezier.y1;
             else
               y1 = bezier.y1;
 
             if (mirrorX)
-              x2 = 100.0F - bezier.x2;
+              x2 = 100.0 - bezier.x2;
             else
               x2 = bezier.x2;
 
             if (mirrorY)
-              y2 = 100.0F - bezier.y2;
+              y2 = 100.0 - bezier.y2;
             else
               y2 = bezier.y2;
 
             if (mirrorX)
-              x3 = 100.0F - bezier.x3;
+              x3 = 100.0 - bezier.x3;
             else
               x3 = bezier.x3;
 
             if (mirrorY)
-              y3 = 100.0F - bezier.y3;
+              y3 = 100.0 - bezier.y3;
             else
               y3 = bezier.y3;
 
             if (mirrorX)
-              x4 = 100.0F - bezier.x4;
+              x4 = 100.0 - bezier.x4;
             else
               x4 = bezier.x4;
 
             if (mirrorY)
-              y4 = 100.0F - bezier.y4;
+              y4 = 100.0 - bezier.y4;
             else
               y4 = bezier.y4;
 
-            elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+            elementTemplate[i] = new BezierTemplate((float)x1, (float)y1, (float)x2, (float)y2, (float)x3, (float)y3, (float)x4, (float)y4);
           }
           i++;
         }
@@ -1103,81 +1106,81 @@ namespace StencilEditor
           if (decoration is Arc)
           {
             Arc arc = decoration as Arc;
-            decorationTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+            decorationTemplate[i] = new ArcTemplate((float)arc.x, (float)arc.y, (float)arc.w, (float)arc.h, (float)arc.a, (float)arc.s);
           }
           if (decoration is Line)
           {
             Line line = decoration as Line;
-            float x1, y1, x2, y2;
+            double x1, y1, x2, y2;
 
             if (mirrorX)
-              x1 = 100.0F - line.x1;
+              x1 = 100.0 - line.x1;
             else
               x1 = line.x1;
 
             if (mirrorY)
-              y1 = 100.0F - line.y1;
+              y1 = 100.0 - line.y1;
             else
               y1 = line.y1;
 
             if (mirrorX)
-              x2 = 100.0F - line.x2;
+              x2 = 100.0 - line.x2;
             else
               x2 = line.x2;
 
             if (mirrorY)
-              y2 = 100.0F - line.y2;
+              y2 = 100.0 - line.y2;
             else
               y2 = line.y2;
 
-            decorationTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+            decorationTemplate[i] = new LineTemplate((float)x1, (float)y1, (float)x2, (float)y2);
           }
           if (decoration is Bezier)
           {
             Bezier bezier = decoration as Bezier;
-            float x1, y1, x2, y2, x3, y3, x4, y4;
+            double x1, y1, x2, y2, x3, y3, x4, y4;
 
             if (mirrorX)
-              x1 = 100.0F - bezier.x1;
+              x1 = 100.0 - bezier.x1;
             else
               x1 = bezier.x1;
 
             if (mirrorY)
-              y1 = 100.0F - bezier.y1;
+              y1 = 100.0 - bezier.y1;
             else
               y1 = bezier.y1;
 
             if (mirrorX)
-              x2 = 100.0F - bezier.x2;
+              x2 = 100.0 - bezier.x2;
             else
               x2 = bezier.x2;
 
             if (mirrorY)
-              y2 = 100.0F - bezier.y2;
+              y2 = 100.0 - bezier.y2;
             else
               y2 = bezier.y2;
 
             if (mirrorX)
-              x3 = 100.0F - bezier.x3;
+              x3 = 100.0 - bezier.x3;
             else
               x3 = bezier.x3;
 
             if (mirrorY)
-              y3 = 100.0F - bezier.y3;
+              y3 = 100.0 - bezier.y3;
             else
               y3 = bezier.y3;
 
             if (mirrorX)
-              x4 = 100.0F - bezier.x4;
+              x4 = 100.0 - bezier.x4;
             else
               x4 = bezier.x4;
 
             if (mirrorY)
-              y4 = 100.0F - bezier.y4;
+              y4 = 100.0 - bezier.y4;
             else
               y4 = bezier.y4;
 
-            decorationTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+            decorationTemplate[i] = new BezierTemplate((float)x1, (float)y1, (float)x2, (float)y2, (float)x3, (float)y3, (float)x4, (float)y4);
           }
           i++;
         }
@@ -1186,7 +1189,7 @@ namespace StencilEditor
       }
 
 
-      RectangleF anchorRect = new RectangleF(anchorMinX * scale, anchorMinY * scale, (anchorMaxX - anchorMinX) * scale, (anchorMaxY - anchorMinY) * scale);
+      SysCAD.Protocol.Rectangle anchorRect = new SysCAD.Protocol.Rectangle(anchorMinX * scale, anchorMinY * scale, (anchorMaxX - anchorMinX) * scale, (anchorMaxY - anchorMinY) * scale);
 
       foreach (Box box in anchorPointBoxes)
         flowChart2.DeleteObject(box);
@@ -1195,8 +1198,8 @@ namespace StencilEditor
 
       foreach (Anchor anchor in modelStencil.Anchors)
       {
-        RectangleF displayRect = new RectangleF((anchor.Position.X / 100.0F * (maxX - minX) + minX) * scale,
-                                                (anchor.Position.Y / 100.0F * (maxY - minY) + minY) * scale,
+        RectangleF displayRect = new RectangleF((float)(((anchor.Positions[0] as SysCAD.Protocol.Point).X / 100.0F * (maxX - minX) + minX) * scale),
+                                                (float)(((anchor.Positions[0] as SysCAD.Protocol.Point).Y / 100.0F * (maxY - minY) + minY) * scale),
                                                 0.0F, 0.0F);
         displayRect.Inflate(20.0F, 20.0F);
         Box box = flowChart2.CreateBox(displayRect.X, displayRect.Y, displayRect.Width, displayRect.Height);
@@ -1212,7 +1215,7 @@ namespace StencilEditor
       flowChart2.ZoomToRect(anchorRect);
     }
 
-    private void UpdateStencil(ArrayList arrayList, ref float minX, ref float minY, ref float maxX, ref float maxY)
+    private void UpdateStencil(ArrayList arrayList, ref double minX, ref double minY, ref double maxX, ref double maxY)
     {
       foreach (object element in arrayList)
       {
@@ -1232,8 +1235,8 @@ namespace StencilEditor
         {
           Arc arc = element as Arc;
 
-          float a1;
-          float a2;
+          double a1;
+          double a2;
 
           // Sides if they exist.
 
@@ -1255,16 +1258,16 @@ namespace StencilEditor
 
           // Endpoints.
 
-          float x1 = (float)(Math.Cos(arc.a / 180.0F * Math.PI)) * arc.w / 2.0F + arc.x + arc.w / 2.0F;
-          float y1 = (float)(Math.Sin(arc.a / 180.0F * Math.PI)) * arc.h / 2.0F + arc.y + arc.h / 2.0F;
+          double x1 = (float)(Math.Cos(arc.a / 180.0F * Math.PI)) * arc.w / 2.0F + arc.x + arc.w / 2.0F;
+          double y1 = (float)(Math.Sin(arc.a / 180.0F * Math.PI)) * arc.h / 2.0F + arc.y + arc.h / 2.0F;
 
           if (x1 < minX) minX = x1;
           if (x1 > maxX) maxX = x1;
           if (y1 < minY) minY = y1;
           if (y1 > maxY) maxY = y1;
 
-          float x2 = (float)(Math.Cos((arc.a + arc.s) / 180.0F * Math.PI)) * arc.w / 2.0F + arc.x + arc.w / 2.0F;
-          float y2 = (float)(Math.Sin((arc.a + arc.s) / 180.0F * Math.PI)) * arc.h / 2.0F + arc.y + arc.h / 2.0F;
+          double x2 = (float)(Math.Cos((arc.a + arc.s) / 180.0F * Math.PI)) * arc.w / 2.0F + arc.x + arc.w / 2.0F;
+          double y2 = (float)(Math.Sin((arc.a + arc.s) / 180.0F * Math.PI)) * arc.h / 2.0F + arc.y + arc.h / 2.0F;
 
           if (x2 < minX) minX = x2;
           if (x2 > maxX) maxX = x2;
@@ -1275,10 +1278,10 @@ namespace StencilEditor
         {
           Bezier bezier = element as Bezier;
 
-          PointF[] bezierPoints = new PointF[4] {new PointF(bezier.x1, bezier.y1), 
-                                                 new PointF(bezier.x2, bezier.y2), 
-                                                 new PointF(bezier.x3, bezier.y3),
-                                                 new PointF(bezier.x4, bezier.y4)};
+          PointF[] bezierPoints = new PointF[4] {new PointF((float)bezier.x1, (float)bezier.y1), 
+                                                 new PointF((float)bezier.x2, (float)bezier.y2), 
+                                                 new PointF((float)bezier.x3, (float)bezier.y3),
+                                                 new PointF((float)bezier.x4, (float)bezier.y4)};
 
           PointCollection pointCollection = Utilities.approxBezier(bezierPoints, 0, 100);
 
@@ -1294,10 +1297,10 @@ namespace StencilEditor
         if (element is Anchor)
         {
           Anchor anchor = element as Anchor;
-          if (anchor.Position.X < minX) minX = anchor.Position.X;
-          if (anchor.Position.X > maxX) maxX = anchor.Position.X;
-          if (anchor.Position.Y < minY) minY = anchor.Position.Y;
-          if (anchor.Position.Y > maxY) maxY = anchor.Position.Y;
+          if ((anchor.Positions[0] as SysCAD.Protocol.Point).X < minX) minX = (anchor.Positions[0] as SysCAD.Protocol.Point).X;
+          if ((anchor.Positions[0] as SysCAD.Protocol.Point).X > maxX) maxX = (anchor.Positions[0] as SysCAD.Protocol.Point).X;
+          if ((anchor.Positions[0] as SysCAD.Protocol.Point).Y < minY) minY = (anchor.Positions[0] as SysCAD.Protocol.Point).Y;
+          if ((anchor.Positions[0] as SysCAD.Protocol.Point).Y > maxY) maxY = (anchor.Positions[0] as SysCAD.Protocol.Point).Y;
         }
       }
 
@@ -1305,7 +1308,7 @@ namespace StencilEditor
       if (maxY == minY) maxY += 0.01F;
     }
 
-    private void UpdateStencil(RectangleF rectangleF, ref float minX, ref float minY, ref float maxX, ref float maxY)
+    private void UpdateStencil(RectangleF rectangleF, ref double minX, ref double minY, ref double maxX, ref double maxY)
     {
       if (rectangleF.Left < minX) minX = rectangleF.Left;
       if (rectangleF.Top  < minY) minY = rectangleF.Top;
@@ -1317,7 +1320,7 @@ namespace StencilEditor
       if (maxY == minY) maxY += 0.01F;
     }
 
-    private void ScaleStencil(ArrayList arrayList, float minX, float minY, float maxX, float maxY)
+    private void ScaleStencil(ArrayList arrayList, double minX, double minY, double maxX, double maxY)
     {
       foreach (object element in arrayList)
       {
@@ -1352,7 +1355,9 @@ namespace StencilEditor
         if (element is Anchor)
         {
           Anchor anchor = element as Anchor;
-          anchor.Position = new PointF((anchor.Position.X - minX) * 100.0F / (maxX - minX), (anchor.Position.Y - minY) * 100.0F / (maxY - minY));
+          anchor.Positions[0] = new SysCAD.Protocol.Point(
+            ((anchor.Positions[0] as SysCAD.Protocol.Point).X - minX) * 100.0F / (maxX - minX),
+            ((anchor.Positions[0] as SysCAD.Protocol.Point).Y - minY) * 100.0F / (maxY - minY));
         }
       }
     }
@@ -1464,86 +1469,86 @@ namespace StencilEditor
             if (element is Arc)
             {
               elementTemplate[i] = new ArcTemplate(
-                (element as Arc).x,
-                (element as Arc).y,
-                (element as Arc).w,
-                (element as Arc).h,
-                (element as Arc).a,
-                (element as Arc).s);
+                (float)(element as Arc).x,
+                (float)(element as Arc).y,
+                (float)(element as Arc).w,
+                (float)(element as Arc).h,
+                (float)(element as Arc).a,
+                (float)(element as Arc).s);
             }
             if (element is Line)
             {
               Line line = element as Line;
-              float x1, y1, x2, y2;
+              double x1, y1, x2, y2;
 
               if (mirrorX)
-                x1 = 100.0F - line.x1;
+                x1 = 100.0 - line.x1;
               else
                 x1 = line.x1;
 
               if (mirrorY)
-                y1 = 100.0F - line.y1;
+                y1 = 100.0 - line.y1;
               else
                 y1 = line.y1;
 
               if (mirrorX)
-                x2 = 100.0F - line.x2;
+                x2 = 100.0 - line.x2;
               else
                 x2 = line.x2;
 
               if (mirrorY)
-                y2 = 100.0F - line.y2;
+                y2 = 100.0 - line.y2;
               else
                 y2 = line.y2;
 
-              elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+              elementTemplate[i] = new LineTemplate((float)x1, (float)y1, (float)x2, (float)y2);
             }
             if (element is Bezier)
             {
               Bezier bezier = element as Bezier;
-              float x1, y1, x2, y2, x3, y3, x4, y4;
+              double x1, y1, x2, y2, x3, y3, x4, y4;
 
               if (mirrorX)
-                x1 = 100.0F - bezier.x1;
+                x1 = 100.0 - bezier.x1;
               else
                 x1 = bezier.x1;
 
               if (mirrorY)
-                y1 = 100.0F - bezier.y1;
+                y1 = 100.0- bezier.y1;
               else
                 y1 = bezier.y1;
 
               if (mirrorX)
-                x2 = 100.0F - bezier.x2;
+                x2 = 100.0 - bezier.x2;
               else
                 x2 = bezier.x2;
 
               if (mirrorY)
-                y2 = 100.0F - bezier.y2;
+                y2 = 100.0 - bezier.y2;
               else
                 y2 = bezier.y2;
 
               if (mirrorX)
-                x3 = 100.0F - bezier.x3;
+                x3 = 100.0 - bezier.x3;
               else
                 x3 = bezier.x3;
 
               if (mirrorY)
-                y3 = 100.0F - bezier.y3;
+                y3 = 100.0 - bezier.y3;
               else
                 y3 = bezier.y3;
 
               if (mirrorX)
-                x4 = 100.0F - bezier.x4;
+                x4 = 100.0 - bezier.x4;
               else
                 x4 = bezier.x4;
 
               if (mirrorY)
-                y4 = 100.0F - bezier.y4;
+                y4 = 100.0 - bezier.y4;
               else
                 y4 = bezier.y4;
 
-              elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+              elementTemplate[i] = new BezierTemplate((float)x1, (float)y1, (float)x2, (float)y2, (float)x3, (float)y3, (float)x4, (float)y4);
             }
             i++;
           }
@@ -1556,30 +1561,33 @@ namespace StencilEditor
           {
             if (decoration is Arc)
             {
-              decorationTemplate[i] = new ArcTemplate((decoration as Arc).x,
-                (decoration as Arc).y,
-                (decoration as Arc).w,
-                (decoration as Arc).h,
-                (decoration as Arc).a,
-                (decoration as Arc).s);
+              decorationTemplate[i] = new ArcTemplate(
+                (float)(decoration as Arc).x,
+                (float)(decoration as Arc).y,
+                (float)(decoration as Arc).w,
+                (float)(decoration as Arc).h,
+                (float)(decoration as Arc).a,
+                (float)(decoration as Arc).s);
             }
             if (decoration is Line)
             {
-              decorationTemplate[i] = new LineTemplate((decoration as Line).x1,
-                (decoration as Line).y1,
-                (decoration as Line).x2,
-                (decoration as Line).y2);
+              decorationTemplate[i] = new LineTemplate(
+                (float)(decoration as Line).x1,
+                (float)(decoration as Line).y1,
+                (float)(decoration as Line).x2,
+                (float)(decoration as Line).y2);
             }
             if (decoration is Bezier)
             {
-              decorationTemplate[i] = new BezierTemplate((decoration as Bezier).x1,
-                (decoration as Bezier).y1,
-                (decoration as Bezier).x2,
-                (decoration as Bezier).y2,
-                (decoration as Bezier).x3,
-                (decoration as Bezier).y3,
-                (decoration as Bezier).x4,
-                (decoration as Bezier).y4);
+              decorationTemplate[i] = new BezierTemplate(
+                (float)(decoration as Bezier).x1,
+                (float)(decoration as Bezier).y1,
+                (float)(decoration as Bezier).x2,
+                (float)(decoration as Bezier).y2,
+                (float)(decoration as Bezier).x3,
+                (float)(decoration as Bezier).y3,
+                (float)(decoration as Bezier).x4,
+                (float)(decoration as Bezier).y4);
             }
             i++;
           }
@@ -1615,81 +1623,81 @@ namespace StencilEditor
           if (element is Arc)
           {
             Arc arc = element as Arc;
-            elementTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+            elementTemplate[i] = new ArcTemplate((float)arc.x, (float)arc.y, (float)arc.w, (float)arc.h, (float)arc.a, (float)arc.s);
           }
           if (element is Line)
           {
             Line line = element as Line;
-            float x1, y1, x2, y2;
+            double x1, y1, x2, y2;
 
             if (mirrorX)
-              x1 = 100.0F - line.x1;
+              x1 = 100.0 - line.x1;
             else
               x1 = line.x1;
 
             if (mirrorY)
-              y1 = 100.0F - line.y1;
+              y1 = 100.0 - line.y1;
             else
               y1 = line.y1;
 
             if (mirrorX)
-              x2 = 100.0F - line.x2;
+              x2 = 100.0 - line.x2;
             else
               x2 = line.x2;
 
             if (mirrorY)
-              y2 = 100.0F - line.y2;
+              y2 = 100.0 - line.y2;
             else
               y2 = line.y2;
 
-            elementTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+            elementTemplate[i] = new LineTemplate((float)x1, (float)y1, (float)x2, (float)y2);
           }
           if (element is Bezier)
           {
             Bezier bezier = element as Bezier;
-            float x1, y1, x2, y2, x3, y3, x4, y4;
+            double x1, y1, x2, y2, x3, y3, x4, y4;
 
             if (mirrorX)
-              x1 = 100.0F - bezier.x1;
+              x1 = 100.0 - bezier.x1;
             else
               x1 = bezier.x1;
 
             if (mirrorY)
-              y1 = 100.0F - bezier.y1;
+              y1 = 100.0 - bezier.y1;
             else
               y1 = bezier.y1;
 
             if (mirrorX)
-              x2 = 100.0F - bezier.x2;
+              x2 = 100.0 - bezier.x2;
             else
               x2 = bezier.x2;
 
             if (mirrorY)
-              y2 = 100.0F - bezier.y2;
+              y2 = 100.0 - bezier.y2;
             else
               y2 = bezier.y2;
 
             if (mirrorX)
-              x3 = 100.0F - bezier.x3;
+              x3 = 100.0 - bezier.x3;
             else
               x3 = bezier.x3;
 
             if (mirrorY)
-              y3 = 100.0F - bezier.y3;
+              y3 = 100.0 - bezier.y3;
             else
               y3 = bezier.y3;
 
             if (mirrorX)
-              x4 = 100.0F - bezier.x4;
+              x4 = 100.0 - bezier.x4;
             else
               x4 = bezier.x4;
 
             if (mirrorY)
-              y4 = 100.0F - bezier.y4;
+              y4 = 100.0 - bezier.y4;
             else
               y4 = bezier.y4;
 
-            elementTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+            elementTemplate[i] = new BezierTemplate((float)x1, (float)y1, (float)x2, (float)y2, (float)x3, (float)y3, (float)x4, (float)y4);
           }
           i++;
         }
@@ -1701,81 +1709,81 @@ namespace StencilEditor
           if (decoration is Arc)
           {
             Arc arc = decoration as Arc;
-            decorationTemplate[i] = new ArcTemplate(arc.x, arc.y, arc.w, arc.h, arc.a, arc.s);
+            decorationTemplate[i] = new ArcTemplate((float)arc.x, (float)arc.y, (float)arc.w, (float)arc.h, (float)arc.a, (float)arc.s);
           }
           if (decoration is Line)
           {
             Line line = decoration as Line;
-            float x1, y1, x2, y2;
+            double x1, y1, x2, y2;
 
             if (mirrorX)
-              x1 = 100.0F - line.x1;
+              x1 = 100.0 - line.x1;
             else
               x1 = line.x1;
 
             if (mirrorY)
-              y1 = 100.0F - line.y1;
+              y1 = 100.0 - line.y1;
             else
               y1 = line.y1;
 
             if (mirrorX)
-              x2 = 100.0F - line.x2;
+              x2 = 100.0 - line.x2;
             else
               x2 = line.x2;
 
             if (mirrorY)
-              y2 = 100.0F - line.y2;
+              y2 = 100.0 - line.y2;
             else
               y2 = line.y2;
 
-            decorationTemplate[i] = new LineTemplate(x1, y1, x2, y2);
+            decorationTemplate[i] = new LineTemplate((float)x1, (float)y1, (float)x2, (float)y2);
           }
           if (decoration is Bezier)
           {
             Bezier bezier = decoration as Bezier;
-            float x1, y1, x2, y2, x3, y3, x4, y4;
+            double x1, y1, x2, y2, x3, y3, x4, y4;
 
             if (mirrorX)
-              x1 = 100.0F - bezier.x1;
+              x1 = 100.0 - bezier.x1;
             else
               x1 = bezier.x1;
 
             if (mirrorY)
-              y1 = 100.0F - bezier.y1;
+              y1 = 100.0 - bezier.y1;
             else
               y1 = bezier.y1;
 
             if (mirrorX)
-              x2 = 100.0F - bezier.x2;
+              x2 = 100.0 - bezier.x2;
             else
               x2 = bezier.x2;
 
             if (mirrorY)
-              y2 = 100.0F - bezier.y2;
+              y2 = 100.0 - bezier.y2;
             else
               y2 = bezier.y2;
 
             if (mirrorX)
-              x3 = 100.0F - bezier.x3;
+              x3 = 100.0 - bezier.x3;
             else
               x3 = bezier.x3;
 
             if (mirrorY)
-              y3 = 100.0F - bezier.y3;
+              y3 = 100.0 - bezier.y3;
             else
               y3 = bezier.y3;
 
             if (mirrorX)
-              x4 = 100.0F - bezier.x4;
+              x4 = 100.0 - bezier.x4;
             else
               x4 = bezier.x4;
 
             if (mirrorY)
-              y4 = 100.0F - bezier.y4;
+              y4 = 100.0 - bezier.y4;
             else
               y4 = bezier.y4;
 
-            decorationTemplate[i] = new BezierTemplate(x1, y1, x2, y2, x3, y3, x4, y4);
+            decorationTemplate[i] = new BezierTemplate((float)x1, (float)y1, (float)x2, (float)y2, (float)x3, (float)y3, (float)x4, (float)y4);
           }
           i++;
         }
@@ -1880,10 +1888,10 @@ namespace StencilEditor
 
                 graphicStencil.Elements = graphicStencil1.Elements;
                 graphicStencil.Decorations = graphicStencil1.Decorations;
-                graphicStencil.defaultSize = graphicStencil1.defaultSize;
+                graphicStencil.defaultSize = new SysCAD.Protocol.Size(graphicStencil1.defaultSize);
                 graphicStencil.fillMode = graphicStencil1.fillMode;
                 graphicStencil.groupName = graphicStencil1.groupName;
-                graphicStencil.TextArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
+                graphicStencil.TextArea = new SysCAD.Protocol.Rectangle(0.0, graphicStencil.defaultSize.Height * 1.1, graphicStencil.defaultSize.Width, 5.0);
                 Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
                 Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
                 Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
@@ -1958,10 +1966,10 @@ namespace StencilEditor
 
                 graphicStencil.Elements = graphicStencil1.Elements;
                 graphicStencil.Decorations = graphicStencil1.Decorations;
-                graphicStencil.defaultSize = graphicStencil1.defaultSize;
+                graphicStencil.defaultSize = new SysCAD.Protocol.Size(graphicStencil1.defaultSize);
                 graphicStencil.fillMode = graphicStencil1.fillMode;
                 graphicStencil.groupName = graphicStencil1.groupName;
-                graphicStencil.TextArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
+                graphicStencil.TextArea = new SysCAD.Protocol.Rectangle(0.0, graphicStencil.defaultSize.Height * 1.1, graphicStencil.defaultSize.Width, 5.0);
                 Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
                 Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
                 Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
@@ -1982,7 +1990,7 @@ namespace StencilEditor
         Parse(graphicStencil.Elements, elementTextBox);
         Parse(graphicStencil.Decorations, decorationTextBox);
 
-        RectangleF textArea = graphicStencil.TextArea;
+        SysCAD.Protocol.Rectangle textArea = graphicStencil.TextArea;
         ParseTextArea(ref textArea, textAreaTextBox);
         graphicStencil.TextArea = textArea;
 
@@ -1995,10 +2003,10 @@ namespace StencilEditor
       }
     }
 
-    float xj = float.NaN;
-    float yj = float.NaN;
+    double xj = double.NaN;
+    double yj = double.NaN;
 
-    private void Generate(ArrayList arrayList, SizeF defaultSize, TextBox textBox)
+    private void Generate(ArrayList arrayList, SysCAD.Protocol.Size defaultSize, TextBox textBox)
     {
       bool firstLineInPoly = true;
 
@@ -2050,15 +2058,15 @@ namespace StencilEditor
       textBox.Text = tempText;
     }
 
-    private void Generate(RectangleF rectangleF, SizeF defaultSize, TextBox textBox)
+    private void Generate(SysCAD.Protocol.Rectangle rectangle, SysCAD.Protocol.Size defaultSize, TextBox textBox)
     {
-      textBox.Text = rectangleF.X.ToString() + ", " +
-                     rectangleF.Y.ToString() + ", " +
-                     rectangleF.Width.ToString() + ", " +
-                     rectangleF.Height.ToString();
+      textBox.Text = rectangle.X.ToString() + ", " +
+                     rectangle.Y.ToString() + ", " +
+                     rectangle.Width.ToString() + ", " +
+                     rectangle.Height.ToString();
     }
 
-    private void GeneratePoly(bool first, Line line, SizeF defaultSize)
+    private void GeneratePoly(bool first, Line line, SysCAD.Protocol.Size defaultSize)
     {
       if ((first)
          ||
@@ -2081,7 +2089,7 @@ namespace StencilEditor
       yj = line.y2;
     }
 
-    private void GenerateArc2(Arc arc, SizeF defaultSize)
+    private void GenerateArc2(Arc arc, SysCAD.Protocol.Size defaultSize)
     {
       tempText += "MDrw_Arc2 " +
                   (arc.x / 100.0F * defaultSize.Width).ToString() + ", " + (arc.y / 100.0F * defaultSize.Height).ToString() + ", " +
@@ -2089,7 +2097,7 @@ namespace StencilEditor
                   arc.a.ToString() + ", " + arc.s.ToString() + "\r\n";
     }
 
-    private void GenerateBezier(Bezier bezier, SizeF defaultSize)
+    private void GenerateBezier(Bezier bezier, SysCAD.Protocol.Size defaultSize)
     {
       tempText += "MDrw_Bezier " +
                   (bezier.x1 / 100.0F * defaultSize.Width).ToString() + ", " + (bezier.y1 / 100.0F * defaultSize.Height).ToString() + ", " +
@@ -2098,11 +2106,13 @@ namespace StencilEditor
                   (bezier.x4 / 100.0F * defaultSize.Width).ToString() + ", " + (bezier.y4 / 100.0F * defaultSize.Height).ToString() + "\r\n";
     }
 
-    private void GenerateAnchor(Anchor anchor, SizeF defaultSize)
+    private void GenerateAnchor(Anchor anchor, SysCAD.Protocol.Size defaultSize)
     {
       tempText += "MDrw_Anchor ";
       tempText += anchor.Tag + ", ";
-      tempText += (anchor.Position.X / 100.0F * defaultSize.Width).ToString() + ", " + (anchor.Position.Y / 100.0F * defaultSize.Height).ToString() + "\r\n";
+      tempText += ((anchor.Positions[0] as SysCAD.Protocol.Point).X / 100.0F * defaultSize.Width).ToString() +
+        ", "
+        + ((anchor.Positions[0] as SysCAD.Protocol.Point).Y / 100.0F * defaultSize.Height).ToString() + "\r\n";
     }
 
     private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)

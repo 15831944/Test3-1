@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowChart.NET", "..\FlowCha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "70.Protocol", "..\..\Protocol\70.Protocol.csproj", "{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log", "..\..\Common\LogView\Log.csproj", "{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "71.Log", "..\..\Common\LogView\71.Log.csproj", "{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

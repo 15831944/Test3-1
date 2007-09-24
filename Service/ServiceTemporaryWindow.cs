@@ -187,6 +187,8 @@ namespace Service
       }
     }
 
+    public delegate void DoItemCreatedDelegate(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY);
+
     bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       // Need to check for runstate here, and decide if we'll fire DoItemCreated.
@@ -216,7 +218,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
+        DoItemCreatedDelegate doItemCreatedDelegate = new DoItemCreatedDelegate(clientClientServiceProtocol.DoItemCreated);
+        doItemCreatedDelegate.BeginInvoke(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY, null, null);
 
         return true;
       }
@@ -420,8 +423,11 @@ namespace Service
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
+    public delegate void DoPortInfoRequestedDelegate(Int64 eventId, Int64 requestId, Guid guid, String tag);
+
     bool ClientRequestPortInfo(out Int64 requestId, Guid guid, String tag)
     {
+
       this.requestId++;
       requestId = this.requestId;
 
@@ -429,7 +435,8 @@ namespace Service
       {
         // Raise event(s).
         eventId++;
-        engineClientServiceProtocol.DoPortInfoRequested(eventId, requestId, guid, tag);
+        DoPortInfoRequestedDelegate doPortInfoRequestedDelegate = new DoPortInfoRequestedDelegate(engineClientServiceProtocol.DoPortInfoRequested);
+        doPortInfoRequestedDelegate.BeginInvoke(eventId, requestId, guid, tag, null, null);
 
         return true;
       }

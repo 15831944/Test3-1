@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
 
 namespace SysCAD.Protocol
 {
@@ -41,6 +42,12 @@ namespace SysCAD.Protocol
     {
       width = size.Width;
       height = size.Height;
+    }
+
+    public Size(SizeF sizeF)
+    {
+      width = sizeF.Width;
+      height = sizeF.Height;
     }
 
     //
