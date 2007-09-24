@@ -7700,7 +7700,7 @@ void SpModel::FindTFromHAtP(double ThePress)
     flag PosOk=0, NegOk=0, DoBrent=0;
 
     // Range for Safety
-    double EstT=Range(10.0, m_CurrentT, 10000.0);
+    double EstT=Range(gs_CDB.MinT-10, m_CurrentT, gs_CDB.MaxT+10);
     double EstH=msHf(som_ALL, EstT, ThePress, pMArray());
     double Err=EstH-m_msHf;
 #if dbgSpModel
@@ -7733,9 +7733,6 @@ void SpModel::FindTFromHAtP(double ThePress)
     double Damp=0.0;
     for (int It=0; It<MaxIt; It++)
       {
-      if (EstT>gs_CDB.MaxT+1000)
-        EstT=gs_CDB.MaxT+1000;
-
       EstH=msHf(som_ALL, EstT, ThePress, pMArray());
       double Err=EstH-m_msHf;
 #if dbgSpModel
@@ -7764,24 +7761,8 @@ void SpModel::FindTFromHAtP(double ThePress)
         goto Brent;
 
       double t=t0+(m_msHf-h0)/NZ(EstH-h0)*(EstT-t0);
-      t=Range(-1.0e60, t, 1.0e60); //kga (13/3/2001) - stop crash???
-      if (t<1.0)
-        {
-#if dbgSpModel
-        dbgLT1Done=true;
-        if (!m_bBadTempOK)
-          dbgpln("SpModel Temp < 1.0 ========== %s", FullObjTag());
-#endif
-        if (msHf(som_ALL, 1.0, ThePress, pMArray())>m_msHf)
-          {
-          EstT=10.0;
-          m_msHf=msHf(som_ALL, EstT, ThePress, pMArray());
-          ASSERT(Finite(m_msHf));
-          goto Done;
-          }
-        else
-          t=1.0;
-        }
+      //t=Range(-1.0e60, t, 1.0e60); //kga (13/3/2001) - stop crash???
+      t=Range(gs_CDB.MinT-10, t, gs_CDB.MaxT+10);
       if (It==40)
         {
         Damp=0.5;
@@ -7795,6 +7776,7 @@ void SpModel::FindTFromHAtP(double ThePress)
       t0=EstT;
       h0=EstH;
       EstT=EstT*Damp+t*(1.0-Damp);
+
 #ifndef _RELEASE
       if (CSpecieDataBase::gs_nDoTestEstTP && (EstT<0.001 || EstT>10001.0))
         {
@@ -7832,6 +7814,13 @@ Brent:
         LogWarning(FullObjTag(), 0, "SpModel::Temp() - Brent Not Started");
       }
 Done:
+
+     if (!m_bBadTempOK)
+       {
+       SetCI(9, EstT<CDB.MinT);
+       SetCI(10, EstT>CDB.MaxT);
+       }
+
 #if dbgSpModel
     if (dbgLT1Done && !m_bBadTempOK)
       dbgpln("  %14.3fK   Temp was < 1.0 ========== %s", EstT, FullObjTag());
@@ -9467,6 +9456,8 @@ flag SpModel::CIStrng(int No, pchar & pS)
     case 6: pS="N\tSaturationT Low Limit";                        return 1;
     case 7: pS="N\tSaturationT High Limit";                       return 1;
     case 8: pS="W\tDensity Corrections Out of Range";             return 1;
+    case 9: pS="W\tTemperature < Project Minimum";                return 1;
+    case 10: pS="W\tTemperature > Project Maximum";               return 1;
     default:
       return TaggedObject::CIStrng(No, pS);
     }

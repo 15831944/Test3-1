@@ -7209,12 +7209,9 @@ void CComponentDataBase::DumpTest()
             t1=t1+dt;
             t=t1;
             }
-
           static int xxxx=0;
           dbgp  ("%5i)",xxxx++);
 
-          //INCOMPLETECODE(__FILE__, __LINE__);
-          ////dbgp  (" %6.1f %6.1f %6.1f %2i %2i",t, K_2_C(t), K_2_F(t), Sp.m_iLastTPoint+1, Sp.FindTIndex(t));
           dbgp  (" %6.1f %6.1f %2s",t, K_2_C(t), "");
           vp=Sp.VapourP(Fidelity, t);
 
