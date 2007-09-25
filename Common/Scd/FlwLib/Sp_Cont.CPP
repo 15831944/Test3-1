@@ -1200,7 +1200,7 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
       //    DDB.EndStruct();
       //  }
 
-      if (dwDisplay & SPDF_Overflow)
+      if ((dwDisplay & SPDF_Overflow) && SpillExists())
         {
         int DoIt;
         if (PrjFileVerNo()>=45)
@@ -1222,7 +1222,7 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
           DDB.EndStruct();
         }
 
-      if (dwDisplay & SPDF_GasVent)
+      if ((dwDisplay & SPDF_GasVent) && VentExists())
         {
         int DoIt;
         if (PrjFileVerNo()>=45)
