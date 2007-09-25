@@ -14,6 +14,7 @@ namespace Reaction_Editor
     {
         private Dictionary<string, string> m_Sets = new Dictionary<string, string>();
         private RegistryKey m_RegKey;
+        public static Regex s_EndsWithCommaOrNL = new Regex(@"(?<Data>.*)(,|\n)\s*$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.Singleline);
 
         #region Properties
         public String SelectedList
@@ -129,6 +130,8 @@ namespace Reaction_Editor
 
         public new DialogResult ShowDialog()
         {
+            this.MdiParent = null;
+            this.Hide();
             this.ControlBox = true;
             Backup();
             return base.ShowDialog();
@@ -136,6 +139,8 @@ namespace Reaction_Editor
 
         public new DialogResult ShowDialog(IWin32Window owner)
         {
+            this.MdiParent = null;
+            this.Hide();
             this.ControlBox = true;
             Backup();
             return base.ShowDialog(owner);
@@ -188,7 +193,7 @@ namespace Reaction_Editor
             txtCompounds.SelectionBackColor = txtCompounds.BackColor;
             txtCompounds.SelectionColor = txtCompounds.ForeColor;
 
-            Match m = FrmReaction.s_CompoundSeperator.Match(txtCompounds.Text);
+            Match m = Compound.s_CompoundSeperator.Match(txtCompounds.Text);
             foreach (Capture c in m.Groups["Comp"].Captures)
             {
                 if (!Compound.Contains(c.Value.Trim()))
@@ -302,7 +307,7 @@ namespace Reaction_Editor
             }
             e.Effect = DragDropEffects.Link;
 
-            if (FrmReaction.s_EndsWithCommaOrNL.Match(txtCompounds.Text).Success)
+            if (s_EndsWithCommaOrNL.Match(txtCompounds.Text).Success)
                 txtCompounds.AppendText(newComp.Symbol);
             else
                 txtCompounds.AppendText(", " + newComp.Symbol);

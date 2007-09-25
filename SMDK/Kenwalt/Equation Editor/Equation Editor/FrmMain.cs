@@ -17,7 +17,6 @@ namespace Reaction_Editor
     {
         #region Internal Variables
         protected int m_nUntitledNo = 1;
-        protected ILog Log;
         protected RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
         protected List<ToolStripMenuItem> m_RecentFiles = new List<ToolStripMenuItem>();
         protected int m_nRecentFileCount = 6;
@@ -36,6 +35,8 @@ namespace Reaction_Editor
             @"^S(?<Index>\d{3})=Annotation\s*,\s*(?<Name>[^\r\n,]*)",
             RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
         #endregion Internal Variables
+
+        protected ILog Log { get { return Program.Log; } }
 
         #region Protected Functions
         /// <summary>
@@ -165,13 +166,16 @@ namespace Reaction_Editor
                 switch (MessageBox.Show(this, "No specie database loaded from same folder as reaction. Open database from reaction folder?", "Open", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1))
                 {
                     case DialogResult.Yes:
-                        if (!File.Exists(Path.GetDirectoryName(filename) + "\\SpecieData.ini"))
+                        if (!File.Exists(Path.GetDirectoryName(filename) + "\\SpecieData.ini") && !File.Exists(Path.GetDirectoryName(filename) + "\\Reactions\\SpecieData.ini"))
                             MessageBox.Show(this, "No specie database found in reaction folder", "Open", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         else
                         {
                             if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show(this, "Unload existing specie databases before loading new database?", "Open", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 UnloadDatabase();
-                            OpenSpecieDB(Path.GetDirectoryName(filename) + "\\SpecieData.ini");
+                            if (File.Exists(Path.GetDirectoryName(filename) + "\\SpecieData.ini"))
+                                OpenSpecieDB(Path.GetDirectoryName(filename) + "\\SpecieData.ini");
+                            else
+                                OpenSpecieDB(Path.GetDirectoryName(filename) + "\\Reactions\\SpecieData.ini");
                         }
                         break;
                     case DialogResult.No:
@@ -416,7 +420,7 @@ namespace Reaction_Editor
             treeFiles.Nodes["SpecieDB"].ContextMenuStrip = menuDatabaseFile;
             //ResourceReader rr = new ResourceReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(FrmMain), "Icons.resources"));
             lstSpecies.SmallImageList = Program.Images;
-            Log = new ListLog(lstLog);
+            Program.Log = new ListLog(lstLog);
 
             string[] valueNames = regKey.GetValueNames();
             Array.Sort<String>(valueNames);
@@ -431,6 +435,13 @@ namespace Reaction_Editor
 
             Program.FrmAutobalanceExtraComps = new FrmAutobalanceExtraComps(regKey.CreateSubKey("Autobalance Sets"));
 
+            string lastPath = "My Documents";
+            try
+            {
+                lastPath = (string)regKey.GetValue("Last Folder", "My Documents");
+            }
+            catch { }
+
             bool bDBOpen = false;
             //Check for a specified specieDB:
             foreach (string s in Program.Args)
@@ -439,12 +450,17 @@ namespace Reaction_Editor
                 {
                     if (Path.GetExtension(s).ToLowerInvariant() == ".ini")
                     {
+                        lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
+                        if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
                         OpenSpecieDB(s);
                         bDBOpen = true;
                         break;
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
             }
             
             //Check for a specified folder with a specieDB:
@@ -455,30 +471,41 @@ namespace Reaction_Editor
                     {
                         if (Directory.Exists(s) && File.Exists(Path.Combine(s, "speciedata.ini")))
                         {
+                            lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
+                            if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
                             OpenSpecieDB(s + "speciedata.ini");
                             bDBOpen = true;
                             break;
                         }
                     }
-                    catch { }
+                    catch (Exception ex) 
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
             }
 
-            if (!bDBOpen) //Load the last open specieDB:
+            /*if (!bDBOpen) //Load the last open specieDB:
             {
                 string fn = (string)regKey.GetValue("Last Database", "");
                 if (!string.IsNullOrEmpty(fn) && File.Exists(fn))
                     OpenSpecieDB(fn);
-            }
-
+            }*/
             //Load any reactions:
             foreach (string s in Program.Args)
             {
                 try
                 {
                     if (Path.GetExtension(s).ToLowerInvariant() == ".rct")
+                    {
+                        lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
+                        if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
                         Open(s);
+                    }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
             }
 
             //Load any folders specified:
@@ -487,15 +514,33 @@ namespace Reaction_Editor
                 try
                 {
                     if (Directory.Exists(s))
+                    {
+                        lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
+                        if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
                         foreach (string f in Directory.GetFiles(s, "*.rct"))
                             Open(f);
+                    }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
             }
+
+            UpdateLastPath(lastPath);
 
             Program.FrmAutobalanceExtraComps.VisibleChanged += new EventHandler(FrmAutobalanceExtraComps_VisibleChanged);
 
             UpdateToolbar();
+        }
+
+        protected void UpdateLastPath(string lastPath)
+        {
+            regKey.SetValue("Last Folder", lastPath);
+            dlgOpenDB.InitialDirectory = lastPath;
+            dlgOpenRxn.InitialDirectory = lastPath;
+            dlgSaveRxn.InitialDirectory = lastPath;
+            folderBrowserDialog1.SelectedPath = lastPath;
         }
 
         void FrmAutobalanceExtraComps_VisibleChanged(object sender, EventArgs e)
@@ -742,7 +787,7 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "SysCAD Reaction Editor version 1.0.7\r\nTest version.", "About");
+            MessageBox.Show(this, "SysCAD Reaction Editor version 1.0.8\r\nTest version.", "About");
         }
 
         private void menuExit_Click(object sender, EventArgs e)
@@ -755,6 +800,7 @@ namespace Reaction_Editor
             menuClose.Enabled =
                 menuSave.Enabled =
                 menuSaveAs.Enabled =
+                menuRevert.Enabled = 
                 ActiveMdiChild is FrmReaction;
         }
 
@@ -877,6 +923,8 @@ namespace Reaction_Editor
                 return;
             try
             {
+                UpdateLastPath(folderBrowserDialog1.SelectedPath);
+
                 lstLog.BeginUpdate();
                 treeFiles.BeginUpdate();
                 if (File.Exists(folderBrowserDialog1.SelectedPath + "\\SpecieData.ini"))
@@ -921,6 +969,7 @@ namespace Reaction_Editor
                     {
                         ListViewItem lvi = new ListViewItem(new string[] { c.Symbol, c.Name });
                         lstSpecies.Items.Add(lvi);
+                        lvi.ToolTipText = c.Name;
                         lvi.Group = lstSpecies.Groups[c.Annotation];
                         lvi.Tag = c;
                         continue;
@@ -1190,6 +1239,15 @@ namespace Reaction_Editor
                 drgevent.Effect = DragDropEffects.None;
 
             base.OnDragEnter(drgevent);
+        }
+
+        private void menuRevert_Click(object sender, EventArgs e)
+        {
+            string fn = ((FrmReaction)ActiveMdiChild).Filename;
+            if (MessageBox.Show("Are you sure you wish to revert to the saved version of \"" + fn + "\"?", "Revert", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                return;
+            ActiveMdiChild.Close();
+            Open(fn);
         }
     }
 

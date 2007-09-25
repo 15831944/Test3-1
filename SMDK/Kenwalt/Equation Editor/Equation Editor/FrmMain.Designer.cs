@@ -111,6 +111,9 @@ namespace Reaction_Editor
             this.btnPaste = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnRevert = new System.Windows.Forms.ToolStripButton();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuRevert = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
@@ -143,6 +146,8 @@ namespace Reaction_Editor
             this.menuOpen,
             this.menuOpenDir,
             this.menuClose,
+            this.toolStripSeparator3,
+            this.menuRevert,
             this.toolStripMenuItem1,
             this.menuSave,
             this.menuSaveAs,
@@ -161,7 +166,7 @@ namespace Reaction_Editor
             // 
             this.menuNew.Name = "menuNew";
             this.menuNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.menuNew.Size = new System.Drawing.Size(160, 22);
+            this.menuNew.Size = new System.Drawing.Size(166, 22);
             this.menuNew.Text = "&New";
             this.menuNew.Click += new System.EventHandler(this.menuNew_Click);
             // 
@@ -169,72 +174,72 @@ namespace Reaction_Editor
             // 
             this.menuOpen.Name = "menuOpen";
             this.menuOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.menuOpen.Size = new System.Drawing.Size(160, 22);
+            this.menuOpen.Size = new System.Drawing.Size(166, 22);
             this.menuOpen.Text = "&Open";
             this.menuOpen.Click += new System.EventHandler(this.menuOpen_Click);
             // 
             // menuOpenDir
             // 
             this.menuOpenDir.Name = "menuOpenDir";
-            this.menuOpenDir.Size = new System.Drawing.Size(160, 22);
-            this.menuOpenDir.Text = "Open &Directory";
+            this.menuOpenDir.Size = new System.Drawing.Size(166, 22);
+            this.menuOpenDir.Text = "Open &Folder";
             this.menuOpenDir.Click += new System.EventHandler(this.menuOpenDir_Click);
             // 
             // menuClose
             // 
             this.menuClose.Name = "menuClose";
-            this.menuClose.Size = new System.Drawing.Size(160, 22);
+            this.menuClose.Size = new System.Drawing.Size(166, 22);
             this.menuClose.Text = "&Close";
             this.menuClose.Click += new System.EventHandler(this.menuClose_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(157, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(163, 6);
             // 
             // menuSave
             // 
             this.menuSave.Name = "menuSave";
             this.menuSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.menuSave.Size = new System.Drawing.Size(160, 22);
+            this.menuSave.Size = new System.Drawing.Size(166, 22);
             this.menuSave.Text = "&Save";
             this.menuSave.Click += new System.EventHandler(this.menuSave_Click);
             // 
             // menuSaveAs
             // 
             this.menuSaveAs.Name = "menuSaveAs";
-            this.menuSaveAs.Size = new System.Drawing.Size(160, 22);
+            this.menuSaveAs.Size = new System.Drawing.Size(166, 22);
             this.menuSaveAs.Text = "Save &As";
             this.menuSaveAs.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // menuSaveAll
             // 
             this.menuSaveAll.Name = "menuSaveAll";
-            this.menuSaveAll.Size = new System.Drawing.Size(160, 22);
+            this.menuSaveAll.Size = new System.Drawing.Size(166, 22);
             this.menuSaveAll.Text = "Save A&ll";
             this.menuSaveAll.Click += new System.EventHandler(this.menuSaveAll_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(157, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(163, 6);
             // 
             // menuOpenDB
             // 
             this.menuOpenDB.Name = "menuOpenDB";
-            this.menuOpenDB.Size = new System.Drawing.Size(160, 22);
+            this.menuOpenDB.Size = new System.Drawing.Size(166, 22);
             this.menuOpenDB.Text = "Open Da&tabase";
             this.menuOpenDB.Click += new System.EventHandler(this.menuOpenDB_Click);
             // 
             // menuRecentFileSeperator
             // 
             this.menuRecentFileSeperator.Name = "menuRecentFileSeperator";
-            this.menuRecentFileSeperator.Size = new System.Drawing.Size(157, 6);
+            this.menuRecentFileSeperator.Size = new System.Drawing.Size(163, 6);
             // 
             // menuExit
             // 
             this.menuExit.Name = "menuExit";
-            this.menuExit.Size = new System.Drawing.Size(160, 22);
+            this.menuExit.Size = new System.Drawing.Size(166, 22);
             this.menuExit.Text = "E&xit";
             this.menuExit.Click += new System.EventHandler(this.menuExit_Click);
             // 
@@ -421,6 +426,7 @@ namespace Reaction_Editor
             listViewGroup3});
             this.lstSpecies.Location = new System.Drawing.Point(3, 16);
             this.lstSpecies.Name = "lstSpecies";
+            this.lstSpecies.ShowItemToolTips = true;
             this.lstSpecies.Size = new System.Drawing.Size(166, 281);
             this.lstSpecies.TabIndex = 0;
             this.lstSpecies.UseCompatibleStateImageBehavior = false;
@@ -430,11 +436,12 @@ namespace Reaction_Editor
             // chSymbol
             // 
             this.chSymbol.Text = "Symbol";
+            this.chSymbol.Width = 115;
             // 
             // chName
             // 
             this.chName.Text = "Name";
-            this.chName.Width = 93;
+            this.chName.Width = 46;
             // 
             // menuSpecieList
             // 
@@ -625,6 +632,7 @@ namespace Reaction_Editor
             this.lstLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstLog.Location = new System.Drawing.Point(0, 18);
             this.lstLog.Name = "lstLog";
+            this.lstLog.ShowItemToolTips = true;
             this.lstLog.Size = new System.Drawing.Size(402, 103);
             this.lstLog.TabIndex = 2;
             this.lstLog.UseCompatibleStateImageBehavior = false;
@@ -638,7 +646,7 @@ namespace Reaction_Editor
             // columnHeader2
             // 
             this.columnHeader2.Text = "Message";
-            this.columnHeader2.Width = 269;
+            this.columnHeader2.Width = 700;
             // 
             // listView1
             // 
@@ -809,6 +817,18 @@ namespace Reaction_Editor
             this.btnRevert.Text = "Revert";
             this.btnRevert.Click += new System.EventHandler(this.btnRevert_Click);
             // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(163, 6);
+            // 
+            // menuRevert
+            // 
+            this.menuRevert.Name = "menuRevert";
+            this.menuRevert.Size = new System.Drawing.Size(166, 22);
+            this.menuRevert.Text = "&Revert To Saved";
+            this.menuRevert.Click += new System.EventHandler(this.menuRevert_Click);
+            // 
             // FrmMain
             // 
             this.AllowDrop = true;
@@ -932,6 +952,9 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripButton btnRevert;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem menuAutoCompleteSets;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem menuRevert;
 
 
     }

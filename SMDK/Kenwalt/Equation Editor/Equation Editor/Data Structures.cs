@@ -19,7 +19,6 @@ namespace Reaction_Editor
     public enum RxnDirections { Forward, Equilibrium, Backward };
     public enum RxnStatuses { OK, Imbalanced, Invalid };
     public enum ExtentTypes { Fraction, Ratio, Equilibrium, FinalConc, FinalFrac, Rate }
-    public enum HXTypes { FinalT, ApproachT, ApproachAmbient, Power, Electrolysis };
     public enum FracTypes { ByMass, ByMole };
     public enum TPConditions { Feed, Product, Standard, Custom };
 
@@ -276,7 +275,7 @@ namespace Reaction_Editor
     public class Final_ConcExtent : RxnExtent
     {
         protected static Regex s_FinalConcRegex = new Regex(
-            @"FinalConc\s*(?<Aim>Target|Strict)\s*(?<Specie>[^\s=]*)?\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*(At\s*(?<T>\d+(\.\d+)?|\.\d+))?",
+            @"FinalConc\s*(?<Aim>Target|Strict)?\s*(?<Specie>[^\s=]*)?\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*(At\s*(?<T>\d+(\.\d+)?|\.\d+))?",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         protected double m_dT = double.NaN;
         public Final_ConcExtent(RxnExtent original)
@@ -287,7 +286,7 @@ namespace Reaction_Editor
             get { return m_dT; }
             set
             {
-                if (m_dT == value) return;
+                if (m_dT == value || (double.IsNaN(m_dT) && double.IsNaN(value))) return;
                 m_dT = value;
                 if (m_Owner != null)
                     m_Owner.FireChanged();
@@ -425,6 +424,10 @@ namespace Reaction_Editor
         private int m_nIndex;
         private bool m_bHeatOK = true;
         #endregion Internal Variables
+
+        public static Regex s_CompoundSeperator = new Regex(@"^((?<Comp>[^,\r\n]*)(?<Delim>,(\r*\n)?|\r*\n|$))*?$",
+            RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+
         public static bool SilentAddFail = true;
         public static bool AddCompound(Compound comp)
         {
@@ -504,6 +507,19 @@ namespace Reaction_Editor
         public string Annotation;
         #endregion
 
+        public static List<Compound> FromCommaList(string list) { bool t; return FromCommaList(list, out t); }
+        public static List<Compound> FromCommaList(string list, out bool ok)
+        {
+            ok = true;
+            Match m2 = s_CompoundSeperator.Match(list);
+            List<Compound> ret = new List<Compound>();
+            foreach (Capture c in m2.Groups["Comp"].Captures)
+                if (Compound.Contains(c.Value.Trim()))
+                    ret.Add(Compound.FromString(c.Value.Trim()));
+                else if (!string.IsNullOrEmpty(c.Value.Trim()))
+                    ok = false;
+            return ret;
+        }
 
         public static Compound FromString(string compString)
         {
@@ -581,6 +597,430 @@ namespace Reaction_Editor
                     throw ex;
             }
         }
+    }
+
+    // It may be an idea to make SimpleReaction an extension of Reaction at some point, but for now is not worth
+    // the effort. Use this for Sources, Sinks, and Heat Exchange.
+    public abstract class Reaction
+    {
+        public static int DisabledReactionNumber = -3;
+
+        #region Protected Variables
+        protected bool m_bHasChanged = false;
+        protected int m_nOriginalReactionNumber = -1;
+        protected int m_nReactionNumber = -1;
+        protected Match m_OriginalMatch;
+        protected ListViewItem m_LVI;
+        protected bool m_bEnabled = true;
+        protected string m_Comment;
+        #endregion Protected Variables
+
+        #region Properties
+        public string Comment
+        {
+            get { return m_Comment; }
+            set
+            {
+                if (m_Comment == value)
+                    return;
+                m_Comment = value;
+                m_bHasChanged = true;
+                if (NowChanged != null)
+                    NowChanged(this, new EventArgs());
+            }
+        }
+
+        public virtual bool CanRevert
+        {
+            get { return m_OriginalMatch != null && m_bHasChanged; }
+        }
+
+        public Match OriginalMatch
+        {
+            get { return m_OriginalMatch; }
+            set { m_OriginalMatch = value; }
+        }
+
+        public int ReactionNumber
+        {
+            get { return m_nReactionNumber; }
+            set
+            {
+                m_nReactionNumber = value;
+                UpdateStatus(this, new EventArgs());
+            }
+        }
+
+        public int OriginalReactionNumber
+        {
+            get { return m_nOriginalReactionNumber; }
+            set { m_nOriginalReactionNumber = value; }
+        }
+
+        public bool HasChanged
+        {
+            get { return m_bHasChanged; }
+            set 
+            {
+                m_bHasChanged = value;
+                UpdateStatus(this, new EventArgs());
+            }
+        }
+
+        public ListViewItem LVI
+        {
+            get { return m_LVI; }
+            set { m_LVI = value; }
+        }
+
+        public virtual bool Enabled
+        {
+            get { return m_bEnabled; }
+            set
+            {
+                if (m_bEnabled == value) return;
+                m_bEnabled = value;
+                HasChanged = true;
+                FireChanged();
+            }
+        }
+
+        public virtual RxnStatuses Status
+        {
+            get { return RxnStatuses.OK; }
+        }
+        #endregion Properties
+
+        #region Events
+        public event EventHandler NowChanged;
+        #endregion Events
+
+        #region Constructors
+        public Reaction(string[] LVIParams)
+        {
+            m_LVI = new ListViewItem(LVIParams);
+            m_LVI.Tag = this;
+            NowChanged += new EventHandler(UpdateStatus);
+        }
+        #endregion Constructors
+
+        #region Protected Properties
+        protected string OriginalReactionNumberString
+        {
+            get 
+            {
+                if (!m_bEnabled)
+                {
+                    if (m_nOriginalReactionNumber == DisabledReactionNumber)
+                        return "";
+                    if (m_nOriginalReactionNumber > 0)
+                        return "(" + m_nOriginalReactionNumber + ")";
+                }
+                else
+                {
+                    if (m_nOriginalReactionNumber == DisabledReactionNumber)
+                        return "(-)";
+                    if (m_nOriginalReactionNumber > 0 && m_nOriginalReactionNumber != m_nReactionNumber)
+                        return "(" + m_nOriginalReactionNumber + ")";
+                }
+                return "";
+            }
+        }
+        #endregion Protected Properties
+
+        #region Functions
+        public virtual void UpdateStatus(object sender, EventArgs e)
+        {
+            if (m_bEnabled)
+                LVI.Text = 
+                    (Enabled ? ReactionNumber.ToString() : "-") +
+                    OriginalReactionNumberString +
+                    (HasChanged ? "*" : "");
+            LVI.ForeColor = m_bEnabled ? SystemColors.WindowText : Color.Gray;
+        }
+
+        public virtual void FireChanged()
+        {
+            HasChanged = true;
+            if (NowChanged != null)
+                NowChanged(this, new EventArgs());
+        }
+
+        public abstract void Revert();
+
+        public abstract string ToSaveString();
+
+        public abstract string RevertString();
+        #endregion Functions
+    }
+
+    public class CompoundListReaction : Reaction
+    {
+        //TODO: CompoundListReaction needs a copy of the log while loading. Maybe we just need to globalise the log...
+        #region Regex's
+        public static Regex s_SourceSinkRegex = new Regex(@"(;RC(\d+|-):(?<Comment>[^\r\n]*))?(^|\r*\n)[^\S\r\n]*(?<Disabled>;)?(?<Type>Source|Sink):(?<Value>[^;\r\n]*)",
+            RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        #endregion Regex's
+
+        #region Variables
+        protected string m_RawString;
+        protected List<Compound> m_Cache = new List<Compound>();
+        protected ListType m_ListType;
+        protected bool m_bListOk;
+        #endregion Variables
+
+        #region Properties
+        public override RxnStatuses Status
+        {
+            get { return m_bListOk ? RxnStatuses.OK : RxnStatuses.Invalid; }
+        }
+
+        public List<Compound> CompoundList
+        {
+            get { return m_Cache; }
+        }
+
+        public string CompoundString
+        {
+            get
+            {
+                if (m_bListOk)
+                {
+                    StringBuilder sb = new StringBuilder(m_Cache.Count);
+                    for (int i = 0; i < m_Cache.Count; i++)
+                        if (i < m_Cache.Count - 1)
+                            sb.Append(m_Cache[i] + ", ");
+                        else
+                            sb.Append(m_Cache[i]);
+                    return sb.ToString();
+                }
+                else
+                    return m_RawString;
+            }
+        }
+        #endregion Properties
+
+        #region Public Functions
+        public override void Revert()
+        {
+            SetString(m_OriginalMatch.Groups["Value"].Value);
+            m_bHasChanged = false;
+            UpdateStatus(this, new EventArgs());
+        }
+
+        public CompoundListReaction(Match m)
+            : base(new string[] { "", "" })
+        {
+            OriginalMatch = m;
+            Enabled = !m.Groups["Disabled"].Success;
+            if (m.Groups["Comment"].Success)
+                Comment = m.Groups["Comment"].Value;
+            m_ListType = m.Groups["Type"].Value.ToLowerInvariant() == "Source" ? ListType.Sources : ListType.Sinks;
+            SetString(m.Groups["Value"].Value);
+            m_bHasChanged = false;
+            UpdateStatus(this, new EventArgs());
+        }
+
+        public CompoundListReaction(ListType type)
+            : base (new string[] { "", ""})
+        {
+            m_ListType = type;
+            UpdateStatus(this, new EventArgs());
+        }
+
+        public override string ToString()
+        {
+            return m_ListType.ToString() + ": " + CompoundString;
+        }
+
+        public override string ToSaveString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("RC" + ReactionNumber + ": " + Comment);
+            sb.AppendLine((Enabled ? ";" : "") + this.ToString());
+            return sb.ToString();
+        }
+
+        public override string RevertString()
+        {
+            return m_ListType + ": " + m_OriginalMatch.Groups["Value"].Value;
+        }
+
+        public void SetString(string s)
+        {
+            if (s == CompoundString)
+                return;
+            m_RawString = s;
+            m_Cache = Compound.FromCommaList(s, out m_bListOk);
+            FireChanged();
+        }
+
+        public override void UpdateStatus(object sender, EventArgs e)
+        {
+            base.UpdateStatus(sender, e);
+            LVI.ForeColor = Enabled ? (Status == RxnStatuses.OK ? SystemColors.WindowText : Color.Red) : Color.Gray;
+            LVI.SubItems[1].Text = this.ToString();
+        }
+
+        public void AddCompound(Compound c)
+        {
+            if (m_Cache.Contains(c))
+                return;
+            m_Cache.Add(c);
+            if (!m_bListOk)
+                m_RawString += m_RawString.TrimEnd('\r', '\n', ',', ' ') + ", " + c.Symbol;
+            FireChanged();
+        }
+
+        public void RemoveCompound(Compound c)
+        {
+            if (!m_Cache.Contains(c))
+                return;
+            while (m_Cache.Contains(c))
+                m_Cache.Remove(c);
+            if (!m_bListOk)
+            {
+                List<string> temp = new List<string>(m_RawString.Split(new char[] { ',', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
+                for (int i = temp.Count - 1; i >= 0; i--)
+                    if (temp[i].Trim() == c.Symbol)
+                        temp.RemoveAt(i);
+                StringBuilder sb = new StringBuilder(temp.Count);
+                for (int i = 0; i < temp.Count; i++)
+                    if (i < temp.Count - 1)
+                        sb.Append(temp[i] + ", ");
+                    else
+                        sb.Append(temp[i]);
+                m_RawString = sb.ToString();
+            }
+            FireChanged();
+        }
+        #endregion Public Functions
+
+        #region Subclasses
+        public enum ListType { Sources, Sinks }
+        #endregion Subclasses
+    }
+
+    public class HXReaction : Reaction
+    {
+        public static Regex s_HXRegex = new Regex(
+            @"^\s*(;(RC(\d+|-): ?)?(?<Comment>[^\r\n]*)\r*\n)?\s*(?<Disabled>;)?HeatExchange:\s*(
+                        (?<Type>FinalT|Power|Electrolysis)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+) |
+                        (?<Type>TargetT|Ambient)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*,\s*(ApproachT|ApproachAmbient)\s*=\s*(?<Value2>d+(\.\d+)?|\.\d+))",
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+
+
+        #region Variables
+        protected HXTypes m_eType;
+        protected double m_dValue, m_dValue2;
+        #endregion Variables
+
+        #region Properties
+        public HXTypes Type
+        {
+            get { return m_eType; }
+            set 
+            {
+                if (m_eType == value) return;
+                m_eType = value;
+                FireChanged();
+            }
+        }
+
+        public double Value
+        {
+            get { return m_dValue; }
+            set 
+            {
+                if (m_dValue == value) return;
+                m_dValue = value;
+                FireChanged();
+            }
+        }
+
+        public double Value2
+        {
+            get { return m_dValue2; }
+            set 
+            {
+                if (m_dValue2 == value) return;
+                m_dValue2 = value;
+                FireChanged();
+            }
+        }
+        #endregion Properties
+
+        #region Public Functions
+        public HXReaction(Match m)
+            : base(new string[] {"", ""})
+        {
+            m_OriginalMatch = m;
+            Revert();
+        }
+
+        public HXReaction()
+            : base(new string[] {"",""})
+        {
+            UpdateStatus(this, new EventArgs());
+        }
+
+        public override void Revert()
+        {
+            m_bEnabled = !m_OriginalMatch.Groups["Disabled"].Success;
+            if (m_OriginalMatch.Groups["Comment"].Success)
+                m_Comment = m_OriginalMatch.Groups["Comment"].Value;
+
+            m_eType = (HXTypes)Enum.Parse(typeof(HXTypes), m_OriginalMatch.Groups["Type"].Value, true);
+
+            double.TryParse(m_OriginalMatch.Groups["Value"].Value, out m_dValue);
+            double.TryParse(m_OriginalMatch.Groups["Value2"].Value, out m_dValue2);
+
+            m_bHasChanged = false;
+            UpdateStatus(this, new EventArgs());
+        }
+
+        public override void UpdateStatus(object sender, EventArgs e)
+        {
+            base.UpdateStatus(sender, e);
+            LVI.SubItems[1].Text = this.ToString();
+        }
+
+        public override string ToString()
+        {
+            if (m_eType == HXReaction.HXTypes.Electrolysis ||
+               m_eType == HXReaction.HXTypes.FinalT ||
+               m_eType == HXReaction.HXTypes.Power)
+            {
+                return "HeatExchange: " + m_eType + " = " + Value.ToString(); ;
+            }
+            else if (m_eType == HXReaction.HXTypes.ApproachAmbient)
+            {
+                return "HeatExchange: Ambient = " + Value.ToString() + ", ApproachAmbient = " + Value2.ToString();
+            }
+            else if (m_eType == HXReaction.HXTypes.ApproachT)
+            {
+                return "Heat Exchange: TargetT = " + Value.ToString() + ", ApproachT = " + Value2.ToString();
+            }
+            return "";
+        }
+
+        public override string ToSaveString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("RC" + ReactionNumber + ": " + Comment);
+            sb.AppendLine(ToString());
+            return sb.ToString();
+        }
+
+        public override string RevertString()
+        {
+            return m_OriginalMatch.Value;
+        }
+        #endregion Public Functions
+
+        #region sublcasses
+        public enum HXTypes { FinalT, ApproachT, ApproachAmbient, Power, Electrolysis };
+        #endregion subclasses
     }
 
     public class SimpleReaction
@@ -1825,7 +2265,7 @@ namespace Reaction_Editor
 
             if (m_LVI == null) return;
             m_LVI.Text = (m_bEnabled ? m_nReactionNumber.ToString() : "-")
-                + (m_nOriginalReactionNumber >= 0 ? "(" + m_nOriginalReactionNumber + ")": "")
+                + (m_nOriginalReactionNumber >= 0 && m_nOriginalReactionNumber != m_nReactionNumber ? "(" + m_nOriginalReactionNumber + ")": "")
                 + (HasChanged ? "*" : "");
             m_LVI.SubItems[1].Text = this.ToString();
             m_LVI.SubItems[2].Text = m_Extent.ToString();

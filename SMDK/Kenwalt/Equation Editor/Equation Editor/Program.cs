@@ -43,6 +43,7 @@ namespace Reaction_Editor
             Application.Run(new FrmMain());
         }
 
+        public static ILog Log;
         public static ImageList Images = new ImageList();
         public static Random Rnd = new Random();
         public static FrmAutobalanceExtraComps FrmAutobalanceExtraComps;

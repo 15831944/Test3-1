@@ -127,7 +127,8 @@ namespace CtrlLib
 					case NumEditType.Double:
                         if (val != "*")
                         {
-                            double dbl = double.Parse(val);
+                            double d;
+                            ret = ret && double.TryParse(val,out d);
                         }
 						//ret &= Min <= dbl && dbl <= Max;
 						break;
