@@ -2978,6 +2978,8 @@ void SpContainer::SetState(eScdMdlStateActs RqdState)
         }
       if (Closed())
         SetRequiredPress(AmbientTemp(), AtmosPress(), &gs_Environment);
+       else
+         SetTempPress(AmbientTemp(), AtmosPress());
       break;
     case MSA_PreSet:
       SetRequiredConditions();

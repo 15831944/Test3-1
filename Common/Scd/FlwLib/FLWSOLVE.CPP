@@ -2007,6 +2007,13 @@ void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGIOStac
   {
   for (int i = 0; i < p->NoProcessIOs(); i++)
     {
+      //{
+      //static int xxxx=0;
+      //Strng Me;
+      //Me.Set("%s.%s", p->FullObjTag(), p->IODesc_Self(i)->IOName());
+      //dbgpln("xxxx %5i) %3i %s", xxxx++, i, Me());
+      //}
+
     CFlange *pF=p->IOFlange(i);
     long IOJoinMask = (1 << p->IO_Join_Id(i));
     if ((IOJoinMask & JoinMask)==0)
@@ -2044,11 +2051,13 @@ Continue:
       Strng Me, You;
       Me.Set("%s.%s", p->FullObjTag(), p->IODesc_Self(i)->IOName());
       You=p->Nd_Rmt(i)->FullObjTag();
-      dbgpln("SetUpFlwNodeEdges %-3s %-3s %-3s %-6s %-10s %-2s %-3s %20s %5s %30s %s %s",
+      dbgpln("SetUpFlwNodeEdges %-3s %-3s %-3s %-6s [%-7s %-7s > %-7s] %-2s %-3s %20s %5s %30s %s %s",
         DoingDynMode?"Dyn":"",
         p->IsLnk()?"Lnk":"",
         i<p->NoProcLnkIOs()?"MIO":"",
         pF->RqdTearType()?"Manual":"",
+        p->IOEvalSeqStart_Self(i)==ESS_Allowed?"Allowed": p->IOEvalSeqStart_Self(i)==ESS_Denied?"Denied":"Network", 
+        p->IOEvalSeqStart_Rmt(i)==ESS_Allowed?"Allowed": p->IOEvalSeqStart_Rmt(i)==ESS_Denied?"Denied":"Network", 
         p->IO_EvalSeqStartOK(i)?"StartOK":"",
         p->IOEvalSeq_In(i)?"In":"",
         p->IOEvalSeq_Out(i)?"Out":"",

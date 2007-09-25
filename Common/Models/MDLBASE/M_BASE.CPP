@@ -533,7 +533,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &S,  doub
     ASSERT(IOInx >=0 && IOInx <NoProcLnkIOs());
     if (IO_Out(IOInx))
       {
-      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied && !SolveBufferedMethod())
         LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
    
       if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
@@ -565,7 +565,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &S,  doub
 //    ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
 //    if (IO_Out(IOInx))
 //      {
-//      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+//      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied && !SolveBufferedMethod())
 //        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
 //
 //      if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
@@ -600,7 +600,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &Contents
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
-      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied && !SolveBufferedMethod())
         LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
 
       if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
@@ -633,7 +633,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &Contents
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
-      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied && !SolveBufferedMethod())
         LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
       
       if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
@@ -666,7 +666,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &Contents
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
-      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied && !SolveBufferedMethod())
         LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
 
       if (dwFlags & (PMU_SLRatio|PMU_SLRatio_Rho))
@@ -3729,7 +3729,8 @@ eEvalSeqStart MdlNode::IOEvalSeqStart_Self(int i)
     {
     if ((IOIdMask_Self(i) & pHO->m_dwIOIdMask)!=0)
       {
-      if ((IOExitRule(i)&IOER_All) && NetDynamicMethod() && SolveSurgeMethod())
+      // Buffered Method should be OK Here
+      if ((IOExitRule(i)&IOER_All) && NetDynamicMethod() && SolveInlineMethod())//SolveSurgeMethod())
         return ESS_Denied;
       }
 
