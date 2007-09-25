@@ -568,12 +568,11 @@ void FlotationCell::SetSecondaryCount(int newSize)
 	}
 	else
 	{
-		int firstSolid = 0;
 		int i;
 		for (i = 0; i < gs_MVDefn.Count() && !gs_MVDefn[i].IsSolid(); i++);
 		if (i == gs_MVDefn.Count())
 			i = 0;
-		vSecondaryIndices.resize(newSize, firstSolid);
+		vSecondaryIndices.resize(newSize, i);
 		/*vector<MDDValueLst> MDDVector;
 		if (vSecondaryMDDLists.size() > 0)
 			MDDVector = vSecondaryMDDLists.at(0);
