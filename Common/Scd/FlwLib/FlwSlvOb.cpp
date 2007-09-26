@@ -257,7 +257,7 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
       case xidmsG:    DCB.D=SDB[s].msGf(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmsCp:   DCB.D=SDB[s].msCp(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidRho:   
-        if (!SDB[s].HasDensCalc())
+        if (!SDB[s].DensCorrFnExists())
           {
           CDensityInfo C(FIDELITY(2), SMO_DensNone, PARM(0), PARM(1), NULL, NULL); 
           DCB.D=SDB[s].DensityX(C) ? C.Density() : 0.0; 
@@ -559,7 +559,7 @@ void SDBObjectEdt::Build()
   int H2Ol_i = -1;
 #endif
 
-  const long DensCorrSolventCnt = SDB.m_DensCorrSps.GetSize();
+  const long DensCorrSolventCnt = SDB.m_DensCorrectedSps.GetSize();
 
   StartPage("Specie Properties");
 
@@ -584,10 +584,10 @@ void SDBObjectEdt::Build()
     if (DensCorrSolventCnt>0)
       {
       //TODO:Add option to allow user to select solvent
-      rSDBO.m_iDisplaySolvent = SDB.m_DensCorrSps[0]; //force this for now
+      rSDBO.m_iDisplaySolvent = SDB.m_DensCorrectedSps[0]; //force this for now
       for (int j=0; j<DensCorrSolventCnt; j++)
         {
-        const long iSolvent = SDB.m_DensCorrSps[j];
+        const long iSolvent = SDB.m_DensCorrectedSps[j];
         if (rSDBO.m_iDisplaySolvent==iSolvent)
           {//only display the user selected solvent
           L++;
@@ -733,15 +733,16 @@ void SDBObjectEdt::Build()
         
           if (DensCorrSolventCnt>0)
             {
-            if (SDB[iSp].HasDensCalc() || SDB[iSp].DensCorrCount()>0)
+            _asm int 3;
+            if (0)//SDB[iSp].DensCorrFnExists() || SDB[iSp].DensCorrectionCount()>0)
               {
-              SetParm(L, "", Id_CorrRho1+iSp, iWd_CorrRho, 2, "");     // Corr Density
-              Tg.Set("$SDB.%s.CorrRho(%.2f,%.2f)", SDB[iSp].SymOrTag(), rSDBO.m_dDisplayT, rSDBO.m_dDisplayP);
-              SetTag(Tg(), RhoCnv.Text());
+              //SetParm(L, "", Id_CorrRho1+iSp, iWd_CorrRho, 2, "");     // Corr Density
+              //Tg.Set("$SDB.%s.CorrRho(%.2f,%.2f)", SDB[iSp].SymOrTag(), rSDBO.m_dDisplayT, rSDBO.m_dDisplayP);
+              //SetTag(Tg(), RhoCnv.Text());
               }
             else
               {
-              if (SDB[iSp].DensCorrCount()>0)
+              if (SDB[iSp].m_DensSolutes.GetCount()>0)
                 SetDesc(L, "Solvent", -1, iWd_CorrRho, 0, "");
               else
                 SetSpace(L, iWd_CorrRho);
@@ -1126,11 +1127,11 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           FixWide(iWd_Vt, Str, View());
           break;
         case Id_Rho1:
-          if (SDB[iSp].HasDensCalc())
+          if (SDB[iSp].DensCorrFnExists())
             {
             //Str="*";
-            CDensCorr & SI=SDB[iSp].DensCalc();
-            RhoFmt.FormatFloat(RhoCnv.Human(SI.m_PureValue), Str);
+            //CDensCorrection & SI=SDB[iSp];//.DensCorrFn();
+            RhoFmt.FormatFloat(RhoCnv.Human(SDB[iSp].DensPureValue()), Str);
             }
           else
             {
@@ -1142,21 +1143,21 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
         case Id_CorrRho1:
           {
           Str="";
-          if (SDB[iSp].HasDensCalc())
+          if (SDB[iSp].DensCorrFnExists())
             {
             const int iSolvent = SDB[iSp].Solvent();
             if (rSDBO.m_iDisplaySolvent==iSolvent)
               {
-              CDensCorr & SI=SDB[iSp].DensCalc();
+              //CDensCorrection & SI=SDB[iSp].DensCorrFn();
               CDensityInfo C(rSDBO.m_bHiFidelity?1:0, SMO_DensNone, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
               const double SolventDensity = SDB[iSolvent].DensityX(C) ? C.Density():0.0;
-              const double Factor = SI.DensCorr(rSDBO.m_dDisplayMF);
+              const double Factor = SDB[iSp].DensCorrection(rSDBO.m_dDisplayMF);
               RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), Str);
               //const double AppDensity = SI.Evaluate(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, 1.0-rSDBO.m_dDisplayMF, rSDBO.m_dDisplayMF);
               //RhoFmt.FormatFloat(RhoCnv.Human(AppDensity), T);
               }
             }
-          else if (SDB[iSp].DensCorrCount()>0)
+          else if (SDB[iSp].m_DensSolutes.GetCount()>0)
             {
             Str = "Solvent";
             }
@@ -1168,21 +1169,21 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           Str="";
           if (1)
             {
-            const int Cnt = SDB[iSp].DensCorrCount();
+            const int Cnt = SDB[iSp].m_DensSolutes.GetCount();
             if (Cnt>0)
               {
               Str.Set("(%d species) ", Cnt);
               }
-            if (SDB[iSp].HasDensCalc())
+            if (SDB[iSp].DensCorrFnExists())
               {
               Strng T;
               const int iSolvent = SDB[iSp].Solvent();
               if (rSDBO.m_iDisplaySolvent==iSolvent)
                 {
-                CDensCorr & SI=SDB[iSp].DensCalc();
+                //CDensCorrection & SI=SDB[iSp].DensCorrFn();
                 CDensityInfo C(rSDBO.m_bHiFidelity?1:0, SMO_DensNone, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
                 const double SolventDensity = SDB[iSolvent].DensityX(C) ? C.Density():0.0;
-                const double Factor = SI.DensCorrWithLimit(rSDBO.m_dDisplayMF, SolventDensity);
+                const double Factor = SDB[iSp].DensCorrectionWithLimit(rSDBO.m_dDisplayMF, SolventDensity);
                 T.Set("(%.4f) ", 1.0+Factor);
                 Str += T;
 #if WithSDB_DensCorrTesting
@@ -1191,9 +1192,9 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
                 RhoFmt.FormatFloat(RhoCnv.Human(AppDensity), T);
                 Str += T;
 #endif
-                if (rSDBO.m_dDisplayMF>SI.m_LimitFrac)
+                if (rSDBO.m_dDisplayMF>SDB[iSp].DensLimitFrac())
                   {
-                  T.Set(" Limit(%.3f)!", SI.m_LimitFrac);
+                  T.Set(" Limit(%.3f)!", SDB[iSp].DensLimitFrac());
                   Str += T;
                   }
                 }
@@ -1202,18 +1203,19 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           else
             {
             Strng T;
-            for (int j=0; j<SDB[iSp].DensCorrCount(); j++)
+            for (int j=0; j<SDB[iSp].m_DensSolutes.GetCount(); j++)
               {
-              CDensCorr & SI=SDB[iSp].DensCorr(j);
+              int iSolute = SDB[iSp].m_DensSolutes[j];
+              CSpecie & SI=SDB[iSolute];
               if (j>0)
                 Str+=",";
 
-              if (SI.m_pDensCorrFn)
+              if (SI.DensCorrFnExists())
                 {
                 Strng buff1,buff2; 
-                if (SI.m_pDensCorrFn) buff1.Set("%10.2f", 1.+SI.DensCorr(0.1)); else buff1="";
+                buff1.Set("%10.2f", 1.+SI.DensCorrection(0.1)); ;
                 buff1.Trim();
-                T.Set("%s{%s}", SDB[SI.m_iSolute].SymOrTag(), buff1());
+                T.Set("%s{%s}", SI.SymOrTag(), buff1());
                 }
               Str+=T;
               }

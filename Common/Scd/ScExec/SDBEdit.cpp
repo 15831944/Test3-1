@@ -1232,6 +1232,7 @@ public:
 struct MyFldInfo
   {
   char *                      m_Name;
+  char *                      m_OldName;
   char *                      m_Caption;
   int                         m_Wide;
   int                         m_Align;
@@ -1247,55 +1248,55 @@ struct MyFldInfo
 
 static MyFldInfo SpFI[] =
   { // Name          Wd  Al   Type                  Len  Attributes                                        Reqd   ZeroOK
-    { "Name"          , "Name"          , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Compound"      , "Compound"      , 14, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Phase"         , "Phase"         ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Definition"    , "Defn"          ,  8, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Occurence"     , "Occ"           ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Checked"       , "Chkd"          ,  5, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Ts"            , "Ts(K)"         ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Te"            , "Te(K)"         ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Rho"           , "Rho(kg/m^3)"   , 10, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "dHf"           , "Hf(J/mol)"     ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "S298"          , "S(J/mol.K)"    ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Cp"            , "Cp(J/mol.K)"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Vp"            , "Vp(kPa)"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Pc"            , "Pc(MPa)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Tc"            , "Tc(K)"         ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Vc"            , "Vc(m^3)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Ac"            , "Ac"            ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Dissociation"  , "Dissociation"  ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Reference"     , "Reference"     , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Name"          , NULL,      "Name"          , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Compound"      , NULL,       "Compound"      , 14, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Phase"         , NULL,       "Phase"         ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Definition"    , NULL,       "Defn"          ,  8, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Occurence"     , NULL,       "Occ"           ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Checked"       , NULL,       "Chkd"          ,  5, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Ts"            , NULL,       "Ts(K)"         ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Te"            , NULL,       "Te(K)"         ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Density"       , "Rho",      "Rho(kg/m^3)"   , 10, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Hf25"          , "dHf",      "Hf(J/mol)"     ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "S25"           , "S298",     "S(J/mol.K)"    ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Cp"            , NULL,       "Cp(J/mol.K)"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Vp"            , NULL,       "Vp(kPa)"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Pc"            , NULL,       "Pc(MPa)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Tc"            , NULL,       "Tc(K)"         ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Vc"            , NULL,       "Vc(m^3)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Ac"            , NULL,       "Ac"            ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Dissociation"  , NULL,       "Dissociation"  ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Reference"     , NULL,       "Reference"     , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { NULL },
   };
 
 static MyFldInfo CnvFI[] =
   { // Name          Wd  Al   Type                  Len  Attributes                        Reqd   ZeroOK
-    { "Conversion"    , "Conversion"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Unit"          , "Unit"         , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "ScaleOffset"   , "ScaleOffset"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Description"   , "Description"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, false},
-    { "Reference"     , "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Conversion"    , NULL,       "Conversion"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Unit"          , NULL,       "Unit"         , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "ScaleOffset"   , NULL,       "ScaleOffset"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Description"   , NULL,       "Description"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, false},
+    { "Reference"     , NULL,       "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { NULL },
   };
 
 static MyFldInfo SolnFI[] =
   { // Name          Wd  Al   Type                  Len  Attributes                        Reqd   ZeroOK
-    { "Solvent"       , "Solvent"      , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Solute"        , "Solute"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Solvent"       , NULL,       "Solvent"      , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Solute"        , NULL,       "Solute"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
     //{ "OtherPhase"    , "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "OtherPhase"    , "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false , true},
-    { "DensCorrFn"    , "DensCorrFn"   , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
-    { "SolubilityFn"  , "SolubilityFn" , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
-    { "HDilutionFn"   , "HDilutionFn"  , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
-    { "Reference"     , "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true },
+    { "OtherPhase"    , NULL,       "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false , true},
+    { "DensCorrFn"    , NULL,       "DensCorrFn"   , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
+    { "SolubilityFn"  , NULL,       "SolubilityFn" , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
+    { "HDilutionFn"   , NULL,       "HDilutionFn"  , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
+    { "Reference"     , NULL,       "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true },
     { NULL },
   };
 
 static MyFldInfo * FindFld(LPCTSTR Name,  MyFldInfo * FI)
   {
   for (int i=0; FI[i].m_Name; i++)
-    if (_stricmp(Name, FI[i].m_Name)==0)
+    if (_stricmp(Name, FI[i].m_Name)==0 || FI[i].m_OldName==NULL || _stricmp(Name, FI[i].m_OldName)==0)
       return &FI[i];
   return NULL;
   }
@@ -3998,150 +3999,150 @@ void CSDBTest::TestThermo(int &nGood, int &nBad)
 
 void CSDBTest::TestRelDens(int &nGood, int &nBad)
   {
-  Strng SBlnk(" "), S;
-  CSSColumns Cols=m_RelDensGrid.GetColumns();
+  //Strng SBlnk(" "), S;
+  //CSSColumns Cols=m_RelDensGrid.GetColumns();
 
-  long row=0;
-  CDArray M;
-  M.SetSize(m_SDB.Count());
-  long iFidelity=0; 
-  long iDensMethod=SMO_DensVersion1; 
-  for (int j=0; j<m_SDB.m_DensCorrSps.GetSize(); j++)
-    {
-    int iSolvent=m_SDB.m_DensCorrSps[j];
-    CSpecie & Solvent=m_SDB[iSolvent];
-    for (int iDensCorr=0; iDensCorr<Solvent.DensCorrCount(); iDensCorr++)
-      {
-      M.SetAll(0.0);
-      for (int Pass=(m_ShowAll.GetCheck() ? 1 : 0); Pass<2; Pass++)
-        {
-        if (Pass>0 && row>0)
-          m_RelDensGrid.AddItem(SBlnk(), COleVariant(row++));
+  //long row=0;
+  //CDArray M;
+  //M.SetSize(m_SDB.Count());
+  //long iFidelity=0; 
+  //long iDensMethod=SMO_DensVersion1; 
+  //for (int j=0; j<m_SDB.m_DensCorrectedSps.GetSize(); j++)
+  //  {
+  //  int iSolvent=m_SDB.m_DensCorrectedSps[j];
+  //  CSpecie & Solvent=m_SDB[iSolvent];
+  //  for (int iDensCorr=0; iDensCorr<Solvent.DensCorrectionCount(); iDensCorr++)
+  //    {
+  //    M.SetAll(0.0);
+  //    for (int Pass=(m_ShowAll.GetCheck() ? 1 : 0); Pass<2; Pass++)
+  //      {
+  //      if (Pass>0 && row>0)
+  //        m_RelDensGrid.AddItem(SBlnk(), COleVariant(row++));
 
-        Strng Note;
-        flag fBad=false;
-        CDensCorr &SItem=Solvent.DensCorr(iDensCorr);
-        M[SItem.m_iSolute]=0.0;
-        M[iSolvent]=1.0;
-        double Rho0=m_SDB[iSolvent].SpRho(iFidelity, C_2_K(25.0), Std_T);
-        for (int it=0; it<=m_NIntervals; it++)
-          {
-          M[SItem.m_iSolute]=(1.0/m_NIntervals)*it;
-          M[iSolvent]=1.0;
-          double Rho=m_SDB.Density(iFidelity, iDensMethod, som_ALL, C_2_K(25.0), Std_T, NULL, &M[0]);
-          double SG=Rho/Rho0;
-          Note="";
-          if (it==0 && (fabs(SG-1.0)>1.0e-4))
-            Note="SG NonUnity";
-          if (SG<0.1)
-            {
-            if (Note())
-              Note+="/";
-            Note+="SG very Low";
-            }
-          if (SG>10.0)
-            {
-            if (Note())
-              Note+="/";
-            Note+="SG very High";
-            }
+  //      Strng Note;
+  //      flag fBad=false;
+  //      CDensCorrection &SItem=Solvent.DensCorrection(iDensCorr);
+  //      M[SItem.m_iSolute]=0.0;
+  //      M[iSolvent]=1.0;
+  //      double Rho0=m_SDB[iSolvent].SpRho(iFidelity, C_2_K(25.0), Std_T);
+  //      for (int it=0; it<=m_NIntervals; it++)
+  //        {
+  //        M[SItem.m_iSolute]=(1.0/m_NIntervals)*it;
+  //        M[iSolvent]=1.0;
+  //        double Rho=m_SDB.Density(iFidelity, iDensMethod, som_ALL, C_2_K(25.0), Std_T, NULL, &M[0]);
+  //        double SG=Rho/Rho0;
+  //        Note="";
+  //        if (it==0 && (fabs(SG-1.0)>1.0e-4))
+  //          Note="SG NonUnity";
+  //        if (SG<0.1)
+  //          {
+  //          if (Note())
+  //            Note+="/";
+  //          Note+="SG very Low";
+  //          }
+  //        if (SG>10.0)
+  //          {
+  //          if (Note())
+  //            Note+="/";
+  //          Note+="SG very High";
+  //          }
 
-          if (Pass>0)
-            {
-            Strng S;
-            S.Set("%s\t%s\t%.2f\t%.3f\t%.3f\t%s",
-              it==0 ? (m_SDB[iSolvent].SymOrTag()?m_SDB[iSolvent].SymOrTag():""):"",
-              it==0 ? (m_SDB[SItem.m_iSolute].SymOrTag()?m_SDB[SItem.m_iSolute].SymOrTag():""):"",
-              100.0*M[SItem.m_iSolute]/M[iSolvent],
-              Rho,
-              SG,
-              Note() ? Note() : " ");
-            m_RelDensGrid.AddItem(S(), COleVariant(row++));
-            }
-          fBad=fBad || (Note()!=NULL);
-          }
-        if (Pass>0)
-          if (fBad)
-            nBad++;
-          else
-            nGood++;
-        if (m_ShowAll.GetCheck()==0 && !fBad)
-          break;
-        }
-      }
-    }
+  //        if (Pass>0)
+  //          {
+  //          Strng S;
+  //          S.Set("%s\t%s\t%.2f\t%.3f\t%.3f\t%s",
+  //            it==0 ? (m_SDB[iSolvent].SymOrTag()?m_SDB[iSolvent].SymOrTag():""):"",
+  //            it==0 ? (m_SDB[SItem.m_iSolute].SymOrTag()?m_SDB[SItem.m_iSolute].SymOrTag():""):"",
+  //            100.0*M[SItem.m_iSolute]/M[iSolvent],
+  //            Rho,
+  //            SG,
+  //            Note() ? Note() : " ");
+  //          m_RelDensGrid.AddItem(S(), COleVariant(row++));
+  //          }
+  //        fBad=fBad || (Note()!=NULL);
+  //        }
+  //      if (Pass>0)
+  //        if (fBad)
+  //          nBad++;
+  //        else
+  //          nGood++;
+  //      if (m_ShowAll.GetCheck()==0 && !fBad)
+  //        break;
+  //      }
+  //    }
+  //  }
   }
 
 void CSDBTest::TestSoluble(int &nGood, int &nBad)
   {
-  Strng SBlnk(" "), S;
-  CSSColumns Cols=m_SolubleGrid.GetColumns();
-  CSSColumn Col2=Cols.GetItem(COleVariant(2L));
-  Col2.SetCaption(m_ShowK.GetCheck() ? "Temp(K)" : "Temp(C)");
+  //Strng SBlnk(" "), S;
+  //CSSColumns Cols=m_SolubleGrid.GetColumns();
+  //CSSColumn Col2=Cols.GetItem(COleVariant(2L));
+  //Col2.SetCaption(m_ShowK.GetCheck() ? "Temp(K)" : "Temp(C)");
 
-  long row=0;
+  //long row=0;
 
-  for (int j=0; j<m_SDB.m_SolubleSps.GetSize(); j++)
-    {
-    int iSolvent=m_SDB.m_SolubleSps[j];
-    CSpecie & Solvent=m_SDB[iSolvent];
-    for (int iSoln=0; iSoln<Solvent.SolubilityCount(); iSoln++)
-      {
-      //M.SetAll(0.0);
-      for (int Pass=(m_ShowAll.GetCheck() ? 1 : 0); Pass<2; Pass++)
-        {
-        if (Pass>0 && row>0)
-          m_SolubleGrid.AddItem(SBlnk(), COleVariant(row++));
+  //for (int j=0; j<m_SDB.m_SolubleSps.GetSize(); j++)
+  //  {
+  //  int iSolvent=m_SDB.m_SolubleSps[j];
+  //  CSpecie & Solvent=m_SDB[iSolvent];
+  //  for (int iSoln=0; iSoln<Solvent.SoluteCount(); iSoln++)
+  //    {
+  //    //M.SetAll(0.0);
+  //    for (int Pass=(m_ShowAll.GetCheck() ? 1 : 0); Pass<2; Pass++)
+  //      {
+  //      if (Pass>0 && row>0)
+  //        m_SolubleGrid.AddItem(SBlnk(), COleVariant(row++));
 
-        double T1=m_SDB[iSolvent].xLoT(0);
-        double T2=m_SDB[iSolvent].xHiT(0);
-        double dt=(T2-T1)/m_NIntervals;
-        double t=T1-dt;
+  //      double T1=m_SDB[iSolvent].xLoT(0);
+  //      double T2=m_SDB[iSolvent].xHiT(0);
+  //      double dt=(T2-T1)/m_NIntervals;
+  //      double t=T1-dt;
 
-        Strng Note;
-        flag fBad=false;
-        for (int it=0; it<=m_NIntervals; it++)
-          {
-          t+=dt;
-          Strng Note;
-          flag fBad=false;
-          CSolubility &SItem=Solvent.Solubility(iSoln);
-          Note="";
-          Strng SolS(" ");
-          if (SItem.m_pSolubleFn)
-            {
-            double Sol=SItem.m_pSolubleFn->AtT(t);
-            SolS.Set("%.3f", Sol);
-            if (Sol<0.0)
-              {
-              if (Note())
-                Note+="/";
-              Note+="Negative ";
-              }
-            }
+  //      Strng Note;
+  //      flag fBad=false;
+  //      for (int it=0; it<=m_NIntervals; it++)
+  //        {
+  //        t+=dt;
+  //        Strng Note;
+  //        flag fBad=false;
+  //        CSolubility &SItem=Solvent.Solubility(iSoln);
+  //        Note="";
+  //        Strng SolS(" ");
+  //        if (SItem.m_pSolubleFn)
+  //          {
+  //          double Sol=SItem.m_pSolubleFn->AtT(t);
+  //          SolS.Set("%.3f", Sol);
+  //          if (Sol<0.0)
+  //            {
+  //            if (Note())
+  //              Note+="/";
+  //            Note+="Negative ";
+  //            }
+  //          }
 
-          if (Pass>0)
-            {
-            S.Set("%s\t%s\t%.2f\t%s\t%s",
-              it==0 ? (m_SDB[iSolvent].SymOrTag()?m_SDB[iSolvent].SymOrTag():""):"",
-              it==0 ? (m_SDB[SItem.m_iAqueous].SymOrTag()?m_SDB[SItem.m_iAqueous].SymOrTag():""):"",
-              m_ShowK.GetCheck()?t:K_2_C(t),
-              SolS(),
-              Note() ? Note() : " ");
-            m_SolubleGrid.AddItem(S(), COleVariant(row++));
-            }
-          fBad=fBad || (Note()!=NULL);
-          }
-        if (Pass>0)
-          if (fBad)
-            nBad++;
-          else
-            nGood++;
-        if (m_ShowAll.GetCheck()==0 && !fBad)
-          break;
-        }
-      }
-    }
+  //        if (Pass>0)
+  //          {
+  //          S.Set("%s\t%s\t%.2f\t%s\t%s",
+  //            it==0 ? (m_SDB[iSolvent].SymOrTag()?m_SDB[iSolvent].SymOrTag():""):"",
+  //            it==0 ? (m_SDB[SItem.m_iAqueous].SymOrTag()?m_SDB[SItem.m_iAqueous].SymOrTag():""):"",
+  //            m_ShowK.GetCheck()?t:K_2_C(t),
+  //            SolS(),
+  //            Note() ? Note() : " ");
+  //          m_SolubleGrid.AddItem(S(), COleVariant(row++));
+  //          }
+  //        fBad=fBad || (Note()!=NULL);
+  //        }
+  //      if (Pass>0)
+  //        if (fBad)
+  //          nBad++;
+  //        else
+  //          nGood++;
+  //      if (m_ShowAll.GetCheck()==0 && !fBad)
+  //        break;
+  //      }
+  //    }
+  //  }
 
   }
 

@@ -234,11 +234,12 @@ XID xidNThreads                       = FlwXID(1018);
 XID xidRqdThreads                     = FlwXID(1019);
 
 XID xidDefEqAqPhChg                   = FlwXID(1020);
-XID xidDefEqSoluble                   = FlwXID(1021);
-XID xidDefEqAutoVLE                   = FlwXID(1022);
-XID xidDefDensCorr                    = FlwXID(1023);
-XID xidDefSatPMeth                    = FlwXID(1024);
-XID xidDefSatPCmp                     = FlwXID(1025);
+XID xidDefEqThPhChg                   = FlwXID(1021);
+XID xidDefEqSoluble                   = FlwXID(1022);
+XID xidDefEqAutoVLE                   = FlwXID(1023);
+XID xidDefDensCorr                    = FlwXID(1024);
+XID xidDefSatPMeth                    = FlwXID(1025);
+XID xidDefSatPCmp                     = FlwXID(1026);
 
 XID xidDefaultArea                    = FlwXID(1030);
 //XID xidMissSpillAreas                 = FlwXID(2022);
@@ -10461,18 +10462,9 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("StandardTemp",  "StdT",   DC_T,   "C",    xidStdT,        this, isResult|noFileAtAll);
     DDB.Double("StandardPress", "StdP",   DC_P,   "kPa",  xidStdP,        this, isResult|noFileAtAll);
     DDB.Text  ("");
+    DDB.Text  ("Properties");
     DDB.Long  ("H2OProperties",         "", DC_,     "",  xidH2OProperties,                   this, isParmStopped|SetOnChange, CDB.H2ODDBList());
     DDB.Long  ("EnthalpyStrategy",      "", DC_,     "",  (long*)&SpModel::iEnthalpyStrategy, this, isParmStopped|SetOnChange, DDBEnthStrat);
-    DDB.Text  ("");
-
-    DDB.Long  ("EqAqPhChg",             "", DC_,     "",  xidDefEqAqPhChg,                    this, isParmStopped|SetOnChange, CDB.m_OptsOnOff.m_DDBDefValues()); 
-    DDB.Long  ("EqSoluble",             "", DC_,     "",  xidDefEqSoluble,                    this, isParmStopped|SetOnChange, CDB.m_OptsOnOff.m_DDBDefValues()); 
-    DDB.Long  ("EqAutoVLE",             "", DC_,     "",  xidDefEqAutoVLE,                    this, isParmStopped|SetOnChange, CDB.m_OptsOnOff.m_DDBDefValues()); 
-    DDB.Long  ("DensityCorrection",     "", DC_,     "",  xidDefDensCorr,                     this, isParmStopped|SetOnChange, CDB.m_OptsDensMeth.m_DDBDefValues()); 
-    DDB.Long  ("SaturationMethod",      "", DC_,     "",  xidDefSatPMeth,                     this, isParmStopped|SetOnChange, CDB.m_OptsSatPMeth.m_DDBDefValues());
-    DDB.Long  ("SaturationCmp",         "", DC_,     "",  xidDefSatPCmp,                      this, isParmStopped|SetOnChange, CDB.m_OptsSatPCmp.m_DDBDefValues());
-
-    DDB.Text  ("");
     DDB.CheckBoxBtn("FunctionSurfaces", "", DC_,     "",  xidUseSurfaces,                     this, AllowSurfaces ? isParmStopped : 0);
     DDB.CheckBoxBtn("SmoothSurfaces",   "", DC_,     "",  xidDoSmoothing,                     this, AllowSmoothing ? isParmStopped : 0);
 #if UseNewSurfaces
@@ -10482,7 +10474,25 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DElement::m_nGlblElementCnt,  this, InitHidden|noFile|noScenario|noSnap);
 #endif
     DDB.CheckBoxBtn("IncludeSpcCnvs",   "", DC_,     "",  xidIncludeSpcCnvs,                  this, isParmStopped);
+
+    DDB.Text  ("");
+    DDB.Text  ("Equilibrium");
+    if (SDB.m_AqPhChSps.GetCount())
+      DDB.Long  ("AqueousPhChg",          "", DC_,     "",  xidDefEqAqPhChg,                  this, isParmStopped|SetOnChange, CDB.m_OptsOnOff.m_DDBDefValues()); 
+    if (SDB.m_ThPhChSps.GetCount())
+      DDB.Long  ("ThermalPhChg",          "", DC_,     "",  xidDefEqThPhChg,                  this, isParmStopped|SetOnChange, CDB.m_OptsOnOff.m_DDBDefValues()); 
+    if (SDB.m_SolubleSps.GetCount()) 
+      DDB.Long  ("Solubility",            "", DC_,     "",  xidDefEqSoluble,                  this, isParmStopped|SetOnChange, CDB.m_OptsOnOff.m_DDBDefValues()); 
+    DDB.Long  ("AutoVLE",               "", DC_,     "",  xidDefEqAutoVLE,                    this, isParmStopped|SetOnChange, CDB.m_OptsOnOff.m_DDBDefValues()); 
+
+    DDB.Text  ("");
+    DDB.Text  ("Calculation Methods");
+    DDB.Long  ("DensityCorrection",     "", DC_,     "",  xidDefDensCorr,                     this, isParmStopped|SetOnChange, CDB.m_OptsDensMeth.m_DDBDefValues()); 
+    DDB.Long  ("SaturationMethod",      "", DC_,     "",  xidDefSatPMeth,                     this, isParmStopped|SetOnChange, CDB.m_OptsSatPMeth.m_DDBDefValues());
+    DDB.Long  ("SaturationCmp",         "", DC_,     "",  xidDefSatPCmp,                      this, isParmStopped|SetOnChange, CDB.m_OptsSatPCmp.m_DDBDefValues());
+
 #if !WITHMDLRANGECHECKS
+    DDB.Text  ("");
     DDB.Visibility(SM_All|HM_Reduced|HM_Full);
     DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
     DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
@@ -10830,6 +10840,11 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
       if (DCB.rL)
         CDB.m_DefEqAqPhChg=*DCB.rL;
       DCB.L=CDB.DefEqAqPhChg();
+      return 1;
+    case xidDefEqThPhChg:
+      if (DCB.rL)
+        CDB.m_DefEqThPhChg=*DCB.rL;
+      DCB.L=CDB.DefEqThPhChg();
       return 1;
     case xidDefEqSoluble:
       if (DCB.rL)

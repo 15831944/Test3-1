@@ -120,8 +120,9 @@ XID xidSMMlLFrac        = SpcXID(100044);
 XID xidSMMlVFrac        = SpcXID(100045);
 
 XID xidSMAqPhChg        = SpcXID(100050);
-XID xidSMSoluble        = SpcXID(100051);
-XID xidSMAutoVLE        = SpcXID(100052);
+XID xidSMThPhChg        = SpcXID(100051);
+XID xidSMSoluble        = SpcXID(100052);
+XID xidSMAutoVLE        = SpcXID(100053);
 
 XID xidSMRhoMethod      = SpcXID(100057);
 
@@ -1027,12 +1028,14 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual void   SetDebug(flag DbgOn_);
     
     int            EqAqPhChg();
+    int            EqThPhChg();
     int            EqSoluble();
     int            EqAutoVLE();
     bool           EqAqPhChgOn() { return EqAqPhChg()>0; };
+    bool           EqThPhChgOn() { return EqThPhChg()>0; };
     bool           EqSolubleOn() { return EqSoluble()>0; };
     bool           EqAutoVLEOn() { return EqAutoVLE()>0; };
-    bool           EqAnyOn()     { return EqAqPhChg()>0 || EqSoluble()>0 || EqAutoVLE()>0; };
+    bool           EqAnyOn()     { return EqAqPhChg()>0 || EqThPhChg()>0 || EqSoluble()>0 || EqAutoVLE()>0; };
 
     int            DensityMethod();
 
@@ -1233,6 +1236,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     sint           m_iEqAqPhChg;
     sint           m_iEqAqPhChgRqd;
+    sint           m_iEqThPhChg;
+    sint           m_iEqThPhChgRqd;
     sint           m_iEqSoluble;
     sint           m_iEqSolubleRqd;
     sint           m_iEqAutoVLE;

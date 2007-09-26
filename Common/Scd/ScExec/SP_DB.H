@@ -44,7 +44,7 @@
 // ===========================================================================
 
 // Switch on to do Solution Stuff
-#define WITHSOLNINFO     1
+#define WITHSOLNINFO     0
 
 // ===========================================================================
 //
@@ -150,7 +150,19 @@ extern DllImportExport double FracMeasTolerance;
 inline double IsTraceMass(double Qm) { return Qm >= TraceMass; };
 inline double IsUsableMass(double Qm) { return Qm >= UsableMass; };
 
-class CSVLongArray : public CArray<long, long> {};
+class CSVLongArray : public CArray<long, long> 
+  { 
+  public: 
+    long Find(long What) 
+      {
+      for (long i=0; i<GetCount(); i++)
+        {
+        if (ElementAt(i)==What)
+          return i;
+        }
+      return -1;
+      }
+  };
 class CSVBoolArray : public CArray<bool, bool> {};
 
 // ===========================================================================
@@ -201,14 +213,16 @@ class CSDB_DataRecord
     LPCSTR          ErrorMsg();
 
   public:
-    int             m_iOC_Tables[MaxTableCols];
+    int             m_iOC_VpCorrFn;
+    int             m_iOC_DensCorrFn;
     int             m_iOC_Solvent;
-    int             m_iOC_OtherSpecie;
+    int             m_iOC_PhaseChange;    // Solid / Undissolved specie
     int             m_iOC_Dissociation;
     int             m_iOC_MolecularDiam;
     int             m_iOC_MolVol;
     int             m_iOC_CpCv;
     int             m_iOC_Reference;
+    int             m_iOC_Tables[MaxTableCols];
 
     CStringArray    m_Values;
 
@@ -358,7 +372,6 @@ class DllImportExport CSpDBEqn
   public:
     double            m_Ts;      
     double            m_Te;      
-    //double            m_IntC;      
     double            m_CorrC;      
 
     Strng             m_sEqn;
@@ -367,7 +380,6 @@ class DllImportExport CSpDBEqn
     CSpConstData    * m_pConst;
     
     static bool       sm_bDoTheBreak;
-    //Strng         sm_sDataFileName;
   };
 
 static const byte ET_Null=0;
@@ -441,7 +453,7 @@ class DllImportExport CSpDBEqnSet
 class DllImportExport CDensityInfo
   {
   friend class CSpecie;
-  friend class CDensCorr;
+  //friend class CDensCorrection;
   friend class CSpecieDataBase;
   friend class SpModel;
 
@@ -487,83 +499,86 @@ const byte SDensContrib_Std      = 0;
 const byte SDensContrib_Solvent  = 1;
 const byte SDensContrib_Solute   = 2;
 
-class DllImportExport CDensCorr
-  {
-  public:
-    CDensCorr();
-    CDensCorr(int Solute, int Solvent,
-              CSpDBEqn *DensCorrFn, double DensCorrZero,
-              double LimitFrac, double PureValue, bool DoWarn);
-    ~CDensCorr();
+//class DllImportExport CDensCorrection
+//  {
+//  public:
+//    CDensCorrection();
+//    CDensCorrection(/*int Solute, int Solvent,*/
+//              CSpDBEqn *DensCorrFn, double DensCorrZero,
+//              double LimitFrac, double PureValue, bool DoWarn);
+//    ~CDensCorrection();
+//
+//    void Clear();
+//    double Correction(double MF) { return m_pDensCorrFn->AtT(MF)-m_DensCorrZero; } //note this ignores MF Limit
+//    double CorrectionWithLimit(double MF, double SolventDensity);
+//
+//    double Evaluate(CDensityInfo & C, long iSolvent, double MassSolvent, double MassSolute);
+//    //double Evaluate(CDensityInfo & C, long iSolvent);
+//
+//  public:
+//    //int      m_iSolute;
+//    //int      m_iSolvent;
+//
+//    CSpDBEqn *m_pDensCorrFn;          // Density Correction Function
+//    double   m_DensCorrZero; 
+//    double   m_LimitFrac;        
+//    double   m_PureValue;
+//    bool     m_DoWarn;
+//
+//  };
 
-    void Clear();
-    double DensCorr(double MF) { return m_pDensCorrFn->AtT(MF)-m_DensCorrZero; } //note this ignores MF Limit
-    double DensCorrWithLimit(double MF, double SolventDensity);
-
-    double Evaluate(CDensityInfo & C, double MassSolvent, double MassSolute);
-    double Evaluate(CDensityInfo & C);
-
-  public:
-    int      m_iSolute;
-    int      m_iSolvent;
-
-    CSpDBEqn *m_pDensCorrFn;          // Density Correction Function
-    double   m_DensCorrZero; 
-    double   m_LimitFrac;        
-    double   m_PureValue;
-    bool     m_DoWarn;
-
-  };
-
-class CDensCorrs : public CArray<CDensCorr, CDensCorr&> {};
+//class CDensCorrs : public CArray<CDensCorrection, CDensCorrection&> {};
 
 // ===========================================================================
+//
 
-class DllImportExport CCpCorr
-  {
-  public:
-    CCpCorr();
-    CCpCorr(int Solute, CSpDBEqn *CpCorrFn, double CpCorrZero);
-    ~CCpCorr();
-
-    void Clear();
-    double CpCorr(double MF)   { return m_pCpCorrFn->AtT(MF)-m_dCpCorrZero; }
-
-  public:
-    int        m_iSolute;
-    CSpDBEqn * m_pCpCorrFn;            // Cp Correction Function
-    double     m_dCpCorrZero;          // Cp Correction Function
-
-  };
-
-class CCpCorrs : public CArray<CCpCorr, CCpCorr&> {};
-
+// ===========================================================================
+//
+//class DllImportExport CCpCorr
+//  {
+//  public:
+//    CCpCorr();
+//    CCpCorr(int Solute, CSpDBEqn *CpCorrFn, double CpCorrZero);
+//    ~CCpCorr();
+//
+//    void Clear();
+//    double CpCorr(double MF)   { return m_pCpCorrFn->AtT(MF)-m_dCpCorrZero; }
+//
+//  public:
+//    int        m_iSolute;
+//    CSpDBEqn * m_pCpCorrFn;            // Cp Correction Function
+//    double     m_dCpCorrZero;          // Cp Correction Function
+//
+//  };
+//
+//class CCpCorrs : public CArray<CCpCorr, CCpCorr&> {};
+//
 // ===========================================================================
 //
 //
 //
 // ===========================================================================
 
-class DllImportExport CSolubility
-  {
-  public:
-    CSolubility();
-    CSolubility(int SoluteA, int SoluteS,
-              CSpDBEqn *SolubleFn, CSpDBEqn *HeatOfMixFn);
-    ~CSolubility();
-
-    void Clear();
-
-  public:
-    int      m_iAqueous;
-    int      m_iOtherPh;             //'OtherPhase' required by SolubleFn
-
-    CSpDBEqn *m_pSolubleFn;           // Solubility Function
-    CSpDBEqn *m_pHeatOfMixFn;
-
-  };
-
-class CSolubilities : public CArray<CSolubility, CSolubility&> {};
+//class DllImportExport CSolubility
+//  {
+//  public:
+//    CSolubility();
+//    CSolubility(int SoluteA, int SoluteS,
+//              CSpDBEqn *SolubleFn, CSpDBEqn *HeatOfMixFn);
+//    ~CSolubility();
+//
+//    void Clear();
+//
+//  public:
+//    //int      m_iAqueous;
+//    //int      m_iOtherPh;             //'OtherPhase' required by SolubleFn
+//
+//    CSpDBEqn *m_pSolubleFn;           // Solubility Function
+//    CSpDBEqn *m_pHeatOfMixFn;
+//
+//  };
+//
+//class CSolubilities : public CArray<CSolubility, CSolubility&> {};
 
 // ===========================================================================
 //
@@ -858,7 +873,7 @@ class DllImportExport CSpecie : public CPropertyBase
   friend class CSpecieDataBase;
   friend class CComponentDataBase;
   friend class CSpFidelData;
-  friend class CDensCorr;
+  //friend class CDensCorrection;
   friend class SpModel;
 
   public:
@@ -887,32 +902,24 @@ class DllImportExport CSpecie : public CPropertyBase
 
     int           CId();
 
-    byte          DensContribution() { return m_iDensContribution; }
-    flag          HasDensCalc() { return m_pDensCalc!=0; };
-
-    double        CpCorrFactor(CSVData M);
-    int           DensCorrCount();
-    CDensCorr   & DensCorr(int i);
-    CDensCorr   & DensCalc();
-    int           CpCorrCount();
-    CCpCorr     & CpCorr(int i);
-    int           SolubilityCount();
-    CSolubility & Solubility(int i);
     int           Solvent();
     int           SolventNo();
 
-
-    flag          CpDirect();
-    flag          CpInDirect();
-
-
     char *        SymOrTag();
-    flag          PrjDB();
 
-    void          Dump(LPCTSTR Location=NULL, long NPts=50);
+    int           ParseDensCorrection(LPCSTR DensCorrFn, double CfgLoT, double CfgHiT, CSDB_DataRecord * pRecord);
+    int           ParseVpCorrection(LPCSTR VpCorrFn, double CfgLoT, double CfgHiT, CSDB_DataRecord * pRecord);
 
-    //int           xFindTIndex(long Fidelity, double T);
+    byte          DensContribution()        { return m_iDensContribution; }
+    flag          DensCorrFnExists()        { return m_DensCorrFn.Exists(); };
+    double        DensCorrZero()            { return m_DensCorrZero; }
+    double        DensLimitFrac()           { return m_DensLimitFrac;   }
+    double        DensPureValue()           { return m_DensPureValue;}
+    bool          DensDoWarn()              { return m_DensDoWarn;}
 
+    double        DensCorrection(double MF) { return m_DensCorrFn.AtT(MF)-m_DensCorrZero; } //note this ignores MF Limit
+    double        DensCorrectionWithLimit(double MF, double SolventDensity);
+    double        DensApparent(CDensityInfo & C, long iSolvent, double MassSolvent, double MassSolute);
 
     bool          DensityX(CDensityInfo & C, double SpMass);
     bool          DensityX(CDensityInfo & C)                 { return DensityX(C, C.m_M ? C.m_M[iSId]:0.0); }
@@ -920,11 +927,6 @@ class DllImportExport CSpecie : public CPropertyBase
     double        DensityXZero(CDensityInfo & C)             { return DensityX(C, C.m_M ? C.m_M[iSId]:0.0) ? C.Density():0.0; }
     double        DensityXInf(CDensityInfo & C)              { return DensityX(C, C.m_M ? C.m_M[iSId]:0.0) ? C.Density():1.0/ZeroLimit; }
     double        DensityXNAN(CDensityInfo & C)              { return DensityX(C, C.m_M ? C.m_M[iSId]:0.0) ? C.Density():dNAN; }
-
-    //double        msVolumeX(CDensityInfo & C, double SpMass) { return 1.0/DensityX(C, SpMass); };
-    //double        msVolumeX(CDensityInfo & C)                { return 1.0/DensityX(C); };
-
-    //bool          SigmaDensityX(CDensityInfo & C, double SpMass, double Scale=1.0);
 
     double        DensityFn(CDensityInfo & C);
     double        DensityNCFn(CDensityInfo & C);
@@ -988,6 +990,9 @@ class DllImportExport CSpecie : public CPropertyBase
     LPSTR         KaKbDesc()         { return m_sKaKbDesc(); }
     bool          DaOK()             { return m_bDaOK; };
 
+    void          Dump(LPCTSTR Location=NULL, long NPts=50);
+
+
     // CPropertyBase virtuals
     virtual LPCTSTR DefinedPropertyMapName()                              { return "SpecieDefn"; }
     virtual long    DefinedPropertyCount();
@@ -1014,15 +1019,6 @@ class DllImportExport CSpecie : public CPropertyBase
     int             iSId;
     int             iCId;
 
-    struct
-      {
-      double           m_SoluteMaxMF;
-      int              m_iSolvent;
-      int              m_iOtherSpecie;
-      Strng            m_sSolvent;
-      Strng            m_sOtherSpecie;
-      }              m_Aq;
-
     CComponent     & m_Cmp;
     CSpConstData   & m_Const;
     CSpCommonDataA & m_Common;
@@ -1039,42 +1035,54 @@ class DllImportExport CSpecie : public CPropertyBase
     flag             m_bVcSpecd;
     flag             m_bAcSpecd;
 
-  protected:
+  //protected:
 
-    CSpecie*         pPrev;
-    CSpecie*         pNext;
-    CSpecie*         pFirst;
-
-    byte             m_bReference:1,
-                     m_bPrjDB:1,
-                     m_bIsAqueous:1,
-                     m_bHasCpCorrs:1,
-                     m_bCpInDirect:1;
+    bool             m_bReference;
+    bool             m_bIsAqueous;
 
     SPOType          m_bCpOvrMask;
     SPOType          m_bDensOvrMask;
     byte             m_iOverIndex;
 
+    // Solute / Solvent
+    static const int PhChRule_Null          = 0;
+    static const int PhChRule_MassFrac      = 1;
+    static const int PhChRule_T             = 2;
+    static const int PhChRule_TP            = 3;
+    static const int PhChRule_SolubleT      = 4;
+    static const int PhChRule_SolubleTP     = 5;
+
     int              m_iSolvent;
     int              m_iSolventNo;
-    CDensCorr *      m_pDensCalc;
+    int              m_iPhChSpecie;
+    int              m_iPhChRule;        
+    CSpDBEqnSet      m_PhChFn;
+
+    Strng            m_sSolvent;
+    Strng            m_sPhChSpecie;
+
+    // Dens Correction
     byte             m_iDensContribution;
+    CSpDBEqnSet      m_DensCorrFn;          // Density Correction Function
+    double           m_DensCorrZero; 
+    double           m_DensLimitFrac;        
+    double           m_DensPureValue;
+    bool             m_DensDoWarn;
+    CSVLongArray     m_DensSolutes;
 
-    CDensCorrs       m_DensCorrs;
-    CCpCorrs         m_CpCorrs;
-    CSolubilities    m_Solubilities;
-
-    static const byte      DaType_IsNull = 0;
-    static const byte      DaType_IsAcid = 1;
-    static const byte      DaType_IsBase = 2;
+    // Solubility
+    CSpDBEqnSet      m_SolubleFn;          
+    
+    static const byte DaType_IsNull = 0;
+    static const byte DaType_IsAcid = 1;
+    static const byte DaType_IsBase = 2;
 
     bool            m_bDaOK;
     byte            m_iDaType;
     double          m_dDa[3];        // Dissociation numbers
-    //Strng           m_sDa;           // 
     Strng           m_sKaKbDesc;
 
-    bool             m_bHoldCopy;
+    bool            m_bHoldCopy;
 
   };
 
@@ -1168,11 +1176,12 @@ class DllImportExport CSpecieDataBase
 
   public:
 
-    CSVLongArray   m_DensCorrSps;
-    CSVLongArray   m_CpCorrSps;
-    CSVLongArray   m_SolubleSps;
+    CSVLongArray   m_DensCorrectedSps;
 
-    CSVLongArray   m_AqueousSps;
+    CSVLongArray   m_SolubleSps;        // Solution Type
+    CSVLongArray   m_AqPhChSps;         // Aqueous PhCHange
+    CSVLongArray   m_ThPhChSps;         // Thermal PhCHange
+    CSVLongArray   m_AqueousSps;        // Has a Solvent
     
     CSVLongArray   m_Acids;
     CSVLongArray   m_Bases;
@@ -1629,12 +1638,14 @@ class DllImportExport CComponentDataBase
 
     flag           LoadComponents(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList& RqdSpc, flag H2OAsAqueous);
     flag           LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList& RqdSpc, flag H2OAsAqueous);
-    flag           LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile);
     void           AddSpecieD(int c, CComponent & C, CSpecie *pSpD, int p);
     flag           CheckCommonData();
     flag           BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp, CRqdSpList& RqdSpc);
     flag           LoadBIPs(CDBInitRec & CDBInit, char* FilePath);
+#if WITHSOLNINFO     
+    flag           LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile);
     flag           LoadSolnInfo(CDBInitRec & CDBInit, char* FilePath);
+#endif
     flag           CopyDataForMultiFidelity();
     flag           FixOffsetConstants();
     flag           Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag UseLibDB, flag H2OAsAqueous, flag DoTest=true);
@@ -1664,6 +1675,7 @@ class DllImportExport CComponentDataBase
     CPhaseInfo &   PhaseInfo(int i) { ASSERT(i>=0 && i<m_PhInfoCount[BOT_All]); return m_PhInfo[i]; }
 
     int            DefEqAqPhChg()      { return m_DefEqAqPhChg; };
+    int            DefEqThPhChg()      { return m_DefEqThPhChg; };
     int            DefEqSoluble()      { return m_DefEqSoluble; };
     int            DefEqAutoVLE()      { return m_DefEqAutoVLE; };
 
@@ -1696,7 +1708,7 @@ class DllImportExport CComponentDataBase
     double                MinP;
     double                MaxP;
 
-    flag                  UseStdFns4H2O;
+    flag                  m_bUseStdFns4H2O;
     CSpecie             * m_pWater;
     CSpecie             * m_pSteam;
 
@@ -1704,8 +1716,8 @@ class DllImportExport CComponentDataBase
     CSpecieDataBase       m_SDB;
     CCElementDataBase     m_EDB;
     CH2ODataBase          m_H2O;
-    CArray<int, int>      m_Flashable;
 
+    CArray<int, int>      m_Flashable;
 
     int                   m_ph_SolS;
     int                   m_ph_SolE;
@@ -1733,6 +1745,7 @@ class DllImportExport CComponentDataBase
     CSDBOptions           m_OptsSatPCmp;
     
     int                   m_DefEqAqPhChg;
+    int                   m_DefEqThPhChg;
     int                   m_DefEqSoluble;
     int                   m_DefEqAutoVLE;
     int                   m_DefDensityMethod;
@@ -1786,13 +1799,10 @@ inline bool       CSpFidelData::H25OK()            { return m_pSp->H25OK();     
 inline bool       CSpFidelData::S25OK()            { return m_pSp->S25OK();             };
 
 inline bool       CSpFidelData::CpOK()             { return m_pSp->CpOK();              };
-//inline bool       CSpFidelData::VpOK(long Fidelity){ return m_pSp->m_pCommon[long Fidelity]->VpOK();              };
 
 // ===========================================================================
 
 inline double     CSpecie::SpRho(long Fidelity, double T, double P)  { return m_FData[Fidelity].SpRho(T,P);};
-inline flag       CSpecie::CpDirect()                                { return !m_bCpInDirect; };
-inline flag       CSpecie::CpInDirect()                              { return m_bCpInDirect; };
 
 inline double     CSpecie::xLoT(long Fidelity)                        { return m_FData[Fidelity].xm_LoT; };
 inline double     CSpecie::xHiT(long Fidelity)                        { return m_FData[Fidelity].xm_HiT; };
@@ -1812,20 +1822,15 @@ inline double     CSpecie::msGf(long Fidelity, double T, double P, SpPropOveride
 inline double     CSpecie::msHf0(long Fidelity)            { return mlHf0(Fidelity)/m_Const.m_dMoleWt;};
 inline double     CSpecie::msHfBase0(long Fidelity)        { return mlHfBase0(Fidelity)/m_Const.m_dMoleWt;};
 
-//inline double     CSpecie::VapourP(long Fidelity, double T)  { return m_FData[Fidelity].m_pVp[m_FData[Fidelity].FindTIndex(T)]->AtT(T); };
-
 inline bool       CSpecie::CpOK()             { return m_FData[0].m_CpOK; };
 inline bool       CSpecie::H25OK()            { return m_FData[0].m_H25OK; };
 inline bool       CSpecie::S25OK()            { return m_FData[0].m_S25OK; };
-//inline bool       CSpecie::VpOK()             { return m_pCommon->m_bVpOK; };
 
 // ===========================================================================
 
 inline char *     CSpecie::Tag()                  { return sTag() ? sTag() : ""; };
 inline char *     CSpecie::Sym()                  { return sSym(); };
 inline char *     CSpecie::CmpTag()               { return sCmpTag(); };
-
-//inline int        CSpecie::xFindTIndex(long Fidelity, double T)   { return m_FData[Fidelity].xFindTIndex(T);};
 
 inline flag       CSpecie::PhaseIs(PhMask Ph)     { return (m_PhMsk & Ph)!=0; };
 inline flag       CSpecie::IsSol()                { return (m_PhMsk & m_CDB.m_som_Sol)!=0; };
@@ -1834,19 +1839,11 @@ inline flag       CSpecie::IsGas()                { return (m_PhMsk & m_CDB.m_so
 inline flag       CSpecie::IsAqueous()            { return m_bIsAqueous; };
 inline int        CSpecie::BaseOccType()          { return m_iBOccT; };
 inline int        CSpecie::CId()                  { return iCId; };
-inline int        CSpecie::DensCorrCount()        { return m_DensCorrs.GetSize(); };
-inline CDensCorr & CSpecie::DensCorr(int i)       { return m_DensCorrs[i]; };
-inline CDensCorr & CSpecie::DensCalc()            { return *m_pDensCalc; };
-inline int        CSpecie::CpCorrCount()          { return m_CpCorrs.GetSize(); };
-inline CCpCorr  & CSpecie::CpCorr(int i)          { return m_CpCorrs[i]; };
-inline int        CSpecie::SolubilityCount()      { return m_Solubilities.GetSize(); };
-inline CSolubility & CSpecie::Solubility(int i)   { return m_Solubilities[i]; };
 
 inline int        CSpecie::Solvent()              { return m_iSolvent; };
 inline int        CSpecie::SolventNo()            { return m_iSolventNo; };
 
 inline char *     CSpecie::SymOrTag()             { return sSym.Length()>0 ? sSym(): sTag();};
-inline flag       CSpecie::PrjDB()                { return m_bPrjDB; };
 
 // ===========================================================================
 
@@ -1862,8 +1859,6 @@ inline int        CComponent::SolPhInx(int i)     { return m_SpPhaseD[m_CDB.m_ph
 inline int        CComponent::LiqPhInx(int i)     { return m_SpPhaseD[m_CDB.m_ph_LiqS+i] ? m_SpPhaseD[m_CDB.m_ph_LiqS+i]->iSId : -1; };
 inline int        CComponent::VapPhInx(int i)     { return m_SpPhaseD[m_CDB.m_ph_GasS+i] ? m_SpPhaseD[m_CDB.m_ph_GasS+i]->iSId : -1; };
 inline int        CComponent::CmpInx()            { return m_iCId; };
-
-//inline int        CComponent::AqsPhInx()            { return m_CDB.m_ph_AqsInx>=0 && m_SpPhaseD[m_CDB.m_ph_AqsInx] ? m_SpPhaseD[m_CDB.m_ph_AqsInx]->iSId : -1; };
 
 inline CSpecie *  CComponent::pSpecie(int occ)    { return m_PhaseData[occ];};
 inline int        CComponent::iSpecie(int occ)    { return m_iPhaseData[occ];};
@@ -1884,8 +1879,6 @@ extern DllImportExport int &ph_SolS;
 extern DllImportExport int &ph_SolE;
 extern DllImportExport int &ph_LiqS;
 extern DllImportExport int &ph_LiqE;
-//extern DllImportExport int &ph_AqsS;
-//extern DllImportExport int &ph_AqsE;
 extern DllImportExport int &ph_GasS;
 extern DllImportExport int &ph_GasE;
 extern DllImportExport int &ph_ALL;

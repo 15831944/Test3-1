@@ -1863,6 +1863,54 @@ SimpleH2OProps::~SimpleH2OProps()
 //
 //
 //
+// ===========================================================================
+
+class SDBE_Exp: protected CSpDBEqn
+  {
+  friend class CSpDBEqn; 
+
+  protected:
+    double         a,b,c,d;
+
+    SDBE_Exp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=0.0;};
+    virtual ~SDBE_Exp() {};
+    static const char * Name() { return "Exp"; };
+    virtual const char * VName() { return Name(); };
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord);
+    virtual void Copy(CSpDBEqn* p) { SDBE_Exp*pc=(SDBE_Exp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
+    
+    virtual double AtT(double T); 
+  };
+
+//---------------------------------------------------------------------------
+
+int SDBE_Exp::Load(const char * pInitStr, char* Cols[MaxSPDBCols], CSDB_DataRecord * pRecord)
+  {
+  if (strlen(Cols[0])==0) 
+    {
+    a=1.0;
+    b=c=0.0;
+    return 2;
+    }
+  a=SpDB_TokenValue(Cols[0], 1.0);
+  b=SpDB_TokenValue(Cols[1], 0.0);
+  c=SpDB_TokenValue(Cols[2], 0.0);
+  return 0;
+  }
+
+//---------------------------------------------------------------------------
+
+double SDBE_Exp::AtT(double T)
+  { 
+  T=Max(1.0, T);
+  double S=a*exp(b*(T-c));    
+  return S;
+  }
+
+// ==========================================================================
+//
+//
+//
 // ==========================================================================
 
 #if WithIAFH2OMdl
@@ -2287,6 +2335,12 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
 
 #endif
 
+    else if (_stricmp(Str, SDBE_Exp::Name())==0) 
+      {
+      pn=SDBE_Exp::Name();
+      p=new SDBE_Exp(pConst, pSpD);
+      }
+
 #if WithSpDB_TSpline       
     else if (_stricmp(Str, SDBE_TSpline::Name())==0) 
       {
@@ -2307,7 +2361,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
         {
         if (p->Load(pInitString, Cols, pRecord)!=0)
           {
-          LogError("SpecieDB", LF_Exclamation, "Bad Parameters %s for %s", pInitString, pSpD->m_pSp->sCmpTag());
+          LogError("SpecieDB", LF_Exclamation, "Bad Parameters '%s' for '%s'", pInitString, pSpD->m_pSp->sCmpTag());
           }
         p->m_sEqn = pInitString;
         }
@@ -2316,7 +2370,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
   else
     {
     if (strlen(pInitString)>0 && (pOpn || pCls || (!isdigit(Str[0]) && Str[0]!='.' && Str[0]!='-')))
-      LogError("SpecieDB", LF_Exclamation, "Bad CSpDBEqn %s for %s", pInitString, pSpD->m_pSp->sCmpTag());
+      LogError("SpecieDB", LF_Exclamation, "Bad Equation '%s' for '%s'", pInitString, pSpD->m_pSp->sCmpTag());
     pn=SDBE_Const::Name();
     SpDB_ParseTokens(Str, Cols);
     p=new SDBE_Const(pConst, pSpD);
@@ -2326,7 +2380,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
   
   if (!p)
     {
-    LogError("SpecieDB", LF_Exclamation, "CSpDBEqn %s not found for %s", pInitString, pSpD->m_pSp->sCmpTag());
+    LogError("SpecieDB", LF_Exclamation, "Equation '%s' not found for '%s'", pInitString, pSpD->m_pSp->sCmpTag());
     pn=SDBE_Const::Name();
     strcpy(Str, "Const(1.0,0,0,0)");
     SpDB_ParseTokens(Str, Cols);

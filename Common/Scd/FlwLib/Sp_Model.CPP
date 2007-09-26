@@ -644,6 +644,8 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
 
   m_iEqAqPhChg    = SMO_Default;
   m_iEqAqPhChgRqd = SMO_Default;
+  m_iEqThPhChg    = SMO_Default;
+  m_iEqThPhChgRqd = SMO_Default;
   m_iEqSoluble    = SMO_Default;
   m_iEqSolubleRqd = SMO_Default;
   m_iEqAutoVLE    = SMO_Default;
@@ -845,6 +847,7 @@ void SpModel::SetQualityPresent(int q, flag Present)
 void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
   {
   m_iEqAqPhChg  = (m_iEqAqPhChgRqd>SMO_Default ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
+  m_iEqThPhChg  = (m_iEqThPhChgRqd>SMO_Default ? m_iEqThPhChgRqd : SrcModel->EqThPhChg());
   m_iEqSoluble  = (m_iEqSolubleRqd>SMO_Default ? m_iEqSolubleRqd : SrcModel->EqSoluble());
   m_iEqAutoVLE  = (m_iEqAutoVLERqd>SMO_Default ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
   
@@ -888,6 +891,7 @@ void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
 void SpModel::SetQualities(SpModel * SrcModel)
   {
   m_iEqAqPhChg  = (m_iEqAqPhChgRqd>SMO_Default ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
+  m_iEqThPhChg  = (m_iEqThPhChgRqd>SMO_Default ? m_iEqThPhChgRqd : SrcModel->EqThPhChg());
   m_iEqSoluble  = (m_iEqSolubleRqd>SMO_Default ? m_iEqSolubleRqd : SrcModel->EqSoluble());
   m_iEqAutoVLE  = (m_iEqAutoVLERqd>SMO_Default ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
 
@@ -929,6 +933,7 @@ void SpModel::AddQualities(SpModel * SrcModel, CSysVector & Cm)
   if (SrcModel->Mass(som_ALL)>Mass(som_ALL)) // should test rel masses
     {
     m_iEqAqPhChg  = (m_iEqAqPhChgRqd>SMO_Default ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
+    m_iEqThPhChg  = (m_iEqThPhChgRqd>SMO_Default ? m_iEqThPhChgRqd : SrcModel->EqThPhChg());
     m_iEqSoluble  = (m_iEqSolubleRqd>SMO_Default ? m_iEqSolubleRqd : SrcModel->EqSoluble());
     m_iEqAutoVLE  = (m_iEqAutoVLERqd>SMO_Default ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
 
@@ -997,31 +1002,32 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
       if (EqSolubleOn() && dbgSolubleEquil())
         {
         dbgp("%5s","");
-        for (int j=0; j<SDB.m_SolubleSps.GetSize(); j++)
-          {
-          int iSolvent=SDB.m_SolubleSps[j];
-          CSpecie & Solvent=SDB[iSolvent];
-          for (int i=0; i<Solvent.SolubilityCount(); i++)
-            {
-            CSolubility &S=Solvent.Solubility(i);
-            dbgp(" %s : ", Solvent.SymOrTag());
-            dbgp(" %s <> %s", SDB[S.m_iOtherPh].SymOrTag(), SDB[S.m_iAqueous].SymOrTag());
-            //dbgp(" %+29s %6s", SDB[S.m_iOtherPh].SymOrTag(),"");
-            }
-          }
-        dbgpln("");
-        dbgp("%-5s","Iter");
-        for (j=0; j<SDB.m_SolubleSps.GetSize(); j++)
-          {
-          int iSolvent=SDB.m_SolubleSps[j];
-          CSpecie & Solvent=SDB[iSolvent];
-          for (int i=0; i<Solvent.SolubilityCount(); i++)
-            {
-            CSolubility &S=Solvent.Solubility(i);
-            dbgp(" %+14s %+14s %+6s", "Act","Rqd", "T");
-            }
-          }
-        dbgpln("");
+        _asm int 3;
+        //for (int j=0; j<SDB.m_SolubleSps.GetSize(); j++)
+        //  {
+        //  int iSolvent=SDB.m_SolubleSps[j];
+        //  CSpecie & Solvent=SDB[iSolvent];
+        //  for (int i=0; i<Solvent.SolubilityCount(); i++)
+        //    {
+        //    CSolubility &S=Solvent.Solubility(i);
+        //    dbgp(" %s : ", Solvent.SymOrTag());
+        //    dbgp(" %s <> %s", SDB[S.m_iOtherPh].SymOrTag(), SDB[S.m_iAqueous].SymOrTag());
+        //    //dbgp(" %+29s %6s", SDB[S.m_iOtherPh].SymOrTag(),"");
+        //    }
+        //  }
+        //dbgpln("");
+        //dbgp("%-5s","Iter");
+        //for (j=0; j<SDB.m_SolubleSps.GetSize(); j++)
+        //  {
+        //  int iSolvent=SDB.m_SolubleSps[j];
+        //  CSpecie & Solvent=SDB[iSolvent];
+        //  for (int i=0; i<Solvent.SolubilityCount(); i++)
+        //    {
+        //    CSolubility &S=Solvent.Solubility(i);
+        //    dbgp(" %+14s %+14s %+6s", "Act","Rqd", "T");
+        //    }
+        //  }
+        //dbgpln("");
         }
 #endif
 
@@ -1040,23 +1046,48 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
         if (EqAqPhChgOn())
           {
           double Ht=totHf();
-          for (int j=0; j<SDB.m_AqueousSps.GetSize(); j++)
+          for (int j=0; j<SDB.m_AqPhChSps.GetSize(); j++)
             {
+            int iPhChange=SDB.m_AqPhChSps[j];
+            ASSERT_RDB(SDB[iPhChange].m_iPhChRule==CSpecie::PhChRule_MassFrac, "Bad PhCh Rule", __FILE__, __LINE__); 
 
-            int iAqueous=SDB.m_AqueousSps[j];
-            int iSolvent=SDB[iAqueous].m_Aq.m_iSolvent;
-            int iOtherSp=SDB[iAqueous].m_Aq.m_iOtherSpecie;
-            double TotSolute=m_M[iAqueous]+m_M[iOtherSp];
-            if (TotSolute/GTZ(TotSolute+m_M[iSolvent])>=SDB[iAqueous].m_Aq.m_SoluteMaxMF)
+            int iSolvent=SDB[iPhChange].m_iSolvent;
+            int iPhChSp=SDB[iPhChange].m_iPhChSpecie;
+            double TotSolute=m_M[iPhChange]+m_M[iPhChSp];
+            if (TotSolute/GTZ(TotSolute+m_M[iSolvent])>=SDB[iPhChange].m_PhChFn.AtT(StdT))
               {
-              VValue[iOtherSp] = TotSolute;
-              VValue[iAqueous] = 0.0;
+              VValue[iPhChSp] = TotSolute;
+              VValue[iPhChange] = 0.0;
               }
             else
               {
-              VValue[iAqueous] = TotSolute;
-              VValue[iOtherSp] = 0.0;
+              VValue[iPhChange] = TotSolute;
+              VValue[iPhChSp] = 0.0;
               }
+            }
+          Set_totHf(Ht);
+          }
+
+        if (EqThPhChgOn())
+          {
+          double Ht=totHf();
+          for (int j=0; j<SDB.m_ThPhChSps.GetSize(); j++)
+            {
+            int iPhChange=SDB.m_ThPhChSps[j];
+
+            //int iSolvent=SDB[iPhChange].m_iSolvent;
+            //int iPhChSp=SDB[iPhChange].m_iPhChSpecie;
+            //double TotSolute=m_M[iPhChange]+m_M[iPhChSp];
+            //if (TotSolute/GTZ(TotSolute+m_M[iSolvent])>=SDB[iPhChange].m_PhChFn.AtT(StdT))
+            //  {
+            //  VValue[iPhChSp] = TotSolute;
+            //  VValue[iPhChange] = 0.0;
+            //  }
+            //else
+            //  {
+            //  VValue[iPhChange] = TotSolute;
+            //  VValue[iPhChSp] = 0.0;
+            //  }
             }
           Set_totHf(Ht);
           }
@@ -1065,80 +1096,84 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
           {
           for (int j=0; j<SDB.m_SolubleSps.GetSize(); j++)
             {
-            int iSolvent=SDB.m_SolubleSps[j];
+            int iSolute=SDB.m_SolubleSps[j];
+            CSpecie & Solute=SDB[iSolute];
+            int iSolvent=Solute.m_iSolvent;
             CSpecie & Solvent=SDB[iSolvent];
-            for (int i=0; i<Solvent.SolubilityCount(); i++)
+            int iPhChSpecie=Solute.m_iPhChSpecie;
+
+            double Ht=totHf();
+            double TotSolute=m_M[iPhChSpecie]+m_M[iSolute];
+            double MassSolvent=m_M[iSolvent];
+            if (TstGTZ(TotSolute) && TstGTZ(MassSolvent))
               {
-              CSolubility &S=Solvent.Solubility(i);
-              double Ht=totHf();
-              double TotSolute=m_M[S.m_iOtherPh]+m_M[S.m_iAqueous];
-              double MassSolvent=m_M[iSolvent];
-              if (TstGTZ(TotSolute) && TstGTZ(MassSolvent))
+              double OtherFrac=m_M[iPhChSpecie]/TotSolute;
+              double MassAq=m_M[iSolute];
+
+              double T=Valid(RqdT)?RqdT:Temp();
+              double P=Valid(RqdP)?RqdP:Press();
+              double ActConc=m_M[iSolute]/MassSolvent;
+              double RqdConc=0;
+              // Solubility gives g/100g of solvent
+              switch (Solute.m_iPhChRule)
                 {
-                double OtherFrac=m_M[S.m_iOtherPh]/TotSolute;
-                double MassAq=m_M[S.m_iAqueous];
+                case CSpecie::PhChRule_T:   RqdConc=GEZ(Solute.m_PhChFn.AtT(T)/100);  break;
+                case CSpecie::PhChRule_TP:  RqdConc=GEZ(Solute.m_PhChFn.AtTP(T, P)/100);  break;
+                };
+              double Err=RqdConc-ActConc;
+              //Conc[i]=ActConc;
+#if dbgSoluble
+              if (dbgSolubleEquil())
+                dbgp(" %14.6g %14.6g %6.1f",ActConc,RqdConc,T);
+#endif
+              if (gs_EquilFinderTol.ConvergedDV(Err, RqdConc))
+                continue;
+              if (RqdConc>ActConc && OtherFrac<0.000000000001)
+                continue;
+              if (RqdConc<ActConc && OtherFrac>0.999999999999)
+                continue;
+              SolConverged=False;
 
-                double T=Valid(RqdT)?RqdT:Temp();
-                double P=Valid(RqdP)?RqdP:Press();
-                //double SolventDens=SDB[iSolvent].Density(m_iFidelity, T, P, &m_Ovr, SVData());
-                //double SolventVol=(MassSolvent+MassAq)/SolventDens;
-                double ActConc=m_M[S.m_iAqueous]/MassSolvent;
-                //double RqdConc=GEZ(S.pFn1 ? S.pFn1->Value(T) : S.pFn2->Value(T, P));
-                double RqdConc=GEZ(S.m_pSolubleFn ? S.m_pSolubleFn->AtT(T) : 1e12);
-                double Err=RqdConc-ActConc;
-                //Conc[i]=ActConc;
-  #if dbgSoluble
-                if (dbgSolubleEquil())
-                  dbgp(" %14.6g %14.6g %6.1f",ActConc,RqdConc,T);
-  #endif
-                if (gs_EquilFinderTol.ConvergedDV(Err, RqdConc))
-                  continue;
-                //if (fabs(Err)<1.0e-8*RqdConc+1.0e-10)
-                //  continue;
-                if (RqdConc>ActConc && OtherFrac<0.000000000001)
-                  continue;
-                if (RqdConc<ActConc && OtherFrac>0.999999999999)
-                  continue;
-                SolConverged=False;
+              double TstdMassAq=OtherFrac>0.5 ? +1.0e-3*TotSolute : -1.0e-3*TotSolute;
+              double TstSolFrac=Range(0.0, OtherFrac-TstdMassAq/TotSolute, 1.0);
+              VValue[iPhChSpecie]=TotSolute*(TstSolFrac);
+              VValue[iSolute]=TotSolute*(1.0-TstSolFrac);
+              ClrStatesOK();
 
-                double TstdMassAq=OtherFrac>0.5 ? +1.0e-3*TotSolute : -1.0e-3*TotSolute;
-                double TstSolFrac=Range(0.0, OtherFrac-TstdMassAq/TotSolute, 1.0);
-                VValue[S.m_iOtherPh]=TotSolute*(TstSolFrac);
-                VValue[S.m_iAqueous]=TotSolute*(1.0-TstSolFrac);
-                ClrStatesOK();
+              if (Valid(RqdT))
+                Ht=totHf(som_ALL, RqdT, RqdP);
+              Set_totHf(Ht);
 
-                if (Valid(RqdT))
-                  Ht=totHf(som_ALL, RqdT, RqdP);
-                Set_totHf(Ht);
-
-                double T1=Valid(RqdT)?RqdT:Temp();
-                //double RqdConc1=GEZ(S.pFn1 ? S.pFn1->Value(T1) : S.pFn2->Value(T1, P));
-                double RqdConc1=GEZ(S.m_pSolubleFn ? S.m_pSolubleFn->AtT(T1) : 1e12);
-                double Slope=(RqdConc1-RqdConc)/TstdMassAq;
-
-                double dMAq=(MassSolvent*(RqdConc-ActConc))/(1-LEZ(MassSolvent*Slope));
-                double NewOtherFrac=Range(0.0, OtherFrac-dMAq/TotSolute, 1.0);
-                VValue[S.m_iOtherPh]=TotSolute*(NewOtherFrac);
-                VValue[S.m_iAqueous]=TotSolute*(1.0-NewOtherFrac);
-                ClrStatesOK();
-
-                if (Valid(RqdT))
-                  Ht=totHf(som_ALL, RqdT, RqdP);
-                Set_totHf(Ht);
-
-                //double SolventDens1=SDB[iSolvent].Density(m_iFidelity, Valid(RqdT)?RqdT:Temp(), P, &m_Ovr, SVData());
-                //double SolventVol1=(MassSolvent+MassAq)/SolventDens1;
-                double ActConc1=m_M[S.m_iAqueous]/MassSolvent;
-
-                int xxx=0;
-                }
-              else
+              double T1=Valid(RqdT)?RqdT:Temp();
+              double RqdConc1=0;
+              switch (Solute.m_iPhChRule)
                 {
-  #if dbgSoluble
-                if (dbgSolubleEquil())
-                  dbgp(" %14s %14s %6s","","","");
-  #endif
-                }
+                case CSpecie::PhChRule_T:   RqdConc1=GEZ(Solute.m_PhChFn.AtT(T1)/100);  break;
+                case CSpecie::PhChRule_TP:  RqdConc1=GEZ(Solute.m_PhChFn.AtTP(T1, P)/100);  break;
+                };
+
+              double Slope=(RqdConc1-RqdConc)/TstdMassAq;
+
+              double dMAq=(MassSolvent*(RqdConc-ActConc))/(1-LEZ(MassSolvent*Slope));
+              double NewOtherFrac=Range(0.0, OtherFrac-dMAq/TotSolute, 1.0);
+              VValue[iPhChSpecie]=TotSolute*(NewOtherFrac);
+              VValue[iSolute]=TotSolute*(1.0-NewOtherFrac);
+              ClrStatesOK();
+
+              if (Valid(RqdT))
+                Ht=totHf(som_ALL, RqdT, RqdP);
+              Set_totHf(Ht);
+
+              double ActConc1=m_M[iSolute]/MassSolvent;
+
+              int xxx=0;
+              }
+            else
+              {
+#if dbgSoluble
+              if (dbgSolubleEquil())
+                dbgp(" %14s %14s %6s","","","");
+#endif
               }
             }
   #if dbgSoluble
@@ -1443,9 +1478,10 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   {
   DDB.Text("Rules");
 
-  DDB.String  ("AqPhaseChange", "",         DC_,      "",     xidSMAqPhChg,  this, (CDB.DefEqAqPhChg()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
-  DDB.String  ("Solubility",    "",         DC_,      "",     xidSMSoluble,  this, (CDB.DefEqSoluble()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
-  DDB.String  ("AutoVLE",       "",         DC_,      "",     xidSMAutoVLE,  this, (CDB.DefEqAutoVLE()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
+  DDB.String  ("AqueousPhCh",         "",   DC_,      "",     xidSMAqPhChg,  this, (CDB.DefEqAqPhChg()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
+  DDB.String  ("ThermalPhCh",         "",   DC_,      "",     xidSMThPhChg,  this, (CDB.DefEqThPhChg()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
+  DDB.String  ("Solubility",          "",   DC_,      "",     xidSMSoluble,  this, (CDB.DefEqSoluble()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
+  DDB.String  ("AutoVLE",             "",   DC_,      "",     xidSMAutoVLE,  this, (CDB.DefEqAutoVLE()>=SMO_Default?isParm:0)|SetOnChange, CDB.m_OptsOnOff.m_DDBValues());
 
   DDB.Text("Density");
 
@@ -1464,7 +1500,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   DDB.Double  ("SlurryDensity", "SLRho",    DC_Rho,   "kg/m^3",   xidSMSLRho,       this, isResult|noFile|noSnap|InitHidden);
   if (m_Ovr.bUse&(SPO_SDens|SPO_LDens))
     DDB.TagComment("Ovr");
-  if (SDB.m_DensCorrSps.GetSize()>0)
+  if (SDB.m_DensCorrectedSps.GetSize()>0)
     {
     DDB.Text("Density Correction");
     //if (DDB.BeginObject(this, "DensCorr", "Sp_DensCorr", NULL, DDB_NoPage))
@@ -1476,9 +1512,9 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
    
       Strng Tg1,Tg2;
       ASSERT(xidRhoSolnLast-xidRhoSoln1<MaxSpSolvents);
-      for (int j=0; j<SDB.m_DensCorrSps.GetSize() && xidRhoSoln1+j<=xidRhoSolnLast; j++)
+      for (int j=0; j<SDB.m_DensCorrectedSps.GetSize() && xidRhoSoln1+j<=xidRhoSolnLast; j++)
         {
-        const int iSolvent=SDB.m_DensCorrSps[j];
+        const int iSolvent=SDB.m_DensCorrectedSps[j];
         CSpecie & Solvent=SDB[iSolvent];
         Strng Slvnt(Solvent.SymOrTag(), ".");
         DDB.String("", Strng(Slvnt,"State")(),      DC_,    "",       xidSolnState1+j,  this, isResult|noFileAtAll);
@@ -1504,9 +1540,12 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
           DDB.Double("", Strng(Slvnt,"AppQm")(),      DC_Qm,  "m/s",    xidSolnQm1+j,     this, isResult|noFileAtAll|InitHidden);
           DDB.Double("", Strng(Slvnt,"AppQv")(),      DC_Qv,  "m^3/s",  xidSolnQv1+j,     this, isResult|noFileAtAll|InitHidden);
 
-          for (int k=0; k<SDB[iSolvent].DensCorrCount(); k++)
+          //for (int k=0; k<SDB[iSolvent].DensCorrectionCount(); k++)
+          //  {
+          //  int iSolute=SDB[iSolvent].DensCorrection(k).m_iSolute;
+          for (int k=0; k<SDB[iSolvent].m_DensSolutes.GetCount(); k++)
             {
-            int iSolute=SDB[iSolvent].DensCorr(k).m_iSolute;
+            int iSolute=SDB[iSolvent].m_DensSolutes[k];
             DDB.Double("", Strng(Slvnt(),"Fct.", SDB[iSolute].SymOrTag())(),     DC_Frac,  ".",  xidSpcFactor1+j, k, this, isResult|noFileAtAll);
             }
           }
@@ -1524,9 +1563,9 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
 
       //Strng Tg1,Tg2;
       //ASSERT(xidRhoSolnLast-xidRhoSoln1<MaxSpSolvents);
-      //for (int j=0; j<SDB.m_DensCorrSps.GetSize() && xidRhoSoln1+j<=xidRhoSolnLast; j++)
+      //for (int j=0; j<SDB.m_DensCorrectedSps.GetSize() && xidRhoSoln1+j<=xidRhoSolnLast; j++)
       //  {
-      //  const int iSolvent=SDB.m_DensCorrSps[j];
+      //  const int iSolvent=SDB.m_DensCorrectedSps[j];
       //  CSpecie & Solvent=SDB[iSolvent];
       //  if (j==0)
       //    {//unlikely to be more than one solvent; the solvent is likely water
@@ -4667,6 +4706,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMMlVFrac     : DCB.D = MoleFrac(som_Gas);              return 1;
 
     case xidSMAqPhChg     : return CDB.m_OptsOnOff.DoDCBOption(DCB, m_iEqAqPhChgRqd, m_iEqAqPhChg, (sint)CDB.DefEqAqPhChg());
+    case xidSMThPhChg     : return CDB.m_OptsOnOff.DoDCBOption(DCB, m_iEqThPhChgRqd, m_iEqThPhChg, (sint)CDB.DefEqThPhChg());
     case xidSMSoluble     : return CDB.m_OptsOnOff.DoDCBOption(DCB, m_iEqSolubleRqd, m_iEqSoluble, (sint)CDB.DefEqSoluble());
     case xidSMAutoVLE     : return CDB.m_OptsOnOff.DoDCBOption(DCB, m_iEqAutoVLERqd, m_iEqAutoVLE, (sint)CDB.DefEqAutoVLE());
 
@@ -5022,32 +5062,30 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
         {//handle all the density correction tags...
         if (DCB.lHandle>=xidRhoSolvent1 && DCB.lHandle<=xidRhoSolventLast)
           {
-          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoSolvent1];
+          const int iSolvent=SDB.m_DensCorrectedSps[DCB.lHandle-xidRhoSolvent1];
           CDensityInfo C(m_iFidelity, DensityMethod(), Temp(), Press(), &m_Ovr, SVData());
           DCB.D=SDB[iSolvent].DensityNCFn(C);// ? C.Density():0.0; //density of the solvent
           return 1;
           }
         else if (DCB.lHandle>=xidRhoSoln1 && DCB.lHandle<=xidRhoSolnLast)
           {
-          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoSoln1];
+          const int iSolvent=SDB.m_DensCorrectedSps[DCB.lHandle-xidRhoSoln1];
           CDensityInfo C(m_iFidelity, DensityMethod(), Temp(), Press(), &m_Ovr, SVData());
           const double SolventDensity = SDB[iSolvent].DensityNCFn(C);// ? C.Density() : 0.0; //density of the solution
           double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
-          const int Cnt = SDB[iSolvent].DensCorrCount();
+          CSpecie & Solvent = SDB[iSolvent];
+          const int Cnt = Solvent.m_DensSolutes.GetCount();
           for (int j=0; j<Cnt; j++)
-            {
-            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            Mt += m_M[SI.m_iSolute];
-            }
+            Mt += m_M[Solvent.m_DensSolutes[j]];
           double Factor = 1.0;
           if (Mt>MeasTolerance)
             {
             for (int j=0; j<Cnt; j++)
               {
-              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+              int iSolute = Solvent.m_DensSolutes[j];
+              if (m_M[iSolute]>MeasTolerance)
                 {
-                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
+                Factor += SDB[iSolute].DensCorrectionWithLimit(m_M[iSolute]/Mt, SolventDensity);
                 }
               }
             }
@@ -5056,24 +5094,22 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
           }
         else if (DCB.lHandle>=xidRhoSoln251 && DCB.lHandle<=xidRhoSoln25Last)
           {
-          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoSoln251];
+          const int iSolvent=SDB.m_DensCorrectedSps[DCB.lHandle-xidRhoSoln251];
           CDensityInfo C(m_iFidelity, DensityMethod(), C2K(25.0), StdP, &m_Ovr, SVData());
           const double SolventDensity = SDB[iSolvent].DensityNCFn(C);// ? C.Density():0.0; //density of the solution at 25 & StdP
           double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
-          const int Cnt = SDB[iSolvent].DensCorrCount();
+          CSpecie & Solvent = SDB[iSolvent];
+          const int Cnt = Solvent.m_DensSolutes.GetCount();
           for (int j=0; j<Cnt; j++)
-            {
-            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            Mt += m_M[SI.m_iSolute];
-            }
+            Mt += m_M[Solvent.m_DensSolutes[j]];
           double Factor = 1.0;
           if (Mt>MeasTolerance)
             {
             for (int j=0; j<Cnt; j++)
               {
-              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
-                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
+              int iSolute = Solvent.m_DensSolutes[j];
+              if (m_M[iSolute]>MeasTolerance)
+                Factor += SDB[iSolute].DensCorrectionWithLimit(m_M[iSolute]/Mt, SolventDensity);
               }
             }
           DCB.D=SolventDensity*Factor;
@@ -5082,26 +5118,27 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
 #if WITHRHOSTREAM  
         else if (DCB.lHandle==xidRhoStream)
           {
-          const int iSolvent=SDB.m_DensCorrSps[0];
+          const int iSolvent=SDB.m_DensCorrectedSps[0];
           CDensityInfo C( m_iFidelity, DensityMethod(), Temp(), Press(), &m_Ovr, SVData()); 
           const double SolventDensity = SDB[iSolvent].DensityNCFn(C);// ? C.Density():0.0; //density of the solution
           double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
-          const int Cnt = SDB[iSolvent].DensCorrCount();
+          CSpecie & Solvent = SDB[iSolvent];
+          const int Cnt = Solvent.m_DensSolutes.GetCount();
           for (int j=0; j<Cnt; j++)
             {
-            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            if (m_M[SI.m_iSolute]>MeasTolerance)
-              Mt += m_M[SI.m_iSolute];
+            int iSolute = Solvent.m_DensSolutes[j];
+            if (m_M[iSolute]>MeasTolerance)
+              Mt += m_M[iSolute];
             }
           double Factor = 1.0;
           if (Mt>MeasTolerance)
             {
             for (int j=0; j<Cnt; j++)
               {
-              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+              int iSolute = Solvent.m_DensSolutes[j];
+              if (m_M[iSolute]>MeasTolerance)
                 {
-                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
+                Factor += SDB[iSolute].DensCorrectionWithLimit(m_M[iSolute]/Mt, SolventDensity);
                 }
               }
             }
@@ -5126,26 +5163,27 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
           }
         else if (DCB.lHandle==xidRhoStream25)
           {
-          const int iSolvent=SDB.m_DensCorrSps[0];
+          const int iSolvent=SDB.m_DensCorrectedSps[0];
           CDensityInfo C(m_iFidelity, DensityMethod(), C2K(25.0), StdP, &m_Ovr, SVData());
           const double SolventDensity = SDB[iSolvent].DensityNCFn(C);
           double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
-          const int Cnt = SDB[iSolvent].DensCorrCount();
+          CSpecie & Solvent = SDB[iSolvent];
+          const int Cnt = Solvent.m_DensSolutes.GetCount();
           for (int j=0; j<Cnt; j++)
             {
-            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            if (m_M[SI.m_iSolute]>MeasTolerance)
-              Mt += m_M[SI.m_iSolute];
+            int iSolute = Solvent.m_DensSolutes[j];
+            if (m_M[iSolute]>MeasTolerance)
+              Mt += m_M[iSolute];
             }
           double Factor = 1.0;
           if (Mt>MeasTolerance)
             {
             for (int j=0; j<Cnt; j++)
               {
-              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+              int iSolute = Solvent.m_DensSolutes[j];
+              if (m_M[iSolute]>MeasTolerance)
                 {
-                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
+                Factor += SDB[iSolute].DensCorrectionWithLimit(m_M[iSolute]/Mt, SolventDensity);
                 }
               }
             }
@@ -5171,26 +5209,26 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
 #endif
         else if (DCB.lHandle>=xidRhoFactor1 && DCB.lHandle<=xidRhoFactorLast)
           {
-          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoFactor1];
+          const int iSolvent=SDB.m_DensCorrectedSps[DCB.lHandle-xidRhoFactor1];
           CDensityInfo C(m_iFidelity, DensityMethod(), Temp(), Press(), &m_Ovr, SVData());
           const double SolventDensity = SDB[iSolvent].DensityNCFn(C);// ? C.Density() : 0.0;
           double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
-          //CDensCorr & SI=SDB[iSolvent].DensCalc();
-          const int Cnt = SDB[iSolvent].DensCorrCount();
+          CSpecie & Solvent = SDB[iSolvent];
+          const int Cnt = Solvent.m_DensSolutes.GetCount();
           for (int j=0; j<Cnt; j++)
             {
-            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            Mt += m_M[SI.m_iSolute];
+            int iSolute = Solvent.m_DensSolutes[j];
+            Mt += m_M[iSolute];
             }
           double Factor = 1.0;
           if (Mt>MeasTolerance)
             {
             for (int j=0; j<Cnt; j++)
               {
-              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+              int iSolute = Solvent.m_DensSolutes[j];
+              if (m_M[iSolute]>MeasTolerance)
                 {
-                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
+                Factor += SDB[iSolute].DensCorrectionWithLimit(m_M[iSolute]/Mt, SolventDensity);
                 }
               }
             }
@@ -5199,38 +5237,38 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
           }
         else if (DCB.lHandle>=xidSolnQm1 && DCB.lHandle<=xidSolnQmLast)
           {
-          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidSolnQm1];
+          const int iSolvent=SDB.m_DensCorrectedSps[DCB.lHandle-xidSolnQm1];
           double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
-          const int Cnt = SDB[iSolvent].DensCorrCount();
+          CSpecie & Solvent = SDB[iSolvent];
+          const int Cnt = Solvent.m_DensSolutes.GetCount();
           for (int j=0; j<Cnt; j++)
             {
-            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            Mt += m_M[SI.m_iSolute];
+            Mt += m_M[Solvent.m_DensSolutes[j]];
             }
           DCB.D=Mt;
           return 1;
           }
         else if (DCB.lHandle>=xidSolnQv1 && DCB.lHandle<=xidSolnQvLast)
           {
-          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidSolnQv1];
+          const int iSolvent=SDB.m_DensCorrectedSps[DCB.lHandle-xidSolnQv1];
           CDensityInfo C(m_iFidelity, DensityMethod(), Temp(), Press(), &m_Ovr, SVData());
           const double SolventDensity = SDB[iSolvent].DensityNCFn(C);// ? C.Density():0.0;
           double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
-          const int Cnt = SDB[iSolvent].DensCorrCount();
+          CSpecie & Solvent = SDB[iSolvent];
+          const int Cnt = Solvent.m_DensSolutes.GetCount();
           for (int j=0; j<Cnt; j++)
             {
-            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            Mt += m_M[SI.m_iSolute];
+            Mt += m_M[Solvent.m_DensSolutes[j]];
             }
           double Factor = 1.0;
           if (Mt>MeasTolerance)
             {
             for (int j=0; j<Cnt; j++)
               {
-              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+              int iSolute = Solvent.m_DensSolutes[j];
+              if (m_M[iSolute]>MeasTolerance)
                 {
-                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
+                Factor += SDB[iSolute].DensCorrectionWithLimit(m_M[iSolute]/Mt, SolventDensity);
                 }
               }
             }
@@ -5240,23 +5278,23 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
         else if (DCB.lHandle>=xidSolnState1 && DCB.lHandle<=xidSolnStateLast)
           {
           static Strng DensCorrState[MaxSpSolvents];
-          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidSolnState1];
+          const int iSolvent=SDB.m_DensCorrectedSps[DCB.lHandle-xidSolnState1];
           double Mt = m_M[iSolvent];
-          const int Cnt = SDB[iSolvent].DensCorrCount();
+          CSpecie & Solvent = SDB[iSolvent];
+          const int Cnt = Solvent.m_DensSolutes.GetCount();
           for (int j=0; j<Cnt; j++)
             {
-            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            Mt += m_M[SI.m_iSolute];
+            Mt += m_M[Solvent.m_DensSolutes[j]];
             }
           Strng S;
           if (Mt>MeasTolerance)
             {
             for (int j=0; j<Cnt; j++)
               {
-              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance && m_M[SI.m_iSolute]/Mt>SI.m_LimitFrac)
+              int iSolute = Solvent.m_DensSolutes[j];
+              if (m_M[iSolute]>MeasTolerance && m_M[iSolute]/Mt>SDB[iSolute].DensLimitFrac())
                 {
-                S += SDB[SI.m_iSolute].SymOrTag();
+                S += SDB[iSolute].SymOrTag();
                 S += " ";
                 }
               }
@@ -5270,39 +5308,39 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
           }
         else if (DCB.lHandle>=xidSpcFactor1 && DCB.lHandle<=xidSpcFactorLast)
           {
-          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidSpcFactor1];
-          CDensCorr & SI=SDB[iSolvent].DensCorr(DCB.lHandle2);
-          const int iSolute = SI.m_iSolute;
+          const int iSolvent=SDB.m_DensCorrectedSps[DCB.lHandle-xidSpcFactor1];
+          //CDensCorrection & SI=SDB[SDB[iSolvent].m_DensSolutes[DCB.lHandle2]];
+          ////const int iSolute = SI.m_iSolute;
 
-          if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
-            {
-            double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
-            const int Cnt = SDB[iSolvent].DensCorrCount();
-            for (int j=0; j<Cnt; j++)
-              {
-              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-              Mt += m_M[SI.m_iSolute];
-              }
+          //if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+          //  {
+          //  double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
+          //  const int Cnt = SDB[iSolvent].DensCorrectionCount();
+          //  for (int j=0; j<Cnt; j++)
+          //    {
+          //    CDensCorrection & SI=SDB[iSolvent].DensCorrection(j);
+          //    Mt += m_M[SI.m_iSolute];
+          //    }
 
-            CDensityInfo CI(Fidelity(), DensityMethod(), Temp(), Press(), &m_Ovr, SVData());
-            double SolventDensity = SDB[iSolvent].DensityNCFn(CI);
-            DCB.D = 1.0 + SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
-            }
-          else
+          //  CDensityInfo CI(Fidelity(), DensityMethod(), Temp(), Press(), &m_Ovr, SVData());
+          //  double SolventDensity = SDB[iSolvent].DensityNCFn(CI);
+          //  DCB.D = 1.0 + SI.CorrectionWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
+          //  }
+          //else
             DCB.D = 1.0;//C.Evaluate(CI, m_M[iSolvent], m_M[iSolute]);
           //double RhoNC= SDB[iSolvent].DensityNCFn(CI);
           //double RhoC= SDB[iSolvent].DensityFn(CI);
 
-          //const int Cnt = SDB[iSolvent].DensCorrCount();
+          //const int Cnt = SDB[iSolvent].DensCorrectionCount();
           //for (int j=0; j<Cnt; j++)
           //  {
-          //  CDensCorr & SI=SDB[iSolvent].DensCorr(j);
+          //  CDensCorrection & SI=SDB[iSolvent].DensCorrection(j);
           //  Mt += m_M[SI.m_iSolute];
           //  }
           //double Factor = 1.0;
 
 
-          //int iSolute=SDB[iSolvent].DensCorr(k).m_iSolute;
+          //int iSolute=SDB[iSolvent].DensCorrection(k).m_iSolute;
           //DDB.Double("", Strng(Slvnt(),"Fct.", SDB[iSolute].SymOrTag())(),     DC_Frac,  "%",  xidSpcFactor1+(j*MaxSpSolvents)+k, this, isResult|noFile|noSnap|InitHidden);
           //DCB.D=1.0;
           return 1;
@@ -5632,10 +5670,11 @@ long SpModel::CheckDataRanges()
             }
           else 
 #endif
-            if (SDB[s].HasDensCalc())
+            if (SDB[s].DensCorrFnExists())
             {
-            CDensCorr & DC = SDB[s].DensCalc();
-            if (DC.m_DoWarn && m_M[DC.m_iSolute]/GTZ(m_M[DC.m_iSolute]+m_M[DC.m_iSolvent])>DC.m_LimitFrac)
+            CSpecie &SI = SDB[s];
+            //CDensCorrection & DC = *SDB[s].m_pDensCorrFn;
+            if (SI.DensDoWarn() && m_M[s]/GTZ(m_M[s]+m_M[SI.m_iSolvent])>SI.DensLimitFrac())
               {
               NBadDensRanges++;
               if (WithSpcs)
@@ -9162,6 +9201,17 @@ int SpModel::EqAqPhChg()
   return CDB.DefEqAqPhChg();
   };
 
+int SpModel::EqThPhChg()
+  { 
+  if (CDB.DefEqThPhChg()<SMO_Default)
+    return SMO_2Opt(CDB.DefEqThPhChg());
+  if (m_iEqThPhChgRqd>SMO_Default)
+    return m_iEqThPhChgRqd;
+  if (m_iEqThPhChg>SMO_Default)
+    return m_iEqThPhChg;
+  return CDB.DefEqThPhChg();
+  };
+
 int SpModel::EqSoluble()
   { 
   if (CDB.DefEqSoluble()<SMO_Default)
@@ -9474,12 +9524,14 @@ double SpModel::msHfb0(PhMask Phase, CSysVector * pMA)
   double Ht=0, Mt=0;
   SpecieIter I(Phase);
   for (int i=-1; I.Loop(i); )
-    if ((MA[i] > MeasTolerance) && SDB[i].CpDirect())
+    {
+    if ((MA[i] > MeasTolerance) /*&& SDB[i].CpDirect()*/)
       {
       Ht+=MA[i]*SDB[i].msHfBase0(m_iFidelity);
       Mt+=MA[i];
       }
-    return Ht/GTZ(Mt);
+    }
+  return Ht/GTZ(Mt);
   };
 
 //--------------------------------------------------------------------------
@@ -9492,12 +9544,14 @@ double SpModel::msH_DHfb0(PhMask Phase, CSysVector * pMA)
   double Ht=0, Mt=0;
   SpecieIter I(Phase);
   for (int i=-1; I.Loop(i); )
-    if ((MA[i] > MeasTolerance) && SDB[i].CpDirect())
+    {
+    if ((MA[i] > MeasTolerance) /*&& SDB[i].CpDirect()*/)
       {
       Ht+=MA[i]*(SDB[i].msHfBase0(m_iFidelity)-SDB[i].msHf0(m_iFidelity));
       Mt+=MA[i];
       }
-    return Ht/GTZ(Mt);
+    }
+  return Ht/GTZ(Mt);
   };
 
 //--------------------------------------------------------------------------
@@ -9751,7 +9805,7 @@ double SpModelEx::msHf(PhMask Phase, double T_, double P_, CSysVector * pMA, dou
     SpecieIter I(Phase);
     for (int i=-1; I.Loop(i); )
       {
-      if ((MA[i] > MeasTolerance) && SDB[i].CpDirect())
+      if ((MA[i] > MeasTolerance) /*&& SDB[i].CpDirect()*/)
         {
         Ht+=MA[i]*SDB[i].msHfBase0(m_iFidelity);
         Mt+=MA[i];
