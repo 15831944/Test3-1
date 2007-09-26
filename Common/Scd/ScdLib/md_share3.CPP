@@ -182,6 +182,7 @@ void MRngChkCntxt::AddRngChk(LPCSTR Name, TaggedObject * pSrc, bool LTMin, bool 
       {
       if (m_pObject)
         {
+        m_pObject->ClrCI(1);
         for (int i=0; i<m_ValidCount; i++)
           m_pObject->ClrCI(FirstRngChkCI+i);
         }
@@ -236,6 +237,7 @@ void MRngChkCntxt::AddRngChkMsg(LPCSTR Name, TaggedObject * pSrc, LPCSTR Msg)
       {
       if (m_pObject)
         {
+        m_pObject->ClrCI(1);
         for (int i=0; i<m_ValidCount; i++)
           m_pObject->ClrCI(FirstRngChkCI+i);
         }
@@ -363,11 +365,33 @@ MRngChkMngr::MRngChkMngr()
 
 //-----------------------------------------------------------------------------
 
+void MRngChkMngr::StepDone()
+  {
+  POSITION Pos=m_List.GetHeadPosition();
+  while (Pos)
+    {
+    MRngChkCntxt &C=*m_List.GetNext(Pos);
+    if (C.m_Iter!=m_Iter)
+      {
+      if (C.m_pObject)
+        {
+        C.m_pObject->ClrCI(1);
+        for (int i=0; i<C.m_ValidCount; i++)
+          C.m_pObject->ClrCI(FirstRngChkCI+i);
+        }
+      }
+    }
+
+  //dbgpln("MRngChkMngr::StepDone() %i", m_Iter);
+  };
+
+//-----------------------------------------------------------------------------
+
 void MRngChkMngr::BumpGlblIter()
   {
   m_Iter++;
   
-  dbgpln("MRngChkMngr::BumpGlblIter() %i", m_Iter);
+  //dbgpln("MRngChkMngr::BumpGlblIter() %i", m_Iter);
   };
 
 //-----------------------------------------------------------------------------

@@ -2108,9 +2108,12 @@ void CExecutive::DoTimer()
 
 void CExecutive::UpdateDisplays(byte Options)
   {
-  //dbgpln("CExecutive::UpdateDisplays");
+  #if dbgExecutive
+  if (dbgExecSeq() || dbgExecReg())
+    dbgpln("CExecutive::UpdateDisplays %s %s", (Options&UDO_FlushMsgQ)?"Flush":"     ", !(Options&UDO_OnlyStatusLine)?"Displays":"        ");
   //return ;
   //this->m_dwLoopCount
+  #endif
 
   if (AfxGetMainWnd())
     ScdMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, (Options&UDO_OnlyStatusLine)?0x00000001:0x00000000, (long)&TimeCB());
@@ -2842,6 +2845,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       break;
 
     case EXM_STEPDONE:
+
       //XSW.Write.ReStart();
       for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
         {
@@ -2849,6 +2853,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         }
       ProcessReportRequests();
       m_bStepExecuted=false;
+
+
       PostCmd(0, EXM_DOTEST);
       break;
 
@@ -2974,6 +2980,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         {
         DoEndPause=true;
         NextCmd=EXM_STOP;
+#if WITHMDLRANGECHECKS
+        gs_RngChecks.BumpGlblIter();
+#endif
         }
       else if (bStepReqd)
         {

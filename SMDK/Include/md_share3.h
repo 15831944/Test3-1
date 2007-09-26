@@ -451,6 +451,7 @@ class DllImportExport MRngChkMngr
   public:
     MRngChkMngr();
 
+    void StepDone();
     void BumpGlblIter();
     void Dump();
 

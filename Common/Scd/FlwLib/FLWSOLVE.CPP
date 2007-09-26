@@ -5855,6 +5855,10 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
   for (p=All.First(); (p); p=All.Next())
     p->CheckDataRanges(true);
 
+#if WITHMDLRANGECHECKS
+  gs_RngChecks.StepDone();
+#endif
+
   // Test TearFlanges Converged
   Strng_List BadTearTags, BadTearInfo;
   EqnCB().SetConverged(EqnCB().NBadLimit()==0);
@@ -5949,6 +5953,10 @@ int FlwSlvPB::TermSolution(const EqnSlvCtrlBlk & EQCtrl)
   CFlwNodeIter All(m_AllNds);
   for (FlwNode * p=All.First(); (p); p=All.Next())
     p->CheckDataRanges(true);
+
+#if WITHMDLRANGECHECKS
+  gs_RngChecks.StepDone();
+#endif
 
   CFlwNodeIter Exc(m_ExcNds);
   for (p=Exc.First(); (p); p=Exc.Next())
@@ -7760,7 +7768,7 @@ void FlwSlvDyn::FITStates(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     p->LockNode();
     XT.LockDone();//(p, eFITStates, FSW_Null);
     p->EvalState();
-    p->CheckDataRanges(true);
+    //p->CheckDataRanges(true);
     XT.ExecDone();//Postamble(p, eFITStates, FSW_Null);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -7787,7 +7795,7 @@ void FlwSlvDyn::EvalAllStates()
       XT.StartLoop(p);
       XT.LockDone();//(p, eFITStates, FSW_Null);
       p->EvalState();
-      p->CheckDataRanges(true);
+      //p->CheckDataRanges(true);
       XT.ExecDone();//Postamble(p, eFITStates, FSW_Null);
       XT.EndLoop();
       }
@@ -9260,6 +9268,14 @@ flag FlwSlvDyn::Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
     }
 #endif
 
+  for (p=All.First(); (p); p=All.Next())
+    p->CheckDataRanges(true);
+
+#if WITHMDLRANGECHECKS
+  gs_RngChecks.StepDone();
+#endif
+
+
   gs_ThreadTiming.Dump();
 
   #if dbgFlwSolve
@@ -9358,10 +9374,17 @@ flag FlwSlvDyn::Stop(CXM_TimeControl &CB)
     m_fCtrlTOSeqValid=0;
     }
 
+  CFlwNodeIter All(m_AllNds);
+  for (FlwNode * p=All.First(); (p); p=All.Next())
+    p->CheckDataRanges(true);
+
+#if WITHMDLRANGECHECKS
+  gs_RngChecks.StepDone();
+#endif
+
   if (CB.m_StepCount>0)
     FlwNets.CheckForErrors();
 
-  CFlwNodeIter All(m_AllNds);
   for (FlwNode * p=All.First(); (p); p=All.Next())
     p->NodeFlwTask(NFT_DynTerm);
 
