@@ -85,6 +85,7 @@
 #define IDC_ABSTOLERANCE                20102
 #define IDC_SLVPRESUF                   20102
 #define IDC_ROTATION                    20102
+#define IDC_RCTEDITOR                   20102
 #define IDC_DESC                        20103
 #define IDC_ENDTIME                     20103
 #define IDC_MAXCFGS                     20103
@@ -508,6 +509,8 @@
 #define IDC_EXPORT                      24081
 #define IDC_SELALL2                     24081
 #define IDC_SELNONE                     24081
+#define IDC_BROWSE_EDITOR2              24081
+#define IDC_BROWSE_RCTEDITOR            24081
 #define IDC_MDLPOS_Y                    24082
 #define IDC_FORCENONE                   24082
 #define IDC_QUERY                       24082

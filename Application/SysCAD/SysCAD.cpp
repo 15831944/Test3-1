@@ -1793,6 +1793,7 @@ BOOL CSysCADApp::DoInitInstance()
 
   CExploreScd::SetUseScdExplorer(ScdPFUser.RdInt("General", "UseScdExplorer", 1));
   SetTxtEditor((LPSTR)ScdPFUser.RdStr("General", "TextEditor", "notepad.exe"));
+  SetRctEditor((LPSTR)ScdPFUser.RdStr("General", "ReactionEditor", "notepad.exe"));
   SetSymbolicPaths(ScdPFUser.RdInt("General", "SymbolicPaths", 0));
 
   FxdEdtView::m_WheelChangeVal = (ScdPFUser.RdInt("Mouse", "WheelChangeValuesOn", FxdEdtView::m_WheelChangeVal)!=0);

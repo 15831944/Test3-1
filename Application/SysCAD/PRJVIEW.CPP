@@ -1755,6 +1755,7 @@ void CPrjForm::RebuildEnvList()
       { "TemporaryFiles"    ,  TemporaryFiles()    , 1 },
       { "WorkFolder"        ,  StartupDirectory()  , 1 },
       { "TextEditor"        ,  TxtEditor()         , 9 },
+      { "ReactionEditor"    ,  RctEditor()         , 9 },
       { NULL},
     };
 

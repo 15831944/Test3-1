@@ -99,6 +99,7 @@ class CGlobalPage : public CCustomPropertyPage
     BOOL m_DlgTooltips;
     BOOL m_LoadPrevPrj;
     CString m_Editor;
+    CString m_RctEditor;
     int m_UtilsDBFmt;
     BOOL m_UseScdExplorer;
     int m_PrjsDBFmt;
@@ -121,6 +122,7 @@ class CGlobalPage : public CCustomPropertyPage
     CComboBox m_cbPrjDB;
   public:
     afx_msg void OnBnClickedBrowseEditor();
+    afx_msg void OnBnClickedBrowseRctEditor();
   };
 
 //===========================================================================
@@ -824,6 +826,7 @@ CGlobalPage::CGlobalPage() : CCustomPropertyPage(CGlobalPage::IDD)
   m_DlgTooltips = FALSE;
   m_LoadPrevPrj = FALSE;
   m_Editor = "";
+  m_RctEditor = "";
 	m_UtilsDBFmt = DBConnect_JET2000;
   m_PrjsDBFmt = DBConnect_JET2000;
   m_UseScdExplorer = TRUE;
@@ -847,6 +850,7 @@ void CGlobalPage::DoDataExchange(CDataExchange* pDX)
   DDX_Check(pDX, IDC_DLGTOOLTIPS, m_DlgTooltips);
   DDX_Check(pDX, IDC_LOADPREVPRJ, m_LoadPrevPrj);
   DDX_Text(pDX, IDC_EDITOR, m_Editor);
+  DDX_Text(pDX, IDC_RCTEDITOR, m_RctEditor);
   DDX_Check(pDX, IDC_USESCDEXPLORER, m_UseScdExplorer);
   DDX_Check(pDX, IDC_CASCADEWINDOWSONLOAD, m_CascadeOnLoad);
   //}}AFX_DATA_MAP
@@ -863,6 +867,7 @@ BEGIN_MESSAGE_MAP(CGlobalPage, CCustomPropertyPage)
 	//}}AFX_MSG_MAP
   //ON_UPDATE_COMMAND_UI(IDC_DB2000, OnUpdateDefMDB)
   ON_BN_CLICKED(IDC_BROWSE_EDITOR, &CGlobalPage::OnBnClickedBrowseEditor)
+  ON_BN_CLICKED(IDC_BROWSE_RCTEDITOR, &CGlobalPage::OnBnClickedBrowseRctEditor)
 END_MESSAGE_MAP()
 
 //--------------------------------------------------------------------------
@@ -875,6 +880,7 @@ BOOL CGlobalPage::OnInitDialog()
   m_LoadPrevPrj      = (ScdPFUser.RdInt("General", "PromptPrevPrj", 0)!=0);
   m_CascadeOnLoad    = (ScdPFUser.RdInt("General", "CascadeOnLoad", 0)!=0);
   m_Editor           = ScdPFUser.RdStr("General", "TextEditor", "notepad.exe");
+  m_RctEditor        = ScdPFUser.RdStr("General", "ReactionEditor", "notepad.exe");
 	m_UtilsDBFmt       = ScdPFUser.RdInt("General", "UtilsDBFormat", m_UtilsDBFmt);
 	m_PrjsDBFmt        = ScdPFUser.RdInt("General", "PrjsDBFormat", m_PrjsDBFmt);
   m_ServerWait       = ScdPFUser.RdInt("General", "ServerStartUpWait", 10000)/1000;
@@ -901,7 +907,7 @@ BOOL CGlobalPage::OnInitDialog()
 
 void CGlobalPage::OnBnClickedBrowseEditor()
   {
-  CSCDFileDialog Dlg(true, NULL, "*.exe", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "Test Editor (*.exe)|*.exe||");
+  CSCDFileDialog Dlg(true, NULL, "*.exe", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "Text Editor (*.exe)|*.exe||");
 
   Strng Fn(m_Editor);
   Fn.FnDrivePath();
@@ -920,6 +926,27 @@ void CGlobalPage::OnBnClickedBrowseEditor()
 
 //---------------------------------------------------------------------------
 
+void CGlobalPage::OnBnClickedBrowseRctEditor()
+  {
+  CSCDFileDialog Dlg(true, NULL, "*.exe", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "Reaction Editor (*.exe)|*.exe||");
+
+  Strng Fn(m_RctEditor);
+  Fn.FnDrivePath();
+
+  Dlg.m_ofn.lpstrInitialDir = (Fn.Len()>0 ? Fn() : ProgFiles());
+  Dlg.m_ofn.lpstrTitle = "Reaction Editor";
+  HWND H=::GetActiveWindow();
+  if (Dlg.DoModal()==IDOK)
+    {
+    m_RctEditor=Dlg.GetPathName();
+    //m_RctEditor+=Dlg.GetFileName();
+    UpdateData(FALSE);
+    }
+  ::SetActiveWindow(H);
+  }
+
+//---------------------------------------------------------------------------
+
 void CGlobalPage::OnOK() 
   {
   if (bDidInit)
@@ -931,6 +958,8 @@ void CGlobalPage::OnOK()
     int PrevUseScdExplorer = ScdPFUser.RdInt("General", "UseScdExplorer", 1);
     if (m_Editor.GetLength()==0)
       m_Editor = "notepad.exe";
+    if (m_RctEditor.GetLength()==0)
+      m_RctEditor = "notepad.exe";
     ScdPFUser.WrInt("General", "ShowEvalOrderWindow", m_EvalOrdWnd);
     ScdPFUser.WrInt("General", "ShowEvalStatsWindow", m_EvalStatsWnd);
     ScdPFUser.WrInt("General", "UseScdExplorer", m_UseScdExplorer);
@@ -941,7 +970,9 @@ void CGlobalPage::OnOK()
     ScdPFUser.WrInt("General", "PrjsDBFormat", m_PrjsDBFmt);
     ScdPFUser.WrInt("General", "ServerStartUpWait", m_ServerWait*1000);
     ScdPFUser.WrStr("General", "TextEditor", (const char*)m_Editor);
+    ScdPFUser.WrStr("General", "ReactionEditor", (const char*)m_RctEditor);
     SetTxtEditor((char*)(const char*)m_Editor);
+    SetRctEditor((char*)(const char*)m_RctEditor);
     HelpMngr.UpdateOptions();
 
     if (COrdWindow::GetFrame()==NULL && m_EvalOrdWnd)

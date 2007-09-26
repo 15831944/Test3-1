@@ -999,8 +999,11 @@ DllImportExport char*  CurDateTime(Strng& s);
 DllImportExport char*  CurDateTime(CString& s);
 
 DllImportExport char*  TxtEditor(); //default = "notepad.exe"
-DllImportExport char*  SetTxtEditor(char* TE);
+DllImportExport char*  SetTxtEditor(char* EditorExe);
 DllImportExport Strng  TxtEditCmdString(char* Fn);
+DllImportExport char*  RctEditor(); //default = "notepad.exe"
+DllImportExport char*  SetRctEditor(char* EditorExe);
+DllImportExport Strng  RctEditCmdString(char* Fn);
 //---------------------------------------------------------------------------
 
 DllImportExport char*  PrjIniFileName();

@@ -3560,6 +3560,7 @@ static char *_BCfgDataFolder        = "BaseFiles";
 static char *_BCfgDBFile            = "Default.MDB";
 
 static Strng _TxtEditor             = "notepad.exe";
+static Strng _RctEditor             = "notepad.exe";
 
 static Strng _StartupDirectory      ;
 static Strng _StartupDrive          ;
@@ -3595,14 +3596,14 @@ static Strng _GrfFontFiles;
 static Strng _BaseGrfSymbolFiles;
 static Strng _BaseGrfFontFiles;
 
-pchar TxtEditor()
+char* TxtEditor()
   {
   return _TxtEditor();
   }
 
-pchar SetTxtEditor(pchar TE)
+char* SetTxtEditor(char* EditorExe)
   {
-  _TxtEditor=TE;
+  _TxtEditor=EditorExe;
   return _TxtEditor();
   }
 
@@ -3610,6 +3611,24 @@ Strng TxtEditCmdString(char* Fn)
   {
   Strng X;
   X.Set("\"%s\" \"%s\"", TxtEditor(), Fn);
+  return X;
+  };
+
+char* RctEditor()
+  {
+  return _RctEditor();
+  }
+
+char* SetRctEditor(char* EditorExe)
+  {
+  _RctEditor=EditorExe;
+  return _RctEditor();
+  }
+
+Strng RctEditCmdString(char* Fn)
+  {
+  Strng X;
+  X.Set("\"%s\" \"%s\"", RctEditor(), Fn);
   return X;
   };
 

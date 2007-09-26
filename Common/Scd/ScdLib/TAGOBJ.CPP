@@ -8139,13 +8139,17 @@ int DataChangeBlk::DoEditBtn(HANDLE& hProcess, DWORD& dwProcessId, char* Path, c
         }
       if (OK)
         {
-        Strng NPad=TxtEditCmdString(Fn());
+        Strng Editor;
+        if (ext && stricmp(ext, "rct")==0)
+          Editor=RctEditCmdString(Fn());
+        else
+          Editor=TxtEditCmdString(Fn());
         STARTUPINFO si;
         memset(&si, 0, sizeof(si));
         si.cb = sizeof(si);
         si.wShowWindow = SW_SHOWDEFAULT;
         PROCESS_INFORMATION pi;
-        if (CreateProcess(NULL, NPad(), NULL, NULL, FALSE, 0, NULL, PrjFiles(), &si, &pi))
+        if (CreateProcess(NULL, Editor(), NULL, NULL, FALSE, 0, NULL, PrjFiles(), &si, &pi))
           {
           RetCode = 0; //OK: open editor
           hProcess = pi.hProcess;
