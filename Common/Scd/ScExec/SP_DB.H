@@ -1600,9 +1600,12 @@ Done:
         DCB.pC = m_Values[iEqOptionRqd]();
       else if (iEqOption>SMO_Default)
         DCB.pC = m_InhValues[iEqOption]();
-      else
+      else if (iDefEqOption>SMO_Default)
         DCB.pC = m_DefValues[iDefEqOption]();
-      //DCB.pC = "DoDCBRhoMethod";
+      else if (iDefEqOption<SMO_Default)
+        DCB.pC = m_DefValues[SMO_2Opt(iDefEqOption)]();
+      else
+        ASSERT_ALWAYS(FALSE, "Bad Default SMO_Option", __FILE__, __LINE__);
       return 1;
       };
 
