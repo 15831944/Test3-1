@@ -13,20 +13,20 @@ namespace TestApp
     {
       SysCAD.Protocol.Line line = element as SysCAD.Protocol.Line;
 
-      if (line != null) return new LineTemplate(line.x1, line.y1,
-                                                line.x2, line.y2);
+      if (line != null) return new LineTemplate((float)line.x1, (float)line.y1,
+            (float)line.x2, (float)line.y2);
 
       Arc arc = element as Arc;
 
-      if (arc != null) return new ArcTemplate(arc.x, arc.y,
-                                              arc.w, arc.h, arc.a, arc.s);
+      if (arc != null) return new ArcTemplate((float)arc.x, (float)arc.y,
+        (float)arc.w, (float)arc.h, (float)arc.a, (float)arc.s);
 
       Bezier bezier = element as Bezier;
 
-      if (bezier != null) return new BezierTemplate(bezier.x1, bezier.y1,
-                                                    bezier.x2, bezier.y2,
-                                                    bezier.x3, bezier.y3,
-                                                    bezier.x4, bezier.y4);
+      if (bezier != null) return new BezierTemplate((float)bezier.x1, (float)bezier.y1,
+            (float)bezier.x2, (float)bezier.y2,
+            (float)bezier.x3, (float)bezier.y3,
+            (float)bezier.x4, (float)bezier.y4);
 
       return null;
     }
@@ -115,11 +115,11 @@ namespace TestApp
         foreach (String key in config.ModelStencils.Keys)
         {
           ModelStencil stencil = config.ModelStencils[key];
-          flowchart.DocExtents = flowchart.ClientToDoc(new Rectangle(0, 0, 17, 17));
+          flowchart.DocExtents = flowchart.ClientToDoc(new System.Drawing.Rectangle(0, 0, 17, 17));
           flowchart.ShadowsStyle = ShadowsStyle.None;
           flowchart.BackColor = System.Drawing.SystemColors.Window;
           flowchart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-          RectangleF boxRect = flowchart.ClientToDoc(new Rectangle(1, 1, 13, 13));
+          RectangleF boxRect = flowchart.ClientToDoc(new System.Drawing.Rectangle(1, 1, 13, 13));
           Box box = flowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
           box.Style = BoxStyle.Shape;
           box.Shape = GetShapeTemplate(stencil);

@@ -24,6 +24,7 @@ namespace SysCAD.Protocol
   {
 
     public String connectionError = String.Empty;
+    public String clientName = String.Empty;
 
     private ClientServiceProtocol serviceGraphic;
 
@@ -57,7 +58,7 @@ namespace SysCAD.Protocol
     }
 
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
-    public bool Connect()
+    public bool Connect(String clientName)
     {
 
       try
@@ -114,6 +115,9 @@ namespace SysCAD.Protocol
 
         Syncxxx();
 
+        clientName = clientName;
+        Announce(ref clientName);
+
         connectionError = "";
           return true;
       }
@@ -123,6 +127,11 @@ namespace SysCAD.Protocol
         connectionError = remotingException.Message;
         return false;
       }
+    }
+
+    private void Announce(ref string name)
+    {
+      serviceGraphic.Announce(ref name);
     }
 
     public bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, Rectangle boundingRect)

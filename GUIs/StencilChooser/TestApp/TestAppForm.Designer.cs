@@ -33,7 +33,8 @@ namespace TestApp
     private void InitializeComponent(Dictionary<String, Bitmap> modelThumbnails,
                        Dictionary<String, ModelStencil> modelStencils)
     {
-      this.stencilChooser = new SysCAD.StencilChooser(modelThumbnails, modelStencils);
+      this.stencilChooser = new SysCAD.StencilChooser();
+      this.stencilChooser.PopulateTree(modelThumbnails, modelStencils);
       this.SuspendLayout();
       // 
       // stencilListView
@@ -60,4 +61,5 @@ namespace TestApp
     private SysCAD.StencilChooser stencilChooser;
   }
 }
+
 

@@ -85,6 +85,7 @@ namespace SysCAD.Editor
       this.fcFlowChart.ArrowCreating += new MindFusion.FlowChartX.AttachConfirmation(this.fcFlowChart_ArrowCreating);
       this.fcFlowChart.Click += new System.EventHandler(this.fcFlowChart_Click);
       this.fcFlowChart.BoxDeleting += new MindFusion.FlowChartX.BoxConfirmation(this.fcFlowChart_BoxDeleting);
+      this.DragDrop += new System.Windows.Forms.DragEventHandler(this.fcFlowChart_DragDrop);
       // 
       // FrmFlowChart
       // 

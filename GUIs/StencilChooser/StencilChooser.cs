@@ -14,16 +14,19 @@ namespace SysCAD
     Dictionary<String, Bitmap> modelThumbnails;
     Dictionary<String, ModelStencil> modelStencils;
 
-    public StencilChooser(Dictionary<String, Bitmap> modelThumbnails,
+    public StencilChooser()
+    {
+      InitializeComponent();
+    }
+
+    public void PopulateTree(Dictionary<String, Bitmap> modelThumbnails,
                        Dictionary<String, ModelStencil> modelStencils)
     {
       this.modelThumbnails = modelThumbnails;
       this.modelStencils = modelStencils;
 
-      InitializeComponent();
-
       ImageList imageList = new ImageList();
-      imageList.ImageSize = new Size(16, 16);
+      imageList.ImageSize = new System.Drawing.Size(16, 16);
       foreach (String key in modelThumbnails.Keys)
       {
         imageList.Images.Add("Model: " + key, modelThumbnails[key]);
@@ -34,7 +37,7 @@ namespace SysCAD
       foreach (String key in modelStencils.Keys)
       {
         String group = modelStencils[key].GroupName;
-        if ((group == null)||(group.Length == 0))
+        if ((group == null) || (group.Length == 0))
           group = "!!None!!";
 
         TreeNode groupNode;

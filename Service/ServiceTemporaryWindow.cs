@@ -15,6 +15,7 @@ using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting;
 using SysCAD.Log;
 using System.Runtime.Serialization.Formatters.Binary;
+using MindFusion.FlowChartX;
 
 namespace Service
 {
@@ -27,6 +28,10 @@ namespace Service
     public Dictionary<Guid, GraphicItem> graphicItems;
     public Dictionary<Guid, GraphicLink> graphicLinks;
     public Dictionary<Guid, GraphicThing> graphicThings;
+
+    public Dictionary<String, Box> clientBoxes;
+
+    public Box serviceBox;
 
     ClientServiceProtocol clientClientServiceProtocol;
     EngineServiceProtocol engineClientServiceProtocol;
@@ -56,7 +61,7 @@ namespace Service
       IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
       ChannelServices.RegisterChannel(ipcChannel, false);
 
-      projectName = Path.GetFileNameWithoutExtension(Path.GetDirectoryName(projectPath));
+      projectName = System.IO.Path.GetFileNameWithoutExtension(System.IO.Path.GetDirectoryName(projectPath));
 
       this.projectPath = projectPath;
       this.configPath = configPath;
@@ -75,10 +80,19 @@ namespace Service
       graphicLinks = new Dictionary<Guid, GraphicLink>();
       graphicThings = new Dictionary<Guid, GraphicThing>();
 
+      clientBoxes = new Dictionary<String,Box>();
+
+      serviceBox = flowChart.CreateBox(-20.0F, -10.0F, 40.0F, 20.0F);
+      serviceBox.Selected = false;
+      serviceBox.Text = "Service";
+      serviceBox.Shape = ShapeTemplate.Decision;
+      flowChart.DocExtents = new RectangleF(-30.0F, -15.0F, 60.0F, 30.0F);
+      flowChart.ZoomToFit();
+
       LoadGraphics();
 
-      ClientServiceProtocol.LoadHandler engineLoad = new ClientServiceProtocol.LoadHandler(LoadGraphics);
-      ClientServiceProtocol.SaveHandler engineSave = new ClientServiceProtocol.SaveHandler(SaveGraphics);
+      ClientServiceProtocol.LoadHandler clientLoad = new ClientServiceProtocol.LoadHandler(LoadGraphics);
+      ClientServiceProtocol.SaveHandler clientSave = new ClientServiceProtocol.SaveHandler(SaveGraphics);
 
       ClientServiceProtocol.ChangePermissionsHandler clientChangePermissions = new ClientServiceProtocol.ChangePermissionsHandler(ChangePermissions);
 
@@ -109,8 +123,10 @@ namespace Service
 
       ClientServiceProtocol.LogMessageHandler clientLogMessage = new ClientServiceProtocol.LogMessageHandler(LogMessage);
 
+      ClientServiceProtocol.AnnounceHandler clientAnnounce = new ClientServiceProtocol.AnnounceHandler(Announce);
+
       clientClientServiceProtocol = new ClientServiceProtocol(projectName,
-                                                              engineLoad, engineSave,
+                                                              clientLoad, clientSave,
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               clientChangePermissions, clientGetPropertyValues, clientGetSubTags,
                                                               clientCreateGroup, clientModifyGroup, clientDeleteGroup,
@@ -119,7 +135,7 @@ namespace Service
                                                               clientDeleteItem,
                                                               clientCreateLink, clientModifyLink, clientDeleteLink,
                                                               clientCreateThing, clientModifyThing, clientModifyThingPath,
-                                                              clientDeleteThing, clientPropertyListCheck, clientLogMessage);
+                                                              clientDeleteThing, clientPropertyListCheck, clientLogMessage, clientAnnounce);
 
 
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + projectName);
@@ -676,6 +692,67 @@ namespace Service
       logView.Message(message, messageType);
     }
 
+    private delegate void AnnounceDelegate(ref String clientName);
+
+    private void Announce(ref String clientName)
+    {
+      if (InvokeRequired)
+      {
+        BeginInvoke(new AnnounceDelegate(Announce), new object[] { clientName });
+      }
+      else
+      {
+        Box testBox;
+        int i = 0;
+        String fullName = clientName + i.ToString();
+        while (clientBoxes.TryGetValue(fullName, out testBox))
+        {
+          i++;
+          fullName = clientName + i.ToString();
+        }
+
+        Box box = flowChart.CreateBox(0.0F, 0.0F, 0.0F, 0.0F);
+        serviceBox.Selected = false;
+        serviceBox.Shape = ShapeTemplate.Decision;
+        box.Text = fullName;
+
+        Arrow arrow = flowChart.CreateArrow(serviceBox, box);
+        arrow.ZBottom();
+        arrow.Selected = false;
+
+
+        clientBoxes.Add(fullName, box);
+        clientName = fullName;
+
+
+
+        double xMin = -20.0F;
+        double xMax = 20.0F;
+        double yMin = -10.0F;
+        double yMax = 10.0F;
+
+        double dAngle = 180.0 / (clientBoxes.Count + 1);
+        double angle = 0.0;
+        foreach (Box clientBox in clientBoxes.Values)
+        {
+          angle += dAngle;
+          double x = 60.0 * Math.Sin(angle / 180.0 * Math.PI);
+          double y = 60.0 * Math.Cos(angle / 180.0 * Math.PI);
+          clientBox.BoundingRect = new RectangleF((float)x - 20.0F, (float)y - 10.0F, 40.0F, 20.0F);
+          clientBox.Selected = false;
+          clientBox.ZTop();
+
+          if ((x - 20.0F) < xMin) xMin = x - 20.0F;
+          if ((x + 20.0F) > xMax) xMax = x + 20.0F;
+          if ((y - 20.0F) < yMin) yMin = y - 20.0F;
+          if ((y + 20.0F) > yMax) yMax = y + 20.0F;
+        }
+
+        flowChart.DocExtents = new RectangleF((float)xMin - 10.0F, (float)yMin - 10.0F, (float)(xMax - xMin) + 20.0F, (float)(yMax - yMin) + 20.0F);
+        flowChart.ZoomToFit();
+      }
+    }
+
     bool StateChanged(out Int64 requestId, EngineBaseProtocol.RunState runState)
     {
       this.requestId++;
@@ -886,17 +963,17 @@ namespace Service
             StreamReader streamRdr = new StreamReader(fullpath);
             Stream stream = streamRdr.BaseStream;
             ModelStencil modelStencil = (ModelStencil)sf.Deserialize(stream);
-            modelStencil.Tag = Path.GetFileNameWithoutExtension(fullpath);
+            modelStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
 
             if (ConfirmModelStencil(modelStencil))
             {
               TrimAnchorPoints(modelStencil);
-              configData.ModelStencils.Add(Path.GetFileNameWithoutExtension(fullpath), modelStencil);
+              configData.ModelStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), modelStencil);
             }
 
             stream.Close();
             //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
-            LogNote("Srvr", 0, "  %i] %s", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
+            LogNote("Srvr", 0, "  %i] %s", iStencil++, System.IO.Path.GetFileNameWithoutExtension(fullpath));
           }
           catch (Exception e)
           {
@@ -939,10 +1016,10 @@ namespace Service
           stream.Close();
 
 
-          graphicStencil.Tag = Path.GetFileNameWithoutExtension(fullpath);
-          configData.GraphicStencils.Add(Path.GetFileNameWithoutExtension(fullpath), graphicStencil);
+          graphicStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
+          configData.GraphicStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), graphicStencil);
           //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
-          LogNote("Srvr", 0, "  %i] %s", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
+          LogNote("Srvr", 0, "  %i] %s", iStencil++, System.IO.Path.GetFileNameWithoutExtension(fullpath));
         }
       }
 
@@ -1066,11 +1143,11 @@ namespace Service
           StreamReader streamRdr = new StreamReader(fullpath);
           Stream stream = streamRdr.BaseStream;
           ThingStencil thingStencil = (ThingStencil)sf.Deserialize(stream);
-          thingStencil.Tag = Path.GetFileNameWithoutExtension(fullpath);
-          configData.ThingStencils.Add(Path.GetFileNameWithoutExtension(fullpath), thingStencil);
+          thingStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
+          configData.ThingStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), thingStencil);
           stream.Close();
           //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
-          LogNote("Srvr", 0, "  %i] %s", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
+          LogNote("Srvr", 0, "  %i] %s", iStencil++, System.IO.Path.GetFileNameWithoutExtension(fullpath));
         }
       }
 
@@ -1078,13 +1155,13 @@ namespace Service
 
     private void LogNote(string p, int p_2, string p_3)
     {
-      Message(p + " : " + p_2 + " : " + p_3, MessageType.Error);
+      Message(p + " : " + p_2 + " : " + p_3, MessageType.Note);
       Console.WriteLine(p + " : " + p_2 + " : " + p_3);
     }
 
     private void LogNote(string p, int p_2, string p_3, int p_4, string p_5)
     {
-      Message(p + " : " + p_2 + " : " + p_3 + " : " + p_4 + " : " + p_5, MessageType.Error);
+      Message(p + " : " + p_2 + " : " + p_3 + " : " + p_4 + " : " + p_5, MessageType.Note);
       //Console.WriteLine(p + " : " + p_2 + " : " + p_3 + " : " + p_4 + " : " + p_5);
     }
 

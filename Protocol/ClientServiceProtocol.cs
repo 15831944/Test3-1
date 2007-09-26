@@ -52,6 +52,8 @@ namespace SysCAD.Protocol
 
     private LogMessageHandler logMessageHandler;
 
+    private AnnounceHandler announceHandler;
+
     public delegate bool LoadHandler(out Int64 requestId);
     public delegate bool SaveHandler(out Int64 requestId);
 
@@ -86,17 +88,21 @@ namespace SysCAD.Protocol
 
     public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
 
+    public delegate void AnnounceHandler(ref String clientName);
+
     public ClientServiceProtocol(String name,
       LoadHandler loadHandler, SaveHandler saveHandler, 
-      Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
-      ChangePermissionsHandler clientChangePermissions, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
+      Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, 
+      Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
+      ChangePermissionsHandler clientChangePermissions, GetPropertyValuesHandler getPropertyValuesHandler, 
+      GetSubTagsHandler getSubTagsHandler,
       CreateGroupHandler createGroupHandler, ModifyGroupHandler modifyGroupHandler, DeleteGroupHandler deleteGroupHandler,
       CreateItemHandler createItemHandler, RequestPortInfoHandler requestPortInfoHandler,
       ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, ModifyItemBoundingRectHandler modifyItemBoundingRectHandler, 
       DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, ModifyThingPathHandler modifyThingPathHandler, DeleteThingHandler deleteThingHandler,
-      PropertyListHandler propertyListHandler, LogMessageHandler logMessageHandler)
+      PropertyListHandler propertyListHandler, LogMessageHandler logMessageHandler, AnnounceHandler announceHandler)
     {
       this.Name = name;
 
@@ -137,6 +143,8 @@ namespace SysCAD.Protocol
       this.propertyListHandler = propertyListHandler;
 
       this.logMessageHandler = logMessageHandler;
+
+      this.announceHandler = announceHandler;
     }
 
     public bool ChangePermissions(out Int64 requestId, Permissions permissions)
@@ -339,6 +347,11 @@ namespace SysCAD.Protocol
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
     {
       logMessageHandler(out requestId, message, messageType);
+    }
+
+    public void Announce(ref string clientName)
+    {
+      announceHandler(ref clientName);
     }
   }
 }

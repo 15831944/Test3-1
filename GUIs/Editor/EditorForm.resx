@@ -307,17 +307,6 @@
         TkSuQmCC
 </value>
   </data>
-  <data name="modeCreateNodeBarButtonCommand.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAQBJREFUOE9jZEAD
-        hYt7/qOLIfPznnxiUKxsYsSqBqR5ybFtGPh+bwNY7G5Xw//zoTZgC17NnoZqES7NYI0z+v6fjzD6f6vY
-        6f/Lyd7/L0RY/b8c4ohpAC5DHjeX/r9d6/L/17ne//9uLfz/YWPG/2tZwdhdADIEGe8J9/x/OtDo/5NV
-        Pv//Pljz/9+LQ///nGj4f7PI4f+5MCRX4PPCvoLU/1crTP5/3Fv1/9vlpv8PJ8T+v5YRSXwYXMlN/H86
-        yun/+VTn/zcbHf9fzfD9fynOh3gD1teUgGNhVULg/3PxvmAvYkQjPi+gR+2oAdtoFIigaCEmJgjlVrAh
-        +DB6/AMAUzkUgtWGFG4AAAAASUVORK5CYII=
-</value>
-  </data>
   <data name="viewShowTagsBarButtonCommand.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8

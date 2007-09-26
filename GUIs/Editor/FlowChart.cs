@@ -952,38 +952,7 @@ namespace SysCAD.Editor
       hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
       hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location), 2.0F);
 
-      if (
-          (me.Button == MouseButtons.Left)
-          &&
-          ((hoverBox == null) && (hoverArrow == null)) // we're in free space...
-          &&
-          ((form1.BarManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
-          &&
-          ((currentModel != null) && (currentStencil != null))
-          )
-      {
-        state.newElementSelectionList.Clear();
-        NewGraphicItem(
-          out guid,
-          state.CurrentPath,
-          currentModel,
-          currentStencil,
-          new SysCAD.Protocol.Rectangle(fcFlowChart.ClientToDoc(me.Location), state.GraphicShape(currentStencil).defaultSize),
-          0.0F,
-          state.GraphicShape(currentStencil).TextArea, // ???? I think this needs to be converted from relative (stencil) to absolute (graphicItem)
-          0.0F,
-          Color.LightBlue,
-          FillMode.Alternate,
-          false,
-          false
-          );
-      }
-
-      else
-      {
-
-        form1.ModeModify();
-      }
+      form1.ModeModify();
 
       if (me.Button == MouseButtons.Right)
       {
@@ -1468,18 +1437,6 @@ namespace SysCAD.Editor
 
       if ((hoverBox != null) && (hoverBox.Tag is Item))
         hoverBox = (hoverBox.Tag as Item).Model;
-
-      if (e.Button == MouseButtons.Left)
-      {
-
-        if ((hoverBox != null) || (hoverArrow != null)) // we're not in free space...
-        {
-
-          if ((form1.BarManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
-
-            form1.ModeModify();
-        }
-      }
 
       if (hoverArrow != null)
       {
@@ -2023,6 +1980,11 @@ namespace SysCAD.Editor
       {
         state.DeleteGraphicLink(out requestId, link.Guid);
       }
+    }
+
+    private void fcFlowChart_DragDrop(object sender, DragEventArgs e)
+    {
+
     }
   }
 }

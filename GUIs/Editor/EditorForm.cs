@@ -63,7 +63,7 @@ namespace SysCAD.Editor
       (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_ModelType_Changed);
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_GraphicType_Changed);
 
-      this.Text = "SysCAD.Editor (" + Assembly.Load("SysCAD.Editor").GetName().Version +") -- SVN Revision: " + SysCAD.SVNVersion.SVNVersion.version + " -- ";
+      this.Text = "SysCAD.Editor (" + Assembly.Load("SysCAD.Editor").GetName().Version + ") -- SVN Revision: " + SysCAD.SVNVersion.SVNVersion.version + " -- ";
     }
 
     public void LoadProject(ClientProtocol clientProtocol, Config config)
@@ -79,7 +79,7 @@ namespace SysCAD.Editor
         if (frmFlowChart != null)
           FileCloseProject();
 
-        clientProtocol.Connect();
+        clientProtocol.Connect("Client");
         config.Syncxxx();
 
         Refresh();
@@ -110,6 +110,30 @@ namespace SysCAD.Editor
         }
         (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 3;
 
+        {
+          Dictionary<String, Bitmap> modelThumbnails = new Dictionary<String, Bitmap>();
+          Dictionary<String, Bitmap> graphicThumbnails = new Dictionary<String, Bitmap>();
+
+          foreach (String key in frmFlowChart.State.Config.ModelStencils.Keys)
+          {
+            ModelStencil stencil = config.ModelStencils[key];
+            frmFlowChart.FlowChart.DocExtents = frmFlowChart.FlowChart.ClientToDoc(new System.Drawing.Rectangle(0, 0, 17, 17));
+            frmFlowChart.FlowChart.ShadowsStyle = ShadowsStyle.None;
+            frmFlowChart.FlowChart.BackColor = System.Drawing.SystemColors.Window;
+            frmFlowChart.FlowChart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            RectangleF boxRect = frmFlowChart.FlowChart.ClientToDoc(new System.Drawing.Rectangle(1, 1, 13, 13));
+            Box box = frmFlowChart.FlowChart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
+            box.Style = BoxStyle.Shape;
+            box.Shape = State.GetShapeTemplate(stencil, false, false);
+            box.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
+            box.FrameColor = System.Drawing.Color.FromArgb(255, System.Drawing.Color.BurlyWood);
+            box.Locked = true;
+            modelThumbnails.Add(key, frmFlowChart.FlowChart.CreateImage());
+            frmFlowChart.FlowChart.DeleteObject(box);
+          }
+
+          stencilChooser1.PopulateTree(modelThumbnails, config.ModelStencils);
+        }
 
         frmFlowChart.State.ProjectOpen = true;
         SetButtonStates();
@@ -144,7 +168,6 @@ namespace SysCAD.Editor
       barManager1.Commands["CreateItem.ModelType"].Enabled = false;
       frmFlowChart.FlowChart.Behavior = BehaviorType.Modify;
       (barManager1.Commands["Mode.Modify"] as BarButtonCommand).Checked = true;
-      (barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked = false;
       (barManager1.Commands["Mode.CreateLink"] as BarButtonCommand).Checked = false;
     }
 
@@ -226,10 +249,6 @@ namespace SysCAD.Editor
 
         case "Mode.Modify":
           this.ModeModify();
-          break;
-
-        case "Mode.CreateNode":
-          this.ModeCreateNode();
           break;
 
         case "Mode.CreateLink":
@@ -494,13 +513,6 @@ namespace SysCAD.Editor
       frmFlowChart.FlowChart.Behavior = BehaviorType.CreateArrow;
     }
 
-    private void ModeCreateNode()
-    {
-      barManager1.Commands["CreateItem.GraphicType"].Enabled = true;
-      barManager1.Commands["CreateItem.ModelType"].Enabled = true;
-      //frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateBox;
-    }
-
     void NewItem_GraphicType_Changed(object sender, EventArgs e)
     {
       int stencilIndex = (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex;
@@ -640,7 +652,6 @@ namespace SysCAD.Editor
         barManager1.Commands["Selection.SelectLinks"].Enabled = projectOpen;
         barManager1.Commands["CreateItem.ModelType"].Enabled = projectOpen && permissions.Create;
         barManager1.Commands["Mode.Modify"].Enabled = projectOpen && permissions.Modify;
-        barManager1.Commands["Mode.CreateNode"].Enabled = projectOpen && permissions.Create;
         barManager1.Commands["Mode.CreateLink"].Enabled = projectOpen && permissions.Create;
         barManager1.Commands["Edit.Cut"].Enabled = projectOpen && permissions.Delete;
         barManager1.Commands["Edit.Copy"].Enabled = projectOpen;

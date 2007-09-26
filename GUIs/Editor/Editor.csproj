@@ -178,6 +178,10 @@
       <Name>Overview</Name>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\StencilChooser\StencilChooser.csproj">
+      <Project>{ED8B341A-7180-480E-A8B7-C5D242FDDC52}</Project>
+      <Name>StencilChooser</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TreeView\PureComponents TreeView VS2005 SRC.csproj">
       <Project>{07620E7A-1355-41BB-A084-B72B24401F4B}</Project>
       <Name>PureComponents TreeView VS2005 SRC</Name>
