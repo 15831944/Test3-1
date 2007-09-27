@@ -4639,42 +4639,43 @@ static PhMask Fn2PhMasks[]={0/*som_ALL*/, 0/*som_Sol*/, 0/*som_Liq*/, 0/*som_Gas
 //MaxPhases Dependent
 CSysVecInfo::CSpViewMask CSysVecInfo::sm_SpVwPhMask[SpVwPhMaskIndex_Count] =
   {
-    { 0/*som_ALL*/, "All"},
-    { 0/*som_Sol*/, "Sol"},
-    { 0/*som_Liq*/, "Liq"},
-    { 0/*som_Gas*/, "Gas"},
-    { 0x00000001, "Ph0"},
-    { 0x00000002, "Ph1"},
-    { 0x00000004, "Ph2"},
-    { 0x00000008, "Ph3"},
-    { 0x00000010, "Ph4"},
-    { 0x00000020, "Ph5"},
-    { 0x00000040, "Ph6"},
-    { 0x00000080, "Ph7"},
-    { 0x00000100, "Ph8"},
-    { 0x00000200, "Ph9"},
-    { 0x00000400, "Ph10"},
-    { 0x00000800, "Ph11"},
-    { 0x00001000, "Ph12"},
-    { 0x00002000, "Ph13"},
-    { 0x00004000, "Ph14"},
-    { 0x00008000, "Ph15"},
-    { 0x00010000, "Ph16"},
-    { 0x00020000, "Ph17"},
-    { 0x00040000, "Ph18"},
-    { 0x00080000, "Ph19"},
-    { 0x00100000, "Ph20"},
-    { 0x00200000, "Ph21"},
-    { 0x00400000, "Ph22"},
-    { 0x00800000, "Ph23"},
-    { 0x01000000, "Ph24"},
-    { 0x02000000, "Ph25"},
-    { 0x04000000, "Ph26"},
-    { 0x08000000, "Ph27"},
-    { 0x10000000, "Ph28"},
-    { 0x20000000, "Ph29"},
-    { 0x40000000, "Ph30"},
-    { 0x80000000, "Ph31"},
+    { 0/*som_ALL*/, "All", "All"},
+    { 0/*som_Sol*/, "Sol", "Solids"},
+    { 0/*som_Liq*/, "Liq", "Liquids"},
+    { 0/*som_Gas*/, "Gas", "Gasses"},
+   // All the rest will be zero and must be initied
+    //{ 0x00000001, "Ph0"},
+    //{ 0x00000002, "Ph1"},
+    //{ 0x00000004, "Ph2"},
+    //{ 0x00000008, "Ph3"},
+    //{ 0x00000010, "Ph4"},
+    //{ 0x00000020, "Ph5"},
+    //{ 0x00000040, "Ph6"},
+    //{ 0x00000080, "Ph7"},
+    //{ 0x00000100, "Ph8"},
+    //{ 0x00000200, "Ph9"},
+    //{ 0x00000400, "Ph10"},
+    //{ 0x00000800, "Ph11"},
+    //{ 0x00001000, "Ph12"},
+    //{ 0x00002000, "Ph13"},
+    //{ 0x00004000, "Ph14"},
+    //{ 0x00008000, "Ph15"},
+    //{ 0x00010000, "Ph16"},
+    //{ 0x00020000, "Ph17"},
+    //{ 0x00040000, "Ph18"},
+    //{ 0x00080000, "Ph19"},
+    //{ 0x00100000, "Ph20"},
+    //{ 0x00200000, "Ph21"},
+    //{ 0x00400000, "Ph22"},
+    //{ 0x00800000, "Ph23"},
+    //{ 0x01000000, "Ph24"},
+    //{ 0x02000000, "Ph25"},
+    //{ 0x04000000, "Ph26"},
+    //{ 0x08000000, "Ph27"},
+    //{ 0x10000000, "Ph28"},
+    //{ 0x20000000, "Ph29"},
+    //{ 0x40000000, "Ph30"},
+    //{ 0x80000000, "Ph31"},
   };
 
 //---------------------------------------------------------------------------
@@ -7945,7 +7946,7 @@ PhMask CSysVecItem::ViewBasisMask(eScdSVViewBasis Ph)
   };
 LPCSTR CSysVecItem::ViewBasisName(eScdSVViewBasis Ph)
   {
-  return CSysVecInfo::SpVwPhMaskName(m_ViewBasisRules[Ph].m_iSpVwMaskIndex);
+  return CSysVecInfo::SpVwPhMaskSym(m_ViewBasisRules[Ph].m_iSpVwMaskIndex);
   };
 long CSysVecItem::ViewBasisEditable(eScdSVView Vw, eScdSVViewBasis Ph)
   {
@@ -10205,13 +10206,17 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
       }
     }
 
+  int iMask = 1;
   for (int p=CDB.PhaseFirst(); p<=CDB.PhaseLast(); p++)
     {
+    sm_SpVwPhMask[SpVwPhMaskIndex_Phase0+p].m_iMsk=iMask;
     sm_SpVwPhMask[SpVwPhMaskIndex_Phase0+p].m_Sym=CDB.PhaseInfo(p).m_Sym();
+    sm_SpVwPhMask[SpVwPhMaskIndex_Phase0+p].m_Tag=CDB.PhaseInfo(p).m_Tag();
     CString S;
     S.Format("%%(%s)", CDB.PhaseInfo(p).m_Sym());
     gs_SPMDC_FracPh[p].m_Txt=S;
     Cnvs[DC_FracPh00+p]->AddSecondaryCnv((LPSTR)(LPCTSTR)S, 100.0, 0.0, false);
+    iMask=iMask<<1;
     }
 
   // count the species & phases in each occurrence

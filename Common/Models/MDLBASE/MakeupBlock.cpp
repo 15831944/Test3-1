@@ -244,21 +244,22 @@ int CMakeupBase::DeleteTag(char * pDelTag)
 
 // Common
 XID xidMkType    = AdjustXID(1000);
-XID xidMkSelect  = AdjustXID(1001);
-XID xidMkAll     = AdjustXID(1002);
-XID xidMkSolids  = AdjustXID(1003);
-XID xidMkLiquids = AdjustXID(1004);
-XID xidMkGasses  = AdjustXID(1006);
-XID xidMkSpcCnt  = AdjustXID(1007);
-XID xidMkAddSpc  = AdjustXID(1008);
-XID xidMkRemSpc  = AdjustXID(1009);
-XID xidMkCmpCnt  = AdjustXID(1010);
-XID xidMkAddCmp  = AdjustXID(1011);
-XID xidMkRemCmp  = AdjustXID(1012);
-XID xidMkElemCnt = AdjustXID(1013);
-XID xidMkAddElem = AdjustXID(1014);
-XID xidMkRemElem = AdjustXID(1015);
-XID xidMkError   = AdjustXID(1016);
+XID xidMkPhaseB  = AdjustXID(1001);
+XID xidMkSelect  = AdjustXID(1002);
+XID xidMkAll     = AdjustXID(1003);
+XID xidMkSolids  = AdjustXID(1004);
+XID xidMkLiquids = AdjustXID(1006);
+XID xidMkGasses  = AdjustXID(1007);
+XID xidMkSpcCnt  = AdjustXID(1008);
+XID xidMkAddSpc  = AdjustXID(1009);
+XID xidMkRemSpc  = AdjustXID(1010);
+XID xidMkCmpCnt  = AdjustXID(1011);
+XID xidMkAddCmp  = AdjustXID(1012);
+XID xidMkRemCmp  = AdjustXID(1013);
+XID xidMkElemCnt = AdjustXID(1014);
+XID xidMkAddElem = AdjustXID(1015);
+XID xidMkRemElem = AdjustXID(1016);
+XID xidMkError   = AdjustXID(1017);
 XID xidMkPhase   = AdjustXID(1200);
 
 
@@ -1170,7 +1171,6 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   m_AsRatio   = AsRatio; 
   m_eSource   = Src_Remote;
   m_eType     = Type_Mass;
-
   m_MUQmMin   = 0.0;
   m_MUQmMax   = 10000.0;
 
@@ -1803,6 +1803,7 @@ class DllImportExport CXBlk_MUSimple: public CMakeupBlock
     double          m_QmMin;
     double          m_QmMax;
     eType           m_eType;
+    long            m_iPhaseBasis;
     eSelect         m_eSelect;
     PhMask          m_Phases; 
     CIArray         m_Species;
@@ -1903,6 +1904,7 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   {
   m_eSource   = Src_Remote;
   m_eType     = Type_MassRatio;
+  m_iPhaseBasis = SpVwPhMaskIndex_Liquid;
   m_eSelect   = Slct_All;
   m_Phases    = som_ALL;
   m_DDBSpcsOK = false;
@@ -2110,6 +2112,16 @@ void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
       {}
     };
 
+  static DDBValueLstMem DDBPhaseBasis;
+  if (DDBPhaseBasis.Length()==0)
+    {
+    for (int i=0; i<SpVwPhMaskIndex_Count; i++)
+      {
+      if (CSysVecInfo::SpVwPhMask(i)!=0)
+        DDBPhaseBasis.Add(i, CSysVecInfo::SpVwPhMaskTag(i));
+      }
+    }
+
   const bool MassBasis = (m_eType==Type_MassFrac || m_eType==Type_MassFlow || m_eType==Type_MassRatio || m_eType==Type_MassMult);
   const bool VolBasis  = (m_eType==Type_VolumeFrac || m_eType==Type_VolumeFlow || m_eType==Type_VolumeRatio || m_eType==Type_VolumeMult);
   const bool NVolBasis = (m_eType==Type_NVolumeFrac || m_eType==Type_NVolumeFlow || m_eType==Type_NVolumeRatio || m_eType==Type_NVolumeMult);
@@ -2123,6 +2135,8 @@ void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Text(" ");
   DDB.Text("SetPoint");
   DDB.Long       ("", "Type",             DC_,  "", xidMkType,  this, isParmStopped|SetOnChange, DDBCtrl);
+  DDB.Visibility(NSHM_All, m_eType==Type_Conc);
+  DDB.Long       ("", "PhaseBasis",       DC_,  "", xidMkPhaseB,  this, isParmStopped|SetOnChange, DDBPhaseBasis());
   DDB.Visibility(NSHM_All, m_eType==Type_MassFlow);
   DDB.Double("", "QmRqd",    DC_Qm, "kg/s", &m_QmRqd,  this, isParm);
   DDB.Visibility(NSHM_All, m_eType==Type_MoleFlow);
@@ -2426,6 +2440,15 @@ flag CXBlk_MUSimple::DataXchg(DataChangeBlk & DCB)
         }
       DCB.L = m_eType; 
       return 1;
+    case xidMkPhaseB:
+      if (DCB.rL && (m_iPhaseBasis!=*DCB.rL))
+        {          
+        m_iPhaseBasis = (eType)*DCB.rL;
+        ClrMeasEtc();
+        }
+      DCB.L = m_iPhaseBasis; 
+      return 1;
+
     case xidMkSelect:
       if (DCB.rL && (m_eSelect!=(eSelect)*DCB.rL))
         {          
@@ -2803,7 +2826,7 @@ double CXBlk_MUSimple::GetMeasVal(SpConduit &QIn, SpConduit &QPrd)
       return GetRawMeas(QPrd)/GTZ(GetRawMeas(QPrd, som_ALL));
 
     case Type_Conc:
-      return GetRawMeas(QPrd)/GTZ(QPrd.QVolume());
+      return GetRawMeas(QPrd)/GTZ(QPrd.QVolume(CSysVecInfo::SpVwPhMask(m_iPhaseBasis)));
     }
   return 0.0;
   }

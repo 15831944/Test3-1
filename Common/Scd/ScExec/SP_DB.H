@@ -2310,7 +2310,8 @@ class DllImportExport CSysVecInfo
     int *             SetUpSkipListRev(PhMask Mask);
 
     static PhMask     SpVwPhMask(int VwPhMaskIndex) { return sm_SpVwPhMask[VwPhMaskIndex].m_iMsk; };
-    static LPCTSTR    SpVwPhMaskName(int VwPhMaskIndex) { return sm_SpVwPhMask[VwPhMaskIndex].m_Sym; };
+    static LPCTSTR    SpVwPhMaskSym(int VwPhMaskIndex) { return sm_SpVwPhMask[VwPhMaskIndex].m_Sym; };
+    static LPCTSTR    SpVwPhMaskTag(int VwPhMaskIndex) { return sm_SpVwPhMask[VwPhMaskIndex].m_Tag.GetLength()>0? sm_SpVwPhMask[VwPhMaskIndex].m_Tag:sm_SpVwPhMask[VwPhMaskIndex].m_Tag; };
 
   public: //protected:
     long m_nSVSpcCount;
