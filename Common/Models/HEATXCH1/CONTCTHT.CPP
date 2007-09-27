@@ -131,6 +131,8 @@ ContactHeater::ContactHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pA
   bRemoveExcessVapour = 1;
   bVentConnected = 0;
 
+  SetAllowedModes(true, NM_All|SM_Direct/*|SM_Inline*/|SM_Buffered|HM_All);
+
   //m_EHX.Open(&CEHX_LossPerQmClass);
   m_VLE.Open(NULL, true);
 
@@ -240,7 +242,8 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
-  BuildDataDefnIOOpts(DDB);
+  if (SolveBufferedMethod())
+    BuildDataDefnIOOpts(DDB);
 
   RB.BuildDataDefn(DDB);
   m_EHX.BuildDataDefn(DDB);
@@ -248,7 +251,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   if (m_bShowQFeed && NetProbalMethod())
     DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
 
-  if (NetDynamicMethod())
+  if (SolveBufferedMethod())
     {
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
@@ -291,30 +294,29 @@ flag ContactHeater::ValidateData(ValidateDataBlk & VDB)
 void ContactHeater::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
-    switch (NetMethod())
+    {
+    if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
       {
-      case NM_Probal:
+      //if (!m_FTC.Active())
+      //  m_FTC.SetSuctionP(IOP_Rmt(IOWithId_Self(ioidSI_HotLiq)));what does this do for us?
+      if (NoProcessJoins()>0)
         {
-        //if (!m_FTC.Active())
-        //  m_FTC.SetSuctionP(IOP_Rmt(IOWithId_Self(ioidSI_HotLiq)));what does this do for us?
-        if (NoProcessJoins()>0)
-          {
-          //m_FTC.SetSuctionP(Min(dFinalP, MeasureJoinPressure(0)));
-          m_FTC.SetSuctionP(dFinalP);
+        //m_FTC.SetSuctionP(Min(dFinalP, MeasureJoinPressure(0)));
+        m_FTC.SetSuctionP(dFinalP);
 //          m_FTC.SetSuctionP(MeasureJoinPressure(0));
-          SetJoinPressure(0, m_FTC.SuctionP());
-          }
+        SetJoinPressure(0, m_FTC.SuctionP());
         }
-        break;
-      case NM_Dynamic:
-        MdlNode::EvalJoinPressures(JoinMask);
-        break;
       }
+    else
+      {
+      MdlNode::EvalJoinPressures(JoinMask);
+      }
+    }
   }
  
 //--------------------------------------------------------------------------
 
-void   ContactHeater::SetState(eScdMdlStateActs RqdState)
+void ContactHeater::SetState(eScdMdlStateActs RqdState)
   {
   MN_Surge::SetState(RqdState);
   switch (RqdState)

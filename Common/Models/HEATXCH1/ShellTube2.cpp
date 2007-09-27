@@ -763,7 +763,7 @@ void CShellTube2::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream & Sh
       ms = TubeI;
       ms.Set_totHz(TubeI.totHz()+qShell);
       MxTbOutT = ms.T;
-      Log.Message(MMsg_Note, "Limiting TubeOutT %g TubeI %g %d %d", MxTbOutT-273.15, TubeI.T-273.15, &TubeI, &ms); 
+      //Log.Message(MMsg_Note, "Limiting TubeOutT %g TubeI %g %d %d", MxTbOutT-273.15, TubeI.T-273.15, &TubeI, &ms); 
       } 
 
 //     if (MnTbOutT > MxTbOutT) {

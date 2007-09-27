@@ -41,7 +41,7 @@ QALPSD::QALPSD(MStream &s)
 {  
 
   MIPSD & sP = s.IF<MIPSD>(false);
-  double &THAMass      = s.MassVector[spTHA];         // Al[OH]3(s)
+  const double THAMass = s.MassVector[spTHA];         // Al[OH]3(s)
   
 
   double solidsContent = THAMass/s.Mass();// kg PSD solids/kg slurry @ref
