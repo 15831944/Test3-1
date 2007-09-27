@@ -85,7 +85,10 @@ namespace SysCAD.Editor
       this.fcFlowChart.ArrowCreating += new MindFusion.FlowChartX.AttachConfirmation(this.fcFlowChart_ArrowCreating);
       this.fcFlowChart.Click += new System.EventHandler(this.fcFlowChart_Click);
       this.fcFlowChart.BoxDeleting += new MindFusion.FlowChartX.BoxConfirmation(this.fcFlowChart_BoxDeleting);
-      this.DragDrop += new System.Windows.Forms.DragEventHandler(this.fcFlowChart_DragDrop);
+      this.AllowDrop = true;
+      this.fcFlowChart.DragEnter += new System.Windows.Forms.DragEventHandler(fcFlowChart_DragEnter);
+      this.fcFlowChart.DragOver += new System.Windows.Forms.DragEventHandler(this.fcFlowChart_DragOver);
+      this.fcFlowChart.DragDrop += new System.Windows.Forms.DragEventHandler(this.fcFlowChart_DragDrop);
       // 
       // FrmFlowChart
       // 
@@ -93,6 +96,7 @@ namespace SysCAD.Editor
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(292, 266);
       this.Controls.Add(this.fcFlowChart);
+      this.AllowDrop = true;
       this.Margin = new System.Windows.Forms.Padding(2);
       this.Name = "FrmFlowChart";
       this.Text = "FlowChart";

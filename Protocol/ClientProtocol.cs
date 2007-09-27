@@ -115,7 +115,7 @@ namespace SysCAD.Protocol
 
         Syncxxx();
 
-        this.clientName = Announce("Client");
+        this.clientName = Announce(clientName);
 
         connectionError = "";
           return true;
@@ -494,10 +494,9 @@ namespace SysCAD.Protocol
 
     ~ClientProtocol()
     {
-      Renounce(clientName);
-
       if (serviceGraphic != null)
       {
+        Renounce(clientName);
 
         try
         {

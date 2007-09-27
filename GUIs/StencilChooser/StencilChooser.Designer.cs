@@ -38,9 +38,11 @@ namespace SysCAD
       this.stencilChooserTreeView.Name = "stencilChooserTreeView";
       this.stencilChooserTreeView.Size = new System.Drawing.Size(150, 245);
       this.stencilChooserTreeView.TabIndex = 3;
+      this.stencilChooserTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.stencilChooserTreeView_ItemDrag);
       // 
       // StencilChooser
       // 
+      this.AllowDrop = true;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.stencilChooserTreeView);
@@ -48,6 +50,26 @@ namespace SysCAD
       this.Size = new System.Drawing.Size(150, 245);
       this.ResumeLayout(false);
 
+    }
+
+    void stencilChooserTreeView_DragOver(object sender, System.Windows.Forms.DragEventArgs e)
+    {
+      throw new System.Exception("The method or operation is not implemented.");
+    }
+
+    void stencilChooserTreeView_DragLeave(object sender, System.EventArgs e)
+    {
+      throw new System.Exception("The method or operation is not implemented.");
+    }
+
+    void stencilChooserTreeView_DragEnter(object sender, System.Windows.Forms.DragEventArgs e)
+    {
+      throw new System.Exception("The method or operation is not implemented.");
+    }
+
+    void stencilChooserTreeView_DragDrop(object sender, System.Windows.Forms.DragEventArgs e)
+    {
+      throw new System.Exception("The method or operation is not implemented.");
     }
 
     #endregion

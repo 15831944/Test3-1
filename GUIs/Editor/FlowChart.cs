@@ -1201,7 +1201,7 @@ namespace SysCAD.Editor
 
                 Int64 requestId;
 
-               // if (state.PortCheck(out requestId, (originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
+                // if (state.PortCheck(out requestId, (originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
                 {
                   SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(originBox.BoundingRect),
                     (originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).X,
@@ -1982,9 +1982,38 @@ namespace SysCAD.Editor
       }
     }
 
+    void fcFlowChart_DragEnter(object sender, System.Windows.Forms.DragEventArgs e)
+    {
+      if (e.Data.GetDataPresent(typeof(ModelStencil)))
+      {
+        e.Effect = DragDropEffects.Move;
+      }
+    }
+
+    void fcFlowChart_DragOver(object sender, System.Windows.Forms.DragEventArgs e)
+    {
+      //e.Effect = DragDropEffects.Move;
+    }
+
+
     private void fcFlowChart_DragDrop(object sender, DragEventArgs e)
     {
-
+      if (e.Data.GetDataPresent(typeof(ModelStencil)))
+      {
+        ModelStencil modelStencil = e.Data.GetData(typeof(ModelStencil)) as ModelStencil;
+        GraphicStencil graphicStencil;
+        if (state.GraphicStencils.TryGetValue(modelStencil.Tag, out graphicStencil))
+        {
+          long requestId;
+          Guid guid;
+          if (state.TVNavigation.SelectedNode != null)
+          {
+            bool a = state.CreateGraphicItem(out requestId, out guid, "Tag", state.TVNavigation.SelectedNode.FullPath + state.TVNavigation.PathSeparator,
+            modelStencil.Tag, modelStencil.Tag, new SysCAD.Protocol.Rectangle(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)),
+            graphicStencil.defaultSize), 0.0, graphicStencil.TextArea, 0.0, Color.Empty, graphicStencil.fillMode, false, false);
+          }
+        }
+      }
     }
   }
 }

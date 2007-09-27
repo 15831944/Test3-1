@@ -56,8 +56,7 @@ namespace SysCAD.Protocol
 
         Syncxxx();
 
-        this.engineName = engineName;
-        Announce(engineName);
+        this.engineName = Announce(engineName);
 
         connectionError = "";
         return true;
@@ -145,10 +144,10 @@ namespace SysCAD.Protocol
 
     ~EngineProtocol()
     {
-      Renounce(engineName);
-
       if (serviceGraphic != null)
       {
+        Renounce(engineName);
+
         try
         {
           if (serviceGraphicPortInfoRequestedHandler != null) serviceGraphic.PortInfoRequested -= serviceGraphicPortInfoRequestedHandler;

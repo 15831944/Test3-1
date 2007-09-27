@@ -248,8 +248,7 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        DoItemCreatedDelegate doItemCreatedDelegate = new DoItemCreatedDelegate(clientClientServiceProtocol.DoItemCreated);
-        doItemCreatedDelegate.BeginInvoke(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY, null, null);
+        clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }

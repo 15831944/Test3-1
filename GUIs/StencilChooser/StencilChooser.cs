@@ -53,5 +53,14 @@ namespace SysCAD
         TreeNode modelNode = groupNode.Nodes.Add("Model: " + key, key, "Model: " + key, "Model: " + key);
       }
     }
+
+    private void stencilChooserTreeView_ItemDrag(object sender, ItemDragEventArgs e)
+    {
+      ModelStencil modelStencil;
+      if (modelStencils.TryGetValue(((TreeNode)e.Item).Text, out modelStencil))
+      {
+        this.DoDragDrop(modelStencil, DragDropEffects.Move);
+      }
+    }
   }
 }
