@@ -70,7 +70,7 @@ void CR_EqnControl::Clear()
   m_ddDefinedResTime.Clear(&Eq);
   m_ddDefinedResTime=-1.0;
   m_sExtentSpc="";
-  m_ExtentType=-1;
+  m_ExtentType=RBXT_Default;
   };
 
 //---------------------------------------------------------------------------
@@ -87,30 +87,29 @@ flag CR_EqnControl::DataXchg(DataChangeBlk & DCB)
         else if(_stricmp(DCB.rpC, "Target")==0)
           m_ExtentType=RBXT_Target;
         else
-          m_ExtentType=-1;
+          m_ExtentType=RBXT_Default;
+        }
+      if (!DCB.ForFileSnpScn())
+        {
+        switch (Eq.RB.ExtentType())
+          {
+          case RBXT_AllStrict:        DCB.pC = "[Strict]"; goto GotIt;
+          case RBXT_AllTarget:        DCB.pC = "[Target]"; goto GotIt;
+          }
         }
       switch (m_ExtentType)
         {
-        case RBXT_Strict:
-          DCB.pC = "Strict";
-          break;
-        case RBXT_Target:
-          DCB.pC = "Target";
-          break;
+        case RBXT_Strict:       DCB.pC = "Strict";   goto GotIt;
+        case RBXT_Target:       DCB.pC = "Target";   goto GotIt;
         default:    
           switch (Eq.RB.ExtentType())
             {
-            case RBXT_Strict:
-              DCB.pC = "<Strict>";
-              break;
-            case RBXT_Target:
-              DCB.pC = "<Target>";
-              break;
-            default:
-              _asm int 3; // should not get here
-              break;
+            case RBXT_Strict:   DCB.pC = "<Strict>"; goto GotIt;
+            case RBXT_Target:   DCB.pC = "<Target>"; goto GotIt;
             }
         }
+      DCB.pC = "???";
+GotIt:
       return 1;
     case xid_ExtentError: 
       DCB.D=ExtentError();
@@ -433,7 +432,22 @@ double CR_EqnControl::ExtentError()
 
 int CR_EqnControl::ExtentType()
   {
-  return (m_ExtentType<0) ? Eq.RB.ExtentType() : m_ExtentType;
+  switch (RB.ExtentType())
+    {
+    case RBXT_AllTarget:  return RBXT_Target;
+    case RBXT_AllStrict:  return RBXT_Strict;
+    default:
+      {
+      switch (m_ExtentType)
+        {
+        case RBXT_Target:  return RBXT_Target;
+        case RBXT_Strict:  return RBXT_Strict;
+        case RBXT_Default: 
+        default:           return RB.ExtentType();
+        }
+      }
+    }
+      //return (m_ExtentType<0) ? Eq.RB.ExtentType() : m_ExtentType;
   }
 
 //===========================================================================

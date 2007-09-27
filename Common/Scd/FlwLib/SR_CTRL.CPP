@@ -33,7 +33,7 @@ static CDbgMngr dbgRctSolve("Reactions", "Solve");
 static DDBValueLst DDBExtentTypes[] = {
   { RBXT_Strict,   "Strict"},
   { RBXT_Target,   "Target"},
-  { -1,            "<Default>"},
+  { RBXT_Default,  "<Default>"},
   {0}};
 
 flag CEqnSpRef::SetUp(CReactionBlock & RB, CR_Eqn & Eq)
@@ -91,6 +91,8 @@ void CR_EqnControl::ParseExtent(CRCTTokenFile &TF)
     else
       m_ExtentType=RBXT_Target;
     }
+  else
+    m_ExtentType=RBXT_Default;
   }
 
 void CR_EqnControl::ParseDynamic(CRCTTokenFile &TF)
@@ -765,25 +767,23 @@ LPCTSTR CEC_FracExt::GetRctString()
     {
     m_AsString=m_pFactory->ClassId();
 
-    switch (m_ExtentType)
+    switch (RB.ExtentType())
       {
-      case RBXT_Target:
-        m_AsString += " Strict";
-        break;
-      case RBXT_Strict:
-        m_AsString += " Target";
-        break;
+      case RBXT_AllTarget:       m_AsString += " [Target]";   break;
+      case RBXT_AllStrict:       m_AsString += " [Strict]";   break;
       default:
-        switch (RB.ExtentType())
+        switch (m_ExtentType)
           {
-          case RBXT_Target:
-            m_AsString += " Strict";
-            break;
-          case RBXT_Strict:
-            m_AsString += " Target";
-            break;
+          case RBXT_Target:      m_AsString += " Target";     break;
+          case RBXT_Strict:      m_AsString += " Strict";     break;
           default:
-            _asm int 3; // should not get here
+            switch (RB.ExtentType())
+              {
+              case RBXT_Target:  m_AsString += " <Target>";   break;
+              case RBXT_Strict:  m_AsString += " <Strict>";   break;
+              default:
+                _asm int 3; // should not get here
+              }
           }
       }
     }

@@ -1005,8 +1005,8 @@ static DDBValueLst DDBVersion[] = {
   {0}};
 
 static DDBValueLst DDBExtentTypes[] = {
-  { RBXT_Strict,      "All_Strict", MDD_Hidden},
-  { RBXT_Target,      "All_Target", MDD_Hidden},   
+  { RBXT_AllStrict,   "All_Strict"  },
+  { RBXT_AllTarget,   "All_Target"  },   
   { RBXT_Strict,      "Strict"      },
   { RBXT_Target,      "Target"      },   
   {0}};

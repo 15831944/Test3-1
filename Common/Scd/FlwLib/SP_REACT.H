@@ -293,8 +293,11 @@ class DllImportExport CRCTTokenFile : public CTokenFile
 
 enum RBStates { RBS_Empty, RBS_Error, RBS_OK};
 
+const sint RBXT_Default     = -1;
 const sint RBXT_Strict      = 0;
 const sint RBXT_Target      = 1;
+const sint RBXT_AllStrict   = 2;
+const sint RBXT_AllTarget   = 3;
 
 const int MaxRctCIs = 16;
 
@@ -390,7 +393,7 @@ class DllImportExport CReactionBlock : public TaggedObject
     _declspec(property(get=getModel))         SpModel * Model;
     _declspec(property(get=getOwnModel))      SpModel * OwnModel;
 
-    byte           ExtentType()       { return m_ExtentType; };
+    int            ExtentType()       { return m_ExtentType; };
 
     double         Temperature(bool Pr=false)   { return Pr ? m_TempKProd : m_TempKFeed; };
     double         Pressure(bool Pr=false)      { return m_Press; };
