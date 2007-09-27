@@ -26,7 +26,7 @@ namespace SysCAD.Protocol
     public delegate bool StateChangedHandler(out long requestId, RunState runState);
     public delegate bool RequestPortInfoHandler(out Int64 requestId, Guid guid, String tag, PortInfo portInfo);
 
-    public delegate void AnnounceHandler(ref String engineName);
+    public delegate string AnnounceHandler(String engineName);
     public delegate void RenounceHandler(String engineName);
 
     private LogMessageHandler logMessageHandler;
@@ -77,9 +77,9 @@ namespace SysCAD.Protocol
       OnPortInfoRequested(eventId, requestId, guid, tag);
     }
 
-    public void Announce(ref string engineName)
+    public string Announce(string engineName)
     {
-      announceHandler(ref engineName);
+      return announceHandler(engineName);
     }
 
     public void Renounce(string engineName)

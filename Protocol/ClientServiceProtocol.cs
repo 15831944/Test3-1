@@ -89,7 +89,7 @@ namespace SysCAD.Protocol
 
     public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
 
-    public delegate void AnnounceHandler(ref String clientName);
+    public delegate String AnnounceHandler(String clientName);
     public delegate void RenounceHandler(String clientName);
 
     public ClientServiceProtocol(String name,
@@ -353,9 +353,9 @@ namespace SysCAD.Protocol
       logMessageHandler(out requestId, message, messageType);
     }
 
-    public void Announce(ref string clientName)
+    public string Announce(string clientName)
     {
-      announceHandler(ref clientName);
+      return announceHandler(clientName);
     }
 
     public void Renounce(string clientName)

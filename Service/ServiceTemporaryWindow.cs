@@ -706,13 +706,13 @@ namespace Service
       logView.Message(message, messageType);
     }
 
-    private delegate void ClientAnnounceDelegate(ref String clientName);
+    private delegate String ClientAnnounceDelegate(String clientName);
 
-    private void ClientAnnounce(ref String clientName)
+    private String ClientAnnounce(String clientName)
     {
       if (InvokeRequired)
       {
-        BeginInvoke(new ClientAnnounceDelegate(ClientAnnounce), new object[] { clientName });
+        return Invoke(new ClientAnnounceDelegate(ClientAnnounce), new object[] { clientName }).ToString();
       }
       else
       {
@@ -734,10 +734,10 @@ namespace Service
         Arrow arrow = flowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(1.0F, 1.0F));
         arrow.Selected = false;
         clientArrows.Add(fullName, arrow);
-
-        clientName = fullName;
         
         RedrawAll();
+
+        return fullName;
       }
     }
 
@@ -860,13 +860,13 @@ namespace Service
       flowChart.ZoomToFit();
     }
 
-    private delegate void EngineAnnounceDelegate(ref String engineName);
+    private delegate string EngineAnnounceDelegate(String engineName);
 
-    private void EngineAnnounce(ref String engineName)
+    private string EngineAnnounce(String engineName)
     {
       if (InvokeRequired)
       {
-        BeginInvoke(new EngineAnnounceDelegate(EngineAnnounce), new object[] { engineName });
+        return Invoke(new EngineAnnounceDelegate(EngineAnnounce), new object[] { engineName }).ToString();
       }
       else
       {
@@ -890,9 +890,10 @@ namespace Service
 
 
         engineBoxes.Add(fullName, box);
-        engineName = fullName;
 
         RedrawAll();
+
+        return fullName;
       }
     }
 

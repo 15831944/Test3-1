@@ -57,7 +57,7 @@ namespace SysCAD.Protocol
         Syncxxx();
 
         this.engineName = engineName;
-        Announce(ref engineName);
+        Announce(engineName);
 
         connectionError = "";
         return true;
@@ -70,9 +70,9 @@ namespace SysCAD.Protocol
       }
     }
 
-    private void Announce(ref string name)
+    private string Announce(string name)
     {
-      serviceGraphic.Announce(ref name);
+      return serviceGraphic.Announce(name);
     }
 
     private void Renounce(string name)

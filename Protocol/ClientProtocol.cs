@@ -115,8 +115,7 @@ namespace SysCAD.Protocol
 
         Syncxxx();
 
-        this.clientName = clientName;
-        Announce(ref this.clientName);
+        this.clientName = Announce("Client");
 
         connectionError = "";
           return true;
@@ -129,9 +128,9 @@ namespace SysCAD.Protocol
       }
     }
 
-    private void Announce(ref string name)
+    private string Announce(string name)
     {
-      serviceGraphic.Announce(ref name);
+      return serviceGraphic.Announce(name);
     }
 
     private void Renounce(string name)
