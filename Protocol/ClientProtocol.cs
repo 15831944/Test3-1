@@ -115,8 +115,8 @@ namespace SysCAD.Protocol
 
         Syncxxx();
 
-        clientName = clientName;
-        Announce(ref clientName);
+        this.clientName = clientName;
+        Announce(ref this.clientName);
 
         connectionError = "";
           return true;
@@ -132,6 +132,11 @@ namespace SysCAD.Protocol
     private void Announce(ref string name)
     {
       serviceGraphic.Announce(ref name);
+    }
+
+    private void Renounce(string name)
+    {
+      serviceGraphic.Renounce(name);
     }
 
     public bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, Rectangle boundingRect)
@@ -490,6 +495,7 @@ namespace SysCAD.Protocol
 
     ~ClientProtocol()
     {
+      Renounce(clientName);
 
       if (serviceGraphic != null)
       {

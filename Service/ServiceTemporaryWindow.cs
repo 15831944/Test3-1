@@ -30,6 +30,10 @@ namespace Service
     public Dictionary<Guid, GraphicThing> graphicThings;
 
     public Dictionary<String, Box> clientBoxes;
+    public Dictionary<String, Box> engineBoxes;
+
+    public Dictionary<String, Arrow> clientArrows;
+    public Dictionary<String, Arrow> engineArrows;
 
     public Box serviceBox;
 
@@ -80,7 +84,11 @@ namespace Service
       graphicLinks = new Dictionary<Guid, GraphicLink>();
       graphicThings = new Dictionary<Guid, GraphicThing>();
 
-      clientBoxes = new Dictionary<String,Box>();
+      clientBoxes = new Dictionary<String, Box>();
+      engineBoxes = new Dictionary<String, Box>();
+
+      clientArrows = new Dictionary<String, Arrow>();
+      engineArrows = new Dictionary<String, Arrow>();
 
       serviceBox = flowChart.CreateBox(-20.0F, -10.0F, 40.0F, 20.0F);
       serviceBox.Selected = false;
@@ -123,7 +131,8 @@ namespace Service
 
       ClientServiceProtocol.LogMessageHandler clientLogMessage = new ClientServiceProtocol.LogMessageHandler(LogMessage);
 
-      ClientServiceProtocol.AnnounceHandler clientAnnounce = new ClientServiceProtocol.AnnounceHandler(Announce);
+      ClientServiceProtocol.AnnounceHandler clientAnnounce = new ClientServiceProtocol.AnnounceHandler(ClientAnnounce);
+      ClientServiceProtocol.RenounceHandler clientRenounce = new ClientServiceProtocol.RenounceHandler(ClientRenounce);
 
       clientClientServiceProtocol = new ClientServiceProtocol(projectName,
                                                               clientLoad, clientSave,
@@ -135,7 +144,8 @@ namespace Service
                                                               clientDeleteItem,
                                                               clientCreateLink, clientModifyLink, clientDeleteLink,
                                                               clientCreateThing, clientModifyThing, clientModifyThingPath,
-                                                              clientDeleteThing, clientPropertyListCheck, clientLogMessage, clientAnnounce);
+                                                              clientDeleteThing, clientPropertyListCheck, clientLogMessage,
+                                                              clientAnnounce, clientRenounce);
 
 
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + projectName);
@@ -144,9 +154,13 @@ namespace Service
       EngineServiceProtocol.StateChangedHandler engineStateChanged = new EngineServiceProtocol.StateChangedHandler(StateChanged);
       EngineServiceProtocol.RequestPortInfoHandler engineRequestPortInfo = new EngineServiceProtocol.RequestPortInfoHandler(EngineRequestPortInfo);
 
+      EngineServiceProtocol.AnnounceHandler engineAnnounce = new EngineServiceProtocol.AnnounceHandler(EngineAnnounce);
+      EngineServiceProtocol.RenounceHandler engineRenounce = new EngineServiceProtocol.RenounceHandler(EngineRenounce);
+
       engineClientServiceProtocol = new EngineServiceProtocol(projectName,
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings, 
-                                                              engineLogMessage, engineStateChanged, engineRequestPortInfo);
+                                                              engineLogMessage, engineStateChanged, engineRequestPortInfo,
+                                                              engineAnnounce, engineRenounce);
 
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + projectName);
     }
@@ -692,13 +706,13 @@ namespace Service
       logView.Message(message, messageType);
     }
 
-    private delegate void AnnounceDelegate(ref String clientName);
+    private delegate void ClientAnnounceDelegate(ref String clientName);
 
-    private void Announce(ref String clientName)
+    private void ClientAnnounce(ref String clientName)
     {
       if (InvokeRequired)
       {
-        BeginInvoke(new AnnounceDelegate(Announce), new object[] { clientName });
+        BeginInvoke(new ClientAnnounceDelegate(ClientAnnounce), new object[] { clientName });
       }
       else
       {
@@ -712,44 +726,173 @@ namespace Service
         }
 
         Box box = flowChart.CreateBox(0.0F, 0.0F, 0.0F, 0.0F);
-        serviceBox.Selected = false;
-        serviceBox.Shape = ShapeTemplate.Decision;
+        box.Selected = false;
+        box.Shape = ShapeTemplate.Decision;
         box.Text = fullName;
-
-        Arrow arrow = flowChart.CreateArrow(serviceBox, box);
-        arrow.ZBottom();
-        arrow.Selected = false;
-
-
         clientBoxes.Add(fullName, box);
+
+        Arrow arrow = flowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(1.0F, 1.0F));
+        arrow.Selected = false;
+        clientArrows.Add(fullName, arrow);
+
         clientName = fullName;
+        
+        RedrawAll();
+      }
+    }
 
+    private delegate void ClientRenounceDelegate(String clientName);
 
+    private void ClientRenounce(String clientName)
+    {
+      if (InvokeRequired)
+      {
+        BeginInvoke(new ClientRenounceDelegate(ClientRenounce), new object[] { clientName });
+      }
+      else
+      {
+        Box testBox;
+        if (clientBoxes.TryGetValue(clientName, out testBox))
+        {
+          Box clientBox = clientBoxes[clientName];
+          Arrow clientArrow = clientArrows[clientName];
 
-        double xMin = -20.0F;
-        double xMax = 20.0F;
-        double yMin = -10.0F;
-        double yMax = 10.0F;
+          flowChart.DeleteObject(clientArrow);
+          flowChart.DeleteObject(clientBox);
 
+          clientBoxes.Remove(clientName);
+          clientArrows.Remove(clientName);
+        }
+
+        RedrawAll();
+      }
+    }
+
+    private delegate void EngineRenounceDelegate(String engineName);
+
+    private void EngineRenounce(String engineName)
+    {
+      if (InvokeRequired)
+      {
+        BeginInvoke(new EngineRenounceDelegate(EngineRenounce), new object[] { engineName });
+      }
+      else
+      {
+        Box testBox;
+        if (engineBoxes.TryGetValue(engineName, out testBox))
+        {
+          Box engineBox = engineBoxes[engineName];
+          Arrow engineArrow = engineArrows[engineName];
+
+          flowChart.DeleteObject(engineArrow);
+          flowChart.DeleteObject(engineBox);
+
+          engineBoxes.Remove(engineName);
+          engineArrows.Remove(engineName);
+        }
+
+        RedrawAll();
+      }
+    }
+
+    private void RedrawAll()
+    {
+      double xMin = -20.0F;
+      double xMax = 20.0F;
+      double yMin = -10.0F;
+      double yMax = 10.0F;
+      {
         double dAngle = 180.0 / (clientBoxes.Count + 1);
         double angle = 0.0;
-        foreach (Box clientBox in clientBoxes.Values)
+        foreach (String key in clientBoxes.Keys)
         {
+          Box clientBox = clientBoxes[key];
+          Arrow clientArrow = clientArrows[key];
+
           angle += dAngle;
-          double x = 60.0 * Math.Sin(angle / 180.0 * Math.PI);
-          double y = 60.0 * Math.Cos(angle / 180.0 * Math.PI);
+          double x = 80.0 * Math.Sin(angle / 180.0 * Math.PI);
+          double y = 80.0 * Math.Cos(angle / 180.0 * Math.PI);
           clientBox.BoundingRect = new RectangleF((float)x - 20.0F, (float)y - 10.0F, 40.0F, 20.0F);
           clientBox.Selected = false;
           clientBox.ZTop();
+
+          clientArrow.Origin = serviceBox;
+          clientArrow.Destination = clientBox;
+          clientArrow.ZBottom();
+          clientArrow.Selected = false;
 
           if ((x - 20.0F) < xMin) xMin = x - 20.0F;
           if ((x + 20.0F) > xMax) xMax = x + 20.0F;
           if ((y - 20.0F) < yMin) yMin = y - 20.0F;
           if ((y + 20.0F) > yMax) yMax = y + 20.0F;
         }
+      }
 
-        flowChart.DocExtents = new RectangleF((float)xMin - 10.0F, (float)yMin - 10.0F, (float)(xMax - xMin) + 20.0F, (float)(yMax - yMin) + 20.0F);
-        flowChart.ZoomToFit();
+      {
+        double dAngle = 180.0 / (engineBoxes.Count + 1);
+        double angle = 180.0;
+        foreach (String key in engineBoxes.Keys)
+        {
+          Box engineBox = engineBoxes[key];
+          Arrow engineArrow = engineArrows[key];
+
+          angle += dAngle;
+          double x = 80.0 * Math.Sin(angle / 180.0 * Math.PI);
+          double y = 80.0 * Math.Cos(angle / 180.0 * Math.PI);
+          engineBox.BoundingRect = new RectangleF((float)x - 20.0F, (float)y - 10.0F, 40.0F, 20.0F);
+          engineBox.Selected = false;
+          engineBox.ZTop();
+
+          engineArrow.Origin = serviceBox;
+          engineArrow.Destination = engineBox;
+          engineArrow.ZBottom();
+          engineArrow.Selected = false;
+
+          if ((x - 20.0F) < xMin) xMin = x - 20.0F;
+          if ((x + 20.0F) > xMax) xMax = x + 20.0F;
+          if ((y - 20.0F) < yMin) yMin = y - 20.0F;
+          if ((y + 20.0F) > yMax) yMax = y + 20.0F;
+        }
+      }
+
+
+      flowChart.DocExtents = new RectangleF((float)xMin - 10.0F, (float)yMin - 10.0F, (float)(xMax - xMin) + 20.0F, (float)(yMax - yMin) + 20.0F);
+      flowChart.ZoomToFit();
+    }
+
+    private delegate void EngineAnnounceDelegate(ref String engineName);
+
+    private void EngineAnnounce(ref String engineName)
+    {
+      if (InvokeRequired)
+      {
+        BeginInvoke(new EngineAnnounceDelegate(EngineAnnounce), new object[] { engineName });
+      }
+      else
+      {
+        Box testBox;
+        int i = 0;
+        String fullName = engineName + i.ToString();
+        while (engineBoxes.TryGetValue(fullName, out testBox))
+        {
+          i++;
+          fullName = engineName + i.ToString();
+        }
+
+        Box box = flowChart.CreateBox(0.0F, 0.0F, 0.0F, 0.0F);
+        box.Selected = false;
+        box.Shape = ShapeTemplate.Decision;
+        box.Text = fullName;
+
+        Arrow arrow = flowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(1.0F, 1.0F));
+        arrow.Selected = false;
+        engineArrows.Add(fullName, arrow);
+
+
+        engineBoxes.Add(fullName, box);
+        engineName = fullName;
+
+        RedrawAll();
       }
     }
 

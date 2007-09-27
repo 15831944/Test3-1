@@ -53,6 +53,7 @@ namespace SysCAD.Protocol
     private LogMessageHandler logMessageHandler;
 
     private AnnounceHandler announceHandler;
+    private RenounceHandler renounceHandler;
 
     public delegate bool LoadHandler(out Int64 requestId);
     public delegate bool SaveHandler(out Int64 requestId);
@@ -89,6 +90,7 @@ namespace SysCAD.Protocol
     public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
 
     public delegate void AnnounceHandler(ref String clientName);
+    public delegate void RenounceHandler(String clientName);
 
     public ClientServiceProtocol(String name,
       LoadHandler loadHandler, SaveHandler saveHandler, 
@@ -102,7 +104,8 @@ namespace SysCAD.Protocol
       DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, ModifyThingPathHandler modifyThingPathHandler, DeleteThingHandler deleteThingHandler,
-      PropertyListHandler propertyListHandler, LogMessageHandler logMessageHandler, AnnounceHandler announceHandler)
+      PropertyListHandler propertyListHandler, LogMessageHandler logMessageHandler,
+      AnnounceHandler announceHandler, RenounceHandler renounceHandler)
     {
       this.Name = name;
 
@@ -145,6 +148,7 @@ namespace SysCAD.Protocol
       this.logMessageHandler = logMessageHandler;
 
       this.announceHandler = announceHandler;
+      this.renounceHandler = renounceHandler;
     }
 
     public bool ChangePermissions(out Int64 requestId, Permissions permissions)
@@ -352,6 +356,11 @@ namespace SysCAD.Protocol
     public void Announce(ref string clientName)
     {
       announceHandler(ref clientName);
+    }
+
+    public void Renounce(string clientName)
+    {
+      renounceHandler(clientName);
     }
   }
 }

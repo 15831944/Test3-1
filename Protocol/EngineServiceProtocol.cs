@@ -26,13 +26,20 @@ namespace SysCAD.Protocol
     public delegate bool StateChangedHandler(out long requestId, RunState runState);
     public delegate bool RequestPortInfoHandler(out Int64 requestId, Guid guid, String tag, PortInfo portInfo);
 
+    public delegate void AnnounceHandler(ref String engineName);
+    public delegate void RenounceHandler(String engineName);
+
     private LogMessageHandler logMessageHandler;
     private StateChangedHandler stateChangedHandler;
     private RequestPortInfoHandler requestPortInfoHandler;
 
+    private AnnounceHandler announceHandler;
+    private RenounceHandler renounceHandler;
+
     public EngineServiceProtocol(String name,
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
-      LogMessageHandler logMessageHandler, StateChangedHandler stateChangedHandler, RequestPortInfoHandler requestPortInfoHandler)
+      LogMessageHandler logMessageHandler, StateChangedHandler stateChangedHandler, RequestPortInfoHandler requestPortInfoHandler,
+      AnnounceHandler announceHandler, RenounceHandler renounceHandler)
     {
       this.Name = name;
 
@@ -45,6 +52,9 @@ namespace SysCAD.Protocol
       this.logMessageHandler = logMessageHandler;
       this.stateChangedHandler = stateChangedHandler;
       this.requestPortInfoHandler = requestPortInfoHandler;
+
+      this.announceHandler = announceHandler;
+      this.renounceHandler = renounceHandler;
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
@@ -65,6 +75,16 @@ namespace SysCAD.Protocol
     public void DoPortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag)
     {
       OnPortInfoRequested(eventId, requestId, guid, tag);
+    }
+
+    public void Announce(ref string engineName)
+    {
+      announceHandler(ref engineName);
+    }
+
+    public void Renounce(string engineName)
+    {
+      renounceHandler(engineName);
     }
   }
 }

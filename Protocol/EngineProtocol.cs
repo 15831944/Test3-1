@@ -25,6 +25,8 @@ namespace SysCAD.Protocol
     private String connectionError = String.Empty;
     private EngineServiceProtocol serviceGraphic;
 
+    public String engineName = String.Empty;
+
     private EngineServiceProtocol.PortInfoRequestedHandler serviceGraphicPortInfoRequestedHandler = null;
 
     Uri url = null;
@@ -39,7 +41,7 @@ namespace SysCAD.Protocol
     }
 
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
-    public bool Connect()
+    public bool Connect(String engineName)
     {
 
       try
@@ -54,6 +56,9 @@ namespace SysCAD.Protocol
 
         Syncxxx();
 
+        this.engineName = engineName;
+        Announce(ref engineName);
+
         connectionError = "";
         return true;
       }
@@ -63,6 +68,16 @@ namespace SysCAD.Protocol
         connectionError = remotingException.Message;
         return false;
       }
+    }
+
+    private void Announce(ref string name)
+    {
+      serviceGraphic.Announce(ref name);
+    }
+
+    private void Renounce(string name)
+    {
+      serviceGraphic.Renounce(name);
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
@@ -130,6 +145,7 @@ namespace SysCAD.Protocol
 
     ~EngineProtocol()
     {
+      Renounce(engineName);
 
       if (serviceGraphic != null)
       {
