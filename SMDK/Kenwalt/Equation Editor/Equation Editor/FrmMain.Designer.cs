@@ -853,7 +853,6 @@ namespace Reaction_Editor
             this.Text = "SysCAD Reaction Editor";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.MdiChildActivate += new System.EventHandler(this.FrmMain_MdiChildActivate);
-            this.Load += new System.EventHandler(this.FrmMain_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);

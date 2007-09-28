@@ -940,6 +940,7 @@ namespace Reaction_Editor
             this.txtSourceComments.Name = "txtSourceComments";
             this.txtSourceComments.Size = new System.Drawing.Size(416, 20);
             this.txtSourceComments.TabIndex = 11;
+            this.txtSourceComments.TextChanged += new System.EventHandler(this.txtSourceComments_TextChanged);
             // 
             // chkSourcesEnabled
             // 
@@ -1021,6 +1022,7 @@ namespace Reaction_Editor
             this.txtSinkComments.Name = "txtSinkComments";
             this.txtSinkComments.Size = new System.Drawing.Size(413, 20);
             this.txtSinkComments.TabIndex = 11;
+            this.txtSinkComments.TextChanged += new System.EventHandler(this.txtSinkComments_TextChanged);
             // 
             // chkSinksEnabled
             // 

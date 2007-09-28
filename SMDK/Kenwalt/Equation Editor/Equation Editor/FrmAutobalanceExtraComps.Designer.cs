@@ -35,8 +35,8 @@ namespace Reaction_Editor
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.lblNote = new System.Windows.Forms.Label();
             this.txtCompounds = new Auto_Complete.BoxAutoComplete();
+            this.lblNote = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -112,18 +112,6 @@ namespace Reaction_Editor
             this.panel1.Size = new System.Drawing.Size(478, 228);
             this.panel1.TabIndex = 7;
             // 
-            // lblNote
-            // 
-            this.lblNote.AutoSize = true;
-            this.lblNote.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblNote.Location = new System.Drawing.Point(0, 0);
-            this.lblNote.Name = "lblNote";
-            this.lblNote.Padding = new System.Windows.Forms.Padding(8, 8, 8, 0);
-            this.lblNote.Size = new System.Drawing.Size(46, 21);
-            this.lblNote.TabIndex = 8;
-            this.lblNote.Text = "Note";
-            this.lblNote.Visible = false;
-            // 
             // txtCompounds
             // 
             this.txtCompounds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -138,6 +126,18 @@ namespace Reaction_Editor
             this.txtCompounds.TabIndex = 4;
             this.txtCompounds.Text = "";
             this.txtCompounds.TextChanged += new System.EventHandler(this.txtCompounds_TextChanged);
+            // 
+            // lblNote
+            // 
+            this.lblNote.AutoSize = true;
+            this.lblNote.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblNote.Location = new System.Drawing.Point(0, 0);
+            this.lblNote.Name = "lblNote";
+            this.lblNote.Padding = new System.Windows.Forms.Padding(8, 8, 8, 0);
+            this.lblNote.Size = new System.Drawing.Size(46, 21);
+            this.lblNote.TabIndex = 8;
+            this.lblNote.Text = "Note";
+            this.lblNote.Visible = false;
             // 
             // FrmAutobalanceExtraComps
             // 

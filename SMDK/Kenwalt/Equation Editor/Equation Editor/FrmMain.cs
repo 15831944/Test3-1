@@ -435,6 +435,21 @@ namespace Reaction_Editor
 
             Program.FrmAutobalanceExtraComps = new FrmAutobalanceExtraComps(regKey.CreateSubKey("Autobalance Sets"));
 
+            Program.FrmAutobalanceExtraComps.VisibleChanged += new EventHandler(FrmAutobalanceExtraComps_VisibleChanged);
+
+            UpdateToolbar();
+
+            HandleArgs(Program.Args);
+            Program.interopMessenger.StringSent += new InteropMessenger.StringSentDelegate(HandleArgs);
+        }
+
+        void HandleArgs(string[] args)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new InteropMessenger.StringSentDelegate(HandleArgs), new object[] { args });
+                return;
+            }
             string lastPath = "My Documents";
             try
             {
@@ -442,9 +457,14 @@ namespace Reaction_Editor
             }
             catch { }
 
-            bool bDBOpen = false;
+            bool bDBOpen = treeFiles.Nodes["SpecieDB"].Nodes.Count > 0;
+            bool bAll = false;
+            foreach (string s in args)
+                if (s.Trim().ToLowerInvariant() == "/all")
+                    bAll = true;
+
             //Check for a specified specieDB:
-            foreach (string s in Program.Args)
+            foreach (string s in args)
             {
                 try
                 {
@@ -462,36 +482,51 @@ namespace Reaction_Editor
                     MessageBox.Show(ex.ToString());
                 }
             }
-            
+
             //Check for a specified folder with a specieDB:
             if (!bDBOpen)
             {
-                foreach (string s in Program.Args)
+                foreach (string s in args)
                     try
                     {
-                        if (Directory.Exists(s) && File.Exists(Path.Combine(s, "speciedata.ini")))
+                        if (File.Exists(Path.Combine(Path.GetDirectoryName(s), "speciedata.ini")))
                         {
                             lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
                             if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
-                            OpenSpecieDB(s + "speciedata.ini");
+                            OpenSpecieDB(Path.Combine(Path.GetDirectoryName(s), "speciedata.ini"));
                             bDBOpen = true;
                             break;
                         }
                     }
-                    catch (Exception ex) 
+                    catch (Exception ex)
                     {
                         MessageBox.Show(ex.ToString());
                     }
             }
 
-            /*if (!bDBOpen) //Load the last open specieDB:
+            //Load any folders specified:
+            foreach (string s in args)
             {
-                string fn = (string)regKey.GetValue("Last Database", "");
-                if (!string.IsNullOrEmpty(fn) && File.Exists(fn))
-                    OpenSpecieDB(fn);
-            }*/
+                try
+                {
+                    string s2 = bAll && Path.GetExtension(s).ToLowerInvariant() == ".rct" ?
+                        Path.GetDirectoryName(s) : s;
+                    if (Directory.Exists(s2))
+                    {
+                        lastPath = Path.GetDirectoryName(Path.GetFullPath(s2));
+                        if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s2));
+                        foreach (string f in Directory.GetFiles(s2, "*.rct"))
+                            Open(f);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+
             //Load any reactions:
-            foreach (string s in Program.Args)
+            foreach (string s in args)
             {
                 try
                 {
@@ -508,30 +543,8 @@ namespace Reaction_Editor
                 }
             }
 
-            //Load any folders specified:
-            foreach (string s in Program.Args)
-            {
-                try
-                {
-                    if (Directory.Exists(s))
-                    {
-                        lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
-                        if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
-                        foreach (string f in Directory.GetFiles(s, "*.rct"))
-                            Open(f);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.ToString());
-                }
-            }
-
             UpdateLastPath(lastPath);
-
-            Program.FrmAutobalanceExtraComps.VisibleChanged += new EventHandler(FrmAutobalanceExtraComps_VisibleChanged);
-
-            UpdateToolbar();
+            this.Activate();
         }
 
         protected void UpdateLastPath(string lastPath)
@@ -636,15 +649,6 @@ namespace Reaction_Editor
         }
 
         Regex recentFileRegex = new Regex("RecentFile\\d+");
-        private void FrmMain_Load(object sender, EventArgs e)
-        {
-            //FrmLog frm = (FrmLog)Log;
-            //frm.MdiParent = this;
-
-            //frm.Show();
-            //frm.TopMost = true;
-            //RepositionLog();
-        }
 
         void recentFile_Click(object sender, EventArgs e)
         {
@@ -787,7 +791,7 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "SysCAD Reaction Editor version 1.0.8\r\nTest version.", "About");
+            MessageBox.Show(this, "SysCAD Reaction Editor version 1.0.10\r\nTest version.", "About");
         }
 
         private void menuExit_Click(object sender, EventArgs e)

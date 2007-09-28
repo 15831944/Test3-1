@@ -52,7 +52,8 @@ namespace Reaction_Editor
         //Based on the logic that the minimum and maximum value allowed of any variable will be when those variables that can be removed are set to zero.
         protected void CalculateAbsoluteMinMaxValues(Matrix m, List<int> alreadyRemoved)
         {
-            if (m.Rank == m.Columns - 1)
+            return;
+            /*if (m.Rank == m.Columns - 1)
             {
                 if (m.GetRemovalInfo().m_bCanRemove)
                 {
@@ -93,7 +94,7 @@ namespace Reaction_Editor
                         }
                         j++;
                     }
-            }
+            }*/
         }
 
         public FrmBalanceOptions2(SimpleReaction rxn, List<Compound> extraComps)
@@ -186,6 +187,8 @@ namespace Reaction_Editor
                 m_NumericUDs.Add(num);
 
                 chk.Tag = chk.Text; num.Tag = chk;
+
+                num.BringToFront();
             }
         }
 
@@ -227,6 +230,8 @@ namespace Reaction_Editor
 
         protected void SetMinMaxValues()
         {
+            return; //We are now going to allow compounds to have negative values - it certainly makes the math and logic ALOT easier.
+
             Matrix.Vector finalCol = m_OriginalMatrix.GetColumn(m_OriginalMatrix.Columns - 1);
 
             for (int i = 0; i < m_Checkboxes.Count; i++)
@@ -244,8 +249,8 @@ namespace Reaction_Editor
                     Matrix scratch = currentMatrix.InsertColumn(currentMatrix.Columns, currentCol);
                     scratch.SetColumn(currentMatrix.Columns - 1, finalCol + currentCol * (Fraction)m_NumericUDs[i].Value);
                     scratch.RowReduce();
-                    Fraction min = 0;
-                    Fraction max = Fraction.MaxValue;
+                    Fraction min = m_MinValues[i];
+                    Fraction max = m_MaxValues[i];
                     if (!m_NumericUDs[i].Focused)
                         for (int k = 0; k < scratch.Rank; k++)
                         {
@@ -270,7 +275,7 @@ namespace Reaction_Editor
                     m_NumericUDs[i].Minimum = min;
                     m_NumericUDs[i].Maximum = max;
 
-                    m_Checkboxes[i].Text = m_Checkboxes[i].Tag + " [" + min + ", " + (max == Fraction.MaxValue ? "\u221E)" : max + "]");
+                    m_Checkboxes[i].Text = m_Checkboxes[i].Tag + " " + (min == Fraction.MinValue ? "(\u221E" : "[" + min) + ", " + (max == Fraction.MaxValue ? "\u221E)" : max + "]");
                 }
                 else
                 {
@@ -330,7 +335,7 @@ namespace Reaction_Editor
 
         protected void SetInitialValues()
         {
-            Matrix.RemovalInfo info = m_OriginalMatrix.GetRemovalInfo();
+            Matrix.RemovalInfo info = m_OriginalMatrix.GetRemovalInfo(false);
             Matrix.RemovalInfo info2 = info;
             Matrix m = m_OriginalMatrix.Clone();
             int rem = 0;

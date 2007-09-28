@@ -6,9 +6,33 @@ using System.Resources;
 using System.Reflection;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Ipc;
+using System.Threading;
+using System.Runtime.Remoting;
 
 namespace Reaction_Editor
 {
+    class InteropMessenger : MarshalByRefObject
+    {
+        public string data;
+
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
+
+        public void SendStrings(string[] s)
+        {
+            if (StringSent != null)
+                StringSent(s);
+        }
+
+        public event StringSentDelegate StringSent;
+
+        public delegate void StringSentDelegate(string[] s);
+    }
+
     static class Program
     {
         /// <summary>
@@ -17,29 +41,33 @@ namespace Reaction_Editor
         [STAThread]
         static void Main(string[] args)
         {
-          //try
-          //{
-          //  System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
-          //  serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+            IpcChannel ipcChannel = null;
+            try
+            {
+                System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+                serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
 
-          //  BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+                BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
 
-          //  Hashtable ipcProps = new Hashtable();
-          //  ipcProps["portName"] = "SysCAD.Service";
-          //  //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
-          //  IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
-          //  ChannelServices.RegisterChannel(ipcChannel, false);
-          //}
-          //catch(Exception)
-          //{
-          //  string a = Activator.GetObject(typeof(string), "ipc://SysCAD.ReactionEditor/") as string;
+                Hashtable ipcProps = new Hashtable();
+                ipcProps["portName"] = "SysCAD.ReactionEditor";
+                //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
+                ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
+                ChannelServices.RegisterChannel(ipcChannel, false);
+                interopMessenger = new InteropMessenger();
+                RemotingServices.Marshal(interopMessenger, "interopMessenger");
+            }
+            catch
+            {
+                try
+                {
+                    InteropMessenger messenger = Activator.GetObject(typeof(InteropMessenger), "ipc://SysCAD.ReactionEditor/interopMessenger") as InteropMessenger;
+                    messenger.SendStrings(args);
+                    return;
+                }
+                catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+            }
 
-          //  // send string.
-
-          //  // die.
-          //}
-
-          // on our own, channel open, continue.
 
             Args = args;
             Assembly asm = Assembly.GetExecutingAssembly();
@@ -65,6 +93,7 @@ namespace Reaction_Editor
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FrmMain());
+            GC.KeepAlive(ipcChannel);
         }
 
         public static ILog Log;
@@ -74,6 +103,7 @@ namespace Reaction_Editor
         public static bool Dynamic = false;
         public static String[] Args;
         public static Dictionary<object, int> AutocompleteHitCounts = new Dictionary<object, int>();
+        public static InteropMessenger interopMessenger;
     }
 
     public class Messaging

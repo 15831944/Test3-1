@@ -47,7 +47,7 @@ namespace Reaction_Editor
             this.radioReaction.Size = new System.Drawing.Size(68, 17);
             this.radioReaction.TabIndex = 0;
             this.radioReaction.TabStop = true;
-            this.radioReaction.Text = "Reaction";
+            this.radioReaction.Text = "&Reaction";
             this.radioReaction.UseVisualStyleBackColor = true;
             // 
             // radioSource
@@ -57,7 +57,7 @@ namespace Reaction_Editor
             this.radioSource.Name = "radioSource";
             this.radioSource.Size = new System.Drawing.Size(59, 17);
             this.radioSource.TabIndex = 1;
-            this.radioSource.Text = "Source";
+            this.radioSource.Text = "So&urce";
             this.radioSource.UseVisualStyleBackColor = true;
             // 
             // radioSink
@@ -67,7 +67,7 @@ namespace Reaction_Editor
             this.radioSink.Name = "radioSink";
             this.radioSink.Size = new System.Drawing.Size(46, 17);
             this.radioSink.TabIndex = 2;
-            this.radioSink.Text = "Sink";
+            this.radioSink.Text = "S&ink";
             this.radioSink.UseVisualStyleBackColor = true;
             // 
             // btnOK
@@ -77,7 +77,7 @@ namespace Reaction_Editor
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 3;
-            this.btnOK.Text = "OK";
+            this.btnOK.Text = "&OK";
             this.btnOK.UseVisualStyleBackColor = true;
             // 
             // btnCancel
@@ -87,7 +87,7 @@ namespace Reaction_Editor
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 4;
-            this.btnCancel.Text = "Cancel";
+            this.btnCancel.Text = "&Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // radioHX
@@ -97,7 +97,7 @@ namespace Reaction_Editor
             this.radioHX.Name = "radioHX";
             this.radioHX.Size = new System.Drawing.Size(99, 17);
             this.radioHX.TabIndex = 5;
-            this.radioHX.Text = "Heat Exchange";
+            this.radioHX.Text = "&Heat Exchange";
             this.radioHX.UseVisualStyleBackColor = true;
             // 
             // label1
