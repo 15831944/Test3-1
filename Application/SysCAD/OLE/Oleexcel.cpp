@@ -1529,7 +1529,7 @@ flag CExcelReport::CheckParms()
     OK = False;
     M.Feedback("Length for primary tags should be greater than 0 and MaxLength should be greater than the length");
     }
-  if (iSecLen<1 || iSecMaxLen<iSecLen)
+  if ((!bIsAutoTags && iSecLen<1) || iSecMaxLen<iSecLen)
     {
     OK = False;
     M.Feedback("Length for secondary tags should be greater than 0 and MaxLength should be greater than the length");
@@ -2036,11 +2036,13 @@ BOOL CExcelReport::GetAutoTags(OWorksheet* pSheet, int Row1, int Col1)
     {
     Range.SetValue(TagOverunStr);
     COleReportMngr& M = *pMngr;
-    M.RedFeedback("Tag overrun: maximum of %d tags allowed, %d tags required.", iPriMaxLen, RqdTags.GetCount());
+    M.RedFeedback("AutoTags: %i PrimaryTags found - Only %d returned", RqdTags.GetCount(), iPriMaxLen);
     }
   else
     {
     Range.SetValue(LastTagStr);
+    COleReportMngr& M = *pMngr;
+    M.BlueFeedback("AutoTags: %i PrimaryTags returned", RqdTags.GetCount());
     }
   if (m_bClearRange)
     ClearSecondary(pSheet, Range, Row1, Col1);
@@ -2088,7 +2090,7 @@ flag CExcelReport::DoReport()
     M.Feedback("No primary tags found");
     OK = False;
     }
-  if (!bIsTagList && SecLen==0)
+  if (SecLen==0 && (!bIsTagList && !bIsAutoTags))
     {
     M.Feedback("No secondary tags found");
     OK = False;
@@ -2253,8 +2255,12 @@ flag CExcelReport::DoReport()
     }
   else if (IncompleteCnt==1)
     M.Feedback("Incomplete tag at cell %s", sIncompleteTags());
-  //M.BlueFeedback("Report generated on worksheet '%s'. %d tags (%s to %s) returned.", ResLoc.sSheet(), iTagFoundCnt, FirstTag(), LastTag());
-  M.BlueFeedback("Report generated on worksheet '%s'. %d tags returned.", ResLoc.sSheet(), iTagFoundCnt);
+
+  if (!bIsAutoTags || iSecMaxLen>0)
+    {
+    //M.BlueFeedback("Report generated on worksheet '%s'. %d tags (%s to %s) returned.", ResLoc.sSheet(), iTagFoundCnt, FirstTag(), LastTag());
+    M.BlueFeedback("Report generated on worksheet '%s'. %d tags returned.", ResLoc.sSheet(), iTagFoundCnt);
+    }
   Range.ReleaseDispatch();
   WSheet.ReleaseDispatch();
   //sw.Stop(); LogNote(OLEServerDesc(), 0, "Report generated:%g", sw.Secs());
@@ -2446,158 +2452,163 @@ int COleReportMngr::DoAutomation()
     Examples[3].Set("%s,B3,\"R2\")", OleKeys[3]);
     SendInfo("Search...");
     Strng CellNm;
-    for (short i=1; i<=Count; i++)
-    if (UserWkSheets[i-1])
+    for (int pass=0; pass<2; pass++)
       {
-      lpDispatch = WkBook.Worksheets(i);
-      WkSheet.AttachDispatch(lpDispatch, TRUE);
-      lpDispatch = WkSheet.Columns();
-      R1.AttachDispatch(lpDispatch, TRUE);
-      LPDISPATCH lpDis = R1.Find((char*)OleReportCommonKey);
-      if (!lpDis)
-        lpDis = R1.Find((char*)OleReportAutoKey);
-      short FirstRow = 0;
-      short FirstCol = 0;
-      while (lpDis)
+      for (short i=1; i<=Count; i++)
         {
-        CExcelReport R(this, &WkBook);
-        R2.AttachDispatch(lpDis, TRUE);
-        short Row = R2.GetRow();
-        short Col = R2.GetColumn();
-        short RMult = 1;
-        short CMult = 1;
-        if (Row==FirstRow && Col==FirstCol)
-          break;
-        if (FirstRow<1)
+        if (UserWkSheets[i-1])
           {
-          FirstRow = Row;
-          FirstCol = Col;
-          }
-        CString Func = GetString(Row, Col, &WkSheet, &R2);
-        Strng Fn = (const char*)Func;
-        Fn.Trim("\n\r\t ");
-        const int FnLen = Fn.Len();
-        flag OK = true;
-        flag SearchStrOK = true;
-        int SearchTypes = -1;
-        int DoingAuto = 0;
-        if (FnLen>(int)strlen(OleReportKey) && _strnicmp(Fn(), OleReportKey, strlen(OleReportKey))==0)
-          SearchTypes = 0;
-        else if (FnLen>(int)strlen(OleReportAutoKey) && _strnicmp(Fn(), OleReportAutoKey, strlen(OleReportAutoKey))==0)
-          {
-          SearchTypes = 0;
-          DoingAuto   = 1;
-          }
-        else if (FnLen>(int)strlen(OleReportListKey) && _strnicmp(Fn(), OleReportListKey, strlen(OleReportListKey))==0)
-          SearchTypes = 1;
-        else if (FnLen>(int)strlen(OleReportListOffsetKey) && _strnicmp(Fn(), OleReportListOffsetKey, strlen(OleReportListOffsetKey))==0)
-          SearchTypes = 2;
-        else
-          {
-          SearchStrOK = false;
-          OK = false;
-          }
-
-        R.bIsTagList = (SearchTypes!=0);
-        R.bIsTagOffsetList = (SearchTypes==2);
-        R.bIsAutoTags = DoingAuto;
-        int RRow,RCol;
-        int OffsetFnErr = 0;
-        int ReportFnErr = 0;
-        if (OK)
-          {
-          if (SearchTypes==2)
+          lpDispatch = WkBook.Worksheets(i);
+          WkSheet.AttachDispatch(lpDispatch, TRUE);
+          lpDispatch = WkSheet.Columns();
+          R1.AttachDispatch(lpDispatch, TRUE);
+          LPDISPATCH lpDis = R1.Find(pass==0 ? (char*)OleReportCommonKey : (char*)OleReportAutoKey);
+          //if (!lpDis)
+            //lpDis = R1.Find((char*)OleReportAutoKey);
+          short FirstRow = 0;
+          short FirstCol = 0;
+          while (lpDis)
             {
-            OffsetFnErr = R.ParseOffsetFn(Fn(), &WkSheet, RRow, RCol);
-            OK = (OffsetFnErr==0);
-            }
-          else
-            {
-            ReportFnErr = R.ParseFn(Fn());
-            OK = (ReportFnErr==0);
-            RRow = Row;
-            RCol = Col;
-            RMult= R.bPriVert ? R.iSecMult : 1;
-            CMult= R.bPriVert ? 1 : R.iSecMult;
-            }
-          }
-
-        if (OK)
-          {
-          if (bAll || (R.sName.Length()==sReportName.Length() && _stricmp(R.sName(), sReportName())==0))
-            {
-            s.Set("Generate report %s at cell(%s)...", R.sName(), CellName(Row, Col, CellNm));
-            SendInfo(s());
-            FeedbackBlanks(1);
-            BoldFeedback(s());
-            if (SearchTypes==2)
+            CExcelReport R(this, &WkBook);
+            R2.AttachDispatch(lpDis, TRUE);
+            short Row = R2.GetRow();
+            short Col = R2.GetColumn();
+            short RMult = 1;
+            short CMult = 1;
+            if (Row==FirstRow && Col==FirstCol)
+              break;
+            if (FirstRow<1)
               {
-              if (R.bPriVert)
-                R.ResLoc.Set(WkSheetNames[i-1](), Row+1, Col);
-              else
-                R.ResLoc.Set(WkSheetNames[i-1](), Row, Col+1);
+              FirstRow = Row;
+              FirstCol = Col;
               }
-            else
-              R.ResLoc.Set(WkSheetNames[i-1](), Row+RMult, Col+CMult);
-            StatusBarTxt.Set("SysCAD: Report %s (%s) ...", R.sName(), R.ResLoc.sSheet());
-            pExcel->SetStatusBar(StatusBarTxt());
-            if (R.bPriVert)
+            CString Func = GetString(Row, Col, &WkSheet, &R2);
+            Strng Fn = (const char*)Func;
+            Fn.Trim("\n\r\t ");
+            const int FnLen = Fn.Len();
+            flag OK = true;
+            flag SearchStrOK = true;
+            int SearchTypes = -1;
+            int DoingAuto = 0;
+            if (FnLen>(int)strlen(OleReportKey) && _strnicmp(Fn(), OleReportKey, strlen(OleReportKey))==0)
+              SearchTypes = 0;
+            else if (FnLen>(int)strlen(OleReportAutoKey) && _strnicmp(Fn(), OleReportAutoKey, strlen(OleReportAutoKey))==0)
               {
-              R.PriLoc.Set(WkSheetNames[i-1](), RRow+RMult, RCol);
-              R.SecLoc.Set(WkSheetNames[i-1](), RRow, RCol+1);
+              SearchTypes = 0;
+              DoingAuto   = 1;
               }
+            else if (FnLen>(int)strlen(OleReportListKey) && _strnicmp(Fn(), OleReportListKey, strlen(OleReportListKey))==0)
+              SearchTypes = 1;
+            else if (FnLen>(int)strlen(OleReportListOffsetKey) && _strnicmp(Fn(), OleReportListOffsetKey, strlen(OleReportListOffsetKey))==0)
+              SearchTypes = 2;
             else
               {
-              R.PriLoc.Set(WkSheetNames[i-1](), RRow, RCol+CMult);
-              R.SecLoc.Set(WkSheetNames[i-1](), Row+1, Col);
+              SearchStrOK = false;
+              OK = false;
               }
-            if (DoingAuto)
-              R.GetAutoTags(&WkSheet, R2.GetRow(), R2.GetColumn());
-            
-            OK = R.CheckParms();
+
+            R.bIsTagList = (SearchTypes!=0);
+            R.bIsTagOffsetList = (SearchTypes==2);
+            R.bIsAutoTags = DoingAuto;
+            int RRow,RCol;
+            int OffsetFnErr = 0;
+            int ReportFnErr = 0;
             if (OK)
               {
-              OK = R.DoReport();
-              TtlTagFoundCnt += R.iTagFoundCnt;
+              if (SearchTypes==2)
+                {
+                OffsetFnErr = R.ParseOffsetFn(Fn(), &WkSheet, RRow, RCol);
+                OK = (OffsetFnErr==0);
+                }
+              else
+                {
+                ReportFnErr = R.ParseFn(Fn());
+                OK = (ReportFnErr==0);
+                RRow = Row;
+                RCol = Col;
+                RMult= R.bPriVert ? R.iSecMult : 1;
+                CMult= R.bPriVert ? 1 : R.iSecMult;
+                }
               }
-            else
+
+            if (OK)
               {
-              Feedback("Please correct the report specification errors shown above");
-              Feedback("Check syntax %s....)  eg %s", OleKeys[SearchTypes], Examples[SearchTypes]());
+              if (bAll || (R.sName.Length()==sReportName.Length() && _stricmp(R.sName(), sReportName())==0))
+                {
+                s.Set("Generate report %s at cell(%s)...", R.sName(), CellName(Row, Col, CellNm));
+                SendInfo(s());
+                FeedbackBlanks(1);
+                BoldFeedback(s());
+                if (SearchTypes==2)
+                  {
+                  if (R.bPriVert)
+                    R.ResLoc.Set(WkSheetNames[i-1](), Row+1, Col);
+                  else
+                    R.ResLoc.Set(WkSheetNames[i-1](), Row, Col+1);
+                  }
+                else
+                  R.ResLoc.Set(WkSheetNames[i-1](), Row+RMult, Col+CMult);
+                StatusBarTxt.Set("SysCAD: Report %s (%s) ...", R.sName(), R.ResLoc.sSheet());
+                pExcel->SetStatusBar(StatusBarTxt());
+                if (R.bPriVert)
+                  {
+                  R.PriLoc.Set(WkSheetNames[i-1](), RRow+RMult, RCol);
+                  R.SecLoc.Set(WkSheetNames[i-1](), RRow, RCol+1);
+                  }
+                else
+                  {
+                  R.PriLoc.Set(WkSheetNames[i-1](), RRow, RCol+CMult);
+                  R.SecLoc.Set(WkSheetNames[i-1](), Row+1, Col);
+                  }
+                if (DoingAuto)
+                  R.GetAutoTags(&WkSheet, R2.GetRow(), R2.GetColumn());
+
+                OK = R.CheckParms();
+                if (OK)
+                  {
+                  OK = R.DoReport();
+                  TtlTagFoundCnt += R.iTagFoundCnt;
+                  }
+                else
+                  {
+                  Feedback("Please correct the report specification errors shown above");
+                  Feedback("Check syntax %s....)  eg %s", OleKeys[SearchTypes], Examples[SearchTypes]());
+                  }
+                if (!OK)
+                  RedFeedback("%s report NOT generated", R.sName());
+                SendInfo("Search...");
+                }
               }
-            if (!OK)
-              RedFeedback("%s report NOT generated", R.sName());
-            SendInfo("Search...");
+            else if (SearchStrOK)
+              {
+              flag DoMsg = bAll;
+              if (!bAll)
+                {
+                if (OffsetFnErr==0 || OffsetFnErr==-1)
+                  DoMsg = true;
+                if (OffsetFnErr<-1 && R.sName.Length()==sReportName.Length() && _stricmp(R.sName(), sReportName())==0)
+                  DoMsg = true;
+                if (ReportFnErr==0 || ReportFnErr==-1)
+                  DoMsg = true;
+                }
+              if (DoMsg)
+                {
+                FeedbackBlanks(1);
+                Feedback("Worksheet '%s' cell(%s) %s", WkSheetNames[i-1](), CellName(Row, Col, CellNm), Fn());
+                switch (OffsetFnErr)
+                  {
+                  case -2: Feedback("Illegal cell reference for parameter 1"); break;
+                  case -3: Feedback("Cell referenced does not have valid %s...)", OleReportListKey); break;
+                  case -4: Feedback("Invalid syntax for %s...) at referenced cell", OleReportListKey); break;
+                  }
+                Feedback("Illegal syntax for %s....)  eg %s", OleKeys[SearchTypes], Examples[SearchTypes]());
+                RedFeedback("Report NOT generated");
+                }
+              }
+            lpDis = WkSheet.Cells(Row, Col);
+            lpDis = R1.FindNext(lpDis);
             }
           }
-        else if (SearchStrOK)
-          {
-          flag DoMsg = bAll;
-          if (!bAll)
-            {
-            if (OffsetFnErr==0 || OffsetFnErr==-1)
-              DoMsg = true;
-            if (OffsetFnErr<-1 && R.sName.Length()==sReportName.Length() && _stricmp(R.sName(), sReportName())==0)
-              DoMsg = true;
-            if (ReportFnErr==0 || ReportFnErr==-1)
-              DoMsg = true;
-            }
-          if (DoMsg)
-            {
-            FeedbackBlanks(1);
-            Feedback("Worksheet '%s' cell(%s) %s", WkSheetNames[i-1](), CellName(Row, Col, CellNm), Fn());
-            switch (OffsetFnErr)
-              {
-              case -2: Feedback("Illegal cell reference for parameter 1"); break;
-              case -3: Feedback("Cell referenced does not have valid %s...)", OleReportListKey); break;
-              case -4: Feedback("Invalid syntax for %s...) at referenced cell", OleReportListKey); break;
-              }
-            Feedback("Illegal syntax for %s....)  eg %s", OleKeys[SearchTypes], Examples[SearchTypes]());
-            RedFeedback("Report NOT generated");
-            }
-          }
-        lpDis = WkSheet.Cells(Row, Col);
-        lpDis = R1.FindNext(lpDis);
         }
       }
 
