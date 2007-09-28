@@ -17,6 +17,30 @@ namespace Reaction_Editor
         [STAThread]
         static void Main(string[] args)
         {
+          //try
+          //{
+          //  System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+          //  serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+
+          //  BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+
+          //  Hashtable ipcProps = new Hashtable();
+          //  ipcProps["portName"] = "SysCAD.Service";
+          //  //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
+          //  IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
+          //  ChannelServices.RegisterChannel(ipcChannel, false);
+          //}
+          //catch(Exception)
+          //{
+          //  string a = Activator.GetObject(typeof(string), "ipc://SysCAD.ReactionEditor/") as string;
+
+          //  // send string.
+
+          //  // die.
+          //}
+
+          // on our own, channel open, continue.
+
             Args = args;
             Assembly asm = Assembly.GetExecutingAssembly();
             ResourceReader rr = new ResourceReader(asm.GetManifestResourceStream(typeof(FrmMain), "Images.Icons.resources"));
