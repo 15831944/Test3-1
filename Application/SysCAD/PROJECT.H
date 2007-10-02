@@ -847,10 +847,12 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     void           SvcSave();
     void           Export2Scd10();
 
-    CSvcConnect  & getSvc() { return *m_pSvc; };
+    CSvcConnect  & getSvc()                 { return *m_pSvc; };
+    bool           getSvcActive()           { return m_pSvc!=NULL; };
 
-    _declspec(property(get=getSvc))             CSvcConnect  & Svc;
-
+    _declspec(property(get=getSvc))         CSvcConnect  & Svc;
+    _declspec(property(get=getSvcActive))   bool           SvcActive;
+    
     CSvcConnect  * m_pSvc;
 #endif
   };

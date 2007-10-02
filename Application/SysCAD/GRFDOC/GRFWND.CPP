@@ -370,21 +370,24 @@ int CGrfWnd::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
 int CGrfWnd::EO_DeleteTag(pchar pDelTag)
   {//a tag has been deleted, ...
   int RetCode = EODT_NOTFOUND;
-#if SYSCAD10
-  DXF_ENTITY eInsert, eAttrib;
-  if (Dsp.FindTag(pDelTag, eInsert, eAttrib))
+#if SYSCAD10         
+  if (gs_pPrj->SvcActive)
     {
-    Dsp.Open();
-
-    if (eInsert)
+    DXF_ENTITY eInsert, eAttrib;
+    if (Dsp.FindTag(pDelTag, eInsert, eAttrib))
       {
-      GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+      Dsp.Open();
 
-      Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
-      GCB.pDrw->Delete(eInsert);
+      if (eInsert)
+        {
+        GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+
+        Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+        GCB.pDrw->Delete(eInsert);
+        }
+
+      Dsp.Close();
       }
-
-    Dsp.Close();
     }
 #endif
   return RetCode;
@@ -397,41 +400,44 @@ int CGrfWnd::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
                             float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY) 
   {
-#if SYSCAD10
-  CRectangleF PageRct(0.0, 420, 0, 297);
-  CString PageName=CSvcConnect::ExtractPageName(path);
+#if SYSCAD10         
+  if (gs_pPrj->SvcActive)
+    {
+    CRectangleF PageRct(0.0, 420, 0, 297);
+    CString PageName=CSvcConnect::ExtractPageName(path);
 
-  if (PageName.CompareNoCase(pDoc->GetTitle())!=0)
-    return EOSC_NOTFOUND;
+    if (PageName.CompareNoCase(pDoc->GetTitle())!=0)
+      return EOSC_NOTFOUND;
 
-  //CGrfDoc * pDoc=CSvcCOnnect::FindGrfDoc(PageName);
-  PageRct = PrjSvc().GetPageRect(PageName);
+    //CGrfDoc * pDoc=CSvcCOnnect::FindGrfDoc(PageName);
+    PageRct = PrjSvc().GetPageRect(PageName);
 
-  CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
-  CInsertBlk CB; 
+    CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
+    CInsertBlk CB; 
 
-  CB.ATag=pTag;
-  CB.AClass=model;//();
-  CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
-  CB.Pt.World.Y=PageRct.Top()-boundingRect.MidY();  // this must be inverted
-  CB.Pt.World.Z=0;
-  CB.NdScl.X=mirrorX ? -1:1;//XScale;
-  CB.NdScl.Y=mirrorY ? -1:1;
-  CB.NdScl.Z=1;
-  CB.Rotate=(float)angle;
-  CB.ATagBase="XX_";//MInfo.TagInitialID();
-  CB.ASymbol=shape;
-  CB.m_sGuid=ItemGuid;
-  CB.m_Rect=boundingRect;
-  //if (m_bExportBusy)
-  //  {
-  pGDoc->GCB.DoInsertNodeGrf(&CB);
+    CB.ATag=pTag;
+    CB.AClass=model;//();
+    CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
+    CB.Pt.World.Y=PageRct.Top()-boundingRect.MidY();  // this must be inverted
+    CB.Pt.World.Z=0;
+    CB.NdScl.X=mirrorX ? -1:1;//XScale;
+    CB.NdScl.Y=mirrorY ? -1:1;
+    CB.NdScl.Z=1;
+    CB.Rotate=(float)angle;
+    CB.ATagBase="XX_";//MInfo.TagInitialID();
+    CB.ASymbol=shape;
+    CB.m_sGuid=ItemGuid;
+    CB.m_Rect=boundingRect;
+    //if (m_bExportBusy)
+    //  {
+    pGDoc->GCB.DoInsertNodeGrf(&CB);
 
-  CB.m_Rect=CRectangleF(); // clear it
-  //pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
-  //  }
-  //else
-  //  pGDoc->GCB.DoInsertNode(&CB);
+    CB.m_Rect=CRectangleF(); // clear it
+    //pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
+    //  }
+    //else
+    //  pGDoc->GCB.DoInsertNode(&CB);
+    }
 #endif
 
   return EOSC_DONE;
@@ -441,21 +447,24 @@ int CGrfWnd::EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   {
   int RetCode = EOSC_NOTFOUND;
 
-#if SYSCAD10
-  DXF_ENTITY eInsert, eAttrib;
-  if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
+#if SYSCAD10         
+  if (gs_pPrj->SvcActive)
     {
-    Dsp.Open();
-
-    if (eInsert)
+    DXF_ENTITY eInsert, eAttrib;
+    if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
       {
-      GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
-      Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
-      GCB.pDrw->Delete(eInsert);
-      RetCode = EOSC_DONE;
-      }
+      Dsp.Open();
 
-    Dsp.Close();
+      if (eInsert)
+        {
+        GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+        Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+        GCB.pDrw->Delete(eInsert);
+        RetCode = EOSC_DONE;
+        }
+
+      Dsp.Close();
+      }
     }
 #endif
 
@@ -467,93 +476,96 @@ int CGrfWnd::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
                             float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   { 
-#if SYSCAD10
-  CRectangleF PageRct(0.0, 420, 0, 297);
-  CString PageName=CSvcConnect::ExtractPageName(path);
-
-  if (PageName.CompareNoCase(pDoc->GetTitle())!=0)
-    return EOSC_NOTFOUND;
-
-  DXF_ENTITY eInsert, eAttrib;
-  if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
+#if SYSCAD10         
+  if (gs_pPrj->SvcActive)
     {
-    Dsp.Open();
+    CRectangleF PageRct(0.0, 420, 0, 297);
+    CString PageName=CSvcConnect::ExtractPageName(path);
 
-    if (eInsert)
+    if (PageName.CompareNoCase(pDoc->GetTitle())!=0)
+      return EOSC_NOTFOUND;
+
+    DXF_ENTITY eInsert, eAttrib;
+    if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
       {
-      GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+      Dsp.Open();
 
-      PageRct = PrjSvc().GetPageRect(PageName);
-
-      C3_BOX_S CurBounds;
-
-      if (1) // change the shape
+      if (eInsert)
         {
-        CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
-        GrfCmdBlk& GCB = pGDoc->GCB;
-        Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
-        GCB.pDrw->Delete(eInsert);
+        GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
 
-        CInsertBlk CB; 
+        PageRct = PrjSvc().GetPageRect(PageName);
 
-        CB.ATag=pTag;
-        CB.AClass=model;//();
-        CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
-        CB.Pt.World.Y=PageRct.Top()-boundingRect.MidY();  // this must be inverted
-        CB.Pt.World.Z=0;
-        CB.NdScl.X=mirrorX ? -1:1;//XScale;
-        CB.NdScl.Y=mirrorY ? -1:1;
-        CB.NdScl.Z=1;
-        CB.Rotate=(float)angle;
-        CB.ATagBase="XX_";//MInfo.TagInitialID();
-        CB.ASymbol=shape;
-        CB.m_sGuid=ItemGuid;
-        //CB.m_Rect=boundingRect;
-        //if (m_bExportBusy)
+        C3_BOX_S CurBounds;
+
+        if (1) // change the shape
+          {
+          CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
+          GrfCmdBlk& GCB = pGDoc->GCB;
+          Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+          GCB.pDrw->Delete(eInsert);
+
+          CInsertBlk CB; 
+
+          CB.ATag=pTag;
+          CB.AClass=model;//();
+          CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
+          CB.Pt.World.Y=PageRct.Top()-boundingRect.MidY();  // this must be inverted
+          CB.Pt.World.Z=0;
+          CB.NdScl.X=mirrorX ? -1:1;//XScale;
+          CB.NdScl.Y=mirrorY ? -1:1;
+          CB.NdScl.Z=1;
+          CB.Rotate=(float)angle;
+          CB.ATagBase="XX_";//MInfo.TagInitialID();
+          CB.ASymbol=shape;
+          CB.m_sGuid=ItemGuid;
+          //CB.m_Rect=boundingRect;
+          //if (m_bExportBusy)
+          //  {
+
+          // A Kludge - get around a bug ????????????????????????????????????????
+          int iDash = CB.ASymbol.Find('-');
+          if (iDash>0)
+            CB.ASymbol=CB.ASymbol.Left(iDash);
+          // ????????????????????????????????????????????????????????????????????
+
+          if (pGDoc->GCB.DoInsertNodeGrf(&CB))
+            eInsert=CB.e;
+
+          //CB.m_Rect=CRectangleF(); // clear it
+
+          }
+        //else
         //  {
+        DXF_INSERT_ROT_ANG(eInsert) = 0; // do this to allow GetBounds to get the correct size
 
-        // A Kludge - get around a bug ????????????????????????????????????????
-        int iDash = CB.ASymbol.Find('-');
-        if (iDash>0)
-          CB.ASymbol=CB.ASymbol.Left(iDash);
-        // ????????????????????????????????????????????????????????????????????
+        DML_LIST CurveLst=dml_create_list();
+        DML_LIST InsertLst=dml_create_list();
+        DML_LIST OtherLst=dml_create_list();
+        dml_append_data(InsertLst,eInsert);
+        GCB.pDrw->GetBounds(&CurBounds, CurveLst, InsertLst, OtherLst);  
+        dml_clear_list(InsertLst);
+        dml_destroy_list(CurveLst, dmm_free);
+        dml_destroy_list(InsertLst, dmm_free);
+        dml_destroy_list(OtherLst, dmm_free);
 
-        if (pGDoc->GCB.DoInsertNodeGrf(&CB))
-          eInsert=CB.e;
+        DXF_INSERT_PT(eInsert)[0]   = boundingRect.MidX()-PageRct.Left();
+        DXF_INSERT_PT(eInsert)[1]   = PageRct.Top()-boundingRect.MidY();
+        DXF_INSERT_PT(eInsert)[2]   = 0;
+        DXF_INSERT_X_SCALE(eInsert)  = DXF_INSERT_X_SCALE(eInsert)  * boundingRect.Width()/Max(1.0, (C3_MAX_X(&CurBounds)-C3_MIN_X(&CurBounds)));
+        DXF_INSERT_Y_SCALE(eInsert)  = DXF_INSERT_Y_SCALE(eInsert)  * boundingRect.Height()/Max(1.0, (C3_MAX_Y(&CurBounds)-C3_MIN_Y(&CurBounds)));
 
-        //CB.m_Rect=CRectangleF(); // clear it
+        DXF_INSERT_ROT_ANG(eInsert) = -angle;
+        //  }
+
+        GCB.pDrw->EntityInvalidate(eInsert);
+        Invalidate(true);
 
         }
-      //else
-      //  {
-      DXF_INSERT_ROT_ANG(eInsert) = 0; // do this to allow GetBounds to get the correct size
 
-      DML_LIST CurveLst=dml_create_list();
-      DML_LIST InsertLst=dml_create_list();
-      DML_LIST OtherLst=dml_create_list();
-      dml_append_data(InsertLst,eInsert);
-      GCB.pDrw->GetBounds(&CurBounds, CurveLst, InsertLst, OtherLst);  
-      dml_clear_list(InsertLst);
-      dml_destroy_list(CurveLst, dmm_free);
-      dml_destroy_list(InsertLst, dmm_free);
-      dml_destroy_list(OtherLst, dmm_free);
-
-      DXF_INSERT_PT(eInsert)[0]   = boundingRect.MidX()-PageRct.Left();
-      DXF_INSERT_PT(eInsert)[1]   = PageRct.Top()-boundingRect.MidY();
-      DXF_INSERT_PT(eInsert)[2]   = 0;
-      DXF_INSERT_X_SCALE(eInsert)  = DXF_INSERT_X_SCALE(eInsert)  * boundingRect.Width()/Max(1.0, (C3_MAX_X(&CurBounds)-C3_MIN_X(&CurBounds)));
-      DXF_INSERT_Y_SCALE(eInsert)  = DXF_INSERT_Y_SCALE(eInsert)  * boundingRect.Height()/Max(1.0, (C3_MAX_Y(&CurBounds)-C3_MIN_Y(&CurBounds)));
-
-      DXF_INSERT_ROT_ANG(eInsert) = -angle;
-      //  }
-
-      GCB.pDrw->EntityInvalidate(eInsert);
-      Invalidate(true);
-
+      Dsp.Close();
+      return EOSC_DONE; 
       }
-
-    Dsp.Close();
-    return EOSC_DONE; 
     }
 #endif
   return EOSC_NOTFOUND; 
@@ -568,42 +580,44 @@ int CGrfWnd::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
                                CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
-#if SYSCAD10
-  CRectangleF PageRct(0.0, 420, 0, 297);
-  CString PageName=pDoc->GetTitle(); // Assume that this is THE page required
-  PageRct = PrjSvc().GetPageRect(PageName);
-
-  CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
-
-  FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
-  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
-
-  CLineDrawHelper LDH;
-  LDH.SetLineMethod(LDM_Direct); //todo user option
-  LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
-  LDH.SetArrowScale(2.5); //todo user option
-  LDH.SetShowTag(false); //todo user option
-
-  LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
-  LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
-  LDH.InitPoints();
-
-  CRectangleF boundingRect;
-  POSITION Pos=ControlPoints.GetHeadPosition();
-  while (Pos)
+#if SYSCAD10         
+  if (gs_pPrj->SvcActive)
     {
-    CPointF &pt=ControlPoints.GetNext(Pos);
-    Pt_3f Pt3(pt.X()-PageRct.Left(), PageRct.Top()-pt.Y(), 0.0);
+    CRectangleF PageRct(0.0, 420, 0, 297);
+    CString PageName=pDoc->GetTitle(); // Assume that this is THE page required
+    PageRct = PrjSvc().GetPageRect(PageName);
 
-    LDH.AddPoint(Pt3, LPT_Line);
-    }
- 
-  if (pGDoc!=NULL)
-    {
-    //todo check if parms are legal!!!
-    pGDoc->GCB.DoInsertLinkGrf(LDH, (LPSTR)OriginTag, (LPSTR)DestinationTag, true);
-    }
+    CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
 
+    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
+    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+
+    CLineDrawHelper LDH;
+    LDH.SetLineMethod(LDM_Direct); //todo user option
+    LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
+    LDH.SetArrowScale(2.5); //todo user option
+    LDH.SetShowTag(false); //todo user option
+
+    LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
+    LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
+    LDH.InitPoints();
+
+    CRectangleF boundingRect;
+    POSITION Pos=ControlPoints.GetHeadPosition();
+    while (Pos)
+      {
+      CPointF &pt=ControlPoints.GetNext(Pos);
+      Pt_3f Pt3(pt.X()-PageRct.Left(), PageRct.Top()-pt.Y(), 0.0);
+
+      LDH.AddPoint(Pt3, LPT_Line);
+      }
+
+    if (pGDoc!=NULL)
+      {
+      //todo check if parms are legal!!!
+      pGDoc->GCB.DoInsertLinkGrf(LDH, (LPSTR)OriginTag, (LPSTR)DestinationTag, true);
+      }
+    }
 #endif
   return EOSC_DONE;
   };
@@ -612,21 +626,24 @@ int CGrfWnd::EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
   {
   int RetCode = EOSC_NOTFOUND;
 
-#if SYSCAD10
-  DXF_ENTITY eInsert, eAttrib;
-  if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
+#if SYSCAD10         
+  if (gs_pPrj->SvcActive)
     {
-    Dsp.Open();
-
-    if (eInsert)
+    DXF_ENTITY eInsert, eAttrib;
+    if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
       {
-      GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
-      Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
-      GCB.pDrw->Delete(eInsert);
-      RetCode = EOSC_DONE;
-      }
+      Dsp.Open();
 
-    Dsp.Close();
+      if (eInsert)
+        {
+        GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+        Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+        GCB.pDrw->Delete(eInsert);
+        RetCode = EOSC_DONE;
+        }
+
+      Dsp.Close();
+      }
     }
 #endif
 
@@ -640,59 +657,62 @@ int CGrfWnd::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
                                CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
-#if SYSCAD10
-  CRectangleF PageRct(0.0, 420, 0, 297);
-  CString PageName=pDoc->GetTitle(); // Assume that this is THE page required
-  PageRct = PrjSvc().GetPageRect(PageName);
-
-  CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
-
-  FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
-  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
-
-  DXF_ENTITY eInsert, eAttrib;
-  if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
+#if SYSCAD10         
+  if (gs_pPrj->SvcActive)
     {
-    Dsp.Open();
+    CRectangleF PageRct(0.0, 420, 0, 297);
+    CString PageName=pDoc->GetTitle(); // Assume that this is THE page required
+    PageRct = PrjSvc().GetPageRect(PageName);
 
-    if (eInsert)
+    CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
+
+    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
+    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+
+    DXF_ENTITY eInsert, eAttrib;
+    if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
       {
-      GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
-      
-      LPSTR BlockName = DXF_INSERT_BLOCK_GET(eInsert);
+      Dsp.Open();
 
-      Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
-      GCB.pDrw->Delete(eInsert);
-
-      CLineDrawHelper LDH;
-      LDH.SetLineMethod(LDM_Direct); //todo user option
-      LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
-      LDH.SetArrowScale(2.5); //todo user option
-      LDH.SetShowTag(false); //todo user option
-
-      LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
-      LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
-      LDH.InitPoints();
-
-      CRectangleF boundingRect;
-      POSITION Pos=ControlPoints.GetHeadPosition();
-      while (Pos)
+      if (eInsert)
         {
-        CPointF &pt=ControlPoints.GetNext(Pos);
-        Pt_3f Pt3(pt.X()-PageRct.Left(), PageRct.Top()-pt.Y(), 0.0);
+        GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
 
-        LDH.AddPoint(Pt3, LPT_Line);
+        LPSTR BlockName = DXF_INSERT_BLOCK_GET(eInsert);
+
+        Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+        GCB.pDrw->Delete(eInsert);
+
+        CLineDrawHelper LDH;
+        LDH.SetLineMethod(LDM_Direct); //todo user option
+        LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
+        LDH.SetArrowScale(2.5); //todo user option
+        LDH.SetShowTag(false); //todo user option
+
+        LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
+        LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
+        LDH.InitPoints();
+
+        CRectangleF boundingRect;
+        POSITION Pos=ControlPoints.GetHeadPosition();
+        while (Pos)
+          {
+          CPointF &pt=ControlPoints.GetNext(Pos);
+          Pt_3f Pt3(pt.X()-PageRct.Left(), PageRct.Top()-pt.Y(), 0.0);
+
+          LDH.AddPoint(Pt3, LPT_Line);
+          }
+
+        if (pGDoc!=NULL)
+          {
+          //todo check if parms are legal!!!
+          pGDoc->GCB.DoInsertLinkGrf(LDH, (LPSTR)OriginTag, (LPSTR)DestinationTag, true);
+          }
         }
 
-      if (pGDoc!=NULL)
-        {
-        //todo check if parms are legal!!!
-        pGDoc->GCB.DoInsertLinkGrf(LDH, (LPSTR)OriginTag, (LPSTR)DestinationTag, true);
-        }
+      Dsp.Close();
+      return EOSC_DONE; 
       }
-
-    Dsp.Close();
-    return EOSC_DONE; 
     }
 #endif
   return EOSC_NOTFOUND; 

@@ -6602,26 +6602,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 
 
 #if SYSCAD10
-    if (01)//pkh && OK)
-      {
-      m_pSvc = new CSvcConnect;
-      if (!m_pSvc->Startup(PrjFiles(), CfgFiles()))
-        {
-        CFlwNodeDefinitionList Defns;
-        //if (m_pSvc->RequestItemDefinitions(FlwUnitGrp, Defns)>0)
-        //  {
-        //  int xxx=0;
-        //  };
-        
-        // Temporary
-        //m_pSvc->Export2Scd10(PrjName(), CfgFiles());
-         
-        // CNM Removed - temp
-        //m_pSvc->Save();
-        }
-      }
-    else
-      m_pSvc = NULL;
+    m_pSvc = NULL;
 #endif
 
     gs_ProjectOpenFlag++;
@@ -6673,7 +6654,27 @@ void CProject::SvcSave()
 
 void CProject::Export2Scd10()
   {
-  m_pSvc->Export2Scd10(PrjName(), CfgFiles());
+    if (!m_pSvc)
+      {
+      m_pSvc = new CSvcConnect;
+      if (!m_pSvc->Startup(PrjFiles(), CfgFiles()))
+        {
+        CFlwNodeDefinitionList Defns;
+        //if (m_pSvc->RequestItemDefinitions(FlwUnitGrp, Defns)>0)
+        //  {
+        //  int xxx=0;
+        //  };
+        
+        // Temporary
+        //m_pSvc->Export2Scd10(PrjName(), CfgFiles());
+         
+        // CNM Removed - temp
+        //m_pSvc->Save();
+        }
+      m_pSvc->Export2Scd10(PrjName(), CfgFiles());
+      }
+
+
   }
 #endif
 

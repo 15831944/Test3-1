@@ -2161,24 +2161,26 @@ void GrfCmdBlk::DoInsert()
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
 
 #if SYSCAD10         
-            SCD10ENTER;
-            gs_pPrj->Svc.GCBCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
-            SCD10LEAVE;
-
-#else
-
-            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
-            if (CB->e)
+            if (gs_pPrj->SvcActive)
               {
-              Strng TheGuid;
-              pDsp->Draw(CB->e, -1);
-              if (DoAddModel)
-                CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag(), TheGuid());
-              pDsp->Draw(CB->e, -1);
-              //            pDrw->EntityInvalidate(en, NULL);
+              SCD10ENTER;
+              gs_pPrj->Svc.GCBCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
+              SCD10LEAVE;
               }
-
+            else
 #endif
+              {
+              CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
+              if (CB->e)
+                {
+                Strng TheGuid;
+                pDsp->Draw(CB->e, -1);
+                if (DoAddModel)
+                  CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag(), TheGuid());
+                pDsp->Draw(CB->e, -1);
+                //            pDrw->EntityInvalidate(en, NULL);
+                }
+              }
             }
 
           if (pMdlDlg)
@@ -4152,30 +4154,35 @@ void GrfCmdBlk::DoConnect()
 
         if (SrcTag.Length() > 0 && SrcIO.Length() > 0 && DstTag.Length() > 0 && DstIO.Length() > 0)
           {
-#if SYSCAD10 
-          SCD10ENTER;
-          CPointFList ControlPoints;
-          for (int i=0; i<TheLDH.NVerts(); i++)
+#if SYSCAD10         
+          if (gs_pPrj->SvcActive)
             {
-            float PtX = int(TheLDH.VertWorld(i).X) + 0.5f; // needs to be x.5mm to meet grid in 10.
-            float PtY = int(TheLDH.VertWorld(i).Y) + 0.5f; // needs to be x.5mm to meet grid in 10.
-            ControlPoints.AddTail(CPointF(PtX, PtY));
+            SCD10ENTER;
+            CPointFList ControlPoints;
+            for (int i=0; i<TheLDH.NVerts(); i++)
+              {
+              float PtX = int(TheLDH.VertWorld(i).X) + 0.5f; // needs to be x.5mm to meet grid in 10.
+              float PtY = int(TheLDH.VertWorld(i).Y) + 0.5f; // needs to be x.5mm to meet grid in 10.
+              ControlPoints.AddTail(CPointF(PtX, PtY));
+              }
+            gs_pPrj->Svc.GCBCreateLink((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), ATag(), AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(), ControlPoints);
+            SCD10LEAVE;
             }
-          gs_pPrj->Svc.GCBCreateLink((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), ATag(), AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(), ControlPoints);
-          SCD10LEAVE;
-#else 
-          if (AddLinkModel(AClass(), ATag(), SrcTag(), SrcIO(), DstTag(), DstIO()))
+          else
+#endif 
             {
-            Tag_Attr_Set.Flags = HideTag ? DXF_ATTRIB_INVIS : 0;
-            TheLDH.SetShowTag(Tag_Attr_Set.Flags==0);
-            TheLDH.SetArrowScale(ArrowScale);
-            TheLDH.SetTag(ATag());
-            TheLDH.SetTagPt(0.0, 1.5, 0.0); //place the tag slightly above the insert point
-            DXF_ENTITY e = AddLinkDrawing(TheLDH);
-            pDsp->Draw(e, GR_WHITE);
-            pWnd->Invalidate();
+            if (AddLinkModel(AClass(), ATag(), SrcTag(), SrcIO(), DstTag(), DstIO()))
+              {
+              Tag_Attr_Set.Flags = HideTag ? DXF_ATTRIB_INVIS : 0;
+              TheLDH.SetShowTag(Tag_Attr_Set.Flags==0);
+              TheLDH.SetArrowScale(ArrowScale);
+              TheLDH.SetTag(ATag());
+              TheLDH.SetTagPt(0.0, 1.5, 0.0); //place the tag slightly above the insert point
+              DXF_ENTITY e = AddLinkDrawing(TheLDH);
+              pDsp->Draw(e, GR_WHITE);
+              pWnd->Invalidate();
+              }  
             }
-#endif
           }
         else
           {
@@ -4366,44 +4373,48 @@ void GrfCmdBlk::DoMoveLink()
         {
         if (LnkTag.Length())
           {
-#if SYSCAD10
-          SCD10ENTER;
-          CPointFList ControlPoints;
-          for (int i=0; i<TheLDH.NVerts(); i++)
+#if SYSCAD10         
+          if (gs_pPrj->SvcActive)
             {
-            Pt_3f Pt = TheLDH.VertWorld(i);
-            ControlPoints.AddTail(CPointF(Pt.X, Pt.Y));
-            }
+            SCD10ENTER;
+            CPointFList ControlPoints;
+            for (int i=0; i<TheLDH.NVerts(); i++)
+              {
+              Pt_3f Pt = TheLDH.VertWorld(i);
+              ControlPoints.AddTail(CPointF(Pt.X, Pt.Y));
+              }
 
-          CRectangleF TA(0.0, 0.0, 0.0, 0.0);
-          gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints, TA, 0.0);
-          SCD10LEAVE;
-#else
-
-          if (OldEntity)
-            {//delete previous...
-            //char * pTag = Attr_Value(Find_Attr(OldEntity, TagAttribStr));
-            pDsp->Draw(OldEntity, GrfHelper.GR_BACKGROUND);
-            pDrw->Delete(OldEntity);
+            CRectangleF TA(0.0, 0.0, 0.0, 0.0);
+            gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints, TA, 0.0);
+            SCD10LEAVE;
             }
-
-          //create & draw new graphics...
-          if (pLnkDlg)
-            {
-            pLnkDlg->CompleteForUse();
-            TheLDH.SetArrowRule((ArrowRuleMethod)(pLnkDlg->ArrowRuleMethod()));
-            TheLDH.SetLineWidth(pLnkDlg->LineWidth());
-            bFlag1 = pLnkDlg->m_HideTag;
-            ArrowScale = pLnkDlg->m_ArrowScale;
-            }
-          Tag_Attr_Set.Flags = bFlag1 ? DXF_ATTRIB_INVIS : 0;
-          TheLDH.SetShowTag(!bFlag1);
-          TheLDH.SetArrowScale(ArrowScale);
-          TheLDH.SetTag(LnkTag());
-          DXF_ENTITY e = AddLinkDrawing(TheLDH);
-          pDsp->Draw(e, GR_WHITE);
-          pWnd->Invalidate();
+          else
 #endif
+            {
+            if (OldEntity)
+              {//delete previous...
+              //char * pTag = Attr_Value(Find_Attr(OldEntity, TagAttribStr));
+              pDsp->Draw(OldEntity, GrfHelper.GR_BACKGROUND);
+              pDrw->Delete(OldEntity);
+              }
+
+            //create & draw new graphics...
+            if (pLnkDlg)
+              {
+              pLnkDlg->CompleteForUse();
+              TheLDH.SetArrowRule((ArrowRuleMethod)(pLnkDlg->ArrowRuleMethod()));
+              TheLDH.SetLineWidth(pLnkDlg->LineWidth());
+              bFlag1 = pLnkDlg->m_HideTag;
+              ArrowScale = pLnkDlg->m_ArrowScale;
+              }
+            Tag_Attr_Set.Flags = bFlag1 ? DXF_ATTRIB_INVIS : 0;
+            TheLDH.SetShowTag(!bFlag1);
+            TheLDH.SetArrowScale(ArrowScale);
+            TheLDH.SetTag(LnkTag());
+            DXF_ENTITY e = AddLinkDrawing(TheLDH);
+            pDsp->Draw(e, GR_WHITE);
+            pWnd->Invalidate();
+            }
           }
         else
           LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Valid link must be selected");
@@ -5980,26 +5991,31 @@ void GrfCmdBlk::DoMoveEntity()
               {//move the selected entity...
               if (Like)
                 {
-#if SYSCAD10
-                Pt_3f Delta=pDsp->CurrentPt.World;
-                Delta=Delta-pDsp->StartPt.World;
-
-                gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
-
-                LPCSTR pTag = Scd10GetTag(Like);
-                if (pTag)
+#if SYSCAD10         
+                if (gs_pPrj->SvcActive)
                   {
-                  SCD10ENTER;
-                  gs_pPrj->Svc.GCBModifyItemPosition((CGrfDoc*)pDoc, Like, pTag, Delta);
-                  SCD10LEAVE;
+                  Pt_3f Delta=pDsp->CurrentPt.World;
+                  Delta=Delta-pDsp->StartPt.World;
+
+                  gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
+
+                  LPCSTR pTag = Scd10GetTag(Like);
+                  if (pTag)
+                    {
+                    SCD10ENTER;
+                    gs_pPrj->Svc.GCBModifyItemPosition((CGrfDoc*)pDoc, Like, pTag, Delta);
+                    SCD10LEAVE;
+                    }
                   }
-#else
-                pDsp->Draw(Like, GrfHelper.GR_BACKGROUND);
-                pDrw->TranslateEntity(Like, pDsp->StartPt.World, pDsp->CurrentPt.World);
-                gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
-                pDrw->EntityInvalidate(Like, NULL);
-                pDsp->Draw(Like, -1);
+                else
 #endif
+                  {
+                  pDsp->Draw(Like, GrfHelper.GR_BACKGROUND);
+                  pDrw->TranslateEntity(Like, pDsp->StartPt.World, pDsp->CurrentPt.World);
+                  gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
+                  pDrw->EntityInvalidate(Like, NULL);
+                  pDsp->Draw(Like, -1);
+                  }
                 Pt3 = pDsp->CurrentPt;
                 }
               else
@@ -7763,65 +7779,69 @@ void GrfCmdBlk::DoDelete()
           }
         if (e && pDrw->Exists(e))
           {
-
-#if SYSCAD10
-          if (DelMdl)
+#if SYSCAD10         
+          if (gs_pPrj->SvcActive)
             {
-            LPCSTR pTag = Scd10GetTag(e);
-            if (pTag)
+            if (DelMdl)
               {
-              CMdlValueSet::Clear();
-              SCD10ENTER;
+              LPCSTR pTag = Scd10GetTag(e);
+              if (pTag)
+                {
+                CMdlValueSet::Clear();
+                SCD10ENTER;
 
-              LPCTSTR InsName=Scd10GetInsertName(e);
-              if (InsName && strstr(InsName, "LNKBLK"))
-                gs_pPrj->Svc.GCBDeleteLink(e, pTag);
-              else
-                gs_pPrj->Svc.GCBDeleteItem(e, pTag);
-              SCD10LEAVE;
+                LPCTSTR InsName=Scd10GetInsertName(e);
+                if (InsName && strstr(InsName, "LNKBLK"))
+                  gs_pPrj->Svc.GCBDeleteLink(e, pTag);
+                else
+                  gs_pPrj->Svc.GCBDeleteItem(e, pTag);
+                SCD10LEAVE;
+                }
               }
             }
-#else
-          pchar pTag;
-          if (DelMdl)
+          else
+#endif
             {
-            if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
+            pchar pTag;
+            if (DelMdl)
               {
-              CMdlValueSet::Clear();
-
-              if (Find_Attr_Value(e, AssocTagAttribStr)==NULL) // is not an AssocTag
+              if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
                 {
-                int RetCode = gs_Exec.DeleteTag(pTag);
-                if (RetCode!=EODT_DONE)
-                  {
-                  LogError(pTag, 0, "Model not deleted");
-                  DeletesFailedCnt++;
-                  }
-                else
-                  MdlDeletes++;
-                }
+                CMdlValueSet::Clear();
 
-              /*int err = gs_pPrj->DeleteNodeModel(pTag);
-              if (err)
+                if (Find_Attr_Value(e, AssocTagAttribStr)==NULL) // is not an AssocTag
+                  {
+                  int RetCode = gs_Exec.DeleteTag(pTag);
+                  if (RetCode!=EODT_DONE)
+                    {
+                    LogError(pTag, 0, "Model not deleted");
+                    DeletesFailedCnt++;
+                    }
+                  else
+                    MdlDeletes++;
+                  }
+
+                /*int err = gs_pPrj->DeleteNodeModel(pTag);
+                if (err)
                 {
                 if (DeletesFailedCnt==1)
-                  LogError("GrfCmds", 0, sLogMsg());
+                LogError("GrfCmds", 0, sLogMsg());
                 sLogMsg.Set("Model '%s' not deleted[%i]", pTag, err);
                 if (DeletesFailedCnt)
-                  LogError("GrfCmds", 0, sLogMsg());
+                LogError("GrfCmds", 0, sLogMsg());
                 DeletesFailedCnt++;
                 }
-              else
+                else
                 MdlDeletes++;
-              */
+                */
+                }
+              }
+            if (DelSym)
+              {
+              pDsp->Draw(e, GrfHelper.GR_BACKGROUND);
+              pDrw->Delete(e);
               }
             }
-          if (DelSym)
-            {
-            pDsp->Draw(e, GrfHelper.GR_BACKGROUND);
-            pDrw->Delete(e);
-            }
-#endif
           }
         pEnt = pDsp->Vp1->NextSelectedEntity();
         }
