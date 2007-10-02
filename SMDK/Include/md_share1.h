@@ -560,6 +560,129 @@ inline void ASSERT_RDB(BOOL a, LPCTSTR msg, LPCTSTR file, int line) { if (!(a)) 
 #define INCOMPLETECODE(file, line)         { if (1) throw MSysException("INCOMPLETECODE", file, line) ; }
 #define INCOMPLETECODEMSG(Msg, file, line) { if (1) throw MSysException(Msg, file, line); }
 
+//===========================================================================
+//
+//                        Spares Debug / Speed
+//
+//===========================================================================
+
+#if WITHDEBUGNEW
+
+#ifndef _DEBUG
+#pragma message(DEBUG_NEW NOT ALLOWED)
+#endif
+//#define new DEBUG_NEW
+#define HEAP_SPARES 0
+#define HEAP_STATS  0
+
+#else
+
+#ifdef _DEBUG
+#define HEAP_SPARES 0
+#define HEAP_STATS  0
+#else
+#define HEAP_SPARES 01
+#define HEAP_STATS  01
+#endif
+#endif
+
+
+//===========================================================================
+
+#if HEAP_SPARES
+
+class DllImportExport CSparesList : public CList <void*, void*>
+  {
+  public:
+    // List
+    static CSparesList * pFirstList;
+    CSparesList * pNextList;
+    char *pClassName;
+
+    // Safety
+    CRITICAL_SECTION CritSect;
+    bool ListOK;
+
+    DWORD dwMaxCount;
+    DWORD dwMaxSparesUsed;
+
+    // for Sanity Checks & stats
+    DWORD dwSize;
+
+#if HEAP_STATS
+    // Statistics
+    DWORD dwAllocsList;
+    DWORD dwAllocs;
+    DWORD dwFreesList;
+    DWORD dwFrees;
+    DWORD dwLastUsed;
+
+    DWORD dwLastCount;
+#endif
+#if defined (_DEBUG)
+    char * pTstBlk;
+#endif
+    //
+    CSparesList(char * ClassName, DWORD MaxCount, DWORD Size);
+    ~CSparesList();
+
+    void * DoNew(size_t size);
+    void * DoNew(size_t size, char * File, int Line);
+    void DoDelete(void *p);
+
+    static void DumpUsage(char *Where, bool ForceIt);
+  };
+
+//===========================================================
+
+#define DEFINE_SPARES(Obj)                                  \
+  public:                                                   \
+    static CSparesList sm_QQSparesLst;                      \
+    void * operator new(size_t size)                        \
+      { return sm_QQSparesLst.DoNew(size);};                \
+    void * operator new(size_t size, char * File, int Line) \
+      { return sm_QQSparesLst.DoNew(size, File, Line);};    \
+    void operator delete(void *p)                           \
+      { sm_QQSparesLst.DoDelete(p); };                      \
+  private:
+
+#define IMPLEMENT_SPARES(Obj, Max)                          \
+CSparesList Obj::sm_QQSparesLst(#Obj, Max, sizeof(Obj)); 
+
+//===========================================================
+
+#define DEFINE_MEMLEAKFINDER(Obj);                           \
+        long m_MLFId;                                        \
+        static long sm_MLFId;
+
+#define IMPLEMENT_MEMLEAKFINDER(Obj);                        \
+        long Obj::sm_MLFId=-1;
+
+#define MEMLEAKFINDER_CTOR(Obj)                              \
+        m_MLFId=sm_MLFId++;                                  \
+        dbgpln("%-20s %6i >> 0x%08x ", #Obj, m_MLFId, this);
+
+#define MEMLEAKFINDER_DTOR(Obj)                              \
+        dbgpln("%-20s %6i << 0x%08x ", #Obj, m_MLFId, this); 
+
+//===========================================================
+
+#else /* !HEAP_SPARES */
+
+#define DEFINE_SPARES(Obj)
+#define IMPLEMENT_SPARES(Obj, Max)
+#endif /* HEAP_SPARES */
+
+//===========================================================================
+
+#if HEAP_STATS
+#define DEFINE_MEMSTATS(Obj)    DEFINE_SPARES(Obj)
+#define IMPLEMENT_MEMSTATS(Obj) IMPLEMENT_SPARES(Obj, 0)
+#else
+#define DEFINE_MEMSTATS(Obj)
+#define IMPLEMENT_MEMSTATS(Obj)
+#endif
+
 // ========================================================================
 
 // ========================================================================

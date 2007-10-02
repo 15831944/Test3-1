@@ -387,19 +387,19 @@ void DoAssert1(char * pMsg)
 //===========================================================================
 
 #if HEAP_SPARES
-SparesList * SparesList::pFirstList=NULL;
+CSparesList * CSparesList::pFirstList=NULL;
 
 //===========================================================================
 //===========================================================================
 //===========================================================================
 
-void SparesList::DumpUsage(char *Where, flag ForceIt)
+void CSparesList::DumpUsage(char *Where, bool ForceIt)
   {
   #if HEAP_STATS
-  flag DoHd=1;
+  bool DoHd=1;
   dbgMemoryState(Where);
   StartupLock.Lock();
-  SparesList * p=SparesList::pFirstList;
+  CSparesList * p=CSparesList::pFirstList;
   while (p && _CrtIsValidPointer(p, 1, TRUE))
     {
     if (ForceIt || p->dwAllocsList || p->dwAllocs || p->dwFreesList || p->dwFrees || p->GetCount())
@@ -434,7 +434,7 @@ void SparesList::DumpUsage(char *Where, flag ForceIt)
         dbgp("%12lu",p->dwAllocs);
         dbgp("%12lu",p->dwFreesList);
         dbgp("%12lu",p->dwFrees);
-        dbgp(" %s",((SparesList*)p)->pClassName);
+        dbgp(" %s",((CSparesList*)p)->pClassName);
         dbgpln("");
         p->dwLastUsed=Used;
         p->dwLastCount=p->GetCount();
@@ -453,11 +453,11 @@ void SparesList::DumpUsage(char *Where, flag ForceIt)
 
 //---------------------------------------------------------------------------
 
-SparesList::SparesList(char * ClassName, dword MaxCount, dword Size)
+CSparesList::CSparesList(char * ClassName, dword MaxCount, dword Size)
   {
   pNextList=NULL;
   StartupLock.Lock();
-  SparesList *p=pFirstList, *p1=NULL;
+  CSparesList *p=pFirstList, *p1=NULL;
   while (p && _stricmp(p->pClassName, ClassName)<0)
     {
     p1=p;
@@ -477,6 +477,7 @@ SparesList::SparesList(char * ClassName, dword MaxCount, dword Size)
 
   dwMaxCount=MaxCount;
   dwSize=Size;
+  dwMaxSparesUsed=0;
 
   #if HEAP_STATS
   dwAllocsList=0;
@@ -504,7 +505,7 @@ SparesList::SparesList(char * ClassName, dword MaxCount, dword Size)
 
 //---------------------------------------------------------------------------
 
-SparesList::~SparesList()
+CSparesList::~CSparesList()
   {
   EnterCriticalSection(&CritSect);
   ListOK=0;
@@ -520,6 +521,7 @@ SparesList::~SparesList()
   dbgp("MemStats Lost:%12li", (dwAllocsList+dwAllocs)-(dwFreesList+dwFrees));
   dbgp("   MaxAllocs:%12lu ", dwAllocs);
   dbgp("   TotAllocs:%12lu ", (dwAllocsList+dwAllocs));
+  dbgp("   MaxSparesUsed:%12lu ", dwMaxSparesUsed);
   dbgp("  %s", pClassName);
   dbgpln("");
   #endif
@@ -531,7 +533,7 @@ SparesList::~SparesList()
     pFirstList=pNextList;
   else
     {
-    SparesList *p = pFirstList;
+    CSparesList *p = pFirstList;
     while(p->pNextList!=this)
       p = p->pNextList;
     p->pNextList=pNextList;
@@ -541,7 +543,7 @@ SparesList::~SparesList()
 
 //---------------------------------------------------------------------------
 
-void * SparesList::DoNew(size_t size)
+void * CSparesList::DoNew(size_t size)
   {
 //  ASSERT(size>=sizeof(NextSpareRec *));
   void * p=NULL;
@@ -584,7 +586,7 @@ void * SparesList::DoNew(size_t size)
 
 //---------------------------------------------------------------------------
 
-void * SparesList::DoNew(size_t size, char * File, int Line)
+void * CSparesList::DoNew(size_t size, char * File, int Line)
   {
 //  ASSERT(size>=sizeof(NextSpareRec *));
   void * p=NULL;
@@ -627,7 +629,7 @@ void * SparesList::DoNew(size_t size, char * File, int Line)
 
 //---------------------------------------------------------------------------
 
-void SparesList::DoDelete(void *p)
+void CSparesList::DoDelete(void *p)
   {
   if (ListOK)
     {
@@ -639,6 +641,7 @@ void SparesList::DoDelete(void *p)
       dwFreesList++;
       #endif
       AddHead(p);
+      dwMaxSparesUsed=Max(dwMaxSparesUsed,(DWORD)GetCount());
       #if defined (_DEBUG) && HEAP_STATS
       memset(p, 0xDD, dwSize);
       #endif
@@ -669,7 +672,7 @@ void SparesList::DoDelete(void *p)
 
 StkSparesListList StkSparesList::ListOfAll;
 
-//void StkSparesList::DumpUsage(char *Where, flag ForceIt) {};
+//void StkSparesList::DumpUsage(char *Where, bool ForceIt) {};
 void StkSparesList::ClearAll()
   {
   POSITION Pos=ListOfAll.GetHeadPosition();

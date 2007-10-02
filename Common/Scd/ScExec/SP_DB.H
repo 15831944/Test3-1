@@ -2549,12 +2549,23 @@ class DllImportExport CSysVector
 class DllImportExport SpMArray : public CSysVector
   {
   public:
+  	DEFINE_SPARES(SpMArray);
+  	//DEFINE_MEMLEAKFINDER(SpMArray);
+  public:
     SpMArray(bool DoInit=true)                          { Setup(); if (DoInit) Zero(); };
     //SpMArray(double dInit)                              { Setup(); *this=dInit; };
     SpMArray(CSysVector &Vec2)                             { Setup(); Set(Vec2, som_ALL); };
     SpMArray(CSysVector &Vec2, PhMask Phase)               { Setup(); Set(Vec2, Phase); };
     SpMArray(CSysVector &Vec2, PhMask Phase, double Scl)   { Setup(); Set(Vec2, Phase, Scl); };
-    void Setup()                                        { m_d=&m_M[0]; };
+    void Setup()
+      {
+      m_d=&m_M[0];
+      //MEMLEAKFINDER_CTOR(SpMArray);
+      };
+    virtual ~SpMArray()
+      { 
+      //MEMLEAKFINDER_DTOR(SpMArray);
+      };
 
     SpMArray&  operator=(CSysVector &Vec2);
     SpMArray&  operator=(SpMArray &Vec2);
@@ -2566,7 +2577,6 @@ class DllImportExport SpMArray : public CSysVector
 #ifdef _DEBUG
     virtual void CheckIt() { if (m_d!=&m_M[0]) DoBreak(); };
 #endif
-
   protected:
     union
       {
@@ -2577,6 +2587,9 @@ class DllImportExport SpMArray : public CSysVector
 
 class DllImportExport SpVector : public CSysVector
   {
+  public:
+	  DEFINE_SPARES(SpVector);
+    //DEFINE_MEMLEAKFINDER(SpVector);
   public:
     SpVector(bool DoInit=true)                            { Setup(); if (DoInit) Zero(); };
     //SpVector(double dInit)                                { Setup(); *this=dInit; };
@@ -2590,6 +2603,12 @@ class DllImportExport SpVector : public CSysVector
         L=MaxSpecies+MaxAttributes;
       m_M.SetSize(L);
       m_d=&m_M[0];
+
+      //MEMLEAKFINDER_CTOR(SpVector)
+      };
+    virtual ~SpVector()
+      { 
+      //MEMLEAKFINDER_DTOR(SpVector)
       };
 
     SpVector & operator=(CSysVector &Vec2)                { Set(Vec2); return *this; };
@@ -2606,6 +2625,8 @@ class DllImportExport SpVector : public CSysVector
 
   protected:
     CDVector m_M; // Data
+    long m_Id;
+    static long sm_Id;
   };
 
 inline SpMArray&  SpMArray::operator=(CSysVector &S)        { Set(S); return *this; };

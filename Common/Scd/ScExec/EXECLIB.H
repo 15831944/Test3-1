@@ -106,7 +106,7 @@ class DllImportExport CXM_Header
 
 //#define DEFINE_SPARES(Obj)                                  \
 //  protected:                                                 \
-//    static SparesList QQSparesLst;                          \
+//    static CSparesList QQSparesLst;                          \
 //    void * operator new(size_t size)                        \
 //      { return QQSparesLst.DoNew(size);};                   \
 //    void * operator new(size_t size, char * File, int Line) \
@@ -116,7 +116,7 @@ class DllImportExport CXM_Header
 //      { QQSparesLst.DoDelete(p); };                         \
 //  private:
 //
-//#define IMPLEMENT_SPARES(Obj, Max)  SparesList Obj::QQSparesLst(#Obj, Max, sizeof(Obj));
+//#define IMPLEMENT_SPARES(Obj, Max)  CSparesList Obj::QQSparesLst(#Obj, Max, sizeof(Obj));
 
 //-------------------------------------------------------------------------
 

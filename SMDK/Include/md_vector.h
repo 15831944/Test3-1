@@ -184,6 +184,7 @@ class DllImportExport MArrayI : public MArray
     MArrayI(MVector      * p);
     MArrayI(MSpModelBase * p);
     virtual ~MArrayI();
+
   };
 
 //---------------------------------------------------------------------------
@@ -611,7 +612,7 @@ class DllImportExport MContainerI : public MContainer
     MContainerI(const MContainer &Cn);
     MContainerI(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId);
     MContainerI(MBaseMethod * Method, LPCSTR Tag, MVector &V);
-    ~MContainerI();
+    virtual ~MContainerI();
 
     MContainerI & operator*=(const double &D)     { *(MContainer*)this *= D; return *this; };
     MContainer & operator=(const MContainer & C)  { *(MContainer*)this = C; return *this; };

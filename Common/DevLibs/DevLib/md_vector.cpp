@@ -178,7 +178,7 @@ MProperty MProperties::operator[](LPCTSTR Name)
 //
 //===========================================================================
 
-MArray::MArray()                                { m_pSysVec=new SpVector/*MArray*/; };
+MArray::MArray()                                { m_pSysVec=NULL; };
 MArray::MArray(CSysVector * p)                  { m_pSysVec=p; };
 MArray::MArray(MVector * p)                     { m_pSysVec=p->SpMdl->pMArray(); };
 MArray::MArray(MSpModelBase * p)                { m_pSysVec=p->m_pSpMdlX->pMArray(); };
@@ -243,7 +243,7 @@ MArrayI::MArrayI(MSpModelBase * p)
 
 MArrayI::~MArrayI()
   { 
-  delete m_pSysVec; 
+  delete (SpVector*)m_pSysVec; 
   };
 
 //===========================================================================

@@ -17,6 +17,9 @@ class Bayer; // forward declare
 class CBayerConcs
   {
   public:
+    DEFINE_SPARES(CBayerConcs)
+    //DEFINE_MEMLEAKFINDER(CBayerConcs)
+  public:
     static bool     NaFactorOK;
     static MArrayI   NaFactor;
 
@@ -26,6 +29,8 @@ class CBayerConcs
     double          Density25;    // Density @ 25 C
     double denOld;    // Start with this rather than 1000.0 to accelerate convergence
     CBayerConcs(Bayer *pMdl);
+    virtual ~CBayerConcs();
+
     void            Zero();
     bool            Converge(MArray & MA, bool SetValid);
     double          LTotalSodium(MArray & MA);
@@ -40,6 +45,7 @@ class CBayerConcs
       double L4,    // Oxalate
       double L5     // Organic Soda
       );
+
   };
 
 
@@ -48,6 +54,9 @@ class CBayerConcs
 class Bayer : public MSpModelBase, public MIBayer
   {
   friend class CBayerConcs;
+  public:
+    DEFINE_SPARES(Bayer)
+    //DEFINE_MEMLEAKFINDER(Bayer)
   protected:
     CBayerConcs LiqConcs25;
 
@@ -92,7 +101,7 @@ class Bayer : public MSpModelBase, public MIBayer
 
   public:
     Bayer(TaggedObject *pNd);
-    ~Bayer();
+    virtual ~Bayer();
 
     bool            ValidateDataFields();
 

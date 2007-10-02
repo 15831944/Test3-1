@@ -29,6 +29,9 @@
 //
 //===========================================================================
 
+IMPLEMENT_SPARES(CBayerConcs, 1000)
+IMPLEMENT_SPARES(Bayer, 1000)
+
 DEFINE_SPECIEMODEL_EX(Bayer)
 IMPLEMENT_SPECIEMODEL_EX(Bayer, "BayerSM", "Bayer2", "SMDK Generic Bayer Specie Model", DLL_GroupName)
 
@@ -91,6 +94,7 @@ byte Bayer::sm_iTSEMethod       = TSE_97;
 
 bool   CBayerConcs::NaFactorOK=0;
 MArrayI CBayerConcs::NaFactor;
+//IMPLEMENT_MEMLEAKFINDER(CBayerConcs);
 
 CBayerConcs::CBayerConcs(Bayer *pMdl)
   {
@@ -112,6 +116,15 @@ CBayerConcs::CBayerConcs(Bayer *pMdl)
 
     NaFactorOK = true;
     }
+  //MEMLEAKFINDER_CTOR(CBayerConcs);
+  }
+
+// --------------------------------------------------------------------------
+
+CBayerConcs::~CBayerConcs()
+  {
+  //MEMLEAKFINDER_DTOR(CBayerConcs);
+    //pBayerMdl->Dbg.PrintLn("CBayerConcs %6i << 0x%08x ", m_Id, this);
   }
 
 // --------------------------------------------------------------------------
@@ -351,12 +364,15 @@ Bayer::Bayer(TaggedObject *pNd) : LiqConcs25(this)
   dRqd_Org  = 12.0;
   dRqd_Salt = 5.0;
   dRqd_SolFrac  = 0.0;
+
+  //Dbg.PrintLn("Bayer %6i >> 0x%08x ", m_Id, this);
   }
 
 //---------------------------------------------------------------------------
 
 Bayer::~Bayer()
   {
+  //Dbg.PrintLn("Bayer %6i << 0x%08x ", m_Id, this);
   }
 
 //---------------------------------------------------------------------------

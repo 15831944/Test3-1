@@ -10789,7 +10789,7 @@ int FlwNode::ResolveIORef(int IOId, CTagRef * & pRef)
 bool FlwNode::TestXRefListActive()
   {
 #if (WITHNODEPROCS && WITHNODETAGIO)
-  return SetXRefListActive(!GetActiveHold() && (ProcsOn(NPM_Any) && m_pProcs->On() || TagIOOn()));
+  return SetXRefListActive(!GetActiveHold() && (ProcsOn(NPM_Any) && m_pProcs->On() || TagIOActive()));
 #elif (WITHNODEPROCS)
   return SetXRefListActive(!GetActiveHold() && (ProcsOn(NPM_Any) && m_pProcs->On())); 
 #elif (WITHNODETAGIO)

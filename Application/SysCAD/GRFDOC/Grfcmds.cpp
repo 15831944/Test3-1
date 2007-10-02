@@ -42,7 +42,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
 #define dbgdxfmem 0x0
-#define dbgdrw    0x0
+#define dbgdrw    0x01
 
 #if dbgdxfmem
     extern "C"
@@ -3327,6 +3327,28 @@ bool GrfCmdBlk::DoInsertNodeGrf(CInsertBlk* CB, bool SkipTagTest)
     {
     if (CB->m_Rect.Width()>0)
       {
+      DML_LIST Lst=dml_create_list();
+      DML_LIST EmptyLst=dml_create_list();
+      dml_insert_after(Lst, NULL, CB->e);
+      C3_BOX_S Bnds ;                      
+      pDrw->GetBounds(&Bnds, EmptyLst, Lst, EmptyLst);
+
+      dml_free_list(Lst);
+      dml_free_list(EmptyLst);
+
+
+      //DXF_INSERT_PT(CB->e)[0]   = CB.m_Rect.MidX()-PageRct.Left();
+      //DXF_INSERT_PT(CB->e)[1]   = PageRct.Top()-CB.m_Rect.MidY();
+      //DXF_INSERT_PT(CB->e)[2]   = 0;
+      DXF_INSERT_X_SCALE(CB->e)  = DXF_INSERT_X_SCALE(CB->e)  * CB->m_Rect.Width()/Max(1.0, (C3_MAX_X(&Bnds)-C3_MIN_X(&Bnds)));
+      DXF_INSERT_Y_SCALE(CB->e)  = DXF_INSERT_Y_SCALE(CB->e)  * CB->m_Rect.Height()/Max(1.0, (C3_MAX_Y(&Bnds)-C3_MIN_Y(&Bnds)));
+
+      //DXF_INSERT_ROT_ANG(CB->e) = -angle;
+      //  }
+
+      pDrw->EntityInvalidate(CB->e);
+      pWnd->Invalidate(true);
+
 
       int xxx=0;
       }
@@ -4135,8 +4157,8 @@ void GrfCmdBlk::DoConnect()
           CPointFList ControlPoints;
           for (int i=0; i<TheLDH.NVerts(); i++)
             {
-            float PtX = int(TheLDH.VertWorld(i).X) + 0.5; // needs to be x.5mm to meet grid in 10.
-            float PtY = int(TheLDH.VertWorld(i).Y) + 0.5; // needs to be x.5mm to meet grid in 10.
+            float PtX = int(TheLDH.VertWorld(i).X) + 0.5f; // needs to be x.5mm to meet grid in 10.
+            float PtY = int(TheLDH.VertWorld(i).Y) + 0.5f; // needs to be x.5mm to meet grid in 10.
             ControlPoints.AddTail(CPointF(PtX, PtY));
             }
           gs_pPrj->Svc.GCBCreateLink((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), ATag(), AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(), ControlPoints);
@@ -11072,7 +11094,7 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
       DrawBlockName.Format("%s:%s", pTagObjC->DrwGroup(), ModelTyp);
       DrawBlockName=MakeValidBlockName((char*)(LPCSTR)DrawBlockName);
       b = pDrw->Blocks.Find((LPTSTR)(LPCTSTR)DrawBlockName);
-      if (b)
+      if (!b)
         LogNote("GrfCmds", 0, "Drawing '%s' not found for '%s', use default", DrawTyp_, Tag);
       }
     }
@@ -11121,7 +11143,7 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
     Pt_3f Ptt(Xto * Scl.X, Yto * Scl.Y, 0.);
 
     #if dbgdrw
-    dbgpln("Add Tag Sc:%5.2f,%5.2f  Pt:%6.1f,%6.1f  Ptt:%6.1f,%6.1f    %s.%s",
+    dbgpln("Add Tag Sc:%5.2f,%5.2f  Pt:%6.1f,%6.1f  Ptt:%6.1f,%6.1f    Blk:%s Tag:%s",
       Scl.X, Scl.Y, Pt.X, Pt.Y, Ptt.X, Ptt.Y, (LPCTSTR)DrawBlockName, Tag);
     #endif
 

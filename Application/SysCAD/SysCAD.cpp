@@ -1933,7 +1933,7 @@ int CSysCADApp::DoExitInstance()
 
 #if (HEAP_SPARES && HEAP_STATS)
   if (0)
-    SparesList::DumpUsage("SysCAD Done",true);
+    CSparesList::DumpUsage("SysCAD Done",true);
 #endif
   //#if (TESTMEMGOBBLE)
   //  DumpOurHeap();

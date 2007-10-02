@@ -89,7 +89,7 @@ flag CSfeSrvr::Term()
   // Spares Usage
   #if dbgSFE_Srvr && HEAP_SPARES
   if (dbgMemStats() || 1)
-    SparesList::DumpUsage("Term", True);
+    CSparesList::DumpUsage("Term", True);
   #endif
   
   if (SfeFS)
@@ -628,7 +628,7 @@ flag CSfeSrvr::EO_Start(CXM_TimeControl &CB)
   {
   #if dbgSFE_Srvr && HEAP_SPARES
   if (dbgMemStats())
-    SparesList::DumpUsage("Start",True);
+    CSparesList::DumpUsage("Start",True);
   #endif
   gs_TheRunMngr.DoEO_Starting();
 
@@ -684,7 +684,7 @@ flag CSfeSrvr::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
 #if HEAP_SPARES
       Strng S;
       S.Set("Exec Iter %i", SfeFS->Dyn.dwIterNo);
-      SparesList::DumpUsage(S(),False);
+      CSparesList::DumpUsage(S(),False);
 #endif
       DumpOurHeapChanges();
       }
@@ -703,7 +703,7 @@ flag CSfeSrvr::EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)
   
   #if dbgSFE_Srvr && HEAP_SPARES
   if (dbgMemStats())
-    SparesList::DumpUsage("Stop",True);
+    CSparesList::DumpUsage("Stop",True);
   #endif
 
   return b;
@@ -721,7 +721,7 @@ flag CSfeSrvr::EO_Stop(CXM_TimeControl &CB)
   
   #if dbgSFE_Srvr && HEAP_SPARES
   if (dbgMemStats())
-    SparesList::DumpUsage("Stop",True);
+    CSparesList::DumpUsage("Stop",True);
   #endif
 
   return b;

@@ -11666,3 +11666,15 @@ void DumpSysVec(bool Start, LPSTR Hd, CSysVector & Vec)
 //
 //
 // ==========================================================================
+
+IMPLEMENT_SPARES(SpMArray, 1000);
+IMPLEMENT_SPARES(SpVector, 1000);
+
+//IMPLEMENT_MEMLEAKFINDER(SpMArray);
+//IMPLEMENT_MEMLEAKFINDER(SpVector);
+
+// ===========================================================================
+//
+//
+//
+// ==========================================================================

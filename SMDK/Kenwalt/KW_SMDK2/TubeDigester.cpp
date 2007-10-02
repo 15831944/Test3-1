@@ -394,7 +394,7 @@ public:
 		m_HotO.SetTP(m_dTSat, m_dPSat);
 
 		double HotHzPreCond = m_HotO.totHz();
-		m_VLE.SetFlashVapFrac(m_HotO, m_dTSat, m_dPSat, 1 - CondensingFrac, VLEF_Null);
+    m_VLE.SetSatPVapFrac(m_HotO, m_dTSat, m_dPSat, 1 - CondensingFrac, VLEF_Null);
 		m_HotO.SetTP(m_dTSat, m_dPSat);
 		double CondensingQ = HotHzPreCond - m_HotO.totHz();
 		m_CoolO.Set_totHz(m_CoolI.totHz() + CondensingQ);
@@ -469,7 +469,7 @@ void CKWATubeDigester::DoCondensingHeater(MStream HotI, MStream CoolI)
 	double deltaHz = HotI.totHz() - HotO.totHz();
 	CoolO.Set_totHz(CoolI.totHz() + deltaHz);
 	double TCI = CoolO.T;
-	if (TCI > TSat || m_HotVLE.FlashVapFrac(HotI) < ZeroLimit)
+  if (TCI > TSat || m_HotVLE.SatPVapFrac(HotI) < ZeroLimit)
 	{
 		DoSimpleHeater(HotI, CoolI);
 		//What to do with FTC here? Leave it for now.
@@ -494,7 +494,7 @@ void CKWATubeDigester::DoCondensingHeater(MStream HotI, MStream CoolI)
 	}
 	else
 	{
-		double HotICondFrac = 1 - m_HotVLE.FlashVapFrac(HotI);
+    double HotICondFrac = 1 - m_HotVLE.SatPVapFrac(HotI);
 		int solveResult = solver.FindRoot(0, HotICondFrac, 1);
 		if (m_FTC.Active)
 		{
@@ -503,7 +503,7 @@ void CKWATubeDigester::DoCondensingHeater(MStream HotI, MStream CoolI)
 			int VR_Result = VRSolver.FindRoot(0, CoolI.Mass(MP_All) * 1E-4, CoolI.Mass(MP_All) * 100);
 			if (VR_Result != RF_OK)
 				Log.Message(MMsg_Error, "Vapour Req Solver: %s", VRSolver.ResultString(VR_Result));
-			m_FTC.VapourFlowReqd = VRSolver.Result();// * m_VLE.FlashVapFrac(HotI); //TODO: Find out more about this.
+			m_FTC.VapourFlowReqd = VRSolver.Result();// * m_VLE.SatPVapFrac(HotI); //TODO: Find out more about this.
 			HotO = HotI;
 			solver.Function(res);	//Restore the streams to their proper values.
 		}
@@ -519,7 +519,7 @@ void CKWATubeDigester::DoCondensingHeater(MStream HotI, MStream CoolI)
 		default:
 			Log.SetCondition(true, LC_SolverIndex, MMsg_Error, "%s%s", "Solve Result: ", solver.ResultString(solveResult));
 		}
-		if (m_HotVLE.FlashVapFrac(HotO) > .0005)
+		if (m_HotVLE.SatPVapFrac(HotO) > .0005)
 			Log.SetCondition(true, LC_FlashVapIndex, MMsg_Warning, "Vapour present in hot output");
 	}
 
@@ -554,7 +554,7 @@ public:
 		m_CoolO.SetTP(m_dTSat, m_dPSat);
 
 		double CoolHzPreEvap = m_CoolO.totHz();
-		m_VLE.SetFlashVapFrac(m_CoolO, m_dTSat, m_dPSat, EvaporatingFrac, VLEF_Null);
+		m_VLE.SetSatPVapFrac(m_CoolO, m_dTSat, m_dPSat, EvaporatingFrac, VLEF_Null);
 		m_CoolO.SetTP(m_dTSat, m_dPSat);
 		double EvaporationQ = m_CoolO.totHz() - CoolHzPreEvap;
 		m_HotO.Set_totHz(m_HotO.totHz() - EvaporationQ);
@@ -613,7 +613,7 @@ void CKWATubeDigester::DoEvaporatingHeater(MStream HotI, MStream CoolI)
 	}
 	else
 	{
-		double ColdIVapFrac = m_ColdVLE.FlashVapFrac(CoolI);
+		double ColdIVapFrac = m_ColdVLE.SatPVapFrac(CoolI);
 		int solveResult = solver.FindRoot(0, ColdIVapFrac, 1);
 		switch (solveResult)
 		{
@@ -627,7 +627,7 @@ void CKWATubeDigester::DoEvaporatingHeater(MStream HotI, MStream CoolI)
 		default:
 			Log.SetCondition(true, LC_SolverIndex, MMsg_Error, "%s%s", "Solve Result: ", solver.ResultString(solveResult));
 		}
-		if (m_HotVLE.FlashVapFrac(CoolO) < .9995)
+		if (m_HotVLE.SatPVapFrac(CoolO) < .9995)
 			Log.SetCondition(true, LC_FlashVapIndex, MMsg_Warning, "Liquid present in cold output");
 	}
 	m_HotSide.m_eOpMode = OM_Simple;
@@ -676,20 +676,20 @@ public:
 		//Condense the incomming cold fluid, and calculate QCond:
 		m_HotO.SetTP(m_dHTSat, m_dHPSat);
 		double initialHz = m_HotO.totHz();
-		m_HotVLE.SetFlashVapFrac(m_HotO, m_dHTSat, m_dHPSat, 1 - CondFrac, VLEF_Null);
+		m_HotVLE.SetSatPVapFrac(m_HotO, m_dHTSat, m_dHPSat, 1 - CondFrac, VLEF_Null);
 		m_HotO.SetTP(m_dHTSat, m_dHPSat);
 		double QCond = initialHz - m_HotO.totHz();
 
 		//Determine if the Q from condensing is enough to fully vaporize the incomming cold stream:
 		m_ColdVLE.PFlash(m_CoolO, m_dCPSat, QCond, VLEF_Null);
 
-		if (m_ColdVLE.FlashVapFrac(m_CoolO) < 1) //Simple case where condensation is not enough to fully evaporate.
+		if (m_ColdVLE.SatPVapFrac(m_CoolO) < 1) //Simple case where condensation is not enough to fully evaporate.
 		{
 			UA_Cond_Evap = (QCond - m_dQWarmingI) / m_dLMTD_Cond_Evap; //We have NZ'd this elsewhere.
 
 			//Now determine what happens as we cool the incomming stream to TSat, PSat.
 			m_ColdVLE.PFlash(m_CoolO, m_dCPSat, m_dQCooling);
-			if (m_ColdVLE.FlashVapFrac(m_CoolO) < 1) //Simple case where there is condensate in the cold output
+			if (m_ColdVLE.SatPVapFrac(m_CoolO) < 1) //Simple case where there is condensate in the cold output
 			{
 				double LMTD_Sense_Evap = LMTD(m_HotI.T, m_dHTSat, m_dCTSat, m_dCTSat);
 				UA_Sense_Evap = m_dQCooling / NZ(LMTD_Sense_Evap);
@@ -698,7 +698,7 @@ public:
 			{
 				//First do the rest of the evaporation...
 				m_CoolO = m_CoolI;
-				m_ColdVLE.SetFlashVapFrac(m_CoolO, m_dCTSat, m_dCPSat, 1, VLEF_Null);
+				m_ColdVLE.SetSatPVapFrac(m_CoolO, m_dCTSat, m_dCPSat, 1, VLEF_Null);
 				m_CoolO.SetTP(m_dCTSat, m_dCPSat);
 				double QEvap = m_CoolO.totHz() - m_CoolI.totHz() - m_dQWarmingI;
 				double QSense_Evap = QEvap - (QCond - m_dQWarmingI);
@@ -717,7 +717,7 @@ public:
 		{
 			double Tn = m_CoolO.T;
 			m_CoolO = m_CoolI;
-			m_ColdVLE.SetFlashVapFrac(m_CoolO, m_dCTSat, m_dCPSat, 1, VLEF_Null);
+			m_ColdVLE.SetSatPVapFrac(m_CoolO, m_dCTSat, m_dCPSat, 1, VLEF_Null);
 			m_CoolO.SetTP(m_dCTSat, m_dCPSat);
 			double QEvap = m_CoolO.totHz() - m_CoolI.totHz() - m_dQWarmingI;
 			UA_Cond_Evap = QEvap / m_dLMTD_Cond_Evap;
@@ -747,7 +747,7 @@ void CKWATubeDigester::DoCondEvapHeater(MStream HotI, MStream CoolI)
 	MStream& HotO = FlwIOs[FlwIOs.First[idHotO]].Stream;
 	MStream& CoolO = FlwIOs[FlwIOs.First[idCoolO]].Stream;
 	CondEvapHXSolver solver(this, m_HotVLE, m_ColdVLE, HotO, CoolO, HotI, CoolI);
-	double HotICondFrac = 1 - m_HotVLE.FlashVapFrac(HotI);
+	double HotICondFrac = 1 - m_HotVLE.SatPVapFrac(HotI);
 	solver.FindRoot(0, HotICondFrac, 1);
 	m_HotSide.m_eOpMode = OM_Condensing;
 	m_ColdSide.m_eOpMode = OM_Evaporating;

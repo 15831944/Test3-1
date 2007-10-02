@@ -5768,15 +5768,15 @@ flag CProject::SaveClassVariableStatus(LPCSTR Path)
         POSITION Pos=NULL;
         if (pClass->SelectData()->GetFirstClassVariableStatusEntry(Pos))
           {
-          fprintf(h, "[%s]", pClass->ClassId());
+          fprintf(h, "[%s]\n", pClass->ClassId());
           Strng Tag1,Tag2;
           CTagValueStatus Status;
           while (pClass->SelectData()->GetNextClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
-            fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
+            fprintf(h, "%s,%s=%i\n", Tag1(), Tag2()?Tag2():"", Status);
           }
         }
       }
-    fprintf(h, "[]");
+    fprintf(h, "[]\n");
     fclose(h);
     return true;
     }
