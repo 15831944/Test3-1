@@ -42,6 +42,7 @@ public:
   virtual bool	PreStartCheck();
 
 protected:
+	CString				m_sPrestartErrors;
 	bool				m_bOn;
 	FT_SpecType			eSpecType;
 
@@ -59,7 +60,8 @@ protected:
 	vector<int>			vOtherIndices; //Keep it as a class variable to allow optimization.
 	CString				sOthersFound;
 
-	double				dWaterFrac, dReqWaterFrac;
+	double				dReqWaterFrac;
+	double				dSfConcentrate, dSfTailings;
 
 	void UpdatePrimaryIndices();
 	void UpdateOtherIndices();
