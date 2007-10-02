@@ -709,7 +709,7 @@ namespace SysCAD.Editor
         {
           String fullAnchor = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
           String anchorName = fullAnchor.TrimEnd(new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'});
-          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length - 1));
+          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length));
           newGraphicLink.DestinationPort = anchorName;
           newGraphicLink.DestinationPortID = anchorID;
         }
@@ -726,7 +726,7 @@ namespace SysCAD.Editor
         {
           String fullAnchor = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[oldOriginAnchor];
           String anchorName = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length - 1));
+          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length));
           newGraphicLink.OriginPort = anchorName;
           newGraphicLink.OriginPortID = anchorID;
         }
@@ -909,7 +909,7 @@ namespace SysCAD.Editor
       if (originFullAnchor != null)
       {
         originAnchorName = originFullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-        originAnchorID = Convert.ToInt16(originFullAnchor.Substring(originAnchorName.Length - 1));
+        originAnchorID = Convert.ToInt16(originFullAnchor.Substring(originAnchorName.Length));
       }
 
       if (destinationGraphicItem != null)
@@ -918,7 +918,7 @@ namespace SysCAD.Editor
       if (originFullAnchor != null)
       {
         destinationAnchorName = originFullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-        destinationAnchorID = Convert.ToInt16(originFullAnchor.Substring(destinationAnchorName.Length - 1));
+        destinationAnchorID = Convert.ToInt16(originFullAnchor.Substring(destinationAnchorName.Length));
       }
 
       Int64 requestId;
@@ -1907,14 +1907,14 @@ namespace SysCAD.Editor
         {
           String fullAnchor = originGraphicItem.anchorIntToTag[arrow.OrgnAnchor];
           originPort = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-          originPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length - 1));
+          originPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length));
         }
 
         if (arrow.DestAnchor != -1)
         {
           String fullAnchor = originGraphicItem.anchorIntToTag[arrow.DestAnchor];
           destinationPort = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-          destinationPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length - 1));
+          destinationPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length));
         }
 
         if (!state.ModifyGraphicLink(out requestId,
