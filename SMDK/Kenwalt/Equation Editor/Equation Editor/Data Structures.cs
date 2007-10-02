@@ -789,6 +789,8 @@ namespace Reaction_Editor
 
         public abstract void Revert();
 
+        public abstract void Backup();
+
         public abstract string ToSaveString();
 
         public abstract string RevertString();
@@ -857,6 +859,11 @@ namespace Reaction_Editor
             SetString(m_OriginalMatch.Groups["Value"].Value);
             m_bHasChanged = false;
             UpdateStatus(this, new EventArgs());
+        }
+
+        public override void Backup()
+        {
+            m_OriginalMatch = s_SourceSinkRegex.Match(this.ToSaveString());
         }
 
         public CompoundListReaction(Match m)
@@ -1040,6 +1047,11 @@ namespace Reaction_Editor
 
             m_bHasChanged = false;
             UpdateStatus(this, new EventArgs());
+        }
+
+        public override void Backup()
+        {
+            m_OriginalMatch = s_HXRegex.Match(this.ToSaveString());
         }
 
         public override void UpdateStatus(object sender, EventArgs e)
@@ -1325,7 +1337,7 @@ namespace Reaction_Editor
                     case RxnDirections.Forward:
                         return "->";
                     case RxnDirections.Equilibrium:
-                        return "<->";
+                        return "=";
                 }
                 throw new Exception("Invalid Direction");
             }
@@ -1671,14 +1683,14 @@ namespace Reaction_Editor
                 this.Comment = grpComment.Captures[0].Value.Trim();
 
             Group grpReactants = rxnMatch.Groups["Reactants"];
-            this.ParseReactants(grpReactants.Captures[0].Value);
+            this.ParseReactants(grpReactants.Captures[0].Value, true);
 
 
             Group grpDirection = rxnMatch.Groups["Direction"];
             this.DirectionString = grpDirection.Captures[0].Value;
 
             Group grpProducts = rxnMatch.Groups["Products"];
-            this.ParseProducts(grpProducts.Captures[0].Value);
+            this.ParseProducts(grpProducts.Captures[0].Value, true);
 
             source.Source = title + ": " + this;
 
@@ -2123,12 +2135,18 @@ namespace Reaction_Editor
             }
         }
 
-        public void ParseReactants(string reactantString)
+        public void ParseReactants(string reactantString) { ParseReactants(reactantString, false); }
+
+        public void ParseReactants(string reactantString, bool bLogErrors)
         {
             if (reactantString == GetReactantsString())
                 return;
+
+            bool wasActive = Program.Log.Active;
+
             try
             {
+                Program.Log.Active = bLogErrors;
                 m_sReactantString = reactantString;
                 m_bReactantsOK = false;
                 //m_Reactants.Clear(); m_OrderedReactants.Clear();
@@ -2138,6 +2156,7 @@ namespace Reaction_Editor
             {
                 try
                 {
+                    Program.Log.Active = wasActive;
                     if (ReactantsChanged != null)
                         ReactantsChanged(this, new EventArgs());
                     FireChanged();
@@ -2155,10 +2174,17 @@ namespace Reaction_Editor
 
         public void ParseProducts(string productString)
         {
+            ParseProducts(productString, false);
+        }
+
+        public void ParseProducts(string productString, bool LogErrors)
+        {
             if (productString == GetProductsString())
                 return;
+            bool wasActive = Program.Log.Active;
             try
             {
+                Program.Log.Active = LogErrors;
                 m_sProductString = productString;
                 m_bProductsOK = false;
                 //m_OrderedProducts.Clear(); m_Products.Clear();
@@ -2169,6 +2195,7 @@ namespace Reaction_Editor
             {
                 try
                 {
+                    Program.Log.Active = wasActive;
                     if (ProductsChanged != null)
                         ProductsChanged(this, new EventArgs());
                     FireChanged();

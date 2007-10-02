@@ -186,6 +186,9 @@
     <None Include="Images\DownArrow2.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Images\Warning.bmp" />
+    <None Include="Images\Critical.bmp" />
+    <None Include="Images\Information.bmp" />
     <Content Include="KWA.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -30,13 +30,13 @@ namespace Reaction_Editor
             switch (msgType)
             {
                 case MessageType.Error:
-                    imageKey = "Error_ico";
+                    imageKey = "Error";
                     break;
                 case MessageType.Note:
-                    imageKey = "Info_ico";
+                    imageKey = "Info";
                     break;
                 case MessageType.Warning:
-                    imageKey = "Warning_ico";
+                    imageKey = "Warning";
                     break;
             }
             string source = "Global";

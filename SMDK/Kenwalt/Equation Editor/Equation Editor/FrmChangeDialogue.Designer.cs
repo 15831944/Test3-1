@@ -36,6 +36,7 @@ namespace Reaction_Editor
             this.txtCurSeq = new System.Windows.Forms.RichTextBox();
             this.txtCurHOR = new System.Windows.Forms.RichTextBox();
             this.grpCurrentReaction = new System.Windows.Forms.GroupBox();
+            this.txtCurGeneric = new System.Windows.Forms.RichTextBox();
             this.grpNewReaction = new System.Windows.Forms.GroupBox();
             this.txtNewReactants = new System.Windows.Forms.RichTextBox();
             this.txtNewHOR = new System.Windows.Forms.RichTextBox();
@@ -43,10 +44,9 @@ namespace Reaction_Editor
             this.txtNewSeq = new System.Windows.Forms.RichTextBox();
             this.txtNewDirection = new System.Windows.Forms.RichTextBox();
             this.txtNewExtent = new System.Windows.Forms.RichTextBox();
+            this.txtNewGeneric = new System.Windows.Forms.RichTextBox();
             this.btnOk = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.txtCurGeneric = new System.Windows.Forms.RichTextBox();
-            this.txtNewGeneric = new System.Windows.Forms.RichTextBox();
             this.grpCurrentReaction.SuspendLayout();
             this.grpNewReaction.SuspendLayout();
             this.SuspendLayout();
@@ -171,6 +171,16 @@ namespace Reaction_Editor
             this.grpCurrentReaction.TabStop = false;
             this.grpCurrentReaction.Text = "Current Reaction";
             // 
+            // txtCurGeneric
+            // 
+            this.txtCurGeneric.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtCurGeneric.Location = new System.Drawing.Point(6, 16);
+            this.txtCurGeneric.Name = "txtCurGeneric";
+            this.txtCurGeneric.ReadOnly = true;
+            this.txtCurGeneric.Size = new System.Drawing.Size(615, 49);
+            this.txtCurGeneric.TabIndex = 7;
+            this.txtCurGeneric.Text = "curGeneric";
+            // 
             // grpNewReaction
             // 
             this.grpNewReaction.Controls.Add(this.txtNewReactants);
@@ -277,6 +287,16 @@ namespace Reaction_Editor
             this.txtNewExtent.Text = "newExtent";
             this.txtNewExtent.Enter += new System.EventHandler(this.richTextBox4_Enter);
             // 
+            // txtNewGeneric
+            // 
+            this.txtNewGeneric.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtNewGeneric.Location = new System.Drawing.Point(6, 19);
+            this.txtNewGeneric.Name = "txtNewGeneric";
+            this.txtNewGeneric.ReadOnly = true;
+            this.txtNewGeneric.Size = new System.Drawing.Size(615, 49);
+            this.txtNewGeneric.TabIndex = 8;
+            this.txtNewGeneric.Text = "curGeneric";
+            // 
             // btnOk
             // 
             this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -300,26 +320,6 @@ namespace Reaction_Editor
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Enter += new System.EventHandler(this.btnOk_Enter);
-            // 
-            // txtCurGeneric
-            // 
-            this.txtCurGeneric.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtCurGeneric.Location = new System.Drawing.Point(6, 16);
-            this.txtCurGeneric.Name = "txtCurGeneric";
-            this.txtCurGeneric.ReadOnly = true;
-            this.txtCurGeneric.Size = new System.Drawing.Size(615, 49);
-            this.txtCurGeneric.TabIndex = 7;
-            this.txtCurGeneric.Text = "curGeneric";
-            // 
-            // txtNewGeneric
-            // 
-            this.txtNewGeneric.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtNewGeneric.Location = new System.Drawing.Point(6, 19);
-            this.txtNewGeneric.Name = "txtNewGeneric";
-            this.txtNewGeneric.ReadOnly = true;
-            this.txtNewGeneric.Size = new System.Drawing.Size(615, 49);
-            this.txtNewGeneric.TabIndex = 8;
-            this.txtNewGeneric.Text = "curGeneric";
             // 
             // FrmChangeDialogue
             // 

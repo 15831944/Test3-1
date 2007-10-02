@@ -81,6 +81,10 @@ namespace Reaction_Editor
                     Console.WriteLine("Image " + de.Key + " cannot be properly cast");
             }
 
+            Images.Images.Add("Warning", Reaction_Editor.Properties.Resources.Warning1);
+            Images.Images.Add("Error", Reaction_Editor.Properties.Resources.Critical);
+            Images.Images.Add("Info", Reaction_Editor.Properties.Resources.Information);
+
             foreach (string s in Args)
                 if (s.ToLowerInvariant() == "/dyn" || s.ToLowerInvariant() == "/dynamic")
                 {
@@ -98,7 +102,7 @@ namespace Reaction_Editor
         public static ImageList Images = new ImageList();
         public static Random Rnd = new Random();
         public static FrmAutobalanceExtraComps FrmAutobalanceExtraComps;
-        public static bool Dynamic = false;
+        public static bool Dynamic = true;
         public static String[] Args;
         public static Dictionary<object, int> AutocompleteHitCounts = new Dictionary<object, int>();
         public static InteropMessenger interopMessenger;

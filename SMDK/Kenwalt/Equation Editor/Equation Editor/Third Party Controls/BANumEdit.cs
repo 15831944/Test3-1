@@ -128,7 +128,8 @@ namespace CtrlLib
                         if (val != "*")
                         {
                             double d;
-                            ret = ret && double.TryParse(val,out d);
+                            if (val != "." && val != "*")
+                                ret = ret && double.TryParse(val,out d);
                         }
 						//ret &= Min <= dbl && dbl <= Max;
 						break;

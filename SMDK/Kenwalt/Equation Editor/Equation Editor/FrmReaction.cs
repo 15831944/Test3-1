@@ -294,8 +294,15 @@ namespace Reaction_Editor
             ReadFile();
 
             //And because of the beauty and elegance that is working with the ListView control, we must put in a timer to update reaction numbers! WEEE!
-            Thread updateLVIThread = new Thread(new ThreadStart(DelayedUpdateLstReactions));
+            //Let's see if we can do this with Application.DoEvents rather... Nope. Back to multithreading approach...
+            Thread updateLVIThread = new Thread(new ThreadStart(InitialUpdateLstReactions));
             updateLVIThread.Start();
+        }
+
+        private void InitialUpdateLstReactions()
+        {
+            DelayedUpdateLstReactions(); //This has got a 200ms sleep in it...
+            this.BeginInvoke(new ThreadStart(HideGroups));
         }
 
         private void DelayedUpdateLstReactions()
@@ -304,7 +311,6 @@ namespace Reaction_Editor
             try
             {
                 this.BeginInvoke(new ThreadStart(UpdateReactionNumbers));
-                this.BeginInvoke(new ThreadStart(HideGroups));
             }
             catch { }
         }
@@ -525,6 +531,19 @@ namespace Reaction_Editor
             sw.Flush();
 
             Changed = false;
+            foreach (ListViewItem lvi in lstReactions.Items)
+                if (lvi.Tag is SimpleReaction)
+                {
+                    ((SimpleReaction)lvi.Tag).Initialised = false;
+                    ((SimpleReaction)lvi.Tag).HasChanged = false;
+                    ((SimpleReaction)lvi.Tag).Backup();
+                    ((SimpleReaction)lvi.Tag).Initialised = true;
+                }
+                else if (lvi.Tag is Reaction)
+                {
+                    ((Reaction)lvi.Tag).Backup();
+                    ((Reaction)lvi.Tag).HasChanged = false;
+                }
 
             //To update the colour in the file view on the right to indicate that the reaction block is unchanged:
             if (NowChanged != null)
@@ -567,7 +586,9 @@ namespace Reaction_Editor
         {
             ListViewItem lvi = new ListViewItem();
             lvi.SubItems.AddRange(new string[] {"", "", "", "" });
-            if (location <= (m_Sources.LVI.Index) || location > MaxReactionLocation)
+            if (location == 0 && m_Sources != null)
+                lstReactions.Items.Insert(1, lvi);
+            else if (location > MaxReactionLocation)
                 lstReactions.Items.Insert(MaxReactionLocation, lvi);
             else
                 lstReactions.Items.Insert(location, lvi);
@@ -603,8 +624,6 @@ namespace Reaction_Editor
                     Log.SetSource(new FrmReaction.MessageFrmReaction(Title, this, (SimpleReaction)lvi.Tag));
                     ((SimpleReaction)lvi.Tag).DoDatabaseChanged();
                 }
-            txtSources_Leave(txtSources, new EventArgs());
-            txtSinks_Leave(txtSinks, new EventArgs());
         }
 
         public void RevertCurrent()
@@ -945,9 +964,10 @@ namespace Reaction_Editor
                     if (indices.ContainsKey(i))
                     {
                         SimpleReaction currentReaction = indices[i];
-                        currentReaction.ReactionNumber = currentReaction.OriginalReactionNumber = num++;
                         currentReaction.Backup();
                         currentReaction.Initialised = true;
+                        if (currentReaction.Enabled)
+                            currentReaction.ReactionNumber = currentReaction.OriginalReactionNumber = num++;
                     }
                     else if (i == sourceIndex)
                         m_Sources.ReactionNumber = m_Sources.OriginalReactionNumber = num++;
@@ -1036,7 +1056,7 @@ namespace Reaction_Editor
             {
                 m_CurrentReaction.Changed -= new EventHandler(currentReactionChanged);
                 m_CurrentReaction.ReactantsChanged -= new EventHandler(rxn_ReactantsChanged);
-                m_CurrentReaction.ProductsChanged -= new EventHandler(rxn_ProductsChanged);
+                m_CurrentReaction.ProductsChanged -= new EventHandler(rxn_ReactantsChanged);
             }
             m_CurrentReaction = rxn;
             txtReactants.Visible = txtProducts.Visible = comboDirection.Visible = true;
@@ -1060,7 +1080,7 @@ namespace Reaction_Editor
             }
             rxn.Changed += new EventHandler(currentReactionChanged);
             rxn.ReactantsChanged += new EventHandler(rxn_ReactantsChanged);
-            rxn.ProductsChanged += new EventHandler(rxn_ProductsChanged);
+            rxn.ProductsChanged += new EventHandler(rxn_ReactantsChanged);
             btnCopy.Enabled = btnMoveDown.Enabled = btnMoveUp.Enabled = btnRemove.Enabled = true;
             if (rxn.UseOriginalString)
             {
@@ -1135,12 +1155,6 @@ namespace Reaction_Editor
                     c.Enabled = val;
         }
 
-        void rxn_ProductsChanged(object sender, EventArgs e)
-        {
-            if (CompoundsChanged != null)
-                CompoundsChanged(this, new EventArgs());
-        }
-
         void rxn_ReactantsChanged(object sender, EventArgs e)
         {
             object cHOR = comboHORSpecie.SelectedItem;
@@ -1213,6 +1227,7 @@ namespace Reaction_Editor
                 rxn.LVI.Group = lstReactions.Groups["grpSequence" + rxn.Sequence];
                 m_bDoEvents = true;
             }
+            //Can we get around this with Application.DoEvents()?
             Thread delayedUpdate = new Thread(new ThreadStart(DelayedUpdateLstReactions));
             delayedUpdate.Start();
         }
@@ -1220,10 +1235,10 @@ namespace Reaction_Editor
         protected void currentReactionChanged(object sender, EventArgs e)
         {
             txtFormula.Text = m_CurrentReaction.ToString();
-            if (txtProducts.Text != m_CurrentReaction.GetProductsString())
+            /*if (txtProducts.Text != m_CurrentReaction.GetProductsString())
                 txtProducts.Text = m_CurrentReaction.GetProductsString();
             if (txtReactants.Text != m_CurrentReaction.GetReactantsString())
-                txtReactants.Text = m_CurrentReaction.GetReactantsString();
+                txtReactants.Text = m_CurrentReaction.GetReactantsString();*/
         }
 
         protected void ChangeOccured()
@@ -1468,7 +1483,8 @@ namespace Reaction_Editor
 
         void m_Sinks_NowChanged(object sender, EventArgs e)
         {
-            txtSinks.Text = m_Sinks.CompoundString;
+            if (m_bUpdateSourceSinksBlock)
+                txtSinks.Text = m_Sinks.CompoundString;
             txtSinkComments.Text = m_Sinks.Comment;
             chkSinksEnabled.Checked = m_Sinks.Enabled;
             SourcesSinksChanged(this, new EventArgs());
@@ -1505,7 +1521,8 @@ namespace Reaction_Editor
 
         void m_Sources_NowChanged(object sender, EventArgs e)
         {
-            txtSources.Text = m_Sources.CompoundString;
+            if (m_bUpdateSourceSinksBlock)
+                txtSources.Text = m_Sources.CompoundString;
             txtSourceComments.Text = m_Sources.Comment;
             chkSourcesEnabled.Checked = m_Sources.Enabled;
             SourcesSinksChanged(this, new EventArgs());
@@ -1635,9 +1652,9 @@ namespace Reaction_Editor
             if (m_CurrentReaction != null)
             {
                 if (box == txtReactants)
-                    m_CurrentReaction.ParseReactants(box.Text);
+                    box.Text = m_CurrentReaction.GetReactantsString();
                 if (box == txtProducts)
-                    m_CurrentReaction.ParseProducts(box.Text);
+                    box.Text = m_CurrentReaction.GetProductsString();
             }
         }
 
@@ -2034,18 +2051,28 @@ namespace Reaction_Editor
 
         private void txtSources_TextChanged(object sender, EventArgs e)
         {
+            m_bUpdateSourceSinksBlock = false;
+            if (m_Sources != null)
+                m_Sources.SetString(txtSources.Text);
+
             bool bWasActive = Log.Active;
             Log.Active = false;
             ColourCompounds((RichTextBox)sender);
             Log.Active = bWasActive;
+            m_bUpdateSourceSinksBlock = true;
         }
 
+        bool m_bUpdateSourceSinksBlock = true;
         private void txtSinks_TextChanged(object sender, EventArgs e)
         {
+            m_bUpdateSourceSinksBlock = false;
+            if (m_Sinks != null)
+                m_Sinks.SetString(txtSinks.Text);
             bool bWasActive = Log.Active;
             Log.Active = false;
             ColourCompounds((RichTextBox)sender);
             Log.Active = bWasActive;
+            m_bUpdateSourceSinksBlock = true;
         }
 
         private void numHX_TextChanged(object sender, EventArgs e)
@@ -2173,13 +2200,13 @@ namespace Reaction_Editor
         private void txtSources_Leave(object sender, EventArgs e)
         {
             if (m_Sources != null)
-                m_Sources.SetString(txtSources.Text);
+                txtSources.Text = m_Sources.ToString();
         }
 
         private void txtSinks_Leave(object sender, EventArgs e)
         {
             if (m_Sinks != null)
-                m_Sinks.SetString(txtSinks.Text);
+                txtSinks.Text = m_Sinks.ToString();
         }
 
         void txtCompounds_DragEnter(object sender, DragEventArgs e)
@@ -2275,7 +2302,7 @@ namespace Reaction_Editor
         {
             if (m_CurrentReaction == null) return;
             double temp;
-            double.TryParse(numHORT.Text, out temp);
+            double.TryParse(numHORP.Text, out temp);
             m_CurrentReaction.HeatOfReactionP = temp;
         }
 
@@ -2354,6 +2381,15 @@ namespace Reaction_Editor
                     box.SelectionBackColor = Color.DarkRed;
                     box.SelectionColor = Color.White;
                 }
+
+            if (m_CurrentReaction != null)
+            {
+                if (box == txtReactants)
+                    m_CurrentReaction.ParseReactants(box.Text);
+                if (box == txtProducts)
+                    m_CurrentReaction.ParseProducts(box.Text);
+            }
+
             box.Select(oldSelectStart, oldSelectLen);
         }
 
@@ -2436,13 +2472,12 @@ namespace Reaction_Editor
             menuClone.Enabled = menuRemove.Enabled = m_CurrentReaction != null;
             menuCopy.Enabled = menuCut.Enabled = CanCutCopyReaction;
             menuPaste.Enabled = CanPasteReaction;
-            menuRevert.Enabled = m_CurrentReaction != null && m_CurrentReaction.CanRevert && m_CurrentReaction.HasChanged;
+            menuRevert.Enabled = CanRevert;
             menuShowSequence.Enabled = chkSequence.Checked;
         }
 
         private void menuShowSequence_CheckedChanged(object sender, EventArgs e)
         {
-
             if (menuShowSequence.Checked)
             {
                 lstReactions.ShowGroups = true;

@@ -7,10 +7,18 @@ namespace Reaction_Editor
 {
     public class TextBoxEx : TextBox
     {
-        protected System.Threading.Timer selectionChecker;
+        protected System.Windows.Forms.Timer selectionChecker;
         public TextBoxEx()
         {
-            selectionChecker = new System.Threading.Timer(new TimerCallback(checkSelection));
+            //selectionChecker = new System.Threading.Timer(new TimerCallback(checkSelection));
+            selectionChecker = new System.Windows.Forms.Timer();
+            selectionChecker.Tick += new EventHandler(checkSelection);
+            selectionChecker.Interval = 250;
+        }
+
+        void checkSelection(object sender, EventArgs e)
+        {
+            checkSelection(new object());
         }
 
         protected override void Dispose(bool disposing)
@@ -46,7 +54,7 @@ namespace Reaction_Editor
                 if (exCount > 10)
                 {
                     Console.WriteLine("More than 10 SelectionChecker errors. Disabling timer");
-                    selectionChecker.Change(Timeout.Infinite, Timeout.Infinite);
+                    selectionChecker.Stop();
                 }
             }
         }
@@ -55,13 +63,14 @@ namespace Reaction_Editor
 
         protected override void OnEnter(EventArgs e)
         {
-            selectionChecker.Change(250, 250);
+
+            selectionChecker.Start();
             base.OnEnter(e);
         }
 
         protected override void OnLeave(EventArgs e)
         {
-            selectionChecker.Change(Timeout.Infinite, Timeout.Infinite);
+            selectionChecker.Stop();
             base.OnLeave(e);
         }
 

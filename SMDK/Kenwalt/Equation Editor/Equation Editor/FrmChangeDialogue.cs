@@ -81,12 +81,12 @@ namespace Reaction_Editor
                     if (curGroup.Success)
                     {
                         txtCurGeneric.Select(curGroup.Index, curGroup.Length);
-                        txtCurGeneric.SelectionFont = BoldFont;
+                        HighlightText(txtCurGeneric);
                     }
                     if (newGroup.Success)
                     {
                         txtNewGeneric.Select(newGroup.Index, newGroup.Length);
-                        txtNewGeneric.SelectionFont = BoldFont;
+                        HighlightText(txtNewGeneric);
                     }
                 }
             }
@@ -121,7 +121,7 @@ namespace Reaction_Editor
                 if (!contained)
                 {
                     txtCurGeneric.Select(curComp.Index + offset, curComp.Length);
-                    txtCurGeneric.SelectionFont = BoldFont;
+                    HighlightText(txtCurGeneric);
                 }
             }
 
@@ -138,7 +138,7 @@ namespace Reaction_Editor
                 if (!contained)
                 {
                     txtNewGeneric.Select(newComp.Index + offset, newComp.Length);
-                    txtNewGeneric.SelectionFont = BoldFont;
+                    HighlightText(txtNewGeneric);
                 }
             }
         }
@@ -220,7 +220,10 @@ namespace Reaction_Editor
             {
                 //Do a straight string comparison:
                 if (txtCurReactants.Text != txtNewReactants.Text)
-                    txtCurReactants.SelectionFont = txtNewReactants.SelectionFont = BoldFont;
+                {
+                    HighlightText(txtCurReactants);
+                    HighlightText(txtNewReactants);
+                }
             }
             else
             {
@@ -229,19 +232,20 @@ namespace Reaction_Editor
                     if (!newReaction.OrderedReactants.Contains(c))
                     {
                         txtCurReactants.Select(curReaction.ReactantIndex(c), curReaction.Reactants[c].ToString().Length + c.ToString().Length + 1);
-                        txtCurReactants.SelectionFont = BoldFont;
+                        HighlightText(txtCurReactants);
                     }
                     else if (newReaction.Reactants[c] != curReaction.Reactants[c])
                     {
                         txtCurReactants.Select(curReaction.ReactantIndex(c), curReaction.Reactants[c].ToString().Length);
                         txtNewReactants.Select(newReaction.ReactantIndex(c), newReaction.Reactants[c].ToString().Length);
-                        txtCurReactants.SelectionFont = txtNewReactants.SelectionFont = BoldFont;
+                        HighlightText(txtCurReactants);
+                        HighlightText(txtNewReactants);
                     }
                 foreach (Compound c in newReaction.OrderedReactants)
                     if (!curReaction.OrderedReactants.Contains(c))
                     {
                         txtNewReactants.Select(newReaction.ReactantIndex(c), newReaction.Reactants[c].ToString().Length + c.ToString().Length + 1);
-                        txtNewReactants.SelectionFont = BoldFont;
+                        HighlightText(txtNewReactants);
                     }
             }
 
@@ -250,7 +254,10 @@ namespace Reaction_Editor
             {
                 //Do a straight string comparison:
                 if (txtCurProducts.Text != txtNewProducts.Text)
-                    txtCurProducts.SelectionFont = txtNewProducts.SelectionFont = BoldFont;
+                {
+                    HighlightText(txtCurProducts);
+                    HighlightText(txtNewProducts);
+                }
             }
             else
             {
@@ -259,39 +266,44 @@ namespace Reaction_Editor
                     if (!newReaction.OrderedProducts.Contains(c))
                     {
                         txtCurProducts.Select(curReaction.ProductIndex(c), curReaction.Products[c].ToString().Length + c.ToString().Length + 1);
-                        txtCurProducts.SelectionFont = BoldFont;
+                        HighlightText(txtCurProducts);
                     }
                     else if (newReaction.Products[c] != curReaction.Products[c])
                     {
                         txtCurProducts.Select(curReaction.ProductIndex(c), curReaction.Products[c].ToString().Length);
                         txtNewProducts.Select(newReaction.ProductIndex(c), newReaction.Products[c].ToString().Length);
-                        txtCurProducts.SelectionFont = txtNewProducts.SelectionFont = BoldFont;
+                        HighlightText(txtCurProducts);
+                        HighlightText(txtNewProducts);
                     }
                 foreach (Compound c in newReaction.OrderedProducts)
                     if (!curReaction.OrderedProducts.Contains(c))
                     {
                         txtNewProducts.Select(newReaction.ProductIndex(c), newReaction.Products[c].ToString().Length + c.ToString().Length + 1);
-                        txtNewProducts.SelectionFont = BoldFont;
+                        HighlightText(txtNewProducts);
                     }
             }
 
             //Direction
             if (txtCurDirection.Text != txtNewDirection.Text)
-                txtCurDirection.SelectionFont = txtNewDirection.SelectionFont = BoldFont;
+            {
+                HighlightText(txtCurDirection); HighlightText(txtNewDirection);
+            }
             #endregion Formula
 
             #region Extent
             if (curReaction.ExtentType != newReaction.ExtentType)
             {
                 txtCurExtent.SelectAll(); txtNewExtent.SelectAll();
-                txtCurExtent.SelectionFont = txtNewExtent.SelectionFont = BoldFont;
+                HighlightText(txtCurExtent);
+                HighlightText(txtNewExtent);
             }
             else if (txtCurExtent.Text != txtNewExtent.Text)
             {
                 //We only want to bold the stuff after "Extent: [Type]"
                 txtCurExtent.Select(curReaction.ExtentInfo.StartString.Length, txtCurExtent.Text.Length - curReaction.ExtentInfo.StartString.Length);
                 txtNewExtent.Select(newReaction.ExtentInfo.StartString.Length, txtNewExtent.Text.Length - newReaction.ExtentInfo.StartString.Length);
-                txtCurExtent.SelectionFont = txtNewExtent.SelectionFont = BoldFont;
+                HighlightText(txtCurExtent);
+                HighlightText(txtNewExtent);
             }
             #endregion Extent
 
@@ -299,13 +311,31 @@ namespace Reaction_Editor
             if (curReaction.CustomHeatOfReaction != newReaction.CustomHeatOfReaction)
             {
                 txtCurHOR.SelectAll(); txtNewHOR.SelectAll();
-                txtCurHOR.SelectionFont = txtNewHOR.SelectionFont = BoldFont;
+                HighlightText(txtCurHOR);
+                HighlightText(txtNewHOR);
             }
             else if (HOR)
             {
                 Match curMatch = SimpleReaction.s_HORRegex.Match(curReaction.HeatOfReactionString);
                 Match newMatch = SimpleReaction.s_HORRegex.Match(newReaction.HeatOfReactionString);
-                if (curReaction.HeatOfReactionType != newReaction.HeatOfReactionType) //Type
+                foreach (string s in SimpleReaction.s_HORRegex.GetGroupNames())
+                {
+                    if (curMatch.Groups[s].Value != newMatch.Groups[s].Value)
+                    {
+                        if (curMatch.Groups[s].Success)
+                        {
+                            txtCurHOR.Select(curMatch.Groups[s].Index, curMatch.Groups[s].Length);
+                            HighlightText(txtCurHOR);
+                        }
+                        if (newMatch.Groups[s].Success)
+                        {
+                            txtNewHOR.Select(newMatch.Groups[s].Index, newMatch.Groups[s].Length);
+                            HighlightText(txtNewHOR);
+                        }
+                    }
+                }
+                #region Old way of going about it
+                /*if (curReaction.HeatOfReactionType != newReaction.HeatOfReactionType) //Type
                 {
                     txtCurHOR.Select(curMatch.Groups["Type"].Index, curMatch.Groups["Type"].Length);
                     txtNewHOR.Select(newMatch.Groups["Type"].Index, newMatch.Groups["Type"].Length);
@@ -343,7 +373,8 @@ namespace Reaction_Editor
                         txtNewHOR.Select(newMatch.Groups["P"].Index, newMatch.Groups["P"].Length);
                         txtCurHOR.SelectionFont = txtNewHOR.SelectionFont = BoldFont;
                     }
-                }
+                }*/
+                #endregion
             }
             #endregion HOR
 
@@ -351,7 +382,8 @@ namespace Reaction_Editor
             if (bSeq && curReaction.Sequence != newReaction.Sequence)
             {
                 txtCurSeq.SelectAll(); txtNewSeq.SelectAll();
-                txtCurSeq.SelectionFont = txtNewSeq.SelectionFont = BoldFont;
+                HighlightText(txtCurSeq);
+                HighlightText(txtNewSeq);
             }
             #endregion Seq
         }
@@ -372,6 +404,12 @@ namespace Reaction_Editor
                 this.Height = sMaxFrmHeight - 2 * (sMaxGrpHeight - grpCurrentReaction.Height);
                 grpNewReaction.Top = grpCurrentReaction.Bottom + sPadding;
             }
+        }
+
+        protected void HighlightText(RichTextBox box)
+        {
+            box.SelectionColor = Color.Blue;
+            box.SelectionFont = new Font(box.Font, FontStyle.Bold);
         }
 
         private void richTextBox4_Enter(object sender, EventArgs e)
