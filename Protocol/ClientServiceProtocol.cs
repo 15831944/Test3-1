@@ -62,7 +62,7 @@ namespace SysCAD.Protocol
 
     public delegate bool CreateGroupHandler(out Int64 requestId, out Guid guid, String tag, String path, Rectangle boundingRect);
     public delegate bool CreateItemHandler(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, Rectangle boundingRect, Double angle, Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool CreateLinkHandler(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle);
+    public delegate bool CreateLinkHandler(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle);
     public delegate bool CreateThingHandler(out Int64 requestId, out Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY);
 
     public delegate bool DeleteGroupHandler(out Int64 requestId, Guid guid);
@@ -79,7 +79,8 @@ namespace SysCAD.Protocol
     public delegate bool ModifyItemPathHandler(out Int64 requestId, Guid guid, String path);
     public delegate bool ModifyItemBoundingRectHandler(out Int64 requestId, Guid guid, Rectangle boundingRect);
 
-    public delegate bool ModifyLinkHandler(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle);
+    public delegate bool ModifyLinkHandler(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination,
+      String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle);
 
     public delegate bool ModifyThingHandler(out Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY);
     public delegate bool ModifyThingPathHandler(out Int64 requestId, Guid guid, String path);
@@ -166,9 +167,9 @@ namespace SysCAD.Protocol
       return createItemHandler(out requestId, out guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    public bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
+    public bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
-      return createLinkHandler(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+      return createLinkHandler(out requestId, out guid, tag, classId, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
     }
 
     public bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
@@ -231,9 +232,9 @@ namespace SysCAD.Protocol
       OnItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, mirrorX, mirrorY);
     }
 
-    public void DoLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
+    public void DoLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
-      OnLinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+      OnLinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
     }
 
     public void DoLinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
@@ -322,9 +323,11 @@ namespace SysCAD.Protocol
       return modifyItemBoundingRectHandler(out requestId, guid, boundingRect);
     }
 
-    public bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
+    public bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination,
+      String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
-      return modifyLinkHandler(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+      return modifyLinkHandler(out requestId, guid, tag, classId, origin, destination,
+        originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
     }
 
     public bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)

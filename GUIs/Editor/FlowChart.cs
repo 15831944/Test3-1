@@ -143,16 +143,16 @@ namespace SysCAD.Editor
     public void NewGraphicLink(out Guid guid, GraphicLink graphicLink)
     {
       if (graphicLink != null)
-        NewGraphicLink(out guid, graphicLink.ClassID, graphicLink.Origin, graphicLink.Destination, graphicLink.OriginPort, graphicLink.DestinationPort, graphicLink.ControlPoints, graphicLink.TextArea, graphicLink.TextAngle);
+        NewGraphicLink(out guid, graphicLink.ClassID, graphicLink.Origin, graphicLink.Destination, graphicLink.OriginPort, graphicLink.OriginPortID, graphicLink.DestinationPort, graphicLink.DestinationPortID, graphicLink.ControlPoints, graphicLink.TextArea, graphicLink.TextAngle);
       else
         guid = Guid.Empty;
     }
 
-    public void NewGraphicLink(out Guid guid, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
+    public void NewGraphicLink(out Guid guid, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       Int64 requestId;
 
-      state.CreateGraphicLink(out requestId, out guid, "A_" + tempBoxKey.ToString(), classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+      state.CreateGraphicLink(out requestId, out guid, "A_" + tempBoxKey.ToString(), classId, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
     }
 
     //public GraphicLink NewGraphicLink(out Guid guid, GraphicLink graphicLink, float dx, float dy)
@@ -521,17 +521,17 @@ namespace SysCAD.Editor
 
       if (arrow.Tag != null)
         oldOriginGuid = (arrow.Tag as Link).GraphicLink.Origin;
-
       else
         oldOriginGuid = Guid.Empty;
+      
       oldOriginBox = arrow.Origin as Box;
       oldOriginAnchor = arrow.OrgnAnchor;
 
       if (arrow.Tag != null)
         oldDestinationGuid = (arrow.Tag as Link).GraphicLink.Destination;
-
       else
         oldDestinationGuid = Guid.Empty;
+      
       oldDestinationBox = arrow.Destination as Box;
       oldDestinationAnchor = arrow.DestAnchor;
 
@@ -625,7 +625,7 @@ namespace SysCAD.Editor
         }
       }
 
-      if (newOriginBox == newDestinationBox) // refliexive, disconnect modifying end.
+      if ((newOriginBox != null) && (newDestinationBox != null) && (newOriginBox == newDestinationBox)) // refliexive, disconnect modifying end.
       {
 
         if (selectionHandle == 0)
@@ -706,7 +706,13 @@ namespace SysCAD.Editor
           newGraphicLink.DestinationPort = "";
 
         else
-          newGraphicLink.DestinationPort = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
+        {
+          String fullAnchor = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
+          String anchorName = fullAnchor.TrimEnd(new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'});
+          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length - 1));
+          newGraphicLink.DestinationPort = anchorName;
+          newGraphicLink.DestinationPortID = anchorID;
+        }
       }
 
       if (oldOriginBox != null)
@@ -717,7 +723,13 @@ namespace SysCAD.Editor
           newGraphicLink.OriginPort = "";
 
         else
-          newGraphicLink.OriginPort = (oldOriginBox.Tag as Item).GraphicItem.anchorIntToTag[oldOriginAnchor];
+        {
+          String fullAnchor = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[oldOriginAnchor];
+          String anchorName = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length - 1));
+          newGraphicLink.OriginPort = anchorName;
+          newGraphicLink.OriginPortID = anchorID;
+        }
       }
 
       newGraphicLink.ControlPoints = State.GetControlPoints(e.Arrow.ControlPoints);
@@ -884,14 +896,30 @@ namespace SysCAD.Editor
         destinationGuid = destinationItem.Guid;
       }
 
-      String originAnchor = null;
-      String destinationAnchor = null;
+      String originFullAnchor = null;
+      String destinationFullAnchor = null;
+      String originAnchorName = null;
+      Int16 originAnchorID = 0;
+      String destinationAnchorName = null;
+      Int16 destinationAnchorID = 0;
 
       if (originGraphicItem != null)
-        originGraphicItem.anchorIntToTag.TryGetValue(e.Arrow.OrgnAnchor, out originAnchor);
+        originGraphicItem.anchorIntToTag.TryGetValue(e.Arrow.OrgnAnchor, out originFullAnchor);
+
+      if (originFullAnchor != null)
+      {
+        originAnchorName = originFullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+        originAnchorID = Convert.ToInt16(originFullAnchor.Substring(originAnchorName.Length - 1));
+      }
 
       if (destinationGraphicItem != null)
-        destinationGraphicItem.anchorIntToTag.TryGetValue(e.Arrow.DestAnchor, out destinationAnchor);
+        destinationGraphicItem.anchorIntToTag.TryGetValue(e.Arrow.DestAnchor, out destinationFullAnchor);
+
+      if (originFullAnchor != null)
+      {
+        destinationAnchorName = originFullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+        destinationAnchorID = Convert.ToInt16(originFullAnchor.Substring(destinationAnchorName.Length - 1));
+      }
 
       Int64 requestId;
 
@@ -901,8 +929,10 @@ namespace SysCAD.Editor
         graphicLink.ClassID,
         originGuid,
         destinationGuid,
-        originAnchor,
-        destinationAnchor,
+        originAnchorName,
+        originAnchorID,
+        destinationAnchorName,
+        destinationAnchorID,
         oldControlPoints,
         graphicLink.TextArea,
         graphicLink.TextAngle))
@@ -1235,7 +1265,7 @@ namespace SysCAD.Editor
 
             if (destinationBox.AnchorPattern != null)
             {
-              //if (destinationAnchorChosen == null)
+              if (destinationAnchorChosen != null)
               {
                 Double closest = Double.MaxValue;
 
@@ -1260,8 +1290,8 @@ namespace SysCAD.Editor
                 //if (state.PortCheck(out requestId, (destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
                 {
                   SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(destinationBox.BoundingRect),
-                    (originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).X,
-                    (originAnchorChosen.Positions[0] as SysCAD.Protocol.Point).Y,
+                    (destinationAnchorChosen.Positions[0] as SysCAD.Protocol.Point).X,
+                    (destinationAnchorChosen.Positions[0] as SysCAD.Protocol.Point).Y,
                     destinationBox.RotationAngle);
 
                   PointF[] extensionPoints =
@@ -1346,7 +1376,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
+    private void fcFlowChart_LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       state.CreateLink(state.GraphicLink(guid), true, fcFlowChart);
     }
@@ -1704,7 +1734,9 @@ namespace SysCAD.Editor
             graphicLink.Origin,
             graphicLink.Destination,
             graphicLink.OriginPort,
+            graphicLink.OriginPortID,
             graphicLink.DestinationPort,
+            graphicLink.DestinationPortID,
             State.GetControlPoints(arrow.ControlPoints),
             graphicLink.TextArea,
             graphicLink.TextAngle))
@@ -1726,7 +1758,9 @@ namespace SysCAD.Editor
             graphicLink.Origin,
             graphicLink.Destination,
             graphicLink.OriginPort,
+            graphicLink.OriginPortID,
             graphicLink.DestinationPort,
+            graphicLink.DestinationPortID,
             State.GetControlPoints(arrow.ControlPoints),
             graphicLink.TextArea,
             graphicLink.TextAngle))
@@ -1865,13 +1899,23 @@ namespace SysCAD.Editor
         Int64 requestId;
 
         String originPort = "";
+        Int16 originPortID = 0;
         String destinationPort = "";
+        Int16 destinationPortID = 0;
 
         if (arrow.OrgnAnchor != -1)
-          originPort = originGraphicItem.anchorIntToTag[arrow.OrgnAnchor];
+        {
+          String fullAnchor = originGraphicItem.anchorIntToTag[arrow.OrgnAnchor];
+          originPort = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+          originPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length - 1));
+        }
 
         if (arrow.DestAnchor != -1)
-          destinationPort = destinationGraphicItem.anchorIntToTag[arrow.DestAnchor];
+        {
+          String fullAnchor = originGraphicItem.anchorIntToTag[arrow.DestAnchor];
+          destinationPort = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+          destinationPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length - 1));
+        }
 
         if (!state.ModifyGraphicLink(out requestId,
           graphicLink.Guid,
@@ -1880,7 +1924,9 @@ namespace SysCAD.Editor
           originItem.Guid,
           destinationItem.Guid,
           originPort,
+          originPortID,
           destinationPort,
+          destinationPortID,
           controlPoints,
           graphicLink.TextArea,
           graphicLink.TextAngle))

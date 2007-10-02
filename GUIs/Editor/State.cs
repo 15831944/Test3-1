@@ -194,10 +194,7 @@ namespace SysCAD.Editor
 
         foreach (Anchor anchor in modelStencil.Anchors)
         {
-          graphicItem.anchorIntToTag.Add(anchorInt, anchor.Tag);
-          graphicItem.anchorTagToInt.Add(anchor.Tag, anchorInt);
-          anchorInt++;
-
+          int anchorPtInt = 0;
           foreach (SysCAD.Protocol.Point point in anchor.Positions)
           {
             Double x = point.X;
@@ -218,6 +215,12 @@ namespace SysCAD.Editor
             AnchorPoint anchorPoint = new AnchorPoint((short)x, (short)y, true, true, markStyle, System.Drawing.Color.Green);
             anchorPoint.Tag = anchor;
             anchorPointCollection.Add(anchorPoint);
+
+            graphicItem.anchorIntToTag.Add(anchorInt, anchor.Tag + anchorPtInt.ToString());
+            graphicItem.anchorTagToInt.Add(anchor.Tag + anchorPtInt.ToString(), anchorInt);
+            
+            anchorInt++;
+            anchorPtInt++;
           }
         }
       }
@@ -408,9 +411,9 @@ namespace SysCAD.Editor
       return clientProtocol.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    internal bool CreateGraphicLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
+    internal bool CreateGraphicLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
-      return clientProtocol.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+      return clientProtocol.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
     }
 
     internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
@@ -1185,9 +1188,10 @@ namespace SysCAD.Editor
       return clientProtocol.ModifyItemPath(out requestId, guid, path);
     }
 
-    internal bool ModifyGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
+    internal bool ModifyGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
-      return clientProtocol.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+      return clientProtocol.ModifyLink(out requestId, guid, tag, classId, origin, destination,
+        originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
     }
 
     internal bool ModifyGraphicThing(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)

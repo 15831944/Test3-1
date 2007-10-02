@@ -148,9 +148,9 @@ namespace SysCAD.Protocol
       return serviceGraphic.CreateItem(out requestId, out guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    public bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
+    public bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
-      return serviceGraphic.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+      return serviceGraphic.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
     }
 
     public bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
@@ -218,9 +218,11 @@ namespace SysCAD.Protocol
       return serviceGraphic.ModifyItemBoundingRect(out requestId, guid, boundingRect);
     }
 
-    public bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
+    public bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination,
+      String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
-      return serviceGraphic.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+      return serviceGraphic.ModifyLink(out requestId, guid, tag, classId, origin, destination,
+        originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
     }
 
     public bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
@@ -333,15 +335,15 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void ServiceGraphicLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
+    public void ServiceGraphicLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
 
       if (!graphicLinks.ContainsKey(guid))
       {
-        GraphicLink graphicLink = new GraphicLink(guid, tag, classId, origin, originPort, destination, destinationPort, controlPoints, textArea, textAngle);
+        GraphicLink graphicLink = new GraphicLink(guid, tag, classId, origin, originPort, originPortID, destination, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
         graphicLinks.Add(guid, graphicLink);
 
-        OnLinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+        OnLinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
       }
     }
 

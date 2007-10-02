@@ -53,7 +53,7 @@ namespace SysCAD.Protocol
     public delegate void PortInfoRequestedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo);
     public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, Rectangle boundingRect, Double angle, Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
 
-    public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle);
+    public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle);
     public delegate void LinkDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
     public delegate void LinkModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle);
 
@@ -177,11 +177,11 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
+    public void OnLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
       if (LinkCreated != null)
       {
-        try {LinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);}
+        try { LinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle); }
         catch (SocketException) { }
       }
     }

@@ -21,9 +21,11 @@ namespace SysCAD.Protocol
     private List<Point> controlPoints;
     private Guid destination;
     private String destinationPort;
+    private Int16 destinationPortID;
     private Guid guid;
     private Guid origin;
     private String originPort;
+    private Int16 originPortID;
     private String tag;
 
     private Rectangle textArea;
@@ -32,16 +34,20 @@ namespace SysCAD.Protocol
     [NonSerialized]
     public Object other = null;
 
-    public GraphicLink(Guid guid, String tag, String classId, Guid source, String sourcePort, Guid destination,
-      String destinationPort, List<Point> controlPoints, Rectangle textArea, Double textAngle)
+    public GraphicLink(Guid guid, String tag, String classId, Guid origin, String originPort, Int16 originPortID, 
+      Guid destination,
+      String destinationPort, Int16 destinationPortID, 
+      List<Point> controlPoints, Rectangle textArea, Double textAngle)
     {
       this.guid = guid;
       this.tag = tag;
       this.classId = classId;
-      this.origin = source;
-      this.originPort = sourcePort;
+      this.origin = origin;
+      this.originPort = originPort;
+      this.originPortID = originPortID;
       this.destination = destination;
       this.destinationPort = destinationPort;
+      this.destinationPortID = destinationPortID;
 
       this.controlPoints = new List<Point>();
 
@@ -108,6 +114,12 @@ namespace SysCAD.Protocol
       set { destinationPort = value; }
     }
 
+    public Int16 DestinationPortID
+    {
+      get { return destinationPortID; }
+      set { destinationPortID = value; }
+    }
+
     public Guid Guid
     {
       get { return guid; }
@@ -123,6 +135,12 @@ namespace SysCAD.Protocol
     {
       get { return originPort; }
       set { originPort = value; }
+    }
+
+    public Int16 OriginPortID
+    {
+      get { return originPortID; }
+      set { originPortID = value; }
     }
 
     public String Tag

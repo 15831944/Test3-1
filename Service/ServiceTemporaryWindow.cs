@@ -258,7 +258,10 @@ namespace Service
       }
     }
 
-    bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
+    bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classID, Guid origin, 
+      Guid destination, String originPort, Int16 originPortID,
+      String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, 
+      SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       GraphicItem originGraphicItem;
       GraphicItem destinationGraphicItem;
@@ -275,12 +278,12 @@ namespace Service
 
         guid = Guid.NewGuid();
 
-        GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, destination, destinationPort, controlPoints, textArea, textAngle);
+        GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, originPortID, destination, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
         graphicLinks.Add(guid, graphicLink);
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
+        clientClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
 
         return true;
       }
@@ -599,7 +602,8 @@ namespace Service
       }
     }
 
-    bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
+    bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classID, Guid origin, Guid destination,
+      String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -615,7 +619,9 @@ namespace Service
         graphicLink.Origin = origin;
         graphicLink.Destination = destination;
         graphicLink.OriginPort = originPort;
+        graphicLink.OriginPortID = originPortID;
         graphicLink.DestinationPort = destinationPort;
+        graphicLink.DestinationPortID = destinationPortID;
 
         graphicLink.ControlPoints.Clear();
 
