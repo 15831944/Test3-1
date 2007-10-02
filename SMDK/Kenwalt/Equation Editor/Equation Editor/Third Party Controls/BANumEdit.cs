@@ -187,7 +187,8 @@ namespace CtrlLib
 			{
                 if (!IsValid(base.Text, false))
                     base.Text = "";
-                else if (base.Text == "*") ;
+                else if (base.Text == "*")
+                { }
                 else if (Double.Parse(base.Text) == 0)	// this used for -0, 000 and other strings
                     base.Text = "0";
 			}

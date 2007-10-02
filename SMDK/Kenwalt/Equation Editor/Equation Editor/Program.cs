@@ -15,8 +15,6 @@ namespace Reaction_Editor
 {
     class InteropMessenger : MarshalByRefObject
     {
-        public string data;
-
         public override object InitializeLifetimeService()
         {
             return null;

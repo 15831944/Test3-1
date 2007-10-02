@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using System.Collections;
 using Mehroz;
+using System.Reflection;
 
 namespace Reaction_Editor
 {
@@ -553,7 +554,7 @@ namespace Reaction_Editor
             dlgOpenDB.InitialDirectory = lastPath;
             dlgOpenRxn.InitialDirectory = lastPath;
             dlgSaveRxn.InitialDirectory = lastPath;
-            folderBrowserDialog1.SelectedPath = lastPath;
+            dlgOpenFolder.SelectedPath = lastPath;
         }
 
         void FrmAutobalanceExtraComps_VisibleChanged(object sender, EventArgs e)
@@ -791,7 +792,8 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "SysCAD Reaction Editor version 1.0.10\r\nTest version.", "About");
+            string ver = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+            MessageBox.Show(this, "SysCAD Reaction Editor version " + ver + "\r\nTest version.", "About");
         }
 
         private void menuExit_Click(object sender, EventArgs e)
@@ -923,19 +925,20 @@ namespace Reaction_Editor
 
         private void menuOpenDir_Click(object sender, EventArgs e)
         {
-            if (folderBrowserDialog1.ShowDialog(this) != DialogResult.OK)
+            dlgOpenFolder.Description = "Select a directory containing the required reaction files and specie database.";
+            if (dlgOpenFolder.ShowDialog(this) != DialogResult.OK)
                 return;
             try
             {
-                UpdateLastPath(folderBrowserDialog1.SelectedPath);
+                UpdateLastPath(dlgOpenFolder.SelectedPath);
 
                 lstLog.BeginUpdate();
                 treeFiles.BeginUpdate();
-                if (File.Exists(folderBrowserDialog1.SelectedPath + "\\SpecieData.ini"))
+                if (File.Exists(dlgOpenFolder.SelectedPath + "\\SpecieData.ini"))
                 {
                     bool dbOpen = false;
                     foreach (TreeNode tn in treeFiles.Nodes["SpecieDB"].Nodes)
-                        if (tn.Text == folderBrowserDialog1.SelectedPath + "\\SpecieData.ini")
+                        if (tn.Text == dlgOpenFolder.SelectedPath + "\\SpecieData.ini")
                         {
                             dbOpen = true;
                             break;
@@ -944,13 +947,13 @@ namespace Reaction_Editor
                     {
                         if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show("Unload existing specie databases before loading new database?", "Open Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
                             UnloadDatabase();
-                        OpenSpecieDB(folderBrowserDialog1.SelectedPath + "\\SpecieData.ini");
+                        OpenSpecieDB(dlgOpenFolder.SelectedPath + "\\SpecieData.ini");
                     }
                 }
                 else
                     MessageBox.Show(this, "Specie database not found in selected directory", "Open Directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                foreach (string fn in Directory.GetFiles(folderBrowserDialog1.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
+                foreach (string fn in Directory.GetFiles(dlgOpenFolder.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
                     Open(fn);
             }
             finally
@@ -1252,6 +1255,40 @@ namespace Reaction_Editor
                 return;
             ActiveMdiChild.Close();
             Open(fn);
+        }
+
+        List<ToolStripMenuItem> m_WindowList = new List<ToolStripMenuItem>();
+        private void windowToolStripMenuItem_Open(object sender, EventArgs e)
+        {
+            for (int i = m_WindowList.Count - 1; i >= 0; i--)
+            {
+                if (((Form)m_WindowList[i].Tag).IsDisposed || ((Form)m_WindowList[i].Tag).MdiParent != this)
+                {
+                    windowToolStripMenuItem.DropDown.Items.Remove(m_WindowList[m_WindowList.Count - 1]);
+                    windowToolStripMenuItem.DropDown.Items.Remove(m_WindowList[i]);
+                    m_WindowList.RemoveAt(i);
+                }
+            }
+            foreach (Form f in MdiChildren)
+            {
+                bool contains = false;
+                foreach (ToolStripMenuItem item in m_WindowList)
+                    if (item.Tag == f)
+                        contains = true;
+                if (!contains)
+                {
+                    ToolStripMenuItem windowMenuItem = new ToolStripMenuItem(f.Text);
+                    windowMenuItem.Tag = f;
+                    windowMenuItem.Click += new EventHandler(windowMenuItem_Click);
+                    m_WindowList.Add(windowMenuItem);
+                    windowToolStripMenuItem.DropDown.Items.Add(windowMenuItem);
+                }
+            }
+        }
+
+        void windowMenuItem_Click(object sender, EventArgs e)
+        {
+            ((Form)((ToolStripMenuItem)sender).Tag).Activate();
         }
     }
 

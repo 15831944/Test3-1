@@ -446,45 +446,73 @@ namespace Reaction_Editor
 
             sw.WriteLine();
 
-            //Sources, if they exist:
-            if (m_Sources.LVI.ListView != null)
+            try
             {
-                sw.WriteLine(";RC1: " + txtSourceComments.Text + "");
-                if (!chkSourcesEnabled.Checked)
-                    sw.Write(';');
-                sw.WriteLine("Source: " + txtSources.Text);
-                sw.WriteLine();
+                //Sources, if they exist:
+                if (m_Sources != null)
+                {
+                    sw.WriteLine(";RC1: " + txtSourceComments.Text + "");
+                    if (!chkSourcesEnabled.Checked)
+                        sw.Write(';');
+                    sw.WriteLine("Source: " + txtSources.Text);
+                    sw.WriteLine();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
             }
             
             if (chkFirstReactant.Checked)
                 sw.WriteLine(";<UseFirstReactant=True>");
 
             //Reactions:
-            sw.WriteLine("Reactions:");
-            foreach (ListViewItem lvi in OrderedLVIs(lstReactions.Items))
-                if (lvi.Tag is SimpleReaction)
-                {
-                    SimpleReaction rxn = (SimpleReaction)lvi.Tag;
-                    sw.WriteLine();
-                    sw.WriteLine(rxn.ToSaveString(chkSequence.Checked));
-                }
-            sw.WriteLine();
-            
-            if (m_Sinks.LVI.ListView != null)
+            try
             {
-                sw.WriteLine(";RC" + m_Sinks.LVI.Text + ": " + txtSinkComments.Text);
-                if (!chkSinksEnabled.Checked)
-                    sw.Write(';');
-                sw.WriteLine("Sink: " + txtSinks.Text);
-                sw.WriteLine();
+                sw.WriteLine("Reactions:");
+                foreach (ListViewItem lvi in OrderedLVIs(lstReactions.Items))
+                    if (lvi.Tag is SimpleReaction)
+                    {
+                        SimpleReaction rxn = (SimpleReaction)lvi.Tag;
+                        sw.WriteLine();
+                        sw.WriteLine(rxn.ToSaveString(chkSequence.Checked));
+                    }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            sw.WriteLine();
+
+            try
+            {
+                if (m_Sinks != null)
+                {
+                    sw.WriteLine(";RC" + m_Sinks.LVI.Text + ": " + txtSinkComments.Text);
+                    if (!chkSinksEnabled.Checked)
+                        sw.Write(';');
+                    sw.WriteLine("Sink: " + txtSinks.Text);
+                    sw.WriteLine();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
             }
 
-            if (m_HX != null)
+            try
             {
-                sw.WriteLine(";RC" + m_HX.LVI.Text + ": " + txtHXComment.Text);
-                if (!chkHXEnabled.Checked)
-                    sw.Write(';');
-                sw.WriteLine(m_HX.ToString());
+                if (m_HX != null)
+                {
+                    sw.WriteLine(";RC" + m_HX.LVI.Text + ": " + txtHXComment.Text);
+                    if (!chkHXEnabled.Checked)
+                        sw.Write(';');
+                    sw.WriteLine(m_HX.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
             }
 
             sw.WriteLine("End");
@@ -808,7 +836,7 @@ namespace Reaction_Editor
             try
             {
                 m_bLoading = true;
-                //Now, stopping at the End token:
+                
                 Log.SetSource(new MessageFrmReaction(this.Title, this, null));
 
                 byte[] buffer = new byte[m_File.Length];
@@ -826,6 +854,9 @@ namespace Reaction_Editor
                     if (m.Groups["Comment"].Success)
                         commentSB.AppendLine(m.Groups["Comment"].Value);
                     if (m.Groups["Active"].Value.ToLowerInvariant().Trim() == "end")
+                        break;
+                    //Now, stopping at the End token:
+                    if (s_EndRegex.Match(m.Value).Success)
                         break;
                 }
                 string relevant = relevantSB.ToString();

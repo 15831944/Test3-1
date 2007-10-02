@@ -41,6 +41,8 @@ namespace Reaction_Editor
             this.menuOpen = new System.Windows.Forms.ToolStripMenuItem();
             this.menuOpenDir = new System.Windows.Forms.ToolStripMenuItem();
             this.menuClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuRevert = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.menuSave = new System.Windows.Forms.ToolStripMenuItem();
             this.menuSaveAs = new System.Windows.Forms.ToolStripMenuItem();
@@ -87,7 +89,7 @@ namespace Reaction_Editor
             this.dlgOpenDB = new System.Windows.Forms.OpenFileDialog();
             this.menuDatabaseFile = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.unloadAllSpeciesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.dlgOpenFolder = new System.Windows.Forms.FolderBrowserDialog();
             this.splitterRight = new System.Windows.Forms.Splitter();
             this.btnCollapseRight = new System.Windows.Forms.Button();
             this.btnCollapseLeft = new System.Windows.Forms.Button();
@@ -112,8 +114,6 @@ namespace Reaction_Editor
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnRevert = new System.Windows.Forms.ToolStripButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.menuRevert = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
@@ -191,6 +191,18 @@ namespace Reaction_Editor
             this.menuClose.Size = new System.Drawing.Size(166, 22);
             this.menuClose.Text = "&Close";
             this.menuClose.Click += new System.EventHandler(this.menuClose_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(163, 6);
+            // 
+            // menuRevert
+            // 
+            this.menuRevert.Name = "menuRevert";
+            this.menuRevert.Size = new System.Drawing.Size(166, 22);
+            this.menuRevert.Text = "&Revert To Saved";
+            this.menuRevert.Click += new System.EventHandler(this.menuRevert_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -301,13 +313,14 @@ namespace Reaction_Editor
             this.windowToolStripMenuItem.Name = "windowToolStripMenuItem";
             this.windowToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.windowToolStripMenuItem.Text = "&Window";
+            this.windowToolStripMenuItem.DropDownOpening += new System.EventHandler(this.windowToolStripMenuItem_Open);
             // 
             // arrangeToolStripMenuItem
             // 
             this.arrangeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuCascade});
             this.arrangeToolStripMenuItem.Name = "arrangeToolStripMenuItem";
-            this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.arrangeToolStripMenuItem.Text = "&Arrange";
             // 
             // menuCascade
@@ -321,14 +334,14 @@ namespace Reaction_Editor
             // 
             this.undockToolStripMenuItem.Enabled = false;
             this.undockToolStripMenuItem.Name = "undockToolStripMenuItem";
-            this.undockToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.undockToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.undockToolStripMenuItem.Text = "&Undock";
             this.undockToolStripMenuItem.Click += new System.EventHandler(this.undockToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(121, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(149, 6);
             // 
             // helpToolStripMenuItem
             // 
@@ -575,10 +588,10 @@ namespace Reaction_Editor
             this.unloadAllSpeciesToolStripMenuItem.Text = "Unload &All Specie Databases";
             this.unloadAllSpeciesToolStripMenuItem.Click += new System.EventHandler(this.unloadAllSpeciesToolStripMenuItem_Click);
             // 
-            // folderBrowserDialog1
+            // dlgOpenFolder
             // 
-            this.folderBrowserDialog1.RootFolder = System.Environment.SpecialFolder.MyComputer;
-            this.folderBrowserDialog1.ShowNewFolderButton = false;
+            this.dlgOpenFolder.RootFolder = System.Environment.SpecialFolder.MyComputer;
+            this.dlgOpenFolder.ShowNewFolderButton = false;
             // 
             // splitterRight
             // 
@@ -743,8 +756,8 @@ namespace Reaction_Editor
             this.btnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Size = new System.Drawing.Size(23, 22);
-            this.btnOpen.Text = "Open";
-            this.btnOpen.Click += new System.EventHandler(this.menuOpen_Click);
+            this.btnOpen.Text = "Open Folder";
+            this.btnOpen.Click += new System.EventHandler(this.menuOpenDir_Click);
             // 
             // btnSave
             // 
@@ -816,18 +829,6 @@ namespace Reaction_Editor
             this.btnRevert.Size = new System.Drawing.Size(23, 22);
             this.btnRevert.Text = "Revert";
             this.btnRevert.Click += new System.EventHandler(this.btnRevert_Click);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(163, 6);
-            // 
-            // menuRevert
-            // 
-            this.menuRevert.Name = "menuRevert";
-            this.menuRevert.Size = new System.Drawing.Size(166, 22);
-            this.menuRevert.Text = "&Revert To Saved";
-            this.menuRevert.Click += new System.EventHandler(this.menuRevert_Click);
             // 
             // FrmMain
             // 
@@ -914,7 +915,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
         private System.Windows.Forms.ContextMenuStrip menuDatabaseFile;
         private System.Windows.Forms.ToolStripMenuItem unloadAllSpeciesToolStripMenuItem;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.FolderBrowserDialog dlgOpenFolder;
         private System.Windows.Forms.Panel pnlFilter;
         private System.Windows.Forms.TextBox txtFilter;
         private System.Windows.Forms.Label label1;

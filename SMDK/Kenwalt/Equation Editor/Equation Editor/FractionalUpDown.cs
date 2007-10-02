@@ -75,7 +75,8 @@ namespace Reaction_Editor
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
             //Accept digits:
-            if ((e.KeyChar >= '0' && e.KeyChar <= '9') || char.IsControl(e.KeyChar));
+            if ((e.KeyChar >= '0' && e.KeyChar <= '9') || char.IsControl(e.KeyChar))
+            { }
             //Accept '/':
             else if (e.KeyChar == '/')
             {
@@ -84,6 +85,17 @@ namespace Reaction_Editor
                     e.Handled = true;
                     int i = Text.IndexOf('/');
                     Select(i + 1, Text.Length - i - 1);
+                }
+            }
+            //Accept '-' at the start of the dialogue:
+            else if (e.KeyChar == '-')
+            {
+                if (Text.Contains("-"))
+                    e.Handled = true;
+                else
+                {
+                    if (!String.IsNullOrEmpty(Text.Substring(0, SelectionStart).Trim()))
+                        e.Handled = true;
                 }
             }
             else

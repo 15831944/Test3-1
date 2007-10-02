@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Reaction_Editor</RootNamespace>
-    <AssemblyName>Reaction_Editor</AssemblyName>
+    <AssemblyName>SysCADReactionEditor</AssemblyName>
     <ApplicationIcon>KWA.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -68,6 +68,7 @@
     <Compile Include="FrmChangeDialogue.Designer.cs">
       <DependentUpon>FrmChangeDialogue.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="TextBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -76,7 +77,7 @@
     </Compile>
     <Compile Include="Data Structures.cs" />
     <Compile Include="FrmAutoComplete.cs">
-      <SubType>Component</SubType>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="FrmAutoComplete.designer.cs">
       <DependentUpon>FrmAutoComplete.cs</DependentUpon>
