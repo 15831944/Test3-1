@@ -51,7 +51,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib"
+				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib,..\RegExWrap"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;FLWLIB;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -153,7 +153,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib"
+				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib,..\RegExWrap"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;FLWLIB;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -258,7 +258,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib"
+				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib,..\RegExWrap"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;FLWLIB;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="false"
 				MinimalRebuild="true"
@@ -367,7 +367,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib"
+				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib,..\RegExWrap"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;FLWLIB;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -469,7 +469,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib"
+				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib,..\RegExWrap"
 				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;FLWLIB;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -2211,11 +2211,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h"
+				RelativePath=".\SparseSlv\Indirect\include\tblas1.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tblas1.h"
+				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h"
 				>
 			</File>
 			<File
@@ -2223,11 +2223,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h"
+				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h"
+				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h"
 				>
 			</File>
 			<File

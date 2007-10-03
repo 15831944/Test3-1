@@ -43,7 +43,7 @@
 #define WITHEQUIPSPECS        (01 && WITHCLASSOPTIONS)
 #define WITHASSOCGRAPHICS     1 
 
-#define WithPGMTagChange      0
+#define WithPGMTagChange      01
 
 #define USEREGISTRY           0
 
