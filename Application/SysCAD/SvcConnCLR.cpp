@@ -564,6 +564,38 @@ ref class CSvcConnectCLRThread
       clientProtocol->Save(requestId);
       };
 
+    void LogMessage(DWORD Type, LPCSTR Msg)
+      {
+      Int64 requestId;
+      SysCAD::Log::MessageType T;
+
+      //const DWORD LogFlag_CondClear     = 0x00000001;
+      //const DWORD LogFlag_Cond          = 0x00000002;
+      //const DWORD LogFlag_RngClear      = 0x00000004;
+      //const DWORD LogFlag_Rng           = 0x00000008;
+      //const DWORD LogFlag_Fatal         = 0x00000010;
+      //const DWORD LogFlag_Stop          = 0x00000020;
+      //const DWORD LogFlag_Error         = 0x00000040;
+      //const DWORD LogFlag_Warning       = 0x00000080;
+      //const DWORD LogFlag_Note          = 0x00000100;
+      //const DWORD LogFlag_Cmd           = 0x00000200;
+      //const DWORD LogFlag_Separator     = 0x00000400;
+
+      //const DWORD LogFlag_AutoClear     = 0x00001000;
+      //const DWORD LogFlag_ClearErrList  = 0x00002000;
+      //const DWORD LogFlag_ClearCondList = 0x00004000;
+      //const DWORD LogFlag_ClearRngList  = 0x00008000;
+      //const DWORD LogFlag_FromPGM       = 0x00010000;
+      //const DWORD LogFlag_FromCOM       = 0x00020000;
+      //const DWORD LogFlag_FromBlackBox  = 0x00040000;
+
+      if (Type & LogFlag_Note)          T=SysCAD::Log::MessageType::Note;
+      else if (Type & LogFlag_Warning)  T=SysCAD::Log::MessageType::Warning;
+      else /*if(Type & LogFlag_Error)*/ T=SysCAD::Log::MessageType::Error;
+
+      clientProtocol->LogMessage(requestId, gcnew String(Msg), T);
+      };
+
   protected:
     SysCAD::Protocol::Config ^ config;
     SysCAD::Protocol::ClientProtocol ^ clientProtocol;
@@ -698,6 +730,12 @@ void CSvcConnectCLR::Save()
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->Save();
   };
 
+//========================================================================
+
+void CSvcConnectCLR::LogMessage(DWORD Type, LPCSTR Msg)
+  {
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->LogMessage(Type, Msg);
+  };
 
 //========================================================================
 

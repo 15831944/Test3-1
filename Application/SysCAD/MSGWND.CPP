@@ -18,6 +18,7 @@
 #include "executiv.h"
 #include "cmd_mngr.h"
 #include "archmngr.h"
+#include "svcconn.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -726,9 +727,13 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
         }
       }
 
-    if (bLogIt && gs_pArcMan)
-      gs_pArcMan->LogAMessage(Msg);
-
+    if (bLogIt)
+      {
+      if (gs_pArcMan)
+        gs_pArcMan->LogAMessage(Msg);
+      if (gs_pPrj->SvcActive)
+        gs_pPrj->Svc.LogMessage(Msg.m_dwFlags, Msg.Description());
+      }
     }
 
   //// Clear Current Selections

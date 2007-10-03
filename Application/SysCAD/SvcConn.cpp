@@ -381,13 +381,23 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
   m_Ctrl.m_bExportBusy = false;
   };
 
+//========================================================================
+
 void CSvcConnect::Load()
   {
   m_pCLR->Load();
   };
+
 void CSvcConnect::Save()
   {
   m_pCLR->Save();
+  };
+
+//========================================================================
+
+void CSvcConnect::LogMessage(DWORD Type, LPCSTR Msg)
+  {
+  m_pCLR->LogMessage(Type, Msg);
   };
 
 //========================================================================

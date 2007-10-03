@@ -70,6 +70,7 @@ class CSvcConnect
     void Load();
     void Save();
 
+    void LogMessage(DWORD Type, LPCSTR Msg);
     //------------------------------------------------------------------------
 
     void OnCreateGroup(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 

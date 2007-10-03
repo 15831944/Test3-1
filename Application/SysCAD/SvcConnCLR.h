@@ -73,6 +73,8 @@ class CSvcConnectCLR
     void Load();
     void Save();
 
+    void LogMessage(DWORD Type, LPCSTR Msg);
+
     //static void ModifyItemBoundingRect(__int64 requestId, LPCSTR guid, PKRectangleF boundingRect);
     //static void ModifyLinkControlPoints(__int64 requestId, LPCSTR guid, PKPointF controlPoints[], int controlPointsLength);
 
