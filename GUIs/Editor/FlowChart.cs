@@ -576,9 +576,14 @@ namespace SysCAD.Editor
             newOriginBox = originBox;
             newOriginAnchor = closestI;
 
-            form1.ToolStripStatusLabel.Text = "Origin Item: " + newOriginTag +
-  " : " + " Oritin Port: " + (newOriginBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor].TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+              String anchorString;
+              (newOriginBox.Tag as Item).GraphicItem.anchorIntToTag.TryGetValue(newOriginAnchor, out anchorString);
 
+              if (anchorString != null)
+              {
+                  form1.ToolStripStatusLabel.Text = "Origin Item: " + newOriginTag +
+        " : " + " Oritin Port: " + anchorString.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+              }
           }
         }
       }
@@ -600,37 +605,43 @@ namespace SysCAD.Editor
 
           if (destinationBox != null)
           {
-            int closestI = 0;
-            Double closestDistance = Double.MaxValue;
+              int closestI = 0;
+              Double closestDistance = Double.MaxValue;
 
-            for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
-            {
-
-              if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
+              for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
               {
-                SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(destinationBox.BoundingRect),
-                  destinationBox.AnchorPattern.Points[i].X,
-                  destinationBox.AnchorPattern.Points[i].Y,
-                  destinationBox.RotationAngle);
-                Double thisDistance = Distance(destinationPos, anchorPointPos);
 
-                if (thisDistance < closestDistance)
-                {
-                  closestDistance = thisDistance;
-                  closestI = i;
-                }
+                  if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
+                  {
+                      SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(destinationBox.BoundingRect),
+                        destinationBox.AnchorPattern.Points[i].X,
+                        destinationBox.AnchorPattern.Points[i].Y,
+                        destinationBox.RotationAngle);
+                      Double thisDistance = Distance(destinationPos, anchorPointPos);
+
+                      if (thisDistance < closestDistance)
+                      {
+                          closestDistance = thisDistance;
+                          closestI = i;
+                      }
+                  }
               }
-            }
 
-            newDestinationGuid = (destinationBox.Tag as Item).Guid;
-            newDestinationTag = (destinationBox.Tag as Item).Tag;
-            newDestinationBox = destinationBox;
-            newDestinationAnchor = closestI;
+              newDestinationGuid = (destinationBox.Tag as Item).Guid;
+              newDestinationTag = (destinationBox.Tag as Item).Tag;
+              newDestinationBox = destinationBox;
+              newDestinationAnchor = closestI;
 
-            form1.ToolStripStatusLabel.Text = "Destination Item: " + newDestinationTag +
-              " : " + " Destination Port: " + (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor].TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+              String anchorString;
+              (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag.TryGetValue(newDestinationAnchor, out anchorString);
+
+              if (anchorString != null)
+              {
+                  form1.ToolStripStatusLabel.Text = "Destination Item: " + newDestinationTag +
+                    " : " + " Destination Port: " + anchorString.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+              }
           }
-        }
+      }
       }
 
       if ((newOriginBox != null) && (newDestinationBox != null) && (newOriginBox == newDestinationBox)) // refliexive, disconnect modifying end.
@@ -1485,7 +1496,7 @@ namespace SysCAD.Editor
       if ((hoverBox != null) && (hoverBox.Tag is Item))
         hoverBox = (hoverBox.Tag as Item).Model;
 
-      if (hoverBox != null)
+      if ((hoverBox != null) && (hoverBox.AnchorPattern != null))
       {
         int closestI = 0;
         Double closestDistance = Double.MaxValue;
@@ -1973,10 +1984,10 @@ namespace SysCAD.Editor
       {
         List<SysCAD.Protocol.Point> controlPoints = State.GetControlPoints(arrow.ControlPoints);
 
-        if (Math.Abs(controlPoints[0].X - controlPoints[1].X) <= fcFlowChart.MergeThreshold)
+        if (Math.Abs(controlPoints[0].X - controlPoints[1].X) <= fcFlowChart.MergeThreshold/10.0)
           arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Auto;
 
-        else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold)
+        else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold/10.0)
           arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Auto;
 
         GraphicLink graphicLink = (arrow.Tag as Link).GraphicLink as GraphicLink;

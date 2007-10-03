@@ -5,8 +5,8 @@
 <decorations href="#ref-5"/>
 <elements href="#ref-6"/>
 <fillMode>Alternate</fillMode>
-<groupName xsi:null="1"/>
-<tag xsi:null="1"/>
+  <groupName id="ref-70">HeatTransfer</groupName>
+  <tag xsi:null="1"/>
 </a1:ModelStencil>
 <a2:ArrayList id="ref-4" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-7"/>
