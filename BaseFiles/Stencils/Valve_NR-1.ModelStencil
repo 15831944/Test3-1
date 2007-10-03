@@ -6,7 +6,7 @@
       <decorations href="#ref-6"/>
       <anchors href="#ref-7"/>
       <fillMode>Alternate</fillMode>
-      <groupName id="ref-8">Valve</groupName>
+      <groupName id="ref-8">Piping</groupName>
     </a1:ModelStencil>
     <a2:ArrayList id="ref-5" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
       <_items href="#ref-9"/>

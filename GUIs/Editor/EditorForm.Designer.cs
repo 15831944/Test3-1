@@ -209,10 +209,10 @@ namespace SysCAD.Editor
       this.toolWindowContainer4 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.twModelProperties = new ActiproSoftware.UIStudio.Dock.ToolWindow();
       this.modelPropertiesGrid = new SysCAD.Editor.ModelPropertyGrid();
-      this.statusStrip = new System.Windows.Forms.StatusStrip();
-      this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
       this.itemToolWindow = new ActiproSoftware.UIStudio.Dock.ToolWindow();
       this.stencilChooser1 = new SysCAD.StencilChooser();
+      this.statusStrip = new System.Windows.Forms.StatusStrip();
+      this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
       ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).BeginInit();
       this.twOverview.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.tvNavigation)).BeginInit();
@@ -223,8 +223,8 @@ namespace SysCAD.Editor
       this.dockContainerContainer1.SuspendLayout();
       this.twGraphicProperties.SuspendLayout();
       this.twModelProperties.SuspendLayout();
-      this.statusStrip.SuspendLayout();
       this.itemToolWindow.SuspendLayout();
+      this.statusStrip.SuspendLayout();
       this.SuspendLayout();
       // 
       // dockManager1
@@ -262,6 +262,10 @@ namespace SysCAD.Editor
       // 
       // tvNavigation
       // 
+      this.tvNavigation.AllowAdding = false;
+      this.tvNavigation.AllowArranging = false;
+      this.tvNavigation.AllowDeleting = false;
+      this.tvNavigation.AllowEditing = false;
       this.tvNavigation.ContextMenuStrings = contextMenuStrings1;
       this.tvNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tvNavigation.Location = new System.Drawing.Point(0, 0);
@@ -778,6 +782,26 @@ namespace SysCAD.Editor
       this.modelPropertiesGrid.Size = new System.Drawing.Size(149, 465);
       this.modelPropertiesGrid.TabIndex = 0;
       // 
+      // itemToolWindow
+      // 
+      this.itemToolWindow.Controls.Add(this.stencilChooser1);
+      this.itemToolWindow.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.itemToolWindow.DockManager = this.dockManager1;
+      this.itemToolWindow.Location = new System.Drawing.Point(0, 0);
+      this.itemToolWindow.Name = "itemToolWindow";
+      this.itemToolWindow.Size = new System.Drawing.Size(149, 465);
+      this.itemToolWindow.TabIndex = 0;
+      this.itemToolWindow.Text = "Items";
+      // 
+      // stencilChooser1
+      // 
+      this.stencilChooser1.AllowDrop = true;
+      this.stencilChooser1.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.stencilChooser1.Location = new System.Drawing.Point(0, 0);
+      this.stencilChooser1.Name = "stencilChooser1";
+      this.stencilChooser1.Size = new System.Drawing.Size(149, 465);
+      this.stencilChooser1.TabIndex = 0;
+      // 
       // statusStrip
       // 
       this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -792,25 +816,6 @@ namespace SysCAD.Editor
       // 
       this.toolStripStatusLabel.Name = "toolStripStatusLabel";
       this.toolStripStatusLabel.Size = new System.Drawing.Size(0, 17);
-      // 
-      // itemToolWindow
-      // 
-      this.itemToolWindow.Controls.Add(this.stencilChooser1);
-      this.itemToolWindow.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.itemToolWindow.DockManager = this.dockManager1;
-      this.itemToolWindow.Location = new System.Drawing.Point(0, 0);
-      this.itemToolWindow.Name = "itemToolWindow";
-      this.itemToolWindow.Size = new System.Drawing.Size(149, 465);
-      this.itemToolWindow.TabIndex = 0;
-      this.itemToolWindow.Text = "Items";
-      // 
-      // stencilChooser1
-      // 
-      this.stencilChooser1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.stencilChooser1.Location = new System.Drawing.Point(0, 0);
-      this.stencilChooser1.Name = "stencilChooser1";
-      this.stencilChooser1.Size = new System.Drawing.Size(149, 465);
-      this.stencilChooser1.TabIndex = 0;
       // 
       // EditorForm
       // 
@@ -840,9 +845,9 @@ namespace SysCAD.Editor
       this.dockContainerContainer1.ResumeLayout(false);
       this.twGraphicProperties.ResumeLayout(false);
       this.twModelProperties.ResumeLayout(false);
+      this.itemToolWindow.ResumeLayout(false);
       this.statusStrip.ResumeLayout(false);
       this.statusStrip.PerformLayout();
-      this.itemToolWindow.ResumeLayout(false);
       this.ResumeLayout(false);
       this.PerformLayout();
 

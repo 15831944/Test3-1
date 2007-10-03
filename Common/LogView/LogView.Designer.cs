@@ -40,7 +40,7 @@ namespace SysCAD.Log
             this.columnHeader2});
       this.Dock = System.Windows.Forms.DockStyle.Fill;
       this.FullRowSelect = true;
-      this.GridLines = true;
+      this.GridLines = false;
       this.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
       this.Name = "LogView";
       //this.UseCompatibleStateImageBehavior = false;

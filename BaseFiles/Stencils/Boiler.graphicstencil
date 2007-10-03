@@ -6,7 +6,7 @@
 <height>20</height>
 </defaultSize>
 <fillMode>Alternate</fillMode>
-<groupName id="ref-4"></groupName>
+<groupName id="ref-4">HeatTransfer</groupName>
 <decorations href="#ref-5"/>
 <elements href="#ref-6"/>
 <tag xsi:null="1"/>

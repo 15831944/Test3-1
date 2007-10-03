@@ -78,13 +78,16 @@ namespace SysCAD.Log
         if (src != null)
           source = src.Source;
 
-        ListViewItem lvi = new ListViewItem(new string[] { source, msg }, msgType.ToString());
+        if (msgType != MessageType.Note)
+        {
+          ListViewItem lvi = new ListViewItem(new string[] { source, msg }, msgType.ToString());
 
-        lvi.Tag = src;
-        Items.Add(lvi);
-        while (Items.Count > maxEntries)
-          Items.RemoveAt(0);
-        EnsureVisible(lvi.Index);
+          lvi.Tag = src;
+          Items.Add(lvi);
+          while (Items.Count > maxEntries)
+            Items.RemoveAt(0);
+          EnsureVisible(lvi.Index);
+        }
 
         if (logStreamWriter != null)
         {

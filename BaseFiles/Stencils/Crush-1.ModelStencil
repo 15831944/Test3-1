@@ -6,7 +6,7 @@
       <decorations href="#ref-5"/>
       <anchors href="#ref-6"/>
       <fillMode>Alternate</fillMode>
-      <groupName id="ref-7">SizeSeparation</groupName>
+      <groupName id="ref-7">Separation</groupName>
     </a1:ModelStencil>
     <a3:ArrayList id="ref-4" xmlns:a3="http://schemas.microsoft.com/clr/ns/System.Collections">
       <_items href="#ref-8"/>

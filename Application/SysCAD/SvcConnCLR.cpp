@@ -180,8 +180,8 @@ ref class CSvcConnectCLRThread
           }
         if (clientSuccess&&engineSuccess)
           {
-          clientProtocol->Connect("Engine as Client");
-          engineProtocol->Connect("Engine as Engine");
+            clientProtocol->Connect("SysCAD9.1\nConnection: Client");
+            engineProtocol->Connect("SysCAD9.1\nConnection: Engine");
 
           // This will allow the editor to create/delete in addition to modify after the project loads.
           __int64 requestId;

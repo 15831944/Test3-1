@@ -437,8 +437,8 @@ namespace SysCAD.Editor
           box.ToolTip = graphicGroup.Tag;
           box.Style = BoxStyle.Rectangle;
 
-          box.FillColor = System.Drawing.Color.FromArgb(100, System.Drawing.Color.BurlyWood);
-          box.FrameColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
+          box.FillColor = System.Drawing.Color.FromArgb(80, 222, 184, 136);
+          box.FrameColor = System.Drawing.Color.FromArgb(160, 111, 92, 68);
           box.Visible = isVisible;
 
           box.ZBottom();
@@ -575,8 +575,8 @@ namespace SysCAD.Editor
 
           modelBox.AnchorPattern = GetAnchorPattern(modelStencil, graphicItem);
 
-          modelBox.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
-          modelBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.BurlyWood);
+          modelBox.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
+          modelBox.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
           modelBox.Visible = ShowModels && isVisible;
         }
 
@@ -660,8 +660,8 @@ namespace SysCAD.Editor
           }
 
           textBox = flowchart.CreateBox((float)textArea.X, (float)textArea.Y, (float)textArea.Width, (float)textArea.Height);
-          textBox.FillColor = System.Drawing.Color.FromArgb(100, System.Drawing.Color.Black);
-          textBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.Black);
+          textBox.FillColor = System.Drawing.Color.FromArgb(1, System.Drawing.Color.Black);
+          textBox.FrameColor = System.Drawing.Color.FromArgb(1, System.Drawing.Color.Black);
           textBox.Style = BoxStyle.Shape;
           textBox.Shape = ShapeTemplate.FromId("Rectangle");
           textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
@@ -731,9 +731,15 @@ namespace SysCAD.Editor
 
           if (destination != null) destinationTag = destination.Tag;
 
+          String originPort = "";
+          if (graphicLink.OriginPort != null) originPort = graphicLink.OriginPort;
+
+          String destinationPort = "";
+          if (graphicLink.DestinationPort != null) destinationPort = graphicLink.DestinationPort;
+          
           arrow.ToolTip = "Tag:" + graphicLink.Tag +
-            "\nSrc: " + origin.Tag + ":" + graphicLink.OriginPort +
-            "\nDst: " + destination.Tag + ":" + graphicLink.DestinationPort;
+            "\nSrc: " + originTag + ":" + originPort +
+            "\nDst: " + destinationTag + ":" + destinationPort;
           arrow.ArrowHead = ArrowHead.Triangle;
           arrow.Style = ArrowStyle.Cascading;
 
@@ -1529,8 +1535,8 @@ namespace SysCAD.Editor
           Box box = flowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
           box.Style = BoxStyle.Shape;
           box.Shape = GetShapeTemplate(stencil, false, false);
-          box.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
-          box.FrameColor = System.Drawing.Color.FromArgb(255, System.Drawing.Color.BurlyWood);
+          box.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
+          box.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
           box.Locked = true;
 
           flowchart.BackColor = System.Drawing.SystemColors.Window;

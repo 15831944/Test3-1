@@ -49,7 +49,7 @@ namespace Service
       this.logView.Location = new System.Drawing.Point(0, 0);
       this.logView.LogFile = "c:\\ServiceLog.txt";
       this.logView.Name = "logView";
-      this.logView.Size = new System.Drawing.Size(876, 315);
+      this.logView.Size = new System.Drawing.Size(800, 350);
       this.logView.TabIndex = 0;
       this.logView.UseCompatibleStateImageBehavior = false;
       this.logView.View = System.Windows.Forms.View.Details;
@@ -68,8 +68,8 @@ namespace Service
       // splitContainer1.Panel2
       // 
       this.splitContainer1.Panel2.Controls.Add(this.logView);
-      this.splitContainer1.Size = new System.Drawing.Size(876, 596);
-      this.splitContainer1.SplitterDistance = 277;
+      this.splitContainer1.Size = new System.Drawing.Size(900, 500);
+      this.splitContainer1.SplitterDistance = 400;
       this.splitContainer1.TabIndex = 1;
       // 
       // button1

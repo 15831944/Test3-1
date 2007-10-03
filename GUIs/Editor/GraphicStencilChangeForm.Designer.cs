@@ -35,8 +35,7 @@ namespace SysCAD.Editor
       // 
       // graphicTreeView
       // 
-      this.graphicTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                  | System.Windows.Forms.AnchorStyles.Left)
+      this.graphicTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
       this.graphicTreeView.Location = new System.Drawing.Point(0, 0);
       this.graphicTreeView.Name = "graphicTreeView";
@@ -47,6 +46,7 @@ namespace SysCAD.Editor
       // 
       // okButton
       // 
+      this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.okButton.Enabled = false;
       this.okButton.Location = new System.Drawing.Point(5, 535);
@@ -58,6 +58,7 @@ namespace SysCAD.Editor
       // 
       // cancelButton
       // 
+      this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.cancelButton.Location = new System.Drawing.Point(90, 535);
       this.cancelButton.Name = "cancelButton";
@@ -68,8 +69,10 @@ namespace SysCAD.Editor
       // 
       // GraphicStencilChangeForm
       // 
+      this.AcceptButton = this.okButton;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.CancelButton = this.cancelButton;
       this.ClientSize = new System.Drawing.Size(292, 564);
       this.Controls.Add(this.cancelButton);
       this.Controls.Add(this.okButton);

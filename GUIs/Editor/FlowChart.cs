@@ -41,10 +41,12 @@ namespace SysCAD.Editor
     Box newDestinationBox;
 
     Guid newDestinationGuid = Guid.Empty;
+    String newDestinationTag = String.Empty;
     int newOriginAnchor = -1;
     Box newOriginBox;
 
     Guid newOriginGuid = Guid.Empty;
+    String newOriginTag = String.Empty;
 
     List<SysCAD.Protocol.Point> oldControlPoints = new List<SysCAD.Protocol.Point>();
     int oldDestinationAnchor = -1;
@@ -570,10 +572,13 @@ namespace SysCAD.Editor
             }
 
             newOriginGuid = (originBox.Tag as Item).Guid;
+            newOriginTag = (originBox.Tag as Item).Tag;
             newOriginBox = originBox;
             newOriginAnchor = closestI;
 
-            form1.ToolStripStatusLabel.Text = (originBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
+            form1.ToolStripStatusLabel.Text = "Origin Item: " + newOriginTag +
+  " : " + " Oritin Port: " + (newOriginBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor].TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+
           }
         }
       }
@@ -589,7 +594,7 @@ namespace SysCAD.Editor
         SysCAD.Protocol.Point destinationPos = new SysCAD.Protocol.Point(arrowBeingModified.ControlPoints[arrowBeingModified.ControlPoints.Count - 1]);
         Box destinationBox = fcFlowChart.GetBoxAt(destinationPos.ToPointF(), 2.0F);
 
-        if ((destinationBox != null) && (!(arrowBeingModified.Destination is Box)))
+        if ((destinationBox != null) && (destinationBox.Tag != null) && (!(arrowBeingModified.Destination is Box)))
         {
           destinationBox = (destinationBox.Tag as Item).Model;
 
@@ -618,10 +623,12 @@ namespace SysCAD.Editor
             }
 
             newDestinationGuid = (destinationBox.Tag as Item).Guid;
+            newDestinationTag = (destinationBox.Tag as Item).Tag;
             newDestinationBox = destinationBox;
             newDestinationAnchor = closestI;
 
-            form1.ToolStripStatusLabel.Text = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
+            form1.ToolStripStatusLabel.Text = "Destination Item: " + newDestinationTag +
+              " : " + " Destination Port: " + (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor].TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
           }
         }
       }
@@ -632,6 +639,7 @@ namespace SysCAD.Editor
         if (selectionHandle == 0)
         {
           newOriginGuid = Guid.Empty;
+          newOriginTag = String.Empty;
           newOriginBox = null;
           newOriginAnchor = -1;
 
@@ -641,6 +649,7 @@ namespace SysCAD.Editor
         if (selectionHandle == arrowBeingModified.ControlPoints.Count - 1)
         {
           newDestinationGuid = Guid.Empty;
+          newDestinationTag = String.Empty;
           newDestinationBox = null;
           newDestinationAnchor = -1;
 
@@ -784,6 +793,7 @@ namespace SysCAD.Editor
         }
 
         newOriginGuid = (originBox.Tag as Item).Guid;
+        newOriginTag = (originBox.Tag as Item).Tag;
         newOriginBox = originBox;
 
         newOriginAnchor = closestI;
@@ -953,10 +963,12 @@ namespace SysCAD.Editor
       oldDestinationAnchor = -1;
 
       newOriginGuid = Guid.Empty;
+      newOriginTag = String.Empty;
       newOriginBox = null;
       newOriginAnchor = -1;
 
       newDestinationGuid = Guid.Empty;
+      newDestinationTag = String.Empty;
       newDestinationBox = null;
       newDestinationAnchor = -1;
     }
@@ -985,6 +997,7 @@ namespace SysCAD.Editor
       mousePressed = me.Location;
       hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
       hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location), 2.0F);
+
 
       form1.ModeModify();
 
@@ -1057,7 +1070,7 @@ namespace SysCAD.Editor
               PointF[] extensionPoints =
                 new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(150, 0, 0, 255), 0.0F);
               e.Graphics.DrawLines(pen, extensionPoints);
 
               pen = new System.Drawing.Pen(Color.Green, 0.0F);
@@ -1099,7 +1112,7 @@ namespace SysCAD.Editor
               PointF[] extensionPoints =
                 new PointF[] { arrow.ControlPoints[0], anchorPointPos };
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(150, 0, 0, 255), 0.0F);
               e.Graphics.DrawLines(pen, extensionPoints);
 
               pen = new System.Drawing.Pen(Color.Green, 0.0F);
@@ -1155,7 +1168,7 @@ namespace SysCAD.Editor
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos.ToPointF() };
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(150, 0, 0, 255), 0.0F);
 
             e.Graphics.DrawLines(pen, extensionPoints);
           }
@@ -1188,7 +1201,7 @@ namespace SysCAD.Editor
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[0], anchorPointPos.ToPointF() };
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.Blue, 0.0F);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(150, 0, 0, 255), 0.0F);
 
             e.Graphics.DrawLines(pen, extensionPoints);
           }
@@ -1471,6 +1484,38 @@ namespace SysCAD.Editor
 
       if ((hoverBox != null) && (hoverBox.Tag is Item))
         hoverBox = (hoverBox.Tag as Item).Model;
+
+      if (hoverBox != null)
+      {
+        int closestI = 0;
+        Double closestDistance = Double.MaxValue;
+
+        for (int i = 0; i < hoverBox.AnchorPattern.Points.Count; i++)
+        {
+
+          if (hoverBox.AnchorPattern.Points[i].AllowOutgoing)
+          {
+            SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(hoverBox.BoundingRect),
+              hoverBox.AnchorPattern.Points[i].X,
+              hoverBox.AnchorPattern.Points[i].Y,
+              hoverBox.RotationAngle);
+            Double thisDistance = Distance(new SysCAD.Protocol.Point(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y))), anchorPointPos);
+
+            if (thisDistance < closestDistance)
+            {
+              closestDistance = thisDistance;
+              closestI = i;
+            }
+          }
+        }
+
+        Guid hoverGuid = (hoverBox.Tag as Item).Guid;
+        String hoverTag = (hoverBox.Tag as Item).Tag;
+        int hoverAnchor = closestI;
+
+        form1.ToolStripStatusLabel.Text = "Item: " + hoverTag +
+" : " + " Port: " + (hoverBox.Tag as Item).GraphicItem.anchorIntToTag[hoverAnchor].TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+      }
 
       if (hoverArrow != null)
       {
@@ -1755,21 +1800,24 @@ namespace SysCAD.Editor
         {
           GraphicLink graphicLink = state.GraphicLink((arrow.Tag as Link).Guid);
 
-          if (!state.ModifyGraphicLink(out requestId,
-            graphicLink.Guid,
-            graphicLink.Tag,
-            graphicLink.ClassID,
-            graphicLink.Origin,
-            graphicLink.Destination,
-            graphicLink.OriginPort,
-            graphicLink.OriginPortID,
-            graphicLink.DestinationPort,
-            graphicLink.DestinationPortID,
-            State.GetControlPoints(arrow.ControlPoints),
-            graphicLink.TextArea,
-            graphicLink.TextAngle))
+          if (graphicLink != null)
           {
-            State.SetControlPoints(arrow, graphicLink.ControlPoints);
+            if (!state.ModifyGraphicLink(out requestId,
+              graphicLink.Guid,
+              graphicLink.Tag,
+              graphicLink.ClassID,
+              graphicLink.Origin,
+              graphicLink.Destination,
+              graphicLink.OriginPort,
+              graphicLink.OriginPortID,
+              graphicLink.DestinationPort,
+              graphicLink.DestinationPortID,
+              State.GetControlPoints(arrow.ControlPoints),
+              graphicLink.TextArea,
+              graphicLink.TextAngle))
+            {
+              State.SetControlPoints(arrow, graphicLink.ControlPoints);
+            }
           }
         }
       }

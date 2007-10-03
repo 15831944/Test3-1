@@ -79,7 +79,7 @@ namespace SysCAD.Editor
         if (frmFlowChart != null)
           FileCloseProject();
 
-        clientProtocol.Connect("Client");
+        clientProtocol.Connect("SysCAD10\nConnection: Client");
         config.Syncxxx();
 
         Refresh();
@@ -127,8 +127,8 @@ namespace SysCAD.Editor
             Box box = thumbnailFlowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
             box.Style = BoxStyle.Shape;
             box.Shape = State.GetShapeTemplate(stencil, false, false);
-            box.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
-            box.FrameColor = System.Drawing.Color.FromArgb(255, System.Drawing.Color.BurlyWood);
+            box.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
+            box.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
             box.Locked = true;
             modelThumbnails.Add(key, thumbnailFlowchart.CreateImage());
             thumbnailFlowchart.DeleteObject(box);
