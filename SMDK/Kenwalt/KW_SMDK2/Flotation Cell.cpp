@@ -63,7 +63,6 @@ FlotationCell::FlotationCell(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBas
 {
   //default values...
 	eSpecType = FTST_ByCompound;
-	vPrimaryIndices.resize(1, 0);
 	nPrimary1 = nPrimary2 = -1;
 	dPrimaryRecovery = dPrimaryGrade = 0.0;
 	dReqPrimaryRecovery = dReqPrimaryGrade = 0.0;
@@ -111,6 +110,7 @@ void FlotationCell::Init()
 		MDDValueLst term = {0};
 		gs_vSolidElements.push_back(term);
 	}
+	vPrimaryIndices.resize(1, gs_MVDefn.DDSolSpList()[0].m_lVal);
 }
 
 //---------------------------------------------------------------------------
@@ -159,7 +159,7 @@ void FlotationCell::BuildDataFields()
 	DD.Long("Number_of_Compounds", "", idDX_SecondaryCount, MF_PARAM_STOPPED | MF_SET_ON_CHANGE);
 	if (vSecondaryIndices.size() > 0)
 	{
-		DD.ArrayBegin("Secondaries", "Secondaries", vSecondaryIndices.size());
+		DD.ArrayBegin("Additional_Compounds", "Additional_Compounds", vSecondaryIndices.size());
 		for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
 		{
 			DD.ArrayElementStart(i);
@@ -201,7 +201,7 @@ bool FlotationCell::ExchangeDataFields()
 			switch (eSpecType)
 			{
 			case FTST_ByCompound:
-				vPrimaryIndices.resize(1, 0);
+				vPrimaryIndices.resize(1,gs_MVDefn.DDSolSpList()[0].m_lVal);
 				break;
 			case FTST_ByElement:
 				UpdatePrimaryIndices();
@@ -335,7 +335,7 @@ bool FlotationCell::PreStartCheck()
 		for (unsigned int j = 0; j < vSecondaryIndices.size(); j++)
 			if (vPrimaryIndices.at(i) == vSecondaryIndices.at(j))
 			{
-				m_sPrestartErrors.Append("Secondary specie is also primary specie; ");
+				m_sPrestartErrors.Append("Additional specie is also primary specie; ");
 				ret = false;
 				break;
 			}
@@ -343,7 +343,7 @@ bool FlotationCell::PreStartCheck()
 		for (unsigned int j = 0; j < vSecondaryIndices.size(); j++)
 			if (i != j && vSecondaryIndices.at(i) == vSecondaryIndices.at(j))
 			{
-				m_sPrestartErrors.Append("Secondary specie listed twice; ");
+				m_sPrestartErrors.Append("Additional specie listed twice; ");
 				ret = false;
 				break;
 			}
