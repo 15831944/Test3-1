@@ -425,7 +425,7 @@ ref class CSvcConnectCLRThread
 
       Guid guid;
       clientProtocol->CreateLink(requestId, guid, gcnew String(Tag), /*gcnew String(Path), */ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), 
-        gcnew String(OriginPort), 0, gcnew String(DestinationPort), 0, Pts, TA, textAngle);
+        gcnew String(OriginPort), -1, gcnew String(DestinationPort), -1, Pts, TA, textAngle);
       LinkGuid = guid.ToString();
       };
 
@@ -474,7 +474,7 @@ ref class CSvcConnectCLRThread
       SysCAD::Protocol::Rectangle^ TA = gcnew SysCAD::Protocol::Rectangle(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
 
       clientProtocol->ModifyLink(requestId, Guid(gcnew String(LinkGuid)), gcnew String(Tag), /*LPCSTR Path,*/ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), 
-        gcnew String(OriginPort), 0, gcnew String(DestinationPort), 0, Pts, TA, textAngle);
+        gcnew String(OriginPort), -1, gcnew String(DestinationPort), -1, Pts, TA, textAngle);
       };
 
     void LinkModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<SysCAD::Protocol::Point^> ^ controlPoints, SysCAD::Protocol::Rectangle^ textArea, double textAngle)

@@ -22,6 +22,7 @@ namespace SysCAD.Editor
 
   internal partial class FrmFlowChart : Form
   {
+    private Int32 tempTagExtension = 0;
 
     private Arrow arrowBeingModified;
     private int arrowBeingModifiedSelectionHandle = -1;
@@ -917,8 +918,8 @@ namespace SysCAD.Editor
 
       if (originFullAnchor != null)
       {
-        destinationAnchorName = originFullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-        destinationAnchorID = Convert.ToInt16(originFullAnchor.Substring(destinationAnchorName.Length));
+        destinationAnchorName = destinationFullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+        destinationAnchorID = Convert.ToInt16(destinationFullAnchor.Substring(destinationAnchorName.Length));
       }
 
       Int64 requestId;
@@ -1417,14 +1418,14 @@ namespace SysCAD.Editor
         if (destinationItem != null)
           arrow.Destination = destinationItem.Model;
 
-        if ((graphicLink.OriginPort != null) && ((originItem.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.OriginPort)))
-          arrow.OrgnAnchor = (originItem.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.OriginPort];
+        if ((graphicLink.OriginPort != null) && ((originItem.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.OriginPort + graphicLink.OriginPortID.ToString())))
+          arrow.OrgnAnchor = (originItem.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.OriginPort + graphicLink.OriginPortID.ToString()];
 
         else
           arrow.OrgnAnchor = -1;
 
-        if ((graphicLink.DestinationPort != null) && ((destinationItem.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.DestinationPort)))
-          arrow.DestAnchor = (destinationItem.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.DestinationPort];
+        if ((graphicLink.DestinationPort != null) && ((destinationItem.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.DestinationPort + graphicLink.DestinationPortID.ToString())))
+          arrow.DestAnchor = (destinationItem.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.DestinationPort + graphicLink.DestinationPortID.ToString()];
 
         else
           arrow.DestAnchor = -1;
@@ -1814,6 +1815,39 @@ namespace SysCAD.Editor
 
     private void fcFlowChartBoxModifying(object sender, BoxConfirmArgs e)
     {
+      //foreach (Arrow arrow in e.Box.IncomingArrows)
+      //{
+      //  if (arrow.ControlPoints.Count % 2 == 0)
+      //  {
+      //    // add dummy controlpoint to fix bug in mindfusion stuff.
+      //    List<SysCAD.Protocol.Point> points = new List<SysCAD.Protocol.Point>();
+      //    int i;
+      //    for (i=0; i<arrow.ControlPoints.Count; i++)
+      //    {
+      //      points.Add(new SysCAD.Protocol.Point(arrow.ControlPoints[i].X, arrow.ControlPoints[i].Y));
+      //    }
+      //    points.Add(new SysCAD.Protocol.Point(arrow.ControlPoints[i].X, arrow.ControlPoints[i].Y)); // add dummy last one.
+
+      //    State.SetControlPoints(arrow, points);
+      //  }
+      //}
+
+      //foreach (Arrow arrow in e.Box.OutgoingArrows)
+      //{
+      //  if (arrow.ControlPoints.Count % 2 == 0)
+      //  {
+      //    // add dummy controlpoint to fix bug in mindfusion stuff.
+      //    List<SysCAD.Protocol.Point> points = new List<SysCAD.Protocol.Point>();
+      //    int i;
+      //    for (i = 0; i < arrow.ControlPoints.Count; i++)
+      //    {
+      //      points.Add(new SysCAD.Protocol.Point(arrow.ControlPoints[i].X, arrow.ControlPoints[i].Y));
+      //    }
+      //    points.Add(new SysCAD.Protocol.Point(arrow.ControlPoints[i].X, arrow.ControlPoints[i].Y)); // add dummy last one.
+
+      //    State.SetControlPoints(arrow, points);
+      //  }
+      //}
 
       if (e.Box.Tag is Item)
       {
@@ -2054,7 +2088,7 @@ namespace SysCAD.Editor
           Guid guid;
           if (state.TVNavigation.SelectedNode != null)
           {
-            bool a = state.CreateGraphicItem(out requestId, out guid, "Tag", state.TVNavigation.SelectedNode.FullPath + state.TVNavigation.PathSeparator,
+            bool a = state.CreateGraphicItem(out requestId, out guid, "New Item " + tempTagExtension.ToString(), state.TVNavigation.SelectedNode.FullPath + state.TVNavigation.PathSeparator,
             modelStencil.Tag, modelStencil.Tag, new SysCAD.Protocol.Rectangle(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)),
             graphicStencil.defaultSize), 0.0, graphicStencil.TextArea, 0.0, Color.Empty, graphicStencil.fillMode, false, false);
           }

@@ -11844,10 +11844,10 @@ int CFlwSolver::FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn,
   p=InsertNode(m_pRoot, ClassIn, SubClassIn, PrimaryCfgIn, NTag, NULL, TOA_Free);
   if (pNd)
     *pNd=p;
-  if (pGuidStr)
-    p->SetGuid(pGuidStr);
   if (p)
     {
+    if (pGuidStr)
+      p->SetGuid(pGuidStr);
     if (SrcTag)
       {
       SCDFullTag T;

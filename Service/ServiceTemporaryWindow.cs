@@ -272,9 +272,91 @@ namespace Service
       this.requestId++;
       requestId = this.requestId;
 
-      if ((originGraphicItem != null) && (destinationGraphicItem != null)) // Decide whether to create an link.
+      if ((originGraphicItem != null) && (destinationGraphicItem != null)) // Decide whether to create a link.
       { // We're going to do it.
         // Create the item.
+
+
+        // Calculate the closest anchorpointid for unknown (-1) id's.
+        // The following is close, but I need to convert the link controlpoint to a relative position to the item
+        // before comparing to the anchor location...
+
+        //// Instead, for now:
+        //if (originPortID == -1) // unknown anchor id...
+        //  originPortID = 0;
+
+        //if (destinationPortID == -1) // unknown anchor id...
+        //  destinationPortID = 0;
+
+        if (originPortID == -1) // unknown anchor id...
+        {
+          Double minDistance = Double.MaxValue;
+          Int16 minID = 0;
+          ModelStencil modelStencil;
+          configData.ModelStencils.TryGetValue(originGraphicItem.Model, out modelStencil);
+          if (modelStencil != null)
+          {
+            foreach (Anchor anchor in modelStencil.Anchors)
+            {
+              if (anchor.Tag == originPort)
+              {
+                Double distance = 0.0;
+                Int16 ID = 0;
+                foreach (SysCAD.Protocol.Point position in anchor.Positions)
+                {
+                  SysCAD.Protocol.Point anchorPoint =
+                    new SysCAD.Protocol.Point(originGraphicItem.BoundingRect.X + originGraphicItem.BoundingRect.Width * position.X / 100.0,
+                                              originGraphicItem.BoundingRect.Y + originGraphicItem.BoundingRect.Height * position.Y / 100.0);
+                  SysCAD.Protocol.Point originPoint = controlPoints[0];
+                  distance = Math.Sqrt((originPoint.X - anchorPoint.X) * (originPoint.X - anchorPoint.X) + (originPoint.Y - anchorPoint.Y) * (originPoint.Y - anchorPoint.Y));
+                  if (distance < minDistance)
+                  {
+                    minDistance = distance;
+                    minID = ID;
+                  }
+                  ID++;
+                }
+              }
+            }
+          }
+          originPortID = minID;
+        }
+
+
+        if (destinationPortID == -1) // unknown anchor id...
+        {
+          Double minDistance = Double.MaxValue;
+          Int16 minID = 0;
+          ModelStencil modelStencil;
+          configData.ModelStencils.TryGetValue(destinationGraphicItem.Model, out modelStencil);
+          if (modelStencil != null)
+          {
+            foreach (Anchor anchor in modelStencil.Anchors)
+            {
+              if (anchor.Tag == destinationPort)
+              {
+                Double distance = 0.0;
+                Int16 ID = 0;
+                foreach (SysCAD.Protocol.Point position in anchor.Positions)
+                {
+                  SysCAD.Protocol.Point anchorPoint =
+                    new SysCAD.Protocol.Point(destinationGraphicItem.BoundingRect.X + destinationGraphicItem.BoundingRect.Width * position.X / 100.0,
+                                              destinationGraphicItem.BoundingRect.Y + destinationGraphicItem.BoundingRect.Height * position.Y / 100.0);
+                  SysCAD.Protocol.Point destinationPoint = controlPoints[controlPoints.Count - 1];
+                  distance = Math.Sqrt((destinationPoint.X - anchorPoint.X) * (destinationPoint.X - anchorPoint.X) + (destinationPoint.Y - anchorPoint.Y) * (destinationPoint.Y - anchorPoint.Y));
+                  if (distance < minDistance)
+                  {
+                    minDistance = distance;
+                    minID = ID;
+                  }
+                  ID++;
+                }
+              }
+            }
+          }
+          destinationPortID = minID;
+        }
+
 
         guid = Guid.NewGuid();
 

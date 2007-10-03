@@ -114,22 +114,24 @@ namespace SysCAD.Editor
           Dictionary<String, Bitmap> modelThumbnails = new Dictionary<String, Bitmap>();
           Dictionary<String, Bitmap> graphicThumbnails = new Dictionary<String, Bitmap>();
 
+          FlowChart thumbnailFlowchart = new FlowChart();
+
           foreach (String key in frmFlowChart.State.Config.ModelStencils.Keys)
           {
             ModelStencil stencil = config.ModelStencils[key];
-            frmFlowChart.FlowChart.DocExtents = frmFlowChart.FlowChart.ClientToDoc(new System.Drawing.Rectangle(0, 0, 17, 17));
-            frmFlowChart.FlowChart.ShadowsStyle = ShadowsStyle.None;
-            frmFlowChart.FlowChart.BackColor = System.Drawing.SystemColors.Window;
-            frmFlowChart.FlowChart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            RectangleF boxRect = frmFlowChart.FlowChart.ClientToDoc(new System.Drawing.Rectangle(1, 1, 13, 13));
-            Box box = frmFlowChart.FlowChart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
+            thumbnailFlowchart.DocExtents = frmFlowChart.FlowChart.ClientToDoc(new System.Drawing.Rectangle(0, 0, 17, 17));
+            thumbnailFlowchart.ShadowsStyle = ShadowsStyle.None;
+            thumbnailFlowchart.BackColor = System.Drawing.SystemColors.Window;
+            thumbnailFlowchart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            RectangleF boxRect = thumbnailFlowchart.ClientToDoc(new System.Drawing.Rectangle(1, 1, 13, 13));
+            Box box = thumbnailFlowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
             box.Style = BoxStyle.Shape;
             box.Shape = State.GetShapeTemplate(stencil, false, false);
             box.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
             box.FrameColor = System.Drawing.Color.FromArgb(255, System.Drawing.Color.BurlyWood);
             box.Locked = true;
-            modelThumbnails.Add(key, frmFlowChart.FlowChart.CreateImage());
-            frmFlowChart.FlowChart.DeleteObject(box);
+            modelThumbnails.Add(key, thumbnailFlowchart.CreateImage());
+            thumbnailFlowchart.DeleteObject(box);
           }
 
           stencilChooser1.PopulateTree(modelThumbnails, config.ModelStencils);

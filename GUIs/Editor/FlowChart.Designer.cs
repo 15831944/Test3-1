@@ -42,7 +42,7 @@ namespace SysCAD.Editor
       this.fcFlowChart.AllowUnconnectedArrows = true;
       this.fcFlowChart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
       this.fcFlowChart.ArrowBrush = new MindFusion.FlowChartX.SolidBrush("#FF000000");
-      this.fcFlowChart.ArrowCascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+      this.fcFlowChart.ArrowCascadeOrientation = MindFusion.FlowChartX.Orientation.Auto;
       this.fcFlowChart.ArrowCrossings = MindFusion.FlowChartX.ArrowCrossings.BreakOff;
       this.fcFlowChart.ArrowHandlesStyle = MindFusion.FlowChartX.HandlesStyle.SquareHandles2;
       this.fcFlowChart.ArrowHead = MindFusion.FlowChartX.ArrowHead.Triangle;
