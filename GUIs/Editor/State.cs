@@ -748,14 +748,14 @@ namespace SysCAD.Editor
             SetControlPoints(arrow, graphicLink.ControlPoints);
           }
 
-          //if (graphicLink.ControlPoints[0].X == graphicLink.ControlPoints[1].X)
-          //{
+          if (graphicLink.ControlPoints[0].X == graphicLink.ControlPoints[1].X)
+          {
             arrow.CascadeOrientation = Orientation.Auto;
-          //}
-          //else
-          //{
-          //  arrow.CascadeOrientation = Orientation.Auto;
-          //}
+          }
+          else
+          {
+            arrow.CascadeOrientation = Orientation.Auto;
+          }
         }
 
         Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);

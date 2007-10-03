@@ -929,7 +929,7 @@ namespace SysCAD.Editor
       if (destinationGraphicItem != null)
         destinationGraphicItem.anchorIntToTag.TryGetValue(e.Arrow.DestAnchor, out destinationFullAnchor);
 
-      if (originFullAnchor != null)
+      if (destinationFullAnchor != null)
       {
         destinationAnchorName = destinationFullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
         destinationAnchorID = Convert.ToInt16(destinationFullAnchor.Substring(destinationAnchorName.Length));
@@ -1513,8 +1513,14 @@ namespace SysCAD.Editor
         String hoverTag = (hoverBox.Tag as Item).Tag;
         int hoverAnchor = closestI;
 
-        form1.ToolStripStatusLabel.Text = "Item: " + hoverTag +
-" : " + " Port: " + (hoverBox.Tag as Item).GraphicItem.anchorIntToTag[hoverAnchor].TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+        String anchorString;
+        (hoverBox.Tag as Item).GraphicItem.anchorIntToTag.TryGetValue(hoverAnchor, out anchorString);
+
+        if (anchorString != null)
+        {
+          form1.ToolStripStatusLabel.Text = "Item: " + hoverTag +
+  " : " + " Port: " + anchorString.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+        }
       }
 
       if (hoverArrow != null)
@@ -1968,10 +1974,10 @@ namespace SysCAD.Editor
         List<SysCAD.Protocol.Point> controlPoints = State.GetControlPoints(arrow.ControlPoints);
 
         if (Math.Abs(controlPoints[0].X - controlPoints[1].X) <= fcFlowChart.MergeThreshold)
-          arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;
+          arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Auto;
 
         else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold)
-          arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
+          arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Auto;
 
         GraphicLink graphicLink = (arrow.Tag as Link).GraphicLink as GraphicLink;
 
