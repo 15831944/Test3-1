@@ -972,6 +972,7 @@ DllImportExport char*  ExeFile();
 
 DllImportExport Strng FnDefaultControlsFolder();
 DllImportExport Strng FnDefaultReactionsFolder();
+DllImportExport Strng FnSpecieDataINIFile();
 
 DllImportExport char*  SetDllFilesPath(char* FP);
 DllImportExport char*  ClrDllFilesPath();

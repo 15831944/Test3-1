@@ -9915,6 +9915,9 @@ flag CFlwSolver::Init(flag *pStatusLoadReqd, flag * pAssocGrfsLoadReqd)
   m_PrjSDBName.FnExpand();
   m_PrjCnvsDBName.FnExpand();
 
+  m_SpecieDataINIFile = FnSpecieDataINIFile();
+  m_SpecieDataINIFile.FnExpand();
+
   //load...
   int CnvsLoadedCnt = 0;
   if (PrjFileVerNo()<51)
@@ -10041,6 +10044,9 @@ flag CFlwSolver::Init(flag *pStatusLoadReqd, flag * pAssocGrfsLoadReqd)
 
   m_PrjSDBName.FnMakePrjFileRelative();
   m_PrjSDBName.FnContract();
+
+  m_SpecieDataINIFile.FnMakePrjFileRelative();
+  m_SpecieDataINIFile.FnContract();
 
   CDbgMngr DbgSpTest("SpContainer", "Test");
   if (DbgSpTest())
@@ -13036,25 +13042,27 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
       if (m_RQ_Files_Cnt<7)
         {
         char *p=NULL;
-        int MaxCnt=5;
+        int MaxCnt=6;
+        int FirstLclFile=4;
         while (p==NULL && (m_RQ_Files_Cnt<MaxCnt))
           {
           switch (m_RQ_Files_Cnt)
             {
-            case 0: p=CfgFile();         break;
-            case 1: p=m_PrjCnvsDBName(); break;
-            case 2: p=m_PrjSDBName();    break;
-            case 3: p="Other.dat";       break;
-            case 4: p=MDBName;   break;
+            case 0: p=CfgFile();               break;
+            case 1: p=m_PrjCnvsDBName();       break;
+            case 2: p=m_PrjSDBName();          break;
+            case 3: p=m_SpecieDataINIFile();   break;
+            case 4: p="Other.dat";             break;
+            case 5: p=MDBName;                 break;
             }
           if (p)
             {
-            Info.dwData       = m_RQ_Files_Cnt < 3 ? 4 : 1;
+            Info.dwData       = m_RQ_Files_Cnt < FirstLclFile ? 4 : 1;
             Info.bCanEditFile = false;
-            Info.bForceCopy   = false;
+            Info.bForceCopy   = true;
             Info.bExcelFile   = false;
             Info.bPreventCopy = (m_RQ_Files_Cnt==1);//because m_PrjCnvsDBName==m_PrjSDBName
-            Info.sData        = m_RQ_Files_Cnt < 3 ? "" : PrjFiles();
+            Info.sData        = m_RQ_Files_Cnt < FirstLclFile ? "" : PrjFiles();
             Info.sData += p;
             Info.sData.FnContract();
             m_RQ_Files_Cnt++;

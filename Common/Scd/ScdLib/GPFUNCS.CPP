@@ -4156,6 +4156,15 @@ Strng FnDefaultReactionsFolder()
 
 //---------------------------------------------------------------------------
 
+Strng FnSpecieDataINIFile()
+  {
+  Strng Fn=FnDefaultReactionsFolder();
+  Fn+="SpecieData.ini";
+  return Fn;
+  }
+
+//---------------------------------------------------------------------------
+
 HINSTANCE AFXAPI MyAfxLoadLibrary( LPCTSTR lpszModuleName, char * DllPath)
   {
   HINSTANCE hLib=NULL;

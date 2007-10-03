@@ -572,6 +572,10 @@
 			RelativePath="System.Drawing.dll"
 			AssemblyName="System.Drawing, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
 		/>
+		<AssemblyReference
+			RelativePath="..\..\Bin\LogView.dll"
+			AssemblyName="LogView, Version=1.0.2832.25292, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
+		/>
 	</References>
 	<Files>
 		<Filter

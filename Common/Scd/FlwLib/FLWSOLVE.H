@@ -775,7 +775,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     CString        SecsBuff;
     Strng          m_PrjCnvsDBName;
     Strng          m_PrjSDBName;
-
+    Strng          m_SpecieDataINIFile;
     CArray<FlwNode*> m_TempNdPtrs;
   };
 
