@@ -394,7 +394,7 @@ namespace SysCAD.Editor
 
       clientProtocol.ItemCreated += itemCreatedHandler;
       clientProtocol.PortInfoRequested += portInfoRequestedHandler;
-      clientProtocol.ItemModified -= itemModifiedHandler;
+      clientProtocol.ItemModified += itemModifiedHandler;
       clientProtocol.ItemDeleted += itemDeletedHandler;
 
       clientProtocol.LinkCreated += linkCreatedHandler;

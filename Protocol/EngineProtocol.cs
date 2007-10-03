@@ -76,7 +76,13 @@ namespace SysCAD.Protocol
 
     private void Renounce(string name)
     {
-      serviceGraphic.Renounce(name);
+      try
+      {
+        serviceGraphic.Renounce(name);
+      }
+      catch (Exception)
+      {
+      }
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)

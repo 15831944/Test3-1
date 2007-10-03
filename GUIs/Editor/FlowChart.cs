@@ -725,7 +725,7 @@ namespace SysCAD.Editor
 
         else
         {
-          String fullAnchor = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[oldOriginAnchor];
+          String fullAnchor = (oldOriginBox.Tag as Item).GraphicItem.anchorIntToTag[oldOriginAnchor];
           String anchorName = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
           Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length));
           newGraphicLink.OriginPort = anchorName;
@@ -734,6 +734,9 @@ namespace SysCAD.Editor
       }
 
       newGraphicLink.ControlPoints = State.GetControlPoints(e.Arrow.ControlPoints);
+
+      newGraphicLink.TextArea = new SysCAD.Protocol.Rectangle(0.0, 0.0, 0.0, 0.0);
+
 
       fcFlowChart.DeleteObject(e.Arrow);
 
@@ -2088,9 +2091,12 @@ namespace SysCAD.Editor
           Guid guid;
           if (state.TVNavigation.SelectedNode != null)
           {
-            bool a = state.CreateGraphicItem(out requestId, out guid, "New Item " + tempTagExtension.ToString(), state.TVNavigation.SelectedNode.FullPath + state.TVNavigation.PathSeparator,
-            modelStencil.Tag, modelStencil.Tag, new SysCAD.Protocol.Rectangle(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)),
-            graphicStencil.defaultSize), 0.0, graphicStencil.TextArea, 0.0, Color.Empty, graphicStencil.fillMode, false, false);
+            tempTagExtension++;
+            SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(fcFlowChart.ClientToDoc(fcFlowChart.PointToClient(new System.Drawing.Point(e.X, e.Y))), graphicStencil.defaultSize);
+            SysCAD.Protocol.Rectangle textArea = new SysCAD.Protocol.Rectangle(0.0, 0.0, 0.0, 0.0);
+            bool a = state.CreateGraphicItem(out requestId, out guid, "Item " + tempTagExtension.ToString(), state.TVNavigation.SelectedNode.FullPath + state.TVNavigation.PathSeparator,
+            modelStencil.Tag, modelStencil.Tag, 
+            boundingRect, 0.0, textArea, 0.0, Color.Empty, graphicStencil.fillMode, false, false);
           }
         }
       }

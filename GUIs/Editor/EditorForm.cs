@@ -634,6 +634,8 @@ namespace SysCAD.Editor
         {
           projectOpen = frmFlowChart.State.ProjectOpen;
           permissions = frmFlowChart.State.Permissions;
+          permissions.Create = true;
+          permissions.Modify = true;
         }
 
         barManager1.Commands["File.PrintPreview"].Enabled = projectOpen;
@@ -654,7 +656,10 @@ namespace SysCAD.Editor
         barManager1.Commands["Selection.SelectLinks"].Enabled = projectOpen;
         barManager1.Commands["CreateItem.ModelType"].Enabled = projectOpen && permissions.Create;
         barManager1.Commands["Mode.Modify"].Enabled = projectOpen && permissions.Modify;
+        
         barManager1.Commands["Mode.CreateLink"].Enabled = projectOpen && permissions.Create;
+        stencilChooser1.Enabled = projectOpen && permissions.Create;
+
         barManager1.Commands["Edit.Cut"].Enabled = projectOpen && permissions.Delete;
         barManager1.Commands["Edit.Copy"].Enabled = projectOpen;
         barManager1.Commands["Edit.Delete"].Enabled = projectOpen;
