@@ -3247,6 +3247,7 @@ bool GSModel::CorrectRequirements(double HfSpecReqd, double HfSpecdStreams, int 
     bool CoolSpecd = HfSpecReqd <= HfSpecdStreams;
     int nGroups   = 0;
     int LastSpecd = -1;
+    int NFree = 0;
     int iPrevPriority = 0;
 
     for (int j = 0;j<NPri; j++)
@@ -3289,7 +3290,10 @@ bool GSModel::CorrectRequirements(double HfSpecReqd, double HfSpecdStreams, int 
           Aj.m_iGroup=-1;
         }
       else
+        {
         Aj.m_iGroup=-1;
+        NFree++;
+        }
       } 
 
     if (LastSpecd>=0)
@@ -3324,7 +3328,7 @@ bool GSModel::CorrectRequirements(double HfSpecReqd, double HfSpecdStreams, int 
         SetCI(6); 
       ClrCI(7);
       }
-    else
+    else if (NFree==0)
       SetCI(7);
     }
   else
