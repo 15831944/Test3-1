@@ -637,14 +637,22 @@ ReTry:
           {
           USES_CONVERSION;
           COleVariant VS=fieldData[iDef];
-          if (VS.vt==VT_BSTR)
-            dbgpln("              %2i %s = %s", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName, OLE2CT(VS.bstrVal));
-          else
-            dbgpln("              %2i %s", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName);
+          switch (VS.vt)
+            {
+            case VT_BSTR: dbgpln("              %2i %s = %s", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName, OLE2CT(VS.bstrVal)); break;
+            case VT_I1:   dbgpln("              %2i %s = %i", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName, VS.bVal); break;
+            case VT_I2:   dbgpln("              %2i %s = %i", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName, VS.iVal); break;
+            case VT_I4:   dbgpln("              %2i %s = %i", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName, VS.lVal); break;
+            case VT_R4:   dbgpln("              %2i %s = %10.4e", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName, VS.fltVal); break;
+            case VT_R8:   dbgpln("              %2i %s = %10.4e", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName, VS.dblVal); break;
+            default:      dbgpln("              %2i %s", fieldData[iDef].vt, fieldDefs[iDef]->strFieldName);  break;
+            }
           }
         pRS1->Fields->GetItem((LPCTSTR)fieldDefs[iDef]->strFieldName)->Value=fieldData[iDef];
         }
       iDef = -1;
+      if (DbgIt)
+         dbgpln("              --------------");
       //          pRS->Update();
 
       if (Options & CO_SetDefaultValues)

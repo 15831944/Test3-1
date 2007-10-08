@@ -13059,9 +13059,9 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
             {
             Info.dwData       = m_RQ_Files_Cnt < FirstLclFile ? 4 : 1;
             Info.bCanEditFile = false;
-            Info.bForceCopy   = true;
+            Info.bForceCopy   = m_RQ_Files_Cnt == 3;
             Info.bExcelFile   = false;
-            Info.bPreventCopy = (m_RQ_Files_Cnt==1);//because m_PrjCnvsDBName==m_PrjSDBName
+            Info.bPreventCopy = m_RQ_Files_Cnt == 1 ;//because m_PrjCnvsDBName==m_PrjSDBName
             Info.sData        = m_RQ_Files_Cnt < FirstLclFile ? "" : PrjFiles();
             Info.sData += p;
             Info.sData.FnContract();

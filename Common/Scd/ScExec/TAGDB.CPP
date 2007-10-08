@@ -206,6 +206,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
         }
       catch (_com_error & e)
         {
+        int xxx=0; 
         e; // ignore
         return FALSE;
         }
@@ -226,6 +227,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
         }
       catch (_com_error & e)
         {
+        int xxx=0; 
         e; // ignore
         return FALSE;
         }
@@ -241,6 +243,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
         }
       catch (_com_error & e)
         {
+        int xxx=0; 
         e; // ignore
         OK=FALSE;
         }
@@ -256,6 +259,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
         }
       catch (_com_error & e)
         {
+        int xxx=0; 
         e; // ignore
         OK=FALSE;
         }
@@ -1140,6 +1144,7 @@ int CTagDBMDB::LoadObject(CXM_ObjectData *pObjData, flag CreateOnly)
         }
       catch (_com_error & e)
         {
+        int xxx=0; 
         e; // ignore
         OPrimaryCfg="";
         }
