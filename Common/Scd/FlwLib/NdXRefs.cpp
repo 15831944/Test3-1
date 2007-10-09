@@ -1115,10 +1115,8 @@ CNodeTagIOItem::~CNodeTagIOItem()
 void CNodeTagIOItem::SetTag(LPCSTR NewTag)
   {
   Strng sTag, sCnv;
-  TaggedObject::SplitTagCnv((LPSTR)NewTag, sTag, sCnv);
+  TaggedObject::SplitTagCnv((LPSTR)(NewTag?NewTag:""), sTag, sCnv);
 
-  //Strng sTag(NewTag ? NewTag:""); 
-  //sTag.LRTrim();
   bool bTagChanged=false;
   if (sTag.GetLength()>0)
     bTagChanged = m_sTagOnly.CompareNoCase(sTag())!=0;
