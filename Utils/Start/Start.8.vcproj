@@ -48,7 +48,7 @@
 				Name="VCPreBuildEventTool"
 				Description="SVNAutomate -- Update Common\scd\scdlib\svn.h"
 				CommandLine="..\..\SMDK\SVNAutomate.exe ..\..\Common\scd\scdlib\svn.h"
-				ExcludedFromBuild="true"
+				ExcludedFromBuild="false"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

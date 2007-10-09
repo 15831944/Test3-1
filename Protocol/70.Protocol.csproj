@@ -101,10 +101,6 @@
     <Compile Include="ThingStencil1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="LogView, Version=1.0.2788.21984, Culture=neutral, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common\LogView\bin\Debug\LogView.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -114,5 +110,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Protocol.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\LogView\71.Log.csproj">
+      <Project>{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}</Project>
+      <Name>71.Log</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
