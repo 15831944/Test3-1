@@ -51,6 +51,8 @@ wzzip -a %fn2% ..\bin\scdslv.dll ..\bin\scdvb.dll ..\bin\scexec.dll ..\bin\schis
 wzzip -a %fn2% ..\bin\separ1.dll ..\bin\separ2.dll ..\bin\sizedst1.dll ..\bin\devlib.dll ..\bin\devlibex.dll ..\bin\unzip32.dll 
 wzzip -a %fn2% ..\bin\xylib.dll ..\bin\zip32.dll ..\bin\power1.dll 
 
+wzzip -a %fn2% ..\bin\regexwrap.dll ..\bin\sha512wrap.dll  
+
 wzzip -a %fn2% ..\bin\regall.cmd ..\bin\syscad91.tlb ..\bin\scdif.tlb ..\bin\scdmdl.tlb ..\bin\scdslv.tlb 
 wzzip -a %fn2% ..\bin\scdvb.tlb ..\bin\scdcom.tlb
 
