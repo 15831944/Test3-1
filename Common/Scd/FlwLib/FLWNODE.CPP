@@ -3142,11 +3142,10 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
     Enabled=D.Enabled;// && D.MethodEnable(NetMethod());
     }
 
-    // Show in Probal Also
+  // Show in Probal Also
   if ((DDB.ForFileSnpScn() || NetDynamicMethod() || 1) && Enabled)
     {
     DDB.Visibility();
-    DDB.Page("DirectIO", DDB_RqdPage);
     if (DDB.ForFileSnpScn())
       {
       if (DDB.BeginArray(this, "DIO", PrjFileVerNo()<107 ? "DirectedIO":"DirectIO", Joins.GetSize(), 0, DDB_NoPage))
@@ -3163,8 +3162,17 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
       }
     else
       {
-      //if (DDB.BeginStruct(this, "DIO", PrjFileVerNo()<107 ? "DirectedIO":"DirectIO", Joins.GetSize(), 0, DDB_NoPage))
+      bool DoIt=false;
+      for (int i=0; !DoIt && i<m_AttachedDirectIOs.GetCount(); i++)
         {
+        CDirectFlwIO & D=*m_AttachedDirectIOs[i];
+        DoIt=D.Enabled && (D.m_pFlng!=NULL);
+        }
+
+      if (DoIt)
+        {
+        DDB.Visibility();
+        DDB.Page("DirectIO", DDB_RqdPage);
         for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
           {
           CDirectFlwIO & D=*m_AttachedDirectIOs[i];
@@ -3209,41 +3217,6 @@ void FlwNode::BuildDataDefnAreaIOs_OnOff(DataDefnBlk & DDB)
     //  m_AttachedDirectIOs[i]->BuildDataDefn(DDB, "DIO", NULL, DDB_NoPage, 99500+i, DFIO_ShowQm);
     }
   };
-
-//--------------------------------------------------------------------------
-
-void FlwNode::BuildCommonEndDefn(DataDefnBlk & DDB)
-  {
-#if WITHEQUIPSPECS
-  if (CustomData())
-    CustomData()->BuildDataDefnData(DDB, this);
-#endif
-
-//?
-//     CTOCustomData::CDataSet &DataSet = *CustomDataSelected();
-//    DDB.Page("CD", DDB_RqdPage);
-//    Strng Tbl(Class()->ClassIdNoVersion());
-//    Tbl+="_CD";
-//    if (DDB.BeginObject(this, "CD", Tbl()))
-//      {
-//      for (int f=0; f<DataSet.FieldCount(); f++)
-//        DataSet.Field(f).BuildDataDefn(DDB, this);
-//      }
-//    DDB.EndObject();
-//    }
-  
-  BuildDataDefnAreaIOs(DDB);
-
-  CTNode::BuildCommonEndDefn(DDB);
-#if WITHNODEPROCS
-  if (m_ProcsAllowed && m_ProcsReqd)
-    m_pProcs->BuildDataDefn(DDB);
-#endif
-#if WITHNODETAGIO
-  if (m_pTagIO)
-    m_pTagIO->BuildDataDefn(DDB);
-#endif
-  }
 
 //--------------------------------------------------------------------------
 
@@ -3589,7 +3562,61 @@ static DDBValueLst SolutionStrsN[]={
 
 void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   {
+  Strng Md("Mode: ");
+
+  if (m_AllowedModes & NM_All)
+    {
+    if (Md.GetLength()>6)
+      Md+=", ";
+    Md+=NetMethodStr();
+    }
+
+  if ((m_AllowedModes & SM_All) && NetMethod()==NM_Dynamic)
+    {
+    if (Md.GetLength()>6)
+      Md+=", ";
+    Md+=SolveMethodStr();
+    }
+
+  if (m_AllowedModes & HM_All)
+    {
+    if (Md.GetLength()>6)
+      Md+=", ";
+    Md+=HeatMethodStr();
+    }
+
+  if ((m_AllowedModes & LFM_All) && NetMethod()==NM_Dynamic)
+    {
+    if (Md.GetLength()>6)
+      Md+=", ";
+    Md+=FlowModeStr();
+    }
+  DDB.Text(Md());
+
   CTNode::BuildCommonStartDefn(DDB);
+
+
+#if WITHNODEPROCS
+  if (m_ProcsAllowed)
+    {
+    DDB.CheckBoxBtn("Procedures", "", DC_, "", xidProcsEnable,  this, isParmStopped|SetOnChange);
+    //DDB.Byte("Procedures", "", DC_, "", xidProcsEnable,  this, isParmStopped|SetOnChange, DDBOnOff);
+    }
+#endif
+
+
+  DDB.String      ("Condition",      "", DC_, "", xidNdCondition,       this, MultiLineStr|noFile|noSnap);
+  DDB.Long        ("ConditionCount", "", DC_, "", xidNdConditionCount,  this, noFile|noSnap);
+
+  //CTNode::BuildCommonSEDefn(DDB);
+
+  }
+
+//--------------------------------------------------------------------------
+
+void FlwNode::BuildCommonSEDefn(DataDefnBlk & DDB)
+  {
+  CTNode::BuildCommonSEDefn(DDB);
 
   //DDB.Text(" ");
   LPTSTR AreaTag=PrjFileVerNo()<96 ? "Location":"PlantArea";
@@ -3600,32 +3627,8 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   DDB.Double ("Origin.Z",   "", DC_L,    "m",  &m_Origin.m_Z,    this, isParmStopped|InitHidden);
   DDB.Text(" ");
 
-  //GetGlblModeValueLst(DDBR, GetPermissableRunModes(SM_All));
-  //if (m_DDBSolveModes.Length()>0)
-  //  {
-  //  DDBValueLstMem DDBR;
-  //  for (int i=0; i<m_DDBSolveModes.Length(); i++)
-  //    {
-  //    DDBValueLst &V=*m_DDBSolveModes.Item(i);
-  //    if (V.m_lVal & GetPermissableRunModes(SM_All))//GlblSolveMode())
-  //      DDBR.Add(V.m_lVal & SM_All, V.m_pStr, V.m_dwFlags);
-  //    }
-  //  DDBR.Add(0, "None", MDD_Hidden);
-  //  DDB.Long("SolveMethod", "", DC_, "", xidSolveMode,   this, isParmStopped|SetOnChange, &DDBR);
-  //  }
-
   if (m_AllowedModes & NM_All)
     {
-    //DDBValueLstMem DDBR;
-    //if (NM_Probal & GetPermissableRunModes(NM_All))
-    //  DDBR.Add(NM_Probal, "ProBal");
-    //if (NM_Dynamic & GetPermissableRunModes(NM_All))
-    //  DDBR.Add(NM_Dynamic, "Dynamic");
-    //if (m_AllowedModes & SM_Inline & GetPermissableRunModes(SM_All))
-    //  DDBR.Add(SM_Inline, "Inline");
-    //if (m_AllowedModes & SM_Buffered & GetPermissableRunModes(SM_All))
-    //  DDBR.Add(SM_Buffered, "Buffered");
-    //DDBR.Add(0, "None", MDD_Hidden);
     DDBValueLstMem DDBModes;
     GetGlblModeValueLst(DDBModes, GetPermissableModes(m_AllowedModes&NM_All, this), DefNetMode(), false);
     // This could opened up 
@@ -3667,15 +3670,6 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
         DDB.String("FlowMode",   "", DC_, "", xidFlowMode, this, isParmStopped, &DDBModes);
       }
     }
-
-#if WITHNODEPROCS
-  if (m_ProcsAllowed)
-    {
-    DDB.CheckBoxBtn("Procedures", "", DC_, "", xidProcsEnable,  this, isParmStopped|SetOnChange);
-    //DDB.Byte("Procedures", "", DC_, "", xidProcsEnable,  this, isParmStopped|SetOnChange, DDBOnOff);
-    }
-#endif
-
   if (!fSolutionForRoot)
     {
     DDBValueLstMem DDBModes;
@@ -3716,10 +3710,6 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
     DDB.String      ("EvalOrderActual",  "", DC_, "", xidEvalOrderDiff, this, InitHidden);
 #endif
     }
-
-
-  DDB.String      ("Condition",      "", DC_, "", xidNdCondition,       this, MultiLineStr|noFile|noSnap);
-  DDB.Long        ("ConditionCount", "", DC_, "", xidNdConditionCount,  this, noFile|noSnap);
 
   //DDB.CheckBoxBtn ("ShowPressNet", "", DC_, "", xidShwPrsNet,  this, isParm|noFileAtAll|InitHidden);
   //DDB.CheckBoxBtn ("ShowFlowNet",  "", DC_, "", xidShwFlwNet,  this, isParm|noFileAtAll|InitHidden);
@@ -3776,6 +3766,41 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
 
   if (CustomData())
     CustomData()->BuildDataDefnHead(DDB, this);
+#endif
+
+  }
+//--------------------------------------------------------------------------
+
+void FlwNode::BuildCommonEndDefn(DataDefnBlk & DDB)
+  {
+#if WITHEQUIPSPECS
+  if (CustomData())
+    CustomData()->BuildDataDefnData(DDB, this);
+#endif
+
+//?
+//     CTOCustomData::CDataSet &DataSet = *CustomDataSelected();
+//    DDB.Page("CD", DDB_RqdPage);
+//    Strng Tbl(Class()->ClassIdNoVersion());
+//    Tbl+="_CD";
+//    if (DDB.BeginObject(this, "CD", Tbl()))
+//      {
+//      for (int f=0; f<DataSet.FieldCount(); f++)
+//        DataSet.Field(f).BuildDataDefn(DDB, this);
+//      }
+//    DDB.EndObject();
+//    }
+  
+  BuildDataDefnAreaIOs(DDB);
+
+  CTNode::BuildCommonEndDefn(DDB);
+#if WITHNODEPROCS
+  if (m_ProcsAllowed && m_ProcsReqd)
+    m_pProcs->BuildDataDefn(DDB);
+#endif
+#if WITHNODETAGIO
+  if (m_pTagIO)
+    m_pTagIO->BuildDataDefn(DDB);
 #endif
   }
 

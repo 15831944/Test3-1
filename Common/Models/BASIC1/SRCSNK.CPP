@@ -198,7 +198,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
 
   DDB.Text   ("");
-  DDB.Text   ("Requirements:");
+  DDB.Text   ("Flow Requirements:");
   //DDB.Text   ("Mode of Operation");
   DDB.Visibility(NM_Dynamic|SM_All|HM_All|SM_Direct);
   DDB.Byte   ("",             "Qm_Mode", DC_, "", &QmRqdMode,  this, (fCrossConnected?0:isParm)|SetOnChange, DDB0);
@@ -228,14 +228,17 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
     }
   DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstQm)!=0)||
                             NetProbalMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)));
+  DDB.Text(" ");
   DDB.Double ("MassFlow_Rqd", "Qm_Rqd", DC_Qm , "kg/s", xidQmRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
   if (bMakeUpMode)
     DDB.TagComment("Min");
   DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstQv)!=0));
+  DDB.Text(" ");
   DDB.Double ("VolFlow_Rqd",  "Qv_Rqd", DC_Qv , "L/s",  xidQvRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
   if (bMakeUpMode)
     DDB.TagComment("Min");
   DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstNQv)!=0));
+  DDB.Text(" ");
   DDB.Double ("NVolFlow_Rqd",  "NQv_Rqd", DC_NQv , "NL/s",  xidNQvRqd,  this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
 
   if (NetDynamicMethod())
@@ -245,7 +248,8 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("Q_Tau",         "",    DC_Time,  "s",     &dQ_Tau,        this, (fCrossConnected?0:isParm)|InitHidden);
     }
   DDB.Visibility();
-  DDB.Text  (SSMode & SSM_Sink ? "Sink Conditions" : "Feed Conditions");
+  DDB.Text(" ");
+  DDB.Text  (SSMode & SSM_Sink ? "Sink Conditions" : "Temperature & Pressure Requirements:");
   DDB.Byte  ("VLEquilibrium",  "",             DC_, "", xidSSVLEOnOff,  this, (fCrossConnected?0:isParm)|SetOnChange, DDBVLEO);
   DDB.Visibility(NSHM_All);
   
@@ -280,6 +284,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   if (NetDynamicMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+    DDB.Text(" ");
     DDB.Text  ("Batch Feed");
     DDB.Double("Batch",         "",    DC_M   , "kg",     &BatchAvail,    this, (fCrossConnected?0:isParm)|NAN_OK);
     DDB.Double("BatchAddition", "",    DC_M   , "kg",     xidBatchAddition, this, (fCrossConnected?0:isParm)|noFileAtAll);
@@ -302,12 +307,20 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double ("NDensity",     "NRho", DC_Rho,  "kg/m^3", xidNRho,       this, isResult|noFile|noSnap);
   DDB.Double ("Pressure",     "P",    DC_P,    "kPag",   xidPMean,      this, isResult|noFile|noSnap);
 
-  DDB.Visibility(NSHM_All, !fCrossConnected);
-  DDB.Text  ("");
-  m_BlkEval.Add_OnOff(DDB);  
+  //DDB.Visibility(NSHM_All, !fCrossConnected);
+  //DDB.Text  ("");
+  //m_BlkEval.Add_OnOff(DDB);  
+
+  if (!NetProbalMethod())
+    {
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+    P_RegB.BuildDataDefn(DDB, this, "Rate", 1);
+    T_RegB.BuildDataDefn(DDB, this, "Temp", 2);
+    }
 
   DDB.Visibility();
-  DDB.Text  ("");
+  //DDB.Text  ("");
+  DDB.Page   ("XPg", DDB_RqdPage);
   DDB.Text   ("Cross Page Connection");
   DDB.CheckBoxBtn("",       "ConnectionOn", DC_, "", &fConnectionOn,   this, sConnectTag.Length()>0 ? isParmStopped : isParmConstruct);
   DDB.String ("Connection", "Conn_To",      DC_, "", xidConnectTag,    this, 
@@ -318,12 +331,6 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   m_CF.m_bAllowFlow = ((SSMode&SSM_ConstP)==0);
   m_CF.BuildDataDefn(DDB);
 
-  if (!NetProbalMethod())
-    {
-    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-    P_RegB.BuildDataDefn(DDB, this, "Rate", 1);
-    T_RegB.BuildDataDefn(DDB, this, "Temp", 2);
-    }
 
   DDB.Visibility(NSHM_All);
 
@@ -334,8 +341,8 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double("QOut",         "",    DC_Qm  , "kg/s",   &dQ_Out,  this, isResult|0);
   DDB.Double("TOut",         "",    DC_T   , "C",      &dT_Out,  this, isResult|0);
 
-  DDB.Visibility(NSHM_All, !fCrossConnected);
-  m_BlkEval.BuildDataDefn(DDB);
+  //DDB.Visibility(NSHM_All, !fCrossConnected);
+  //m_BlkEval.BuildDataDefn(DDB);
 
   DDB.Visibility(NSHM_All, (SSMode & SSM_Source) || (iRevFlw==SSQmRev_Image));
   DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);

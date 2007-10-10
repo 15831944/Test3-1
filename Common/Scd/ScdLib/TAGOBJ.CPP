@@ -3353,26 +3353,45 @@ LPSTR TaggedObject::SetGuid(LPSTR strGuid)
 void TaggedObject::BuildCommonStartDefn(DataDefnBlk &DDB)
   {
   DDB.String      ("Tag",         "", DC_,   "", xidTag,                this, 0|DDEF_WRITEPROTECT);
-  DDB.String      ("Parent",      "", DC_,   "", xidParent,             this, 0|DDEF_WRITEPROTECT|InitHidden);
-  DDB.String      ("Type",        "", DC_,   "", &m_pClass->sClassName, this, 0|DDEF_WRITEPROTECT);
-  DDB.String      ("ClassId",     "", DC_,   "", &m_pClass->sClassId,   this, 0|DDEF_WRITEPROTECT|InitHidden);
-  DDB.String      ("PrimaryCfg",  "", DC_,   "", xidPrimaryCfg,         this, 0|InitHidden);
-  DDB.String      ("EqpDesc",     "", DC_,   "", xidEqDesc,             this, isParm);
-  DDB.String      ("EqpMemo",     "", DC_,   "", xidEqMemo,             this, isParm|InitHidden);
-  DDB.String      ("EqpIdStr",    "", DC_,   "", xidEqIdStr,            this, isParm|InitHidden);
-  DDB.String      ("EqpLocation", "", DC_,   "", xidEqLocation,         this, isParm|InitHidden);
-  DDB.String      ("EqpGUID",     "", DC_,   "", xidEqGUID,             this, isParmConstruct|InitHidden);
-  DDB.Long        ("EqpLink",     "", DC_,   "", xidEqLink,             this, isParmConstruct|InitHidden);
-  DDB.Long        ("ReportKey",   "", DC_,   "", xidEqRepKey,           this, isParm|InitHidden);
-  if (dbgtestfileopen())
-    DDB.CheckBoxBtn ("DbgBrk",    "", DC_,   "", &fDoDbgBrk,            this, isParm);
-  DDB.CheckBoxBtn ("SkipSnapLoad","", DC_,   "", &bSkipSnapLoad,        this, isParm|InitHidden|noFileAtAll);
+  if (DDB.ForFileSnpScn())
+    BuildCommonSEDefn(DDB);
   //if (DDB.ForFiling())
   //  {
   //  DDB.DWord     ("AssocGrfShow", "", DC_,   "", &m_AssocGrfShow,  this, isParm|SetOnChange);
   //  DDB.DWord     ("AssocGrfHide", "", DC_,   "", &m_AssocGrfHide,  this, isParm|SetOnChange);
   //  }
   }
+
+void TaggedObject::BuildCommonSEDefn(DataDefnBlk &DDB)
+  {
+  DDB.String      ("Parent",      "", DC_,   "", xidParent,             this, 0|DDEF_WRITEPROTECT/*|InitHidden*/);
+  DDB.String      ("Type",        "", DC_,   "", &m_pClass->sClassName, this, 0|DDEF_WRITEPROTECT);
+  DDB.String      ("ClassId",     "", DC_,   "", &m_pClass->sClassId,   this, 0|DDEF_WRITEPROTECT/*|InitHidden*/);
+  DDB.String      ("PrimaryCfg",  "", DC_,   "", xidPrimaryCfg,         this, 0|InitHidden);
+  DDB.String      ("EqpDesc",     "", DC_,   "", xidEqDesc,             this, isParm);
+  DDB.String      ("EqpMemo",     "", DC_,   "", xidEqMemo,             this, isParm/*|InitHidden*/);
+  DDB.String      ("EqpIdStr",    "", DC_,   "", xidEqIdStr,            this, isParm/*|InitHidden*/);
+  DDB.String      ("EqpLocation", "", DC_,   "", xidEqLocation,         this, isParm/*|InitHidden*/);
+  DDB.String      ("EqpGUID",     "", DC_,   "", xidEqGUID,             this, isParmConstruct/*|InitHidden*/);
+  DDB.Long        ("EqpLink",     "", DC_,   "", xidEqLink,             this, isParmConstruct/*|InitHidden*/);
+  DDB.Long        ("ReportKey",   "", DC_,   "", xidEqRepKey,           this, isParm/*|InitHidden*/);
+  if (dbgtestfileopen())
+    DDB.CheckBoxBtn ("DbgBrk",    "", DC_,   "", &fDoDbgBrk,            this, isParm);
+  DDB.CheckBoxBtn ("SkipSnapLoad","", DC_,   "", &bSkipSnapLoad,        this, isParm|InitHidden|noFileAtAll);
+  };
+
+//---------------------------------------------------------------------------
+
+void TaggedObject::BuildCommonEndDefn(DataDefnBlk &DDB)
+  {
+  if (!DDB.ForFileSnpScn())
+    {  
+    DDB.Page("Node", DDB_RqdPage);
+    BuildCommonSEDefn(DDB);
+    }
+  };
+
+//---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 

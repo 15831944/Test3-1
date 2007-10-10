@@ -3506,6 +3506,7 @@ class DllImportExport FlwNode : public CTNode
 
     virtual void   BuildCommonStartDefn(DataDefnBlk & DDB);
     virtual void   BuildSystemDefn_FB(bool IsLink, LPTSTR Tg, int i, int fe, DWORD UI, FlwBlk & FB, DataDefnBlk & DDB);
+    virtual void   BuildCommonSEDefn(DataDefnBlk &DDB);
     virtual void   BuildCommonEndDefn(DataDefnBlk & DDB);
 
     virtual void   BuildSystemDefn(DataDefnBlk & DDB);

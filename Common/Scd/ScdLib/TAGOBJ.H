@@ -1284,7 +1284,8 @@ class DllImportExport TaggedObject : public ConditionBlk
 
     // Utilities
     virtual void    BuildCommonStartDefn(DataDefnBlk &DDB);
-    virtual void    BuildCommonEndDefn(DataDefnBlk &DDB) {};
+    virtual void    BuildCommonSEDefn(DataDefnBlk &DDB);
+    virtual void    BuildCommonEndDefn(DataDefnBlk &DDB);
     virtual void    BuildSystemDefn(DataDefnBlk &DDB) {};
     short           IdNo()                   { return m_pClass->iId; };
     LPSTR           ClassId()                { return m_pClass->sClassId(); };
