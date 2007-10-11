@@ -325,6 +325,9 @@ void CShellTube2::BuildDataFields()
   DD.Double("Tube.Qm", "",     &m_dQmTS,     MF_RESULT, MC_Qm("kg/s"));
   DD.Double("Shell.Qm", "",    &m_dQmSS,     MF_RESULT, MC_Qm("kg/s"));
 
+  DD.Double("Vent.Qm", "",    &m_dQmVS,     MF_RESULT, MC_Qm("kg/s"));
+  DD.Double("Vent.NonCond.Qm", "",    &m_dQmVNCS,     MF_RESULT, MC_Qm("kg/s"));
+
 
 
   m_RB.BuildDataFields();
@@ -500,7 +503,7 @@ class CCondensateFinder : public MRootFinder
 
 
 
-MToleranceBlock CCondensateFinder::s_Tol(TBF_Both, "ShellTube2:CondensFinder", 0.0, 1.0e-12);
+MToleranceBlock CCondensateFinder::s_Tol(TBF_Both, "HeatXch1:ShellTube2:CondensFinder", 0.0, 1.0e-12);
 //---------------------------------------------------------------------------
 
 CCondensateFinder::CCondensateFinder(CShellTube2 * pTH, MStream &TubeI, MStream &ShellI, MStream &TubeO, MStream &ShellO) : 
@@ -736,7 +739,7 @@ class CSimpleSolverFn : public MRootFinder
     static MToleranceBlock s_Tol;
   };
 
-MToleranceBlock CSimpleSolverFn::s_Tol(TBF_Both, "ShellTube2:Simple", 0.00005, 0, 100);
+MToleranceBlock CSimpleSolverFn::s_Tol(TBF_Both, "HeatXch1:ShellTube2:Simple", 0.00005, 0, 100);
 
 void CShellTube2::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream & ShellO, MStream & TubeO) {
   TubeO = TubeI;
@@ -810,14 +813,13 @@ void CShellTube2::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStream &
   double FTemp=ShellI.SaturationT();
   if (TubeI.MassFlow()>0 && ShellI.MassFlow()>0 && ShellI.T > TubeI.T) {
     ShellO.SetM(ShellI, MP_All, 0);
-    MVDouble Vapor(ShellO, spWaterVapor);
-    MVDouble Cond(ShellO, spWater);
-    Vapor = 0.0;
-    Cond = ShellI.MassFlow();
     if (m_dQmVentRqd < ShellI.MassFlow())  { // Assumes all steam, should check for water vapor
-	Cond -= m_dQmVentRqd;
-	VentO.SetM(ShellI, MP_Gas, m_dQmVentRqd);
-    } else 
+      double SteamIn=ShellI.M[spWaterVapor];
+      VentO.SetF(ShellI, MP_Gas, 1.0);
+      VentO.M[spWaterVapor] = Range(0.0, m_dQmVentRqd, ShellI.M[spWaterVapor]);
+      ShellO.SetF(ShellI, MP_Gas, 0.0);
+      ShellO.M[spWaterVapor] = SteamIn-VentO.M[spWaterVapor];
+      } else 
       Log.Message(MMsg_Error, "Excess Vent Flow called for");
 		  
     ShellO.T = FTemp;
@@ -882,11 +884,21 @@ void CShellTube2::EvalProducts()
     
 
 	switch (m_lOpMode) {
-	case OM_Simple:       DoSimpleHeater(ShellI, TubeI, ShellO, TubeO); break;
-	case OM_Condensing:  
-	  DoCondensingHeater(ShellI, TubeI, ShellO, TubeO);       
-	  VentO.SetM(ShellI, MP_Gas, m_dQmVentRqd);
-	  break;
+	case OM_Simple:
+    DoSimpleHeater(ShellI, TubeI, ShellO, TubeO); break;
+	case OM_Condensing: 
+    {
+
+    double SteamIn=ShellI.M[spWaterVapor];
+    VentO.SetF(ShellI, MP_Gas, 1.0);
+    VentO.M[spWaterVapor] = Range(0.0, m_dQmVentRqd, ShellI.M[spWaterVapor]);
+    ShellO.SetF(ShellI, MP_Gas, 0.0);
+    ShellO.M[spWaterVapor] = SteamIn-VentO.M[spWaterVapor];
+
+    DoCondensingHeater(ShellI, TubeI, ShellO, TubeO);
+
+    break;
+    }
 	case OM_LiveSteam:    
 	  DoLiveSteamHeater(ShellI, TubeI, ShellO, TubeO, VentO); break;
 	}    
@@ -911,6 +923,8 @@ void CShellTube2::EvalProducts()
 	m_dQmTS = TubeO.Mass();
 	m_dQmSS = ShellO.Mass();
 
+  m_dQmVS = VentO.Mass();
+  m_dQmVNCS = VentO.Mass() - VentO.M[spWaterVapor];
     
 	m_dActualDuty = m_lEnvHxMode ? m_dEnvHeatLoss : 0;
       }

@@ -500,7 +500,7 @@ class CCondensateFinder : public MRootFinder
 
 
 
-MToleranceBlock CCondensateFinder::s_Tol(TBF_Both, "ShellTube2:CondensFinder", 0.0, 1.0e-12);
+MToleranceBlock CCondensateFinder::s_Tol(TBF_Both, "Alumina2:TubeDigestor:CondensFinder", 0.0, 1.0e-12);
 //---------------------------------------------------------------------------
 
 CCondensateFinder::CCondensateFinder(CCARTubeDigester * pTH, MStream &TubeI, MStream &ShellI, MStream &TubeO, MStream &ShellO) : 
@@ -736,7 +736,7 @@ class CSimpleSolverFn : public MRootFinder
     static MToleranceBlock s_Tol;
   };
 
-MToleranceBlock CSimpleSolverFn::s_Tol(TBF_Both, "ShellTube2:Simple", 0.00005, 0, 100);
+MToleranceBlock CSimpleSolverFn::s_Tol(TBF_Both, "TubeDigestor:Simple", 0.00005, 0, 100);
 
 void CCARTubeDigester::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream & ShellO, MStream & TubeO) {
   TubeO = TubeI;

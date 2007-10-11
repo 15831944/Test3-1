@@ -100,6 +100,8 @@ class CShellTube2 : public MBaseMethod, CSTHx
     double m_dQmTS;
     double m_dQmSS;
     
+    double m_dQmVS;
+    double m_dQmVNCS;
 
 
     double m_dG;     //Mass flow kg/s/m^2
