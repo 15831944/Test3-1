@@ -1380,20 +1380,23 @@ void AccNodeWnd::LoadNdHist(int iNo)
 void AccNodeWnd::SaveNdHist(int iNo)
   {
   char Buff[8192];
-  CProfINIFile PF(PrjIniFile());
-  int Pos = 0;
   const int Size = m_NdHistList.GetSize();
-  Pos+=sprintf(&Buff[Pos], "Position=%i", m_iNdHistPos)+1;
-  for (int i=0; i<Size; i++)
+  if (Size>0)
     {
-    if (m_NdHistList[i].Len()>0)
-      Pos+=sprintf(&Buff[Pos], "Hist%i=%s", i, m_NdHistList[i]())+1;
+    CProfINIFile PF(PrjIniFile());
+    int Pos = 0;
+    Pos+=sprintf(&Buff[Pos], "Position=%i", m_iNdHistPos)+1;
+    for (int i=0; i<Size; i++)
+      {
+      if (m_NdHistList[i].Len()>0)
+        Pos+=sprintf(&Buff[Pos], "Hist%i=%s", i, m_NdHistList[i]())+1;
+      }
+    Buff[Pos++] = 0;
+    Buff[Pos++] = 0;
+    Strng Section;
+    Section.Set("AccessWndTagHistory%i", iNo);
+    PF.WrSection(Section(), Buff);
     }
-  Buff[Pos++] = 0;
-  Buff[Pos++] = 0;
-  Strng Section;
-  Section.Set("AccessWndTagHistory%i", iNo);
-  PF.WrSection(Section(), Buff);
   }
 
 //---------------------------------------------------------------------------
