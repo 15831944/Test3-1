@@ -60,6 +60,7 @@ class BivarStats : public MBaseMethod
 
   protected:
     bool bOn;
+	bool bAutoReset;
 
 	GraphType graphType;
 

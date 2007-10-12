@@ -17,6 +17,7 @@ namespace Reaction_Editor
     public partial class FrmMain : Form
     {
         #region Internal Variables
+        protected string m_sActiveDirectory = null;
         protected int m_nUntitledNo = 1;
         protected RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
         protected List<ToolStripMenuItem> m_RecentFiles = new List<ToolStripMenuItem>();
@@ -188,7 +189,7 @@ namespace Reaction_Editor
             return true;
         }
 
-        protected void Open(string filename)
+        protected Form Open(string filename)
         {
             try
             {
@@ -196,16 +197,18 @@ namespace Reaction_Editor
                 if (f != null)
                 {
                     f.Activate();
-                    return;
+                    return f;
                 }
                 FrmReaction frm = new FrmReaction(filename, Log);
                 RegisterForm(frm);
                 RegisterRecentFile(filename);
+                return frm;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Log.Message(ex.Message, MessageType.Error);
+                return null;
             }
         }
 
@@ -394,6 +397,9 @@ namespace Reaction_Editor
             int i = 0;
             foreach(ToolStripMenuItem item in m_RecentFiles)
                 regKey.SetValue("RecentFile" + i++, item.Tag);
+
+            if (Program.interopMessenger.OpenDirectories.Contains(m_sActiveDirectory))
+                Program.interopMessenger.OpenDirectories.Remove(m_sActiveDirectory);
         }
 
         protected void UpdateToolbar()
@@ -440,15 +446,18 @@ namespace Reaction_Editor
 
             UpdateToolbar();
 
-            HandleArgs(Program.Args);
+            HandleArgs(m_sActiveDirectory, Program.Args);
             Program.interopMessenger.StringSent += new InteropMessenger.StringSentDelegate(HandleArgs);
         }
 
-        void HandleArgs(string[] args)
+        void HandleArgs(string dir, string[] args)
         {
+            if (!string.IsNullOrEmpty(this.m_sActiveDirectory) && !string.IsNullOrEmpty(dir) &&
+                dir.ToLowerInvariant() != this.m_sActiveDirectory.ToLowerInvariant())
+                return; //Ignore messages not intended for our application.
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(new InteropMessenger.StringSentDelegate(HandleArgs), new object[] { args });
+                this.BeginInvoke(new InteropMessenger.StringSentDelegate(HandleArgs), new object[] { dir, args });
                 return;
             }
             string lastPath = "My Documents";
@@ -517,7 +526,8 @@ namespace Reaction_Editor
                         lastPath = Path.GetDirectoryName(Path.GetFullPath(s2));
                         if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s2));
                         foreach (string f in Directory.GetFiles(s2, "*.rct"))
-                            Open(f);
+                            if (AlreadyOpen(f) == null && f.ToLowerInvariant() != s.ToLowerInvariant())
+                                Open(f);
                     }
                 }
                 catch (Exception ex)
@@ -535,7 +545,7 @@ namespace Reaction_Editor
                     {
                         lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
                         if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
-                        Open(s);
+                        Open(s).WindowState = FormWindowState.Maximized;
                     }
                 }
                 catch (Exception ex)
@@ -550,6 +560,10 @@ namespace Reaction_Editor
 
         protected void UpdateLastPath(string lastPath)
         {
+            if (Program.interopMessenger.OpenDirectories.Contains(m_sActiveDirectory))
+                Program.interopMessenger.OpenDirectories.Remove(m_sActiveDirectory);
+            m_sActiveDirectory = lastPath;
+            Program.interopMessenger.OpenDirectories.Add(m_sActiveDirectory);
             regKey.SetValue("Last Folder", lastPath);
             dlgOpenDB.InitialDirectory = lastPath;
             dlgOpenRxn.InitialDirectory = lastPath;
@@ -672,7 +686,7 @@ namespace Reaction_Editor
         Form AlreadyOpen(string filename)
         {
             foreach (Form f in this.MdiChildren)
-                if (f is FrmReaction && ((FrmReaction)f).Filename == filename)
+                if (f is FrmReaction && ((FrmReaction)f).Filename.ToLowerInvariant() == filename.ToLowerInvariant())
                     return f;
             return null;
         }

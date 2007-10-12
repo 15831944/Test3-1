@@ -10,27 +10,10 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Threading;
 using System.Runtime.Remoting;
+using System.IO;
 
 namespace Reaction_Editor
 {
-    class InteropMessenger : MarshalByRefObject
-    {
-        public override object InitializeLifetimeService()
-        {
-            return null;
-        }
-
-        public void SendStrings(string[] s)
-        {
-            if (StringSent != null)
-                StringSent(s);
-        }
-
-        public event StringSentDelegate StringSent;
-
-        public delegate void StringSentDelegate(string[] s);
-    }
-
     static class Program
     {
         /// <summary>
@@ -39,35 +22,10 @@ namespace Reaction_Editor
         [STAThread]
         static void Main(string[] args)
         {
-            IpcChannel ipcChannel = null;
-            try
-            {
-                System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
-                serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
-
-                BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
-
-                Hashtable ipcProps = new Hashtable();
-                ipcProps["portName"] = "SysCAD.ReactionEditor";
-                //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
-                ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
-                ChannelServices.RegisterChannel(ipcChannel, false);
-                interopMessenger = new InteropMessenger();
-                RemotingServices.Marshal(interopMessenger, "interopMessenger");
-            }
-            catch
-            {
-                try
-                {
-                    InteropMessenger messenger = Activator.GetObject(typeof(InteropMessenger), "ipc://SysCAD.ReactionEditor/interopMessenger") as InteropMessenger;
-                    messenger.SendStrings(args);
-                    return;
-                }
-                catch (Exception ex) { Console.WriteLine(ex.ToString()); }
-            }
-
-
             Args = args;
+            if (!SetupInterop())
+                return;
+         
             Assembly asm = Assembly.GetExecutingAssembly();
             ResourceReader rr = new ResourceReader(asm.GetManifestResourceStream(typeof(FrmMain), "Images.Icons.resources"));
 
@@ -95,7 +53,11 @@ namespace Reaction_Editor
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FrmMain());
-            GC.KeepAlive(ipcChannel);
+
+            //The application responsible for the communication channel must not shut down:
+            if (ResponsibleForChannel)
+                while (interopMessenger.OpenDirectories.Count > 0)
+                    Thread.Sleep(1000);
         }
 
         public static ILog Log;
@@ -106,6 +68,63 @@ namespace Reaction_Editor
         public static String[] Args;
         public static Dictionary<object, int> AutocompleteHitCounts = new Dictionary<object, int>();
         public static InteropMessenger interopMessenger;
+
+        private static bool ResponsibleForChannel = false;
+
+        private static bool SetupInterop()
+        {
+            IpcChannel ipcChannel = null;
+            try
+            {
+                System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+                serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+
+                BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+
+                Hashtable ipcProps = new Hashtable();
+                ipcProps["portName"] = "SysCAD.ReactionEditor";
+                //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
+                ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
+                ChannelServices.RegisterChannel(ipcChannel, false);
+                interopMessenger = new InteropMessenger();
+                RemotingServices.Marshal(interopMessenger, "interopMessenger");
+                ResponsibleForChannel = true;
+            }
+            catch
+            {
+                try
+                {
+                    interopMessenger = Activator.GetObject(typeof(InteropMessenger), "ipc://SysCAD.ReactionEditor/interopMessenger") as InteropMessenger;
+                    string directory = "";
+                    foreach (string s in Args)
+                        try  //Because GetDirectoryName has a few exceptions it likes to throw.
+                        {
+                            if (Directory.Exists(Path.GetDirectoryName(s)))
+                            {
+                                directory = Path.GetFullPath(Path.GetDirectoryName(s));
+                                if (directory == "")
+                                    directory = Path.GetPathRoot(Path.GetDirectoryName(s));
+                                break;
+                            }
+                        }
+                        catch { }
+                    bool alreadyOpen = string.IsNullOrEmpty(directory);
+                    foreach (string s in interopMessenger.OpenDirectories)
+                        if (s.ToLowerInvariant() == directory.ToLowerInvariant())
+                        {
+                            alreadyOpen = true;
+                            break;
+                        }
+                    if (alreadyOpen)
+                    {
+                        interopMessenger.SendStrings(directory, Args);
+                        return false;
+                    }
+                }
+                catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+            }
+            return true;
+        }
     }
 
     public class Messaging
@@ -131,5 +150,25 @@ namespace Reaction_Editor
 
         /*[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern uint RegisterWindowMessage(string lpString);*/
+    }
+
+    class InteropMessenger : MarshalByRefObject
+    {
+        public List<String> OpenDirectories = new List<string>();
+
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
+
+        public void SendStrings(string dir, string[] s)
+        {
+            if (StringSent != null)
+                StringSent(dir, s);
+        }
+
+        public event StringSentDelegate StringSent;
+
+        public delegate void StringSentDelegate(string dir, string[] s);
     }
 }

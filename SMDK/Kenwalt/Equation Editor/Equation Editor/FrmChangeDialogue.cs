@@ -37,18 +37,20 @@ namespace Reaction_Editor
         public static DialogResult Show(SimpleReaction curReaction, SimpleReaction newReaction, string title, string message, string newReactionTitle, bool bSeq, bool bExtent)
         {
             FrmChangeDialogue frmCurrent = frm.Visible ? new FrmChangeDialogue() : frm;
+            frmCurrent.SuspendLayout();
             frmCurrent.txtMessage.Text = message;
             frmCurrent.grpNewReaction.Text = newReactionTitle;
             frmCurrent.Text = title;
 
             frmCurrent.SetReactions(curReaction, newReaction, bSeq, bExtent);
-
+            frmCurrent.ResumeLayout();
             return frmCurrent.ShowDialog();
         }
 
         public static DialogResult Show(Reaction curReaction, Reaction newReaction, string title, string message, string newReactionTitle)
         {
             FrmChangeDialogue frmCurrent = frm.Visible ? new FrmChangeDialogue() : frm;
+            frmCurrent.SuspendLayout();
             frmCurrent.txtMessage.Text = message;
             frmCurrent.grpNewReaction.Text = newReactionTitle;
             frmCurrent.Text = title;
@@ -57,7 +59,7 @@ namespace Reaction_Editor
                 frmCurrent.SetReactions((HXReaction)curReaction, (HXReaction)newReaction);
             else if (curReaction is CompoundListReaction)
                 frmCurrent.SetReactions((CompoundListReaction)curReaction, (CompoundListReaction)newReaction);
-
+            frmCurrent.ResumeLayout();
             return frmCurrent.ShowDialog();
         }
 
@@ -146,7 +148,6 @@ namespace Reaction_Editor
         protected void SetReactions(SimpleReaction curReaction, SimpleReaction newReaction, bool bSeq, bool bExtent)
         {
             ChangeGeneric(false);
-            this.SuspendLayout();
             Font BoldFont = new Font(txtCurReactants.Font, FontStyle.Bold);
 
             bool HOR = curReaction.CustomHeatOfReaction || newReaction.CustomHeatOfReaction;
@@ -185,6 +186,7 @@ namespace Reaction_Editor
 
             grpCurrentReaction.Height = grpNewReaction.Height = sMaxGrpHeight - ((HOR ? 0 : 1) + (bSeq ? 0 : 1) + (bExtent ? 0 : 1)) * sHeightPerBox;
             grpNewReaction.Top = grpCurrentReaction.Bottom + sPadding;
+            this.MaximumSize = this.MinimumSize = new Size(this.Width, sMaxFrmHeight - 2 * ((HOR ? 0 : 1) + (bSeq ? 0 : 1) + (bExtent ? 0 : 1)) * sHeightPerBox);
             this.Height = sMaxFrmHeight - 2 * ((HOR ? 0 : 1) + (bSeq ? 0 : 1) + (bExtent ? 0 : 1)) * sHeightPerBox;
             
             //Width:
@@ -201,9 +203,8 @@ namespace Reaction_Editor
             txtCurDirection.Left = txtNewDirection.Left = txtCurReactants.Right + sPadding;
             txtCurProducts.Left = txtNewProducts.Left = txtCurDirection.Right + sPadding;
             grpCurrentReaction.Width = grpNewReaction.Width = 2 * MaxW + txtCurDirection.Width + 4 * sPadding;
+            this.MinimumSize = this.MaximumSize = new Size(grpCurrentReaction.Width + sExtraFrmPadding, this.Height);
             this.Width = grpCurrentReaction.Width + sExtraFrmPadding;
-
-            this.ResumeLayout();
 
             //Format text boxes:
             //Alignment:
@@ -401,6 +402,7 @@ namespace Reaction_Editor
             if (showGeneric)
             {
                 grpCurrentReaction.Height = grpNewReaction.Height = txtCurGeneric.Height + grpCurrentReaction.Padding.Bottom + grpCurrentReaction.Padding.Top;
+                this.MinimumSize = this.MaximumSize = new Size(this.Width, sMaxFrmHeight - 2 * (sMaxGrpHeight - grpCurrentReaction.Height));
                 this.Height = sMaxFrmHeight - 2 * (sMaxGrpHeight - grpCurrentReaction.Height);
                 grpNewReaction.Top = grpCurrentReaction.Bottom + sPadding;
             }

@@ -45,6 +45,7 @@ Downtime::Downtime(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pU
 {
 	//default values...
 	bOn = true;
+	bAutoReset = false;
 	dCurrentTime = 0.0;
 	bForceIntegralPeriod = true;
 	bForceIntegralDowntime = false;
@@ -117,16 +118,22 @@ void Downtime::BuildDataFields()
 		{ 0 }};
 
 		
-	CString states;
+	vector<CString> states;
 	int j = 0;
+	CString currentStates;
 	while (DD_States[j].m_pStr != 0)
 	{
 		CString temp;
 		temp.Format("%i:%s, ", DD_States[j].m_lVal, DD_States[j].m_pStr);
-		states.Append(temp);
+		currentStates.Append(temp);
+		if (j%3 == 2)
+		{
+			states.push_back(currentStates);
+			currentStates = "";
+		}
 		j++;
 	}
-	states.Trim(", ");
+	states.back().Trim(", ");
 
 	DD.CheckBox("On", "", &bOn, MF_PARAMETER);
 	DD.CheckBox("IntegralPeriod", "", &bForceIntegralPeriod, MF_PARAMETER);
@@ -135,6 +142,7 @@ void Downtime::BuildDataFields()
 	DD.Text("");
 	DD.Double("TotalTime", "", &dCurrentTime, MF_RESULT | MF_INIT_HIDDEN, MC_Time("h"));
 	DD.Button("Reset_All", "", idDX_Reset, MF_PARAMETER);
+	DD.CheckBox("Auto_Reset", "", &bAutoReset, MF_PARAMETER);
 	DD.Text("");
 	DD.Text("");
 
@@ -199,7 +207,9 @@ void Downtime::BuildDataFields()
 		if (!tasks.at(i)->TagToTest.IsActive)
 			DD.Text("Test Tag Not Valid");
 		DD.Long("State", "", (long*) &tasks.at(i)->eCurrentState, MF_RESULT, DD_States);
-		DD.Text(states);
+		DD.Long("StateValue", "", (long*) &tasks.at(i)->eCurrentState, MF_RESULT);
+		for (vector<CString>::iterator it = states.begin(); it != states.end(); it++)
+			DD.Text(*it);
 		DD.Double("OutputValue", "Output", idDX_OutputVal + i, MF_RESULT|MF_NO_FILING, SetTagCnv);
 		DD.Text("");
 		DD.Double("", "TtlInactiveTime", &tasks.at(i)->dTotalDowntime, MF_RESULT, MC_Time("h"));
@@ -239,7 +249,7 @@ bool Downtime::ExchangeDataFields()
 		{
 			tasks.at(task)->TagToTest.Tag = DX.String;
 		}
-		DX.String = tasks.at(task)->TagToSet.Tag;
+		DX.String = tasks.at(task)->TagToTest.Tag;
 		return true;
 	}
 	if (DX.Handle >= idDX_OutputVal && DX.Handle < idDX_OutputVal + maxElements)
@@ -459,7 +469,7 @@ void Downtime::SetSize(long size)
 void Downtime::SetState(MStatesToSet SS)
   {
   MBaseMethod::SetState(SS);
-  if (SS==MSS_DynStatsRunInit)
+  if (SS==MSS_DynStatsRunInit && bAutoReset)
     Reset();
   }
 
@@ -470,8 +480,10 @@ bool Downtime::CheckTags()
 	bool ret = true;
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		if ((tasks.at(i)->TagToSet.Tag != "" && !tasks.at(i)->TagToSet.IsActive) ||
-			(tasks.at(i)->TagToTest.Tag != "" && !tasks.at(i)->TagToTest.IsActive))
+		CString tag1 = tasks.at(i)->TagToSet.Tag;
+		CString tag2 = tasks.at(i)->TagToTest.Tag;
+		if ((tag1.Trim() != "" && !tasks.at(i)->TagToSet.IsActive) ||
+			(tag2.Trim() != "" && !tasks.at(i)->TagToTest.IsActive))
 		{
 			CString warning;
 			warning.Format("Task %i contains an invalid tag.", i);
@@ -481,6 +493,9 @@ bool Downtime::CheckTags()
 	}
 	return ret;
 }
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+
 
 DowntimeVariables::DowntimeVariables(MTagIO & TagIO) : TagToSet(TagIO), TagToTest(TagIO)
 {
@@ -498,13 +513,15 @@ void DowntimeVariables::Reset()
 	MinorMaintenance.Reset();
 	MajorFailure.Reset();
 	MinorFailure.Reset();
+
+	dTotalDowntime = 0;
 }
 
 bool DowntimeVariables::ValidateDataFields(double deltaT, bool bForceIntegralPeriod, bool bForceIntegralDowntime)
 {
-	return MajorMaintenance.ValidateDataFields(deltaT, bForceIntegralPeriod, bForceIntegralDowntime) &&
-		MinorMaintenance.ValidateDataFields(deltaT, bForceIntegralPeriod, bForceIntegralDowntime) &&
-		MajorFailure.ValidateDataFields() &&
+	return MajorMaintenance.ValidateDataFields(deltaT, bForceIntegralPeriod, bForceIntegralDowntime) ||
+		MinorMaintenance.ValidateDataFields(deltaT, bForceIntegralPeriod, bForceIntegralDowntime) ||
+		MajorFailure.ValidateDataFields() ||
 		MinorFailure.ValidateDataFields();
 }
 

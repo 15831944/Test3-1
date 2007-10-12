@@ -12,9 +12,7 @@ FailureTiming::FailureTiming()
 	dDowntimeStdDev = 24 * 3600;
 	dAvgUptime = 30 * 24 * 3600;
 	dUptimeStdDev = 10 * 24 * 3600;
-	
-	dBackedUpDowntime = 0;
-	lFailureCount = 0;
+
 	eFailureType = PDFType_Constant;
 	eRepairType = PDFType_Constant;
 
@@ -26,6 +24,7 @@ void FailureTiming::Reset()
 	dBackedUpDowntime = 0;
 	dNextFailure = 0;
 	dRepairsDone = 0;
+	lFailureCount = 0;
 
 	Repair();
 }
@@ -65,6 +64,15 @@ bool FailureTiming::ValidateDataFields()
 	if (eRepairType == PDFType_Exponential)
 		dUptimeStdDev = dAvgUptime;
 
+	if (dAvgDowntime != dLastAvgDowntime || dAvgUptime != dLastAvgUptime ||
+		dLastDowntimeStdDev != dDowntimeStdDev || dLastUptimeStdDev != dUptimeStdDev) //If you adjust the values, we'll reset.
+	{
+		Reset();
+		dLastAvgDowntime = dAvgDowntime;
+		dLastAvgUptime = dAvgUptime;
+		dLastDowntimeStdDev = dDowntimeStdDev;
+		dLastUptimeStdDev = dUptimeStdDev;
+	}
 	if (dAvgDowntime < 0)
 		dAvgDowntime = 0;
 	if (dAvgUptime < 0)

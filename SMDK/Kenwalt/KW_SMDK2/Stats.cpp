@@ -43,10 +43,12 @@ SingleVarStats::SingleVarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MB
 {
 	//default values...
 	bOn = true;
+	bAutoReset=false;
 	dHistoMin = 0;
 	dHistoMax = 0;
 	lHistoCount = 10;
 	lRecordCount = 0;
+	lRecordsSinceHistoReset = 0;
 
 	pHistoBucketBorders = NULL;
 	pHistoBucketCounts = NULL;
@@ -124,9 +126,10 @@ void SingleVarStats::BuildDataFields()
 	DD.CheckBox("Logging","Logging", &bOn, MF_PARAMETER);
 	DD.String("StatTag", "StatTag", idDX_Tag, MF_PARAM_STOPPED);
 	DD.Button("Reset", "Reset", idDX_Reset);
-	DD.Double("Histogram Minimum", "HistoMin", idDX_HistoMin, MF_PARAMETER, TagCnv);
-	DD.Double("Histogram Maximum", "HistoMax", idDX_HistoMax, MF_PARAMETER, TagCnv);
-	DD.Long("Histogram Buckets", "HistoCount", idDX_HistoCount, MF_PARAMETER | MF_SET_ON_CHANGE);
+	DD.CheckBox("Auto_Reset", "Auto_Reset", &bAutoReset, MF_PARAMETER);
+	DD.Double("Histogram_Minimum", "HistoMin", idDX_HistoMin, MF_PARAMETER, TagCnv);
+	DD.Double("Histogram_Maximum", "HistoMax", idDX_HistoMax, MF_PARAMETER, TagCnv);
+	DD.Long("Histogram_Buckets", "HistoCount", idDX_HistoCount, MF_PARAMETER | MF_SET_ON_CHANGE);
 	DD.Show(TagCnvList.size() > 1);
 		DD.Long("Graph_Units", "", (long*)&nTagCnvUsed, MF_PARAMETER | MF_SET_ON_CHANGE, &TagCnvList.at(0));
 	DD.Show();
@@ -139,15 +142,16 @@ void SingleVarStats::BuildDataFields()
 		StdDevCnv = MC_dT;
 	if (TagCnv.Index == MC_P.Index)
 		StdDevCnv = MC_DP;
-	DD.Double("Standard Deviation", "StdDev", &dStdDev, MF_RESULT, StdDevCnv);
+	DD.Double("Standard_Deviation", "StdDev", &dStdDev, MF_RESULT, StdDevCnv);
 	DD.Double("Minimum", "Min", &dMin, MF_RESULT, TagCnv);
 	DD.Double("Maximum", "Max", &dMax, MF_RESULT, TagCnv);
-	DD.Long("Number of Records", "N", idDX_RecordCount, MF_RESULT | MF_SET_ON_CHANGE);
+	DD.Long("Number_of_Records", "N", idDX_RecordCount, MF_RESULT | MF_SET_ON_CHANGE);
 	DD.Text("");
 
 	//DD.StructBegin("Histogram");
 	DD.Page("Histogram");
-	DD.ArrayBegin("Histogram Buckets", "Buckets", lHistoCount + 2);	
+	DD.Long("RecordsSinceHistoReset", "RSHR", &lRecordsSinceHistoReset, MF_RESULT);
+	DD.ArrayBegin("Histogram_Buckets", "Buckets", lHistoCount + 2);	
 	for (int i = 0; i < lHistoCount + 2; i++)
 	{
 		DD.ArrayElementStart(i);
@@ -180,7 +184,7 @@ void SingleVarStats::BuildDataFields()
 	{
 		DD.Long("Underrange", "UR", &lUnderrange, MF_RESULT);
 		DD.Long("Overrange", "OR", &lOverrange, MF_RESULT);
-		DD.ArrayBegin("HisResHistogram", "HiResHistogram", HI_RES_HISTO);
+		DD.ArrayBegin("HiResHistogram", "HiResHistogram", HI_RES_HISTO);
 		for (int i = 0; i < HI_RES_HISTO; i++)
 		{
 			DD.ArrayElementStart(i);
@@ -200,6 +204,7 @@ bool SingleVarStats::ExchangeDataFields()
 	case (idDX_Tag):
 		if (DX.HasReqdValue)
 		{
+			CString s = DX.String;
 			tagSubs.Tag = DX.String;
 			Reset();
 		}
@@ -225,6 +230,7 @@ bool SingleVarStats::ExchangeDataFields()
 #ifndef SVS_KEEP_RECORD
 			lUnderrange = lOverrange = 0;
 			ZeroMemory(lHiResHistoBuckets, HI_RES_HISTO * sizeof (long));
+			lRecordsSinceHistoReset = 0;
 #endif
 			RecalculateHistoBuckets();
 		}
@@ -237,6 +243,7 @@ bool SingleVarStats::ExchangeDataFields()
 #ifndef SVS_KEEP_RECORD
 			lUnderrange = lOverrange = 0;
 			ZeroMemory(lHiResHistoBuckets, HI_RES_HISTO * sizeof (long));
+			lRecordsSinceHistoReset = 0;
 #endif
 			RecalculateHistoBuckets();
 		}
@@ -278,6 +285,8 @@ bool SingleVarStats::ValidateDataFields()
 	return true;
 }
 
+
+//This should be EvalCtrlStatisics...
 void SingleVarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 {
 	try
@@ -331,6 +340,7 @@ void SingleVarStats::RecalculateStats(double newEntry)
 		dMax = newEntry;
 
 	// Update records
+	lRecordsSinceHistoReset++;
 	lRecordCount++;
 #ifdef SVS_KEEP_RECORD
 	cRecord.push_back(newEntry);
@@ -339,8 +349,10 @@ void SingleVarStats::RecalculateStats(double newEntry)
 		lUnderrange++;
 	else if (newEntry > dHistoMax)
 		lOverrange++;
+	else if (newEntry == dHistoMax) //Special case: the normal logic puts it in overrange, but we in fact want it in the largest bucket.
+		lHiResHistoBuckets[HI_RES_HISTO - 1]++;
 	else if (dHistoMax > dHistoMin)	//If max == min, we get divide by zero exception.
-		lHiResHistoBuckets[(int)((newEntry - dHistoMin) / (dHistoMax - dHistoMin) * HI_RES_HISTO)]++;
+		lHiResHistoBuckets[(int)((newEntry - dHistoMin) / (dHistoMax - dHistoMin) * (HI_RES_HISTO - 1))]++;
 #endif
 	dSumX += newEntry;
 	dSumX2 += newEntry * newEntry;
@@ -361,7 +373,12 @@ void SingleVarStats::RecalculateStats(double newEntry)
 	for (int i = 0; i < lHistoCount + 2; i++)
 		if (newEntry < pHistoBucketBorders[i+1])
 		{
-			pHistoBucketCounts[i]++;
+			//In the interests of speed, this is rather convoluted code:
+			if (i == lHistoCount + 1) //If we are about to add it to the last bucket (Overrange):
+				if (newEntry == dHistoMax) //If it is actually the maximum, add it to largest non-overrange bucket rather.
+					pHistoBucketCounts[lHistoCount]++;
+				else
+					pHistoBucketCounts[i]++;
 			break;
 		}
 }
@@ -500,6 +517,7 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		for (int i = 0; i < lHistoCount + 2; i++)
 			if (pHistoBucketCounts[i] > MaxCount) MaxCount = pHistoBucketCounts[i];
 		int FullScale = (int)(MaxCount * 1.1);
+		if (FullScale < 1) FullScale = 1; //Avoid divide by zero errors.
 		int nAxesHeight = nAxesBottom - nAxesTop;
 		if (MaxCount > 0)
 		{
@@ -522,8 +540,11 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 					nAxesLeft + (int)(i*blockWidth),		nAxesBottom - (nAxesHeight * pHistoBucketCounts[i]) / FullScale, 
 					nAxesLeft + (int)((i+1)*blockWidth),	nAxesBottom);
 
-				CString percent; percent.Format("%i%%", (100 * pHistoBucketCounts[i] / MaxCount));
-				Wnd.m_pPaintDC->TextOut(nAxesLeft + (int)((i + 0.5)*blockWidth), nAxesBottom - (nAxesHeight * pHistoBucketCounts[i]) / FullScale - 1, percent);
+				if (lRecordsSinceHistoReset > 0)
+				{
+					CString percent; percent.Format("%i%%", (100 * pHistoBucketCounts[i] / lRecordsSinceHistoReset));
+					Wnd.m_pPaintDC->TextOut(nAxesLeft + (int)((i + 0.5)*blockWidth), nAxesBottom - (nAxesHeight * pHistoBucketCounts[i]) / FullScale - 1, percent);
+				}
 			}
 			
 			Wnd.m_pPaintDC->SelectObject(&penWhite);
@@ -607,5 +628,6 @@ void SingleVarStats::SetState(MStatesToSet SS)
 {
 	MBaseMethod::SetState(SS);
 	if (SS == MSS_DynStatsRunInit)
-		Reset();
+		if (bAutoReset)
+			Reset();
 }

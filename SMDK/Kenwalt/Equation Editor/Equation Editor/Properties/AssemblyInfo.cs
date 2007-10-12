@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Kenwalt")]
-[assembly: AssemblyProduct("Equation Editor")]
+[assembly: AssemblyProduct("Reaction Editor")]
 [assembly: AssemblyCopyright("Copyright © Kenwalt 2007")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -29,5 +29,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.12.0")]
-[assembly: AssemblyFileVersion("1.0.12.0")]
+[assembly: AssemblyVersion("1.0.16.*")]
+//[assembly: AssemblyFileVersion("1.0.13.0")]

@@ -52,6 +52,7 @@ class SingleVarStats : public MBaseMethod
 
   protected:
     bool bOn;
+	bool bAutoReset;
 
 	MTagIOSubscription tagSubs;
 	MCnv TagCnv;
@@ -79,6 +80,7 @@ class SingleVarStats : public MBaseMethod
 #else
 	long lHiResHistoBuckets[HI_RES_HISTO];
 	long lUnderrange, lOverrange;
+	long lRecordsSinceHistoReset;
 #endif
 	void SetTag(LPCSTR newTag);
 	vector<MDDValueLst> Cnvs;

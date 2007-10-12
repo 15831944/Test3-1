@@ -51,6 +51,7 @@ namespace Reaction_Editor
         protected CompoundListReaction m_Sinks, m_Sources;
         protected HXReaction m_HX;
 
+        protected bool m_bUpdateTextboxes = true;
         protected bool m_bDoEvents = true;
         protected List<Control> m_OptionalExtentControls = new List<Control>();
         protected Control[] m_HXControls;
@@ -302,7 +303,11 @@ namespace Reaction_Editor
         private void InitialUpdateLstReactions()
         {
             DelayedUpdateLstReactions(); //This has got a 200ms sleep in it...
-            this.BeginInvoke(new ThreadStart(HideGroups));
+            try
+            {
+                this.BeginInvoke(new ThreadStart(HideGroups));
+            }
+            catch { }
         }
 
         private void DelayedUpdateLstReactions()
@@ -590,8 +595,10 @@ namespace Reaction_Editor
                 lstReactions.Items.Insert(1, lvi);
             else if (location > MaxReactionLocation)
                 lstReactions.Items.Insert(MaxReactionLocation, lvi);
-            else
+            else if (location >= 0)
                 lstReactions.Items.Insert(location, lvi);
+            else
+                lstReactions.Items.Insert(MaxReactionLocation, lvi);
             SimpleReaction newRxn = rxn.Clone(lvi);
             newRxn.SequenceChanged += new EventHandler(rxn_SequenceChanged);
             newRxn.Changed += new EventHandler(rxn_Changed);
@@ -964,16 +971,16 @@ namespace Reaction_Editor
                     if (indices.ContainsKey(i))
                     {
                         SimpleReaction currentReaction = indices[i];
-                        currentReaction.Backup();
-                        currentReaction.Initialised = true;
                         if (currentReaction.Enabled)
                             currentReaction.ReactionNumber = currentReaction.OriginalReactionNumber = num++;
+                        currentReaction.Backup();
+                        currentReaction.Initialised = true;
                     }
-                    else if (i == sourceIndex)
+                    else if (i == sourceIndex && m_Sources.Enabled)
                         m_Sources.ReactionNumber = m_Sources.OriginalReactionNumber = num++;
-                    else if (i == sinkindex)
+                    else if (i == sinkindex && m_Sinks.Enabled)
                         m_Sinks.ReactionNumber = m_Sinks.OriginalReactionNumber = num++;
-                    else if (i == HXindex)
+                    else if (i == HXindex && m_HX.Enabled)
                         m_HX.ReactionNumber = m_HX.OriginalReactionNumber = num++;
                 }
 
@@ -1005,27 +1012,37 @@ namespace Reaction_Editor
                     this,
                     currentReaction);
                 Log.SetSource(source);
-                currentReaction.SetRegex(rxnMatch, source, this.Title);
-                currentReaction.OriginalReactionNumber = Reaction.DisabledReactionNumber;
-
-                Group grpSequence = rxnMatch.Groups["Sequence"];
-                if (grpSequence.Success)
+                try
                 {
-                    Match sequenceMatch = SimpleReaction.s_SequenceRegex.Match(grpSequence.Captures[0].Value.Trim());
-                    if (sequenceMatch.Success)
-                    {
-                        sequenceFound = true;
-                        lastSequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value);
-                    }
+                    currentReaction.SetRegex(rxnMatch, source, this.Title);
+                    currentReaction.OriginalReactionNumber = Reaction.DisabledReactionNumber;
+
+                    if (ret.ContainsKey(rxnMatch.Index))
+                        throw new Exception("Ambigous Comment Encountered");
                     else
-                        Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
+                        ret.Add(rxnMatch.Index, currentReaction);
+
+                    Group grpSequence = rxnMatch.Groups["Sequence"];
+                    if (grpSequence.Success)
+                    {
+                        Match sequenceMatch = SimpleReaction.s_SequenceRegex.Match(grpSequence.Captures[0].Value.Trim());
+                        if (sequenceMatch.Success)
+                        {
+                            sequenceFound = true;
+                            lastSequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value);
+                        }
+                        else
+                            Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
+                    }
+                    currentReaction.Sequence = lastSequence;
+
+                    currentReaction.Enabled = enabled;
                 }
-                currentReaction.Sequence = lastSequence;
-                
-                currentReaction.Enabled = enabled;
-
-                ret.Add(rxnMatch.Index, currentReaction);
-
+                catch (Exception ex)
+                {
+                    lstReactions.Items.Remove(currentReaction.LVI);
+                    Log.Message(ex.Message, MessageType.Error);
+                }
                 Log.RemoveSource();
             }
             if (sequenceFound)
@@ -1157,6 +1174,11 @@ namespace Reaction_Editor
 
         void rxn_ReactantsChanged(object sender, EventArgs e)
         {
+            if (m_bUpdateTextboxes && m_CurrentReaction != null)
+                txtReactants.Text = m_CurrentReaction.GetReactantsString();
+            if (m_bUpdateTextboxes && m_CurrentReaction != null)
+                txtProducts.Text = m_CurrentReaction.GetProductsString();
+
             object cHOR = comboHORSpecie.SelectedItem;
             object cExt = chkFirstReactant.Checked ? m_CurrentReaction.FirstReactant : comboExtentSpecie.SelectedItem;
             RepopulateSpecies();
@@ -1406,6 +1428,7 @@ namespace Reaction_Editor
                     grpSources.Visible = true;
                     btnRemove.Enabled = true;
                     txtSources.Text = m_Sources.CompoundString;
+                    chkSourcesEnabled.Checked = m_Sources.Enabled;
                     txtSourceComments.Text = m_Sources.Comment;
                 }
                 else if (lstReactions.SelectedItems[0].Tag == m_Sinks)
@@ -1413,12 +1436,17 @@ namespace Reaction_Editor
                     grpSinks.Visible = true;
                     btnRemove.Enabled = true;
                     txtSinks.Text = m_Sinks.CompoundString;
+                    chkSinksEnabled.Checked = m_Sinks.Enabled;
                     txtSinkComments.Text = m_Sinks.Comment;
                 }
                 else if (lstReactions.SelectedItems[0].Tag == m_HX)
                 {
                     grpHX.Visible = true;
                     comboHXType.SelectedIndex = (int) m_HX.Type;
+                    numHX.Text = m_HX.Value.ToString();
+                    numHXApproach.Value = (decimal)m_HX.Value2;
+                    chkHXEnabled.Checked = m_HX.Enabled;
+                    txtHXComment.Text = m_HX.Comment;
                     btnRemove.Enabled = true;
                 }
             }
@@ -1503,9 +1531,9 @@ namespace Reaction_Editor
 
         void m_HX_NowChanged(object sender, EventArgs e)
         {
-            comboHXType.SelectedIndex = (int)m_HX.Type;
-            numHXApproach.Value = (Decimal)m_HX.Value2;
-            numHX.Text = m_HX.Value.ToString();
+            //comboHXType.SelectedIndex = (int)m_HX.Type;
+            //numHXApproach.Value = (Decimal)m_HX.Value2;
+            //numHX.Text = m_HX.Value.ToString();
             ChangeOccured();
         }
 
@@ -1773,7 +1801,7 @@ namespace Reaction_Editor
                     numHX.Visible = true;
                     break;
             }
-            ChangeOccured();
+            //ChangeOccured();
         }
 
         private void numHORValue_TextChanged(object sender, EventArgs e)
@@ -2080,7 +2108,7 @@ namespace Reaction_Editor
             if (m_HX != null)
                 try { m_HX.Value = double.Parse(numHX.Text); }
                 catch { }
-            ChangeOccured();
+            //ChangeOccured();
         }
 
         private void txtDescription_TextChanged(object sender, EventArgs e)
@@ -2200,13 +2228,13 @@ namespace Reaction_Editor
         private void txtSources_Leave(object sender, EventArgs e)
         {
             if (m_Sources != null)
-                txtSources.Text = m_Sources.ToString();
+                txtSources.Text = m_Sources.CompoundString;
         }
 
         private void txtSinks_Leave(object sender, EventArgs e)
         {
             if (m_Sinks != null)
-                txtSinks.Text = m_Sinks.ToString();
+                txtSinks.Text = m_Sinks.CompoundString;
         }
 
         void txtCompounds_DragEnter(object sender, DragEventArgs e)
@@ -2256,7 +2284,7 @@ namespace Reaction_Editor
         {
             if (m_HX != null)
                 m_HX.Value2 = (double)numHXApproach.Value;
-            ChangeOccured();
+            //ChangeOccured();
         }
 
         private void chkFirstReactant_CheckedChanged(object sender, EventArgs e)
@@ -2360,6 +2388,7 @@ namespace Reaction_Editor
 
         private void txtFormula_TextChanged(object sender, EventArgs e)
         {
+            m_bUpdateTextboxes = false;
             BoxAutoComplete box = (BoxAutoComplete)sender;
             box.SelectionAlignment = HorizontalAlignment.Center;
             int oldSelectStart = box.SelectionStart;
@@ -2391,6 +2420,7 @@ namespace Reaction_Editor
             }
 
             box.Select(oldSelectStart, oldSelectLen);
+            m_bUpdateTextboxes = true;
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -2584,6 +2614,11 @@ namespace Reaction_Editor
         private void txtSourceComments_TextChanged(object sender, EventArgs e)
         {
             m_Sources.Comment = txtSourceComments.Text;
+        }
+
+        private void txtHXComment_TextChanged(object sender, EventArgs e)
+        {
+            m_HX.Comment = txtHXComment.Text;
         }
     }
 }

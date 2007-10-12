@@ -23,6 +23,9 @@ struct FailureTiming
 	FailureTiming();
     double dAvgDowntime, dDowntimeStdDev;
 	double dAvgUptime, dUptimeStdDev;
+
+	double dLastAvgDowntime, dLastAvgUptime; //If the average changes, we will recalculate the distribution.
+	double dLastDowntimeStdDev, dLastUptimeStdDev;
 	
     PDFType eFailureType;
 	PDFType eRepairType;

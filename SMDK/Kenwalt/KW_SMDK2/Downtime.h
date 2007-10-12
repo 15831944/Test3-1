@@ -73,6 +73,7 @@ class Downtime : public MBaseMethod
 
   protected:
     bool bOn;
+	bool bAutoReset;
 
     double dCurrentTime;
     bool bForceIntegralPeriod;

@@ -323,9 +323,11 @@ namespace Reaction_Editor
             // 
             // FrmChangeDialogue
             // 
+            this.AcceptButton = this.btnOk;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(654, 344);
+            this.CancelButton = this.btnCancel;
+            this.ClientSize = new System.Drawing.Size(654, 341);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.grpNewReaction);
@@ -333,7 +335,9 @@ namespace Reaction_Editor
             this.Controls.Add(this.txtMessage);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(660, 376);
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(660, 376);
             this.Name = "FrmChangeDialogue";
             this.Text = "FrmChangeDialogue";
             this.grpCurrentReaction.ResumeLayout(false);

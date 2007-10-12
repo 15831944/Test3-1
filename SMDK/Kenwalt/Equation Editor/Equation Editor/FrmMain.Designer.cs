@@ -320,7 +320,7 @@ namespace Reaction_Editor
             this.arrangeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuCascade});
             this.arrangeToolStripMenuItem.Name = "arrangeToolStripMenuItem";
-            this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.arrangeToolStripMenuItem.Text = "&Arrange";
             // 
             // menuCascade
@@ -334,14 +334,14 @@ namespace Reaction_Editor
             // 
             this.undockToolStripMenuItem.Enabled = false;
             this.undockToolStripMenuItem.Name = "undockToolStripMenuItem";
-            this.undockToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.undockToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.undockToolStripMenuItem.Text = "&Undock";
             this.undockToolStripMenuItem.Click += new System.EventHandler(this.undockToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(121, 6);
             // 
             // helpToolStripMenuItem
             // 
@@ -590,7 +590,6 @@ namespace Reaction_Editor
             // 
             // dlgOpenFolder
             // 
-            this.dlgOpenFolder.RootFolder = System.Environment.SpecialFolder.MyComputer;
             this.dlgOpenFolder.ShowNewFolderButton = false;
             // 
             // splitterRight
@@ -643,6 +642,7 @@ namespace Reaction_Editor
             this.columnHeader1,
             this.columnHeader2});
             this.lstLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstLog.FullRowSelect = true;
             this.lstLog.Location = new System.Drawing.Point(0, 18);
             this.lstLog.Name = "lstLog";
             this.lstLog.ShowItemToolTips = true;

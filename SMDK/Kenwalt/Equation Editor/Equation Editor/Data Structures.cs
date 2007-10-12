@@ -857,6 +857,7 @@ namespace Reaction_Editor
         public override void Revert()
         {
             SetString(m_OriginalMatch.Groups["Value"].Value);
+            this.Enabled = !m_OriginalMatch.Groups["Disabled"].Success;
             m_bHasChanged = false;
             UpdateStatus(this, new EventArgs());
         }
@@ -1105,7 +1106,7 @@ namespace Reaction_Editor
 
         #region regex's
         public static Regex s_ReactionRegex = new Regex(
-            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n)?(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>(?>\s*(;.*\r*\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n)?(?<Reactants>[^;\r\n<>=\:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>(?>\s*(;.*\r*\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public static Regex s_DisabledReactionRegex = new Regex(
@@ -1827,6 +1828,10 @@ namespace Reaction_Editor
                 }
             }
             FireChanged();
+            if (ReactantsChanged != null)
+                ReactantsChanged(this, new EventArgs());
+            if (ProductsChanged != null)
+                ProductsChanged(this, new EventArgs());
         }
 
         public void AddReactant(Compound compound, Fraction fraction, int location)

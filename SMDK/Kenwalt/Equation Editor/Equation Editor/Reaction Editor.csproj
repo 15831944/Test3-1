@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Reaction_Editor</RootNamespace>
     <AssemblyName>SysCADReactionEditor</AssemblyName>
-    <ApplicationIcon>KWA.ico</ApplicationIcon>
+    <ApplicationIcon>MAINFRAME.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -190,6 +190,7 @@
     <None Include="Images\Critical.bmp" />
     <None Include="Images\Information.bmp" />
     <Content Include="KWA.ico" />
+    <Content Include="MAINFRAME.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
