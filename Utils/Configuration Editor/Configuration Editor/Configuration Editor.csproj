@@ -97,7 +97,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Specie.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\FunctionHS.png" />
