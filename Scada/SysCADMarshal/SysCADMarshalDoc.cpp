@@ -58,8 +58,8 @@ ON_COMMAND(ID_FILE_LOADSTATE, OnFileLoadstate)
 ON_UPDATE_COMMAND_UI(ID_FILE_LOADSTATE, OnUpdateFileLoadstate)
 ON_COMMAND(ID_MODE_SIMULATE, OnModeSimulate)
 ON_UPDATE_COMMAND_UI(ID_MODE_SIMULATE, OnUpdateModeSimulate)
-ON_COMMAND(ID_EDIT_SETVALUES, OnSetValues)
-ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateSetValues)
+//ON_COMMAND(ID_EDIT_SETVALUES, OnSetValues)
+//ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateSetValues)
 END_MESSAGE_MAP()
 BEGIN_DISPATCH_MAP(CSysCADMarshalDoc, CDocument)
 //{{AFX_DISPATCH_MAP(CSysCADMarshalDoc)
@@ -1051,7 +1051,8 @@ void CSysCADMarshalDoc::OnUpdateConfigurationCommit(CCmdUI* pCmdUI)
 
 void CSysCADMarshalDoc::OnConfigurationRefreshdevices() 
   {
-  PostThreadMessage(gs_SlotMngr.ThreadId(), WMU_WRITEALL2DEVICES, 0, 0);
+  CSetValuesDlg::OpenIt(AfxGetMainWnd(), this);
+  //PostThreadMessage(gs_SlotMngr.ThreadId(), WMU_WRITEALL2DEVICES, 0, 0);
   }
 
 void CSysCADMarshalDoc::OnUpdateConfigurationRefreshdevices(CCmdUI* pCmdUI) 
@@ -1111,12 +1112,12 @@ void CSysCADMarshalDoc::OnUpdateModeSimulate(CCmdUI *pCmdUI)
 //---------------------------------------------------------------------------
 
 
-void CSysCADMarshalDoc::OnSetValues()
-  {
-  CSetValuesDlg::OpenIt(AfxGetMainWnd(), this);
-  }
-
-void CSysCADMarshalDoc::OnUpdateSetValues(CCmdUI *pCmdUI)
-  {
-  pCmdUI->Enable(true);
-  }
+//void CSysCADMarshalDoc::OnSetValues()
+//  {
+//  CSetValuesDlg::OpenIt(AfxGetMainWnd(), this);
+//  }
+//
+//void CSysCADMarshalDoc::OnUpdateSetValues(CCmdUI *pCmdUI)
+//  {
+//  pCmdUI->Enable(true);
+//  }

@@ -777,6 +777,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\res\LOGO.ICO"
+				>
+			</File>
+			<File
+				RelativePath=".\res\logo1.ico"
+				>
+			</File>
+			<File
 				RelativePath=".\ScdMarshal.rgs"
 				>
 			</File>

@@ -970,8 +970,12 @@ void CTagView::OnUpdate(CView *pSender, LPARAM lHint, CObject *pHint)
         for( int i=0; i<pDoc->m_SlotCfgs.GetSize(); i++)
           {
           // GROUP ??
-          pDoc->m_SlotCfgs[i]->m_bInFilter=pDoc->m_SlotCfgs[i]->InFilter(pDoc->m_lDeviceSelect, pDoc->m_Selection);
-          if (!pDoc->m_SlotCfgs[i]->m_bInFilter)
+          CSlot * pSlot=gs_SlotMngr.m_Slots[pDoc->m_SlotCfgs[i]->m_lSlot];
+          pSlot->m_bInFilter=pSlot->InFilter(pDoc->m_lDeviceSelect, pDoc->m_Selection);
+
+          //dbgpln("Filt: %5i %i  %08x %s", i, pSlot->m_bInFilter, &pSlot->m_bInFilter, pSlot->m_sOPCTag);
+
+          if (!pSlot->m_bInFilter)
             {
             pDoc->m_IndexOfSlotInList[i]=-1;
             continue;

@@ -570,7 +570,7 @@ void CSlotMngr::ConnectConnects()
   for (long i=0 ;i<m_Slots.GetSize(); i++)
     m_Slots[i]->ConnectConnects();
 
-  if (10)
+  if (0)
     {
     for (long i=0 ;i<m_Slots.GetSize(); i++)
       {
@@ -877,17 +877,22 @@ void CSlotMngr::DoSetValues(CSetValuesOptions & Opt)
     {
     case CSetValuesOptions::eAll:
       for (i=0; i<m_Slots.GetSize(); i++)
-        m_Slots2Write[i]=m_nSlots2Write++;
+        m_Slots2Write[m_nSlots2Write++]=i;
       for (int i=0; i<m_Links.GetSize(); i++)
-        m_Links2Write[i]=m_nLinks2Write++;
+        m_Links2Write[m_nLinks2Write++]=i;
       break;
     case CSetValuesOptions::eFiltered:
       for (int i=0; i<m_Slots.GetSize(); i++)
+        {
+        //dbgpln("SetFilt: %5i %i %08x %s", i, m_Slots[i]->m_bInFilter, &m_Slots[i]->m_bInFilter, m_Slots[i]->m_sOPCTag);
         if (m_Slots[i]->m_bInFilter)
-          m_Slots2Write[i]=m_nSlots2Write++;
+          m_Slots2Write[m_nSlots2Write++]=i;
+        }
       for (int i=0; i<m_Links.GetSize(); i++)
+        {
         if (m_Links[i]->m_bInFilter)
-          m_Links2Write[i]=m_nLinks2Write++;
+          m_Links2Write[m_nLinks2Write++]=i;
+        }
       break;
     case CSetValuesOptions::eSelected:
       break;
@@ -899,11 +904,11 @@ void CSlotMngr::DoSetValues(CSetValuesOptions & Opt)
     case CSetValuesOptions::eDoNothing:
       return;
     case CSetValuesOptions::eRefresh:
-      for (i=0; i<m_Slots2Write.GetSize(); i++)
+      for (i=0; i<m_nSlots2Write; i++)
         {
         CSlot & S = *m_Slots[m_Slots2Write[i]];
         //if (m_Slots[i]->m_bWrite)
-        m_Slots[i]->WriteCurrentValue2Device();
+        S.WriteCurrentValue2Device();
         }
       break;
     case CSetValuesOptions::eSet:

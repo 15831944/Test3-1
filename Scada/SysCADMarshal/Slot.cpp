@@ -160,6 +160,9 @@ CSlotCfg::CSlotCfg()
   m_pLink       = NULL;
   m_bConnected  = false;
   m_hServer     = 0;
+
+  //static int xxxx=0;
+  //dbgpln("CSlotCfg::CSlotCfg( %i %08x", xxxx++, &m_bInFilter);
   }
 
 CSlotCfg::~CSlotCfg()
@@ -1498,7 +1501,7 @@ bool CSlot::SetValue(CChangeItem * pRqst)
 
   if (pRqst->m_eSrc==eCSD_Device)
     {
-    if (!m_bRead)
+    if (!m_bRead) // If not reading the bit ignore it 
       {
       //m_lValuesIgnored++;
       return false;

@@ -197,8 +197,8 @@ class CSysCADMarshalDoc :
     afx_msg void OnUpdateFileLoadstate(CCmdUI *pCmdUI);
     afx_msg void OnModeSimulate();
     afx_msg void OnUpdateModeSimulate(CCmdUI *pCmdUI);
-    afx_msg void OnSetValues();
-    afx_msg void OnUpdateSetValues(CCmdUI *pCmdUI);
+    //afx_msg void OnSetValues();
+    //afx_msg void OnUpdateSetValues(CCmdUI *pCmdUI);
 };
 
 /////////////////////////////////////////////////////////////////////////////

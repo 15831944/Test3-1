@@ -982,11 +982,11 @@ void CDevice::AppendWriteRqst(CSlot & Slot, OPCHANDLE hServer, VARIANT & vValue,
 
     if (WriteIt)
       {
-    CFullValue FV;
-    FV.m_vValue=vValue;
+      CFullValue FV;
+      FV.m_vValue=vValue;
       CChangeItem * pWrt=new CChangeItem(eCSD_Slot, Slot.m_lSlot, eCSD_Device, -1, hServer, gs_SlotMngr.GetTransactionID(), FV, false, Refresh);
-    m_WriteList.AddTail(pWrt);
-    }
+      m_WriteList.AddTail(pWrt);
+      }
     }
   };
 
