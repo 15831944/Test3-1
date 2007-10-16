@@ -104,20 +104,27 @@ CString CNeutralGroupTagEditor::AdjustTag(LPCTSTR OldTag)
 
 CString CNeutralGroupTagEditor::AdjustTag(LPCTSTR OldTag, long FixupRule, CString & String1, CString & String2, CStringArray * OldTags, CStringArray * NewTags)
   {
+  CString Ret("???");
   switch (FixupRule)
     {
-    case eFixup_NoChange      : return OldTag;
-    case eFixup_Prefix        : return String1+OldTag;
-    case eFixup_Suffix        : return OldTag+String2;
-    case eFixup_PrefixSuffix  : return String1+OldTag+String2;
-    case eFixup_ReplaceTag    : return String1;
+    case eFixup_NoChange      : Ret=OldTag;                    break;
+    case eFixup_Prefix        : Ret=String1+OldTag;            break;
+    case eFixup_Suffix        : Ret=OldTag+String2;            break;
+    case eFixup_PrefixSuffix  : Ret=String1+OldTag+String2;    break;
+    case eFixup_ReplaceTag    : Ret=String1;                   break;
     case eFixup_ExchangeTags   : 
       {
       int i=FindOldTag(OldTags, OldTag);
       if (i>=0)
-        return (*NewTags)[i];
-      ASSERT_ALWAYS(FALSE, "Bad Adjust Tag", __FILE__, __LINE__); 
-      return CString("Replacement")+OldTag;
+        {
+        Ret=(*NewTags)[i];
+        }
+      else
+        {
+        ASSERT_ALWAYS(FALSE, "Bad Adjust Tag", __FILE__, __LINE__); 
+        Ret=CString("Replacement")+OldTag;
+        }
+      break;
       }
     case eFixup_RegExpression: 
       {
@@ -130,10 +137,20 @@ CString CNeutralGroupTagEditor::AdjustTag(LPCTSTR OldTag, long FixupRule, CStrin
       (*pRE)->Pattern = bFndTxt;
       _bstr_t bNewTag=(*pRE)->Replace(bOldTag, bRepTxt);
       delete pRE;
-      return (LPCTSTR)bNewTag;
+      Ret=(LPCTSTR)bNewTag;
+      break;
       }
     }
-  return "???";
+
+  Strng S=Ret;
+  if (TaggedObject::ValidateTagDotChanged(S))
+    {//b) illegal characters
+    Ret=S();
+    //ErrMsg.Format("Tag %s changed to confrom to tag rules", Ret);
+    //OK=false;
+    }
+
+  return Ret;
   };
 
 //-------------------------------------------------------------------------

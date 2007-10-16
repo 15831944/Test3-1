@@ -841,10 +841,11 @@ bool CNeutralMdlImportExport::DoImportValidate(eScdNDBOptions Opts, CString &Err
     while (Pos && OK)
       {
       CNodeListItem &I=List.GetNext(Pos);
-      if (FindNewTag(I.m_sTag)<0)
-        continue;
-      ErrMsg.Format("Duplicate Tag %s", I.m_sTag);
-      OK=false;
+      if (FindNewTag(I.m_sTag)>=0)
+        {
+        ErrMsg.Format("Duplicate Tag %s", I.m_sTag);
+        OK=false;
+        }
       }
     }
   return OK;
