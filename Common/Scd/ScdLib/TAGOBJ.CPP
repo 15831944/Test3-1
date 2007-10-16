@@ -56,6 +56,7 @@ static CDbgMngr dbgFldMonitorChg("TagObj",   "FldMonitor.Chg");
 
 #pragma comment (lib, "rpcrt4.lib")
 
+const int MaxShortDescLen = 25;
 
 //========================================================================
 //
@@ -322,6 +323,8 @@ m_SelectData(this)
   sDesc=pDesc_;
   pNxtClass=NULL;
   dwCategory=dwCat_;
+
+  sShortDesc.SetLength(Min(MaxShortDescLen, sShortDesc.Length()));
 
   dwObjDataVerNo=0xffffffff;
 
@@ -609,7 +612,7 @@ TagObjClass* TagObjClass::FindGrpClassId(LPSTR ClassId_)
 void TagObjClass::GetShortDesc(Strng &S)
   {
   S=ShortDesc();
-  S.SetLength(Min(20, S.Length()));
+  S.SetLength(Min(MaxShortDescLen, S.Length()));
   S.Trim();
   }
 
@@ -617,12 +620,15 @@ void TagObjClass::GetShortDesc(Strng &S)
 
 TagObjClass* TagObjClass::FindGrpShortDesc(LPSTR ShortDesc_)
   {
-  Strng S;
+  Strng S, SCmp(ShortDesc_);
+  if (SCmp.GetLength()>MaxShortDescLen)
+    SCmp.SetLength(MaxShortDescLen);
+  
   TagObjClass* p=pFirstClassInGrp;
   while (p)
     {
     p->GetShortDesc(S);
-    if (strcmpi(S(), ShortDesc_)==0)
+    if (strcmpi(S(), SCmp())==0)
       break;
     p=p->pNxtClassInGrp;
     }

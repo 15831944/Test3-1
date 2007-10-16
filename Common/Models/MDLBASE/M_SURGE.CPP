@@ -1011,7 +1011,7 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
   {
   ASSERT(NetDynamicMethod());
 
-  if (SolveSurgeMethod())
+  if (SolveBufferedMethod())
     {
     if (RB())
       {//only call this code if the surge is actualy used

@@ -2,9 +2,11 @@
 
 #define __MAKEUPBLOCK_CPP
 #include "MakeupBlock.h"
+#include "nrecipe.h"
+
 //#include "optoff.h"
 
-#define dbgMakeup  0
+#define dbgMakeup  01
 
 //=========================================================================
 //
@@ -80,13 +82,6 @@ CMakeupBase::~CMakeupBase()
   delete m_pMakeupB; 
   };
 
-//Strng CMakeupBase::Name()
-//  {
-//  Strng S;
-//  S.Set("M%i", m_Index+1);
-//  return S;
-//  }
-
 flag CMakeupBase::Open(TagObjClass * pMakeupClass, flag Fixed)
   {
   m_fEnabled=True;
@@ -142,10 +137,6 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
     DDB.Text("");
     if (DDB.BeginObject(m_pNd, Name(), "EB_Makeup", pTagComment, PageIs))
       {
-      DDBValueLstMem DDB0;
-      TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
-      DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd, m_fFixed ? 0 : isParmStopped|SetOnChange, DDB0());
-
       if (m_SrcIO.Enabled)
         {
         if (PrjFileVerNo()<107)
@@ -158,6 +149,11 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
           m_SrcIO.BuildDataDefn(DDB, tt_Struct, "DIO", DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
           }
         }
+
+
+      DDBValueLstMem DDB0;
+      TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
+      DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd, m_fFixed ? 0 : isParmStopped|SetOnChange, DDB0());
 
       if (m_pMakeupB)
         {
@@ -262,6 +258,9 @@ XID xidMkRemElem = AdjustXID(1016);
 XID xidMkError   = AdjustXID(1017);
 XID xidMkPhase   = AdjustXID(1200);
 
+XID xidMkSpcId   = AdjustXID(1020);
+XID xidMkCmpId   = AdjustXID(1040);
+XID xidMkElemId  = AdjustXID(1060);
 
 //============================================================================
 //
@@ -269,50 +268,186 @@ XID xidMkPhase   = AdjustXID(1200);
 //
 //============================================================================
 
-#if 01 /*NOTDEFINED*/
 
-//============================================================================
-//
-//
-//
-//============================================================================
+const int MaxMUItems = 10;
+
+class CDDBItemList    
+  {
+  public:
+    CDDBItemList (CIArray & List) : \
+      m_List(List)
+      {
+      m_OK=false;
+      }
+
+    void SetUp(bool ForceIt=false)
+      {
+      if (!m_OK || ForceIt)
+        {
+        for (int j=0; j<m_List.GetSize(); j++)
+          {
+          if (m_List[j]<0)
+            m_List.RemoveAt(j);
+          }
+
+        if (m_List.GetCount()>1)
+          {
+          //HpSort(m_List.GetCount(), (void**)&m_List[0], TestOrder);
+          for (int i=1; i<m_List.GetCount(); i++)
+            {
+            for (int j=i-1; j>=0; j--)
+              {
+              if (m_List[j]>m_List[j+1])
+                Exchange(m_List[j], m_List[j+1]);
+              else
+                break;
+              }
+            }
+          }
+        int InList[MaxSpeciesEx];
+        for (int s=0; s<SDB.Count(); s++)
+          InList[s]=-1;
+
+        int iList=0;
+        for (int j=0; j<m_List.GetSize(); j++)
+          {
+          if (InList[m_List[j]]<0)
+            InList[m_List[j]]=iList++;
+          }
+
+        for (int j=0; j<m_List.GetCount(); j++)
+          {
+          m_Values[j].Empty();
+          m_Values[j].Add(-1, "-");
+          for (int s=0; s<m_AllValues.Length(); s++)
+            {
+            if (s==m_List[j] || InList[s]<0)
+              m_Values[j].Add(m_AllValues[s].m_lVal,m_AllValues[s].m_pStr);
+            }
+          }
+
+        if (m_List.GetCount()<MaxMUItems)
+          {
+          int j=m_List.GetCount();
+          m_Values[j].Empty();
+          m_Values[j].Add(-1, "-");
+          for (int s=0; s<m_AllValues.Length(); s++)
+            {
+            if (InList[s]<0)
+              m_Values[j].Add(m_AllValues[s].m_lVal,m_AllValues[s].m_pStr);
+            }
+          }
+        //m_DDBSpcLst;
+        m_OK=true;
+        }
+      }
+  public:
+
+    //bool            m_DDBSpcsOK;
+    bool            m_OK;
+    DDBValueLstMem  m_Values[MaxMUItems];
+    DDBValueLstMem  m_AllValues;
+    CIArray       & m_List;
+  };
+
 
 #define DllImportExport /* */
+
+
+enum eSource
+  {
+  Src_Self,
+  Src_Remote,
+  };
+
+enum eType
+  { 
+  //Type_None, 
+  Type_Mass,
+  Type_Volume,
+  Type_NVolume,
+  Type_Mole,
+  };
+
+enum eLoFeed
+  {
+  LF_AlwaysOn,
+  LF_StopBelow,
+  //LF_HoldMeasure,
+  };
+
+
+enum eSelect
+  {
+  Slct_All,
+  Slct_Occur,
+  Slct_IndPhase,
+  Slct_Specie,
+  Slct_Component,
+  Slct_Element,
+  };
+
+enum eTemp
+  {
+  Temp_Inlet,
+  Temp_Source,
+  Temp_Std,
+  Temp_Const,
+  Temp_Mixture,
+  };
 
 class DllImportExport CMeasInfo
   {
   friend class CXBlk_MUFeed;
   public:
-    enum eSelect
-      {
-      Slct_All,
-      Slct_Occur,
-      Slct_IndPhase,
-      Slct_Specie,
-      Slct_Component,
-      Slct_Element,
-      };
 
-    CMeasInfo()
+    CMeasInfo() : \
+      m_DDBSpcs(m_Species),
+      m_DDBCmps(m_Comps),
+      m_DDBElems(m_Elements)
       {
+      for (int s=0; s<SDB.Count(); s++)
+        m_DDBSpcs.m_AllValues.Add(s, SDB[s].SymOrTag());
+      for (int c=0; c<CDB.No(); c++)
+        m_DDBCmps.m_AllValues.Add(c, CDB[c].SymOrTag());
+      for (int e=0; e<EDB.Count(); e++)
+        m_DDBElems.m_AllValues.Add(e, EDB[e].m_Name);
+
+      m_UserInfo  = 0;
+
+      m_eType     = Type_Mass;
       m_eSelect   = Slct_All;
       m_Phases    = som_ALL;
-      m_DDBSpcsOK = false;
-      m_DDBCmpsOK = false;
-      m_DDBElemsOK = false;
       };
 
-    void            SetUpDDBSpcs();
-    void            SetUpDDBCmps();
-    void            SetUpDDBElems();
+    void Initialise(LPTSTR Tag, DWORD UserInfo, LPSTR Header, eType Type=Type_Mass, eSelect Select=Slct_All, PhMask Phases=som_ALL)
+      {
+      m_Tag       = Tag;
+      m_Header    = Header;
+      m_UserInfo  = UserInfo;
+      m_eType     = Type;
+      m_eSelect   = Select;
+      m_Phases    = Phases;
+      };
 
-    void            BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk, LPTSTR Tag, DWORD UserInfo);
+    void            BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk);
     flag            DataXchg(DataChangeBlk & DCB, CXBlk_MUFeed &Blk);
     flag            ValidateData(ValidateDataBlk & VDB, CXBlk_MUFeed &Blk);
 
+    LPSTR          CIStr(int Which)
+      {
+      switch (Which)
+        {
+        case  0: return m_CIStr.Set("E\tNo Phase Selected for %s", m_Tag());
+        case  1: return m_CIStr.Set("E\tNo Species Selected for %s", m_Tag());
+        case  2: return m_CIStr.Set("E\tNo Element Selected for %s", m_Tag());
+        };
+      return "???";
+      }
+
   protected:
 
-
+    eType           m_eType;
     eSelect         m_eSelect;
     PhMask          m_Phases; 
 
@@ -320,26 +455,18 @@ class DllImportExport CMeasInfo
     CIArray         m_Comps;
     CIArray         m_Elements;
 
-    bool            m_DDBSpcsOK;
-    DDBValueLstMem  m_DDBSpcAdd;
-    DDBValueLstMem  m_DDBSpcRem;
-    int             m_nLastSpcStr;
-    CStringArray    m_SpcStr;
-
-    bool            m_DDBCmpsOK;
-    DDBValueLstMem  m_DDBCmpAdd;
-    DDBValueLstMem  m_DDBCmpRem;
-    int             m_nLastCmpStr;
-    CStringArray    m_CmpStr;
-
-    bool            m_DDBElemsOK;
-    DDBValueLstMem  m_DDBElemAdd;
-    DDBValueLstMem  m_DDBElemRem;
-    int             m_nLastElemStr;
-    CStringArray    m_ElemStr;
+    CDDBItemList    m_DDBSpcs;
+    CDDBItemList    m_DDBCmps;
+    CDDBItemList    m_DDBElems;
 
     Strng           m_MeasDesc;
     Strng           m_FullDesc;
+
+    Strng           m_Tag;
+    Strng           m_Header;
+    DWORD           m_UserInfo;
+
+    Strng           m_CIStr;
   };
 
 //============================================================================
@@ -351,7 +478,10 @@ class DllImportExport CMeasInfo
 class DllImportExport CXBlk_MUFeed: public CMakeupBlock
   {
   public:
-    CXBlk_MUFeed(bool AsRatio, TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
+    enum eOps  { Op_MUFixed, Op_MURatio, Op_PrdFlow, Op_PrdFrac, Op_PrdConc };
+
+  public:
+    CXBlk_MUFeed(eOps Op, TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CXBlk_MUFeed();
 
     void           ClrMeasEtc();
@@ -371,76 +501,50 @@ class DllImportExport CXBlk_MUFeed: public CMakeupBlock
     double         GetMeasVal(SpConduit &QIn, SpConduit &QSrc, SpConduit &QPrd);
     double         GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd=0);
 
-    inline bool    AsRatio() { return m_AsRatio; };
-    inline bool    AsFixedFlow() { return !m_AsRatio; };
-
     DEFINE_CI(CXBlk_MUFeed, CMakeupBlock, 12);
 
   public:
-    bool           m_AsRatio;
-
-    enum eSource
-      {
-      Src_Self,
-      Src_Remote,
-      };
-
-    enum eType
-      { 
-      //Type_None, 
-      Type_Mass,
-      Type_Volume,
-      Type_NVolume,
-      Type_Mole,
-      };
-
-    enum eLoFeed
-      {
-      LF_Ignore,
-      LF_StopMakeUp,
-      //LF_HoldMeasure,
-      };
-
     Strng           m_MyTag;
     eSource         m_eSource;
     double          m_MUQmMin;
     double          m_MUQmMax;
-    eType           m_eType;
+    //eType           m_eType;
+
+    eOps            m_Op;
 
     eLoFeed         m_eLoFeedOpt;
     double          m_LoFeedQm;
 
-    CMeasInfo       m_Mu, m_In;
+    CMeasInfo       m_Meas1, m_Meas2;
 
     bool            m_bHasFlow;
 
-    double          m_QmRqd;
-    double          m_QmRatio;
-    double          m_QMlRqd;
-    double          m_QMlRatio;
-    double          m_QvRqd;
-    double          m_QvRatio;
-    double          m_NQvRqd;
-    double          m_NQvRatio;
+    double          m_RqdSetPoint;
 
     //results
-    double          m_dSetPoint;
-    double          m_dMeas;
-    double          m_dResult;
-    double          m_dFeedAct;
-    double          m_dProdAct;
-    double          m_dMakeupAct;
+    double          m_SetPoint;
+    double          m_Measured;
+    double          m_Result;
+    //double          m_FeedAct;
+    //double          m_ProdAct;
+    //double          m_MakeupAct;
 
-    double          m_dQmFeed;
-    double          m_dQmMakeup;
-    double          m_dQmProd;
-    double          m_dQvFeed;
-    double          m_dQvMakeup;
-    double          m_dQvProd;
-    double          m_dTempKFeed;
-    double          m_dTempKMakeup;
-    double          m_dTempKProd;
+    double          m_QmFeed;
+    double          m_QmMakeup;
+    double          m_QmProd;
+    //double          m_QvFeed;
+    //double          m_QvMakeup;
+    //double          m_QvProd;
 
+    eTemp           m_eRqdTemp;
+    double          m_RqdTemp;
+
+    double          m_TempFeed;
+    double          m_TempMakeup;
+    double          m_TempProd;
+    double          m_HeatFlow;
+
+    bool            m_ValidateOK;
     Strng_List      m_ErrorLst;
 
     static CToleranceBlock sm_QmTol;
@@ -453,177 +557,26 @@ class DllImportExport CXBlk_MUFeed: public CMakeupBlock
 //
 //============================================================================
 
-//--------------------------------------------------------------------------
-
-void CMeasInfo::SetUpDDBSpcs()
-  {
-
-  if (!m_DDBSpcsOK || m_DDBSpcAdd.Length()+m_DDBSpcRem.Length()<SDB.Count())
-    {
-    m_DDBSpcAdd.Empty();
-    m_DDBSpcRem.Empty();
-    m_DDBSpcAdd.Add(-2, "All_Available");
-    m_DDBSpcAdd.Add(-1, " - ");
-    m_DDBSpcRem.Add(-2, "All_Available");
-    m_DDBSpcRem.Add(-1, " - ");
-
-    bool InList[MaxSpeciesEx];
-    for (int s=0; s<SDB.Count(); s++)
-      InList[s]=false;
-
-    bool NeedsComma=false;
-    m_nLastSpcStr=0;
-    m_SpcStr.SetSize(Max(m_nLastSpcStr+1, m_SpcStr.GetSize()));
-    m_SpcStr[m_nLastSpcStr]="Species:";
-    for (int j=0; j<m_Species.GetSize(); j++)
-      {
-      int s=m_Species[j];
-      InList[s]=true;
-      m_DDBSpcRem.Add(s, SDB[s].SymOrTag());
-
-      if (NeedsComma)
-        m_SpcStr[m_nLastSpcStr]+=",";
-      m_SpcStr[m_nLastSpcStr]+=SDB[s].SymOrTag();
-      if (m_SpcStr[m_nLastSpcStr].GetLength()>35)
-        {
-        m_nLastSpcStr++;
-        m_SpcStr.SetSize(Max(m_nLastSpcStr+1, m_SpcStr.GetSize()));
-        m_SpcStr[m_nLastSpcStr]="        ";
-        NeedsComma=false;
-        }
-      else
-        NeedsComma=true;
-      }
-
-    for (int s=0; s<SDB.Count(); s++)
-      {
-      if (!InList[s])
-        m_DDBSpcAdd.Add(s,SDB[s].SymOrTag());
-      }
-    }
-
-  m_DDBSpcsOK = true;
-  }
+static int TestOrder(void * p, void * q) { return *((int *)p)>*((int*)q); };
 
 //--------------------------------------------------------------------------
 
-void CMeasInfo::SetUpDDBCmps()
+void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk)//, LPTSTR Tag, DWORD UserInfo, LPSTR Header)
   {
-  if (!m_DDBCmpsOK || m_DDBCmpAdd.Length()+m_DDBCmpRem.Length()<CDB.No())
+  DDB.PushUserInfo(m_UserInfo);
+  if (DDB.BeginStruct(&Blk, m_Tag(), NULL, DDB_NoPage))
     {
-    m_DDBCmpAdd.Empty();
-    m_DDBCmpRem.Empty();
-    m_DDBCmpAdd.Add(-2, "All_Available");
-    m_DDBCmpAdd.Add(-1, " - ");
-    m_DDBCmpRem.Add(-2, "All_Available");
-    m_DDBCmpRem.Add(-1, " - ");
+    if (m_Header())
+      DDB.Text(m_Header());
 
-    bool InList[MaxSpeciesEx];
-    for (int s=0; s<CDB.No(); s++)
-      InList[s]=false;
-
-    bool NeedsComma=false;
-    m_nLastCmpStr=0;
-    m_CmpStr.SetSize(Max(m_nLastCmpStr+1, m_CmpStr.GetSize()));
-    m_CmpStr[m_nLastCmpStr]="Comps:";
-    for (int j=0; j<m_Comps.GetSize(); j++)
-      {
-      int s=m_Comps[j];
-      InList[s]=true;
-      m_DDBCmpRem.Add(s, CDB[s].SymOrTag());
-
-      if (NeedsComma)
-        m_CmpStr[m_nLastCmpStr]+=",";
-      m_CmpStr[m_nLastCmpStr]+=CDB[s].SymOrTag();
-      if (m_CmpStr[m_nLastCmpStr].GetLength()>35)
-        {
-        m_nLastCmpStr++;
-        m_CmpStr.SetSize(Max(m_nLastCmpStr+1, m_CmpStr.GetSize()));
-        m_CmpStr[m_nLastCmpStr]="        ";
-        NeedsComma=false;
-        }
-      else
-        NeedsComma=true;
-      //for (int ss=CDB[s].
-      }
-
-    for (int s=0; s<CDB.No(); s++)
-      {
-      if (!InList[s])
-        m_DDBCmpAdd.Add(s,CDB[s].SymOrTag());
-      }
-    }
-
-  m_DDBCmpsOK = true;
-  }
-
-//--------------------------------------------------------------------------
-
-void CMeasInfo::SetUpDDBElems()
-  {
-
-  if (!m_DDBElemsOK || m_DDBElemAdd.Length()+m_DDBElemRem.Length()<SDB.Count())
-    {
-    m_DDBElemAdd.Empty();
-    m_DDBElemRem.Empty();
-    m_DDBElemAdd.Add(-2, "All_Available");
-    m_DDBElemAdd.Add(-1, " - ");
-    m_DDBElemRem.Add(-2, "All_Available");
-    m_DDBElemRem.Add(-1, " - ");
-
-    bool InList[250];
-    for (int e=0; e<EDB.Count(); e++)
-      InList[e]=false;
-
-    bool NeedsComma=false;
-    m_nLastElemStr=0;
-    m_ElemStr.SetSize(Max(m_nLastElemStr+1, m_ElemStr.GetSize()));
-    m_ElemStr[m_nLastElemStr]="Elements:";
-    for (int j=0; j<m_Elements.GetSize(); j++)
-      {
-      int e=m_Elements[j];
-      InList[e]=true;
-      m_DDBElemRem.Add(e, EDB[e].m_Name);
-
-      if (NeedsComma)
-        m_ElemStr[m_nLastElemStr]+=",";
-      m_ElemStr[m_nLastElemStr]+=EDB[e].m_Name;
-      if (m_ElemStr[m_nLastElemStr].GetLength()>35)
-        {
-        m_nLastElemStr++;
-        m_ElemStr.SetSize(Max(m_nLastElemStr+1, m_ElemStr.GetSize()));
-        m_ElemStr[m_nLastElemStr]="        ";
-        NeedsComma=false;
-        }
-      else
-        NeedsComma=true;
-      }
-
-    for (int e=0; e<EDB.Count(); e++)
-      {
-      if (!InList[e])
-        m_DDBElemAdd.Add(e,EDB[e].m_Name);
-      }
-    }
-
-  m_DDBElemsOK = true;
-  }
-
-//--------------------------------------------------------------------------
-
-void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk, LPTSTR Tag, DWORD UserInfo)
-  {
-  DDB.PushUserInfo(UserInfo);
-  if (DDB.BeginStruct(&Blk, Tag, NULL, DDB_NoPage))
-    {
     static DDBValueLst DDBSelect[] =
       {                         
-        {CMeasInfo::Slct_All,            "All"             },
-        {CMeasInfo::Slct_Occur,          "Phase"           },
-        {CMeasInfo::Slct_IndPhase,       "IndividualPhase" },
-        {CMeasInfo::Slct_Specie,         "Specie"          },
-        {CMeasInfo::Slct_Component,      "Component"       },
-        {CMeasInfo::Slct_Element,        "Element"         },
+        {Slct_All,            "All"             },
+        {Slct_Occur,          "Phase"           },
+        {Slct_IndPhase,       "IndividualPhase" },
+        {Slct_Specie,         "Specie"          },
+        {Slct_Component,      "Component"       },
+        {Slct_Element,        "Element"         },
         {}
       };
 
@@ -641,7 +594,7 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk, LPTSTR Tag, D
           break;
         case Slct_Specie:
           {
-          SetUpDDBSpcs();
+          //m_DDBSpcs.SetUp();
 
           DDB.Long  ("NSpcs",       "", DC_,      "",   xidMkSpcCnt, &Blk, isParm);
           if (DDB.BeginArray(&Blk, "Spcs", "MU_SpIndex", m_Species.GetSize(), 0, DDB_NoPage, isParm))
@@ -657,7 +610,7 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk, LPTSTR Tag, D
           }
         case Slct_Component:
           {
-          SetUpDDBCmps();
+          //SetUpDDBCmps();
 
           DDB.Long  ("NCmps",       "", DC_,      "",   xidMkCmpCnt, &Blk, isParm);
           if (DDB.BeginArray(&Blk, "Cmps", "MU_CmpIndex", m_Comps.GetSize(), 0, DDB_NoPage, isParm))
@@ -673,7 +626,7 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk, LPTSTR Tag, D
           }
         case Slct_Element:
           {
-          SetUpDDBElems();
+          //SetUpDDBElems();
 
           DDB.Long  ("NElems",       "", DC_,      "",   xidMkElemCnt, &Blk, isParm);
           if (DDB.BeginArray(&Blk, "Elems", "MU_ElemIndex", m_Elements.GetSize(), 0, DDB_NoPage, isParm))
@@ -716,41 +669,47 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk, LPTSTR Tag, D
           }
         case Slct_Specie:
           {
-          SetUpDDBSpcs();
-          for (int s=0; s<=m_nLastSpcStr; s++)
-            DDB.Text((LPTSTR)(LPCTSTR)m_SpcStr[s]);
-          DDB.Long  ("Add",    "", DC_, "", xidMkAddSpc, &Blk, (m_DDBSpcAdd.Length()>1?isParm:0)|SetOnChange, &m_DDBSpcAdd);
-          DDB.Long  ("Remove", "", DC_, "", xidMkRemSpc, &Blk, (m_DDBSpcRem.Length()>1?isParm:0)|SetOnChange, &m_DDBSpcRem);
+          Strng Tag;
+          m_DDBSpcs.SetUp();
+          for (long s=0; s<Min(MaxMUItems, m_Species.GetCount()+1); s++)
+            {
+            DDB.Long  (Tag.Set("Specie%02i",s+1),  "", DC_, "", xidMkSpcId+s, &Blk, isParm|SetOnChange, &m_DDBSpcs.m_Values[s]);
+            m_DDBSpcs.SetUp();
+            }
           break;
           }
         case Slct_Component:
           {
-          SetUpDDBCmps();
-          for (int s=0; s<=m_nLastCmpStr; s++)
-            DDB.Text((LPTSTR)(LPCTSTR)m_CmpStr[s]);
-          DDB.Long  ("Add",    "", DC_, "", xidMkAddCmp, &Blk, (m_DDBCmpAdd.Length()>1?isParm:0)|SetOnChange, &m_DDBCmpAdd);
-          DDB.Long  ("Remove", "", DC_, "", xidMkRemCmp, &Blk, (m_DDBCmpRem.Length()>1?isParm:0)|SetOnChange, &m_DDBCmpRem);
+          Strng Tag;
+          m_DDBCmps.SetUp();
+          for (long s=0; s<Min(MaxMUItems, m_Comps.GetCount()+1); s++)
+            {
+            DDB.Long  (Tag.Set("Component%02i",s+1),  "", DC_, "", xidMkCmpId+s, &Blk, isParm|SetOnChange, &m_DDBCmps.m_Values[s]);
+            m_DDBCmps.SetUp();
+            }
           break;
           }
         case Slct_Element:
           {
-          SetUpDDBElems();
-          for (int s=0; s<=m_nLastElemStr; s++)
-            DDB.Text((LPTSTR)(LPCTSTR)m_ElemStr[s]);
-          DDB.Long  ("Add",    "", DC_, "", xidMkAddElem, &Blk, (m_DDBElemAdd.Length()>1?isParm:0)|SetOnChange, &m_DDBElemAdd);
-          DDB.Long  ("Remove", "", DC_, "", xidMkRemElem, &Blk, (m_DDBElemRem.Length()>1?isParm:0)|SetOnChange, &m_DDBElemRem);
+          Strng Tag;
+          m_DDBElems.SetUp();
+          for (long s=0; s<Min(MaxMUItems, m_Elements.GetCount()+1); s++)
+            {
+            DDB.Long  (Tag.Set("Element%02i",s+1),  "", DC_, "", xidMkElemId+s, &Blk, isParm|SetOnChange, &m_DDBElems.m_Values[s]);
+            m_DDBElems.SetUp();
+            }
           break;
           }
         }  
       }
 
-    if (Blk.m_eType==CXBlk_MUFeed::Type_Mass)
+    if (m_eType==Type_Mass)
       m_MeasDesc = "Mass flow";
-    else if (Blk.m_eType==CXBlk_MUFeed::Type_Volume)
+    else if (m_eType==Type_Volume)
       m_MeasDesc = "Volume flow";
-    else if (Blk.m_eType==CXBlk_MUFeed::Type_NVolume)
+    else if (m_eType==Type_NVolume)
       m_MeasDesc = "NormVolume flow";
-    else if (Blk.m_eType==CXBlk_MUFeed::Type_Mole)
+    else if (m_eType==Type_Mole)
       m_MeasDesc = "Molar flow";
     //else if (Blk.m_eType==CXBlk_MUFeed::Type_Conc)
     //  m_MeasDesc = "Concentration";
@@ -866,202 +825,70 @@ flag CMeasInfo::DataXchg(DataChangeBlk & DCB, CXBlk_MUFeed &Blk)
       if (DCB.rL)
         {
         m_Species.SetSize(*DCB.rL);
-        m_DDBSpcsOK = false;
+        m_DDBSpcs.SetUp(true);
         Blk.ClrMeasEtc();
         }
       DCB.L=m_Species.GetSize();
       return 1;
-    case xidMkAddSpc:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Species.GetSize(); j++)
-            {
-            if (m_Species[j]>*DCB.rL)
-              {
-              m_Species.InsertAt(j, *DCB.rL);
-              m_DDBSpcsOK=false;
-              DCB.L=-1;
-              Blk.ClrMeasEtc();
-              return 1;
-              }
-            }
-          m_Species.Add(*DCB.rL);
-          m_DDBSpcsOK=false;
-          Blk.ClrMeasEtc();
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Species.SetSize(0);
-          for (int i=0; i<SDB.Count(); i++)
-            m_Species.Add(i);
-          m_DDBSpcsOK=false;
-          Blk.ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
-      return 1;
-    case xidMkRemSpc:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Species.GetSize(); j++)
-            {
-            if (m_Species[j]==*DCB.rL)
-              {
-              m_Species.RemoveAt(j);
-              m_DDBSpcsOK=false;
-              Blk.ClrMeasEtc();
-              break;
-              }
-            }
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Species.SetSize(0);
-          m_DDBSpcsOK=false;
-          Blk.ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
-      return 1;
-
     case xidMkCmpCnt:
       if (DCB.rL)
         {
         m_Comps.SetSize(*DCB.rL);
-        m_DDBCmpsOK = false;
+        m_DDBCmps.SetUp(true);
         Blk.ClrMeasEtc();
         }
       DCB.L=m_Comps.GetSize();
-      return 1;
-    case xidMkAddCmp:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Comps.GetSize(); j++)
-            {
-            if (m_Comps[j]>*DCB.rL)
-              {
-              m_Comps.InsertAt(j, *DCB.rL);
-              m_DDBCmpsOK=false;
-              DCB.L=-1;
-              Blk.ClrMeasEtc();
-              return 1;
-              }
-            }
-          m_Comps.Add(*DCB.rL);
-          m_DDBCmpsOK=false;
-          Blk.ClrMeasEtc();
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Comps.SetSize(0);
-          for (int i=0; i<CDB.No(); i++)
-            m_Comps.Add(i);
-          m_DDBCmpsOK=false;
-          Blk.ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
-      return 1;
-    case xidMkRemCmp:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Comps.GetSize(); j++)
-            {
-            if (m_Comps[j]==*DCB.rL)
-              {
-              m_Comps.RemoveAt(j);
-              m_DDBCmpsOK=false;
-              Blk.ClrMeasEtc();
-              break;
-              }
-            }
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Comps.SetSize(0);
-          m_DDBCmpsOK=false;
-          Blk.ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
       return 1;
 
     case xidMkElemCnt:
       if (DCB.rL)
         {
         m_Elements.SetSize(*DCB.rL);
-        m_DDBElemsOK = false;
+        m_DDBElems.SetUp(true);
         Blk.ClrMeasEtc();
         }
       DCB.L=m_Elements.GetSize();
       return 1;
-    case xidMkAddElem:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Elements.GetSize(); j++)
-            {
-            if (m_Elements[j]>*DCB.rL)
-              {
-              m_Elements.InsertAt(j, *DCB.rL);
-              m_DDBElemsOK=false;
-              DCB.L=-1;
-              Blk.ClrMeasEtc();
-              return 1;
-              }
-            }
-          m_Elements.Add(*DCB.rL);
-          m_DDBElemsOK=false;
-          Blk.ClrMeasEtc();
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Elements.SetSize(0);
-          for (int i=0; i<CDB.No(); i++)
-            m_Elements.Add(i);
-          m_DDBElemsOK=false;
-          Blk.ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
-      return 1;
-    case xidMkRemElem:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Elements.GetSize(); j++)
-            {
-            if (m_Elements[j]==*DCB.rL)
-              {
-              m_Elements.RemoveAt(j);
-              m_DDBElemsOK=false;
-              Blk.ClrMeasEtc();
-              break;
-              }
-            }
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Elements.SetSize(0);
-          m_DDBElemsOK=false;
-          Blk.ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
-      return 1;
+
 
     default:
-      if (DCB.lHandle>=xidMkPhase && DCB.lHandle<xidMkPhase+CDB.PhaseCount())
+      if (DCB.lHandle>=xidMkSpcId && DCB.lHandle<xidMkSpcId+MaxMUItems)
+        {
+        int i= DCB.lHandle-xidMkSpcId; 
+        if (DCB.rL)
+          {
+          m_Species.SetAtGrow(i, *DCB.rL);
+          m_DDBSpcs.m_OK=false;
+          //SetUpDDBSpcs(true);
+          }
+        DCB.L=i<m_Species.GetCount() ? m_Species[i]:-1; 
+        return 1;
+        }
+      else if (DCB.lHandle>=xidMkCmpId && DCB.lHandle<xidMkCmpId+MaxMUItems)
+        {
+        int i= DCB.lHandle-xidMkCmpId; 
+        if (DCB.rL)
+          {
+          m_Comps.SetAtGrow(i, *DCB.rL);
+          m_DDBCmps.m_OK=false;
+          //SetUpDDBSpcs(true);
+          }
+        DCB.L=i<m_Comps.GetCount() ? m_Comps[i]:-1; 
+        return 1;
+        }
+      else if (DCB.lHandle>=xidMkElemId && DCB.lHandle<xidMkElemId+MaxMUItems)
+        {
+        int i= DCB.lHandle-xidMkElemId; 
+        if (DCB.rL)
+          {
+          m_Elements.SetAtGrow(i, *DCB.rL);
+          m_DDBElems.m_OK=false;
+          //SetUpDDBSpcs(true);
+          }
+        DCB.L=i<m_Elements.GetCount() ? m_Elements[i]:-1; 
+        return 1;
+        }
+      else if (DCB.lHandle>=xidMkPhase && DCB.lHandle<xidMkPhase+CDB.PhaseCount())
         {
         int o=DCB.lHandle-xidMkPhase;
         CPhaseInfo & P=CDB.PhaseInfo(o);
@@ -1128,31 +955,65 @@ class DllImportExport CXBlk_MUFixed : public CXBlk_MUFeed
   {
   public:
     CXBlk_MUFixed(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
-      CXBlk_MUFeed(false, pClass_, Tag_, pAttach, eAttach)
+      CXBlk_MUFeed(Op_MUFixed, pClass_, Tag_, pAttach, eAttach)  
       {
-      m_AsRatio=false;
+      m_Meas1.Initialise("Makeup", 1, "Makeup:Measurement");
       };
-    virtual ~CXBlk_MUFixed() 
-      {
-      };
+    virtual ~CXBlk_MUFixed() {};
   };
 
 class DllImportExport CXBlk_MURatio : public CXBlk_MUFeed
   {
   public:
     CXBlk_MURatio(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
-      CXBlk_MUFeed(true, pClass_, Tag_, pAttach, eAttach)
+      CXBlk_MUFeed(Op_MURatio, pClass_, Tag_, pAttach, eAttach)  
       {
-      m_AsRatio=true;
+      m_Meas1.Initialise("Feed", 1, "Feed:Measurement");
+      m_Meas2.Initialise("Makeup", 2, "Makeup:Measurement");
       };
-    virtual ~CXBlk_MURatio() 
-      {
-      };
+    virtual ~CXBlk_MURatio() {};
   };
 
 
+class DllImportExport CXBlk_PrdFlow: public CXBlk_MUFeed
+  {
+  public:
+    CXBlk_PrdFlow(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
+      CXBlk_MUFeed(Op_PrdFlow, pClass_, Tag_, pAttach, eAttach)  
+      {
+      m_Meas1.Initialise("Product", 1, "Product:Measurement");
+      };
+    virtual ~CXBlk_PrdFlow() {};
+  };
+
+class DllImportExport CXBlk_PrdFrac: public CXBlk_MUFeed
+  {
+  public:
+    CXBlk_PrdFrac(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
+      CXBlk_MUFeed(Op_PrdFrac, pClass_, Tag_, pAttach, eAttach)
+      {
+      m_Meas1.Initialise("Product", 1, "Product:Measurement", Type_Mass, Slct_Occur, som_Liq);
+      };
+    virtual ~CXBlk_PrdFrac() {};
+  };
+
+class DllImportExport CXBlk_PrdConc: public CXBlk_MUFeed
+  {
+  public:
+    CXBlk_PrdConc(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
+      CXBlk_MUFeed(Op_PrdConc, pClass_, Tag_, pAttach, eAttach) 
+      {
+      m_Meas1.Initialise("ProductMass", 1, "Product:Mass Measurement", Type_Mass, Slct_Specie);
+      m_Meas2.Initialise("ProductVolume", 2, "Product:Volume Measurement", Type_Volume, Slct_Occur, som_Liq);
+      };
+    virtual ~CXBlk_PrdConc() {};
+  };
+
 DEFINE_MAKEUPBLOCK(CXBlk_MUFixed);
 DEFINE_MAKEUPBLOCK(CXBlk_MURatio);
+DEFINE_MAKEUPBLOCK(CXBlk_PrdFlow);
+DEFINE_MAKEUPBLOCK(CXBlk_PrdFrac);
+DEFINE_MAKEUPBLOCK(CXBlk_PrdConc);
 
 //============================================================================
 //
@@ -1164,43 +1025,45 @@ CToleranceBlock CXBlk_MUFeed::sm_QmTol(TBF_DynSys, "MUFeed:CtrlEPS", 1.0e-8, 1.0
 
 IMPLEMENT_MAKEUPBLOCK(CXBlk_MUFixed, "MB_Fixed", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Fixed Makeup",  " ");
 IMPLEMENT_MAKEUPBLOCK(CXBlk_MURatio, "MB_Ratio", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Ratio Makeup",  " ");
+IMPLEMENT_MAKEUPBLOCK(CXBlk_PrdFlow, "MB_PrdFlow", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Product Flow",  " ");
+IMPLEMENT_MAKEUPBLOCK(CXBlk_PrdFrac, "MB_PrdFrac", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Product Fraction",  " ");
+IMPLEMENT_MAKEUPBLOCK(CXBlk_PrdConc, "MB_PrdConc", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "Product Concentration",  " ");
 
-CXBlk_MUFeed::CXBlk_MUFeed(bool AsRatio, pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
+CXBlk_MUFeed::CXBlk_MUFeed(eOps Op, pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
 CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   {
-  m_AsRatio   = AsRatio; 
+  m_Op        = Op; 
   m_eSource   = Src_Remote;
-  m_eType     = Type_Mass;
-  m_MUQmMin   = 0.0;
-  m_MUQmMax   = 10000.0;
 
-  m_eLoFeedOpt= LF_Ignore;
+  m_MUQmMin   = 0.0;
+  m_MUQmMax   = 100.0;
+
+  m_eLoFeedOpt= LF_AlwaysOn;
   m_LoFeedQm  = 1.0;
 
-  m_QmRqd     = 0;
-  m_QMlRqd    = 0;
-  m_QvRqd     = 0;
-  m_NQvRqd    = 0;
-  m_QmRatio   = 0;
-  m_QMlRatio  = 0;
-  m_QvRatio   = 0;
-  m_NQvRatio  = 0;
-
+  m_RqdSetPoint      = 0;
 
   m_bHasFlow  = true;
 
-  m_dSetPoint   = 0.0;
-  m_dMeas       = 0.0;
-  m_dResult     = 0.0;
-  m_dQmFeed     = 0.0;
-  m_dQmMakeup   = 0.0;
-  m_dQmProd     = 0.0;
-  m_dQvFeed     = 0.0;
-  m_dQvMakeup   = 0.0;
-  m_dQvProd     = 0.0;
-  m_dTempKFeed  = C2K(0.0);
-  m_dTempKMakeup= C2K(0.0);
-  m_dTempKProd  = C2K(0.0);
+  m_SetPoint   = 0.0;
+  m_Measured   = 0.0;
+  m_Result     = 0.0;
+  m_QmFeed     = 0.0;
+  m_QmMakeup   = 0.0;
+  m_QmProd     = 0.0;
+  //m_QvFeed     = 0.0;
+  //m_QvMakeup   = 0.0;
+  //m_QvProd     = 0.0;
+
+  m_eRqdTemp    = Temp_Mixture;
+  m_RqdTemp     = C2K(25);
+
+  m_TempFeed   = C2K(25);
+  m_TempMakeup = C2K(25);
+  m_TempProd   = C2K(25); 
+  m_HeatFlow    = 0;
+
+  m_ValidateOK  = true;
 
   ClrMeasEtc();
   }
@@ -1227,6 +1090,24 @@ void CXBlk_MUFeed::BuildDataDefn(DataDefnBlk& DDB)
       {}
     };
 
+  static DDBValueLst DDBCtrlFlw[] =
+    {                         
+      {Type_Mass,           "MassFlow"          },
+      {Type_Volume,         "VolumeFlow"        },
+      {Type_NVolume,        "NVolumeFlow"       },
+      {Type_Mole,           "MoleFlow"          },
+      {}
+    };
+
+  static DDBValueLst DDBCtrlRatio[] =
+    {                         
+      {Type_Mass,           "MassRatio"          },
+      {Type_Volume,         "VolumeRatio"        },
+      {Type_NVolume,        "NVolumeRatio"       },
+      {Type_Mole,           "MoleRatio"          },
+      {}
+    };
+
   static DDBValueLst DDBSource[] =
     {                         
       {Src_Self,            "Self"            },
@@ -1236,143 +1117,233 @@ void CXBlk_MUFeed::BuildDataDefn(DataDefnBlk& DDB)
 
   static DDBValueLst DDBLoFeed[] =
     {                         
-      {LF_Ignore,           "Ignore"            },
-      {LF_StopMakeUp,       "StopMakeup"        },
+      {LF_AlwaysOn,         "AlwaysOn"            },
+      {LF_StopBelow,        "StopBelowQmMin"      },
       //{LF_HoldMeasure,      "HoldAtLo"          },
       {}
     };
 
-  const bool MassBasis = (m_eType==Type_Mass);
-  const bool VolBasis  = (m_eType==Type_Volume);
-  const bool NVolBasis = (m_eType==Type_NVolume);
-  const bool MoleBasis = (m_eType==Type_Mole);
-
   DDB.Text(" ");
-  DDB.Text("SetPoint");
-  DDB.Long       ("", "Type",             DC_,  "", xidMkType,  this, isParmStopped|SetOnChange, DDBCtrl);
-  if (m_AsRatio)
+  DDB.Text("Requirement");
+  switch (m_Op)
     {
-    DDB.Visibility(NSHM_All, m_eType==Type_Mass);
-    DDB.Double("", "QmRatio",    DC_Frac, "%", &m_QmRatio,  this, isParm);
-    DDB.Visibility(NSHM_All, m_eType==Type_Mole);
-    DDB.Double("", "QMlRatio",    DC_Frac, "%", &m_QMlRatio,  this, isParm);
-    DDB.Visibility(NSHM_All, m_eType==Type_Volume);
-    DDB.Double("", "QvRatio",    DC_Frac, "%", &m_QvRatio,  this, isParm);
-    DDB.Visibility(NSHM_All, m_eType==Type_NVolume);
-    DDB.Double("", "NQvRatio",    DC_Frac, "%", &m_NQvRatio,  this, isParm);
-    }
-  else
-    {
-    DDB.Visibility(NSHM_All, m_eType==Type_Mass);
-    DDB.Double("", "QmRqd",    DC_Qm, "kg/s", &m_QmRqd,  this, isParm);
-    DDB.Visibility(NSHM_All, m_eType==Type_Mole);
-    DDB.Double("", "QMlRqd",   DC_QKgMl, "kmol/s", &m_QMlRqd,  this, isParm);
-    DDB.Visibility(NSHM_All, m_eType==Type_Volume);
-    DDB.Double("", "QvRqd",    DC_Qv, "m^3/s", &m_QvRqd,  this, isParm);
-    DDB.Visibility(NSHM_All, m_eType==Type_NVolume);
-    DDB.Double("", "NQvRqd",    DC_NQv, "Nm^3/s", &m_NQvRqd,  this, isParm);
+    case Op_MURatio:
+      {
+      DDB.Long       ("", "Rqd.Basis",    DC_,  "", xidMkType,  this, isParmStopped|SetOnChange, DDBCtrlRatio);
+      switch (m_Meas1.m_eType)
+        {
+        case Type_Mass:     
+          DDB.Double("", "Rqd.QmRatio",    DC_Frac, ".",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Meas.QmRatio",   DC_Frac, ".",  &m_Measured,  this, isResult); 
+          break;
+        case Type_Mole:     
+          DDB.Double("", "Rqd.QMlRatio",   DC_Frac, ".",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Meas.QMlRatio",  DC_Frac, ".",  &m_Measured,  this, isResult); 
+          break;
+        case Type_Volume:   
+          DDB.Double("", "Rqd.QvRatio",    DC_Frac, ".",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Meas.QvRatio",   DC_Frac, ".",  &m_Measured,  this, isResult); 
+          break;
+        case Type_NVolume:  
+          DDB.Double("", "Rqd.NQvRatio",   DC_Frac, ".",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Meas.NQvRatio",  DC_Frac, ".",  &m_Measured,  this, isResult); 
+          break;
+        }
+      break;
+      }
+    case Op_MUFixed:
+    case Op_PrdFlow:
+      {
+      DDB.Long       ("", "Rqd.Basis",             DC_,  "", xidMkType,  this, isParmStopped|SetOnChange, DDBCtrlFlw);
+      switch (m_Meas1.m_eType)
+        {
+        case Type_Mass:    
+          DDB.Double("", "Rqd.Qm",    DC_Qm,     "kg/s",   &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Meas.Qm",   DC_Qm,     "kg/s",   &m_Measured,     this, isResult);  
+          break;
+        case Type_Mole:    
+          DDB.Double("", "Rqd.QMl",   DC_QKgMl,  "kmol/s", &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Meas.QMl",  DC_QKgMl,  "kmol/s", &m_Measured,     this, isResult);  
+          break;
+        case Type_Volume:  
+          DDB.Double("", "Rqd.Qv",    DC_Qv,     "m^3/s",  &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Meas.Qv",   DC_Qv,     "m^3/s",  &m_Measured,     this, isResult);  
+          break;
+        case Type_NVolume: 
+          DDB.Double("", "Rqd.NQv",   DC_NQv,    "Nm^3/s", &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Meas.NQv",  DC_NQv,    "Nm^3/s", &m_Measured,     this, isResult);  
+          break;
+        }
+      break;
+      }
+    case Op_PrdFrac:
+      {
+      DDB.Long       ("", "Rqd.Basis",             DC_,  "", xidMkType,  this, isParmStopped|SetOnChange, DDBCtrl);
+      switch (m_Meas1.m_eType)
+        {
+        case Type_Mass:     
+          DDB.Double("", "Rqd.QmFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Meas.QmFrac",   DC_Frac, "%",  &m_Measured,     this, isResult); 
+          break;
+        case Type_Mole:     
+          DDB.Double("", "Rqd.QMlFrac",   DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Meas.QMlFrac",  DC_Frac, "%",  &m_Measured,     this, isResult); 
+          break;
+        case Type_Volume:   
+          DDB.Double("", "Rqd.QvFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Meas.QvFrac",   DC_Frac, "%",  &m_Measured,     this, isResult); 
+          break;
+        case Type_NVolume:  
+          DDB.Double("", "Rqd.NQvFrac",   DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Meas.NQvFrac",  DC_Frac, "%",  &m_Measured,     this, isResult); 
+          break;
+        }
+      break;
+      }
+    case Op_PrdConc:
+      {
+      DDB.Double("", "Rqd.Conc",     DC_Conc, "g/L",  &m_RqdSetPoint,     this, isParm); 
+      DDB.Double("", "Meas.Conc",    DC_Conc, "g/L",  &m_Measured,        this, isResult); 
+      break;
+      }
+    default:;
     }
 
   DDB.Visibility();
-  if (m_AsRatio)
+  DDB.Text(" ");
+  m_Meas1.BuildDataDefn(DDB, *this);
+
+  switch (m_Op)
     {
-    DDB.Text("Input Measurement");
-    m_In.BuildDataDefn(DDB, *this, "Feed", 1);
+    case Op_MURatio:
+    case Op_PrdConc:
+      DDB.Text(" ");
+      m_Meas2.BuildDataDefn(DDB, *this);
+      break;
     }
-  DDB.Text("Makeup Measurement");
-  m_Mu.BuildDataDefn(DDB, *this, "Makeup", 2);
 
   DDB.Visibility();
   DDB.Text(" ");
-  DDB.Text("MakeUp");
-  DDB.Long       ("", "Source",           DC_,   "", (long*)&m_eSource,  this, isParm|SetOnChange, DDBSource);
-  DDB.Double     ("QmMin", "",            DC_Qm, "kg/s", &m_MUQmMin, this, isParm);
-  DDB.Double     ("QmMax", "",            DC_Qm, "kg/s", &m_MUQmMax, this, isParm);
+  DDB.Text("MakeUp:Limits");
+  //DDB.Long       ("", "Source",           DC_,   "", (long*)&m_eSource,  this, isParm|SetOnChange, DDBSource);
+  DDB.Double     ("Makeup.QmMin", "",            DC_Qm, "kg/s", &m_MUQmMin, this, isParm);
+  DDB.Double     ("Makeup.QmMax", "",            DC_Qm, "kg/s", &m_MUQmMax, this, isParm);
 
-  DDB.Long       ("LoFeed.Options", "",   DC_,   "", (long*)&m_eLoFeedOpt, this, isParm|SetOnChange, DDBLoFeed);
-  DDB.Visibility (NSHM_All, m_eLoFeedOpt >LF_Ignore);
-  DDB.Double     ("LoFeed.Qm", "",        DC_Qm, "kg/s", &m_LoFeedQm, this, isParm);
+  DDB.Text(" ");
+  DDB.Text("MakeUp:Low Flow");
+  DDB.Long       ("Feed.LoFlowRule",   "",         DC_,   "", (long*)&m_eLoFeedOpt, this, isParm|SetOnChange, DDBLoFeed);
+  DDB.Visibility (NSHM_All, m_eLoFeedOpt >LF_AlwaysOn);
+  DDB.Double     ("Feed.LoFlowLimit",    "",        DC_Qm, "kg/s", &m_LoFeedQm, this, isParm);
   DDB.Visibility ();
 
-  DDB.Text(" ");
-  DDB.Text("Results");
+  if (!HeatSkipMethod())
+    {
+    static DDBValueLst DDBTemp[] = 
+      {
+        {Temp_Inlet,   "InletTemp"},
+        {Temp_Source,  "SourceTemp"},
+        {Temp_Std,     "StdTemp"},
+        {Temp_Const,   "Const"},
+        {Temp_Mixture, "Mixture"},  
+        {0}
+      };
+    DDB.Text(" ");
+    DDB.Text("Product:Temperature");
+    DDB.Long  ("Temp.Final",      "",  DC_,  "", (long*)&m_eRqdTemp, this, isParm|SetOnChange, DDBTemp);
+    DDB.Visibility(NSHM_All, m_eRqdTemp==Temp_Const);
+    DDB.Double("Temp.Reqd",        "",  DC_T, "C", &m_RqdTemp, this, isParm);
+    DDB.Visibility();
+    }
 
-  if (m_AsRatio)
-    DDB.Text("Ratio Feed:");
-  else
-    DDB.Text("Fixed Feed:");
+  DDB.Text(" ");
+  //DDB.Text("Results");
+
+  switch (m_Op)
+    {
+    case Op_MURatio: DDB.Text("Results:Makeup Ratio:"); break;
+    case Op_MUFixed: DDB.Text("Results:Makeup Fixed:"); break;
+    case Op_PrdFlow: DDB.Text("Results:Product Flow:"); break;
+    case Op_PrdFrac: DDB.Text("Results:Product Fraction:"); break;
+    case Op_PrdConc: DDB.Text("Results:Product Concentration:"); break;
+    }
   DDB.String("Error",            "", DC_,   "",    xidMkError,     this, isResult);
 
-  CCnvIndex CnvUsed;
-  Strng CnvTxt;
-  if (m_AsRatio)
-    {
-    CnvUsed=DC_Frac; 
-    CnvTxt="%"; 
-    }
-  else
-    {
-    switch (m_eType)
-      {                         
-      case Type_Mass    : CnvUsed=DC_Qm; CnvTxt="kg/s"; break;
-      case Type_Mole    : CnvUsed=DC_QKgMl; CnvTxt="kmol/s"; break;
-      case Type_Volume  : CnvUsed=DC_Qv; CnvTxt="m^3/s"; break;
-      case Type_NVolume : CnvUsed=DC_NQv; CnvTxt="Nm^3/s"; break;
-      }
-    }
+  //CCnvIndex CnvUsed;
+  //Strng CnvTxt;
+  //switch (m_Op)
+  //  {
+  //  case Op_MURatio: 
+  //    CnvUsed=DC_Frac; 
+  //    CnvTxt="%"; 
+  //    break;
+  //  case Op_MUFixed: 
+  //  case Op_PrdFlow: 
+  //    switch (m_eType)
+  //      {                         
+  //      case Type_Mass    : CnvUsed=DC_Qm; CnvTxt="kg/s"; break;
+  //      case Type_Mole    : CnvUsed=DC_QKgMl; CnvTxt="kmol/s"; break;
+  //      case Type_Volume  : CnvUsed=DC_Qv; CnvTxt="m^3/s"; break;
+  //      case Type_NVolume : CnvUsed=DC_NQv; CnvTxt="Nm^3/s"; break;
+  //      }
+  //    break;
+  //  default: _asm int 3;
+  //  }
 
-  DDB.Text(" ");
-  if (m_AsRatio)
-    {
-    DDB.Text(m_In.m_MeasDesc());
-    if (MassBasis)
-      {
-      DDB.Double ("Meas.Qm.Feed",   "", DC_Qm,    "kg/s",     &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-      DDB.Double ("Meas.Qm.Prod",   "", DC_Qm,    "kg/s",     &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
-      }
-    else if (VolBasis)
-      {
-      DDB.Double ("Meas.Qv.Feed",   "", DC_Qv,    "m^3/s",    &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-      DDB.Double ("Meas.Qv.Prod",   "", DC_Qv,    "m^3/s",    &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
-      }
-    else if (NVolBasis)
-      {
-      DDB.Double ("Meas.NQv.Feed",  "", DC_NQv,   "Nm^3/s",   &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-      DDB.Double ("Meas.NQv.Prod",  "", DC_NQv,   "Nm^3/s",   &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
-      }
-    else if (MoleBasis)
-      {
-      DDB.Double ("Meas.QMl.Feed",  "", DC_QKgMl, "kmol/s",   &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-      DDB.Double ("Meas.QMl.Prod",  "", DC_QKgMl, "kmol/s",   &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
-      }
-    }
+  //DDB.Text(" ");
+  //switch (m_Op)
+  //  {
+  //  case Op_MURatio: 
+  //    DDB.Text(m_Meas1.m_MeasDesc());
+  //    if (MassBasis)
+  //      {
+  //      DDB.Double ("Meas.Qm.Feed",   "", DC_Qm,    "kg/s",     &m_FeedAct,     this, isResult|NAN_OK);
+  //      DDB.Double ("Meas.Qm.Prod",   "", DC_Qm,    "kg/s",     &m_ProdAct,     this, isResult|NAN_OK);
+  //      }
+  //    else if (VolBasis)
+  //      {
+  //      DDB.Double ("Meas.Qv.Feed",   "", DC_Qv,    "m^3/s",    &m_FeedAct,     this, isResult|NAN_OK);
+  //      DDB.Double ("Meas.Qv.Prod",   "", DC_Qv,    "m^3/s",    &m_ProdAct,     this, isResult|NAN_OK);
+  //      }
+  //    else if (NVolBasis)
+  //      {
+  //      DDB.Double ("Meas.NQv.Feed",  "", DC_NQv,   "Nm^3/s",   &m_FeedAct,     this, isResult|NAN_OK);
+  //      DDB.Double ("Meas.NQv.Prod",  "", DC_NQv,   "Nm^3/s",   &m_ProdAct,     this, isResult|NAN_OK);
+  //      }
+  //    else if (MoleBasis)
+  //      {
+  //      DDB.Double ("Meas.QMl.Feed",  "", DC_QKgMl, "kmol/s",   &m_FeedAct,     this, isResult|NAN_OK);
+  //      DDB.Double ("Meas.QMl.Prod",  "", DC_QKgMl, "kmol/s",   &m_ProdAct,     this, isResult|NAN_OK);
+  //      }
+  //    break;
+  //  }
 
-  DDB.Text(m_Mu.m_MeasDesc());
-  if (MassBasis)
-    DDB.Double ("Meas.Qm.Makeup",   "", DC_Qm,    "kg/s",     &m_dMakeupAct,     this, isResult|noFileAtAll|NAN_OK);
-  else if (VolBasis)
-    DDB.Double ("Meas.Qv.Makeup",   "", DC_Qv,    "m^3/s",    &m_dMakeupAct,     this, isResult|noFileAtAll|NAN_OK);
-  else if (NVolBasis)
-    DDB.Double ("Meas.NQv.Makeup",  "", DC_NQv,   "Nm^3/s",   &m_dMakeupAct,     this, isResult|noFileAtAll|NAN_OK);
-  else if (MoleBasis)
-    DDB.Double ("Meas.QMl.Makeup",  "", DC_QKgMl, "kmol/s",   &m_dMakeupAct,     this, isResult|noFileAtAll|NAN_OK);
+  //DDB.Text(m_Meas.m_MeasDesc() ? m_MkUpMeas.m_MeasDesc():"");
+  //if (MassBasis)
+  //  DDB.Double ("Meas.Qm.Makeup",   "", DC_Qm,    "kg/s",     &m_MakeupAct,     this, isResult|NAN_OK);
+  //else if (VolBasis)
+  //  DDB.Double ("Meas.Qv.Makeup",   "", DC_Qv,    "m^3/s",    &m_MakeupAct,     this, isResult|NAN_OK);
+  //else if (NVolBasis)
+  //  DDB.Double ("Meas.NQv.Makeup",  "", DC_NQv,   "Nm^3/s",   &m_MakeupAct,     this, isResult|NAN_OK);
+  //else if (MoleBasis)
+  //  DDB.Double ("Meas.QMl.Makeup",  "", DC_QKgMl, "kmol/s",   &m_MakeupAct,     this, isResult|NAN_OK);
 
   DDB.Text(" ");
   DDB.Text("Total mass flow:");
-  DDB.Double ("Qm.Feed",            "", DC_Qm,    "kg/s",     &m_dQmFeed,     this, isResult);
-  DDB.Double ("Qm.Makeup",          "", DC_Qm,    "kg/s",     &m_dQmMakeup,   this, isResult);
-  DDB.Double ("Qm.Prod",            "", DC_Qm,    "kg/s",     &m_dQmProd,     this, isResult);
-  DDB.Text("Total volume flow:");
-  DDB.Double ("Qv.Feed",            "", DC_Qv,    "m^3/s",    &m_dQvFeed,     this, isResult|InitHidden);
-  DDB.Double ("Qv.Makeup",          "", DC_Qv,    "m^3/s",    &m_dQvMakeup,   this, isResult);
-  DDB.Double ("Qv.Prod",            "", DC_Qv,    "m^3/s",    &m_dQvProd,     this, isResult|InitHidden);
+  DDB.Double ("Qm.Feed",            "", DC_Qm,    "kg/s",     &m_QmFeed,     this, isResult);
+  DDB.Double ("Qm.Makeup",          "", DC_Qm,    "kg/s",     &m_QmMakeup,   this, isResult);
+  DDB.Double ("Qm.Prod",            "", DC_Qm,    "kg/s",     &m_QmProd,     this, isResult);
+  //DDB.Text("Total volume flow:");
+  //DDB.Double ("Qv.Feed",            "", DC_Qv,    "m^3/s",    &m_QvFeed,     this, isResult|InitHidden);
+  //DDB.Double ("Qv.Makeup",          "", DC_Qv,    "m^3/s",    &m_QvMakeup,   this, isResult);
+  //DDB.Double ("Qv.Prod",            "", DC_Qv,    "m^3/s",    &m_QvProd,     this, isResult|InitHidden);
   if (!HeatSkipMethod())
     {
+    DDB.Text(" ");
     DDB.Text("Total heat flow:");
-    DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);
-    DDB.Double ("Temp.Makeup",        "", DC_T,    "C",       &m_dTempKMakeup, this, isResult|InitHidden);
-    DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);
-    //DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_dHeatFlow,   this, isResult);
+    DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_TempFeed,  this, isResult);
+    DDB.Double ("Temp.Makeup",        "", DC_T,    "C",       &m_TempMakeup, this, isResult);
+    DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_TempProd,  this, isResult);
+    DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_HeatFlow,   this, isResult);
     }
 
   }
@@ -1381,30 +1352,33 @@ void CXBlk_MUFeed::BuildDataDefn(DataDefnBlk& DDB)
 
 void CXBlk_MUFeed::ClrMeasEtc()
   {
-  m_dMeas     = dNAN;
-  m_dSetPoint = dNAN;
-  m_dResult   = dNAN;
-  m_dFeedAct  = dNAN;
-  m_dProdAct  = dNAN;
-  m_dMakeupAct= dNAN;
+  m_Measured = dNAN;
+  m_SetPoint = dNAN;
+  m_Result   = dNAN;
+  //m_FeedAct  = dNAN;
+  //m_ProdAct  = dNAN;
+  //m_MakeupAct= dNAN;
   }
 
 flag CXBlk_MUFeed::DataXchg(DataChangeBlk & DCB)
   {
-  if (DCB.dwUserInfo==1 && m_In.DataXchg(DCB, *this))
+  if (DCB.dwUserInfo==1 && m_Meas1.DataXchg(DCB, *this))
     return 1;
-  if (DCB.dwUserInfo==2 && m_Mu.DataXchg(DCB, *this))
+  if (DCB.dwUserInfo==2 && m_Meas2.DataXchg(DCB, *this))
     return 1;
+  //if (DCB.dwUserInfo==3 && m_MkUpMeas.DataXchg(DCB, *this))
+  //  return 1;
 
   switch (DCB.lHandle)
     {
     case xidMkType:
-      if (DCB.rL && (m_eType!=(eType)*DCB.rL))
+      if (DCB.rL && (m_Meas1.m_eType!=(eType)*DCB.rL))
         {          
-        m_eType     = (eType)*DCB.rL;
+        m_Meas1.m_eType     = (eType)*DCB.rL;
+        m_Meas2.m_eType     = (eType)*DCB.rL;
         ClrMeasEtc();
         }
-      DCB.L = m_eType; 
+      DCB.L = m_Meas1.m_eType; 
       return 1;
 
     case xidMkError:
@@ -1415,7 +1389,7 @@ flag CXBlk_MUFeed::DataXchg(DataChangeBlk & DCB)
         {
         DCB.pC="Not Connected";
         }
-      else if (!m_bHasFlow && AsRatio())
+      else if (!m_bHasFlow && (m_Op==Op_MURatio))
         {
         DCB.pC="No Flow";
         }
@@ -1436,8 +1410,38 @@ flag CXBlk_MUFeed::DataXchg(DataChangeBlk & DCB)
 
 flag CXBlk_MUFeed::ValidateData(ValidateDataBlk & VDB)
   {
-  m_In.ValidateData(VDB, *this);
-  m_Mu.ValidateData(VDB, *this);
+  m_Meas1.ValidateData(VDB, *this);
+  m_Meas2.ValidateData(VDB, *this);
+
+  bool CIsOn[12]={false,false,false,false,false,false,false,false,false,false,false,false};
+
+  if (m_Meas1.m_eSelect==Slct_Element)
+    CIsOn[7]=(m_Meas1.m_Elements.GetCount()==0);
+  else if (m_Meas1.m_eSelect>=Slct_Specie)
+    CIsOn[6]=(m_Meas1.m_Species.GetCount()==0);
+  else 
+    CIsOn[5]=(m_Meas1.m_Phases==0);
+
+  switch (m_Op)
+    {
+    case Op_MURatio:
+    case Op_PrdConc:
+      if (m_Meas2.m_eSelect==Slct_Element)
+        CIsOn[10]=(m_Meas2.m_Elements.GetCount()==0);
+      else if (m_Meas2.m_eSelect>=Slct_Specie)
+        CIsOn[9]=(m_Meas2.m_Species.GetCount()==0);
+      else 
+        CIsOn[8]=(m_Meas2.m_Phases==0);
+      break;
+    }
+
+  m_ValidateOK=true;
+  for (int i=5; i<=10; i++)
+    {
+    SetCI(i, CIsOn[i]);
+    if (CIsOn[i])
+      m_ValidateOK=false;
+    }
 
   return CMakeupBlock::ValidateData(VDB); 
   }
@@ -1446,68 +1450,48 @@ flag CXBlk_MUFeed::ValidateData(ValidateDataBlk & VDB)
 
 double CXBlk_MUFeed::GetSetPoint()
   {
-  if (m_AsRatio)
-    {
-    switch (m_eType)
-      {                         
-      case Type_Mass:      return m_QmRatio;
-      case Type_Mole:      return m_QMlRatio;
-      case Type_Volume:    return m_QvRatio;
-      case Type_NVolume:   return m_NQvRatio;
-      };
-    }
-  else
-    {
-    switch (m_eType)
-      {                         
-      case Type_Mass:       return m_QmRqd;
-      case Type_Mole:       return m_QMlRqd;
-      case Type_Volume:     return m_QvRqd;
-      case Type_NVolume:    return m_NQvRqd;
-      };
-    }
-  return dNAN;
+  return m_RqdSetPoint;
   }
 
 //--------------------------------------------------------------------------
 
 double CXBlk_MUFeed::GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd/*=0*/)
   {
-  switch (m_eType)
+  switch (MI.m_eType)
     {                         
     case Type_Mass:
-      if (MI.m_eSelect==CMeasInfo ::Slct_Element)
+      if (MI.m_eSelect==Slct_Element)
         return Q.QElementMass(MI.m_Elements, MI.m_Phases);
       if (PhRqd)
         return Q.QMass(PhRqd);
-      if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
+      if (MI.m_eSelect>=Slct_Specie)
         return Q.QMass(MI.m_Species);
       return Q.QMass(MI.m_Phases);
 
     case Type_Mole:
-      if (MI.m_eSelect==CMeasInfo ::Slct_Element)
+      if (MI.m_eSelect==Slct_Element)
         return Q.QElementMoles(MI.m_Elements, MI.m_Phases);
       if (PhRqd)
         return Q.QMole(PhRqd);
-      if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
+      if (MI.m_eSelect>=Slct_Specie)
         return Q.QMole(MI.m_Species);
       return Q.QMole(MI.m_Phases);
 
     case Type_Volume:
-      if (MI.m_eSelect==CMeasInfo ::Slct_Element)
+      if (MI.m_eSelect==Slct_Element)
         return Q.QElementVolume(MI.m_Elements, MI.m_Phases);
       if (PhRqd)
         return Q.QVolume(PhRqd);
-      if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
+      if (MI.m_eSelect>=Slct_Specie)
         return Q.QVolume(MI.m_Species);
       return Q.QVolume(MI.m_Phases);
 
     case Type_NVolume:
-      if (MI.m_eSelect==CMeasInfo ::Slct_Element)
+      if (MI.m_eSelect==Slct_Element)
         return Q.QElementNVolume(MI.m_Elements, MI.m_Phases);
       if (PhRqd)
         return Q.QNVolume(PhRqd);
-      if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
+      if (MI.m_eSelect>=Slct_Specie)
         return Q.QNVolume(MI.m_Species);
       return Q.QNVolume(MI.m_Phases);
 
@@ -1515,15 +1499,18 @@ double CXBlk_MUFeed::GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd/*=0*
   return dNAN;
   }
 
-double CXBlk_MUFeed::GetMeasVal(SpConduit &QIn, SpConduit &QSrc, SpConduit &QPrd)
+double CXBlk_MUFeed::GetMeasVal(SpConduit &QFeed, SpConduit &QMu, SpConduit &QProd)
   {
-  double In  = GetFlowValue(m_In, QIn);
-  double Src = GetFlowValue(m_Mu, QSrc);
-  double Prd = GetFlowValue(m_In, QPrd);
-  if (m_AsRatio)
-    return Src/GTZ(In);
-  else
-    return Src;
+  switch (m_Op)
+    {
+    case Op_MUFixed:   return GetFlowValue(m_Meas1, QMu);
+    case Op_MURatio:   return GetFlowValue(m_Meas2, QMu)/GTZ(GetFlowValue(m_Meas1, QFeed));
+    case Op_PrdFlow:   return GetFlowValue(m_Meas1, QProd);
+    case Op_PrdFrac:   return GetFlowValue(m_Meas1, QProd)/GTZ(GetFlowValue(m_Meas1, QProd, som_ALL));
+    case Op_PrdConc:   return GetFlowValue(m_Meas1, QProd)/GTZ(GetFlowValue(m_Meas2, QProd));
+    }
+  _asm int 3;
+  return dNAN;
   }
 
 //-------------------------------------------------------------------------
@@ -1531,8 +1518,8 @@ double CXBlk_MUFeed::GetMeasVal(SpConduit &QIn, SpConduit &QSrc, SpConduit &QPrd
 class CFeedMkUpFnd : public MRootFinder
   {
   public:
-    CFeedMkUpFnd(CXBlk_MUFeed * pMU, LPCTSTR pTag, SpConduit * pIn, SpConduit * pSrc, SpConduit * pSrcWrk, SpConduit * pPrd, /*double TRqd, double PRqd,*/ CToleranceBlock & Tol) : \
-      m_pMU(pMU), m_pTag(pTag), m_In(*pIn), m_Src(*pSrc), m_SrcWrk(*pSrcWrk), m_Prd(*pPrd), /*m_TRqd(TRqd), m_PRqd(PRqd),*/ MRootFinder("MkUpFnd", Tol)
+    CFeedMkUpFnd(CXBlk_MUFeed * pMU, LPCTSTR pTag, SpConduit * pIn, SpConduit * pSrc, SpConduit * pSrcWrk, SpConduit * pPrd, double TRqd, double PRqd, CToleranceBlock & Tol) : \
+      m_pMU(pMU), m_pTag(pTag), m_MeasInfo(*pIn), m_Src(*pSrc), m_SrcWrk(*pSrcWrk), m_Prd(*pPrd), m_TRqd(TRqd), m_PRqd(PRqd), MRootFinder("MkUpFnd", Tol)
       { 
       if (dbgMakeup)
         {
@@ -1543,21 +1530,36 @@ class CFeedMkUpFnd : public MRootFinder
     LPCTSTR ObjTag() { return m_pTag; };
     double Function(double Qm)
       {
-      m_Prd.QCopy(m_In);
+      m_Prd.QCopy(m_MeasInfo);
       m_SrcWrk.QSetM(m_Src, som_ALL, Qm);
       m_Prd.QAddF(m_SrcWrk, som_ALL, 1.0);
+
+      m_TMix = m_Prd.Temp();
+      if (Valid(m_TRqd))
+        m_Prd.SetTempPress(m_TRqd, m_PRqd);
+
+      m_Measured = m_pMU->GetMeasVal(m_MeasInfo, m_SrcWrk, m_Prd);
+
       if (dbgMakeup)
         {
-        dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6f %s", 
-          m_pMU->GetMeasVal(m_In, m_SrcWrk, m_Prd), Qm, m_In.QMass(), m_Src.QMass(), m_pTag);
+        dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6e %s", 
+          m_Measured, Qm, m_MeasInfo.QMass(), m_Src.QMass(), m_pTag);
         }
-      return m_pMU->GetMeasVal(m_In, m_SrcWrk, m_Prd);
+
+      return m_Measured;
       };
+
+    double TMix()       { return m_TMix; }
+    double Measured()   { return m_Measured; };
 
   protected:
     CXBlk_MUFeed  * m_pMU;
     LPCTSTR         m_pTag;
-    SpConduit     & m_In;
+    double          m_TRqd;
+    double          m_PRqd;
+    double          m_TMix;
+    double          m_Measured;
+    SpConduit     & m_MeasInfo;
     SpConduit     & m_Src;
     SpConduit     & m_Prd;
     SpConduit     & m_SrcWrk;
@@ -1570,13 +1572,13 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
   ASSERT_ALWAYS(pNd!=0, "Should always be part of a FlwNode", __FILE__, __LINE__);
 
-  m_dQmFeed = QPrd.QMass();
-  m_dQvFeed = QPrd.QVolume();
-  m_dTempKFeed = QPrd.Temp();
+  m_QmFeed = QPrd.QMass();
+  //m_QvFeed = QPrd.QVolume();
+  m_TempFeed = QPrd.Temp();
   double HzIn = QPrd.totHz();
 
-  m_bHasFlow = (m_dQmFeed>SmallPosFlow);
-  bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
+  m_bHasFlow = (m_QmFeed>SmallPosFlow);
+  bool StopMakeUp = (m_eLoFeedOpt>LF_AlwaysOn) && (m_QmFeed<m_LoFeedQm); 
 
   StkSpConduit QIn("QIn", "MkUp", pNd);
   QIn().QCopy(QPrd);
@@ -1584,1397 +1586,17 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   StkSpConduit QSrcWrk("QSrcWrk", "SrcWrk", pNd);
   SpConduit &QSrc=SrcIO.Cd;
 
-  m_dMeas     = GetMeasVal(QIn(), QSrc, QPrd);
-  m_dFeedAct  = GetFlowValue(m_In, QIn());
-  m_dTempKMakeup = QSrc.Temp();
+  //m_Meas     = GetMeasVal(QIn(), QSrc, QPrd);
+  //m_FeedAct  = dNAN;//GetFlowValue(m_FeedMeas, QIn());
+  m_TempMakeup = QSrc.Temp();
 
-  bool CIsOn[12]={false,false,false,false,false,false,false,false,false,false,false,false};
-  if (m_AsRatio)
-    {
-    if (m_In.m_eSelect==CMeasInfo::Slct_Element)
-      CIsOn[7]=(m_In.m_Elements.GetCount()==0);
-    else if (m_In.m_eSelect>=CMeasInfo::Slct_Specie)
-      CIsOn[6]=(m_In.m_Species.GetCount()==0);
-    else 
-      CIsOn[5]=(m_In.m_Phases==0);
-    }
-  if (m_Mu.m_eSelect==CMeasInfo::Slct_Element)
-    CIsOn[10]=(m_Mu.m_Elements.GetCount()==0);
-  else if (m_Mu.m_eSelect>=CMeasInfo::Slct_Specie)
-    CIsOn[9]=(m_Mu.m_Species.GetCount()==0);
-  else 
-    CIsOn[8]=(m_Mu.m_Phases==0);
-
-  CIsOn[11]=StopMakeUp;
-  if (!StopMakeUp && !CIsOn[5] && !CIsOn[6] && !CIsOn[7] && !CIsOn[8] && !CIsOn[9] && !CIsOn[10])
+  bool CIsOn[5]={false,false,false,false,false};
+  if (!StopMakeUp && m_ValidateOK)
     {
     // Copy to Src if Self
     if (m_eSource==Src_Self)
       QSrc.QSetF(QPrd, som_ALL, 1.0);
 
-    CFeedMkUpFnd MkUpFnd(this, FullObjTag(), &QIn(), &QSrc, &QSrcWrk(), &QPrd, /*TReqd, Po,*/ sm_QmTol);
-    int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_MUQmMin, m_MUQmMax, m_dQmMakeup, 0.0, true);
-    switch (iRet)
-      {
-      case RF_OK:         
-        m_dQmMakeup = MkUpFnd.Result();
-        break;
-      case RF_LoLimit:    
-      case RF_EstimateLoLimit:    
-        m_dQmMakeup = MkUpFnd.Result();
-        CIsOn[2]=true;
-        break;
-      case RF_HiLimit:    
-      case RF_EstimateHiLimit:    
-        m_dQmMakeup = MkUpFnd.Result();   
-        CIsOn[3]=true;
-        break;
-      case RF_Independant:
-        MkUpFnd.Function(0);   
-        m_dQmMakeup = MkUpFnd.Result();   
-        CIsOn[4]=true;
-        break;
-
-      default: 
-        CIsOn[1]=true;
-        SetCI(1, "E\tConverge Error [%i]", iRet);
-        break;
-      }
-
-    //QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
-    QSrc.QCopy(QSrcWrk());
-    }
-  if (SrcIO.Enabled)
-    SrcIO.Sum.Set(QSrc);
-  else
-    SrcIO.Sum.ZeroFlows();
-
-  if (!CIsOn[1])
-    ClrCI(1);
-
-  for (int i=2; i<=11; i++)
-    SetCI(i, CIsOn[i]);
-
-  m_dSetPoint   = GetSetPoint();
-  m_dResult     = GetMeasVal(QIn(), QSrc, QPrd);
-  m_dQmProd     = QPrd.QMass();
-  m_dQmMakeup   = m_dQmProd-m_dQmFeed;
-  m_dQvProd     = QPrd.QVolume();
-  m_dQvMakeup   = QSrcWrk().QVolume();
-  m_dTempKProd  = QPrd.Temp();
-
-  m_dProdAct    = GetFlowValue(m_In, QPrd);
-  m_dMakeupAct  = GetFlowValue(m_Mu, QSrcWrk());
-
-  if (SrcIO.MyConnectedIO()>=0)
-    pNd->SetIOQm_In(SrcIO.MyConnectedIO(), m_dQmMakeup);
-
-  };
-
-void CXBlk_MUFeed::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
-  {
-  EvalProducts(Qf, Po, FinalTEst);
-  };
-
-//--------------------------------------------------------------------------
-
-flag CXBlk_MUFeed::CIStrng(int No, pchar & pS)
-  {
-  // NB check CBCount is large enough.
-  switch (No-CBContext())
-    {
-    case  1: pS="E\tConverge Error"; return 1;
-    case  2: pS="E\tRequirement not Achieved - Low Limit"; return 1;
-    case  3: pS="E\tRequirement not Achieved - High Limit"; return 1;
-    case  4: pS="E\tMakeup has No Effect"; return 1;
-    case  5: pS="E\tNo Phase Selected for Measurement in Feed"; return 1;
-    case  6: pS="E\tNo Species Selected for Measurement in Feed"; return 1;
-    case  7: pS="E\tNo Element Selected for Measurement in Feed"; return 1;
-    case  8: pS="E\tNo Phase Selected for Measurement in Makeup"; return 1;
-    case  9: pS="E\tNo Species Selected for Measurement in Makeup"; return 1;
-    case  10: pS="E\tNo Element Selected for Measurement in Makeup"; return 1;
-    case  11: pS="W\tLow Feed - Makeup Stopped"; return 1;
-    default:
-      return CXBlk_MUFeed::CIStrng(No, pS);
-    }
-  }
-
-//============================================================================
-//
-//
-//
-//============================================================================
-
-#endif
-
-//============================================================================
-//
-//
-//
-//============================================================================
-
-#define DllImportExport /* */
-
-class DllImportExport CXBlk_MUSimple: public CMakeupBlock
-  {
-  public:
-    CXBlk_MUSimple(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
-    virtual ~CXBlk_MUSimple();
-
-    void           SetUpDDBSpcs();
-    void           SetUpDDBCmps();
-    void           ClrMeasEtc();
-
-    virtual flag   DoesSomething() { return true; };
-
-    virtual void   BuildDataDefn(DataDefnBlk& DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ValidateData(ValidateDataBlk & VDB);
-
-    virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
-
-    virtual double  Duty() { return m_dHeatFlow; };
-
-    double         GetSetPoint();
-    double         GetRawMeas(SpConduit &QPrd, PhMask PhRqd=0);
-    double         GetMeasVal(SpConduit &QIn, SpConduit &QPrd);
-    double         GetFlowValue(SpConduit &QPrd, PhMask PhRqd=0);
-
-    DEFINE_CI(CXBlk_MUSimple, CMakeupBlock, 4);
-    //char *         CBTag() { m_MyTag=FullObjTag(); _MyTag+="."; m_MyTag+=Name()(); return m_MyTag(); };
-
-  public:
-    enum eSource
-      {
-      Src_Self,
-      Src_Remote,
-      };
-
-    enum eType
-      { 
-      //Type_None, 
-      Type_MassFrac,
-      Type_MassFlow, 
-      Type_MassRatio, 
-      Type_MassMult, 
-      Type_VolumeFrac,
-      Type_VolumeFlow, 
-      Type_VolumeRatio, 
-      Type_VolumeMult, 
-      Type_NVolumeFrac,
-      Type_NVolumeFlow, 
-      Type_NVolumeRatio,
-      Type_NVolumeMult,
-      Type_MoleFrac,
-      Type_MoleFlow, 
-      Type_MoleRatio, 
-      Type_MoleMult, 
-      Type_Conc,
-      };
-
-    enum eSelect
-      {
-      Slct_All,
-      Slct_Occur,
-      Slct_IndPhase,
-      Slct_Specie,
-      Slct_Component,
-      };
-
-    enum eTemp
-      {
-      Temp_Inlet,
-      Temp_Source,
-      Temp_Std,
-      Temp_Const,
-      Temp_Mixture,
-      };
-
-    enum eLoFeed
-      {
-      LF_Ignore,
-      LF_StopMakeUp,
-      //LF_HoldMeasure,
-      };
-
-    Strng           m_MyTag;
-    eSource         m_eSource;
-    double          m_QmMin;
-    double          m_QmMax;
-    eType           m_eType;
-    long            m_iPhaseBasis;
-    eSelect         m_eSelect;
-    PhMask          m_Phases; 
-    CIArray         m_Species;
-    CIArray         m_Comps;
-    bool            m_DDBSpcsOK;
-    DDBValueLstMem  m_DDBSpcAdd;
-    DDBValueLstMem  m_DDBSpcRem;
-    int             m_nLastSpcStr;
-    CStringArray    m_SpcStr;
-    bool            m_DDBCmpsOK;
-    DDBValueLstMem  m_DDBCmpAdd;
-    DDBValueLstMem  m_DDBCmpRem;
-    int             m_nLastCmpStr;
-    CStringArray    m_CmpStr;
-    Strng           m_CompSpecies;
-    Strng           m_MeasDesc;
-
-    bool            m_bHasFlow;
-
-    double          m_QmRqd;
-    double          m_QmRatio;
-    double          m_QmMult;
-    double          m_MassFrac;
-    double          m_QMlRqd;
-    double          m_QMlRatio;
-    double          m_QMlMult;
-    double          m_MoleFrac;
-    double          m_QvRqd;
-    double          m_QvRatio;
-    double          m_QvMult;
-    double          m_VolFrac;
-    double          m_NQvRqd;
-    double          m_NQvRatio;
-    double          m_NQvMult;
-    double          m_NVolFrac;
-    double          m_Conc;
-
-    eTemp           m_eRqdTemp;
-    double          m_RqdTemp;
-
-    //results
-    double          m_dSetPoint;
-    double          m_dMeas;
-    double          m_dResult;
-    double          m_dFeedAct;
-    double          m_dProdAct;
-
-    double          m_dQmFeed;
-    double          m_dQmMakeup;
-    double          m_dQmProd;
-    double          m_dQvFeed;
-    double          m_dQvMakeup;
-    double          m_dQvProd;
-    double          m_dHeatFlow;
-    double          m_dTempKFeed;
-    double          m_dTempKMakeup;
-    double          m_dTempKProd;
-
-    eLoFeed         m_eLoFeedOpt;
-    double          m_LoFeedQm;
-
-    Strng_List      m_ErrorLst;
-
-    static CToleranceBlock sm_QmTol;
-
-  };
-
-DEFINE_MAKEUPBLOCK(CXBlk_MUSimple);
-
-//============================================================================
-//
-//
-//
-//============================================================================
-
-//XID xidMkType    = AdjustXID(1000);
-//XID xidMkSelect  = AdjustXID(1001);
-//XID xidMkAll     = AdjustXID(1002);
-//XID xidMkSolids  = AdjustXID(1003);
-//XID xidMkLiquids = AdjustXID(1004);
-//XID xidMkGasses  = AdjustXID(1006);
-//XID xidMkSpcCnt  = AdjustXID(1007);
-//XID xidMkAddSpc  = AdjustXID(1008);
-//XID xidMkRemSpc  = AdjustXID(1009);
-//XID xidMkCmpCnt  = AdjustXID(1010);
-//XID xidMkAddCmp  = AdjustXID(1011);
-//XID xidMkRemCmp  = AdjustXID(1012);
-//XID xidMkError   = AdjustXID(1013);
-//XID xidMkPhase   = AdjustXID(1200);
-
-
-CToleranceBlock CXBlk_MUSimple::sm_QmTol(TBF_DynSys, "MUSimple:CtrlEPS", 1.0e-8, 1.0e-8, 200);
-
-IMPLEMENT_MAKEUPBLOCK(CXBlk_MUSimple, "MB_Simple", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "SimpleControl",  " ");
-
-CXBlk_MUSimple::CXBlk_MUSimple(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
-CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
-  {
-  m_eSource   = Src_Remote;
-  m_eType     = Type_MassRatio;
-  m_iPhaseBasis = SpVwPhMaskIndex_Liquid;
-  m_eSelect   = Slct_All;
-  m_Phases    = som_ALL;
-  m_DDBSpcsOK = false;
-  m_DDBCmpsOK = false;
-
-  m_QmMin     = 0.0;
-  m_QmMax     = 10000.0;
-
-  m_QmRqd     = 0;
-  m_QMlRqd    = 0;
-  m_QvRqd     = 0;
-  m_NQvRqd    = 0;
-  m_QmRatio   = 0;
-  m_QMlRatio  = 0;
-  m_QvRatio   = 0;
-  m_NQvRatio  = 0;
-  m_QmMult    = 1.0;
-  m_QMlMult   = 1.0;
-  m_QvMult    = 1.0;
-  m_NQvMult   = 1.0;
-  m_MassFrac  = 0;
-  m_MoleFrac  = 0;
-  m_VolFrac   = 0;
-  m_NVolFrac  = 0;
-  m_Conc      = 0;
-
-  m_bHasFlow  = true;
-
-  m_eRqdTemp  = Temp_Mixture;
-  m_RqdTemp   = C2K(25);
-
-  m_dSetPoint   = 0.0;
-  m_dMeas       = 0.0;
-  m_dResult     = 0.0;
-  m_dQmFeed     = 0.0;
-  m_dQmMakeup   = 0.0;
-  m_dQmProd     = 0.0;
-  m_dQvFeed     = 0.0;
-  m_dQvMakeup   = 0.0;
-  m_dQvProd     = 0.0;
-  m_dHeatFlow   = 0.0;
-  m_dTempKFeed  = C2K(0.0);
-  m_dTempKMakeup= C2K(0.0);
-  m_dTempKProd  = C2K(0.0);
-
-  m_eLoFeedOpt= LF_Ignore;
-  m_LoFeedQm  = 1.0;
-  }
-
-//--------------------------------------------------------------------------
-
-CXBlk_MUSimple::~CXBlk_MUSimple()
-  {
-  }
-
-//--------------------------------------------------------------------------
-
-void CXBlk_MUSimple::SetUpDDBSpcs()
-  {
-  if (!m_DDBSpcsOK || m_DDBSpcAdd.Length()+m_DDBSpcRem.Length()<SDB.Count())
-    {
-    m_DDBSpcAdd.Empty();
-    m_DDBSpcRem.Empty();
-    m_DDBSpcAdd.Add(-2, "All_Available");
-    m_DDBSpcAdd.Add(-1, " - ");
-    m_DDBSpcRem.Add(-2, "All_Available");
-    m_DDBSpcRem.Add(-1, " - ");
-
-    bool InList[MaxSpeciesEx];
-    for (int s=0; s<SDB.Count(); s++)
-      InList[s]=false;
-
-    bool NeedsComma=false;
-    m_nLastSpcStr=0;
-    m_SpcStr.SetSize(Max(m_nLastSpcStr+1, m_SpcStr.GetSize()));
-    m_SpcStr[m_nLastSpcStr]="Species:";
-    for (int j=0; j<m_Species.GetSize(); j++)
-      {
-      int s=m_Species[j];
-      InList[s]=true;
-      m_DDBSpcRem.Add(s, SDB[s].SymOrTag());
-
-      if (NeedsComma)
-        m_SpcStr[m_nLastSpcStr]+=",";
-      m_SpcStr[m_nLastSpcStr]+=SDB[s].SymOrTag();
-      if (m_SpcStr[m_nLastSpcStr].GetLength()>35)
-        {
-        m_nLastSpcStr++;
-        m_SpcStr.SetSize(Max(m_nLastSpcStr+1, m_SpcStr.GetSize()));
-        m_SpcStr[m_nLastSpcStr]="        ";
-        NeedsComma=false;
-        }
-      else
-        NeedsComma=true;
-      }
-
-    for (int s=0; s<SDB.Count(); s++)
-      {
-      if (!InList[s])
-        m_DDBSpcAdd.Add(s,SDB[s].SymOrTag());
-      }
-    }
-
-  m_DDBSpcsOK = true;
-  }
-
-//--------------------------------------------------------------------------
-
-void CXBlk_MUSimple::SetUpDDBCmps()
-  {
-  if (!m_DDBCmpsOK || m_DDBCmpAdd.Length()+m_DDBCmpRem.Length()<CDB.No())
-    {
-    m_DDBCmpAdd.Empty();
-    m_DDBCmpRem.Empty();
-    m_DDBCmpAdd.Add(-2, "All_Available");
-    m_DDBCmpAdd.Add(-1, " - ");
-    m_DDBCmpRem.Add(-2, "All_Available");
-    m_DDBCmpRem.Add(-1, " - ");
-
-    bool InList[MaxSpeciesEx];
-    for (int s=0; s<CDB.No(); s++)
-      InList[s]=false;
-
-    bool NeedsComma=false;
-    m_nLastCmpStr=0;
-    m_CmpStr.SetSize(Max(m_nLastCmpStr+1, m_CmpStr.GetSize()));
-    m_CmpStr[m_nLastCmpStr]="Comps:";
-    for (int j=0; j<m_Comps.GetSize(); j++)
-      {
-      int s=m_Comps[j];
-      InList[s]=true;
-      m_DDBCmpRem.Add(s, CDB[s].SymOrTag());
-
-      if (NeedsComma)
-        m_CmpStr[m_nLastCmpStr]+=",";
-      m_CmpStr[m_nLastCmpStr]+=CDB[s].SymOrTag();
-      if (m_CmpStr[m_nLastCmpStr].GetLength()>35)
-        {
-        m_nLastCmpStr++;
-        m_CmpStr.SetSize(Max(m_nLastCmpStr+1, m_CmpStr.GetSize()));
-        m_CmpStr[m_nLastCmpStr]="        ";
-        NeedsComma=false;
-        }
-      else
-        NeedsComma=true;
-      //for (int ss=CDB[s].
-      }
-
-    for (int s=0; s<CDB.No(); s++)
-      {
-      if (!InList[s])
-        m_DDBCmpAdd.Add(s,CDB[s].SymOrTag());
-      }
-    }
-
-  m_DDBCmpsOK = true;
-  }
-
-//--------------------------------------------------------------------------
-
-void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
-  {
-  static DDBValueLst DDBCtrl[] =
-    {                         
-      {Type_MassFrac,       "MassFrac"          },
-      {Type_MassFlow,       "MassFlow"          },
-      {Type_MassRatio,      "MassRatio"         },
-      {Type_MassMult,       "MassMultiplier"    },
-      {Type_VolumeFrac,     "VolumeFrac"        },
-      {Type_VolumeFlow,     "VolumeFlow"        },
-      {Type_VolumeRatio,    "VolumeRatio"       },
-      {Type_VolumeMult,     "VolumeMultiplier"  },
-      {Type_NVolumeFrac,    "NVolumeFrac"       },
-      {Type_NVolumeFlow,    "NVolumeFlow"       },
-      {Type_NVolumeRatio,   "NVolumeRatio"      },
-      {Type_NVolumeMult,    "NVolumeMultiplier" },
-      {Type_MoleFrac,       "MoleFrac"          },
-      {Type_MoleFlow,       "MoleFlow"          },
-      {Type_MoleRatio,      "MoleRatio"         },
-      {Type_MoleMult,       "MoleMultiplier"    },
-      {Type_Conc,           "Concentration"     },
-      {}
-    };
-  static DDBValueLst DDBSelect[] =
-    {                         
-      {Slct_All,            "All"             },
-      {Slct_Occur,          "Phase"           },
-      {Slct_IndPhase,       "IndividualPhase" },
-      {Slct_Specie,         "Specie"          },
-      {Slct_Component,      "Component"       },
-      {}
-    };
-  static DDBValueLst DDBSource[] =
-    {                         
-      {Src_Self,            "Self"            },
-      {Src_Remote,          "Remote"          },
-      {}
-    };
-
-  static DDBValueLst DDBLoFeed[] =
-    {                         
-      {LF_Ignore,           "Ignore"            },
-      {LF_StopMakeUp,       "StopMakeup"        },
-      //{LF_HoldMeasure,      "HoldAtLo"          },
-      {}
-    };
-
-  static DDBValueLstMem DDBPhaseBasis;
-  if (DDBPhaseBasis.Length()==0)
-    {
-    for (int i=0; i<SpVwPhMaskIndex_Count; i++)
-      {
-      if (CSysVecInfo::SpVwPhMask(i)!=0)
-        DDBPhaseBasis.Add(i, CSysVecInfo::SpVwPhMaskTag(i));
-      }
-    }
-
-  const bool MassBasis = (m_eType==Type_MassFrac || m_eType==Type_MassFlow || m_eType==Type_MassRatio || m_eType==Type_MassMult);
-  const bool VolBasis  = (m_eType==Type_VolumeFrac || m_eType==Type_VolumeFlow || m_eType==Type_VolumeRatio || m_eType==Type_VolumeMult);
-  const bool NVolBasis = (m_eType==Type_NVolumeFrac || m_eType==Type_NVolumeFlow || m_eType==Type_NVolumeRatio || m_eType==Type_NVolumeMult);
-  const bool MoleBasis = (m_eType==Type_MoleFrac || m_eType==Type_MoleFlow || m_eType==Type_MoleRatio || m_eType==Type_MoleMult);
-
-  const bool FracBasis  = (m_eType==Type_MassFrac || m_eType==Type_VolumeFrac || m_eType==Type_NVolumeFrac || m_eType==Type_MoleFrac);
-  const bool FlowBasis  = (m_eType==Type_MassFlow || m_eType==Type_VolumeFlow || m_eType==Type_NVolumeFlow || m_eType==Type_MoleFlow);
-  const bool RatioBasis = (m_eType==Type_MassRatio || m_eType==Type_VolumeRatio || m_eType==Type_NVolumeRatio || m_eType==Type_MoleRatio);
-  const bool MultBasis  = (m_eType==Type_MassMult || m_eType==Type_VolumeMult || m_eType==Type_NVolumeMult || m_eType==Type_MoleMult);
-
-  DDB.Text(" ");
-  DDB.Text("SetPoint");
-  DDB.Long       ("", "Type",             DC_,  "", xidMkType,  this, isParmStopped|SetOnChange, DDBCtrl);
-  DDB.Visibility(NSHM_All, m_eType==Type_Conc);
-  DDB.Long       ("", "PhaseBasis",       DC_,  "", xidMkPhaseB,  this, isParmStopped|SetOnChange, DDBPhaseBasis());
-  DDB.Visibility(NSHM_All, m_eType==Type_MassFlow);
-  DDB.Double("", "QmRqd",    DC_Qm, "kg/s", &m_QmRqd,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_MoleFlow);
-  DDB.Double("", "QMlRqd",   DC_QKgMl, "kmol/s", &m_QMlRqd,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_VolumeFlow);
-  DDB.Double("", "QvRqd",    DC_Qv, "m^3/s", &m_QvRqd,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_NVolumeFlow);
-  DDB.Double("", "NQvRqd",    DC_NQv, "Nm^3/s", &m_NQvRqd,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_MassRatio);
-  DDB.Double("", "QmRatio",    DC_Frac, "%", &m_QmRatio,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_MoleRatio);
-  DDB.Double("", "QMlRatio",    DC_Frac, "%", &m_QMlRatio,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_VolumeRatio);
-  DDB.Double("", "QvRatio",    DC_Frac, "%", &m_QvRatio,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_NVolumeRatio);
-  DDB.Double("", "NQvRatio",    DC_Frac, "%", &m_NQvRatio,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_MassMult);
-  DDB.Double("", "QmMult",    DC_Frac, "%", &m_QmMult,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_MoleMult);
-  DDB.Double("", "QMlMult",    DC_Frac, "%", &m_QMlMult,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_VolumeMult);
-  DDB.Double("", "QvMult",    DC_Frac, "%", &m_QvMult,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_NVolumeMult);
-  DDB.Double("", "NQvMult",    DC_Frac, "%", &m_NQvMult,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_MassFrac);
-  DDB.Double("", "MassFrac",    DC_Frac, "%", &m_MassFrac,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_MoleFrac);
-  DDB.Double("", "MoleFrac",    DC_Frac, "%", &m_MoleFrac,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_VolumeFrac);
-  DDB.Double("", "VolumeFrac",    DC_Frac, "%", &m_VolFrac,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_NVolumeFrac);
-  DDB.Double("", "NVolumeFrac",    DC_Frac, "%", &m_NVolFrac,  this, isParm);
-  DDB.Visibility(NSHM_All, m_eType==Type_Conc);
-  DDB.Double("", "Concentration",  DC_Conc, "g/L", &m_Conc,  this, isParm);
-
-  DDB.Visibility();
-  DDB.Text("Measurement");
-  DDB.Long       ("", "Selection",        DC_,  "", xidMkSelect,  this, isParm|SetOnChange, DDBSelect);
-  //DDB.Text("Selection");
-  if (DDB.ForFileSnpScn())
-    {
-    switch (m_eSelect)
-      {
-      case Slct_All:
-      case Slct_Occur:
-      case Slct_IndPhase:
-        DDB.Long("", "PhaseMask",               DC_,  "", (long*)&m_Phases,     this, isParm|InitHidden);
-        break;
-      case Slct_Specie:
-        {
-        SetUpDDBSpcs();
-
-        DDB.Long  ("NSpcs",       "", DC_,      "",   xidMkSpcCnt, this, isParm);
-        if (DDB.BeginArray(this, "Spcs", "MU_SpIndex", m_Species.GetSize(), 0, DDB_NoPage, isParm))
-          {
-          for (int s=0; s<m_Species.GetSize(); s++)
-            {
-            DDB.BeginElement(this, s);
-            DDB.Int("Spc", "", DC_, "", &m_Species[s], this, isParmConstruct, &SDB.DDBSpList);
-            }
-          };
-        DDB.EndArray();
-        break;
-        }
-      case Slct_Component:
-        {
-        SetUpDDBCmps();
-
-        DDB.Long  ("NCmps",       "", DC_,      "",   xidMkCmpCnt, this, isParm);
-        if (DDB.BeginArray(this, "Cmps", "MU_CmpIndex", m_Comps.GetSize(), 0, DDB_NoPage, isParm))
-          {
-          for (int s=0; s<m_Comps.GetSize(); s++)
-            {
-            DDB.BeginElement(this, s);
-            DDB.Int("Cmp", "", DC_, "", &m_Comps[s], this, isParmConstruct, &CDB.DDBCompList);
-            }
-          };
-        DDB.EndArray();
-        break;
-        }
-      }  
-    }
-  else
-    {
-    switch (m_eSelect)
-      {
-      case Slct_All:
-        break;
-      case Slct_Occur:
-        {
-        DDB.CheckBoxBtn("", "Solids",           DC_,  "", xidMkSolids,  this, isParm);
-        DDB.CheckBoxBtn("", "Liquids",          DC_,  "", xidMkLiquids, this, isParm);
-        DDB.CheckBoxBtn("", "Gasses",           DC_,  "", xidMkGasses,  this, isParm);
-        break;
-        }
-      case Slct_IndPhase:
-        {
-        for (int o=CDB.PhaseFirst(BOT_Solid); o<=CDB.PhaseLast(BOT_Gas); o++)
-          {
-          CPhaseInfo & P=CDB.PhaseInfo(o);
-          Strng T,S;
-          T.Set("(%s)", P.m_Tag());
-          S.Set("(%s)", P.m_Sym());
-          DDB.CheckBoxBtn(T(), S(), DC_,  "", xidMkPhase+o,  this, isParm);
-          }
-        break;
-        }
-      case Slct_Specie:
-        {
-        SetUpDDBSpcs();
-        for (int s=0; s<=m_nLastSpcStr; s++)
-          DDB.Text((LPTSTR)(LPCTSTR)m_SpcStr[s]);
-        DDB.Long  ("Add",    "", DC_, "", xidMkAddSpc, this, (m_DDBSpcAdd.Length()>1?isParm:0)|SetOnChange, &m_DDBSpcAdd);
-        DDB.Long  ("Remove", "", DC_, "", xidMkRemSpc, this, (m_DDBSpcRem.Length()>1?isParm:0)|SetOnChange, &m_DDBSpcRem);
-        break;
-        }
-      case Slct_Component:
-        {
-        SetUpDDBCmps();
-        for (int s=0; s<=m_nLastCmpStr; s++)
-          DDB.Text((LPTSTR)(LPCTSTR)m_CmpStr[s]);
-        DDB.Long  ("Add",    "", DC_, "", xidMkAddCmp, this, (m_DDBCmpAdd.Length()>1?isParm:0)|SetOnChange, &m_DDBCmpAdd);
-        DDB.Long  ("Remove", "", DC_, "", xidMkRemCmp, this, (m_DDBCmpRem.Length()>1?isParm:0)|SetOnChange, &m_DDBCmpRem);
-        //if (m_CompSpecies.Len()>0)
-        //  DDB.Text(m_CompSpecies());
-        break;
-        }
-      }  
-    }
-
-  DDB.Visibility();
-  DDB.Text(" ");
-  DDB.Text("MakeUp");
-  DDB.Long       ("", "Source",           DC_,  "", (long*)&m_eSource,  this, isParm|SetOnChange, DDBSource);
-  DDB.Double     ("QmMin", "",            DC_Qm, "kg/s", &m_QmMin, this, isParm);
-  DDB.Double     ("QmMax", "",            DC_Qm, "kg/s", &m_QmMax, this, isParm);
-
-  DDB.Long       ("LoFeed.Options", "",   DC_,   "", (long*)&m_eLoFeedOpt, this, isParm|SetOnChange, DDBLoFeed);
-  DDB.Visibility (NSHM_All, m_eLoFeedOpt >LF_Ignore);
-  DDB.Double     ("LoFeed.Qm", "",        DC_Qm, "kg/s", &m_LoFeedQm, this, isParm);
-  DDB.Visibility ();
-
-  static DDBValueLst DDBTemp[] = 
-    {
-      {Temp_Inlet,   "InletTemp"},
-      {Temp_Source,  "SourceTemp"},
-      {Temp_Std,     "StdTemp"},
-      {Temp_Const,   "Const"},
-      {Temp_Mixture, "Mixture"},  
-      {0}
-    };
-
-  if (!HeatSkipMethod())
-    {
-    DDB.Text(" ");
-    DDB.Long  ("Temp.Final",      "",  DC_,  "", (long*)&m_eRqdTemp, this, isParm|SetOnChange/*|DDEF_WRITEPROTECT*/, DDBTemp);
-    DDB.Visibility(NSHM_All, m_eRqdTemp==Temp_Const);
-    DDB.Double("Temp.Reqd",        "",  DC_T, "C", &m_RqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/);
-    DDB.Visibility();
-    }
-
-  DDB.Text(" ");
-  DDB.Text("Results");
-
-  DDB.Text("Simple Control:");
-  DDB.String("Error",            "", DC_,   "",    xidMkError,     this, isResult);
-
-  CCnvIndex CnvUsed;
-  Strng CnvTxt;
-  switch (m_eType)
-    {                         
-    case Type_MassFlow    : CnvUsed=DC_Qm; CnvTxt="kg/s"; break;
-    case Type_MoleFlow    : CnvUsed=DC_QKgMl; CnvTxt="kmol/s"; break;
-    case Type_VolumeFlow  : CnvUsed=DC_Qv; CnvTxt="m^3/s"; break;
-    case Type_NVolumeFlow : CnvUsed=DC_NQv; CnvTxt="Nm^3/s"; break;
-    case Type_Conc        : CnvUsed=DC_Conc; CnvTxt="g/L"; break;
-    default               : CnvUsed=DC_Frac; CnvTxt="%"; break;
-    }
-  DDB.Visibility(NSHM_All, FracBasis || FlowBasis || m_eType==Type_Conc);
-  DDB.Double ("Meas.Feed",        "", CnvUsed, CnvTxt(),  &m_dMeas,       this, isResult|noFileAtAll|NAN_OK);
-  DDB.Visibility();
-  DDB.Double ("Meas.SetPoint",    "", CnvUsed, CnvTxt(),  &m_dSetPoint,   this, isResult|noFileAtAll|NAN_OK);
-  DDB.Double ("Meas.Prod",        "", CnvUsed, CnvTxt(),  &m_dResult,     this, isResult|noFileAtAll|NAN_OK);
-
-  if (MassBasis)
-    m_MeasDesc = "Mass flow";
-  else if (VolBasis)
-    m_MeasDesc = "Volume flow";
-  else if (NVolBasis)
-    m_MeasDesc = "NormVolume flow";
-  else if (MoleBasis)
-    m_MeasDesc = "Molar flow";
-  else
-    m_MeasDesc = "";
-
-  switch (m_eSelect)
-    {
-    case Slct_All:
-      m_MeasDesc += " of total stream:"; 
-      break;
-    case Slct_Occur:
-      {
-      m_MeasDesc += " of sum of phases (";
-      if (m_Phases & som_Sol) m_MeasDesc += "solids ";
-      if (m_Phases & som_Liq) m_MeasDesc += "liquids ";
-      if (m_Phases & som_Gas) m_MeasDesc += "vapours ";
-      m_MeasDesc.RTrim();
-      m_MeasDesc += "):";
-      break;
-    case Slct_IndPhase:
-      {
-      m_MeasDesc += " of sum of individual phases (";
-      for (int o=CDB.PhaseFirst(BOT_Solid); o<=CDB.PhaseLast(BOT_Gas); o++)
-        {
-        CPhaseInfo & P=CDB.PhaseInfo(o);
-        if (m_Phases&P.m_PhMsk)
-          {
-          m_MeasDesc += P.m_Sym();
-          m_MeasDesc += ' ';
-          }
-        }
-      m_MeasDesc.RTrim();
-      m_MeasDesc += "):";
-      break;
-      }
-    case Slct_Specie:
-      {
-      m_MeasDesc += " of sum of selected species:"; 
-      break;
-      }
-    case Slct_Component:
-      {
-      m_MeasDesc += " of sum of selected components:"; 
-      break;
-      }
-      }  
-    }
-
-  DDB.Text(" ");
-  DDB.Text(m_MeasDesc());
-  if (MassBasis)
-    {
-    DDB.Double ("Meas.Qm.Feed",   "", DC_Qm,    "kg/s",     &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-    DDB.Double ("Meas.Qm.Prod",   "", DC_Qm,    "kg/s",     &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
-    }
-  else if (VolBasis)
-    {
-    DDB.Double ("Meas.Qv.Feed",   "", DC_Qv,    "m^3/s",    &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-    DDB.Double ("Meas.Qv.Prod",   "", DC_Qv,    "m^3/s",    &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
-    }
-  else if (NVolBasis)
-    {
-    DDB.Double ("Meas.NQv.Feed",  "", DC_NQv,   "Nm^3/s",   &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-    DDB.Double ("Meas.NQv.Prod",  "", DC_NQv,   "Nm^3/s",   &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
-    }
-  else if (MoleBasis)
-    {
-    DDB.Double ("Meas.QMl.Feed",  "", DC_QKgMl, "kmol/s",   &m_dFeedAct,     this, isResult|noFileAtAll|NAN_OK);
-    DDB.Double ("Meas.QMl.Prod",  "", DC_QKgMl, "kmol/s",   &m_dProdAct,     this, isResult|noFileAtAll|NAN_OK);
-    }
-
-  DDB.Text(" ");
-  DDB.Text("Total mass flow:");
-  DDB.Double ("Qm.Feed",            "", DC_Qm,    "kg/s",     &m_dQmFeed,     this, isResult);
-  DDB.Double ("Qm.Makeup",          "", DC_Qm,    "kg/s",     &m_dQmMakeup,   this, isResult);
-  DDB.Double ("Qm.Prod",            "", DC_Qm,    "kg/s",     &m_dQmProd,     this, isResult);
-  DDB.Text("Total volume flow:");
-  DDB.Double ("Qv.Feed",            "", DC_Qv,    "m^3/s",    &m_dQvFeed,     this, isResult|InitHidden);
-  DDB.Double ("Qv.Makeup",          "", DC_Qv,    "m^3/s",    &m_dQvMakeup,   this, isResult);
-  DDB.Double ("Qv.Prod",            "", DC_Qv,    "m^3/s",    &m_dQvProd,     this, isResult|InitHidden);
-  if (!HeatSkipMethod())
-    {
-    DDB.Text("Total heat flow:");
-    DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_dTempKFeed,  this, isResult);
-    DDB.Double ("Temp.Makeup",        "", DC_T,    "C",       &m_dTempKMakeup, this, isResult|InitHidden);
-    DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_dTempKProd,  this, isResult);
-    DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_dHeatFlow,   this, isResult);
-    }
-  }
-
-//--------------------------------------------------------------------------
-
-void CXBlk_MUSimple::ClrMeasEtc()
-  {
-  m_dMeas     = dNAN;
-  m_dSetPoint = dNAN;
-  m_dResult   = dNAN;
-  m_dFeedAct  = dNAN;
-  m_dProdAct  = dNAN;
-  }
-
-flag CXBlk_MUSimple::DataXchg(DataChangeBlk & DCB)
-  {
-  switch (DCB.lHandle)
-    {
-    case xidMkType:
-      if (DCB.rL && (m_eType!=(eType)*DCB.rL))
-        {          
-        m_eType     = (eType)*DCB.rL;
-        ClrMeasEtc();
-        }
-      DCB.L = m_eType; 
-      return 1;
-    case xidMkPhaseB:
-      if (DCB.rL && (m_iPhaseBasis!=*DCB.rL))
-        {          
-        m_iPhaseBasis = (eType)*DCB.rL;
-        ClrMeasEtc();
-        }
-      DCB.L = m_iPhaseBasis; 
-      return 1;
-
-    case xidMkSelect:
-      if (DCB.rL && (m_eSelect!=(eSelect)*DCB.rL))
-        {          
-        m_eSelect   = (eSelect)*DCB.rL;
-        ClrMeasEtc();
-        }
-      DCB.L = m_eSelect; 
-      return 1;
-    case xidMkAll:
-      if (DCB.rB)
-        {
-        m_Phases = *DCB.rB ? som_ALL:0;
-        ClrMeasEtc();
-        }
-      DCB.B = (m_Phases==som_ALL) ? 1 : (m_Phases==0) ? 0 : 2; 
-      return 1;
-    case xidMkSolids:
-      if (DCB.rB)
-        {
-        m_Phases = (m_Phases&~som_Sol) | (*DCB.rB ? som_Sol:0);
-        ClrMeasEtc();
-        }
-      DCB.B = ((m_Phases&som_Sol)==som_Sol)? 1 : ((m_Phases&som_Sol)==0) ? 0 : 2; 
-      return 1;
-    case xidMkLiquids:
-      if (DCB.rB)
-        {
-        m_Phases = (m_Phases&~som_Liq) | (*DCB.rB ? som_Liq:0);
-        ClrMeasEtc();
-        }
-      DCB.B = ((m_Phases&som_Liq)==som_Liq)? 1 : ((m_Phases&som_Liq)==0) ? 0 : 2; 
-      return 1;
-    case xidMkGasses:
-      if (DCB.rB)
-        {
-        m_Phases = (m_Phases&~som_Gas) | (*DCB.rB ? som_Gas:0);
-        ClrMeasEtc();
-        }
-      DCB.B = ((m_Phases&som_Gas)==som_Gas)? 1 : ((m_Phases&som_Gas)==0) ? 0 : 2; 
-      return 1;
-
-    case xidMkSpcCnt:
-      if (DCB.rL)
-        {
-        m_Species.SetSize(*DCB.rL);
-        m_DDBSpcsOK = false;
-        ClrMeasEtc();
-        }
-      DCB.L=m_Species.GetSize();
-      return 1;
-    case xidMkAddSpc:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Species.GetSize(); j++)
-            {
-            if (m_Species[j]>*DCB.rL)
-              {
-              m_Species.InsertAt(j, *DCB.rL);
-              m_DDBSpcsOK=false;
-              DCB.L=-1;
-              ClrMeasEtc();
-              return 1;
-              }
-            }
-          m_Species.Add(*DCB.rL);
-          m_DDBSpcsOK=false;
-          ClrMeasEtc();
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Species.SetSize(0);
-          for (int i=0; i<SDB.Count(); i++)
-            m_Species.Add(i);
-          m_DDBSpcsOK=false;
-          ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
-      return 1;
-    case xidMkRemSpc:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Species.GetSize(); j++)
-            {
-            if (m_Species[j]==*DCB.rL)
-              {
-              m_Species.RemoveAt(j);
-              m_DDBSpcsOK=false;
-              ClrMeasEtc();
-              break;
-              }
-            }
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Species.SetSize(0);
-          m_DDBSpcsOK=false;
-          ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
-      return 1;
-
-    case xidMkCmpCnt:
-      if (DCB.rL)
-        {
-        m_Comps.SetSize(*DCB.rL);
-        m_DDBCmpsOK = false;
-        ClrMeasEtc();
-        }
-      DCB.L=m_Comps.GetSize();
-      return 1;
-    case xidMkAddCmp:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Comps.GetSize(); j++)
-            {
-            if (m_Comps[j]>*DCB.rL)
-              {
-              m_Comps.InsertAt(j, *DCB.rL);
-              m_DDBCmpsOK=false;
-              DCB.L=-1;
-              ClrMeasEtc();
-              return 1;
-              }
-            }
-          m_Comps.Add(*DCB.rL);
-          m_DDBCmpsOK=false;
-          ClrMeasEtc();
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Comps.SetSize(0);
-          for (int i=0; i<CDB.No(); i++)
-            m_Comps.Add(i);
-          m_DDBCmpsOK=false;
-          ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
-      return 1;
-    case xidMkRemCmp:
-      if (DCB.rL)
-        {
-        if (*DCB.rL>=0)
-          {
-          for (int j=0; j<m_Comps.GetSize(); j++)
-            {
-            if (m_Comps[j]==*DCB.rL)
-              {
-              m_Comps.RemoveAt(j);
-              m_DDBCmpsOK=false;
-              ClrMeasEtc();
-              break;
-              }
-            }
-          }
-        else if (*DCB.rL==-2)
-          {
-          m_Comps.SetSize(0);
-          m_DDBCmpsOK=false;
-          ClrMeasEtc();
-          }
-        }
-      DCB.L=-1;
-      return 1;
-
-    case xidMkError:
-      {
-      m_ErrorLst.Clear();
-      ConditionBlk::GetMyCIs(m_ErrorLst,3);
-      if (!SrcIO.Connected)
-        {
-        DCB.pC="Not Connected";
-        }
-      else if (!m_bHasFlow)
-        {
-        DCB.pC="No Flow";
-        }
-      else if (m_ErrorLst.Length()>0)
-        {
-        Strng &S=*m_ErrorLst.First();
-        DCB.pC=S.XStrChr('\t')+1;
-        }
-      else
-        DCB.pC="None";
-      return 1;
-      }
-    default:
-      if (DCB.lHandle>=xidMkPhase && DCB.lHandle<xidMkPhase+CDB.PhaseCount())
-        {
-        int o=DCB.lHandle-xidMkPhase;
-        CPhaseInfo & P=CDB.PhaseInfo(o);
-        if (DCB.rB)
-          {
-          m_Phases = (m_Phases&~P.m_PhMsk) | (*DCB.rB ? P.m_PhMsk:0);
-          ClrMeasEtc();
-          }
-        DCB.B = (m_Phases&P.m_PhMsk) ? 1 : 0; 
-        return 1;
-        }
-    }
-  return 0;
-  }
-
-//--------------------------------------------------------------------------
-
-flag CXBlk_MUSimple::ValidateData(ValidateDataBlk & VDB)
-  {
-  switch (m_eSelect)
-    {
-    case Slct_All:
-      {
-      m_Phases=som_ALL;
-      break;
-      }
-    case Slct_Specie:
-      {
-      break;
-      }
-    case Slct_Component:
-      {
-      m_Species.SetSize(0);
-      //m_CompSpecies = "";
-      //bool NeedsComma = false;
-      for (int i=0; i<m_Comps.GetCount(); i++)
-        {
-        const int CmpIndex = m_Comps[i];
-        for (int j=0; j<CDB[CmpIndex].NSpecies(); j++)
-          {
-          const int SpcIndex = CDB[CmpIndex].iSpecie(j);
-          m_Species.Add(SpcIndex);
-          //if (NeedsComma)
-          //  m_CompSpecies += ", ";
-          //else
-          //  m_CompSpecies = "Species:";
-          //m_CompSpecies += SDB[SpcIndex].SymOrTag();
-          //NeedsComma = true;
-          }
-        }
-      break;
-      }
-    default:
-      break;
-    }
-
-  if (m_Phases==som_ALL && (m_eSelect==Slct_All || m_eSelect==Slct_Occur))
-    {
-    switch (m_eType)
-      {                         
-      case Type_MassFrac:
-      case Type_VolumeFrac:
-      case Type_NVolumeFrac:
-        LogError(FullObjTag(), 0, "Fraction Type invalid for Selection");
-        break;
-      }
-    }
-
-  return CMakeupBlock::ValidateData(VDB); 
-  }
-
-//--------------------------------------------------------------------------
-
-double CXBlk_MUSimple::GetSetPoint()
-  {
-  switch (m_eType)
-    {                         
-    case Type_MassFlow:       return m_QmRqd;
-    case Type_MassRatio:      return m_QmRatio;
-    case Type_MassMult:       return m_QmMult;
-    case Type_MassFrac:       return m_MassFrac;
-    case Type_MoleFlow:       return m_QMlRqd;
-    case Type_MoleRatio:      return m_QMlRatio;
-    case Type_MoleMult:       return m_QMlMult;
-    case Type_MoleFrac:       return m_MoleFrac;
-    case Type_VolumeFlow:     return m_QvRqd;
-    case Type_VolumeRatio:    return m_QvRatio;
-    case Type_VolumeMult:     return m_QvMult;
-    case Type_VolumeFrac:     return m_VolFrac;
-    case Type_NVolumeFlow:    return m_NQvRqd;
-    case Type_NVolumeRatio:   return m_NQvRatio;
-    case Type_NVolumeMult:    return m_NQvMult;
-    case Type_NVolumeFrac:    return m_NVolFrac;
-    case Type_Conc:           return m_Conc;
-    };
-  return dNAN;
-  }
-
-//--------------------------------------------------------------------------
-
-double CXBlk_MUSimple::GetRawMeas(SpConduit &QPrd, PhMask PhRqd)
-  {
-  switch (m_eType)
-    {                         
-    case Type_MassFlow:
-    case Type_MassRatio:
-    case Type_MassMult: 
-    case Type_MassFrac:
-      if (PhRqd)
-        return QPrd.QMass(PhRqd);
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QMass(m_Species);
-      return QPrd.QMass(m_Phases);
-
-    case Type_MoleFlow:
-    case Type_MoleRatio:
-    case Type_MoleMult: 
-    case Type_MoleFrac:
-      if (PhRqd)
-        return QPrd.QMole(PhRqd);
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QMole(m_Species);
-      return QPrd.QMole(m_Phases);
-
-    case Type_VolumeFlow:
-    case Type_VolumeRatio:
-    case Type_VolumeMult: 
-    case Type_VolumeFrac:
-      if (PhRqd)
-        return QPrd.QVolume(PhRqd);
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QVolume(m_Species);
-      return QPrd.QVolume(m_Phases);
-
-    case Type_NVolumeFlow:
-    case Type_NVolumeRatio:
-    case Type_NVolumeMult: 
-    case Type_NVolumeFrac:
-      if (PhRqd)
-        return QPrd.QNVolume(PhRqd);
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QNVolume(m_Species);
-      return QPrd.QNVolume(m_Phases);
-
-    case Type_Conc:
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QMass(m_Species);
-      return QPrd.QMass(m_Phases);
-    }
-  return dNAN;
-  }
-
-double CXBlk_MUSimple::GetMeasVal(SpConduit &QIn, SpConduit &QPrd)
-  {
-  switch (m_eType)
-    {                         
-    case Type_MassFlow:
-    case Type_MoleFlow:
-    case Type_VolumeFlow:
-    case Type_NVolumeFlow:
-      return GetRawMeas(QPrd);
-
-    case Type_MassRatio:
-    case Type_MoleRatio:
-    case Type_VolumeRatio:
-    case Type_NVolumeRatio:
-      return GetRawMeas(QPrd)/GTZ(GetRawMeas(QIn))-1.0;
-
-    case Type_MassMult: 
-    case Type_MoleMult: 
-    case Type_VolumeMult: 
-    case Type_NVolumeMult: 
-      return GetRawMeas(QPrd)/GTZ(GetRawMeas(QIn));
-
-    case Type_MassFrac:
-    case Type_MoleFrac:
-    case Type_VolumeFrac:
-    case Type_NVolumeFrac:
-      return GetRawMeas(QPrd)/GTZ(GetRawMeas(QPrd, som_ALL));
-
-    case Type_Conc:
-      return GetRawMeas(QPrd)/GTZ(QPrd.QVolume(CSysVecInfo::SpVwPhMask(m_iPhaseBasis)));
-    }
-  return 0.0;
-  }
-
-//--------------------------------------------------------------------------
-
-double CXBlk_MUSimple::GetFlowValue(SpConduit &QPrd, PhMask PhRqd)
-  {
-  switch (m_eType)
-    {                         
-    case Type_MassFlow:
-    case Type_MassRatio:
-    case Type_MassMult: 
-    case Type_MassFrac:
-      if (PhRqd)
-        return QPrd.QMass(PhRqd);
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QMass(m_Species);
-      return QPrd.QMass(m_Phases);
-
-    case Type_MoleFlow:
-    case Type_MoleRatio:
-    case Type_MoleMult: 
-    case Type_MoleFrac:
-      if (PhRqd)
-        return QPrd.QMole(PhRqd);
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QMole(m_Species);
-      return QPrd.QMole(m_Phases);
-
-    case Type_VolumeFlow:
-    case Type_VolumeRatio:
-    case Type_VolumeMult: 
-    case Type_VolumeFrac:
-      if (PhRqd)
-        return QPrd.QVolume(PhRqd);
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QVolume(m_Species);
-      return QPrd.QVolume(m_Phases);
-
-    case Type_NVolumeFlow:
-    case Type_NVolumeRatio:
-    case Type_NVolumeMult: 
-    case Type_NVolumeFrac:
-      if (PhRqd)
-        return QPrd.QNVolume(PhRqd);
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QNVolume(m_Species);
-      return QPrd.QNVolume(m_Phases);
-
-    case Type_Conc:
-      if (m_eSelect>=Slct_Specie)
-        return QPrd.QMass(m_Species);
-      return QPrd.QMass(m_Phases);
-    }
-  return dNAN;
-  }
-//-------------------------------------------------------------------------
-
-class CSimpleMkUpFnd : public MRootFinder
-  {
-  public:
-    CSimpleMkUpFnd(CXBlk_MUSimple * pMU, LPCTSTR pTag, SpConduit * pIn, SpConduit * pSrc, SpConduit * pPrd, double TRqd, double PRqd, CToleranceBlock & Tol) : \
-      m_pMU(pMU), 
-      m_pTag(pTag), 
-      m_In(*pIn), 
-      m_Src(*pSrc), 
-      m_Prd(*pPrd), 
-      m_TRqd(TRqd), 
-      m_PRqd(PRqd), 
-      MRootFinder("MkUpFnd", Tol)
-      { 
-      if (dbgMakeup)
-        {
-        dbgpln(" CtrlSetPt:%20.6f %-25s ========================================================================",
-          m_pMU->GetSetPoint(), m_pTag);
-        }
-      m_TMix=0;
-      };
-    LPCTSTR ObjTag() { return m_pTag; };
-    double Function(double Qm)
-      {
-      m_Prd.QCopy(m_In);
-      m_Prd.QAddM(m_Src, som_ALL, Qm);
-
-      m_TMix=m_Prd.Temp();
-
-      if (Valid(m_TRqd))
-        m_Prd.SetTempPress(m_TRqd, m_PRqd);
-      if (dbgMakeup)
-        {
-        dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6f %s",
-          m_pMU->GetMeasVal(m_In, m_Prd), Qm, m_In.QMass(), m_Src.QMass(), m_pTag);
-        }
-      return m_pMU->GetMeasVal(m_In, m_Prd);
-      };
-
-  protected:
-    CXBlk_MUSimple  * m_pMU;
-    LPCTSTR         m_pTag;
-    SpConduit     & m_In;
-    SpConduit     & m_Src;
-    SpConduit     & m_Prd;
-    double          m_TRqd;
-    double          m_PRqd;
-  public:
-    double          m_TMix;
-  };
-
-//--------------------------------------------------------------------------
-
-void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
-  {
-  FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
-  ASSERT_ALWAYS(pNd!=0, "Should always be part of a FlwNode", __FILE__, __LINE__);
-
-  m_dQmFeed = QPrd.QMass();
-  m_dQvFeed = QPrd.QVolume();
-  m_dTempKFeed = QPrd.Temp();            
-  double HfIn  = QPrd.totHf();
-  double HfSrc = 0;
-
-  m_bHasFlow = (m_dQmFeed>SmallPosFlow);
-  bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
-
-  StkSpConduit QIn("QIn", "MkUp", pNd);
-  QIn().QCopy(QPrd);
-
-  m_dMeas     = GetMeasVal(QIn(), QPrd);
-  m_dFeedAct  = GetFlowValue(QIn());
-
-  bool CIsOn[8]={false,false,false,false,false,false,false};
-
-  if (m_eSelect>=Slct_Specie)
-    CIsOn[6]=(m_Species.GetCount()==0);
-  else 
-    CIsOn[5]=(m_Phases==0);
-
-  CIsOn[7]=StopMakeUp;
-  if (!StopMakeUp && !CIsOn[5] && !CIsOn[6])
-    {
-    SpConduit &QSrc=SrcIO.Cd;
-
-    // Copy to Src if Self
-    if (m_eSource==Src_Self)
-      QSrc.QSetF(QPrd, som_ALL, 1.0);
-
-    m_dTempKMakeup = QSrc.Temp();
 
     double TReqd;
     switch (m_eRqdTemp)
@@ -2998,108 +1620,112 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
         TReqd=QPrd.Temp();
       }
 
-    CSimpleMkUpFnd MkUpFnd(this, BaseTag(), &QIn(), &QSrc, &QPrd, TReqd, Po, sm_QmTol);
-    //int iRet=MkUpFnd.FindRootEst(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
-    int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0, true);
+    CFeedMkUpFnd MkUpFnd(this, FullObjTag(), &QIn(), &QSrc, &QSrcWrk(), &QPrd, TReqd, Po, sm_QmTol);
+    int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_MUQmMin, m_MUQmMax, m_QmMakeup, 0.0, true);
     switch (iRet)
       {
       case RF_OK:         
-        m_dQmMakeup = MkUpFnd.Result();
+        m_QmMakeup = MkUpFnd.Result();
         break;
       case RF_LoLimit:    
       case RF_EstimateLoLimit:    
-        m_dQmMakeup = MkUpFnd.Result();
-        if (m_dQmMakeup>SmallPosFlow)
-          CIsOn[2]=true;
+        m_QmMakeup = MkUpFnd.Result();
+        CIsOn[2]=true;
         break;
       case RF_HiLimit:    
       case RF_EstimateHiLimit:    
-        m_dQmMakeup = MkUpFnd.Result();   
-        if (m_dQmMakeup>SmallPosFlow)
-          CIsOn[3]=true;
+        m_QmMakeup = MkUpFnd.Result();   
+        CIsOn[3]=true;
         break;
       case RF_Independant:
         MkUpFnd.Function(0);   
-        m_dQmMakeup = MkUpFnd.Result();   
+        m_QmMakeup = MkUpFnd.Result();   
         CIsOn[4]=true;
         break;
 
       default: 
-        CIsOn[1]=true;
-        SetCI(1, "E\tConverge Error [%i]", iRet);
+        //CIsOn[1]=true;
+        //SetCI(1, "E\tConverge Error [%i]", iRet);
+        LogError(Tag(), 0, "Converge Error [%i]", iRet);
         break;
       }
 
-    QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
-    HfSrc = QSrc.totHf();
-
-    m_dQvMakeup = QSrc.QVolume();
-    //m_dHeatFlow = QPrd.totHf(som_ALL, MkUpFnd.m_TMix, QPrd.Press()) - (HfIn + HfSrc);
-    m_dHeatFlow = QPrd.totHf() - QPrd.totHf(som_ALL, MkUpFnd.m_TMix, QPrd.Press());
-  
-    // debug kludge
-    //m_dHeatFlow *= 0.98533;
+    //QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
+    QSrc.QCopy(QSrcWrk());
+    m_HeatFlow   = QPrd.totHf() - QPrd.totHf(som_ALL, MkUpFnd.TMix(), QPrd.Press());
+    m_Measured   = MkUpFnd.Measured();
 
     if (SrcIO.Enabled)
       SrcIO.Sum.Set(QSrc);
     else
       SrcIO.Sum.ZeroFlows();
+
     }
   else
     {
-    m_dTempKMakeup  = C2K(0.0);
-    m_dQvMakeup     = 0.0; 
-    m_dHeatFlow     = 0.0;
+    m_HeatFlow   = 0;
     SrcIO.Cd.QZero();
     SrcIO.Sum.ZeroFlows();
+    m_Measured   = dNAN;
     }
 
-  if (!CIsOn[1])
-    ClrCI(1);
+  SetCI(11, StopMakeUp);
 
-  for (int i=2; i<=7; i++)
+  for (int i=2; i<sizeof(CIsOn)/sizeof(CIsOn[0]); i++)
     SetCI(i, CIsOn[i]);
 
-  m_dSetPoint   = GetSetPoint();
-  m_dResult     = GetMeasVal(QIn(), QPrd);
-  m_dQmProd     = QPrd.QMass();
-  m_dQmMakeup   = m_dQmProd-m_dQmFeed;
-  m_dTempKProd  = QPrd.Temp();
+  m_SetPoint   = GetSetPoint();
+  m_Result     = GetMeasVal(QIn(), QSrc, QPrd);
+  m_QmProd     = QPrd.QMass();
+  m_QmMakeup   = m_QmProd-m_QmFeed;
+  //m_QvProd     = QPrd.QVolume();
+  //m_QvMakeup   = QSrcWrk().QVolume();
+  m_TempProd  = QPrd.Temp();
 
-
-  m_dQvProd     = QPrd.QVolume();
-  //m_dQvMakeup   = m_dQvProd-m_dQvFeed; //This is probably wrong because of temperature
-
-  m_dProdAct    = GetFlowValue(QPrd);
+  //m_ProdAct    = dNAN;//GetFlowValue(m_ProdMeas, QPrd);
+  //m_MakeupAct  = dNAN;//GetFlowValue(m_MkUpMeas, QSrcWrk());
 
   if (SrcIO.MyConnectedIO()>=0)
-    pNd->SetIOQm_In(SrcIO.MyConnectedIO(), m_dQmMakeup);
+    pNd->SetIOQm_In(SrcIO.MyConnectedIO(), m_QmMakeup);
 
   };
 
-void CXBlk_MUSimple::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CXBlk_MUFeed::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
   EvalProducts(Qf, Po, FinalTEst);
   };
 
 //--------------------------------------------------------------------------
 
-flag CXBlk_MUSimple::CIStrng(int No, pchar & pS)
+flag CXBlk_MUFeed::CIStrng(int No, pchar & pS)
   {
   // NB check CBCount is large enough.
-  switch (No-CBContext())
+  int i=No-CBContext();
+  switch (i)
     {
-    case  1: pS="E\tConverge Error"; return 1;
-    case  2: pS="E\tRequirement not Achieved - Low Limit"; return 1;
-    case  3: pS="E\tRequirement not Achieved - High Limit"; return 1;
-    case  4: pS="E\tMakeup has No Effect"; return 1;
-    case  5: pS="E\tNo Phase Selected for Measurement"; return 1;
-    case  6: pS="E\tNo Species Selected for Measurement"; return 1;
-    case  7: pS="W\tLow Feed - Makeup Stopped"; return 1;
+    //case  1: pS="E\tConverge Error"; return 1;
+    case   2: pS="E\tRequirement not Achieved - Low Limit"; return 1;
+    case   3: pS="E\tRequirement not Achieved - High Limit"; return 1;
+    case   4: pS="E\tMakeup has No Effect"; return 1;
+    case   5: 
+    case   6: 
+    case   7: pS = m_Meas1.CIStr(i-5); return 1;
+    case   8: 
+    case   9: 
+    case  10: pS = m_Meas2.CIStr(i-8); return 1;
+    case  11: pS="W\tLow Feed - Makeup Stopped"; return 1;
     default:
-      return CXBlk_MUSimple::CIStrng(No, pS);
+      return CXBlk_MUFeed::CIStrng(No, pS);
     }
   }
+
+//============================================================================
+//
+//
+//
+//============================================================================
+
+#define DllImportExport /* */
 
 //=========================================================================
 //
