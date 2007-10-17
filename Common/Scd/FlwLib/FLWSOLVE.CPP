@@ -1727,13 +1727,10 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
 
     p->m_fValidateDataComplete=false;
     ValidateDataBlk VDB;
-    if (!p->ValidateDefinedData(VDB))
-      {
-      p->SetCI(17);
-      Ok=0;
-      }
-    else
-      p->ClrCI(17);
+    p->SetValidateFailMsg(NULL);
+    bool OK=(p->ValidateDefinedData(VDB)!=0);
+    p->SetCI(17, !OK);
+
     if (!p->m_fValidateDataComplete && !p->bHoldValidateData)
       LogError(p->FullObjTag(), 0, "Incomplete ValidateData");
 
@@ -11585,6 +11582,7 @@ DeleteIt:
       p->m_fRevalidate=false;
 
       ValidateDataBlk VDB(false);
+      p->SetValidateFailMsg(NULL);
       bool OK=(p->ValidateDefinedData(VDB)!=0);
       p->SetCI(17, !OK);
 
@@ -11659,6 +11657,7 @@ DeleteIt:
         if (p->m_fRevalidate)
           {
           ValidateDataBlk VDB(false);
+          p->SetValidateFailMsg(NULL);
           bool OK=(p->ValidateDefinedData(VDB)!=0);
           p->SetCI(17, !OK);
 

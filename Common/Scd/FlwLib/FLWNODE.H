@@ -3513,6 +3513,8 @@ class DllImportExport FlwNode : public CTNode
     void           BuildDataDefnElevation(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
+    void           SetValidateFailMsg(LPCSTR Msg) { m_sValidateFailMsg = Msg ? Msg:""; };
+
     static  LPSTR  TypeString(DWORD Type, Strng & TypeStr);
     virtual char *  TypeString(Strng & TypeStr, flag Clr=1);
     virtual CFlwEqnPtr * GetSystemDefnFlwEqn(int i, Strng *Tg)    { return NULL; };
@@ -4607,6 +4609,8 @@ class DllImportExport FlwNode : public CTNode
     bool              m_TagIOActive;
     //long              m_EstTagCount;
 #endif
+
+    Strng             m_sValidateFailMsg;
 
     CClosureInfoArray m_Closure;
 

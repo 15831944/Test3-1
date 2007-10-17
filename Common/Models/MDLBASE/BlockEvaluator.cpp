@@ -357,7 +357,19 @@ flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB)
   {
   SortBlocks();
 
-  return true;
+  flag OK=1;
+  for (int a=0; a<m_pMakeups.GetSize(); a++)
+    {
+    if (!m_pMakeups[a]->ValidateData(VDB))
+      OK=0;
+    }
+  for (int a=0; a<m_pBleeds.GetSize(); a++)
+    {
+    if (!m_pBleeds[a]->ValidateData(VDB))
+      OK=0;
+    }
+
+  return OK;
   };
 
 //-------------------------------------------------------------------------

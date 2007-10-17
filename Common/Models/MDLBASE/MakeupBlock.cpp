@@ -70,10 +70,11 @@ m_SrcIO(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, false,
         Name, IOId_Makeup2Area+Index, IOId_AreaMakeupO, "MakeupSrc", "MakeupSrc_1")
   { 
   m_pMakeupB=NULL; 
-  m_pNd=pAttach; 
+  m_pNd=dynamic_cast<FlwNode*>(pAttach); 
   m_fEnabled=false;
   m_fFixed=false; 
   m_SrcIO.UsrEnable=true;//false;
+  m_ReconfigureReqd=false;
   //m_Index=Index; 
   }
 
@@ -203,11 +204,14 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
         TagObjClass * pC=CMakeupBlockClass.FindGrpShortDesc(DCB.rpC);
         if (pC)
           {
+          m_ReconfigureReqd=false;
           Open(pC);
           m_pMakeupB->SetTag(Name());
           }
         else
-          Close();
+          {
+          m_ReconfigureReqd=true;
+          }
         m_SrcIO.UsrEnable = m_pMakeupB ? m_pMakeupB->DoesSomething() && Enabled() : false;
         }
       DCB.pC = m_pMakeupB ? m_pMakeupB->ShortDesc() : "";
@@ -215,6 +219,20 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
     }
   return 0;
   }
+
+//--------------------------------------------------------------------------
+
+flag CMakeupBase::ValidateData(ValidateDataBlk & VDB)
+  {
+  if (!Enabled())
+    return 0;
+  if (m_ReconfigureReqd)
+    {
+    m_pNd->SetValidateFailMsg("E\tMakeup needs Configuration");
+    return 0;
+    }
+  return m_pMakeupB->ValidateData(VDB);
+  };
 
 //--------------------------------------------------------------------------
 

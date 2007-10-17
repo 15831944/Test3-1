@@ -41,7 +41,7 @@ class DllImportExport CMakeupBlock : public TaggedObject
     virtual void    BuildDataDefn(DataDefnBlk& DDB);
     virtual flag    DataXchg(DataChangeBlk & DCB) { return 0; };
 
-    virtual flag    ValidateData(ValidateDataBlk & VDB) { return 1; };
+    virtual flag    ValidateData(ValidateDataBlk & VDB) { return 1; }; 
     virtual void    EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN);
     virtual void    EvalProductsInline(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
@@ -53,7 +53,6 @@ class DllImportExport CMakeupBlock : public TaggedObject
     static const pchar GroupName;
 
     CMakeupBase     * m_pMakeupBase;
-
     _declspec(property(get=getSrcIO))          CDirectFlwIO   & SrcIO;    
 
   };
@@ -94,8 +93,7 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
     void           BuildDataDefn(DataDefnBlk &DDB, char* pTag="Adj", char* pTagComment=NULL, DDBPages PageIs=DDB_RqdPage, dword UserInfo=0);
     flag           DataXchg(DataChangeBlk & DCB);
 
-    flag           ValidateData(ValidateDataBlk & VDB)
-      { return Enabled() ? m_pMakeupB->ValidateData(VDB) : 0; };
+    flag           ValidateData(ValidateDataBlk & VDB);
     void           EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN)
       {
       if (Enabled())
@@ -125,7 +123,8 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
     flag              m_fFixed;
     flag              m_fEnabled;
     CMakeupBlock    * m_pMakeupB;
-    TaggedObject    * m_pNd;
+    FlwNode         * m_pNd;
+    bool              m_ReconfigureReqd;
 
     CDirectFlwIO      m_SrcIO;
 
