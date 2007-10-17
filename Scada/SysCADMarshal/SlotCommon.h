@@ -109,7 +109,7 @@ inline DWORD ExtractIOMSubItem(DWORD Handle) { return ((0x0000000f&(DWORD)Handle
 #define WMU_FLUSHQ              (WM_USER+10)
 
 #define WMU_WRITEALL2DEVICES    (WM_USER+20)
-#define WMU_SETVALUES           (WM_USER+21)
+#define WMU_GETSETVALUES        (WM_USER+21)
 
 #define WMU_ADDERROR            (WM_USER+22)
 

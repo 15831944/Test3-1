@@ -665,6 +665,22 @@ Continue: ;
 
 //===========================================================================
 
+bool CSysCADMarshalDoc::InFilter(CChangeItem *pChg)
+  {
+  bool DoIt=true;
+  if (pChg->m_eSrc==eCSD_Slot)
+    DoIt=m_SlotCfgs[pChg->m_lSrcInx]->InFilter(m_lDeviceSelect, m_Selection);
+  else if (pChg->m_eDst==eCSD_Slot)
+    DoIt=m_SlotCfgs[pChg->m_lDstInx]->InFilter(m_lDeviceSelect, m_Selection);
+  else if (pChg->m_eSrc==eCSD_Link)
+    DoIt=m_LinkCfgs[pChg->m_lSrcInx]->InFilter(m_lDeviceSelect, m_Selection);
+  else if (pChg->m_eDst==eCSD_Link)
+    DoIt=m_LinkCfgs[pChg->m_lDstInx]->InFilter(m_lDeviceSelect, m_Selection);
+  return DoIt;
+  }
+
+//===========================================================================
+
 void CSysCADMarshalDoc::OnViewHexadecimal() 
   {
 	gs_bAsHex=!gs_bAsHex;

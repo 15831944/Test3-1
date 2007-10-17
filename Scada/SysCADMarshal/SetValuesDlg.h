@@ -26,8 +26,8 @@ public:
   void            SaveState();
   virtual void    OnOK();
   virtual void    OnCancel();
-  afx_msg void OnBnClickedSet();
-  afx_msg void OnBnClickedRefresh();
+  afx_msg void OnBnClickedRead();
+  afx_msg void OnBnClickedWrite();
 
   static CSetValuesDlg * sm_pTheOne;
 

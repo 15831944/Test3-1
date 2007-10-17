@@ -93,6 +93,9 @@ class CSysCADMarshalDoc :
     void          LoadCodeBlocks(LPCSTR CfgCdBlkDB);
     void          LoadSlots(LPCSTR CfgSlotDB);
     void          SaveSlots(LPCSTR CfgSlotDB);
+
+    bool          InFilter(CChangeItem *pChg);
+
     eViews        m_lView;
     long          m_lDeviceSelect;
     long          m_lMarkedItem;

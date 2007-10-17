@@ -35,8 +35,8 @@ void CSetValuesDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CSetValuesDlg, CDialog)
-  ON_BN_CLICKED(IDC_SET, OnBnClickedSet)
-  ON_BN_CLICKED(IDC_REFRESH, OnBnClickedRefresh)
+  ON_BN_CLICKED(IDC_SET, OnBnClickedRead)
+  ON_BN_CLICKED(IDC_REFRESH, OnBnClickedWrite)
 END_MESSAGE_MAP()
 
 BOOL CSetValuesDlg::OnInitDialog( )
@@ -164,24 +164,24 @@ void CSetValuesDlg::SaveState()
     }
   }
 
-void CSetValuesDlg::OnBnClickedSet()
+void CSetValuesDlg::OnBnClickedRead()
   {
   UpdateData(true);
 
   CSetValuesOptions *pBlk=new CSetValuesOptions;
-  pBlk->m_eAction=CSetValuesOptions::eSet; 
+  pBlk->m_eAction=CSetValuesOptions::eRead; 
   int Chk=GetCheckedRadioButton(IDC_SETALL, IDC_SETGROUPS);
   pBlk->m_eWhich=(CSetValuesOptions::eWhich)(Chk-IDC_SETALL);
-  PostThreadMessage(gs_SlotMngr.ThreadId(), WMU_SETVALUES, 0, (LPARAM)pBlk);
+  PostThreadMessage(gs_SlotMngr.ThreadId(), WMU_GETSETVALUES, 0, (LPARAM)pBlk);
   }
 
-void CSetValuesDlg::OnBnClickedRefresh()
+void CSetValuesDlg::OnBnClickedWrite()
   {
   UpdateData(true);
 
   CSetValuesOptions *pBlk=new CSetValuesOptions;
-  pBlk->m_eAction=CSetValuesOptions::eRefresh; 
+  pBlk->m_eAction=CSetValuesOptions::eWrite; 
   int Chk=GetCheckedRadioButton(IDC_SETALL, IDC_SETGROUPS);
   pBlk->m_eWhich=(CSetValuesOptions::eWhich)(Chk-IDC_SETALL);
-  PostThreadMessage(gs_SlotMngr.ThreadId(), WMU_SETVALUES, 0, (LPARAM)pBlk);
+  PostThreadMessage(gs_SlotMngr.ThreadId(), WMU_GETSETVALUES, 0, (LPARAM)pBlk);
   }

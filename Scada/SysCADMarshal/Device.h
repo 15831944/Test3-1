@@ -116,6 +116,8 @@ class CDevice : public CDeviceCfg
    // CWriteRqst      * AppendWriteRqst(long Slot, long hServer, VARIANT & m_vValue);
     void            AppendWriteRqst(CSlot & Slot, OPCHANDLE hServer, VARIANT & m_vValue, bool Refresh=false);
     long            ClearWriteList()       { return m_WriteList.Clear(); };
+
+    bool            Refresh();
                   
     void            Save(CProfINIFile & SavePF);
     void            Load(CProfINIFile & SavePF);

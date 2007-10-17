@@ -22,7 +22,7 @@ static char THIS_FILE[]=__FILE__;
 // =======================================================================
 
 COPCDevice::COPCDevice(LPCSTR Name):
-  m_sName(Name)
+m_sName(Name)
   {
   m_GroupHandle = 0;
 
@@ -105,7 +105,7 @@ HRESULT COPCDevice::Connect (LPCSTR ProgID, LPCSTR GroupName, LPCSTR Node, CLSID
       {
       CString msg(_T("Please install the OPC 2.0 Components."));
       if( strlen(Node)>0 )
-         msg.Format(_T("Please install the OPC 2.0 Components on %s."), Node);
+        msg.Format(_T("Please install the OPC 2.0 Components on %s."), Node);
       if( FAILED(hr) )
         ReportError(m_sName, hr , msg);
       else
@@ -119,8 +119,8 @@ HRESULT COPCDevice::Connect (LPCSTR ProgID, LPCSTR GroupName, LPCSTR Node, CLSID
     if (FAILED(hr))
       {
       ReportError(m_sName, hr,
-                  (strlen(Node)>0 ?"Error locating '%s' on %s.":"Error locating '%s'."),
-                  (LPCTSTR)sProgID, Node);
+        (strlen(Node)>0 ?"Error locating '%s' on %s.":"Error locating '%s'."),
+        (LPCTSTR)sProgID, Node);
       return hr;
       }
     }
@@ -144,11 +144,11 @@ HRESULT COPCDevice::Connect (LPCSTR ProgID, LPCSTR GroupName, LPCSTR Node, CLSID
     hr = CoCreateInstance(Clsid, NULL, ClsCtx/*CLSCTX_ALL*/, IID_IUnknown, (LPVOID *)&pUnkn);
     if( FAILED(hr) || pUnkn == NULL)
       {
-         CString msg;
-         msg.Format("Error connecting to OPC server '%s'", m_sName );
-         msg += _T("CoCreateInstance: ");
-         ReportError(m_sName, hr, msg);
-         return hr;
+      CString msg;
+      msg.Format("Error connecting to OPC server '%s'", m_sName );
+      msg += _T("CoCreateInstance: ");
+      ReportError(m_sName, hr, msg);
+      return hr;
       }
     }
   else  // use the node name
@@ -195,147 +195,147 @@ HRESULT COPCDevice::Connect (LPCSTR ProgID, LPCSTR GroupName, LPCSTR Node, CLSID
     return hr;
     }
 
-  {
-  IOPCCommon *pCom= 0;
-  hr = m_OpcServer.QueryInterface(IID_IOPCCommon, (void**)&pCom);
-  if( SUCCEEDED(hr) )  // This server supports 2.0
     {
-    hr = pCom->SetClientName(T2W("SysCADMarshal"));
-    pCom->Release();
-    if( FAILED(hr) )
+    IOPCCommon *pCom= 0;
+    hr = m_OpcServer.QueryInterface(IID_IOPCCommon, (void**)&pCom);
+    if( SUCCEEDED(hr) )  // This server supports 2.0
       {
-      CString appName((LPCSTR)AFX_IDS_APP_TITLE);
-      MessageBox(0, _T("You may not have registered the OPC Proxy dll!\n"), appName, MB_OK);
-      return hr;
-      }
-    }
-  }
-
-
-  // OPC 2.0 Server shutdown ConnectionPoint
-  {
-  IConnectionPointContainer *pCPC = 0;
-  hr = m_OpcServer.QueryInterface(IID_IConnectionPointContainer, (void**)&pCPC);
-  if( SUCCEEDED(hr) )  // This server supports 2.0
-    {
-    IConnectionPoint *pCallbackCP = 0;
-    hr = pCPC->FindConnectionPoint(IID_IOPCShutdown, &pCallbackCP);
-    pCPC->Release();
-    if( SUCCEEDED(hr) )
-      {
-      hr = pCallbackCP->Advise(m_pShutdownCP, &m_dwShutdownConnection);
-      pCallbackCP->Release();
+      hr = pCom->SetClientName(T2W("SysCADMarshal"));
+      pCom->Release();
       if( FAILED(hr) )
         {
-        ReportError(m_sName, hr, _T("Advise: IID_IOPCShutdown") );
+        CString appName((LPCSTR)AFX_IDS_APP_TITLE);
+        MessageBox(0, _T("You may not have registered the OPC Proxy dll!\n"), appName, MB_OK);
         return hr;
         }
       }
     }
-  }
 
-  // Create a single group that will contain all the items
-  FLOAT deadband = 0.0;
-  DWORD rate;
-  BOOL GroupActive = FALSE; //what is best for this???
-  hr = m_OpcServer.AddGroup( T2OLE(GroupName)/*L"Scd"*/, GroupActive, RqdRate,  // name, active, rate
-                           1324, NULL, &deadband,  // handle, bias, band
-                           0, &m_GroupHandle, &rate,
-                           IID_IOPCGroupStateMgt,   // interface to return
-                           m_OpcGroup );              // this holds the group ptr
-  if( FAILED(hr) )
+
+    // OPC 2.0 Server shutdown ConnectionPoint
     {
-    ReportError(m_sName, hr, _T("AddGroup: ") );
-    return hr;
-    }
-
-  // OPC 2.0 ConnectionPoints
-  IConnectionPointContainer *pCPC = 0;
-  hr = m_OpcGroup.QueryInterface(IID_IConnectionPointContainer, (void**)&pCPC);
-  if( SUCCEEDED(hr) )  // This server supports 2.0
-    {
-    m_bUsingCP = TRUE;
-    IConnectionPoint *pCallbackCP = 0;
-    hr = pCPC->FindConnectionPoint(IID_IOPCDataCallback, &pCallbackCP);
-    pCPC->Release();
-    if( FAILED(hr) )
+    IConnectionPointContainer *pCPC = 0;
+    hr = m_OpcServer.QueryInterface(IID_IConnectionPointContainer, (void**)&pCPC);
+    if( SUCCEEDED(hr) )  // This server supports 2.0
       {
-      ReportError(m_sName, hr, _T("FindConnectionPoint: "));
-      m_bUsingCP = FALSE;  // Try old style
-      }
-
-    hr = pCallbackCP->Advise(m_pCallbackCP, &m_dwConnection1);
-    pCallbackCP->Release();
-    if( FAILED(hr) )
-      {
-      ReportError(m_sName, hr, _T("Advise ConnectionPoint: "));
-      m_dwConnection1 = 0;
-      m_bUsingCP = FALSE;  // Try old style
+      IConnectionPoint *pCallbackCP = 0;
+      hr = pCPC->FindConnectionPoint(IID_IOPCShutdown, &pCallbackCP);
+      pCPC->Release();
+      if( SUCCEEDED(hr) )
+        {
+        hr = pCallbackCP->Advise(m_pShutdownCP, &m_dwShutdownConnection);
+        pCallbackCP->Release();
+        if( FAILED(hr) )
+          {
+          ReportError(m_sName, hr, _T("Advise: IID_IOPCShutdown") );
+          return hr;
+          }
+        }
       }
     }
 
-  if( !m_bUsingCP )
-    {
-    // OPC 1.0 data advise format
-    FORMATETC formatEtc ;
-
-    formatEtc.tymed =  TYMED_HGLOBAL;
-    formatEtc.ptd = NULL;
-    formatEtc.dwAspect = DVASPECT_CONTENT;
-    formatEtc.lindex = -1;
-
-    // IAdviseSink is an interface on OUR object that is passed to
-    // the server for callbacks
-    IAdviseSink *pAdviseSink = NULL;
-    hr = m_pTestSink->QueryInterface(IID_IAdviseSink, (LPVOID *)&pAdviseSink);
+    // Create a single group that will contain all the items
+    FLOAT deadband = 0.0;
+    DWORD rate;
+    BOOL GroupActive = FALSE; //what is best for this???
+    hr = m_OpcServer.AddGroup( T2OLE(GroupName)/*L"Scd"*/, GroupActive, RqdRate,  // name, active, rate
+      1324, NULL, &deadband,  // handle, bias, band
+      0, &m_GroupHandle, &rate,
+      IID_IOPCGroupStateMgt,   // interface to return
+      m_OpcGroup );              // this holds the group ptr
     if( FAILED(hr) )
       {
-      ReportError(m_sName, hr, _T("IAdviseSink: "));
-      m_OpcGroup.Detach();
-      m_OpcServer.Detach();
+      ReportError(m_sName, hr, _T("AddGroup: ") );
       return hr;
       }
 
-    // Get an IDataObject interface on the group
-    DataObject dataObject;
-    hr = dataObject.Attach( m_OpcGroup );
-    if(FAILED(hr) || !dataObject.IsOk() )
+    // OPC 2.0 ConnectionPoints
+    IConnectionPointContainer *pCPC = 0;
+    hr = m_OpcGroup.QueryInterface(IID_IConnectionPointContainer, (void**)&pCPC);
+    if( SUCCEEDED(hr) )  // This server supports 2.0
       {
-      //  some servers don't do this, so don't quit altogether
-      MessageBox( 0, _T("IDataObject not supported by this server\nNo data notifications will take place"), _T("FactorySoft Client"), MB_OK );
-      return hr;
+      m_bUsingCP = TRUE;
+      IConnectionPoint *pCallbackCP = 0;
+      hr = pCPC->FindConnectionPoint(IID_IOPCDataCallback, &pCallbackCP);
+      pCPC->Release();
+      if( FAILED(hr) )
+        {
+        ReportError(m_sName, hr, _T("FindConnectionPoint: "));
+        m_bUsingCP = FALSE;  // Try old style
+        }
+
+      hr = pCallbackCP->Advise(m_pCallbackCP, &m_dwConnection1);
+      pCallbackCP->Release();
+      if( FAILED(hr) )
+        {
+        ReportError(m_sName, hr, _T("Advise ConnectionPoint: "));
+        m_dwConnection1 = 0;
+        m_bUsingCP = FALSE;  // Try old style
+        }
       }
 
-    // Register our IAdvise with the group
-    // Need to register both formats: data change, and write complete
-    formatEtc.cfFormat = OPCSTMFORMATWRITECOMPLETE ;
-    hr = dataObject.DAdvise(&formatEtc,
-                              ADVF_PRIMEFIRST,    // ADVF flag
-                              pAdviseSink,
-                              &m_dwConnection2);
-    if( FAILED(hr) )
+    if( !m_bUsingCP )
       {
-      ReportError(m_sName, hr,  _T("IDataObject::DAdvise: "));
-      return hr;
-      }
+      // OPC 1.0 data advise format
+      FORMATETC formatEtc ;
+
+      formatEtc.tymed =  TYMED_HGLOBAL;
+      formatEtc.ptd = NULL;
+      formatEtc.dwAspect = DVASPECT_CONTENT;
+      formatEtc.lindex = -1;
+
+      // IAdviseSink is an interface on OUR object that is passed to
+      // the server for callbacks
+      IAdviseSink *pAdviseSink = NULL;
+      hr = m_pTestSink->QueryInterface(IID_IAdviseSink, (LPVOID *)&pAdviseSink);
+      if( FAILED(hr) )
+        {
+        ReportError(m_sName, hr, _T("IAdviseSink: "));
+        m_OpcGroup.Detach();
+        m_OpcServer.Detach();
+        return hr;
+        }
+
+      // Get an IDataObject interface on the group
+      DataObject dataObject;
+      hr = dataObject.Attach( m_OpcGroup );
+      if(FAILED(hr) || !dataObject.IsOk() )
+        {
+        //  some servers don't do this, so don't quit altogether
+        MessageBox( 0, _T("IDataObject not supported by this server\nNo data notifications will take place"), _T("FactorySoft Client"), MB_OK );
+        return hr;
+        }
+
+      // Register our IAdvise with the group
+      // Need to register both formats: data change, and write complete
+      formatEtc.cfFormat = OPCSTMFORMATWRITECOMPLETE ;
+      hr = dataObject.DAdvise(&formatEtc,
+        ADVF_PRIMEFIRST,    // ADVF flag
+        pAdviseSink,
+        &m_dwConnection2);
+      if( FAILED(hr) )
+        {
+        ReportError(m_sName, hr,  _T("IDataObject::DAdvise: "));
+        return hr;
+        }
 
 #ifdef DATATIMEFORMAT
-    formatEtc.cfFormat = OPCSTMFORMATDATATIME ;
+      formatEtc.cfFormat = OPCSTMFORMATDATATIME ;
 #else
-    formatEtc.cfFormat = OPCSTMFORMATDATA ;
+      formatEtc.cfFormat = OPCSTMFORMATDATA ;
 #endif // DATATIMEFORMAT
-    hr = dataObject.DAdvise(&formatEtc,
-                              ADVF_PRIMEFIRST,    // ADVF flag
-                              pAdviseSink,
-                              &m_dwConnection1);
-    pAdviseSink->Release();
-    if( FAILED(hr) )
-      {
-      ReportError(m_sName, hr,  _T("IDataObject::DAdvise: "));
-      return hr;
+      hr = dataObject.DAdvise(&formatEtc,
+        ADVF_PRIMEFIRST,    // ADVF flag
+        pAdviseSink,
+        &m_dwConnection1);
+      pAdviseSink->Release();
+      if( FAILED(hr) )
+        {
+        ReportError(m_sName, hr,  _T("IDataObject::DAdvise: "));
+        return hr;
+        }
       }
-    }
-  return hr;
+    return hr;
   };
 
 // -----------------------------------------------------------------------
@@ -384,7 +384,7 @@ HRESULT COPCDevice::Disconnect(void)
         }
       }
     else
-    // call IDataObject::DUnadvise to turn off data notification
+      // call IDataObject::DUnadvise to turn off data notification
       {
       DataObject  dataObject;
       HRESULT     hr = dataObject.Attach(m_OpcGroup);
@@ -417,8 +417,8 @@ HRESULT COPCDevice::Disconnect(void)
 //
 // =======================================================================
 
-CDeviceCfg::CDeviceCfg(LPCSTR Name):
-  m_sServerName(Name)
+CDeviceCfg::CDeviceCfg(LPCSTR Name): \
+m_sServerName(Name)
   {
   m_lDeviceNo=-1;
 
@@ -465,8 +465,8 @@ CDeviceCfg & CDeviceCfg::operator =(const CDeviceCfg & V)
 //
 // =======================================================================
 
-CDevice::CDevice(LPCSTR Name):
-  CDeviceCfg(Name), m_OPC(Name)
+CDevice::CDevice(LPCSTR Name) : \
+CDeviceCfg(Name), m_OPC(Name)
   {
   m_bInUse=false;
 
@@ -685,26 +685,26 @@ bool CDevice::ServerGood(void)
   else
     {
 
-      // Successful Retrieval Status
-      // We are meant to free szVendorInfo and ServerStatus
-      // using the IMalloc interface - use CoTaskMemFree to do this
+    // Successful Retrieval Status
+    // We are meant to free szVendorInfo and ServerStatus
+    // using the IMalloc interface - use CoTaskMemFree to do this
 
-      if ( ServerStatus->dwServerState == OPC_STATUS_RUNNING )
-        {
-          lServerRunning = true;
-        }
- 
-      // TO DO - Free status memory
-      CoTaskMemFree(ServerStatus->szVendorInfo);
-      CoTaskMemFree(ServerStatus);
+    if ( ServerStatus->dwServerState == OPC_STATUS_RUNNING )
+      {
+      lServerRunning = true;
+      }
+
+    // TO DO - Free status memory
+    CoTaskMemFree(ServerStatus->szVendorInfo);
+    CoTaskMemFree(ServerStatus);
 
     }
-    
-    if (!lServerRunning)
-      return(false);
+
+  if (!lServerRunning)
+    return(false);
 
 
-    return(true);
+  return(true);
   }
 
 bool CDevice::AddSlotsReconnect(void)
@@ -975,7 +975,7 @@ void CDevice::AppendWriteRqst(CSlot & Slot, OPCHANDLE hServer, VARIANT & vValue,
         }
       else if (Slot.m_nValuesToSkip>=0)
         Slot.m_nValuesToSkip--;
-      
+
       if (!WriteIt)
         gs_SlotMngr.m_Stats.m_nFltWritesSkip++;
       }
@@ -997,10 +997,10 @@ long CDevice::FlushWriteList()
 #ifdef NEVER
   bool lServerRunning = false;
 
-/*** Mark West Testing ****/
+  /*** Mark West Testing ****/
 
-if (!m_bConnected)
-  {
+  if (!m_bConnected)
+    {
 
     // Try and reconnect
 
@@ -1009,11 +1009,11 @@ if (!m_bConnected)
       AddSlotsReconnect();
 
     return(false);
-  }
+    }
 
-OPCSERVERSTATUS *ServerStatus;
-HRESULT hrr;
-hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
+  OPCSERVERSTATUS *ServerStatus;
+  HRESULT hrr;
+  hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
   if( FAILED(hrr) )
     {
     ReportError(m_sServerName, hrr,  _T("DoGetStatus: "));
@@ -1023,25 +1023,25 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
   else
     {
 
-      // Successful Retrieval Status
-      // We are meant to free szVendorInfo and ServerStatus
-      // using the IMalloc interface - use CoTaskMemFree to do this
+    // Successful Retrieval Status
+    // We are meant to free szVendorInfo and ServerStatus
+    // using the IMalloc interface - use CoTaskMemFree to do this
 
-      if ( ServerStatus->dwServerState == OPC_STATUS_RUNNING )
-        {
-          lServerRunning = true;
-        }
- 
-      // TO DO - Free status memory
-      CoTaskMemFree(ServerStatus->szVendorInfo);
-      CoTaskMemFree(ServerStatus);
+    if ( ServerStatus->dwServerState == OPC_STATUS_RUNNING )
+      {
+      lServerRunning = true;
+      }
+
+    // TO DO - Free status memory
+    CoTaskMemFree(ServerStatus->szVendorInfo);
+    CoTaskMemFree(ServerStatus);
 
     }
-    
-    if (!lServerRunning)
-      return(false);
 
-/*** Mark West Testing ****/
+  if (!lServerRunning)
+    return(false);
+
+  /*** Mark West Testing ****/
 #endif
 
   if (!m_bConnected)
@@ -1064,11 +1064,11 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
   else
     {
     hr = ASyncIO.Attach(m_OPC.m_OpcGroup );
-  if( FAILED(hr) )
-    {
+    if( FAILED(hr) )
+      {
       ReportError(m_sServerName, hr,  _T("ASyncIO2::Attach: "));
-    return false;
-    }
+      return false;
+      }
     }
 
   long      WrkSlots[MaxWorkSlots];
@@ -1112,7 +1112,7 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
         }
       else
         {
-      DWORD CanID=0;
+        DWORD CanID=0;
         hr=ASyncIO.Write(No, WrkHandles, WrkValues, gs_SlotMngr.GetTransactionID(), &CanID, &pErrors);
         }
       gs_SlotMngr.m_Stats.m_nDeviceChgsOutInt+=NoInts;
@@ -1154,6 +1154,34 @@ hrr = m_OPC.m_OpcServer.GetStatus(&ServerStatus);
   //theApp.PostThreadMessage(WMU_UPDATETAGVALUES, 0, 0);
 
   return Total;
+  }
+
+// -----------------------------------------------------------------------
+
+bool CDevice::Refresh()
+  {
+  // Refresh Slots
+  HRESULT *pErrors=NULL;
+
+  OPCAsyncIO2 ASyncIO;
+  HRESULT hr = ASyncIO.Attach(m_OPC.m_OpcGroup );
+  if( FAILED(hr) )
+    {
+    ReportError(m_sServerName, hr, _T("ASyncIO2Attach: "));
+    return false;
+    }
+
+  DWORD CanID;
+  hr=ASyncIO.Refresh2(OPC_DS_DEVICE/*CACHE*/, gs_SlotMngr.GetTransactionID(), &CanID);
+  if( FAILED( hr ) )   // if the call failed, get out
+    {
+    ReportError(m_sServerName, hr,  _T("ASyncIO.Refresh2: "));
+    //delete item;
+    return false;
+    }
+
+  CoTaskMemFree( pErrors );
+  return true;
   }
 
 // -----------------------------------------------------------------------

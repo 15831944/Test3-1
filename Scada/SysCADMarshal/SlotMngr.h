@@ -87,7 +87,7 @@ enum eDoingCfg { eDoingCfgLoad, eDoingCfgReLoad, eDoingCfgStop };
 class CSetValuesOptions 
   {
   public :
-    enum eAction  { eDoNothing, eSet, eRefresh }; 
+    enum eAction  { eDoNothing, eWrite, eRead }; 
     enum eWhich   { eAll, eFiltered, eSelected, eGroups }; 
     CSetValuesOptions ()
       {
@@ -110,7 +110,7 @@ class CSlotMngr : public CNodeXRefMngr
     void        CfgBegin(eDoingCfg Doing, bool OnTheFly);
     void        CfgEnd(eDoingCfg Doing);
     void        DoSetSimulateMode(boolean On);
-    void        DoSetValues(CSetValuesOptions & Opt);
+    void        DoGetSetValues(CSetValuesOptions & Opt);
     void        Save(LPCTSTR Name);
     void        Load(LPCTSTR Name);
     void        CheckDevices(void);
@@ -240,10 +240,10 @@ class CSlotMngr : public CNodeXRefMngr
     CDeviceArray              m_Devices;
     CLinkArray                m_Links;
     CLinkMap                  m_LinkMap;
-    CLongArray                m_Slots2Write;
-    CLongArray                m_Links2Write;
-    long                      m_nSlots2Write;
-    long                      m_nLinks2Write;
+    CLongArray                m_SlotsSelected;
+    CLongArray                m_LinksSelected;
+    long                      m_nSlotsSelected;
+    long                      m_nLinksSelected;
 
     CLongArray                m_LinksWithCondBlks;
 

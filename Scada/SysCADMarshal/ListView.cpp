@@ -1075,20 +1075,10 @@ void CTagView::OnUpdate(CView *pSender, LPARAM lHint, CObject *pHint)
         list.SetItemCount(pDoc->m_ChangeList.Count());
         CChangeItem *pChg=pDoc->m_ChangeList.Head();
         for( int i=0; pChg!=NULL; i++, pChg=pChg->m_pNext)
-          if (pDoc->m_bChgLogAll || pChg->PeriperalIO()) 
-            {
-            bool DoIt=true;
-            if (pChg->m_eSrc==eCSD_Slot)
-              DoIt=pDoc->m_SlotCfgs[pChg->m_lSrcInx]->InFilter(pDoc->m_lDeviceSelect, pDoc->m_Selection);
-            else if (pChg->m_eDst==eCSD_Slot)
-              DoIt=pDoc->m_SlotCfgs[pChg->m_lDstInx]->InFilter(pDoc->m_lDeviceSelect, pDoc->m_Selection);
-            else if (pChg->m_eSrc==eCSD_Link)
-              DoIt=pDoc->m_LinkCfgs[pChg->m_lSrcInx]->InFilter(pDoc->m_lDeviceSelect, pDoc->m_Selection);
-            else if (pChg->m_eDst==eCSD_Link)
-              DoIt=pDoc->m_LinkCfgs[pChg->m_lDstInx]->InFilter(pDoc->m_lDeviceSelect, pDoc->m_Selection);
-            if (DoIt)
-              InsertItem(pChg);
-            }
+          {
+          if ((pDoc->m_bChgLogAll || pChg->PeriperalIO()) && pDoc->InFilter(pChg)) 
+            InsertItem(pChg);
+          }
         if (pDoc->m_bChgLogTrack && list.GetItemCount())
           list.EnsureVisible(list.GetItemCount()-1, false);
         break;
@@ -1131,7 +1121,7 @@ void CTagView::OnUpdate(CView *pSender, LPARAM lHint, CObject *pHint)
             {
             CChangeItem * pChg=pBlk->m_Changes[i];
             pDoc->m_ChangeList.AddTail(pChg);
-            if (pDoc->m_bChgLogAll || pChg->PeriperalIO())
+            if ((pDoc->m_bChgLogAll || pChg->PeriperalIO()) && pDoc->InFilter(pChg)) 
               InsertItem(pChg);
             }
           while (pDoc->m_ChangeList.Count()>MaxHistoryListLen)

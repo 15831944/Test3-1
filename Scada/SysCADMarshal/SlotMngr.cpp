@@ -232,8 +232,8 @@ CSlotMngr::CSlotMngr()
   m_CdBlkMap.InitHashTable(4999);
   m_LinkMap.InitHashTable(4999);
 
-  m_nSlots2Write            = 0;
-  m_nLinks2Write            = 0;
+  m_nSlotsSelected          = 0;
+  m_nLinksSelected          = 0;
 
   m_lCfgSequence            =  -1;
 
@@ -866,32 +866,31 @@ void CSlotMngr::DoSetSimulateMode(boolean On)
 
 // -----------------------------------------------------------------------
 
-void CSlotMngr::DoSetValues(CSetValuesOptions & Opt)
+void CSlotMngr::DoGetSetValues(CSetValuesOptions & Opt)
   {
-  m_Slots2Write.SetSize(m_Slots.GetSize());
-  m_nSlots2Write=0;
-  m_Links2Write.SetSize(m_Links.GetSize());
-  m_nLinks2Write=0;
+  m_SlotsSelected.SetSize(m_Slots.GetSize());
+  m_nSlotsSelected=0;
+  m_LinksSelected.SetSize(m_Links.GetSize());
+  m_nLinksSelected=0;
   int i;
   switch (Opt.m_eWhich)
     {
     case CSetValuesOptions::eAll:
       for (i=0; i<m_Slots.GetSize(); i++)
-        m_Slots2Write[m_nSlots2Write++]=i;
+        m_SlotsSelected[m_nSlotsSelected++]=i;
       for (int i=0; i<m_Links.GetSize(); i++)
-        m_Links2Write[m_nLinks2Write++]=i;
+        m_LinksSelected[m_nLinksSelected++]=i;
       break;
     case CSetValuesOptions::eFiltered:
       for (int i=0; i<m_Slots.GetSize(); i++)
         {
-        //dbgpln("SetFilt: %5i %i %08x %s", i, m_Slots[i]->m_bInFilter, &m_Slots[i]->m_bInFilter, m_Slots[i]->m_sOPCTag);
         if (m_Slots[i]->m_bInFilter)
-          m_Slots2Write[m_nSlots2Write++]=i;
+          m_SlotsSelected[m_nSlotsSelected++]=i;
         }
       for (int i=0; i<m_Links.GetSize(); i++)
         {
         if (m_Links[i]->m_bInFilter)
-          m_Links2Write[m_nLinks2Write++]=i;
+          m_LinksSelected[m_nLinksSelected++]=i;
         }
       break;
     case CSetValuesOptions::eSelected:
@@ -903,16 +902,22 @@ void CSlotMngr::DoSetValues(CSetValuesOptions & Opt)
     {
     case CSetValuesOptions::eDoNothing:
       return;
-    case CSetValuesOptions::eRefresh:
-      for (i=0; i<m_nSlots2Write; i++)
+    case CSetValuesOptions::eWrite:
+      for (i=0; i<m_nSlotsSelected; i++)
         {
-        CSlot & S = *m_Slots[m_Slots2Write[i]];
-        //if (m_Slots[i]->m_bWrite)
-        S.WriteCurrentValue2Device();
+        m_Slots[m_SlotsSelected[i]]->WriteCurrentValue2Device();
         }
       break;
-    case CSetValuesOptions::eSet:
+    case CSetValuesOptions::eRead:
+      {
+      for (int d=0; d<m_Devices.GetCount(); d++)
+        m_Devices[d]->Refresh();
+      //for (i=0; i<m_nSlotsSelected; i++)
+      //  {
+      //  //m_Slots[m_SlotsSelected[i]]->ReaWriteCurrentValue2Device();
+      //  }
       break;
+      }
     }
   //else if (Opt.GrpName && strlen(Opt.GrpName)>0)
   //  {
@@ -1848,8 +1853,8 @@ void CSlotMngr::MessageHandler()
         DoSetSimulateMode(Msg.wParam!=0);
         break;
 
-      case WMU_SETVALUES:
-        DoSetValues(*((CSetValuesOptions*)Msg.lParam));
+      case WMU_GETSETVALUES:
+        DoGetSetValues(*((CSetValuesOptions*)Msg.lParam));
         delete ((CSetValuesOptions*)Msg.lParam);
         break;
 
