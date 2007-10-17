@@ -68,9 +68,10 @@ class FilterPress : public MdlNode
 
     double         MembDP, LiqVisc, SpCakeRes, FiltArea;
 
-    SpContainer    Cake;
-    SpConduit      Fd, ToCake, FromCake;//,Wash;
-    SpConduit      Sd;
+    SpContainer    m_Cake;
+    SpConduit      m_Feed, m_ToCake, m_FromCake;
+    SpConduit      m_Wrk;
+    SpConduit      m_Wash;
 
     //CDirectFlwIO   m_Spill;
     CDirectFlwIO   m_Vent;

@@ -92,13 +92,13 @@ IMPLEMENT_MODELUNIT(FilterPress, "FiltPrss", "1", Drw_FltPrss, "Filter", "FP", T
                     "FilterPress")
 FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MdlNode(pClass_, TagIn, pAttach, eAttach),
-  Cake("Cake", this, TOA_Embedded),
-  ToCake("ToCake", this, TOA_Embedded),
-  FromCake("FromCake", this, TOA_Embedded),
+  m_Cake("Cake", this, TOA_Embedded),
+  m_ToCake("ToCake", this, TOA_Embedded),
+  m_FromCake("FromCake", this, TOA_Embedded),
   //m_Spill(eDIO_Spill, this, false, true, SpillIOTag, IOId_Spill2Area, IOId_AreaSpillI),
   m_Vent(eDIO_Vent, this, false, true, VentIOTag, IOId_Vent2Area, IOId_AreaVentI),
-  //Wash("Wash", this, TOA_Free),
-  Fd("Fd", this, TOA_Free)
+  m_Wash("Wash", this, TOA_Free),
+  m_Feed("m_Feed", this, TOA_Free)
   {
   AttachIOAreas(FilterPressIOAreaList);
 
@@ -135,7 +135,7 @@ FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   //m_Spill.SetLclIOId(ioid_OverFlw);
   //m_Vent.xSetLclIOId(ioidVent);
 
-  Cake.SetStateAction(IE_Integrate);
+  m_Cake.SetStateAction(IE_Integrate);
   };
 
 // -------------------------------------------------------------------------
@@ -199,7 +199,7 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",   "Area",                DC_Area,      "m^2",      &FiltArea,         this, isParm);
 
   if (SolveSurgeMethod())
-    DDB.Object(&Cake, this, NULL, NULL, DDB_RqdPage);
+    DDB.Object(&m_Cake, this, NULL, NULL, DDB_RqdPage);
   DDB.Visibility();
 
   DDB.Text    ("");
@@ -240,8 +240,8 @@ void FilterPress::SetState(eScdMdlStateActs RqdState)
       break;
     case MSA_Empty:
     case MSA_PreSet:
-      Cake.ZeroMass();
-      Cake.ZeroDeriv();
+      m_Cake.ZeroMass();
+      m_Cake.ZeroDeriv();
       break;
     case MSA_SteadyState:
       LogNote(FullObjTag(), 0, "SteadyState Undefined");
@@ -328,11 +328,11 @@ flag FilterPress::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, i
       if ((IOId_Self(IONo)==ioidFiltrate && !fFilt2Washings) ||
         (IOId_Self(IONo)==ioidWashings && fFilt2Washings))
         {
-        SigmaQInPMin(Sd, som_ALL, Id_2_Mask(ioidFeed)|Id_2_Mask(ioidWash));
+        SigmaQInPMin(m_Wrk, som_ALL, Id_2_Mask(ioidFeed)|Id_2_Mask(ioidWash));
 
-        double Mass=Cake.Mass();
-        double TMass=Sd.QMass();
-        double LVol =Sd.QVolume(som_Liq);
+        double Mass=m_Cake.Mass();
+        double TMass=m_Wrk.QMass();
+        double LVol =m_Wrk.QVolume(som_Liq);
 
         double QIn=IOFB(IONo,FE)->QmMeas();
         double EstVolFlow = fabs(QIn) / GTZ(TMass) *  LVol;
@@ -357,7 +357,7 @@ flag FilterPress::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, i
 class CSolidsFracFnd : public MRootFinderBase
   {
   public:
-    SpConduit &Fd, &Filtrate, &CakeOut;
+    SpConduit &Feed, &Filtrate, &CakeOut;
     double washSF;
     double ActWashEff;
     double SolidsToFiltUsed;
@@ -385,7 +385,7 @@ CToleranceBlock CSolidsFracFnd::s_Tol(TBF_Both, "FilterPress:SolidsFrac", 0.0, 1
 CSolidsFracFnd::CSolidsFracFnd(SpConduit &Fd_, SpConduit * pWash_, SpConduit &Filtrate_, SpConduit &CakeOut_, SpConduit * pWashings_,
       flag UseWashings_, double POut_, double RqdCakeMoist_, double RqdWashEff_, double HTot_, double FT_) :
   MRootFinderBase("FiltPress", s_Tol),//1.0e-8), 
-  Fd(Fd_), Filtrate(Filtrate_), CakeOut(CakeOut_)
+  Feed(Fd_), Filtrate(Filtrate_), CakeOut(CakeOut_)
   {
   pWash = pWash_;
   pWashings = pWashings_;
@@ -396,8 +396,8 @@ CSolidsFracFnd::CSolidsFracFnd(SpConduit &Fd_, SpConduit * pWash_, SpConduit &Fi
   HTot = HTot_;
   FT = FT_;
 
-  MSol = Fd.QMass(som_Sol);
-  MLiq = Fd.QMass(som_Liq);
+  MSol = Feed.QMass(som_Sol);
+  MLiq = Feed.QMass(som_Liq);
   washSF = 0.0;
   ActWashEff = 0.0;
   SolidsToFiltUsed = 0.0;
@@ -413,10 +413,10 @@ double CSolidsFracFnd::Function(double x)
     {//has wash water stream...
     SpConduit & Wash = *pWash;
 
-    CakeOut.QSetM(Fd, som_Sol, GEZ(MSol - MSol2Filt), POut);
+    CakeOut.QSetM(Feed, som_Sol, GEZ(MSol - MSol2Filt), POut);
 
     double Mwash = Wash.QMass(som_Liq);
-    double TotLiq = Mwash + Fd.QMass(som_Liq); // CNM - #289
+    double TotLiq = Mwash + Feed.QMass(som_Liq); // CNM - #289
     double solwash = Wash.QMass(som_Sol);
     washSF = solwash / GTZ(Mwash + solwash);
 
@@ -432,14 +432,14 @@ double CSolidsFracFnd::Function(double x)
       {
       CakeOut.QAddM(Wash, som_Sol, GEZ(solwash)); //all solids in washwater to report to cake
       CakeOut.QAddM(Wash, som_Liq, GEZ(Wash2Cake));
-      CakeOut.QAddM(Fd, som_Liq, GEZ(Filt2Cake));
+      CakeOut.QAddM(Feed, som_Liq, GEZ(Filt2Cake));
       ActWashEff = Wash2Cake/Max(MLiq2Cake, 1e-6);
       if (UseWashings)
         {
         SpConduit & Washings = *pWashings;
-        Filtrate.QSetM(Fd, som_Liq, GEZ(MLiq - MLiq2Cake), POut);
+        Filtrate.QSetM(Feed, som_Liq, GEZ(MLiq - MLiq2Cake), POut);
         Washings.QSetM(Wash, som_Liq, GEZ(Mwash - Wash2Cake), POut);
-        Washings.QAddM(Fd, som_Liq, GEZ(MLiq2Cake - Filt2Cake));
+        Washings.QAddM(Feed, som_Liq, GEZ(MLiq2Cake - Filt2Cake));
         double totout, liqfilt, liqwash;
         liqfilt = Filtrate.QMass(som_Liq);
         liqwash = Washings.QMass(som_Liq);
@@ -448,20 +448,20 @@ double CSolidsFracFnd::Function(double x)
           {
           liqfilt = liqfilt / totout;
           liqwash = liqwash / totout;
-          Filtrate.QAddM(Fd, som_Sol, GEZ(MSol2Filt * liqfilt));
-          Washings.QAddM(Fd, som_Sol, GEZ(MSol2Filt * liqwash));
+          Filtrate.QAddM(Feed, som_Sol, GEZ(MSol2Filt * liqfilt));
+          Washings.QAddM(Feed, som_Sol, GEZ(MSol2Filt * liqwash));
           }
         else
           {
-          Filtrate.QAddM(Fd, som_Sol, 0.0);
-          Washings.QAddM(Fd, som_Sol, 0.0);
+          Filtrate.QAddM(Feed, som_Sol, 0.0);
+          Washings.QAddM(Feed, som_Sol, 0.0);
           }
         }
       else
         {
-        Filtrate.QSetM(Fd, som_Liq, GEZ(MLiq2Filt), POut);
+        Filtrate.QSetM(Feed, som_Liq, GEZ(MLiq2Filt), POut);
         Filtrate.QAddM(Wash, som_Liq, GEZ(Mwash - Wash2Cake));
-        Filtrate.QAddM(Fd, som_Sol, GEZ(MSol2Filt));
+        Filtrate.QAddM(Feed, som_Sol, GEZ(MSol2Filt));
         if (pWashings)
           pWashings->QCopy(Wash);
         }
@@ -469,9 +469,9 @@ double CSolidsFracFnd::Function(double x)
     else
       {
       CakeOut.QAddM(Wash, som_Liq, GEZ(Mwash));
-      CakeOut.QAddM(Fd, som_Liq, GEZ(MLiq2Cake - Mwash));
-      Filtrate.QSetM(Fd, som_Liq, GEZ(MLiq + Mwash - MLiq2Cake), POut);
-      Filtrate.QAddM(Fd, som_Sol, GEZ(MSol2Filt));
+      CakeOut.QAddM(Feed, som_Liq, GEZ(MLiq2Cake - Mwash));
+      Filtrate.QSetM(Feed, som_Liq, GEZ(MLiq + Mwash - MLiq2Cake), POut);
+      Filtrate.QAddM(Feed, som_Sol, GEZ(MSol2Filt));
       ActWashEff = Mwash/Max(MLiq2Cake, 1e-6);
       if (pWashings)
         {
@@ -486,16 +486,16 @@ double CSolidsFracFnd::Function(double x)
     double MLiq2Filt = MLiq - MLiq2Cake;
     ActWashEff = 0.0/Max(MLiq2Cake, 1e-6);
 
-    Filtrate.QSetM(Fd, som_Sol, GEZ(MSol2Filt), POut);
-    Filtrate.QAddM(Fd, som_Liq, GEZ(MLiq2Filt));
+    Filtrate.QSetM(Feed, som_Sol, GEZ(MSol2Filt), POut);
+    Filtrate.QAddM(Feed, som_Liq, GEZ(MLiq2Filt));
 
-    CakeOut.QSetM(Fd, som_Sol, GEZ(MSol - MSol2Filt), POut);
-    CakeOut.QAddM(Fd, som_Liq, GEZ(MLiq2Cake));
+    CakeOut.QSetM(Feed, som_Sol, GEZ(MSol - MSol2Filt), POut);
+    CakeOut.QAddM(Feed, som_Liq, GEZ(MLiq2Cake));
     }
 
   CakeOut.SanityCheck();
   Filtrate.SanityCheck();
-  if (1)
+  if (01)
     {// Correct Enthalpy...
     CakeOut.SetTemp(FT);
     Filtrate.SetTemp(FT);
@@ -564,14 +564,14 @@ void FilterPress::EvalProducts(CNodeEvalIndex & NEI)
   SpConduit & CakeOut  = *IOConduit(iCake);
   SpConduit * pWashings = (iWashings>=0 ? IOConduit(iWashings) : NULL);
 
-  SigmaQInPMin(Sd, som_ALL, Id_2_Mask(ioidWash));
-  SigmaQInPMin(Fd, som_ALL, Id_2_Mask(ioidFeed));
-  //double CFeed = Fd.SpecieConc(Fd.Temp(), iScanEffSpecie, som_Liq);
-  double CFeed = Fd.SpecieConc(Fd.Temp(), iWashEffSpecie, som_Liq);
-  double CWash = Sd.SpecieConc(Sd.Temp(), iWashEffSpecie, som_Liq);
+  SigmaQInPMin(m_Wash, som_ALL, Id_2_Mask(ioidWash));
+  SigmaQInPMin(m_Feed, som_ALL, Id_2_Mask(ioidFeed));
+  //double CFeed = m_Feed.SpecieConc(m_Feed.Temp(), iScanEffSpecie, som_Liq);
+  double CFeed = m_Feed.SpecieConc(m_Feed.Temp(), iWashEffSpecie, som_Liq);
+  double CWash = m_Wrk.SpecieConc(m_Wrk.Temp(), iWashEffSpecie, som_Liq);
 
-  SigmaQInPMin(Sd, som_SL/*ALL*/, Id_2_Mask(ioidFeed)|Id_2_Mask(ioidWash));
-  flag HasFlw = (Sd.QMass(som_ALL)>UsableMass);
+  SigmaQInPMin(m_Wrk, som_SL/*ALL*/, Id_2_Mask(ioidFeed)|Id_2_Mask(ioidWash));
+  flag HasFlw = (m_Wrk.QMass(som_ALL)>UsableMass);
   const double MinFiltSolidsFrac = 1.0e-8;
   const double MaxFiltSolidsFrac = 0.3;
   RqdFiltSolConc = Range(0.0, RqdFiltSolConc, 5000.0);
@@ -587,66 +587,74 @@ void FilterPress::EvalProducts(CNodeEvalIndex & NEI)
 
     for (int i=0; i<NoFlwIOs(); i++)
       if (IOId_Self(i)==ioidWash)
-        Fd.QAddF(*IOConduit(i), som_ALL, 1.0);
+        m_Feed.QAddF(*IOConduit(i), som_ALL, 1.0);
 
-    double MSol = Fd.QMass(som_Sol);
-    double MLiq = Fd.QMass(som_Liq);
+    double MSol = m_Feed.QMass(som_Sol);
+    double MLiq = m_Feed.QMass(som_Liq);
     double MSol2Filt = MSol * SolidsToFiltUsed;
     double MLiq2Cake = (RqdCakeMoist * (MSol - MSol2Filt))/GTZ(1.0 - RqdCakeMoist);
     double MLiq2Filt = MLiq - MLiq2Cake;
 
     if (fDischarge)
       {
-      ToCake.QZero();
-      FromCake.QSetF(Cake, som_ALL, Cake.Mass() * 0.8/ICGetTimeInc(), IOP_Self(iFiltrate));
-      CakeOut.QSetF(Fd, som_ALL, 1.0, IOP_Self(iFiltrate));
-      CakeOut.QAddF(FromCake, som_ALL, 1.0);
+      m_ToCake.QZero();
+      m_FromCake.QSetF(m_Cake, som_ALL, m_Cake.Mass() * 0.8/ICGetTimeInc(), IOP_Self(iFiltrate));
+      CakeOut.QSetF(m_Feed, som_ALL, 1.0, IOP_Self(iFiltrate));
+      CakeOut.QAddF(m_FromCake, som_ALL, 1.0);
       Filtrate.QZero();
       if (iWashings>=0)
         IOConduit(iWashings)->QZero();
       }
     else
       {
-      ToCake.QSetM(Fd, som_Sol, GEZ(MSol - MSol2Filt), IOP_Self(iCake));
-      ToCake.QAddM(Fd, som_Liq, GEZ(MLiq2Cake));
+      m_ToCake.QSetM(m_Feed, som_Sol, GEZ(MSol - MSol2Filt), IOP_Self(iCake));
+      m_ToCake.QAddM(m_Feed, som_Liq, GEZ(MLiq2Cake));
       CakeOut.QZero();
-      FromCake.QZero();
+      m_FromCake.QZero();
 
       if (fFilt2Washings && (iWashings>=0))
         {
         SpConduit & Washings = *IOConduit(iWashings);
-        Washings.QSetM(Fd, som_Sol, GEZ(MSol2Filt), IOP_Self(iFiltrate));
-        Washings.QAddM(Fd, som_Liq, GEZ(MLiq2Filt));
+        Washings.QSetM(m_Feed, som_Sol, GEZ(MSol2Filt), IOP_Self(iFiltrate));
+        Washings.QAddM(m_Feed, som_Liq, GEZ(MLiq2Filt));
         }
       else
         {
-        Filtrate.QSetM(Fd, som_Sol, GEZ(MSol2Filt), IOP_Self(iFiltrate));
-        Filtrate.QAddM(Fd, som_Liq, GEZ(MLiq2Filt));
+        Filtrate.QSetM(m_Feed, som_Sol, GEZ(MSol2Filt), IOP_Self(iFiltrate));
+        Filtrate.QAddM(m_Feed, som_Liq, GEZ(MLiq2Filt));
         }
       }
 
     //put all vapours (if any) to vent (if present)
     const int iVent = IOWithId_Self(ioidVent);
     SpConduit & Cvent = iVent>=0 ? *IOConduit(iVent) : m_Vent.Cd;
-    double Qg = Fd.QMass(som_Gas);
-    Cvent.QSetM(Fd, som_Gas, Qg, Std_P);
+    double Qg = m_Feed.QMass(som_Gas);
+    Cvent.QSetM(m_Feed, som_Gas, Qg, Std_P);
     if (iWash >= 0)
       {
-      SpConduit & Wash = *IOConduit(iWash);
-      Qg = Wash.QMass(som_Gas);
-      Cvent.QAddM(Wash, som_Gas, Qg);
+      for (int i=iWash; i<NoIOs() && IOId_Self(i)==ioidWash; i++)
+        {
+        Cvent.QAddF(*IOConduit(iWash), som_Gas, 1.0);
+        }
       }
     }
   else
     {//ProBal; DynXFer...
-    SpConduit * pWash = (iWash>=0 ? IOConduit(iWash) : NULL);
+    //SpConduit * pWash = (iWash>=0 ? IOConduit(iWash) : NULL);
+    //StkSpConduit Wash("Wash", chLINEID(), this);
+    //if (iWash >= 0)
+    //  {
+    //  Wash().QSetF(*IOConduit(iWash), som_ALL, 1.0, IOConduit(iWash)->Press());
+    //  for (int i=iWash+1; i<NoIOs() && IOId_Self(i)==ioidWash; i++)
+    //    Wash().QAddF(*IOConduit(i), som_ALL, 1.0);
+    //  }
     flag Ok = true;
     //double POut = AtmosPress(); //force outlet to Atmos P
     double POut = Std_P; //force outlet to Std_P
     flag UseWashings = (iWashings >= 1 && pWashings->QMass()>UsableMass);
-    double HTot = Sd.totHf();
-    double FT = Sd.Temp();
-    CSolidsFracFnd Fnd(Fd, pWash, Filtrate, CakeOut, pWashings, UseWashings, POut, RqdCakeMoist, RqdWashEff, HTot, FT);
+    double HTot = m_Wrk.totHf();
+    double FT = m_Wrk.Temp();
+    CSolidsFracFnd Fnd(m_Feed, iWash>=0? &m_Wash:NULL, Filtrate, CakeOut, pWashings, UseWashings, POut, RqdCakeMoist, RqdWashEff, HTot, FT);
     if (iRqdFiltMethod == FSM_SolToFiltFrac)
       {
       double dd = Fnd.Function(RqdSolidsToFiltrate);
@@ -696,9 +704,9 @@ void FilterPress::EvalProducts(CNodeEvalIndex & NEI)
     const int iVent = IOWithId_Self(ioidVent);
     if (iVent>=0)
       {
-      double Qg = Fd.QMass(som_Gas);
+      double Qg = m_Feed.QMass(som_Gas);
       SpConduit & Cvent = *IOConduit(iVent);
-      Cvent.QSetM(Fd, som_Gas, Qg, POut);
+      Cvent.QSetM(m_Feed, som_Gas, Qg, POut);
       if (iWash >= 0)
         {
         SpConduit & Wash = *IOConduit(iWash);
@@ -719,8 +727,8 @@ void FilterPress::EvalProducts(CNodeEvalIndex & NEI)
   /*double CFilt;
   if (pWashings)
     {
-    SigmaQOut(Sd, som_ALL, Id_2_Mask(ioidFiltrate)|Id_2_Mask(ioidWashings)); //use Sd for sum of filtrate and washings
-    CFilt = Sd.SpecieConc(Sd.Temp(), iScanEffSpecie, som_Liq);
+    SigmaQOut(m_Wrk, som_ALL, Id_2_Mask(ioidFiltrate)|Id_2_Mask(ioidWashings)); //use m_Wrk for sum of filtrate and washings
+    CFilt = m_Wrk.SpecieConc(m_Wrk.Temp(), iScanEffSpecie, som_Liq);
     }
   else
     {
@@ -757,11 +765,11 @@ void FilterPress::EvalProducts(CNodeEvalIndex & NEI)
 
 void FilterPress::EvalDerivs(CNodeEvalIndex & NEI)
   {
-  Cake.ZeroDeriv();
+  m_Cake.ZeroDeriv();
   if (!GetActiveHold())
     {
-    Cake.AddDeriv(ToCake, 1.0);
-    Cake.AddDeriv(FromCake, -1.0);
+    m_Cake.AddDeriv(m_ToCake, 1.0);
+    m_Cake.AddDeriv(m_FromCake, -1.0);
     }
   }
 
