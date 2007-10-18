@@ -352,7 +352,7 @@ void SingleVarStats::RecalculateStats(double newEntry)
 	else if (newEntry == dHistoMax) //Special case: the normal logic puts it in overrange, but we in fact want it in the largest bucket.
 		lHiResHistoBuckets[HI_RES_HISTO - 1]++;
 	else if (dHistoMax > dHistoMin)	//If max == min, we get divide by zero exception.
-		lHiResHistoBuckets[(int)((newEntry - dHistoMin) / (dHistoMax - dHistoMin) * (HI_RES_HISTO - 1))]++;
+		lHiResHistoBuckets[(int)((newEntry - dHistoMin) / (dHistoMax - dHistoMin) * (HI_RES_HISTO))]++;
 #endif
 	dSumX += newEntry;
 	dSumX2 += newEntry * newEntry;
@@ -374,11 +374,10 @@ void SingleVarStats::RecalculateStats(double newEntry)
 		if (newEntry < pHistoBucketBorders[i+1])
 		{
 			//In the interests of speed, this is rather convoluted code:
-			if (i == lHistoCount + 1) //If we are about to add it to the last bucket (Overrange):
-				if (newEntry == dHistoMax) //If it is actually the maximum, add it to largest non-overrange bucket rather.
-					pHistoBucketCounts[lHistoCount]++;
-				else
-					pHistoBucketCounts[i]++;
+			if (i == lHistoCount + 1 && newEntry == dHistoMax) //If it is actually the maximum, add it to largest non-overrange bucket rather.
+				pHistoBucketCounts[lHistoCount]++;
+			else
+				pHistoBucketCounts[i]++;
 			break;
 		}
 }

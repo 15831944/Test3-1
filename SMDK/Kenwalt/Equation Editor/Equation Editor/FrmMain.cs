@@ -19,7 +19,7 @@ namespace Reaction_Editor
         #region Internal Variables
         protected string m_sActiveDirectory = null;
         protected int m_nUntitledNo = 1;
-        protected RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
+        protected RegistryKey regKey;
         protected List<ToolStripMenuItem> m_RecentFiles = new List<ToolStripMenuItem>();
         protected int m_nRecentFileCount = 6;
 
@@ -424,6 +424,13 @@ namespace Reaction_Editor
         public FrmMain()
         {
             InitializeComponent();
+
+            try
+            {
+                regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
+            }
+            catch { }
+
             treeFiles.Nodes["SpecieDB"].ContextMenuStrip = menuDatabaseFile;
             //ResourceReader rr = new ResourceReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(FrmMain), "Icons.resources"));
             lstSpecies.SmallImageList = Program.Images;

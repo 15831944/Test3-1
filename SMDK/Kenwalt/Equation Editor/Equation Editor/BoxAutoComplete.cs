@@ -17,6 +17,8 @@ namespace Auto_Complete
         protected int m_nStartChar = -1;
         protected bool m_bCompSelected = false;
         protected bool m_bCompSelection;
+        protected List<char> m_DisallowedChars = new List<char>();
+        protected ToolTip m_DisallowedTip = new ToolTip();
         #endregion Variables
 
         #region Constructors
@@ -26,10 +28,17 @@ namespace Auto_Complete
             m_AutoForm = new FrmAutoComplete(this);
             m_AutoForm.TopMost = true;
             m_AutoForm.OwnerBox = this;
+            m_DisallowedTip.IsBalloon = true;
         }
         #endregion Constructors
 
         #region Properties
+        public List<char> DisallowedCharaceters
+        {
+            get { return m_DisallowedChars; }
+            set { m_DisallowedChars = value; }
+        }
+
         public ListBox.ObjectCollection Items
         {
             get { return m_AutoForm.MainControl.Items; }
@@ -94,42 +103,53 @@ namespace Auto_Complete
 
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
-            if (!m_AutoForm.Visible)
-            {
-                if (char.IsLetter(e.KeyChar) || e.KeyChar == '[' || e.KeyChar == '(')
-                {
-                    string s = this.Text.Substring(0, this.SelectionStart) + e.KeyChar;
-                    Match m = FrmAutoComplete.s_AutoCompleteOpeningRegex.Match(s);
-                    if (m.Success)
-                    {
-                        //m_AutoForm.AssociatedControl = this;
-                        m_AutoForm.LastSelect = -1;
-                        m_AutoForm.SetFilter(m.Groups["Last"].Value);
-                        m_nStartChar = this.SelectionStart;
-                        Point p = this.PointToScreen(this.GetPositionFromCharIndex(this.SelectionStart));
-                        p.Y += (int)this.Font.GetHeight();
+            if (m_DisallowedChars != null)
+                foreach (char c in m_DisallowedChars)
+                    if (e.KeyChar == c)
+                        e.Handled = true;
+            //We should display a tooltip in the event of c not being permitted.
+            if (e.Handled)
+                m_DisallowedTip.Show("The characters \"<>=;:\" are not permitted", this);
 
-                        Control c = this.Parent;
-                        while (c.Parent != null)
-                            c = c.Parent;
-                        m_AutoForm.Show();
-                        m_AutoForm.Location = p;
-                        ((Form)c).Activate();
+            if (!e.Handled)
+            {
+                if (!m_AutoForm.Visible)
+                {
+                    if (char.IsLetter(e.KeyChar) || e.KeyChar == '[' || e.KeyChar == '(')
+                    {
+                        string s = this.Text.Substring(0, this.SelectionStart) + e.KeyChar;
+                        Match m = FrmAutoComplete.s_AutoCompleteOpeningRegex.Match(s);
+                        if (m.Success)
+                        {
+                            //m_AutoForm.AssociatedControl = this;
+                            m_AutoForm.LastSelect = -1;
+                            m_AutoForm.SetFilter(m.Groups["Last"].Value);
+                            m_nStartChar = this.SelectionStart;
+                            Point p = this.PointToScreen(this.GetPositionFromCharIndex(this.SelectionStart));
+                            p.Y += (int)this.Font.GetHeight();
+
+                            Control c = this.Parent;
+                            while (c.Parent != null)
+                                c = c.Parent;
+                            m_AutoForm.Show();
+                            m_AutoForm.Location = p;
+                            ((Form)c).Activate();
+                        }
                     }
                 }
-            }
-            else //We have the autocomplete box open already, update it or clear it.
-            {
-                string s = this.Text.Substring(0, this.SelectionStart) + e.KeyChar;
-                Match m = FrmAutoComplete.s_AutoCompleteRegex.Match(s);
-                if (m.Success)
-                    m_AutoForm.SetFilter(m.Groups["Last"].Value);
-                else
+                else //We have the autocomplete box open already, update it or clear it.
                 {
-                    if (e.KeyChar == ' ' || e.KeyChar == ',' || e.KeyChar == '+')
-                        if (m_AutoForm.HotSelected)
-                            m_AutoForm.InsertText();
-                    m_AutoForm.Hide();
+                    string s = this.Text.Substring(0, this.SelectionStart) + e.KeyChar;
+                    Match m = FrmAutoComplete.s_AutoCompleteRegex.Match(s);
+                    if (m.Success)
+                        m_AutoForm.SetFilter(m.Groups["Last"].Value);
+                    else
+                    {
+                        if (e.KeyChar == ' ' || e.KeyChar == ',' || e.KeyChar == '+')
+                            if (m_AutoForm.HotSelected)
+                                m_AutoForm.InsertText();
+                        m_AutoForm.Hide();
+                    }
                 }
             }
             base.OnKeyPress(e);
@@ -153,6 +173,7 @@ namespace Auto_Complete
                 m_AutoForm.Hide();
                 e.Handled = true;
             }
+
             if (!handled)
                 base.OnKeyDown(e);
         }

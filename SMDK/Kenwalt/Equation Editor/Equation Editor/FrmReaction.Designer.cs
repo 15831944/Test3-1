@@ -256,78 +256,78 @@ namespace Reaction_Editor
             this.menuCopy,
             this.menuPaste});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(226, 198);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(199, 198);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // menuClone
             // 
             this.menuClone.Name = "menuClone";
-            this.menuClone.Size = new System.Drawing.Size(225, 22);
+            this.menuClone.Size = new System.Drawing.Size(198, 22);
             this.menuClone.Text = "C&lone";
             this.menuClone.Click += new System.EventHandler(this.btnClone_Click);
             // 
             // menuAdd
             // 
             this.menuAdd.Name = "menuAdd";
-            this.menuAdd.Size = new System.Drawing.Size(225, 22);
+            this.menuAdd.Size = new System.Drawing.Size(198, 22);
             this.menuAdd.Text = "&Add";
             this.menuAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 
             // menuRemove
             // 
             this.menuRemove.Name = "menuRemove";
-            this.menuRemove.Size = new System.Drawing.Size(225, 22);
+            this.menuRemove.Size = new System.Drawing.Size(198, 22);
             this.menuRemove.Text = "&Remove";
             this.menuRemove.Click += new System.EventHandler(this.btnRemove_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(222, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(195, 6);
             // 
             // menuRevert
             // 
             this.menuRevert.Name = "menuRevert";
-            this.menuRevert.Size = new System.Drawing.Size(225, 22);
+            this.menuRevert.Size = new System.Drawing.Size(198, 22);
             this.menuRevert.Text = "Re&vert";
             this.menuRevert.Click += new System.EventHandler(this.menuRevert_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(222, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(195, 6);
             // 
             // menuShowSequence
             // 
             this.menuShowSequence.CheckOnClick = true;
             this.menuShowSequence.Name = "menuShowSequence";
-            this.menuShowSequence.Size = new System.Drawing.Size(225, 22);
+            this.menuShowSequence.Size = new System.Drawing.Size(198, 22);
             this.menuShowSequence.Text = "&Show Sequence Groups";
             this.menuShowSequence.CheckedChanged += new System.EventHandler(this.menuShowSequence_CheckedChanged);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(222, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(195, 6);
             // 
             // menuCut
             // 
             this.menuCut.Name = "menuCut";
-            this.menuCut.Size = new System.Drawing.Size(225, 22);
+            this.menuCut.Size = new System.Drawing.Size(198, 22);
             this.menuCut.Text = "Cut";
             this.menuCut.Click += new System.EventHandler(this.menuCut_Click);
             // 
             // menuCopy
             // 
             this.menuCopy.Name = "menuCopy";
-            this.menuCopy.Size = new System.Drawing.Size(225, 22);
+            this.menuCopy.Size = new System.Drawing.Size(198, 22);
             this.menuCopy.Text = "Copy";
             this.menuCopy.Click += new System.EventHandler(this.menuCopy_Click);
             // 
             // menuPaste
             // 
             this.menuPaste.Name = "menuPaste";
-            this.menuPaste.Size = new System.Drawing.Size(225, 22);
+            this.menuPaste.Size = new System.Drawing.Size(198, 22);
             this.menuPaste.Text = "Paste";
             this.menuPaste.Click += new System.EventHandler(this.menuPaste_Click);
             // 
@@ -769,7 +769,7 @@ namespace Reaction_Editor
             this.tabSources.Location = new System.Drawing.Point(4, 22);
             this.tabSources.Name = "tabSources";
             this.tabSources.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSources.Size = new System.Drawing.Size(701, 171);
+            this.tabSources.Size = new System.Drawing.Size(699, 171);
             this.tabSources.TabIndex = 1;
             this.tabSources.Text = "Sources";
             this.tabSources.UseVisualStyleBackColor = true;
@@ -781,7 +781,7 @@ namespace Reaction_Editor
             this.grpSources.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpSources.Location = new System.Drawing.Point(3, 3);
             this.grpSources.Name = "grpSources";
-            this.grpSources.Size = new System.Drawing.Size(695, 165);
+            this.grpSources.Size = new System.Drawing.Size(693, 165);
             this.grpSources.TabIndex = 3;
             this.grpSources.TabStop = false;
             this.grpSources.Text = "Sources";
@@ -794,7 +794,7 @@ namespace Reaction_Editor
             this.pnlSourceOptions.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlSourceOptions.Location = new System.Drawing.Point(3, 133);
             this.pnlSourceOptions.Name = "pnlSourceOptions";
-            this.pnlSourceOptions.Size = new System.Drawing.Size(689, 29);
+            this.pnlSourceOptions.Size = new System.Drawing.Size(687, 29);
             this.pnlSourceOptions.TabIndex = 2;
             // 
             // label4
@@ -825,7 +825,7 @@ namespace Reaction_Editor
             this.tabSinks.Location = new System.Drawing.Point(4, 22);
             this.tabSinks.Name = "tabSinks";
             this.tabSinks.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSinks.Size = new System.Drawing.Size(701, 171);
+            this.tabSinks.Size = new System.Drawing.Size(699, 171);
             this.tabSinks.TabIndex = 2;
             this.tabSinks.Text = "Sinks";
             this.tabSinks.UseVisualStyleBackColor = true;
@@ -837,7 +837,7 @@ namespace Reaction_Editor
             this.grpSinks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpSinks.Location = new System.Drawing.Point(3, 3);
             this.grpSinks.Name = "grpSinks";
-            this.grpSinks.Size = new System.Drawing.Size(695, 165);
+            this.grpSinks.Size = new System.Drawing.Size(693, 165);
             this.grpSinks.TabIndex = 4;
             this.grpSinks.TabStop = false;
             this.grpSinks.Text = "Sinks";
@@ -850,7 +850,7 @@ namespace Reaction_Editor
             this.pnlSinkOptions.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlSinkOptions.Location = new System.Drawing.Point(3, 133);
             this.pnlSinkOptions.Name = "pnlSinkOptions";
-            this.pnlSinkOptions.Size = new System.Drawing.Size(689, 29);
+            this.pnlSinkOptions.Size = new System.Drawing.Size(687, 29);
             this.pnlSinkOptions.TabIndex = 3;
             // 
             // label5
@@ -881,7 +881,7 @@ namespace Reaction_Editor
             this.tabHX.Location = new System.Drawing.Point(4, 22);
             this.tabHX.Name = "tabHX";
             this.tabHX.Padding = new System.Windows.Forms.Padding(3);
-            this.tabHX.Size = new System.Drawing.Size(701, 171);
+            this.tabHX.Size = new System.Drawing.Size(699, 171);
             this.tabHX.TabIndex = 3;
             this.tabHX.Text = "HX";
             this.tabHX.UseVisualStyleBackColor = true;
@@ -901,7 +901,7 @@ namespace Reaction_Editor
             this.grpHX.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpHX.Location = new System.Drawing.Point(3, 3);
             this.grpHX.Name = "grpHX";
-            this.grpHX.Size = new System.Drawing.Size(695, 165);
+            this.grpHX.Size = new System.Drawing.Size(693, 165);
             this.grpHX.TabIndex = 1;
             this.grpHX.TabStop = false;
             this.grpHX.Text = "Heat Exchange";
@@ -1005,7 +1005,7 @@ namespace Reaction_Editor
             this.tabBlank.Location = new System.Drawing.Point(4, 22);
             this.tabBlank.Name = "tabBlank";
             this.tabBlank.Padding = new System.Windows.Forms.Padding(3);
-            this.tabBlank.Size = new System.Drawing.Size(701, 171);
+            this.tabBlank.Size = new System.Drawing.Size(699, 171);
             this.tabBlank.TabIndex = 4;
             this.tabBlank.Text = "Blank";
             this.tabBlank.UseVisualStyleBackColor = true;
@@ -1016,7 +1016,7 @@ namespace Reaction_Editor
             this.pnlBlank.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlBlank.Location = new System.Drawing.Point(3, 3);
             this.pnlBlank.Name = "pnlBlank";
-            this.pnlBlank.Size = new System.Drawing.Size(695, 165);
+            this.pnlBlank.Size = new System.Drawing.Size(693, 165);
             this.pnlBlank.TabIndex = 0;
             // 
             // tabOptions
@@ -1026,7 +1026,7 @@ namespace Reaction_Editor
             this.tabOptions.Location = new System.Drawing.Point(4, 22);
             this.tabOptions.Name = "tabOptions";
             this.tabOptions.Padding = new System.Windows.Forms.Padding(3);
-            this.tabOptions.Size = new System.Drawing.Size(715, 434);
+            this.tabOptions.Size = new System.Drawing.Size(713, 432);
             this.tabOptions.TabIndex = 2;
             this.tabOptions.Text = "Options";
             this.tabOptions.UseVisualStyleBackColor = true;
@@ -1037,7 +1037,7 @@ namespace Reaction_Editor
             this.grpDescription.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpDescription.Location = new System.Drawing.Point(3, 70);
             this.grpDescription.Name = "grpDescription";
-            this.grpDescription.Size = new System.Drawing.Size(709, 361);
+            this.grpDescription.Size = new System.Drawing.Size(707, 359);
             this.grpDescription.TabIndex = 2;
             this.grpDescription.TabStop = false;
             this.grpDescription.Text = "Description";
@@ -1049,7 +1049,7 @@ namespace Reaction_Editor
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(709, 67);
+            this.groupBox1.Size = new System.Drawing.Size(707, 67);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscellaneous";
@@ -1127,6 +1127,7 @@ namespace Reaction_Editor
             this.txtReactants.AcceptsTab = true;
             this.txtReactants.AllowDrop = true;
             this.txtReactants.CompSelection = true;
+            this.txtReactants.DisallowedCharaceters = null;
             this.txtReactants.ForeColor = System.Drawing.SystemColors.WindowText;
             this.txtReactants.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtReactants.HitCounts")));
             this.txtReactants.Location = new System.Drawing.Point(5, 5);
@@ -1148,6 +1149,7 @@ namespace Reaction_Editor
             this.txtProducts.AcceptsTab = true;
             this.txtProducts.AllowDrop = true;
             this.txtProducts.CompSelection = true;
+            this.txtProducts.DisallowedCharaceters = null;
             this.txtProducts.ForeColor = System.Drawing.SystemColors.WindowText;
             this.txtProducts.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtProducts.HitCounts")));
             this.txtProducts.Location = new System.Drawing.Point(368, 5);
@@ -1208,12 +1210,13 @@ namespace Reaction_Editor
             this.txtSources.CompSelection = false;
             this.txtSources.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.txtSources.DetectUrls = false;
+            this.txtSources.DisallowedCharaceters = null;
             this.txtSources.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtSources.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtSources.HitCounts")));
             this.txtSources.Location = new System.Drawing.Point(3, 16);
             this.txtSources.Multiline = false;
             this.txtSources.Name = "txtSources";
-            this.txtSources.Size = new System.Drawing.Size(689, 117);
+            this.txtSources.Size = new System.Drawing.Size(687, 117);
             this.txtSources.TabIndex = 1;
             this.txtSources.Text = "";
             this.txtSources.Leave += new System.EventHandler(this.txtSources_Leave);
@@ -1225,7 +1228,7 @@ namespace Reaction_Editor
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSourceComments.Location = new System.Drawing.Point(285, 6);
             this.txtSourceComments.Name = "txtSourceComments";
-            this.txtSourceComments.Size = new System.Drawing.Size(404, 20);
+            this.txtSourceComments.Size = new System.Drawing.Size(402, 20);
             this.txtSourceComments.TabIndex = 11;
             this.txtSourceComments.TextChanged += new System.EventHandler(this.txtSourceComments_TextChanged);
             // 
@@ -1234,12 +1237,13 @@ namespace Reaction_Editor
             this.txtSinks.CompSelection = false;
             this.txtSinks.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.txtSinks.DetectUrls = false;
+            this.txtSinks.DisallowedCharaceters = null;
             this.txtSinks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtSinks.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtSinks.HitCounts")));
             this.txtSinks.Location = new System.Drawing.Point(3, 16);
             this.txtSinks.Multiline = false;
             this.txtSinks.Name = "txtSinks";
-            this.txtSinks.Size = new System.Drawing.Size(689, 117);
+            this.txtSinks.Size = new System.Drawing.Size(687, 117);
             this.txtSinks.TabIndex = 2;
             this.txtSinks.Text = "";
             this.txtSinks.Leave += new System.EventHandler(this.txtSinks_Leave);
@@ -1251,7 +1255,7 @@ namespace Reaction_Editor
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSinkComments.Location = new System.Drawing.Point(285, 6);
             this.txtSinkComments.Name = "txtSinkComments";
-            this.txtSinkComments.Size = new System.Drawing.Size(401, 20);
+            this.txtSinkComments.Size = new System.Drawing.Size(399, 20);
             this.txtSinkComments.TabIndex = 11;
             this.txtSinkComments.TextChanged += new System.EventHandler(this.txtSinkComments_TextChanged);
             // 
@@ -1261,7 +1265,7 @@ namespace Reaction_Editor
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.txtHXComment.Location = new System.Drawing.Point(288, 139);
             this.txtHXComment.Name = "txtHXComment";
-            this.txtHXComment.Size = new System.Drawing.Size(401, 20);
+            this.txtHXComment.Size = new System.Drawing.Size(399, 20);
             this.txtHXComment.TabIndex = 14;
             this.txtHXComment.TextChanged += new System.EventHandler(this.txtHXComment_TextChanged);
             // 
@@ -1282,7 +1286,7 @@ namespace Reaction_Editor
             this.txtDescription.Location = new System.Drawing.Point(3, 16);
             this.txtDescription.Multiline = true;
             this.txtDescription.Name = "txtDescription";
-            this.txtDescription.Size = new System.Drawing.Size(703, 342);
+            this.txtDescription.Size = new System.Drawing.Size(701, 340);
             this.txtDescription.TabIndex = 0;
             this.txtDescription.TextChanged += new System.EventHandler(this.txtDescription_TextChanged);
             // 

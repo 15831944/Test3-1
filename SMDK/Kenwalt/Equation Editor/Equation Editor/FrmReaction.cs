@@ -359,6 +359,8 @@ namespace Reaction_Editor
                 TPConditions.Standard,
                 TPConditions.Custom });
 
+            this.txtProducts.DisallowedCharaceters = this.txtReactants.DisallowedCharaceters = new List<char>("<>=:;");
+
             txtProducts.SelectAll(); txtReactants.SelectAll();
             txtReactants.SelectionAlignment = txtProducts.SelectionAlignment = HorizontalAlignment.Center;
             txtProducts.Select(0, 0); txtReactants.Select(0, 0);

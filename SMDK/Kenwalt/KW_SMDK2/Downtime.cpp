@@ -317,6 +317,7 @@ bool Downtime::ValidateDataFields()
 		else
 			tasks.at(i)->dDowntime = tasks.at(i)->dDesiredDowntime;*/
 	}
+	CheckTags();
 	return true;
 }
 
@@ -487,7 +488,7 @@ bool Downtime::CheckTags()
 		{
 			CString warning;
 			warning.Format("Task %i contains an invalid tag.", i);
-			Log.Message(MMsg_Warning, warning);
+			Log.SetCondition(true, i, MMsg_Warning, warning);
 			ret = false;
 		}
 	}
