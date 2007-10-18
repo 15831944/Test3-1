@@ -10,12 +10,36 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Data.Common;
+using System.Reflection;
+using Microsoft.Win32;
 
 namespace Configuration_Editor
 {
     public partial class FrmMain : Form
     {
-        public static string FileVersion = "114";
+        public static string[] ReqColumnList = new string[] {"Name",
+            "Compound",
+            "Phase",
+            "Definition",
+            "Occurence",
+            "Checked",
+            "Ts",
+            "Te",
+            "Density",
+            "Solvent",
+            "DensityCorrection",
+            "VPCorrection",
+            "PhaseChange",
+            "Hf25",
+            "S25",
+            "Cp",
+            "VP",
+            "Pc",
+            "Tc",
+            "Vc",
+            "Ac",
+            "Dissociation",
+            "Reference"};
 
         #region Variables
         ProjectVectorItem m_CurrentItem = null;
@@ -24,15 +48,28 @@ namespace Configuration_Editor
         PVIOrderer m_Sorter = new PVIOrderer();
 
         DataTable m_SpecieDataTable = new DataTable("Species");
+        OleDbDataAdapter m_SpecieDataAdapter;
+
         Dictionary<string, MultiEquationDataset> m_GraphSeries = new Dictionary<string, MultiEquationDataset>();
 
-        FileStream configFile;
+        FileStream m_ConfigFile;
+        Dictionary<string, Dictionary<string, string>> m_UnparsedInfo = new Dictionary<string, Dictionary<string, string>>(); //Because it's easier to work with an empty dictionary than null.
+        Dictionary<string, Dictionary<string, string>> m_DefaultIniDictionary;
+
+        RegistryKey regKey;
         #endregion Variables
         
         #region Constructors
         public FrmMain()
         {
             InitializeComponent();
+            try
+            {
+                regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Configuration Editor");
+                SetDirectory((string)regKey.GetValue("Initial Directory", "My Documents"));
+            }
+            catch { }
+
             SetupSpecies();
             SetupMisc();
             SetupSpDbEditor();
@@ -40,6 +77,8 @@ namespace Configuration_Editor
 
         private void SetupSpDbEditor()
         {
+            LoadDBInI();
+
             #region Database stuff:
             m_SpecieDataTable = new DataTable("Species");
             m_SpecieDataTable.Columns.Add("Name", typeof(String));
@@ -54,6 +93,7 @@ namespace Configuration_Editor
             m_SpecieDataTable.Columns.Add("Solvent", typeof(String));
             m_SpecieDataTable.Columns.Add("DensityCorrection", typeof(String));
             m_SpecieDataTable.Columns.Add("VPCorrection", typeof(String));
+            m_SpecieDataTable.Columns.Add("PhaseChange", typeof(String));
             m_SpecieDataTable.Columns.Add("Hf25", typeof(String));
             m_SpecieDataTable.Columns.Add("S25", typeof(String));
             m_SpecieDataTable.Columns.Add("Cp", typeof(String));
@@ -64,6 +104,12 @@ namespace Configuration_Editor
             m_SpecieDataTable.Columns.Add("Ac", typeof(String));
             m_SpecieDataTable.Columns.Add("Dissociation", typeof(String));
             m_SpecieDataTable.Columns.Add("Reference", typeof(String));
+
+            m_SpecieDataTable.PrimaryKey = new DataColumn[] {
+                m_SpecieDataTable.Columns["Compound"],
+                m_SpecieDataTable.Columns["Phase"],
+                m_SpecieDataTable.Columns["Ts"],
+                m_SpecieDataTable.Columns["Te"]};
             #endregion Database stuff
 
             foreach (Control c in pnlTempDependantRadios.Controls)
@@ -108,7 +154,7 @@ namespace Configuration_Editor
             object[] FCItems = new object[] { "Transfer", "Simple", "Linear" };
             comboProbalFlow.Items.AddRange(FCItems);
             comboDynamicFlow.Items.AddRange(FCItems);
-            comboMaxCompFlow.Items.AddRange(FCItems);
+            comboMaxCompFlow.Items.AddRange(new object[] { "Transer", "Simple", "Linear", "Full" });
             comboProbalFlow.SelectedItem = "Transfer";
             comboDynamicFlow.SelectedItem = "Simple";
             comboMaxCompFlow.SelectedItem = "Linear";
@@ -161,6 +207,8 @@ namespace Configuration_Editor
 
             AddSumItems();
 
+            m_DefaultIniDictionary = ReadIni(Configuration_Editor.Properties.Resources.DefaultInI, new Dictionary<string, Dictionary<string, string>>());
+
             this.ResumeLayout();
         }
         #endregion Constructors
@@ -172,10 +220,10 @@ namespace Configuration_Editor
             {
                 if (dlgSaveConfig.ShowDialog(this) != DialogResult.OK)
                     return;
-                if (configFile != null) try { configFile.Close(); }
+                if (m_ConfigFile != null) try { m_ConfigFile.Close(); }
                     catch { }
-                configFile = new FileStream(dlgSaveConfig.FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-                if (configFile != null)
+                m_ConfigFile = new FileStream(dlgSaveConfig.FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                if (m_ConfigFile != null)
                     Save();
             }
             catch (Exception ex)
@@ -186,14 +234,17 @@ namespace Configuration_Editor
 
         protected void Save()
         {
-            if (configFile == null)
+            if (m_ConfigFile == null)
+            {
                 SaveAs();
+                return;
+            }
 
             StreamWriter sw = null;
             try
             {
-                configFile.SetLength(0);
-                sw = new StreamWriter(configFile);
+                m_ConfigFile.SetLength(0);
+                sw = new StreamWriter(m_ConfigFile);
             }
             catch (Exception ex)
             {
@@ -203,10 +254,11 @@ namespace Configuration_Editor
 
             try
             {
+                Dictionary<string, Dictionary<string, string>> temp = new Dictionary<string, Dictionary<string, string>>(m_UnparsedInfo);
                 sw.WriteLine("[General]");
-                sw.WriteLine("PrjFileVersion=" + FileVersion);
-                sw.WriteLine("TagMonitor=0"); //TODO: Check what is happening
-                sw.WriteLine("UseStdFns4H2O=1"); //TODO: Check what this is.
+                //sw.WriteLine("PrjFileVersion=" + FileVersion);
+                //sw.WriteLine("TagMonitor=0"); //TODO: Check what is happening
+                //sw.WriteLine("UseStdFns4H2O=1"); //TODO: Check what this is.
                 sw.WriteLine("Std_Temp=" + txtStT.Text);
                 sw.WriteLine("Std_Press=" + txtStP.Text);
                 sw.WriteLine("Norm_Temp=" + txtNT.Text);
@@ -215,15 +267,33 @@ namespace Configuration_Editor
                 sw.WriteLine("Minimum_Press=" + txtMinP.Text);
                 sw.WriteLine("Maximum_Temp=" + txtMaxT.Text);
                 sw.WriteLine("Maximum_Press=" + txtMaxP.Text);
-                sw.WriteLine("Atmospheric_Press=101.287, -11.83e-3, 0.4793e-6"); //TODO: Check what this is
+                //sw.WriteLine("Atmospheric_Press=101.287, -11.83e-3, 0.4793e-6"); //TODO: Check what this is
                 sw.WriteLine("Default_SpModel=" + comboSpecieModel.Text);
                 sw.WriteLine("H2O_As_Aqueous=" + (chkH2OAqueous.Checked ? "1" : "0"));
+                if (temp.ContainsKey("general"))
+                {
+                    foreach (KeyValuePair<string, string> kvp in temp["general"])
+                        sw.WriteLine(kvp.Key + "=" + kvp.Value);
+                    temp.Remove("general");
+                }
 
                 sw.WriteLine("[ModelDLLs]");
                 //TODO: Model DLLs
+                if (temp.ContainsKey("modeldlls"))
+                {
+                    foreach (KeyValuePair<string, string> kvp in temp["modeldlls"])
+                        sw.WriteLine(kvp.Key + "=" + kvp.Value);
+                    temp.Remove("modeldlls");
+                }
 
                 sw.WriteLine("[HelpDLLs]");
                 //TODO: Find out what these are, then do 'em.
+                if (temp.ContainsKey("helpdlls"))
+                {
+                    foreach (KeyValuePair<string, string> kvp in temp["helpdlls"])
+                        sw.WriteLine(kvp.Key + "=" + kvp.Value);
+                    temp.Remove("helpdlls");
+                }
 
                 sw.WriteLine("[Species]");
                 int i = 0;
@@ -238,12 +308,30 @@ namespace Configuration_Editor
                         MessageBox.Show(ex.ToString());
                     }
                 }
+                if (temp.ContainsKey("species"))
+                {
+                    foreach (KeyValuePair<string, string> kvp in temp["species"])
+                        sw.WriteLine(kvp.Key + "=" + kvp.Value);
+                    temp.Remove("species");
+                }
 
                 sw.WriteLine("[PhaseNames]");
                 //TODO: Phase Names. Actually, what the hell are these things?
+                if (temp.ContainsKey("phasenames"))
+                {
+                    foreach (KeyValuePair<string, string> kvp in temp["phasenames"])
+                        sw.WriteLine(kvp.Key + "=" + kvp.Value);
+                    temp.Remove("phasenames");
+                }
 
                 sw.WriteLine("[Selectable]");
                 //TODO: Models.
+                if (temp.ContainsKey("selectable"))
+                {
+                    foreach (KeyValuePair<string, string> kvp in temp["selectable"])
+                        sw.WriteLine(kvp.Key + "=" + kvp.Value);
+                    temp.Remove("selectable");
+                }
 
                 sw.WriteLine("[Modes]");
                 sw.WriteLine("Default_NetMode=" + comboDefaultSolution.Text);
@@ -260,6 +348,21 @@ namespace Configuration_Editor
                 sw.WriteLine("Maximum_NodeMode=" + comboMaxCompSurge.Text);
                 sw.WriteLine("Maximum_FlowMode=" + comboMaxCompFlow.Text);
                 sw.WriteLine("Maximum_HeatMode=" + comboMaxCompHeat.Text);
+                if (temp.ContainsKey("modes"))
+                {
+                    foreach (KeyValuePair<string, string> kvp in temp["modes"])
+                        sw.WriteLine(kvp.Key + "=" + kvp.Value);
+                    temp.Remove("modes");
+                }
+
+                foreach (KeyValuePair<string, Dictionary<string, string>> Sets in temp)
+                {
+                    sw.WriteLine("[" + Sets.Key + "]");
+                    foreach (KeyValuePair<string, string> val in Sets.Value)
+                        sw.WriteLine(val.Key + "=" + val.Value);
+                }
+
+                SaveDatabase();
             }
             catch (Exception ex)
             {
@@ -279,87 +382,108 @@ namespace Configuration_Editor
             }
         }
 
+        protected string Pop(Dictionary<string, string> source, string key)
+        {
+            string ret = source[key];
+            source.Remove(key);
+            return ret;
+        }
+
         protected void LoadFile(string filename)
         {
-            if (configFile != null)
-                try { configFile.Close(); }
+            if (m_ConfigFile != null)
+                try { m_ConfigFile.Close(); }
                 catch { }
 
-            try
+            m_ConfigFile = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8192, FileOptions.SequentialScan);
+
+            string contents = new StreamReader(m_ConfigFile).ReadToEnd();
+
+            List<string> errors = LoadFromDictionary(ReadIni(contents, m_DefaultIniDictionary));
+            if (errors.Count != 0)
             {
-                lstProjectVector.Items.Clear();
-                configFile = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8192, FileOptions.SequentialScan);
-
-                string contents = new StreamReader(configFile).ReadToEnd();
-
-                Dictionary<string, Dictionary<string, string>> data = ReadIni(contents);
-                if (data.ContainsKey("general"))
-                {
-                    Dictionary<string, string> General = data["general"];
-                    txtStT.Text = General["std_temp"];
-                    txtStP.Text = General["std_press"];
-                    txtNT.Text = General["norm_temp"];
-                    txtNP.Text = General["norm_press"];
-                    txtMinT.Text = General["minimum_temp"];
-                    txtMaxT.Text = General["maximum_temp"];
-                    txtMinP.Text = General["minimum_press"];
-                    txtMaxP.Text = General["maximum_press"];
-                    comboSpecieModel.Text = General["default_spmodel"];
-                    chkH2OAqueous.Checked = General.ContainsKey("h2o_as_aqueous") && General["h2o_as_aqueous"] != "0";
-                }
-
-                if (data.ContainsKey("modeldlls"))
-                {
-                    //TODO: Model DLLs
-                }
-
-                if (data.ContainsKey("helpdlls"))
-                {
-                    //TODO: Help DLLs
-                }
-
-                if (data.ContainsKey("species"))
-                {
-                    lstProjectVector.BeginUpdate();
-                    foreach (string s in data["species"].Values)
-                        lstProjectVector.Items.Add(ProjectVectorItem.Parse(s, m_SpecieDataTable).LVI);
-                    lstProjectVector.EndUpdate();
-                    AddSumItems();
-                }
-
-                if (data.ContainsKey("phasenames"))
-                {
-                    //TODO: Phase Names
-                }
-
-                if (data.ContainsKey("selectable"))
-                {
-                    //TODO: Selectable
-                }
-
-                if (data.ContainsKey("modes"))
-                {
-                    Dictionary<string, string> Modes = data["modes"];
-                    comboDefaultSolution.Text = Modes["default_netmode"];
-                    chkProbalAllowed.Checked = (!Modes.ContainsKey("probal_allowed")) || Modes["probal_allowed"] != "0";
-                    comboProBalSurge.Text = Modes["probal_nodemode"];
-                    comboProbalFlow.Text = Modes["probal_flowmode"];
-                    comboProBalHeat.Text = Modes["probal_heatmode"];
-
-                    chkDynamicAllowed.Checked = (!Modes.ContainsKey("dynamic_allowed")) || Modes["dynamic_allowed"] != "0";
-                    comboDynamicSurge.Text = Modes["dynamic_nodemode"];
-                    comboDynamicFlow.Text = Modes["dynamic_flowmode"];
-                    comboDynamicHeat.Text = Modes["dynamic_heatmode"];
-
-                    comboMaxCompSurge.Text = Modes["maximum_nodemode"];
-                    comboMaxCompFlow.Text = Modes["maximum_flowmode"];
-                    comboMaxCompHeat.Text = Modes["maximum_heatmode"];
-                }
+                StringBuilder sb = new StringBuilder("The following errors occured trying to load the file:");
+                foreach (string error in errors)
+                    sb.AppendLine(error);
+                MessageBox.Show(sb.ToString(), "Load Configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            catch (Exception ex)
+        }
+
+        protected List<string> LoadFromDictionary(Dictionary<string, Dictionary<string, string>> data)
+        {
+            List<string> ret = new List<string>();
+            m_UnparsedInfo = new Dictionary<string, Dictionary<string, string>>();
+            lstProjectVector.Items.Clear();
+
+            if (data.ContainsKey("general"))
             {
-                MessageBox.Show(ex.Message);
+                Dictionary<string, string> General = data["general"];
+                //FileVersion = Pop(General, "prjfileversion");
+                txtStT.Text = Pop(General,"std_temp");
+                txtStP.Text = Pop(General,"std_press");
+                txtNT.Text = Pop(General, "norm_temp");
+                txtNP.Text = Pop(General, "norm_press");
+                txtMinT.Text = Pop(General,"minimum_temp");
+                txtMaxT.Text = Pop(General, "maximum_temp");
+                txtMinP.Text = Pop(General, "minimum_press");
+                txtMaxP.Text = Pop(General, "maximum_press");
+                comboSpecieModel.Text = Pop(General, "default_spmodel");
+                chkH2OAqueous.Checked = Pop(General, "h2o_as_aqueous") != "0";
             }
+
+            if (data.ContainsKey("modeldlls"))
+            {
+                //TODO: Model DLLs
+            }
+
+            if (data.ContainsKey("helpdlls"))
+            {
+                //TODO: Help DLLs
+            }
+
+            if (data.ContainsKey("species"))
+            {
+                lstProjectVector.BeginUpdate();
+                foreach (string s in data["species"].Values)
+                {
+                    lstProjectVector.Items.Add(ProjectVectorItem.Parse(s, m_SpecieDataTable, ret).LVI);
+                }
+                AddSumItems();
+                lstProjectVector.EndUpdate();
+                data.Remove("species");
+            }
+
+            if (data.ContainsKey("phasenames"))
+            {
+                //TODO: Phase Names
+            }
+
+            if (data.ContainsKey("selectable"))
+            {
+                //TODO: Selectable
+            }
+
+            if (data.ContainsKey("modes"))
+            {
+                Dictionary<string, string> Modes = data["modes"];
+                comboDefaultSolution.Text = Pop(Modes,"default_netmode");
+                chkProbalAllowed.Checked = Pop(Modes,"probal_allowed") != "0";
+                comboProBalSurge.Text = Pop(Modes,"probal_nodemode");
+                comboProbalFlow.Text = Pop(Modes,"probal_flowmode");
+                comboProBalHeat.Text = Pop(Modes,"probal_heatmode");
+
+                chkDynamicAllowed.Checked = Pop(Modes,"dynamic_allowed") != "0";
+                comboDynamicSurge.Text = Pop(Modes,"dynamic_nodemode");
+                comboDynamicFlow.Text = Pop(Modes,"dynamic_flowmode");
+                comboDynamicHeat.Text = Pop(Modes,"dynamic_heatmode");
+
+                comboMaxCompSurge.Text = Pop(Modes,"maximum_nodemode");
+                comboMaxCompFlow.Text = Pop(Modes,"maximum_flowmode");
+                comboMaxCompHeat.Text = Pop(Modes,"maximum_heatmode");
+            }
+
+            m_UnparsedInfo = data;
+            return ret;
         }
 
         protected static Regex iniRegex1 = new Regex(@"(^\[(?<Title>\w*)\](?<Values>.*?))*\Z", 
@@ -368,10 +492,10 @@ namespace Configuration_Editor
             RegexOptions.Multiline | RegexOptions.Compiled);
 
         //Work in pure lowercase.
-        protected Dictionary<string, Dictionary<string, string>> ReadIni(string contents)
+        protected Dictionary<string, Dictionary<string, string>> ReadIni(string contents, Dictionary<string, Dictionary<string, string>> defaults)
         {
             Match tier1Match = iniRegex1.Match(contents);
-            Dictionary<string, Dictionary<string, string>> ret = new Dictionary<string,Dictionary<string,string>>();
+            Dictionary<string, Dictionary<string, string>> ret = new Dictionary<string,Dictionary<string,string>>(defaults);
             for (int i = 0; i < tier1Match.Groups["Title"].Captures.Count; i++)
             {
                 if (!ret.ContainsKey(tier1Match.Groups["Title"].Captures[i].Value.ToLower()))
@@ -383,33 +507,235 @@ namespace Configuration_Editor
             }
             return ret;
         }
+
+        protected void SetDirectory(string directory)
+        {
+            dlgOpenConfig.InitialDirectory = dlgOpenDB.InitialDirectory = dlgSaveConfig.InitialDirectory = directory;
+            try
+            {
+                regKey.SetValue("Initial Directory", directory);
+            }
+            catch { }
+        }
         #endregion File Operations
 
         #region Specie database stuff
+        protected void SaveDatabase()
+        {
+            //Determine max lengths for each column:
+            Dictionary<string, int> MaxLengths = new Dictionary<string, int>();
+            Dictionary<string, string> MaxLengthNames = new Dictionary<string,string>();
+            foreach (DataColumn c in m_SpecieDataTable.Columns)
+                MaxLengths[c.ColumnName] = 0;
+
+            foreach (DataRow r in m_SpecieDataTable.Rows)
+                foreach (DataColumn c in m_SpecieDataTable.Columns)
+                    if (r[c] is string && MaxLengths[c.ColumnName] < ((string)r[c]).Length)
+                    {
+                        MaxLengths[c.ColumnName] = ((string)r[c]).Length;
+                        MaxLengthNames[c.ColumnName] = (string)r["Name"];
+                    }
+            if (m_SpecieDataAdapter != null)
+                m_SpecieDataAdapter.Update(m_SpecieDataTable);
+        }
+
         protected void OpenDatabase(string filename)
         {
-            //Program.SpecieDatabase = new Database(filename, "Species");
             OleDbConnection conn = new OleDbConnection(@"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + filename);
-            //conn.Open();
+            conn.Open();
 
+            //Putting things in Try {} Catch{} is the worst form of flow control, or so they say.
+            //But there seems no other option
+            DataTable t = new DataTable();
             OleDbDataAdapter da = new OleDbDataAdapter("SELECT * FROM Species", conn);
-            //da.FillSchema(m_SpecieDataTable, SchemaType.Mapped);
+            da.FillSchema(t, SchemaType.Source);
 
-            DataTableMapping mapping = da.TableMappings.Add("Table", "Species");
-            mapping.ColumnMappings.Add("Rho", "Density");
-            mapping.ColumnMappings.Add("dHf", "Hf25");
-            mapping.ColumnMappings.Add("S°298", "S25");
+            #region Change column layout to what is expected:
+            Dictionary<string, string> Remapping = new Dictionary<string, string>(); //<To, From>
+            List<string> NewColumns = new List<string>();
 
-            da.Fill(m_SpecieDataTable);
+            //Check for any columns that must be renamed:
+            foreach (DataColumn c in t.Columns)
+                if (c.ColumnName == "Rho")
+                    Remapping.Add("Density", "Rho");
+                else if (c.ColumnName == "dHf")
+                    Remapping.Add("Hf25", "dHf");
+                else if (c.ColumnName == "S°298")
+                    Remapping.Add("S25", "S°298");
+            //Check for any columns that must be added
+            foreach (string s in ReqColumnList)
+                if (!t.Columns.Contains(s) && !Remapping.ContainsKey(s))
+                    NewColumns.Add(s);
+
+
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = conn;
+            if (NewColumns.Count > 0)
+            {
+                for (int i = 0; i < NewColumns.Count; i++)
+                {
+                    if (NewColumns[i] == "Ts" || NewColumns[i] == "Te")
+                        cmd.CommandText = "ALTER TABLE Species ADD " + NewColumns[i] + " single;";
+                    else
+                        cmd.CommandText = "ALTER TABLE Species ADD " + NewColumns[i] + " varchar;";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            if (Remapping.Count > 0)
+            {
+                foreach (KeyValuePair<string, string> kvp in Remapping)
+                {
+                    cmd.CommandText = "ALTER TABLE Species ADD COLUMN " + kvp.Key + " varchar;";
+                    cmd.ExecuteNonQuery();
+                }
+                StringBuilder sb = new StringBuilder("UPDATE Species SET ");
+                int j = 0;
+                foreach (KeyValuePair<string, string> kvp in Remapping)
+                {
+                    sb.Append(kvp.Key + " = " + kvp.Value);
+                    if (j++ != Remapping.Count - 1)
+                        sb.Append(", ");
+                }
+                sb.AppendLine(";");
+                cmd.CommandText = sb.ToString();
+                cmd.ExecuteNonQuery();
+                /*foreach (KeyValuePair<string, string> kvp in Remapping)
+                {
+                    cmd.CommandText = "UPDATE Species SET " + kvp.Key + " = " + kvp.Value;
+                    cmd.ExecuteNonQuery();
+                }*/
+
+                foreach (KeyValuePair<string, string> kvp in Remapping)
+                {
+                    cmd.CommandText = "ALTER TABLE Species DROP COLUMN " + kvp.Value + ";";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            #endregion Column Layout
+
+            #region Check Constraints:
+            List<DataColumn> PK = new List<DataColumn>(t.PrimaryKey);
+            if (t.PrimaryKey.Length == 0) //If we need to remove or change the primary key...
+            {
+                cmd.CommandText = "ALTER TABLE Species ADD CONSTRAINT pk PRIMARY KEY(Compound, Phase, Ts, Te)";
+                cmd.ExecuteNonQuery();
+            }
+
+            foreach (DataColumn c in t.Columns)
+                if (c.DataType == typeof(string) && !Remapping.ContainsValue(c.ColumnName))
+                {
+                    cmd.CommandText = "ALTER TABLE Species ALTER COLUMN " + c.ColumnName + " varchar(255)";
+                    cmd.ExecuteNonQuery();
+                }
+
+            /*Dictionary<string, string> RequiredConstraints = new Dictionary<string, string>();
+            //RequiredConstraints.Add("Occ_gls", "CHECK (Occurence IN ('g', 'l', 's', 'G', 'L', 'S'))");
+            RequiredConstraints.Add("Tgt0", "CHECK (Ts > 0 and Te > 0)"); //We're not going to force Te > Ts, but rather allow the user to make the change...
+            foreach (string s in RequiredConstraints.Keys)
+                if (!t.Constraints.Contains(s))
+                {
+                    cmd.CommandText = "ALTER TABLE Species ADD CONSTRAINT " + s + " " + RequiredConstraints[s];
+                    cmd.ExecuteNonQuery();
+                }*/ //It seems that it really doesn't like these constraints for an unkown reason.
+
+
+            #endregion Check Constraints
+
+            m_SpecieDataAdapter = new OleDbDataAdapter("SELECT * FROM Species", conn);
+
+            m_SpecieDataAdapter.FillSchema(m_SpecieDataTable, SchemaType.Source);
+            m_SpecieDataAdapter.Fill(m_SpecieDataTable);
+
+            new OleDbCommandBuilder(m_SpecieDataAdapter);
+
+            #region Commented Out Code
+            //Alternative (2-table) method:
+            /*
+            try
+            {
+                m_SpecieDataAdapter = new OleDbDataAdapter("SELECT * FROM Species2", conn);
+
+                m_SpecieDataAdapter.Fill(m_SpecieDataTable);
+
+                new OleDbCommandBuilder(m_SpecieDataAdapter);
+            }
+            catch
+            {
+                m_SpecieDataAdapter = new OleDbDataAdapter("SELECT * FROM Species", conn);
+
+                DataTableMapping mapping = m_SpecieDataAdapter.TableMappings.Add("Table", "Species");
+                mapping.ColumnMappings.Add("Rho", "Density");
+                mapping.ColumnMappings.Add("dHf", "Hf25");
+                mapping.ColumnMappings.Add("S°298", "S25");
+
+                OleDbCommandBuilder cb = new OleDbCommandBuilder(m_SpecieDataAdapter);
+
+                DataTable intermediate = m_SpecieDataTable.Clone();
+                m_SpecieDataAdapter.Fill(intermediate);
+                foreach (DataRow r in intermediate.Rows)
+                    m_SpecieDataTable.ImportRow(r);
+
+                MergeRows();
+
+                CreateNewTable(conn);
+
+                m_SpecieDataAdapter.SelectCommand = new OleDbCommand("SELECT * FROM Species2", conn);
+
+                SaveDatabase();
+            }*/
+            #endregion Commented Out Code
 
             MergeRows();
 
+            SaveDatabase();
+
             UpdateFilter();
+            conn.Close();
+        }
+
+        protected void CreateNewTable(OleDbConnection conn)
+        {
+            OleDbCommand cmd = new OleDbCommand(@"CREATE TABLE Species2 (
+            Name varchar,
+            Compound varchar,
+            Phase varchar,
+            Definition varchar,
+            Occurence varchar,
+            Checked varchar,
+            Ts Single,
+            Te Single,
+            Density varchar,
+            Solvent varchar,
+            DensityCorrection varchar,
+            VPCorrection varchar,
+            PhaseChange varchar,
+            Hf25 varchar,
+            S25 varchar,
+            Cp varchar,
+            VP varchar,
+            Pc varchar,
+            Tc varchar,
+            Vc varchar,
+            Ac varchar,
+            Dissociation varchar,
+            Reference varchar,
+            PRIMARY KEY (Compound, Phase))", conn);
+            cmd.ExecuteNonQuery();
+
+            //OleDbCommand cmd2 = new OleDbCommand(@"ALTER TABLE Species2 ADD ", conn);
+            //cmd2.ExecuteNonQuery();
+
+            m_SpecieDataTable.PrimaryKey = new DataColumn[] {
+                m_SpecieDataTable.Columns["Compound"],
+                m_SpecieDataTable.Columns["Phase"],
+                m_SpecieDataTable.Columns["Ts"],
+                m_SpecieDataTable.Columns["Te"]};
+
         }
 
         protected string m_sSelectedEquationColumn = "Density";
         protected static Regex EquationSplitterRegex = new Regex(
-            @"^(((?<Equation>[^{}]+){(?<TMin>\d+(\.\d+)?|\.\d+),(?<TMax>\d+(\.\d+)?|\.\d+)})*|(?<GeneralEquation>[^{}]+))$",
+            @"^((""?(?<Equation>[^{}""]+)""?{(?<TMin>\d+(\.\d+)?|\.\d+),(?<TMax>\d+(\.\d+)?|\.\d+)})*|""?(?<GeneralEquation>[^{}""]+))""?$",
             RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
         protected void LoadEquationsIntoGraph()
         {
@@ -455,14 +781,25 @@ namespace Configuration_Editor
             Match m = EquationSplitterRegex.Match(s);
             series.ClearSeries();
             if (m.Groups["GeneralEquation"].Success)
-                series.BackupSeries = new PolyEquationSeries(m.Groups["GeneralEquation"].Value);
+                series.BackupSeries = new EquationGraphSeries(CreateEquationFrag(m.Groups["GeneralEquation"].Value, col), "T");
 
             for (int i = 0; i < m.Groups["Equation"].Captures.Count; i++)
             {
                 double TMin; double.TryParse(m.Groups["TMin"].Captures[i].Value, out TMin);
                 double TMax; double.TryParse(m.Groups["TMax"].Captures[i].Value, out TMax);
-                series.AddSeries(new PolyEquationSeries(m.Groups["Equation"].Captures[i].Value, TMin, TMax));
+
+                series.AddSeries(new EquationGraphSeries(CreateEquationFrag(m.Groups["Equation"].Value, col), "T", TMin, TMax));
             }
+        }
+
+        protected EquationFragment CreateEquationFrag(string equation, string col)
+        {
+            Dictionary<string, FunctionValue> funcs = availableDBFuncs.ContainsKey(col.ToLower()) ? availableDBFuncs[col.ToLower()] : null;
+            EquationFragment frag = EquationFragment.Parse(equation, funcs);
+            frag.VariableValues.Add("T", 0);
+            if (!frag.CanEvaluate())
+                frag = EquationFragment.Parse("0", null);
+            return frag;
         }
 
         protected void LoadEquationsIntoTextboxes()
@@ -528,6 +865,7 @@ namespace Configuration_Editor
 
         protected void MergeRows()
         {
+            m_SpecieDataTable.BeginLoadData(); //Stop constraint notifications caused by faulty input data...
             DataColumn Ts = m_SpecieDataTable.Columns["Ts"];
             DataColumn Te = m_SpecieDataTable.Columns["Te"];
             Dictionary<string, List<DataRow>> Compounds = new Dictionary<string, List<DataRow>>();
@@ -633,6 +971,53 @@ namespace Configuration_Editor
                 foreach (DataRow r in kvp.Value)
                     if (r != resultantRow)
                         m_SpecieDataTable.Rows.Remove(r);
+            }
+            m_SpecieDataTable.EndLoadData();
+        }
+        
+        protected string TableToCSV(DataTable dt)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (DataColumn c in dt.Columns)
+                sb.Append(c.ColumnName + ",");
+            sb.AppendLine();
+            foreach (DataRow r in dt.Rows)
+            {
+                foreach (DataColumn c in dt.Columns)
+                    sb.Append(r[c].ToString() + "\t");
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
+
+        //Load column details from an ini:
+        Dictionary<string, Dictionary<string, FunctionValue>> availableDBFuncs = new Dictionary<string, Dictionary<string, FunctionValue>>();
+        static Regex CSVRegex = new Regex(@"\s*(?<Quotes>"")?(?<Val>(?(Quotes)[^""]*|[^,]*))(?(Quotes)(?<-Quotes>""))
+            (\s*,\s*(?<Quotes>"")?(?<Val>(?(Quotes)[^""]*|[^,]*))(?(Quotes)(?<-Quotes>"")))*", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+        protected void LoadDBInI()
+        {
+            string s = new StreamReader(new FileStream("DatabaseColumns.ini", FileMode.Open)).ReadToEnd();
+            Dictionary<string, Dictionary<string, string>> data = ReadIni(s, new Dictionary<string, Dictionary<string, string>>());
+            foreach (KeyValuePair<string, Dictionary<string, string>> kvp1 in data)
+            {
+                if (!availableDBFuncs.ContainsKey(kvp1.Key))
+                    availableDBFuncs[kvp1.Key] = new Dictionary<string, FunctionValue>();
+
+                foreach (KeyValuePair<string, string> kvp2 in kvp1.Value)
+                    if (kvp2.Key.StartsWith("eqn"))
+                    {
+                        Match m = CSVRegex.Match(kvp2.Value);
+                        if (m.Groups["Val"].Captures.Count < 3)
+                            continue;
+                        List<double> defaults = new List<double>();
+                        double temp;
+                        for (int i = 3; i < m.Groups["Val"].Captures.Count; i++)
+                            if (double.TryParse(m.Groups["Val"].Captures[i].Value, out temp))
+                                defaults.Add(temp);
+
+                        FunctionValue val = new FunctionValue(m.Groups["Val"].Captures[0].Value, m.Groups["Val"].Captures[2].Value, defaults.ToArray());
+                        availableDBFuncs[kvp1.Key].Add(val.Name, val);
+                    }
             }
         }
         #endregion Specie DB stuff
@@ -858,10 +1243,17 @@ namespace Configuration_Editor
 
         private void menuOpenDatabase_Click(object sender, EventArgs e)
         {
-            if (dlgOpenDB.ShowDialog() == DialogResult.Cancel)
-                return;
+            try
+            {
+                if (dlgOpenDB.ShowDialog() == DialogResult.Cancel)
+                    return;
 
-            OpenDatabase(dlgOpenDB.FileName);
+                OpenDatabase(dlgOpenDB.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void lstDBSpecies_ItemDrag(object sender, ItemDragEventArgs e)
@@ -972,8 +1364,55 @@ namespace Configuration_Editor
 
         private void txtCalculation_TextChanged(object sender, EventArgs e)
         {
+            int oldSelectionStart = txtCalculation.SelectionStart;
+            int oldSelectionLength = txtCalculation.SelectionLength;
+            txtCalculation.SelectAll();
+            txtCalculation.SelectionBackColor = SystemColors.Window;//Color.FromArgb(0,0,0,0);
             if (m_CurrentItem is ProjectCalculation)
+            {
                 m_CurrentItem.Value = txtCalculation.Text;
+                try
+                {
+                    EquationFragment frag = EquationFragment.Parse(txtCalculation.Text, null);
+                    //TODO: variable and function name checking.
+                }
+                catch (Function.FunctionNotFoundException ex)
+                {
+                    Regex r = new Regex(@"(?<=\b\d*)(?<Func>" + Regex.Escape(ex.FunctionName) + @")\(");
+                    for (Match m = r.Match(txtCalculation.Text); m.Success; m = m.NextMatch())
+                        HighlightText(txtCalculation, m.Groups["Func"].Index, m.Groups["Func"].Length);
+                }
+                catch
+                {
+                    int temp = 0;
+                    Match vbm = EquationFragment.VariableBracketsRegex.Match(txtCalculation.Text);
+                    while (temp < 2)
+                    {
+                        temp++;
+                        if (vbm.Groups["Opening"].Captures.Count > 0) //We have too many opening brackets...
+                            foreach (Capture c in vbm.Groups["Opening"].Captures)
+                            {
+                                HighlightText(txtCalculation, c.Index, c.Length);
+                                temp++;
+                            }
+                        if (vbm.Groups["ErronousClosing"].Captures.Count > 0)
+                            foreach (Capture c in vbm.Groups["ErronousClosing"].Captures)
+                            {
+                                HighlightText(txtCalculation, c.Index, c.Length);
+                                temp++;
+                            }
+                        vbm = EquationFragment.BracketsRegex.Match(txtCalculation.Text);
+                    }
+                }
+            }
+            txtCalculation.Select(oldSelectionStart, oldSelectionLength);
+        }
+
+        protected void HighlightText(RichTextBox box, int start, int length)
+        {
+            box.Select(start, length);
+            box.SelectionBackColor = Color.DarkRed;
+            box.SelectionColor = Color.White;
         }
 
         private void txtText_TextChanged(object sender, EventArgs e)
@@ -1136,10 +1575,28 @@ namespace Configuration_Editor
             LoadEquationsIntoTextboxes((string)rSender.Tag);
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        private void menuOpen_Click(object sender, EventArgs e)
         {
-            if (dlgOpenConfig.ShowDialog() == DialogResult.OK)
-                LoadFile(dlgOpenConfig.FileName);
+            try
+            {
+                if (m_SpecieDataTable.Rows.Count == 0)
+                {
+                    string t = dlgOpenDB.Title;
+                    dlgOpenDB.Title = "Please select a specie database to open before opening a configuration file";
+                    DialogResult d = dlgOpenDB.ShowDialog();
+                    dlgOpenDB.Title = t;
+
+                    if (d != DialogResult.OK)
+                        return;
+                    OpenDatabase(dlgOpenDB.FileName);
+                }
+                if (dlgOpenConfig.ShowDialog() == DialogResult.OK)
+                    LoadFile(dlgOpenConfig.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1172,14 +1629,88 @@ namespace Configuration_Editor
         {
             TransferSpecies();
         }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadFromDictionary(m_DefaultIniDictionary);
+        }
+
+        private void aboutSysCADConfigurationEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string ver = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+            MessageBox.Show(this, "SysCAD Configuration Editor version " + ver + "\r\nTest version.", "About");
+        }
+
+        private void dlgOpenDB_FileOk(object sender, CancelEventArgs e)
+        {
+            SetDirectory(((FileDialog)sender).InitialDirectory);
+        }
     }
+
+    public class EquationGraphSeries : GraphSeries
+    {
+        protected EquationFragment m_Frag;
+        protected string m_GraphVariable;
+
+        public string GraphVariable
+        {
+            get { return m_GraphVariable; }
+            set
+            {
+                m_GraphVariable = value;
+                FireRedrawRequired(this, new EventArgs());
+                RecalculateMinMax();
+            }
+        }
+
+        public override double Granularity
+        {
+            get { return 0; }
+        }
+
+        public override float ValueAt(double x)
+        {
+            if (!string.IsNullOrEmpty(m_GraphVariable))
+                m_Frag.VariableValues[m_GraphVariable] = x;
+            return (float)m_Frag.Value();
+        }
+
+        public override bool ValidAt(double x)
+        {
+            return true; //Currently Fragments cannot contain a function that is not valid everywhere.
+        }
+
+        public EquationFragment Frag
+        {
+            get { return m_Frag; }
+            set
+            {
+                m_Frag = value;
+                FireRedrawRequired(this, new EventArgs());
+                RecalculateMinMax();
+            }
+        }
+
+        public EquationGraphSeries(EquationFragment frag, string VariableName, double _MinX, double _MaxX)
+        {
+            m_Frag = frag;
+            MinX = _MinX;
+            MaxX = _MaxX;
+            m_GraphVariable = VariableName;
+        }
+
+        public EquationGraphSeries(EquationFragment frag, string VariableName)
+        {
+            m_Frag = frag;
+            m_GraphVariable = VariableName;
+        }
+
+    }
+
 
     public class PolyEquationSeries : GraphSeries
     {
-        protected float m_fMax = 100, m_fMin = 0;
-        protected double m_dMinX = double.NaN, m_dMaxX = double.NaN;
         protected List<double> m_Coefficients = new List<double>();
-        protected int m_nScanResolution = 100;
 
         #region Graph Functions
         public override double Granularity
@@ -1187,35 +1718,7 @@ namespace Configuration_Editor
             get { return 0; }
         }
 
-        public override float Max
-        {
-            get { return m_fMax; }
-        }
 
-        public override float Min
-        {
-            get { return m_fMin; }
-        }
-
-        public override double MinX
-        {
-            get { return m_dMinX; }
-            set 
-            {
-                m_dMinX = value;
-                RecalculateMinMax();
-            }
-        }
-
-        public override double MaxX
-        {
-            get { return m_dMaxX; }
-            set 
-            {
-                m_dMaxX = value;
-                RecalculateMinMax();
-            }
-        }
 
         public override float ValueAt(double x)
         {
@@ -1272,30 +1775,13 @@ namespace Configuration_Editor
             RecalculateMinMax();
         }
 
-        protected void RecalculateMinMax()
-        {
-            if (double.IsNaN(m_dMinX) || double.IsNaN(m_dMaxX))
-                return;
-            float min = float.PositiveInfinity; float max = float.NegativeInfinity;
-            double step = (m_dMaxX - m_dMinX) / (m_nScanResolution - 1);
-            for (int i = 0; i < m_nScanResolution; i++)
-            {
-                float v = ValueAt(m_dMinX + step * i);
-                if (min > v)
-                    min = v;
-                if (max < v)
-                    max = v;
-            }
-            m_fMin = min;
-            m_fMax = max;
-        }
+        
     }
 
     public class MultiEquationDataset : GraphSeries
     {
         protected List<GraphSeries> m_DataSets  = new List<GraphSeries>();
         protected GraphSeries m_BackupSeries;
-        protected double m_dMinX, m_dMaxX;
 
         public GraphSeries BackupSeries
         {
@@ -1306,6 +1792,7 @@ namespace Configuration_Editor
                 m_BackupSeries.MinX = MinX;
                 m_BackupSeries.MaxX = MaxX;
                 m_BackupSeries.RedrawRequired += new EventHandler(series_RedrawRequired);
+                RecalculateMinMax();
                 FireRedrawRequired(this, new EventArgs());
             }
         }
@@ -1314,12 +1801,15 @@ namespace Configuration_Editor
         {
             m_DataSets.Add(series);
             series.RedrawRequired += new EventHandler(series_RedrawRequired);
+            RecalculateMinMax();
+            FireRedrawRequired(this, new EventArgs());
         }
 
         public void RemoveSeries(GraphSeries series)
         {
             m_DataSets.Remove(series);
             series.RedrawRequired -= new EventHandler(series_RedrawRequired);
+            FireRedrawRequired(this, new EventArgs());
         }
 
         public void ClearSeries()
@@ -1346,66 +1836,6 @@ namespace Configuration_Editor
                     if (d.Granularity < minVal)
                         minVal = d.Granularity;
                 return minVal;
-            }
-        }
-
-        public override float Max
-        {
-            get 
-            {
-                float maxVal = m_BackupSeries != null ? m_BackupSeries.Max : float.NegativeInfinity;
-                foreach (GraphSeries d in m_DataSets)
-                    if (d.Max > maxVal)
-                        maxVal = d.Max;
-                return maxVal;
-            }
-        }
-
-        public override float Min
-        {
-            get 
-            {
-                float minVal = m_BackupSeries != null ? m_BackupSeries.Min : float.PositiveInfinity;
-                foreach (GraphSeries d in m_DataSets)
-                    if (d.Min < minVal)
-                        minVal = d.Min;
-                return minVal;
-            }
-        }
-
-        public override double MaxX
-        {
-            set 
-            {
-                if (m_BackupSeries != null)
-                    m_BackupSeries.MaxX = value;
-                m_dMaxX = value;
-            }
-            get
-            {
-                double ret = m_BackupSeries != null ? m_dMaxX : double.NegativeInfinity;
-                foreach (GraphSeries gs in m_DataSets)
-                    if (gs.MaxX > ret)
-                        ret = gs.MaxX;
-                return ret;
-            }
-        }
-
-        public override double MinX
-        {
-            set 
-            {
-                if (m_BackupSeries != null)
-                    m_BackupSeries.MinX = value;
-                m_dMinX = value;
-            }
-            get
-            {
-                double ret = m_BackupSeries != null ? m_dMinX : double.PositiveInfinity;
-                foreach (GraphSeries gs in m_DataSets)
-                    if (gs.MinX < ret)
-                        ret = gs.MinX;
-                return ret;
             }
         }
 

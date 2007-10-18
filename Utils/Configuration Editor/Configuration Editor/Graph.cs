@@ -12,6 +12,9 @@ namespace Configuration_Editor
         protected Color m_Color;
         protected bool m_bSelected;
         protected double m_dLineLoc;
+        protected float m_fMax = 100, m_fMin = 0;
+        protected double m_dMinX = double.NaN, m_dMaxX = double.NaN;
+        protected int m_nScanResolution = 100;
 
         public GraphSeries()
         {
@@ -50,17 +53,58 @@ namespace Configuration_Editor
         {
             get;
         }
-        public abstract float Max
+
+        #region Min / Max stuff
+        public virtual float Max
         {
-            get;
-        }
-        public abstract float Min
-        {
-            get;
+            get { return m_fMax; }
         }
 
-        public abstract double MinX { set; get; }
-        public abstract double MaxX { set; get; }
+        public virtual float Min
+        {
+            get { return m_fMin; }
+        }
+
+        public virtual double MinX
+        {
+            get { return m_dMinX; }
+            set
+            {
+                m_dMinX = value;
+                RecalculateMinMax();
+            }
+        }
+
+        public virtual double MaxX
+        {
+            get { return m_dMaxX; }
+            set
+            {
+                m_dMaxX = value;
+                RecalculateMinMax();
+            }
+        }
+
+        protected void RecalculateMinMax()
+        {
+            if (double.IsNaN(m_dMinX) || double.IsNaN(m_dMaxX))
+                return;
+            float min = float.PositiveInfinity; float max = float.NegativeInfinity;
+            double step = (m_dMaxX - m_dMinX) / (m_nScanResolution - 1);
+            for (int i = 0; i < m_nScanResolution; i++)
+            {
+                if (!ValidAt(m_dMinX + step * i))
+                    continue;
+                float v = ValueAt(m_dMinX + step * i);
+                if (min > v)
+                    min = v;
+                if (max < v)
+                    max = v;
+            }
+            m_fMin = min;
+            m_fMax = max;
+        }
+        #endregion
 
         public abstract float ValueAt(double x);
         public abstract bool ValidAt(double x);

@@ -45,6 +45,8 @@ namespace Configuration_Editor
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuSort = new System.Windows.Forms.ToolStripMenuItem();
             this.menuAdvancedSort = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutSysCADConfigurationEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabSpecies = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -52,6 +54,11 @@ namespace Configuration_Editor
             this.lstDBSpecies = new System.Windows.Forms.ListView();
             this.chSymbol = new System.Windows.Forms.ColumnHeader();
             this.chName = new System.Windows.Forms.ColumnHeader();
+            this.menuSpDBContext = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuSortSpDBAlph = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSortSpDBPhase = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuSpDBAddToProject = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlFilter = new System.Windows.Forms.Panel();
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -230,11 +237,6 @@ namespace Configuration_Editor
             this.dlgOpenDB = new System.Windows.Forms.OpenFileDialog();
             this.dlgOpenConfig = new System.Windows.Forms.OpenFileDialog();
             this.dlgSaveConfig = new System.Windows.Forms.SaveFileDialog();
-            this.menuSpDBContext = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.menuSortSpDBAlph = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuSortSpDBPhase = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
-            this.menuSpDBAddToProject = new System.Windows.Forms.ToolStripMenuItem();
             this.menuMain.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabSpecies.SuspendLayout();
@@ -242,6 +244,7 @@ namespace Configuration_Editor
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.grpAvailableSpecies.SuspendLayout();
+            this.menuSpDBContext.SuspendLayout();
             this.pnlFilter.SuspendLayout();
             this.tcSpecies.SuspendLayout();
             this.tabProjectSpecies.SuspendLayout();
@@ -292,7 +295,6 @@ namespace Configuration_Editor
             this.pnlModelOptions.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.pnlReqSpecieOptions.SuspendLayout();
-            this.menuSpDBContext.SuspendLayout();
             this.SuspendLayout();
             // 
             // ssMain
@@ -307,7 +309,8 @@ namespace Configuration_Editor
             // 
             this.menuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.editToolStripMenuItem});
+            this.editToolStripMenuItem,
+            this.helpToolStripMenuItem});
             this.menuMain.Location = new System.Drawing.Point(0, 0);
             this.menuMain.Name = "menuMain";
             this.menuMain.Size = new System.Drawing.Size(952, 24);
@@ -336,13 +339,14 @@ namespace Configuration_Editor
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.newToolStripMenuItem.Text = "&New";
+            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.openToolStripMenuItem.Text = "&Open Configuration";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            this.openToolStripMenuItem.Click += new System.EventHandler(this.menuOpen_Click);
             // 
             // closeToolStripMenuItem
             // 
@@ -404,16 +408,31 @@ namespace Configuration_Editor
             // MenuSort
             // 
             this.MenuSort.Name = "MenuSort";
-            this.MenuSort.Size = new System.Drawing.Size(156, 22);
+            this.MenuSort.Size = new System.Drawing.Size(168, 22);
             this.MenuSort.Text = "Quick &Sort";
             this.MenuSort.Click += new System.EventHandler(this.MenuSort_Click);
             // 
             // menuAdvancedSort
             // 
             this.menuAdvancedSort.Name = "menuAdvancedSort";
-            this.menuAdvancedSort.Size = new System.Drawing.Size(156, 22);
-            this.menuAdvancedSort.Text = "&Advanced Sort";
+            this.menuAdvancedSort.Size = new System.Drawing.Size(168, 22);
+            this.menuAdvancedSort.Text = "&Advanced Sort...";
             this.menuAdvancedSort.Click += new System.EventHandler(this.menuAdvancedSort_Click);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutSysCADConfigurationEditorToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
+            this.helpToolStripMenuItem.Text = "&Help";
+            // 
+            // aboutSysCADConfigurationEditorToolStripMenuItem
+            // 
+            this.aboutSysCADConfigurationEditorToolStripMenuItem.Name = "aboutSysCADConfigurationEditorToolStripMenuItem";
+            this.aboutSysCADConfigurationEditorToolStripMenuItem.Size = new System.Drawing.Size(254, 22);
+            this.aboutSysCADConfigurationEditorToolStripMenuItem.Text = "&About SysCAD Configuration Editor";
+            this.aboutSysCADConfigurationEditorToolStripMenuItem.Click += new System.EventHandler(this.aboutSysCADConfigurationEditorToolStripMenuItem_Click);
             // 
             // tcMain
             // 
@@ -472,6 +491,7 @@ namespace Configuration_Editor
             this.lstDBSpecies.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.chSymbol,
             this.chName});
+            this.lstDBSpecies.ContextMenuStrip = this.menuSpDBContext;
             this.lstDBSpecies.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstDBSpecies.HideSelection = false;
             this.lstDBSpecies.Location = new System.Drawing.Point(3, 16);
@@ -492,6 +512,48 @@ namespace Configuration_Editor
             // chName
             // 
             this.chName.Text = "Name";
+            // 
+            // menuSpDBContext
+            // 
+            this.menuSpDBContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuSortSpDBAlph,
+            this.menuSortSpDBPhase,
+            this.toolStripMenuItem4,
+            this.menuSpDBAddToProject});
+            this.menuSpDBContext.Name = "menuSpDBContext";
+            this.menuSpDBContext.Size = new System.Drawing.Size(191, 76);
+            // 
+            // menuSortSpDBAlph
+            // 
+            this.menuSortSpDBAlph.Checked = true;
+            this.menuSortSpDBAlph.CheckOnClick = true;
+            this.menuSortSpDBAlph.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menuSortSpDBAlph.Name = "menuSortSpDBAlph";
+            this.menuSortSpDBAlph.Size = new System.Drawing.Size(190, 22);
+            this.menuSortSpDBAlph.Text = "Sort Alphabetically";
+            this.menuSortSpDBAlph.CheckedChanged += new System.EventHandler(this.menuSortSpDBAlph_CheckedChanged);
+            // 
+            // menuSortSpDBPhase
+            // 
+            this.menuSortSpDBPhase.Checked = true;
+            this.menuSortSpDBPhase.CheckOnClick = true;
+            this.menuSortSpDBPhase.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menuSortSpDBPhase.Name = "menuSortSpDBPhase";
+            this.menuSortSpDBPhase.Size = new System.Drawing.Size(190, 22);
+            this.menuSortSpDBPhase.Text = "Sort By Phase";
+            this.menuSortSpDBPhase.CheckedChanged += new System.EventHandler(this.menuSortSpDBAlph_CheckedChanged);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(187, 6);
+            // 
+            // menuSpDBAddToProject
+            // 
+            this.menuSpDBAddToProject.Name = "menuSpDBAddToProject";
+            this.menuSpDBAddToProject.Size = new System.Drawing.Size(190, 22);
+            this.menuSpDBAddToProject.Text = "&Add To Project Vector";
+            this.menuSpDBAddToProject.Click += new System.EventHandler(this.menuSpDBAddToProject_Click);
             // 
             // pnlFilter
             // 
@@ -2414,58 +2476,19 @@ namespace Configuration_Editor
             // 
             this.dlgOpenDB.Filter = "Access Databases|*.mdb|All files|*.*";
             this.dlgOpenDB.Title = "Open Database";
+            this.dlgOpenDB.FileOk += new System.ComponentModel.CancelEventHandler(this.dlgOpenDB_FileOk);
             // 
             // dlgOpenConfig
             // 
             this.dlgOpenConfig.Filter = "Configuration files|*.cfg|All files|*.*";
             this.dlgOpenConfig.Title = "Open Configuration File";
+            this.dlgOpenConfig.FileOk += new System.ComponentModel.CancelEventHandler(this.dlgOpenDB_FileOk);
             // 
             // dlgSaveConfig
             // 
             this.dlgSaveConfig.Filter = "Configuration files|*.cfg|All files|*.*";
             this.dlgSaveConfig.Title = "Save As";
-            // 
-            // menuSpDBContext
-            // 
-            this.menuSpDBContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuSortSpDBAlph,
-            this.menuSortSpDBPhase,
-            this.toolStripMenuItem4,
-            this.menuSpDBAddToProject});
-            this.menuSpDBContext.Name = "menuSpDBContext";
-            this.menuSpDBContext.Size = new System.Drawing.Size(191, 98);
-            // 
-            // menuSortSpDBAlph
-            // 
-            this.menuSortSpDBAlph.Checked = true;
-            this.menuSortSpDBAlph.CheckOnClick = true;
-            this.menuSortSpDBAlph.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.menuSortSpDBAlph.Name = "menuSortSpDBAlph";
-            this.menuSortSpDBAlph.Size = new System.Drawing.Size(190, 22);
-            this.menuSortSpDBAlph.Text = "Sort Alphabetically";
-            this.menuSortSpDBAlph.CheckedChanged += new System.EventHandler(this.menuSortSpDBAlph_CheckedChanged);
-            // 
-            // menuSortSpDBPhase
-            // 
-            this.menuSortSpDBPhase.Checked = true;
-            this.menuSortSpDBPhase.CheckOnClick = true;
-            this.menuSortSpDBPhase.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.menuSortSpDBPhase.Name = "menuSortSpDBPhase";
-            this.menuSortSpDBPhase.Size = new System.Drawing.Size(190, 22);
-            this.menuSortSpDBPhase.Text = "Sort By Phase";
-            this.menuSortSpDBPhase.CheckedChanged += new System.EventHandler(this.menuSortSpDBAlph_CheckedChanged);
-            // 
-            // toolStripMenuItem4
-            // 
-            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(187, 6);
-            // 
-            // menuSpDBAddToProject
-            // 
-            this.menuSpDBAddToProject.Name = "menuSpDBAddToProject";
-            this.menuSpDBAddToProject.Size = new System.Drawing.Size(190, 22);
-            this.menuSpDBAddToProject.Text = "&Add To Project Vector";
-            this.menuSpDBAddToProject.Click += new System.EventHandler(this.menuSpDBAddToProject_Click);
+            this.dlgSaveConfig.FileOk += new System.ComponentModel.CancelEventHandler(this.dlgOpenDB_FileOk);
             // 
             // FrmMain
             // 
@@ -2486,6 +2509,7 @@ namespace Configuration_Editor
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.ResumeLayout(false);
             this.grpAvailableSpecies.ResumeLayout(false);
+            this.menuSpDBContext.ResumeLayout(false);
             this.pnlFilter.ResumeLayout(false);
             this.pnlFilter.PerformLayout();
             this.tcSpecies.ResumeLayout(false);
@@ -2554,7 +2578,6 @@ namespace Configuration_Editor
             this.groupBox3.ResumeLayout(false);
             this.pnlReqSpecieOptions.ResumeLayout(false);
             this.pnlReqSpecieOptions.PerformLayout();
-            this.menuSpDBContext.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2768,6 +2791,8 @@ namespace Configuration_Editor
         private System.Windows.Forms.ToolStripMenuItem menuSortSpDBPhase;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem menuSpDBAddToProject;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutSysCADConfigurationEditorToolStripMenuItem;
     }
 }
 

@@ -60,6 +60,37 @@ namespace Configuration_Editor.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to [General]
+        ///Description=
+        ///Std_Temp=293.16000000000003
+        ///Std_Press=101.325
+        ///Norm_Temp=298.16000000000003
+        ///Norm_Press=101.325
+        ///Minimum_Temp=273.16000000000003
+        ///Maximum_Temp=2773.1599999999999
+        ///Minimum_Press=5
+        ///Maximum_Press=10000
+        ///Atmospheric_Press= 101.287, -11.836e-3, 0.47931-6
+        ///NumericStartingTagsBad=0
+        ///NumericTagsBad=1
+        ///UseStdFns4H2O=1
+        ///Default_SpModel=Standard
+        ///
+        ///[Modes]
+        ///Default_NetMode=Dynamic
+        ///Probal_Allowed=1
+        ///Probal_NodeMode=Direct
+        ///Probal_FlowMode=Transfer
+        ///Probal_HeatMode=Rigorous
+        ///Dynamic_Allowed=1 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string DefaultInI {
+            get {
+                return ResourceManager.GetString("DefaultInI", resourceCulture);
+            }
+        }
+        
         internal static System.Drawing.Bitmap FunctionHS {
             get {
                 object obj = ResourceManager.GetObject("FunctionHS", resourceCulture);

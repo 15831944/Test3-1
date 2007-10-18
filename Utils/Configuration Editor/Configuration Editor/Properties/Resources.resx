@@ -117,6 +117,38 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DefaultInI" xml:space="preserve">
+    <value>[General]
+Description=
+Std_Temp=293.16000000000003
+Std_Press=101.325
+Norm_Temp=298.16000000000003
+Norm_Press=101.325
+Minimum_Temp=273.16000000000003
+Maximum_Temp=2773.1599999999999
+Minimum_Press=5
+Maximum_Press=10000
+Atmospheric_Press= 101.287, -11.836e-3, 0.47931-6
+NumericStartingTagsBad=0
+NumericTagsBad=1
+UseStdFns4H2O=1
+Default_SpModel=Standard
+
+[Modes]
+Default_NetMode=Dynamic
+Probal_Allowed=1
+Probal_NodeMode=Direct
+Probal_FlowMode=Transfer
+Probal_HeatMode=Rigorous
+Dynamic_Allowed=1
+Dynamic_NodeMode=Buffered
+Dynamic_FlowMode=Transfer
+Dynamic_HeatMode=None
+Maximum_NodeMode=Buffered
+Maximum_FlowMode=Transfer
+Maximum_HeatMode=Rigorous</value>
+    <comment>Ini file containing default values</comment>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="FunctionHS" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Images\FunctionHS.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

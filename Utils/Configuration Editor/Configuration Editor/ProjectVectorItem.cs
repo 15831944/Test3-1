@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 
 namespace Configuration_Editor
 {
@@ -66,11 +67,11 @@ namespace Configuration_Editor
 
         public abstract string ToSaveString();
 
-        public static ProjectVectorItem Parse(string s, DataTable t)
+        public static ProjectVectorItem Parse(string s, DataTable t, List<string> ErrorList)
         {
             Match m = ProjectSpecie.ParseRegex.Match(s);
             if (m.Success)
-                return ProjectSpecie.Parse(m, t);
+                return ProjectSpecie.Parse(m, t, ErrorList);
             m = ProjectText.ParseRegex.Match(s);
             if (m.Success)
                 return ProjectText.Parse(m);
@@ -102,7 +103,7 @@ namespace Configuration_Editor
         #endregion
     }
 
-    public enum Phase { Solid = 1, Liquid, Gas, Total }
+    public enum Phase { Unkown = -1, Solid = 1, Liquid, Gas, Total }
     public class ProjectSpecie : ProjectVectorItem
     {
         public static Regex ParseRegex = new Regex(
@@ -130,7 +131,7 @@ namespace Configuration_Editor
             get { return m_DataRow; }
         }
 
-        public ProjectSpecie(DataTable t, string symbol)
+        public ProjectSpecie(DataTable t, string symbol, List<string> ErrorList)
         {
             m_sSymbol = symbol;
 
@@ -144,7 +145,7 @@ namespace Configuration_Editor
                     break;
                 }
             if (m_DataRow == null)
-                throw new DataException("Specified Compound Not Found in Database");
+                ErrorList.Add("Compound '" + symbol + "'Not Found in Database");
             UpdateLVI();
         }
 
@@ -161,6 +162,7 @@ namespace Configuration_Editor
         {
             get
             {
+                if (m_DataRow == null) return Phase.Unkown;
                 if (m_eCachedPhase == (Phase)(-1) || !CachePhase)
                 {
                     string occ = (string)m_DataRow["Occurence"];
@@ -190,15 +192,27 @@ namespace Configuration_Editor
         protected override void UpdateLVI()
         {
             m_LVI.SubItems[0].Text = m_sSymbol;
-            m_LVI.SubItems[1].Text = ((float)m_DataRow["Ts"] - m_dExtrapBelowT).ToString();
-            m_LVI.SubItems[2].Text = ((float)m_DataRow["Te"] + m_dExtrapAboveT).ToString();
+            if (m_DataRow != null)
+            {
+                m_LVI.SubItems[1].Text = ((float)m_DataRow["Ts"] - m_dExtrapBelowT).ToString();
+                m_LVI.SubItems[2].Text = ((float)m_DataRow["Te"] + m_dExtrapAboveT).ToString();
+                m_LVI.ForeColor = SystemColors.WindowText;
+            }
+            else
+            {
+                m_LVI.SubItems[1].Text = m_LVI.SubItems[2].Text = "*";
+                m_LVI.ForeColor = Color.Red;
+            }
         }
 
         public override string  Name
         {
 	        get 
 	        {
-                return (string)m_DataRow["Name"];
+                if (m_DataRow != null)
+                    return (string)m_DataRow["Name"];
+                else
+                    return "Unkown";
 	        }
 	        set 
 	        { 
@@ -232,9 +246,13 @@ namespace Configuration_Editor
         {
             get
             {
-                float minDefined = (float)m_DataRow["Ts"];
-                //float minDefined = (float) Program.SpecieDatabase.GetFieldValue(m_sName, "Ts");
-                return (minDefined - m_dExtrapBelowT < Program.ZeroK) ? Program.ZeroK : minDefined - m_dExtrapBelowT;
+                if (m_DataRow != null)
+                {
+                    float minDefined = (float)m_DataRow["Ts"];
+                    return (minDefined - m_dExtrapBelowT < Program.ZeroK) ? Program.ZeroK : minDefined - m_dExtrapBelowT;
+                }
+                else
+                    return -1;
             }
         }
 
@@ -242,9 +260,13 @@ namespace Configuration_Editor
         {
             get
             {
-                float maxDefined = (float)m_DataRow["Te"];
-                //float maxDefined = (float)Program.SpecieDatabase.GetFieldValue(m_sName, "Te");
-                return maxDefined + m_dExtrapAboveT;
+                if (m_DataRow != null)
+                {
+                    float maxDefined = (float)m_DataRow["Te"];
+                    return maxDefined + m_dExtrapAboveT;
+                }
+                else
+                    return -1;
             }
         }
 
@@ -273,8 +295,9 @@ namespace Configuration_Editor
                 {
                     return (PhaseOrder.IndexOf(Phase)).CompareTo(PhaseOrder.IndexOf(other.Phase));
                 }
-                catch   //If the phase order doesn't work, we'll just use the symbol.CompareTo
+                catch  
                 {
+                    return ((int)Phase).CompareTo((int)other.Phase);
                 }
             return Symbol.CompareTo(other.Symbol);
         }
@@ -285,9 +308,9 @@ namespace Configuration_Editor
             return "Specie,,," + Symbol + "," + Symbol + ",*,,,," + ExtraBelowT + "," + ExtraAboveT + "," + (Ideal ? "1" : "0"); //No name? Oh well...
         }
 
-        public static ProjectSpecie Parse(Match m, DataTable t)
+        public static ProjectSpecie Parse(Match m, DataTable t, List<string> ErrorList)
         {
-            ProjectSpecie ret = new ProjectSpecie(t, m.Groups["Symbol"].Value);
+            ProjectSpecie ret = new ProjectSpecie(t, m.Groups["Symbol"].Value, ErrorList);
             try
             {
                 if (m.Groups["ToleranceBelow"].Success)
@@ -476,7 +499,7 @@ namespace Configuration_Editor
 
     public class ProjectSum : ProjectVectorItem
     {
-        public static Regex ParseRegex = new Regex(@"(?<Val>1|2|3|4),(Solids|Liquids|Vapours|Total)", RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        public static Regex ParseRegex = new Regex(@"(?<Val>1|2|3|4),", RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public Phase m_ePhase;
 
         public ProjectSum(Phase phase)
