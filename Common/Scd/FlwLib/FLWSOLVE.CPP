@@ -12608,6 +12608,8 @@ flag CFlwSolver::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR N
 
 flag CFlwSolver::RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs)
   {
+  TryDoGlobalLinks();
+
   int Chgs=0;
   int Index=0;
   for (FlwNode * p = NULL; GetObj_All(p); )

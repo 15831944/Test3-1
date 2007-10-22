@@ -759,6 +759,16 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrf
       DXF_ENTITY eAssocTag=Find_Attr(eInsert, AssocTagAttribStr);
 #if dbgAssocGrf
       dbgpln("ModelAssocGrfs Tag 0x%08x      = %s", eTag, Tag); 
+        {
+        POSITION Pos=Map.GetStartPosition();
+        while (Pos)
+          {
+          LPSTR Tag;
+          CMdlAssocGrfMapItem GI;
+          Map.GetNextAssoc(Pos, Tag, GI);
+          dbgpln("                 ==  %s = %s [%i]", Tag, GI.m_pG->m_sNdTag, GI.m_Index);
+          }
+        }
 #endif                               
       CMdlAssocGrfMapItem GI;
       if (Map.Lookup(Tag, GI))
