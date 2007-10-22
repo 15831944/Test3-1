@@ -1,21 +1,13 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioProject
+<?xml version="1.0" encoding="Windows-1252"?><VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="ks.KW_SMDK2"
 	ProjectGUID="{20DEA2B6-2062-43A5-A5F6-CD1FE82BAE17}"
 	RootNamespace="KW_SMDK2"
 	Keyword="MFCProj"
-	>
-	<Platforms>
-		<Platform
+	><Platforms><Platform
 			Name="Win32"
-		/>
-	</Platforms>
-	<ToolFiles>
-	</ToolFiles>
-	<Configurations>
-		<Configuration
+		/></Platforms><ToolFiles></ToolFiles><Configurations><Configuration
 			Name="Release_Dbg|Win32"
 			OutputDirectory=".\Rdb"
 			IntermediateDirectory=".\Rdb"
@@ -24,20 +16,15 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="true"
@@ -45,8 +32,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rdb/KW_SMDK2.tlb"
 				HeaderFileName=""
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Include"
@@ -63,19 +49,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\..\Bin\KW_SMDK2.dll"
 				LinkIncremental="2"
@@ -84,35 +66,25 @@
 				ProgramDatabaseFile=".\Rdb/KW_SMDK2.pdb"
 				ImportLibrary=".\Rdb/KW_SMDK2.lib"
 				TargetMachine="1"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
 				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
-			/>
-		</Configuration>
-		<Configuration
+			/></Configuration><Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Rls"
 			IntermediateDirectory=".\Rls"
@@ -121,20 +93,15 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="true"
@@ -142,8 +109,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rls/KW_SMDK2.tlb"
 				HeaderFileName=""
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHa"
 				Optimization="4"
@@ -166,19 +132,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\..\Bin\KW_SMDK2.dll"
 				LinkIncremental="1"
@@ -187,35 +149,25 @@
 				ProgramDatabaseFile=".\Rls/KW_SMDK2.pdb"
 				ImportLibrary=".\Rls/KW_SMDK2.lib"
 				TargetMachine="1"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
 				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
-			/>
-		</Configuration>
-		<Configuration
+			/></Configuration><Configuration
 			Name="SMDK_Debug|Win32"
 			OutputDirectory=".\Smdk"
 			IntermediateDirectory=".\Smdk"
@@ -224,20 +176,15 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="true"
@@ -245,8 +192,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Smdk/KW_SMDK2.tlb"
 				HeaderFileName=""
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Include"
@@ -264,19 +210,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\..\Bin\KW_SMDK2.dll"
 				LinkIncremental="1"
@@ -285,35 +227,25 @@
 				ProgramDatabaseFile=".\Smdk/KW_SMDK2.pdb"
 				ImportLibrary=".\Smdk/KW_SMDK2.lib"
 				TargetMachine="1"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
 				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
-			/>
-		</Configuration>
-		<Configuration
+			/></Configuration><Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Dbg"
 			IntermediateDirectory=".\Dbg"
@@ -322,20 +254,15 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
 				MkTypLibCompatible="true"
@@ -343,8 +270,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Dbg/KW_SMDK2.tlb"
 				HeaderFileName=""
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHa"
 				Optimization="0"
@@ -365,19 +291,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\..\Bin\KW_SMDK2.dll"
 				LinkIncremental="2"
@@ -386,35 +308,25 @@
 				ProgramDatabaseFile=".\Dbg/KW_SMDK2.pdb"
 				ImportLibrary=".\Dbg/KW_SMDK2.lib"
 				TargetMachine="1"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
 				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
-			/>
-		</Configuration>
-		<Configuration
+			/></Configuration><Configuration
 			Name="Distribution|Win32"
 			OutputDirectory="Distribution"
 			IntermediateDirectory="Distribution"
@@ -423,20 +335,15 @@
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			>
-			<Tool
+			><Tool
 				Name="VCPreBuildEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="true"
@@ -444,8 +351,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Rls/KW_SMDK2.tlb"
 				HeaderFileName=""
-			/>
-			<Tool
+			/><Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
 				InlineFunctionExpansion="2"
@@ -467,19 +373,15 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="0"
 				CompileAs="0"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPreLinkEventTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\..\Bin\KW_SMDK2.dll"
 				LinkIncremental="1"
@@ -488,313 +390,178 @@
 				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
 				ImportLibrary="$(IntDir)/$(TargetName).lib"
 				TargetMachine="1"
-			/>
-			<Tool
+			/><Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCXDCMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCBscMakeTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
+			/><Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
 				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
-			/>
-		</Configuration>
-	</Configurations>
-	<References>
-	</References>
-	<Files>
-		<Filter
+			/></Configuration></Configurations><References></References><Files><Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
-			>
-			<File
+			><File
 				RelativePath=".\Bivariate Stats.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Downtime.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Filter Press.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Flotation Cell.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="KW_SMDK2.cpp"
-				>
-				<FileConfiguration
+				><FileConfiguration
 					Name="Release_Dbg|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Distribution|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
+					/></FileConfiguration></File><File
 				RelativePath=".\Pie Chart.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Random Failure.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\SchedEvents.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Stats.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="StdAfx.cpp"
-				>
-				<FileConfiguration
+				><FileConfiguration
 					Name="Release_Dbg|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="SMDK_Debug|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
+					/></FileConfiguration><FileConfiguration
 					Name="Distribution|Win32"
-					>
-					<Tool
+					><Tool
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
+					/></FileConfiguration></File><File
 				RelativePath=".\TagIO.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Tailings Graphic.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\TimingStructs.cpp"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\TubeDigester.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
+				></File></Filter><Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
-			>
-			<File
+			><File
 				RelativePath=".\Bivariate Stats.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Downtime.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Filter Press.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Flotation Cell.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="KW_SMDK2.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Pie Chart.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Random Failure.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\SchedEvents.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Stats.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="StdAfx.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\STHx.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\TagIO.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\Tailings Graphic.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\TimingStructs.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath=".\TubeDigester.h"
-				>
-			</File>
-		</Filter>
-		<Filter
+				></File></Filter><Filter
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-			>
-		</Filter>
-		<Filter
+			></Filter><Filter
 			Name="SMDK"
 			SourceControlFiles="false"
-			>
-			<File
+			><File
 				RelativePath="..\..\Include\md_Alumina.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_base.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_defn.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_headers.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_method.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_PSD.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_share1.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_share2.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_share3.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_spmodel.h"
-				>
-			</File>
-			<File
+				></File><File
 				RelativePath="..\..\Include\md_vector.h"
-				>
-			</File>
-		</Filter>
-	</Files>
-	<Globals>
-		<Global
+				></File></Filter></Files><Globals><Global
 			Name="DevPartner_IsInstrumented"
 			Value="1"
-		/>
-	</Globals>
-</VisualStudioProject>
+		/></Globals></VisualStudioProject>

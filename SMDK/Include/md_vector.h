@@ -236,6 +236,11 @@ template<class T> bool IsNothing(T * p) { return p==NULL; };
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
+
+enum eSanity { eSanity_None, eSanity_Msg, eSanity_Stop };
+
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 /* Class MVector :*/
 class DllImportExport MVector
   {
@@ -408,6 +413,8 @@ class DllImportExport MVector
     long          Replace(DWORD Phases, double TRqd=NAN, double PRqd=NAN, double *pMRqd=NULL, long MCount=0) throw (...);
 
     MVector & operator=(const MVector & V);
+
+    void          SanityCheck(eSanity Check=eSanity_Msg);
 
     // ----------------------------- Properties
     MProperties   Properties;

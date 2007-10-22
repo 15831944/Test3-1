@@ -1296,6 +1296,12 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
   public:
     static const pchar GroupName;
 
+#ifndef _RELEASE
+    void           SanityCheck(eSanity Check = eSanity_None);
+#else
+    void           SanityCheck(eSanity Check = eSanity_Msg); 
+#endif
+
   };
 
 #ifdef _RELEASE
@@ -1442,11 +1448,14 @@ class DllImportExport SpModelOwner : public TaggedObject, public CPropertyBase
     virtual void    PutPropertyValue(long Index, MPropertyValue &Value) throw(...)						  								              { pModel->PutPropertyValue(Index, Value); };
 
     CVLEBase      * VLEBlk() { return pModel->m_pVLE; };
+
+
 #ifndef _RELEASE
-    void           SanityCheck();
+    void           SanityCheck(eSanity Check = eSanity_None)  { pModel->SanityCheck(Check); };
 #else
-    void           SanityCheck() {}; //DO NOTHING in Release
+    void           SanityCheck(eSanity Check = eSanity_Msg)   { pModel->SanityCheck(Check); }; 
 #endif
+
   public :
     flag          fPermModel;
     flag          m_fModelSelectable;

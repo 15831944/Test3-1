@@ -412,7 +412,7 @@ int HyprodPrecipHelper::MassBalance(MVector & Vec, double TRqd, double ARqd, dou
 	
 
 	double alumSSat = CC *SSat;
-    const double LclVar = Na2OFac*7.1868e-8*exp(ESoda/T)*Pow(alumSSat, 1.0955);// 19 May DRA: I just found another mistake
+    const double LclVar = Na2OFac*7.1868e-8*exp(ESoda/T)*Pow(GEZ(alumSSat), 1.0955);// 19 May DRA: I just found another mistake
     double XSoda = THADelta*LclVar;
 
     double dAluminaMass = - Fact*THADelta;

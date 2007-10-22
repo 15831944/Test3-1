@@ -2800,6 +2800,9 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
     int iOut = OtherEnd(iIn);
     SpConduit & Fi=*IOConduit(iIn);
     SpConduit & Fo=*IOConduit(iOut);
+    Fi.SanityCheck();
+    Fo.SanityCheck();
+    
     double FIQm=Fi.QMass();
     if (GetActiveHold())
       {
@@ -3214,6 +3217,8 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       //      ASSERT_ALWAYS(Valid(T1) && Valid(T2), "NAN FOR TEMPERATURE", __FILE__, __LINE__);
       //#endif
       }
+    Fi.SanityCheck();
+    Fo.SanityCheck();
     }
 
   if (m_RB.Enabled())

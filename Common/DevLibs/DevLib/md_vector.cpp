@@ -409,6 +409,14 @@ long MVector::Extract(DWORD PhMsk, double *pT, double *pP, double *pM, long MCou
 
 //---------------------------------------------------------------------------
 
+void MVector::SanityCheck(eSanity Check)
+  {
+  if (m_pSpMdl)
+    m_pSpMdl->SanityCheck(Check);
+  };
+
+//---------------------------------------------------------------------------
+
 long MVector::Replace(DWORD PhMsk, double TRqd, double PRqd, double *pMRqd, long MCount)
   {
   long N=SDB.Count(PhMsk);

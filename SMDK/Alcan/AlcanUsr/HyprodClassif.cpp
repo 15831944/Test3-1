@@ -752,6 +752,7 @@ void Classifier::EvalProducts()
     m_dUFVolFlow = UF.Volume();
     m_dOFVolFlow = OF.Volume();
     m_dOFSolidsTons = OF.Mass(MP_Sol);
+
     }
   catch (MMdlException &e)
     {

@@ -318,6 +318,14 @@ class MMdlException
     CString m_Desc;
   };
 
+class MMdlSanityCheckFailure : public MMdlException
+  {
+  public:
+    MMdlSanityCheckFailure(long Id, LPCSTR Desc) : MMdlException(Id, Desc)
+      {
+      }
+  };
+
 //---------------------------------------------------------------------------
 
 //System Exception:

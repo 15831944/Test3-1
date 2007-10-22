@@ -10318,21 +10318,38 @@ void SpModelOwner::CopyQualities(SpModel * pModel, SpModel * SrcModel, int q0, i
   };
 
 // --------------------------------------------------------------------------
-#ifndef _RELEASE
+
 static int DoSpModelSanityCheck = 1;
-void SpModelOwner::SanityCheck()
+void SpModel::SanityCheck(eSanity Check)
   {
-  if (DoSpModelSanityCheck)
+  if (DoSpModelSanityCheck && Check>eSanity_None)
     {
-    if (pModel)
+    //if (pModel)
       {
       for (int sn=0; sn<SVSpcCount(); sn++)
         {
         double mm=MArray()[sn];
+        if (!Finite(mm))
+          {
+          Strng ss;
+          ss.Set("%s: Non Finite Value for Mass of %s", FullObjTag(), SVImg(sn).SymOrTag());
+          LogError("SpModel", Check>=eSanity_Stop ? LogFlag_Stop:0, ss());
+          //throw MMdlSanityCheckFailure(0, ss());
+          //Strng ss = SVImg(sn).SymOrTag();
+          //LogError(FullObjTag(), LogFlag_Stop, "Non Finite Value for Mass of %s", ss()); 
+          //ASSERT_ALWAYS(FALSE, "non finite value !", __FILE__, __LINE__);
+          //MArray()[sn]=0;
+          MArray().SetVMass(sn, MArray(), 0);
+          }
         if (mm<0.0)
           {
-          Strng ss = SVImg(sn).SymOrTag();
-          ASSERT_ALWAYS(FALSE, "Unexpected -ve !", __FILE__, __LINE__);
+          Strng ss;
+          ss.Set("%s: Negative Value %.6e for Mass of %s", FullObjTag(), mm, SVImg(sn).SymOrTag());
+          //throw MMdlSanityCheckFailure(0, ss());
+          LogError("SpModel", (mm<-1.0e-3 && Check>=eSanity_Stop) ? LogFlag_Stop:0, ss());
+          //LogError(FullObjTag(), LogFlag_Stop, "Negative Value for Mass of %s", ss()); 
+          //ASSERT_ALWAYS(FALSE, "Unexpected -ve !", __FILE__, __LINE__);
+          MArray().SetVMass(sn, MArray(), 0);
           }
         }
       }
@@ -10340,7 +10357,6 @@ void SpModelOwner::SanityCheck()
     //ASSERT_ALWAYS(???, "??? !", __FILE__, __LINE__);
     }
   }
-#endif
 
 //===========================================================================
 //

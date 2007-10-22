@@ -358,6 +358,11 @@ void Precipitator::EvalProducts()
       }
     m_dTempOut = Prod.T;
     }
+  catch (MMdlSanityCheckFailure&e)
+    {
+    Log.Message(MMsg_Error, e.Description);
+    //SetIdleRequired("Phone Denis");
+    }
   catch (MMdlException &e)
     {
     Log.Message(MMsg_Error, e.Description);
@@ -367,6 +372,10 @@ void Precipitator::EvalProducts()
     {
     e.ClearFPP();
     Log.Message(MMsg_Error, e.Description);
+    MStream & Prod = FlwIOs[FlwIOs.First[idProd]].Stream; //get a reference to the single output stream
+    Prod.ZeroMass();
+    Prod.SetTP(StdT,StdP);
+
     //SetIdleRequired("Phone Denis");
     }
   catch (MSysException &e)
