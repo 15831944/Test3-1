@@ -1706,7 +1706,7 @@ flag FlwSlvBlk::PreStartCheckAll()
 
   for (FlwNode * p=All.First(); (p); p=All.Next())
     {
-    flag Ok=1;
+    flag OK=1;
 
 #if dbgTestConnectivity
     dbgpln("%60s %s", "", p->FullObjTag());
@@ -1719,7 +1719,7 @@ SW.Start();
     if (!p->PreStartCheck())
       {
       p->SetCI(16);
-      Ok=0;
+      OK=0;
       }
 #if TimePrestart
 dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
@@ -1728,7 +1728,7 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
     p->m_fValidateDataComplete=false;
     ValidateDataBlk VDB;
     p->SetValidateFailMsg(NULL);
-    bool OK=(p->ValidateDefinedData(VDB)!=0);
+    OK=(p->ValidateDefinedData(VDB)!=0);
     p->SetCI(17, !OK);
 
     if (!p->m_fValidateDataComplete && !p->bHoldValidateData)
@@ -1758,7 +1758,7 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
       if (!MdOk)
         {
         LogError(p->FullObjTag(), 0, "Bad SolveMethod @ %s", p->Nd_Rmt(i)->FullObjTag());
-        Ok=0;
+        OK=0;
         }
 
       int ir=p->IOIONo_Rmt(i);
@@ -1769,7 +1769,7 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
            p->FullObjTag(),
            p->Nd_Rmt(i)->Nd_Rmt(ir)->FullObjTag());
 
-        Ok=0;
+        OK=0;
         }
 
 #if dbgTestConnectivity
@@ -1779,7 +1779,7 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
              p->IODesc_Self(i)->pName, p->Nd_Rmt(i)->FullObjTag());
 #endif
       }
-    if (!Ok)
+    if (!OK)
       nBad++;
     }
 
@@ -5586,10 +5586,12 @@ int FlwSlvPB::InitSolution(const EqnSlvCtrlBlk & EQCtrl, CFlwNodeList &AllNdsIn)
 
   if (!PreStartCheckAll())
     {
+    LogWarning("Solver", 0, "PreStart Checks Failed");
     return 1;
     }
   if (!CreateSolutionBlks(FlwSlvNd.NRqdThreads()))
     {
+    LogWarning("Solver", 0, "Solution Blocks not Created");
     return 2;
     }
 
@@ -8985,7 +8987,7 @@ flag FlwSlvDyn::Start(CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
     }
   else
     {
-    LogWarning("Solver", 0, "Problem with PreStart Checks");
+    LogWarning("Solver", 0, "PreStart Checks Failed");
     return 1;
     }
 

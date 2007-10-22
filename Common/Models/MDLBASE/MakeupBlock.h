@@ -36,7 +36,7 @@ class DllImportExport CMakeupBlock : public TaggedObject
     CMakeupBlock(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CMakeupBlock();
 
-    virtual flag    DoesSomething() { return false; };
+    virtual flag    DoesSomething() { return true/*false*/; };
 
     virtual void    BuildDataDefn(DataDefnBlk& DDB);
     virtual flag    DataXchg(DataChangeBlk & DCB) { return 0; };
@@ -114,7 +114,12 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
         m_pMakeupB->SrcIO.Sum.ZeroFlows();
         }
       };
-    double         Duty()       { return (Enabled() ? m_pMakeupB->Duty() : 0.0); };
+    double         Duty()       
+      { 
+      return (Enabled() ? m_pMakeupB->Duty() : 0.0); 
+      };
+
+    bool           On()  { return m_On; };      
 
     virtual int       ChangeTag(char * pOldTag, char * pNewTag);
     virtual int       DeleteTag(char * pDelTag);
@@ -124,7 +129,8 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
     flag              m_fEnabled;
     CMakeupBlock    * m_pMakeupB;
     FlwNode         * m_pNd;
-    bool              m_ReconfigureReqd;
+    bool              m_ConfigChecked;
+    bool              m_On;
 
     CDirectFlwIO      m_SrcIO;
 
