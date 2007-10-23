@@ -2147,8 +2147,23 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
 
   m_TempMkUp = QSrc.Temp();
 
+  bool CI12Set=false;
+  switch (m_Op)
+    {
+    case Op_PrdComp:   
+      m_MeasMkUp = GetFlowValue(m_Meas1, QSrc)/GTZ(GetFlowValue(m_Meas1, QSrc, som_ALL));
+      CI12Set = m_MeasMkUp<1e-6 && m_MeasFeed<1e-6;
+      break;
+    case Op_PrdConc:   
+      m_MeasMkUp = GetFlowValue(m_Meas1, QSrc)/GTZ(GetFlowValue(m_Meas2, QSrc));
+      CI12Set = m_MeasMkUp<1e-6 && m_MeasFeed<1e-6;
+      break;
+    };
+
+  SetCI(12, CI12Set);
+
   bool CIsOn[5]={false,false,false,false,false};
-  if (m_pMakeupBase->On() && !StopMakeUp && m_ValidateOK)
+  if (m_pMakeupBase->On() && !CI12Set && !StopMakeUp && m_ValidateOK)
     {
     // Copy to Src if Self
     if (m_eSource==Src_Self)
@@ -2239,7 +2254,6 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
   m_QvMkUp     = QMkUp().QVolume();
   m_TempProd   = QProd.Temp();
 
-  bool CI12Set=false;
   switch (m_Op)
     {
     case Op_MUFixed:   
@@ -2257,21 +2271,16 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
     case Op_PrdComp:   
       m_MeasMkUp = GetFlowValue(m_Meas1, QMkUp())/GTZ(GetFlowValue(m_Meas1, QMkUp(), som_ALL));
       m_MeasProd = GetFlowValue(m_Meas1, QProd)/GTZ(GetFlowValue(m_Meas1, QProd, som_ALL));
-     // CI12Set = m_MeasMkUp<1e-6;
       break;
     case Op_PrdConc:   
       m_MeasMkUp = GetFlowValue(m_Meas1, QMkUp())/GTZ(GetFlowValue(m_Meas2, QMkUp()));
       m_MeasProd = GetFlowValue(m_Meas1, QProd)/GTZ(GetFlowValue(m_Meas2, QProd));
-      CI12Set = m_MeasMkUp<1e-6;
-      break;
     case Op_PrdTemp:
     case Op_PrdTChg:
       m_MeasMkUp = QMkUp().Temp();
       m_MeasProd = QProd.Temp();
       break;
     };
-
-  SetCI(12, CI12Set);
 
   if (SrcIO.MyConnectedIO()>=0)
     pNd->SetIOQm_In(SrcIO.MyConnectedIO(), m_QmMkUp);
