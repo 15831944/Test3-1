@@ -33,7 +33,7 @@
 #define WITHGRFDOCFRAME       1
 #define WITHAUTOVLE           1
 #define WITHGRFGROUP          1
-#define WITHGRFGROUPCONFIG    1 
+#define WITHGRFGROUPCONFIG    1
 #define WITHTAGMONITOR        (WITHGRFGROUPCONFIG)
 #define WithSimpleEvap        1
 #define WithSimpleBleed       0  /*not ready for release*/
@@ -41,7 +41,7 @@
 #define WITHNODEPROCS         01  /*not ready for release*/
 #define WITHCLASSOPTIONS      01
 #define WITHEQUIPSPECS        (01 && WITHCLASSOPTIONS)
-#define WITHASSOCGRAPHICS     1 
+#define WITHASSOCGRAPHICS     1
 
 #define WithPGMTagChange      01
 
@@ -83,14 +83,14 @@
 //#define SCD_BUILD_SVN    1489                 /* SVN when Build 123 first released */
 //#define SCD_BUILD_SVN    1810                 /* SVN when Build 124 first released */
 //#define SCD_BUILD_SVN    1894                 /* SVN when Build 125 Beta first used (11 June 2007)*/
-#define SCD_BUILD_SVN    2400                 /* SVN when Build 125 Beta first released (17 August 2007)*/
-#define SCD_BUILD_NUM    126                  /* Build number*/
-#define SCD_BUILD_DATE   "17 August 2007"   /* Date when Build is first released */
+#define SCD_BUILD_SVN    2800                 /* SVN when Build 125 Beta first released (17 August 2007)*/
+#define SCD_BUILD_NUM    127                  /* Build number*/
+#define SCD_BUILD_DATE   "23 October 2007"   /* Date when Build is first released */
 
 //compile information
 #define SCD_COMPILE_DT   __DATE__
-#define SCD_COMPILE_DTTM  __DATE__ " " __TIME__   
-#define SCD_COMPILE_TS   __TIMESTAMP__        
+#define SCD_COMPILE_DTTM  __DATE__ " " __TIME__
+#define SCD_COMPILE_TS   __TIMESTAMP__
 
 //Version number
 #define SCD_VERINFO_V0   9                    /* Major Version */
