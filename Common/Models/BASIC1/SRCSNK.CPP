@@ -319,8 +319,17 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
     }
 
   DDB.Visibility();
-  //DDB.Text  ("");
-  DDB.Page   ("XPg", DDB_RqdPage);
+  if (1)
+    {
+    DDB.Text  ("");
+    DDB.Text  ("________________________________________");
+    //DDB.Page   ("XPg", DDB_OptPage);
+    }
+  else
+    {
+    //DDB.Text  ("");
+    DDB.Page   ("XPg", DDB_RqdPage);
+    }
   DDB.Text   ("Cross Page Connection");
   DDB.CheckBoxBtn("",       "ConnectionOn", DC_, "", &fConnectionOn,   this, sConnectTag.Length()>0 ? isParmStopped : isParmConstruct);
   DDB.String ("Connection", "Conn_To",      DC_, "", xidConnectTag,    this, 

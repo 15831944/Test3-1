@@ -162,12 +162,11 @@ Pipe::~Pipe()
 void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   {
   //const flag IsXfer=((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlwMode();
-
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
 
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (!NetProbalMethod() && PrjFileVerNo()<73)
     {
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.Text   ("");
     static DDBValueLst DDB0a[]={
       {LFM_Xfer,    "Transfer"},
@@ -189,59 +188,16 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   const flag IsPipe=!IsXfer;
   const flag IsSrcSnk=!IsXfer && GetActiveHold();
 
-  if (NetProbalMethod())
-    {
-    DDB.Visibility(NM_Probal|SM_All|HM_All);
-    DDB.Text   ("");
-
-    //DDB.Double ("Qm_MakeUp.Dst",   "", DC_Qm, "kg/s", xidIO_MkUpAvail1, this, isResult|InitHidden|NAN_OK);
-    DDB.Double ("Qm_MakeUp.Dst",   "", DC_Qm, "kg/s", xidIO_MkUpReqd1,  this, isResult|NAN_OK);
-    DDB.Double ("Qm_MakeUp",       "", DC_Qm, "kg/s",    &m_dMkUpRqd,   this, isParm|NAN_OK);
-
-    DDB.Double ("Qm_MakeUp.Src",   "", DC_Qm, "kg/s", xidIO_MkUpReqd0,  this, isResult|NAN_OK);
-    DDB.Double ("Qm_Avail.Src",    "", DC_Qm, "kg/s", xidIO_MkUpAvail0, this, isResult|InitHidden|NAN_OK);
-    }
-  else
-    {
-    DDB.Text   ("");
-
-    if (IsXfer || !DDB.ForFileSnpScn() || PrjFileVerNo()<40)
-      {
-      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && IsXfer);
-      m_FEP.BuildDataDefn(FBDDOpt_WithQmSpec, DDB, this, "Flw", 3, DDB_NoPage);
-      }
-
-    static DDBValueLst DDBXfCapOpt[]={
-      {XCO_Spill,   "Spill"   },
-      {XCO_Accept,  "Accept"  },
-      {0}};
-      DDB.Byte  ("OverCapacity", "",     DC_,     "",      &m_iXferCapOption, this, isParm|SetOnChange, DDBXfCapOpt);
-    }
-
-
   DDB.Visibility();
   DDB.Text   ("");
 
-  DDB.Text   ("Flow Conditions");
+  DDB.Text   ("Results: Flow Conditions");
   DDB.Double("",              "QmPrvPB",  DC_Qm,   "kg/s",   xidFEQmPrvPB,     this, isResult|noView|NAN_OK);
 
-  //DDB.Text("FIX!");
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-
   DDB.String("",              "QmEst.Type",DC_,   "",     xidQmEstType,     this, isResult|InitHidden);
   DDB.String("",              "QmEst.Src", DC_,   "",     xidQmEstSrc,      this, isResult|isTag|InitHidden);
-
   DDB.Double("EstMassFlow",   "QmEst",    DC_Qm, "kg/s",  xidQmEst,         this, NetDynamicMethod() ? isResult : isResult|InitHidden);
-
-//#ifdef _RELEASE
-//  DDB.Double ("Qm_MakeUpAvail",  "",  DC_Qm,   "kg/s",   xidIO_MkUpAvail0, this, isResult|InitHidden|noView|NAN_OK);
-//  DDB.Double ("Qm_MakeUpReqd",   "",  DC_Qm,   "kg/s",   xidIO_MkUpReqd0,  this, isResult|InitHidden|noView|NAN_OK);
-//#else
-  //DDB.Double ("Qm_MakeUpAvail",  "",  DC_Qm,   "kg/s",   xidIO_MkUpAvail0, this, isResult|InitHidden|NAN_OK|noFileAtAll);
-  //DDB.Double ("Qm_MakeUpReqd",   "",  DC_Qm,   "kg/s",   xidIO_MkUpReqd0,  this, isResult|InitHidden|NAN_OK|noFileAtAll);
-//#endif
-//  DDB.Double ("Qm_MakeUpAvail1", "",  DC_Qm,   "kg/s",   xidIO_MkUpAvail1, this, isResult|InitHidden|noView|NAN_OK);
-//  DDB.Double ("Qm_MakeUpReqd1",  "",  DC_Qm,   "kg/s",   xidIO_MkUpReqd1,  this, isResult|InitHidden|noView|NAN_OK);
 
   DDB.Visibility();
   DDB.Double ("Mass_Flow",    "Qm",   DC_Qm,   "kg/s",   xidQm,         this, isResult|isParmConstruct);
@@ -269,16 +225,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
   else
     {
-    //if (1)//IsPipe && m_FEP.FlwRqd().PressOn())
     DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsXfer || dbgfile());
-    //DDB.Text   ("Pressure Audit", Marker|MarkerClosed);
-    //DDB.Double ("Boost_Head",   "dPb",      DC_DP,   "kPa",   xidFEDPb,      this, isResult|isParmConstruct);
-    //DDB.Double ("",             "dPbX",     DC_DP,   "kPa",   xidFEDPbX,     this, isResult|InitHidden|isParmConstruct);
-    //DDB.Double ("Dynamic_Head", "dPq",      DC_DP,   "kPa",   xidFEDPq,      this, isResult|isParmConstruct);
-    //DDB.Double ("Static_Head",  "dPz",      DC_DP,   "kPa",   xidFEDPz,      this, isResult|isParmConstruct);
-    //DDB.Double ("Momentum",     "dPm",      DC_DP,   "kPa",   xidMomentum,   this, isResult|InitHidden|isParmConstruct);
-    //DDB.Double ("Nett_Boost",   "Bst",      DC_DP,   "kPa",   xidNettBoost,  this, isResult|InitHidden|noFile|noSnap);
-
     DDB.Text   (" ");
     if (NoFlwIOs()>0 && Nd_Rmt(0) && (IOPipeEntry_Rmt(0) || IOPipeJoin_Rmt(0)))
       DDB.Double ("Flange_Press_In", "PiR", DC_P,   "kPag",  xidPInRmt,     this, isResult|noFile|noSnap);
@@ -337,13 +284,45 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       DDB.Double ("", "totHz@ToR", DC_Pwr, "kJ/s",  xidtotHzOutRmt,  this, isResult|noFile|noSnap);
     }
 
-  DDB.Visibility(NSHM_All);
-  Strng Page;
-  Page.Set("%s..", Tag());
-  DDB.Page(Page(), NetProbalMethod() ? DDB_OptPage : DDB_RqdPage);
+  DDB.Visibility();
+  DDB.Text   ("Connections", Marker);
+  DDB.String ("Link_Source",      "SrcIO",   DC_,  "",     xidSrcIOTag,    this, isTag|noFile|noSnap);
+  DDB.String ("Link_Destination", "DstIO",   DC_,  "",     xidDstIOTag,    this, isTag|noFile|noSnap);
 
+  DDB.Visibility(NSHM_All);
+  //Strng Page;
+  //Page.Set("%s..", Tag());
+  //DDB.Page(Page(), NetProbalMethod() ? DDB_OptPage : DDB_RqdPage);
+  if (NetProbalMethod())
+    {
+    //DDB.Page("..", DDB_OptPage);
+    DDB.Text  ("________________________________________");
+    }
+  else
+    {
+    DDB.Page("..", DDB_RqdPage);
+    }
+
+  DDB.Text   ("Requirements");
   cioOn.BuildDataDefn(this, "Flow", DDB);
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All);  //hss 14/2/98
+
+  if (!NetProbalMethod())
+    {
+    DDB.Text   ("");
+    if (IsXfer || !DDB.ForFileSnpScn() || PrjFileVerNo()<40)
+      {
+      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && IsXfer);
+      m_FEP.BuildDataDefn(FBDDOpt_WithQmSpec, DDB, this, "Flw", 3, DDB_NoPage);
+      }
+
+    static DDBValueLst DDBXfCapOpt[]={
+      {XCO_Spill,   "Spill"   },
+      {XCO_Accept,  "Accept"  },
+      {0}};
+    DDB.Byte  ("OverCapacity", "",     DC_,     "",      &m_iXferCapOption, this, isParm|SetOnChange, DDBXfCapOpt);
+    }
+
+  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (SolveBufferedMethod())// PipeFlowMode())
     {
     DDB.Text("Flow Options");
@@ -448,6 +427,19 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       {LFD_Reverse, "Reverse"},
       {0}};
     DDB.Byte  ("Direction",   "",       DC_,     "",      &m_iLF_Direction, this, isParm, DDB1);
+    }
+
+  if (NetProbalMethod())
+    {
+    DDB.Visibility(NM_Probal|SM_All|HM_All);
+    DDB.Text   ("MakeUp");
+    //DDB.Double ("Qm_MakeUp.Dst",   "", DC_Qm, "kg/s", xidIO_MkUpAvail1, this, isResult|InitHidden|NAN_OK);
+    DDB.Double ("Qm_MakeUp.Dst",   "", DC_Qm, "kg/s", xidIO_MkUpReqd1,  this, isResult|NAN_OK);
+    DDB.Double ("Qm_MakeUp",       "", DC_Qm, "kg/s",    &m_dMkUpRqd,   this, isParm|NAN_OK);
+
+    DDB.Double ("Qm_MakeUp.Src",   "", DC_Qm, "kg/s", xidIO_MkUpReqd0,  this, isResult|NAN_OK);
+    DDB.Double ("Qm_Avail.Src",    "", DC_Qm, "kg/s", xidIO_MkUpAvail0, this, isResult|InitHidden|NAN_OK);
+    DDB.Text   ("");
     }
 
   DDB.Visibility();
@@ -625,6 +617,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       //{LDP_BRC_DP,        "BRC_DP"},  ////Bernoulli Rouse Corrected
       {0}};
     DDB.Visibility(NM_Probal|SM_All|HM_All);
+    DDB.Text("Pressure Drop Requirements");
     DDB.Byte  ("Press_Mode",	  "",	DC_,	"",	   &iDP_Mode,	  this,	isParm|AffectsStruct|SetOnChange, DDB2);
 
     DDB.Visibility(NM_Probal|SM_All|HM_All, iDP_Mode==LDP_Const_P);
@@ -738,10 +731,6 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 #endif
 
   DDB.Visibility();
-  DDB.Text   ("Connections", Marker);
-  DDB.String ("Link_Source",      "SrcIO",   DC_,  "",     xidSrcIOTag,    this, isTag|noFile|noSnap);
-  DDB.String ("Link_Destination", "DstIO",   DC_,  "",     xidDstIOTag,    this, isTag|noFile|noSnap);
-
   if (!NetProbalMethod())
     {
     //DDB.Visibility(NM_Dynamic|SM_All|HM_All);

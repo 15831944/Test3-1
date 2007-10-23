@@ -1623,7 +1623,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
           DDB.Double("", "Rqd.QmRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isResult); 
           DDB.Double("", "Meas.QmRatio",   DC_Frac,   "",         &m_Measured,       this, isResult); 
           Strng S;
-          S.Set("Mass flow ratio of MakeUp[%s] to Feed[%s]", m_Meas1.Description(false), m_Meas2.Description(false));
+          S.Set("Mass flow ratio of MakeUp%s to Feed%s", m_Meas1.Description(false), m_Meas2.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
           DDB.Double("", "Meas.Feed.Qm",   DC_Qm,     "kg/s",     &m_MeasFeed,       this, isResult|InitHidden); 
@@ -1638,7 +1638,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
           DDB.Double("", "Rqd.QMlRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isResult); 
           DDB.Double("", "Meas.QMlRatio",  DC_Frac,   "",         &m_Measured,       this, isResult); 
           Strng S;
-          S.Set("Molar flow ratio of MakeUp[%s] to Feed[%s]", m_Meas1.Description(false), m_Meas2.Description(false));
+          S.Set("Molar flow ratio of MakeUp%s to Feed%s", m_Meas1.Description(false), m_Meas2.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
           DDB.Double("", "Meas.Feed.QMl",  DC_QKgMl,  "kmol/s",   &m_MeasFeed,       this, isResult|InitHidden); 
@@ -1653,7 +1653,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
           DDB.Double("", "Rqd.QvRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isResult); 
           DDB.Double("", "Meas.QvRatio",   DC_Frac,   "",         &m_Measured,       this, isResult); 
           Strng S;
-          S.Set("Volume flow ratio of MakeUp[%s] to Feed[%s]", m_Meas1.Description(false), m_Meas2.Description(false));
+          S.Set("Volume flow ratio of MakeUp%s to Feed%s", m_Meas1.Description(false), m_Meas2.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
           DDB.Double("", "Meas.Feed.Qv",   DC_Qv,     "L/s",      &m_MeasFeed,       this, isResult|InitHidden); 
@@ -1668,7 +1668,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
           DDB.Double("", "Rqd.NQvRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isResult); 
           DDB.Double("", "Meas.NQvRatio",  DC_Frac,   "",         &m_Measured,       this, isResult); 
           Strng S;
-          S.Set("NVolume flow ratio of MakeUp[%s] to Feed[%s]", m_Meas1.Description(false), m_Meas2.Description(false));
+          S.Set("NVolume flow ratio of MakeUp%s to Feed%s", m_Meas1.Description(false), m_Meas2.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
           DDB.Double("", "Meas.Feed.NQv",  DC_NQv,    "NL/s",     &m_MeasFeed,       this, isResult|InitHidden); 

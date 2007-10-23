@@ -3606,10 +3606,19 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
 
 
   DDB.String      ("Condition",      "", DC_, "", xidNdCondition,       this, MultiLineStr|noFile|noSnap);
-  DDB.Long        ("ConditionCount", "", DC_, "", xidNdConditionCount,  this, noFile|noSnap);
+  if (DDB.ForView())
+    {
+    const long Cnt = CountAllCIs(1000);
+    if (Cnt>0)
+      {
+      Strng S;
+      S.Set("%d", Cnt);
+      DDB.TagComment(S());
+      }
+    }
+  DDB.Long        ("ConditionCount", "", DC_, "", xidNdConditionCount,  this, noFile|noSnap|InitHidden);
 
   //CTNode::BuildCommonSEDefn(DDB);
-
   }
 
 //--------------------------------------------------------------------------
