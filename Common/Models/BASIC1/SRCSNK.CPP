@@ -155,6 +155,7 @@ static DDBValueLst DDB0[]={
   {SSQmRqdLiq, "Liquid"},
   {SSQmRqdVap, "Vapour"},
   {0}};
+static char* DDB0_Desc[4] = { "", "Solids ", "Liquid ", "Vapour " };
 static DDBValueLst DDBSrcSnk[]={
   {SSM_Source               ,  "Source"},
   {SSM_Source | SSM_ConstP  ,  "Source_ConstP"},
@@ -226,27 +227,47 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
       if (Contents.GetView()==TstArray[i])
         ParmOK=false;
     }
-  DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstQm)!=0)||
-                            NetProbalMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)));
-  DDB.Text(" ");
+  const bool IsQmRqd = (((SSMode & SSM_ConstQm)!=0) || NetProbalMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)));
+  const bool IsQvRqd = ((SSMode & SSM_ConstQv)!=0);
+  const bool IsNQvRqd = ((SSMode & SSM_ConstNQv)!=0);
+  Strng S;
+  if (bMakeUpMode)
+    {
+    if (IsQmRqd)
+      S.Set("Makeup Minimum %sMass flow:", DDB0_Desc[QmRqdMode]);
+    else if (IsQvRqd)
+      S.Set("Makeup Minimum %sVolume flow:", DDB0_Desc[QmRqdMode]);
+    else if (IsNQvRqd)
+      S.Set("Makeup Minimum %sNVolume flow:", DDB0_Desc[QmRqdMode]);
+    }
+  else
+    {
+    if (IsQmRqd)
+      S.Set("Required %sMass flow:", DDB0_Desc[QmRqdMode]);
+    else if (IsQvRqd)
+      S.Set("Required %sVolume flow:", DDB0_Desc[QmRqdMode]);
+    else if (IsNQvRqd)
+      S.Set("Required %sNVolume flow:", DDB0_Desc[QmRqdMode]);
+    }
+  DDB.Text("");
+  DDB.Text(S());
+  DDB.Visibility(NSHM_All, IsQmRqd);
   DDB.Double ("MassFlow_Rqd", "Qm_Rqd", DC_Qm , "kg/s", xidQmRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
   if (bMakeUpMode)
     DDB.TagComment("Min");
-  DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstQv)!=0));
-  DDB.Text(" ");
+  DDB.Visibility(NSHM_All, IsQvRqd);
   DDB.Double ("VolFlow_Rqd",  "Qv_Rqd", DC_Qv , "L/s",  xidQvRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
   if (bMakeUpMode)
     DDB.TagComment("Min");
-  DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstNQv)!=0));
-  DDB.Text(" ");
+  DDB.Visibility(NSHM_All, IsNQvRqd);
   DDB.Double ("NVolFlow_Rqd",  "NQv_Rqd", DC_NQv , "NL/s",  xidNQvRqd,  this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
-
   if (NetDynamicMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All, ((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))!=0));
     DDB.Double("Q_Std_Dev",     "",    DC_Frac,  "%",     &dQ_Std_Dev,    this, (fCrossConnected?0:isParm)|InitHidden);
     DDB.Double("Q_Tau",         "",    DC_Time,  "s",     &dQ_Tau,        this, (fCrossConnected?0:isParm)|InitHidden);
     }
+
   DDB.Visibility();
   DDB.Text(" ");
   DDB.Text  (SSMode & SSM_Sink ? "Sink Conditions" : "Temperature & Pressure Requirements:");
