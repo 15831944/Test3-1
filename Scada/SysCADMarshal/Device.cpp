@@ -420,18 +420,20 @@ HRESULT COPCDevice::Disconnect(void)
 CDeviceCfg::CDeviceCfg(LPCSTR Name): \
 m_sServerName(Name)
   {
-  m_lDeviceNo=-1;
+  m_lDeviceNo             = -1;
 
-  m_dwUpdateRate=250;
-  m_sProgID="ScdIODB.OPC.1";
-  m_sGroupName="SysCAD";
-  m_sNode="";
-  m_bLocalOnly=(_stricmp(Name, "Local")==0);
-  m_dwTrickleCount=0;
-  m_dwTrickleIndex=0;
-  m_bSyncIO=false;
-  m_dDeadBandPercent=0.001;
-  m_lDeadBandForceCount=-1;
+  m_dwUpdateRate          = 250;
+  m_sProgID               = "ScdIODB.OPC.1";
+  m_sGroupName            = "SysCAD";
+  m_sNode                 = "";
+  m_bLocalOnly            = (_stricmp(Name, "Local") == 0);
+  m_dwTrickleCount        = 0;
+  m_dwTrickleIndex        = 0;
+  m_bSyncIO               = false;
+  m_dDeadBandPercent      = 0.001;
+  m_lDeadBandForceCount   = -1;
+  m_MaxWriteBlockSize     = MaxWorkSlots;
+  m_MaxWriteSlotsPerSec   = -1;
   };
 
 CDeviceCfg::~CDeviceCfg()
@@ -444,18 +446,20 @@ CDeviceCfg::CDeviceCfg(const CDeviceCfg & V)
   };
 CDeviceCfg & CDeviceCfg::operator =(const CDeviceCfg & V)
   {
-  m_lDeviceNo       = V.m_lDeviceNo;    
-  m_sServerName     = V.m_sServerName;  
-  m_sProgID         = V.m_sProgID;      
-  m_sGroupName      = V.m_sGroupName;   
-  m_sNode           = V.m_sNode;        
-  m_dwUpdateRate    = V.m_dwUpdateRate; 
-  m_bLocalOnly      = V.m_bLocalOnly;
-  m_dwTrickleCount  = V.m_dwTrickleCount;
-  m_dwTrickleIndex  = V.m_dwTrickleIndex;
-  m_bSyncIO         = V.m_bSyncIO;
-  m_dDeadBandPercent  = V.m_dDeadBandPercent;
-  m_lDeadBandForceCount= V.m_lDeadBandForceCount;
+  m_lDeviceNo           = V.m_lDeviceNo;    
+  m_sServerName         = V.m_sServerName;  
+  m_sProgID             = V.m_sProgID;      
+  m_sGroupName          = V.m_sGroupName;   
+  m_sNode               = V.m_sNode;        
+  m_dwUpdateRate        = V.m_dwUpdateRate; 
+  m_bLocalOnly          = V.m_bLocalOnly;
+  m_dwTrickleCount      = V.m_dwTrickleCount;
+  m_dwTrickleIndex      = V.m_dwTrickleIndex;
+  m_bSyncIO             = V.m_bSyncIO;
+  m_dDeadBandPercent    = V.m_dDeadBandPercent;
+  m_lDeadBandForceCount = V.m_lDeadBandForceCount;
+  m_MaxWriteBlockSize   = V.m_MaxWriteBlockSize;
+  m_MaxWriteSlotsPerSec = V.m_MaxWriteSlotsPerSec;
   return *this;
   };
 
@@ -468,10 +472,10 @@ CDeviceCfg & CDeviceCfg::operator =(const CDeviceCfg & V)
 CDevice::CDevice(LPCSTR Name) : \
 CDeviceCfg(Name), m_OPC(Name)
   {
-  m_bInUse=false;
-
-  m_bConnected=false;
-  m_No = 0;
+  m_bInUse        = false;
+  m_bConnected    = false;
+  m_No            = 0;
+  m_PrevWriteTime = -1;
   };
 
 // -----------------------------------------------------------------------
@@ -486,15 +490,22 @@ bool CDevice::ReadConfig(LPCSTR DevCfgFile)
   {
   CProfINIFile PF(DevCfgFile);
 
-  m_sProgID         = PF.RdStr(m_sServerName,   "ProgID",       "ScdIODB.OPC.1");
-  m_sNode           = PF.RdStr(m_sServerName,   "Node",         "");
-  m_sGroupName      = PF.RdStr(m_sServerName,   "GroupName",    "SysCAD");
-  m_dwUpdateRate    = PF.RdLong(m_sServerName,  "UpdateRate",   250);
-  m_dwTrickleCount  = PF.RdLong(m_sServerName,  "TrickleCount", 0);
-  m_bSyncIO         = PF.RdLong(m_sServerName,  "SyncIO",       0)!=0;
-  m_dDeadBandPercent    = PF.RdDouble (m_sServerName,  "DeadBandPercent",      0.1)*0.01;
-  m_lDeadBandForceCount = PF.RdLong   (m_sServerName,  "DeadBandForceCount", -1);
-  m_dwTrickleIndex  = 0;
+  m_sProgID             = PF.RdStr(m_sServerName,   "ProgID",               "ScdIODB.OPC.1");
+  m_sNode               = PF.RdStr(m_sServerName,   "Node",                 "");
+  m_sGroupName          = PF.RdStr(m_sServerName,   "GroupName",            "SysCAD");
+  m_dwUpdateRate        = PF.RdLong(m_sServerName,  "UpdateRate",           250);
+  m_MaxWriteBlockSize   = PF.RdLong(m_sServerName,  "MaxWriteBlockSize",    -1);
+  m_MaxWriteSlotsPerSec = PF.RdDouble(m_sServerName,  "MaxWriteSlotsPerSec",  -1);
+  m_dwTrickleCount      = PF.RdLong(m_sServerName,  "TrickleCount",         0);
+  m_bSyncIO             = PF.RdLong(m_sServerName,  "SyncIO",               0)!=0;
+  m_dDeadBandPercent    = PF.RdDouble(m_sServerName,  "DeadBandPercent",    0.1)*0.01;
+  m_lDeadBandForceCount = PF.RdLong(m_sServerName,  "DeadBandForceCount",   -1);
+  m_dwTrickleIndex      = 0;
+
+  if (m_MaxWriteBlockSize<=0)
+    m_MaxWriteBlockSize = MaxWorkSlots;
+  else
+    m_MaxWriteBlockSize = Range(1L, m_MaxWriteBlockSize, MaxWorkSlots);
 
   if (m_sGroupName.GetLength()==0)
     {
@@ -511,14 +522,16 @@ bool CDevice::WriteConfig(LPCSTR DevCfgFile)
   {
   CProfINIFile PF(DevCfgFile);
 
-  PF.WrStr(m_sServerName, "ProgID",      m_sProgID);
-  PF.WrStr(m_sServerName, "Node",        m_sNode);
-  PF.WrStr(m_sServerName, "GroupName",   m_sGroupName);
-  PF.WrLong(m_sServerName, "UpdateRate", m_dwUpdateRate);
-  PF.WrLong(m_sServerName, "TrickleCount", m_dwTrickleCount);
-  PF.WrLong(m_sServerName, "SyncIO",       m_bSyncIO?1:0);
-  PF.WrDouble (m_sServerName, "DeadBandPercent",  m_dDeadBandPercent*100.0);
-  PF.WrLong   (m_sServerName, "DeadBandForceCount", m_lDeadBandForceCount);
+  PF.WrStr(m_sServerName, "ProgID",                   m_sProgID);
+  PF.WrStr(m_sServerName, "Node",                     m_sNode);
+  PF.WrStr(m_sServerName, "GroupName",                m_sGroupName);
+  PF.WrLong(m_sServerName, "UpdateRate",              m_dwUpdateRate);
+  PF.WrLong(m_sServerName, "MaxWriteSlots",           m_MaxWriteBlockSize);
+  PF.WrDouble(m_sServerName, "MaxWriteSlotsPerSec",     m_MaxWriteSlotsPerSec);
+  PF.WrLong(m_sServerName, "TrickleCount",            m_dwTrickleCount);
+  PF.WrLong(m_sServerName, "SyncIO",                  m_bSyncIO?1:0);
+  PF.WrDouble(m_sServerName, "DeadBandPercent",       m_dDeadBandPercent*100.0);
+  PF.WrLong(m_sServerName, "DeadBandForceCount",      m_lDeadBandForceCount);
 
   if (m_sGroupName.GetLength()==0)
     {
@@ -1080,27 +1093,52 @@ long CDevice::FlushWriteList()
   long No=0;
   long NoInts=0;
   long NoFlts=0;
-  //CWriteRqst * pWrt=m_WriteList.RemoveHead();
-  CChangeItem * pWrt=m_WriteList.RemoveHead();
-  while (pWrt)
+
+  const int dbgTimedWrite=1;
+
+  bool WriteIt = true;
+  while (WriteIt && m_WriteList.Count()>0)// && (No+1)<=MaxSlotsPerSec*(Time-PrevTime))
     {
-    Total++;
-    WrkSlots[No]=pWrt->m_lSrcInx;
-    WrkHandles[No]=pWrt->m_hServer;
-    WrkValues[No]=pWrt->m_vValue;
-    Wrts[No]=pWrt;
-    No++;
-    if (pWrt->m_vValue.vt==VT_R4 || pWrt->m_vValue.vt==VT_R8)
-      NoFlts++;
-    else
-      NoInts++;
-
-    gs_SlotMngr.m_HistoryList.AddTail(pWrt);
-    //delete pWrt;
-    pWrt=m_WriteList.RemoveHead();
-
-    if ((No>=MaxWorkSlots) || (No>0 && (pWrt==NULL)))
+    double Time=m_Timer.Time();
+    if (m_MaxWriteSlotsPerSec>0)
       {
+      if (Time<m_PrevWriteTime)
+        {
+        m_PrevWriteTime=Time;
+        if (dbgTimedWrite)
+          dbgpln("Break 1 ------------------------- ");
+        WriteIt=false;
+        }
+      if ((No+1)>(m_MaxWriteSlotsPerSec*(Time-m_PrevWriteTime)))
+        {
+        if (dbgTimedWrite)
+          dbgpln("Break 2 ------------------------- %4i  %8.3f", No, (Time-m_PrevWriteTime));
+        WriteIt=false;
+        }
+      }
+
+    if (WriteIt)
+      {
+      CChangeItem * pWrt=m_WriteList.RemoveHead();
+      Total++;
+      WrkSlots[No]=pWrt->m_lSrcInx;
+      WrkHandles[No]=pWrt->m_hServer;
+      WrkValues[No]=pWrt->m_vValue;
+      Wrts[No]=pWrt;
+      No++;
+      if (pWrt->m_vValue.vt==VT_R4 || pWrt->m_vValue.vt==VT_R8)
+        NoFlts++;
+      else
+        NoInts++;
+
+      gs_SlotMngr.m_HistoryList.AddTail(pWrt);
+      if (dbgTimedWrite)
+        dbgpln("Add %5i", No);
+      }
+
+    if ((!WriteIt && No>0) || (No>=m_MaxWriteBlockSize) || (No>0 && (m_WriteList.Count()==0)))
+      {
+      //dbgpln("Write %5i", No);
       gs_SlotMngr.m_Stats.m_nIntWritesBusy+=NoInts;
       gs_SlotMngr.m_Stats.m_nFltWritesBusy+=NoFlts;
       gs_SlotMngr.SendUpdateStatus();
@@ -1120,9 +1158,18 @@ long CDevice::FlushWriteList()
       gs_SlotMngr.m_Stats.m_nIntWritesBusy-=NoInts;
       gs_SlotMngr.m_Stats.m_nFltWritesBusy-=NoFlts;
       gs_SlotMngr.SendUpdateStatus();
+
+      if (dbgTimedWrite)
+        {
+        //Sleep(10);
+        dbgpln("Write   ------------------------- %4i  %8.3f = %8.2f", No, (Time-m_PrevWriteTime), No/(Time-m_PrevWriteTime));
+        }
+      m_PrevWriteTime=Time;
+
       //
       // Think we need to check all the return error codes here
       //
+      // for debugging
 
       LPCTSTR Msg1=m_bSyncIO  ? _T("SyncIO.Write: ") : _T("ASyncIO.Write: ");
       LPCTSTR Msg2=m_bSyncIO  ? _T("SyncIO.Write: Item") : _T("ASyncIO.Write: Item");
@@ -1148,8 +1195,12 @@ long CDevice::FlushWriteList()
       No=0;
       NoInts=0;
       NoFlts=0;
+
+
       }
     }
+
+  //PrevTime=Time;
 
   //theApp.PostThreadMessage(WMU_UPDATETAGVALUES, 0, 0);
 
