@@ -447,6 +447,7 @@ void CFlwEqn::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBl
   double GCp=C.totCp(som_Gas);
   double LCp=C.totCp(som_SL);
   double To=(GCp+LCp)>1.0e-10 ? (LTo*LCp+GTo*GCp)/(GCp+LCp) : Ti;
+  // This goes wrong if Po is wrong/out of range !!!!!!! CNM
   FTB.AddWorkPower((To-Ti)*C.totCp(), Po);
 
   // AutoCompression
@@ -2503,7 +2504,7 @@ void CFlwBlkBase::EvalProducts(double Pi, double Po, SpConduit & C, CFlwThermalB
   {
   SpConduit * pFlwCd=m_pCd;
   m_pCd=&C;
-  Eqn()->EvalProducts(*this, Pi, Po, FTB);
+  Eqn()->EvalProducts(*this, Range(CDB.MinP, Pi, CDB.MaxP), Range(CDB.MinP, Po, CDB.MaxP), FTB);
   m_pCd=pFlwCd;
   };
 
