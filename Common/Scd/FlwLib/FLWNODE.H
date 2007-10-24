@@ -2085,9 +2085,11 @@ class DllImportExport IOAreaRec
     void           SetIODesc(LPTSTR Desc)   { m_pDesc=Desc; };
     void           SetIOName(LPTSTR Name)   { m_pName=Name; };
     LPTSTR         IODesc()                 { return m_pDesc; };
-    int            IONameCount()            { return m_nNameCount; };
+    int            IONameCount()            { int n=1; if (m_pAltNames) { while (m_pAltNames[n-1].m_pName) n++; } return n; };
     LPTSTR         IOName(int i=0)          { return i==0 ? m_pName : m_pAltNames ? m_pAltNames[i-1].m_pName : NULL; };
     LPTSTR         DefaultIOName(int iOrigFileVerNo);
+
+    void           AppendAltName(LPSTR Name, int DefB4Ver=0);
 
     void           Duplicate(IOAreaRec & I);
     void           PreDelete();
@@ -2112,8 +2114,8 @@ class DllImportExport IOAreaRec
     // Extra Info
     flag           m_fChecked,
                    m_fValid;
-    int            m_nNameCount;
   };
+
 
 // ----------------------------------------------------------
 

@@ -402,12 +402,13 @@ void MBaseMethod::SetIODefinition(MInOutDefStruct * pDefs)
   m_pIODefs=pDefs;
   m_nJoins=0;
   IOAreaRec IOA[100+1];
-  for (int i=0; pDefs[i].m_sDesc; i++)
+  int iIOA=0;
+  for (int iD=0; pDefs[iD].m_sDesc; iD++)
     {
-    ASSERT_ALWAYS(i<100, "Too many IO Definitions in SetIODefinition()", __FILE__, __LINE__);
-    IOAreaRec & N=IOA[i];
-    MInOutDefStruct & D=pDefs[i];
-    memset(&IOA[i], 0, sizeof(IOAreaRec));
+    MInOutDefStruct & D=pDefs[iD];
+    ASSERT_ALWAYS(iIOA<100, "Too many IO Definitions in SetIODefinition()", __FILE__, __LINE__);
+    IOAreaRec & N=IOA[iIOA];
+    memset(&IOA[iIOA], 0, sizeof(IOAreaRec));
     N.SetIODesc(D.m_sDesc);
     N.SetIOName(D.m_sName);
 
@@ -425,6 +426,8 @@ void MBaseMethod::SetIODefinition(MInOutDefStruct * pDefs)
     if (D.m_dwOptions & MIO_Control)        N.m_dwType = nc_CLnk;
     if (D.m_dwOptions & MIO_Electrical)     N.m_dwType = nc_ELnk;
 
+    //if (D.m_dwOptions & MIO_Hidden)         N.m_dwFlags |= IOHidden;
+
     // TODO Fix these
     if (D.m_dwOptions & MIO_Transfer)       N.m_dwFlags |= IOSetXfer;//dwIOIsBuffer;
     //if (D.m_dwOptions & MIO_Overflow)       N.m_dwFlags |= dwIOOverflow;
@@ -432,9 +435,17 @@ void MBaseMethod::SetIODefinition(MInOutDefStruct * pDefs)
     if (D.m_dwOptions & MIO_PipeEntry)      N.m_dwFlags |= IOPipeEntry;
     if (D.m_dwOptions & MIO_PipeJoin)       N.m_dwFlags |= IOPipeJoin;
     if (D.m_dwOptions & MIO_ApertureHoriz)  N.m_dwFlags |= IOApertureHoriz;
+
+    for (int i=0; i<sizeof(D.m_AltNames)/sizeof(D.m_AltNames[0]); i++)
+      {
+      if (D.m_AltNames[i] && strlen(D.m_AltNames[i])>0)
+        N.AppendAltName(D.m_AltNames[i]);
+      }
+
+    iIOA++;
     }
 
-  memset(&IOA[i], 0, sizeof(IOAreaRec));
+  memset(&IOA[iIOA], 0, sizeof(IOAreaRec));
 
   m_pNd->AttachIOAreas(IOA, NULL, true);
 

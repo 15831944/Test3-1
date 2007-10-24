@@ -66,26 +66,27 @@ NOTE: The IO Port name must be unique and valid tag (no illegal characters or sp
       model connections, otherwise projects will not load! (If desparate an edit in some of
       the tables in the scd_mdls.mdb database can overcome the problem.)*/
 
+//List of possible connection directions
+const DWORD MIO_In              = 0x00000001;     // Input only
+const DWORD MIO_Out             = 0x00000002;     // Output only
+const DWORD MIO_InOut           = MIO_In|MIO_Out; // Input or Output
+
 //List of possible connection types
-const DWORD MIO_In              = 0x00000001; //input only
-const DWORD MIO_Out             = 0x00000002; //output only
-const DWORD MIO_InOut           = MIO_In|MIO_Out; //input or output
+const DWORD MIO_Material        = 0x00000010;     // Pipe link
+const DWORD MIO_Control         = 0x00000020;     // Control link
+const DWORD MIO_Electrical      = 0x00000040;     // Electrical link
 
-const DWORD MIO_Material        = 0x00000010; //pipe link
-const DWORD MIO_Control         = 0x00000020; //control link
-const DWORD MIO_Electrical      = 0x00000040; //electrical link
+//List of other connection port options
+const DWORD MIO_Transfer        = 0x00000100;     // Only allow pipes of type transfer link to be connected
+const DWORD MIO_PipeEntry       = 0x00000200;     // Marks the IO point an an entry to or exit from a pipe (eg at a tank)
+const DWORD MIO_PipeJoin        = 0x00000400;     // Marks the IO point an an entry to or exit from a 'join' (eg at a tee-piece)
+const DWORD MIO_ApertureHoriz   = 0x00000800;     // Pipe is connected "horizontal" (eg base of tank)
 
-const DWORD MIO_Transfer        = 0x00000100; //only allow pipes of type transfer link to be connected
-const DWORD MIO_Overflow        = 0x00000200; //overflow pipe
-const DWORD MIO_GasVent         = 0x00000400; //gas vent pipe
-const DWORD MIO_PipeEntry       = 0x00000800; //
-const DWORD MIO_PipeJoin        = 0x00001000; //
-const DWORD MIO_ApertureHoriz   = 0x00002000; //pipe is connected "horizontal" (eg base of tank)
+const long MCN_Join             = 0x00100000;     // Pipe connected directly to others and balance is enforced (default)
+const long MCN_Open             = 0x00200000;     // Pipe connected to a tank or similar which can accumulate material
+const long MCN_Closed           = 0x00400000;     // No flow permitted to or from this IO pt
 
-const long MCN_Join             = 0x00100000; //pipe connected to the others and balance is enforced (default)
-const long MCN_Open             = 0x00200000; //pipe is connected to a surge
-const long MCN_Closed           = 0x00400000; //pipe is connected to a 'blank'
-const long MCN_IOMask           = 0x0000ffff; //pipe is connected to a 'blank'
+const long MCN_IOMask           = 0x0000ffff;     // Mask for container connection Ids 
 
 // Tear Type
 enum MTearTypes { MTT_NoTear = 0, MTT_SystemTear = 1, MTT_ManualTear = 2, MTT_Break = 3 };
@@ -102,6 +103,7 @@ struct DllImportExport MInOutDefStruct
     long          m_lCnId;      //used to group a number different port IDs (eg shell and tube sides of heatexchanger)
     float         m_dFracHgt;   //default connection height as a fraction between 0.0f and 1.0f (only relevant in dynamic to models with surge)
     DWORD         m_dwOptions;  //IO connection port options and type. MIO_xxx Multiple flags can be set using | (eg MIO_In|MIO_Material)
+    LPTSTR        m_AltNames[5]; // an array of alternate names (Optional - for upgrade purposes)
   };
 
 

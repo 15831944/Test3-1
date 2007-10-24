@@ -128,16 +128,11 @@ static MDDValueLst DDOpMode[]=
 static MInOutDefStruct s_IODefs[]=
   {
   //  Desc,        Name,         PortId,  Rqd, Max, CnId, FracHgt,  Options
-    { "Tube In",   "TubeI",      idTubeI,   1,  10,    0,    1.0f,  MIO_In |MIO_Material },
-    { "Tube In",   "TubesIn",    idTubeI,   1,  10,    0,    1.0f,  MIO_In |MIO_Material|MIO_Hidden },
-    { "Tube Out",  "TubeO",      idTubeO,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
-    { "Tube Out",  "TubesOut",   idTubeO,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material|MIO_Hidden },
-    { "Shell In",  "ShellI",     idShellI,  1,  10,    1,    1.0f,  MIO_In |MIO_Material },
-    { "Shell In",  "ShellIn",    idShellI,  1,  10,    1,    1.0f,  MIO_In |MIO_Material|MIO_Hidden },
-    { "Shell Out", "ShellO",     idShellO,  1,   1,    1,    1.0f,  MIO_Out|MIO_Material },
-    { "Shell Out", "ShellOut",   idShellO,  1,   1,    1,    1.0f,  MIO_Out|MIO_Material|MIO_Hidden },
-    { "Vent",      "VentO",      idVentO,   1,   1,    1,    1.0f,  MIO_Out|MIO_Material },
-    { "Vent",      "ShellVent",  idVentO,   1,   1,    1,    1.0f,  MIO_Out|MIO_Material|MIO_Hidden },
+    { "Tube In",   "TubeI",      idTubeI,   1,  10,    0,    1.0f,  MIO_In |MIO_Material , {"TubesIn"} },
+    { "Tube Out",  "TubeO",      idTubeO,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material , {"TubesOut"} }, 
+    { "Shell In",  "ShellI",     idShellI,  1,  10,    1,    1.0f,  MIO_In |MIO_Material , {"ShellIn"} },  
+    { "Shell Out", "ShellO",     idShellO,  1,   1,    1,    1.0f,  MIO_Out|MIO_Material , {"ShellOut"} }, 
+    { "Vent",      "VentO",      idVentO,   1,   1,    1,    1.0f,  MIO_Out|MIO_Material , {"ShellVent"} },
     { NULL },
   };
 

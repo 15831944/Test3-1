@@ -2565,6 +2565,27 @@ void IOAreaRec::PreDelete()
   delete [] m_pAltNames;
   }
 
+void IOAreaRec::AppendAltName(LPSTR Name, int DefB4Ver)
+  {
+  int n=0;
+  if (m_pAltNames)
+    {
+    for (int i=0; m_pAltNames[i].m_pName; i++)
+      n++;
+    }
+  CAltIOName *pAltNames=new CAltIOName[n+1+1];
+  for (int i=0; i<n; i++)
+    pAltNames[i]=m_pAltNames[i];
+
+  pAltNames[n].m_pName=Name;
+  pAltNames[n].m_DefB4Ver=DefB4Ver;
+
+  pAltNames[n+1].m_pName=NULL;
+
+  delete[] m_pAltNames;
+  m_pAltNames = pAltNames;
+  }
+
 //===========================================================================
 //
 //
@@ -2971,7 +2992,10 @@ void FlwNode::SwapIOAreas(IOAreaRec * IOAreas_, bool Copy)
   if (dbgSwapIOAreas)
     {
     for (int i=0; i<m_IOs.GetCount(); i++)
-      dbgpln("IO %3i) %6i %6i %s", i, IODescNo_Self(i), IODescNo_Rmt(i), IODesc_Self(i)->IOName());
+      {
+      for (int j=0; IODesc_Self(i)->IOName(j); j++)
+        dbgpln("IO %3i) %6i %6i %s", i, IODescNo_Self(i), IODescNo_Rmt(i), IODesc_Self(i)->IOName(j));
+      }
     dbgpln("---------------------");
     }
 
@@ -3028,9 +3052,11 @@ void FlwNode::CheckIOAreas(bool OneGroup, CFlwEqnGrp * DefFlwEqnGrp0, CFlwEqnGrp
       while ((pb=strchr(p->IOName(n), ' '))!=NULL)
         *pb='_';
       if (0)
-        dbgpln("  %2i %2i %s", i, n, p->IOName(n));
+        {
+        static int xxx=0;
+        dbgpln("  %4i %2i %2i %s", xxx++, i, n, p->IOName(n));
+        }
       }
-    p->m_nNameCount= n;
 
     p->m_fChecked = 1;
     p->m_fValid   = 1;
