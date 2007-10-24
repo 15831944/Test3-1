@@ -357,6 +357,15 @@ void CPipeTerm::ConfigureJoins()
   {
   for (int i=0; i<NoProcessIOs(); i++)
     SetIO_Open(i, 0, false, ESS_Denied);
+
+  //if (NoFlwIOs()>0)
+  //  {
+  //  if (0)//fForceOpen)
+  //    IOFB(0,0)->SetBiDirectionalFlow();
+  //  else
+  //    IOFB(0,0)->SetUniDirectionalFlow(True, IOFB(0,0)->UDFOpenP(), 0.0);//FB.UDFCloseP());//OpenPress, CloseP);
+  //  }
+
   };
 
 //--------------------------------------------------------------------------
@@ -450,26 +459,33 @@ void CPipeTerm::EvalProductsInit(EvalProductsInitTasks Task)
 
 void CPipeTerm::EvalProducts(CNodeEvalIndex & NEI)
   {
-
   int i, nOut=0, nIn=0;
+  bool CI2On=false;
   switch (NetMethod())
     {
     case NM_Probal:
     case NM_Dynamic:
+      {
       for (i=0;i<NoFlwIOs(); i++)
+        {
         if (IO_Out(i) || IO_Zero(i))
           {
           SpConduit& Q = *IOConduit(i);
           //Q.QZero();
           //m_Flows.QZero();
-          Q.QSetM(m_Flows, som_ALL, IOQmEst_Out(i), IOP_Self(i));
+          m_Flows.SetTempPress(AmbientTemp(), IOP_Self(i));
+          Q.QSetM(m_Flows, som_ALL, IOQmEst_Out(i)*1e-6, IOP_Self(i));
+          CI2On=true;
           }
         else if (IO_In(i)) // Defined Input
           {
           m_Flows.QSetF(*IOConduit(i), som_ALL, 1.0, IOP_Self(i));
           }
+        }
       break;
+      }
     }
+  SetCI(2, CI2On);
   }
 
 //--------------------------------------------------------------------------
@@ -525,6 +541,7 @@ flag CPipeTerm::CIStrng(int No, pchar & pS)
   switch (No-CBContext())
     {
     case 1: pS="E\tBad Regulator Configuration"; return 1;
+    case 2: pS="E\tReverse Flow into Pipe Terminator"; return 1;
     default:                                               
       return MdlNode::CIStrng(No, pS);
     }
