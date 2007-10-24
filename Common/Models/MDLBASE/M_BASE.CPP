@@ -3264,8 +3264,27 @@ long MdlNode::CheckDataRanges(bool CheckIO)
   long N=FlwNode::CheckDataRanges(CheckIO);
   if (CheckIO)
     {
+    bool PHi = false;
+    bool PLo = false;
     for (int i=0; i<NoFlwIOs(); i++)
+      {
+      if (gs_RngChecks.Selected(RngChk_P))
+        {
+        if (Min(IOP_Self(i), IOP_Flng(i))<=CDB.MinP+0.1)
+          PLo=true;
+        if (Max(IOP_Self(i), IOP_Flng(i))>=CDB.MaxP-0.1)
+          PHi=true;
+        }
       N+=IOConduit(i)->CheckDataRanges();
+      }
+
+    if (PLo)
+      N++;
+    if (PHi)
+      N++;
+
+    SetCI(10, PLo);
+    SetCI(11, PHi);
     }
   return N;
   };
@@ -4698,6 +4717,8 @@ flag MdlNode::CIStrng(int No, pchar & pS)
     case 7: pS="E\tMass Imbalance";                 return 1;
     case 8: pS="E\tHeat Imbalance";                 return 1;
     case 9: pS="E\tMass and Heat Imbalance";        return 1;
+    case 10: pS="E\tPressure < Project Minimum";   return 1;
+    case 11: pS="E\tPressure > Project Maximum";   return 1;
     default:
       return FlwNode::CIStrng(No, pS);
     }

@@ -390,7 +390,6 @@ XID xidDynCmdScnRestart               = FlwXID(2314);
 XID xidDynCmdResetTime                = FlwXID(2315);
 XID xidDynCmdRestartHist              = FlwXID(2316);
 
-
 XID xidRngChk_T                       = FlwXID(2400);
 XID xidRngChk_TExtn                   = FlwXID(2401);
 XID xidRngChk_P                       = FlwXID(2402);
@@ -10305,36 +10304,6 @@ static DDBValueLst DDBAuditOptions[] =
     {Audit_Balance,  "Balance"  },
     {0}
   };
-
-//static DDBValueLst DDBRangeChecks[] = 
-//  {
-//    {0,                           "None"    },
-//    {RngChk_T,                    "T"       },
-//    {RngChk_T|RngChk_P,                "Other"   },
-//    {RngChk_T|RngChk_Rho,                "Other"   },
-//    {RngChk_T|RngChk_Comp,                "Other"   },
-//    {RngChk_T|RngChk_Other,                "Other"   },
-//
-//    {RngChk_P|RngChk_Rho,                "Other"   },
-//    {RngChk_P|RngChk_Comp,                "Other"   },
-//    {RngChk_P|RngChk_Other,                "Other"   },
-//
-//    {RngChk_Rho|RngChk_Comp,                "Other"   },
-//    {RngChk_Rho|RngChk_Other,                "Other"   },
-//
-//    {RngChk_Comp|RngChk_Other,                "Other"   },
-//
-//    {RngChk_P,                "Other"   },
-//
-//
-//    {RngChk_P,                    "P"       },
-//    {RngChk_Rho,                  "Rho"     },
-//    {RngChk_Comp,                 "Comp"   },
-//    {RngChk_Other,                "Other"   },
-//
-//    {0}
-//  };
-
 
 #if WITHMDLRANGECHECKS
 

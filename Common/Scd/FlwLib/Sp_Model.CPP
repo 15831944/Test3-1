@@ -7855,11 +7855,19 @@ Brent:
       }
 Done:
 
-     if (!m_bBadTempOK)
-       {
-       SetCI(9, EstT<CDB.MinT);
-       SetCI(10, EstT>CDB.MaxT);
-       }
+    if (!m_bBadTempOK)
+      {
+      if (gs_RngChecks.Selected(RngChk_T))
+        {
+        SetCI(9, EstT<CDB.MinT);
+        SetCI(10, EstT>CDB.MaxT);
+        }
+      else
+        {
+        ClrCI(9);
+        ClrCI(10);
+        }
+      }
 
 #if dbgSpModel
     if (dbgLT1Done && !m_bBadTempOK)
