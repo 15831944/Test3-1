@@ -317,7 +317,7 @@
 				RelativePath=".\HeatXch1.rc">
 			</File>
 			<File
-				RelativePath=".\ShellTube2.cpp">
+				RelativePath="..\..\..\SMDK\Kenwalt\HeatXch1\ShellTube2.cpp">
 			</File>
 			<File
 				RelativePath=".\ShlTube.CPP">
@@ -393,7 +393,7 @@
 				RelativePath=".\Resource.h">
 			</File>
 			<File
-				RelativePath=".\ShellTube2.h">
+				RelativePath="..\..\..\SMDK\Kenwalt\HeatXch1\ShellTube2.h">
 			</File>
 			<File
 				RelativePath=".\ShlTube.H">

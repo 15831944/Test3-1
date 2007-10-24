@@ -8,7 +8,6 @@
 #include "stdafx.h"
 #include "shelltube2.h"
 
-
 #define dbgModels 1
 
 //====================================================================================
@@ -128,28 +127,20 @@ static MDDValueLst DDOpMode[]=
 
 static MInOutDefStruct s_IODefs[]=
   {
-  //  Desc;        Name;    PortId; Rqd; Max; CnId, FracHgt;  Options;
-    { "Tube In",  "TubesIn",   idTubeI,   1,  10,    0,    1.0f,  MIO_In |MIO_Material },
-    { "Tube Out", "TubesOut",  idTubeO,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
-    { "Shell In", "ShellIn",   idShellI,  1,  10,    1,    1.0f,  MIO_In |MIO_Material },
-    { "Shell Out","ShellOut",  idShellO,  1,   1,    1,    1.0f,  MIO_Out|MIO_Material },
-    { "Vent",     "ShellVent", idVentO,   1,   1,    1,    1.0f,  MIO_Out|MIO_Material },
+  //  Desc,        Name,         PortId,  Rqd, Max, CnId, FracHgt,  Options
+    { "Tube In",   "TubeI",      idTubeI,   1,  10,    0,    1.0f,  MIO_In |MIO_Material },
+    { "Tube In",   "TubesIn",    idTubeI,   1,  10,    0,    1.0f,  MIO_In |MIO_Material|MIO_Hidden },
+    { "Tube Out",  "TubeO",      idTubeO,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
+    { "Tube Out",  "TubesOut",   idTubeO,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material|MIO_Hidden },
+    { "Shell In",  "ShellI",     idShellI,  1,  10,    1,    1.0f,  MIO_In |MIO_Material },
+    { "Shell In",  "ShellIn",    idShellI,  1,  10,    1,    1.0f,  MIO_In |MIO_Material|MIO_Hidden },
+    { "Shell Out", "ShellO",     idShellO,  1,   1,    1,    1.0f,  MIO_Out|MIO_Material },
+    { "Shell Out", "ShellOut",   idShellO,  1,   1,    1,    1.0f,  MIO_Out|MIO_Material|MIO_Hidden },
+    { "Vent",      "VentO",      idVentO,   1,   1,    1,    1.0f,  MIO_Out|MIO_Material },
+    { "Vent",      "ShellVent",  idVentO,   1,   1,    1,    1.0f,  MIO_Out|MIO_Material|MIO_Hidden },
     { NULL },
   };
 
-/*double Drw_CShellTube2[] = 
-  { 
-  MDrw_Poly, -10,1, 10,1,
-  MDrw_Poly, -10,-1, 10,-1,
-
-  MDrw_Poly, -9,3, -9,1,
-  MDrw_Poly, -9,-1, -9,-2, 8,-2, 8,-3,
-
-  MDrw_Poly, 9,-3, 9,-1,
-  MDrw_Poly, 9,1, 9,2, -8,2, -8,3,
-
-  MDrw_End 
-  };*/
 static double Drw_CShellTube2[] = { MDrw_Poly, -6,7, -4,7, -4,-7, -6,-7, -6,7,
                                     MDrw_Poly,  6,7,  4,7,  4,-7,  6,-7,  6,7,
                                     MDrw_Poly, -4,6, 4,6,
@@ -161,14 +152,21 @@ static double Drw_CShellTube2[] = { MDrw_Poly, -6,7, -4,7, -4,-7, -6,-7, -6,7,
 
 //---------------------------------------------------------------------------
 
-//DEFINE_TRANSFER_UNIT_EX(CShellTube2, "Alumina2*TubeDigester", DLL_GroupName)
+#if defined(HeatXch1)
 DEFINE_TRANSFER_UNIT_EX(CShellTube2, "ShellTube2", MDLLIBNAME)
+#else
+DEFINE_TRANSFER_UNIT(CShellTube2, "TestShellTube2", DLL_GroupName)
+#endif
 
 void CShellTube2_UnitDef::GetOptions()
   {
   SetDefaultTag("ST");
   SetDrawing("HeatExchange", Drw_CShellTube2);
+#if defined(HEATXCH1)
   SetTreeDescription("Heat Transfer:Shell & Tube(2)");
+#else
+  SetTreeDescription("Demo:Test Shell & Tube(2)");
+#endif
   SetDescription("Shell & Tube (or Tube Digester) for Flash Train");
   SetModelSolveMode(MSolveMode_Probal);
   SetModelGroup(MGroup_Energy);
@@ -538,7 +536,7 @@ double CCondensateFinder::Function(double Amount)
   double FTemp=m_ShellI.SaturationT();
   double FPress=m_ShellI.SaturationP();
 
-  m_VLE.SetSatPVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null); // Set the shell out stream to all liq
+  m_VLE.SetFlashVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null); // Set the shell out stream to all liq
   
   // CNM This line creates a problem if the Steam is superheated ???
   // JSM/RAS to check??
@@ -813,13 +811,20 @@ void CShellTube2::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStream &
   double FTemp=ShellI.SaturationT();
   if (TubeI.MassFlow()>0 && ShellI.MassFlow()>0 && ShellI.T > TubeI.T) {
     ShellO.SetM(ShellI, MP_All, 0);
-    if (m_dQmVentRqd < ShellI.MassFlow())  { // Assumes all steam, should check for water vapor
-      double SteamIn=ShellI.M[spWaterVapor];
-      VentO.SetF(ShellI, MP_Gas, 1.0);
-      VentO.M[spWaterVapor] = Range(0.0, m_dQmVentRqd, ShellI.M[spWaterVapor]);
-      ShellO.SetF(ShellI, MP_Gas, 0.0);
-      ShellO.M[spWaterVapor] = SteamIn-VentO.M[spWaterVapor];
-      } else 
+
+    MVDouble Vapor (ShellO, spWaterVapor);
+    MVDouble Cond (ShellO, spWater);
+    double SteamIn    = ShellI.MassVector[spWaterVapor];
+    double WaterIn =  ShellI.MassVector[spWater];
+    Vapor = 0.0;
+    Cond = SteamIn+WaterIn;  // Was ShellI.MassFlow();
+    //Log.Message(MMsg_Warning, "Live Steam Heater %f", Cond);
+    if (m_dQmVentRqd < SteamIn)  { // Enough Vapor to satisfy vent?
+	    Cond -= m_dQmVentRqd;
+	    MVDouble Vapor1 (VentO, spWaterVapor);
+	    VentO.SetF(ShellI, MP_Gas, 1.0);
+	    Vapor1 = m_dQmVentRqd;
+    } else 
       Log.Message(MMsg_Error, "Excess Vent Flow called for");
 		  
     ShellO.T = FTemp;
@@ -888,16 +893,16 @@ void CShellTube2::EvalProducts()
     DoSimpleHeater(ShellI, TubeI, ShellO, TubeO); break;
 	case OM_Condensing: 
     {
+	  DoCondensingHeater(ShellI, TubeI, ShellO, TubeO);
+	  MVDouble Condy (ShellO, spWater);  // We want to keep this
+	  double totCondensate = Condy;     // how much condensate
+	  ShellO.ZeroMass();     // Get rid of *everything*
+	  Condy = totCondensate;  // Then just add in the condensate already found
 
-    double SteamIn=ShellI.M[spWaterVapor];
-    VentO.SetF(ShellI, MP_Gas, 1.0);
-    VentO.M[spWaterVapor] = Range(0.0, m_dQmVentRqd, ShellI.M[spWaterVapor]);
-    ShellO.SetF(ShellI, MP_Gas, 0.0);
-    ShellO.M[spWaterVapor] = SteamIn-VentO.M[spWaterVapor];
-
-    DoCondensingHeater(ShellI, TubeI, ShellO, TubeO);
-
-    break;
+	  MVDouble Vapor (VentO, spWaterVapor); // Vent Vapor
+	  VentO.SetF(ShellI, MP_Gas, 1.0);      // Add *all the vapor in inlet
+	  Vapor = m_dQmVentRqd;    // and set the required flow
+	  break;
     }
 	case OM_LiveSteam:    
 	  DoLiveSteamHeater(ShellI, TubeI, ShellO, TubeO, VentO); break;
