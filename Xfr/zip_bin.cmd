@@ -77,11 +77,17 @@ wzzip -a %fn2% ..\bin\logview.dll ..\bin\protocol.dll ..\bin\regexwrap.dll ..\bi
 
 rem ------- Client DLLs -------
 
+rem ========== Alumina2 ==========
+set fn2=%fn%_c_Alumina2.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\alumina2.dll 
+
 rem ========== Alcan ==========
 set fn2=%fn%_c_Alcan.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\alcanspm.dll 
 wzzip -a %fn2% ..\bin\alcanusr.dll ..\bin\alcanbayer.dll
+wzzip -a %fn2% ..\bin\alumina2.dll 
 
 rem ========== Alunorte ==========
 set fn2=%fn%_c_Alunorte.zip
@@ -113,6 +119,7 @@ rem ========== Maaden ==========
 set fn2=%fn%_c_Maaden.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\Alumina2.dll
+wzzip -a %fn2% ..\bin\alcanspm.dll 
 
 rem ========== QAL ==========
 set fn2=%fn%_c_QAL.zip
