@@ -475,7 +475,7 @@ void CPipeTerm::EvalProducts(CNodeEvalIndex & NEI)
           //m_Flows.QZero();
           m_Flows.SetTempPress(AmbientTemp(), IOP_Self(i));
           Q.QSetM(m_Flows, som_ALL, IOQmEst_Out(i)*1e-6, IOP_Self(i));
-          CI2On=true;
+          CI2On=IO_Out(i);
           }
         else if (IO_In(i)) // Defined Input
           {
