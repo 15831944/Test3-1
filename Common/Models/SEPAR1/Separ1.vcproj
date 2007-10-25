@@ -314,7 +314,7 @@
 				RelativePath=".\FiltPrss.CPP">
 			</File>
 			<File
-				RelativePath=".\Flotation Cell.cpp">
+				RelativePath="..\..\..\SMDK\Kenwalt\Separ1\Flotation Cell.cpp">
 			</File>
 			<File
 				RelativePath=".\MixSettle.CPP">
@@ -399,7 +399,7 @@
 				RelativePath=".\FiltPrss.H">
 			</File>
 			<File
-				RelativePath=".\Flotation Cell.h">
+				RelativePath="..\..\..\SMDK\Kenwalt\Separ1\Flotation Cell.h">
 			</File>
 			<File
 				RelativePath=".\MixSettle.H">

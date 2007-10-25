@@ -4,9 +4,12 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef __MD_HEADERS_H
+#if defined(HeatXch1)
 #include "ex_headers.h"
+#else
+#include "md_headers.h"
 #endif
+
 //#include "..\TTCommon\STHx.h"
 #include "STHx.h"
 

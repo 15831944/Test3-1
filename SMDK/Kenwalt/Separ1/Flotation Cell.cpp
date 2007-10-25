@@ -37,7 +37,7 @@ static double Drw_FlotCell[] = {
 
 //---------------------------------------------------------------------------
 
-#if UseInSepar1
+#if defined(Separ1)
 DEFINE_TRANSFER_UNIT_EX(FlotationCell, "FlotationCell", MDLLIBNAME)
 #else
 DEFINE_TRANSFER_UNIT(FlotationCell, "TestFlotationCell", DLL_GroupName)
@@ -47,7 +47,7 @@ void FlotationCell_UnitDef::GetOptions()
   {
   SetDefaultTag("FC");
   SetDrawing("Tank", Drw_FlotCell);
-  #if UseInSepar1
+  #if defined(Separ1)
   SetTreeDescription("Separation:Flotation Cell");
   #else
   SetTreeDescription("Demo:Flotation Cell");

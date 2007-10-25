@@ -5,9 +5,7 @@
 #ifndef  __FLOTATION_CELL_H
 #define  __FLOTATION_CELL_H
 
-#define UseInSepar1 1
-
-#if UseInSepar1
+#if defined(Separ1)
 #include "ex_headers.h"
 #else
 #include "md_headers.h"
