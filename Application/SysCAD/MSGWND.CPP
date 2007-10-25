@@ -731,8 +731,10 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
       {
       if (gs_pArcMan)
         gs_pArcMan->LogAMessage(Msg);
+#if SYSCAD10         
       if (gs_pPrj->SvcActive)
         gs_pPrj->Svc.LogMessage(Msg.m_dwFlags, Msg.Description());
+#endif
       }
     }
 

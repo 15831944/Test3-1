@@ -230,27 +230,31 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   const bool IsQmRqd = (((SSMode & SSM_ConstQm)!=0) || NetProbalMethod() && (((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))==0)));
   const bool IsQvRqd = ((SSMode & SSM_ConstQv)!=0);
   const bool IsNQvRqd = ((SSMode & SSM_ConstNQv)!=0);
-  Strng S;
-  if (bMakeUpMode)
+  if (DDB.ForView())
     {
-    if (IsQmRqd)
-      S.Set("Makeup Minimum %sMass flow:", DDB0_Desc[QmRqdMode]);
-    else if (IsQvRqd)
-      S.Set("Makeup Minimum %sVolume flow:", DDB0_Desc[QmRqdMode]);
-    else if (IsNQvRqd)
-      S.Set("Makeup Minimum %sNVolume flow:", DDB0_Desc[QmRqdMode]);
+    Strng S;
+    if (bMakeUpMode)
+      {
+      if (IsQmRqd)
+        S.Set("Makeup Minimum %sMass flow:", DDB0_Desc[QmRqdMode]);
+      else if (IsQvRqd)
+        S.Set("Makeup Minimum %sVolume flow:", DDB0_Desc[QmRqdMode]);
+      else if (IsNQvRqd)
+        S.Set("Makeup Minimum %sNVolume flow:", DDB0_Desc[QmRqdMode]);
+      }
+    else
+      {
+      if (IsQmRqd)
+        S.Set("Required %sMass flow:", DDB0_Desc[QmRqdMode]);
+      else if (IsQvRqd)
+        S.Set("Required %sVolume flow:", DDB0_Desc[QmRqdMode]);
+      else if (IsNQvRqd)
+        S.Set("Required %sNVolume flow:", DDB0_Desc[QmRqdMode]);
+      }
+    DDB.Text("");
+    if (S.Len()>0)
+      DDB.Text(S());
     }
-  else
-    {
-    if (IsQmRqd)
-      S.Set("Required %sMass flow:", DDB0_Desc[QmRqdMode]);
-    else if (IsQvRqd)
-      S.Set("Required %sVolume flow:", DDB0_Desc[QmRqdMode]);
-    else if (IsNQvRqd)
-      S.Set("Required %sNVolume flow:", DDB0_Desc[QmRqdMode]);
-    }
-  DDB.Text("");
-  DDB.Text(S());
   DDB.Visibility(NSHM_All, IsQmRqd);
   DDB.Double ("MassFlow_Rqd", "Qm_Rqd", DC_Qm , "kg/s", xidQmRqd,       this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
   if (bMakeUpMode)

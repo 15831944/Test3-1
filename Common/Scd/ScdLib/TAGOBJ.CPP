@@ -3373,15 +3373,14 @@ void TaggedObject::BuildCommonStartDefn(DataDefnBlk &DDB)
 
 void TaggedObject::BuildCommonSEDefn(DataDefnBlk &DDB)
   {
-  DDB.String      ("Parent",      "", DC_,   "", xidParent,             this, 0|DDEF_WRITEPROTECT/*|InitHidden*/);
+  DDB.String      ("Parent",      "", DC_,   "", xidParent,             this, 0|DDEF_WRITEPROTECT|InitHidden);
   DDB.String      ("Type",        "", DC_,   "", &m_pClass->sClassName, this, 0|DDEF_WRITEPROTECT);
   DDB.String      ("ClassId",     "", DC_,   "", &m_pClass->sClassId,   this, 0|DDEF_WRITEPROTECT/*|InitHidden*/);
   DDB.String      ("PrimaryCfg",  "", DC_,   "", xidPrimaryCfg,         this, 0|InitHidden);
-  DDB.String      ("EqpDesc",     "", DC_,   "", xidEqDesc,             this, isParm);
   DDB.String      ("EqpMemo",     "", DC_,   "", xidEqMemo,             this, isParm/*|InitHidden*/);
   DDB.String      ("EqpIdStr",    "", DC_,   "", xidEqIdStr,            this, isParm/*|InitHidden*/);
   DDB.String      ("EqpLocation", "", DC_,   "", xidEqLocation,         this, isParm/*|InitHidden*/);
-  DDB.String      ("EqpGUID",     "", DC_,   "", xidEqGUID,             this, isParmConstruct/*|InitHidden*/);
+  DDB.String      ("EqpGUID",     "", DC_,   "", xidEqGUID,             this, isParmConstruct|InitHidden);
   DDB.Long        ("EqpLink",     "", DC_,   "", xidEqLink,             this, isParmConstruct/*|InitHidden*/);
   DDB.Long        ("ReportKey",   "", DC_,   "", xidEqRepKey,           this, isParm/*|InitHidden*/);
   if (dbgtestfileopen())

@@ -3588,39 +3588,41 @@ static DDBValueLst SolutionStrsN[]={
 
 void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   {
-  Strng Md("Mode: ");
-
-  if (m_AllowedModes & NM_All)
+  if (DDB.ForView())
     {
-    if (Md.GetLength()>6)
-      Md+=", ";
-    Md+=NetMethodStr();
-    }
+    Strng Md("Mode: ");
 
-  if ((m_AllowedModes & SM_All) && NetMethod()==NM_Dynamic)
-    {
-    if (Md.GetLength()>6)
-      Md+=", ";
-    Md+=SolveMethodStr();
-    }
+    if (m_AllowedModes & NM_All)
+      {
+      if (Md.GetLength()>6)
+        Md+=", ";
+      Md+=NetMethodStr();
+      }
 
-  if (m_AllowedModes & HM_All)
-    {
-    if (Md.GetLength()>6)
-      Md+=", ";
-    Md+=HeatMethodStr();
-    }
+    if ((m_AllowedModes & SM_All) && NetMethod()==NM_Dynamic)
+      {
+      if (Md.GetLength()>6)
+        Md+=", ";
+      Md+=SolveMethodStr();
+      }
 
-  if ((m_AllowedModes & LFM_All) && NetMethod()==NM_Dynamic)
-    {
-    if (Md.GetLength()>6)
-      Md+=", ";
-    Md+=FlowModeStr();
+    if (m_AllowedModes & HM_All)
+      {
+      if (Md.GetLength()>6)
+        Md+=", ";
+      Md+=HeatMethodStr();
+      }
+
+    if ((m_AllowedModes & LFM_All) && NetMethod()==NM_Dynamic)
+      {
+      if (Md.GetLength()>6)
+        Md+=", ";
+      Md+=FlowModeStr();
+      }
+    DDB.Text(Md());
     }
-  DDB.Text(Md());
 
   CTNode::BuildCommonStartDefn(DDB);
-
 
 #if WITHNODEPROCS
   if (m_ProcsAllowed)
@@ -3629,7 +3631,6 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
     //DDB.Byte("Procedures", "", DC_, "", xidProcsEnable,  this, isParmStopped|SetOnChange, DDBOnOff);
     }
 #endif
-
 
   DDB.String      ("Condition",      "", DC_, "", xidNdCondition,       this, MultiLineStr|noFile|noSnap);
   if (DDB.ForView())
@@ -3643,6 +3644,8 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
       }
     }
   DDB.Long        ("ConditionCount", "", DC_, "", xidNdConditionCount,  this, noFile|noSnap|InitHidden);
+
+  DDB.String      ("EqpDesc",     "", DC_,   "", xidEqDesc,             this, isParm);
 
   //CTNode::BuildCommonSEDefn(DDB);
   }
