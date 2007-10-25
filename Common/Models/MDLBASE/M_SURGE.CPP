@@ -608,8 +608,9 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
     case SM_Inline:
     case SM_Buffered:
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
+      m_QProd.QCopy(m_QFeed);
 
-      m_BlkEval.EvalProducts(0, m_QFeed, ContentHgtOrd.Container().Press(), NULL);//&m_FTB);
+      m_BlkEval.EvalProducts(0, m_QProd, ContentHgtOrd.Container().Press(), NULL);//&m_FTB);
 
       EvalProducts_SurgeLevel(SolveInlineMethod(), false, ContentHgtOrd, &m_SrgCtrl);
       //EvalProducts_SurgeLevel(Contents, QFeed, First64IOIds, PMU());

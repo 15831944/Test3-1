@@ -810,8 +810,8 @@ double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, bool P
     {
     if (IO_In(i) && ((IOIdMask_Self(i) & IOIds)!=0))
       {
-      if (0 && fDoDbgBrk)
-        dbgpln("Qi %3i %14.6f", i, IOConduit(i)->QMass(PhaseM));
+      //if (0 && fDoDbgBrk)
+      //  dbgpln("Qi %3i %14.6f %8.2f", i, IOConduit(i)->QMass(PhaseM), IOConduit(i)->Temp());
 
       Qi.QAddF(*IOConduit(i), PhaseM, 1.0);
       }
