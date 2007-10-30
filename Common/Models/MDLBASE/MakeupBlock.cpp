@@ -278,7 +278,7 @@ XID xidMkRemCmp  = AdjustXID(1013);
 XID xidMkElemCnt = AdjustXID(1014);
 XID xidMkAddElem = AdjustXID(1015);
 XID xidMkRemElem = AdjustXID(1016);
-XID xidMkError   = AdjustXID(1017);
+XID xidMkState   = AdjustXID(1017);
 XID xidMkDesc    = AdjustXID(1018);
 XID xidMkPhase   = AdjustXID(1200);
 
@@ -543,6 +543,7 @@ class DllImportExport CXBlk_MUBase: public CMakeupBlock
     CMeasInfo       m_Meas1, m_Meas2;
 
     bool            m_bHasFlow;
+    bool            m_bStopMakeUp;
 
     double          m_RqdSetPoint;
 
@@ -1128,6 +1129,7 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   m_RqdSetPoint = 0;
 
   m_bHasFlow   = true;
+  m_bStopMakeUp= false;
 
   m_SetPoint   = 0.0;
   m_Measured   = 0.0;
@@ -1554,7 +1556,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Text(" ");
   DDB.Text("Results");
   DDB.String("Description",      "", DC_,   "",    xidMkDesc,     this, isResult);
-  DDB.String("Error",            "", DC_,   "",    xidMkError,     this, isResult);
+  DDB.String("State",            "", DC_,   "",    xidMkState,     this, isResult);
 
   DDB.Text(" ");
   switch (m_Op)
@@ -1921,11 +1923,15 @@ flag CXBlk_MUBase::DataXchg(DataChangeBlk & DCB)
       DCB.pC=m_sDesc();
       return 1;
       }
-    case xidMkError:
+    case xidMkState:
       {
       m_ErrorLst.Clear();
       ConditionBlk::GetMyCIs(m_ErrorLst,3);
-      if (!SrcIO.Connected)
+      if (!m_pMakeupBase->On())
+        {
+        DCB.pC="Off";
+        }
+      else if (!SrcIO.Connected)
         {
         DCB.pC="Not Connected";
         }
@@ -1933,13 +1939,17 @@ flag CXBlk_MUBase::DataXchg(DataChangeBlk & DCB)
         {
         DCB.pC="No Flow";
         }
+      else if (m_bStopMakeUp)
+        {
+        DCB.pC="Makeup stopped due to low feed rule";
+        }
       else if (m_ErrorLst.Length()>0)
         {
         Strng &S=*m_ErrorLst.First();
         DCB.pC=S.XStrChr('\t')+1;
         }
       else
-        DCB.pC="None";
+        DCB.pC="OK";
       return 1;
       }
     }
@@ -2140,7 +2150,7 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
   QIn().QCopy(QProd);
 
   m_bHasFlow = (m_QmFeed>SmallPosFlow);
-  bool StopMakeUp = m_pMakeupBase->On() && (m_eLoFeedOpt>LF_AlwaysOn) && (m_QmFeed<m_LoFeedQm); 
+  m_bStopMakeUp = m_pMakeupBase->On() && (m_eLoFeedOpt>LF_AlwaysOn) && (m_QmFeed<m_LoFeedQm); 
 
   StkSpConduit QMkUp("QMkUp", "SrcWrk", pNd);
   SpConduit &QSrc=SrcIO.Cd;
@@ -2163,7 +2173,7 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
   SetCI(12, CI12Set);
 
   bool CIsOn[5]={false,false,false,false,false};
-  if (m_pMakeupBase->On() && !CI12Set && !StopMakeUp && m_ValidateOK)
+  if (m_pMakeupBase->On() && !CI12Set && !m_bStopMakeUp && m_ValidateOK)
     {
     // Copy to Src if Self
     if (m_eSource==Src_Self)
@@ -2241,7 +2251,7 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
     m_Measured   = dNAN;
     }
 
-  SetCI(11, StopMakeUp);
+  //SetCI(11, m_bStopMakeUp);
 
   for (int i=2; i<sizeof(CIsOn)/sizeof(CIsOn[0]); i++)
     SetCI(i, CIsOn[i]);
@@ -2300,8 +2310,8 @@ flag CXBlk_MUBase::CIStrng(int No, pchar & pS)
   switch (i)
     {
     //case  1: pS="E\tConverge Error"; return 1;
-    case   2: pS="E\tRequirement not Achieved - Low Limit"; return 1;
-    case   3: pS="E\tRequirement not Achieved - High Limit"; return 1;
+    case   2: pS="W\tRequirement not Achieved - Low Limit"; return 1;
+    case   3: pS="W\tRequirement not Achieved - High Limit"; return 1;
     case   4: pS="E\tMakeup has No Effect"; return 1;
     case   5: 
     case   6: 
@@ -2309,7 +2319,7 @@ flag CXBlk_MUBase::CIStrng(int No, pchar & pS)
     case   8: 
     case   9: 
     case  10: pS = m_Meas2.CIStr(i-8); return 1;
-    case  11: pS="W\tLow Feed - Makeup Stopped"; return 1;
+    case  11: pS="N\tLow Feed - Makeup Stopped"; return 1;
     case  12: pS="W\tMakeup appears poorly configured"; return 1;
     default:
       return CXBlk_MUBase::CIStrng(No, pS);
