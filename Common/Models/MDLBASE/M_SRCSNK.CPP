@@ -413,7 +413,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
 
   TaggedObject::ValidateTag(sConnectTag);
   
-  if (!m_BlkEval.ValidateData(VDB))
+  if (!m_BlkEval.ValidateData(VDB, false))
     OK=false;
   
   if (!OK)

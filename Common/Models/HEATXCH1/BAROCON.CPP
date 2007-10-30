@@ -172,7 +172,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   dword VFlags2=(m_FTC.Active() ? 0 : noView); 
   DDB.Double  ("ApproachTemp",      "",  DC_dT,   "C",     &ApproachTemp,     this, isParm|VFlags2);
   DDB.Visibility();
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   m_EHX.Add_OnOff(DDB);
   DDB.Visibility(SM_Buffered|HM_All);
   m_VLE.Add_OnOff(DDB);
@@ -204,7 +204,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   //if (NetProbalMethod())
   //  DDB.Object(&QFd, this, NULL, NULL, DDB_RqdPage);
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   m_EHX.BuildDataDefn(DDB);
   m_VLE.BuildDataDefn(DDB);
 
@@ -340,7 +340,7 @@ class BCSteamFinder : public MRootFinderBase
       Cd.QSetF(CdOther, som_ALL, 1.0, PFlash);//Cd.Press());
       Cd.QAddM(CdSteam, som_ALL, x);
       
-      BC.RB.EvalProducts(Cd);
+      BC.m_RB.EvalProducts(Cd);
       BC.m_EHX.EvalProducts(Cd);
 
       BC.m_VLE.SetSatPVapFrac(*Cd.Model(), 0.0, 0);
@@ -459,7 +459,7 @@ void BarometricCondenser::EvalProducts(CNodeEvalIndex & NEI)
       Cd().QAddM(CdSteam(), som_ALL, QSteam);
 //double T2=Cd().Temp(), P2=Cd().Temp();
 
-      RB.EvalProducts(Cd());          
+      m_RB.EvalProducts(Cd());          
       m_EHX.EvalProducts(Cd());
 //double T3=Cd().Temp(), P3=Cd().Temp();
       m_VLE.SetHfInAtZero(Cd());

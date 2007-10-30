@@ -26,7 +26,7 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_VLE(this, VLEF_QPFlash),
   m_EHX(this, EHXF_Node),
   m_Evap(this),
-  m_BlkEval(this, &m_RB, NULL, &m_EHX, &m_VLE, &m_Evap)
+  m_BlkEval(this, false, &m_RB, NULL, &m_EHX, &m_VLE, &m_Evap)
   {
   AttachClassInfo(nc_MXfer,NULL);
 
@@ -125,7 +125,7 @@ flag MN_Xfer::ValidateData(ValidateDataBlk & VDB)
   if (!m_EHX.ValidateData(VDB))
     OK=false;
 
-  if (!m_BlkEval.ValidateData(VDB))
+  if (!m_BlkEval.ValidateData(VDB, false))
     OK=false;
 
   return OK;

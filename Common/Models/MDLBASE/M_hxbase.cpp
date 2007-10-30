@@ -822,7 +822,7 @@ void CEHX_FixedHeatFlow::EvalProductsInline(SpConduit & Qf, double Len, double D
 //============================================================================
 
 CEnvironHXBase::CEnvironHXBase(FlwNode* pAttach, dword SelectMask, LPTSTR Name) : \
-CBlockEvalBase(BEId_EHX, 0, Name) 
+CBlockEvalBase(BEId_EHX, 0, Name, false/*true*/) 
   {
   pHL=NULL;
   pNd=pAttach;
@@ -2111,7 +2111,7 @@ flag CHXBlock::CIStrng(int No, pchar & pS)
 //
 //============================================================================
 
-CHXBase::CHXBase(pFlwNode pAttach, TagObjClass *RqdHXClass, flag Fixed, LPTSTR Name) : CBlockEvalBase(BEId_HX, 0, Name)
+CHXBase::CHXBase(pFlwNode pAttach, TagObjClass *RqdHXClass, flag Fixed, LPTSTR Name) : CBlockEvalBase(BEId_HX, 0, Name, false)
   {
   pRqdHXClass=RqdHXClass;
   pHX=NULL;

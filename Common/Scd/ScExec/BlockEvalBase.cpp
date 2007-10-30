@@ -4,36 +4,14 @@
 #define __BLOCKEVALBASE_CPP
 #include "BlockEvalBase.h"
 
-static const LPTSTR SeqNames[] =
-  {
-  //"On (Priority 1)",
-  //"On (Priority 2)",
-  //"On (Priority 3)",
-  //"On (Priority 4)",
-  //"On (Priority 5)",
-  //"On (Priority 6)",
-  "On-1",
-  "On-2",
-  "On-3",
-  "On-4",
-  "On-5",
-  "On-6",
-  "On-7",
-  "On-8",
-  "On-9",
-  "On-10",
-  "On-11",
-  "On-12",
-  };
-
-
-CBlockEvalBase::CBlockEvalBase(byte BEId, int Index, LPTSTR Name) : \
-  m_sName(Name)
+CBlockEvalBase::CBlockEvalBase(byte BEId, int Index, LPTSTR Name, bool HasStateSemantics) : \
+  m_sName(Name) 
   {
   m_BEId=BEId;
   m_Index=Index;
   m_iBlkSeqNo=0;
-  m_iDefBlkSeqNo=255;
+  m_iDefBlkSeqNo=255;      
+  m_bHasStateSemantics=HasStateSemantics;
   m_pOnOffValLst=NULL;
   }
 
@@ -41,22 +19,27 @@ CBlockEvalBase::~CBlockEvalBase(void)
   {
   }
 
-void CBlockEvalBase::BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence)
-  {
-  ValLst->Empty();
-  ValLst->Add(BlkEval_Off, "Off");
-  ValLst->Add(BlkEval_On, "On");
-  for (int i=0; i<NInSequence; i++)
-    ValLst->Add(BlkEval_First+i, SeqNames[i]);
-  };
+//void CBlockEvalBase::BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence, LPCSTR StateName)
+//  {
+//  ValLst->Empty();
+//  ValLst->Add(BlkEval_Off, "Off");
+//  ValLst->Add(BlkEval_On, "On");
+//  for (int i=0; i<NInSequence; i++)
+//    ValLst->Add(BlkEval_First+i, SeqNames[i]);
+//  if (StateName && m_bHasStateSemantics)
+//    ValLst->Add(BlkEval_State, (LPSTR)StateName);
+//  };
 
-void CBlockEvalBase::SetOnOffValLst(DDBValueLstMem  * ValLst)
+void CBlockEvalBase::SetOnOffValLst(DDBValueLstMem  * ValLst/*, DDBValueLstMem  * StateValLst*/)
   {
   m_pOnOffValLst = ValLst; 
+  /*m_pOnOffStateValLst = StateValLst;*/
   };
 
-DDBValueLst * CBlockEvalBase::GetOnOffValLst()
+DDBValueLst * CBlockEvalBase::GetOnOffValLst(/*bool WithState*/)
   {
+  //DDBValueLstMem * Lst = WithState ? m_pOnOffStateValLst : m_pOnOffValLst;
+  //return Lst ? Lst->Item(0) : &DDBOnOff[0]; 
   return m_pOnOffValLst ? m_pOnOffValLst->Item(0) : &DDBOnOff[0]; 
   };
 
@@ -80,8 +63,13 @@ byte CBlockEvalBase::BlkSeqNo(bool ForSort)
   if (Enabled()) 
     Seq=m_iBlkSeqNo; 
 
-  if (ForSort && (Seq==BlkEval_On))
-    Seq=254;
+  if (ForSort)
+    {    
+    if (Seq==BlkEval_State)
+      Seq=200;
+    if (Seq==BlkEval_On)
+      Seq=100;
+    }
 
   //dbgpln("BlkSeqNo %08x %3i = %3i", this, m_BEId, Seq);
   return Seq;

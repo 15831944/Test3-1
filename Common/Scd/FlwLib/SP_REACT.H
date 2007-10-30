@@ -344,7 +344,7 @@ class DllImportExport CReactionBlock : public TaggedObject
   public:
     // SetUp
     void           FileLoadAllowed(flag b) { fFileLoadAllowed=b; StructureChanged(this); };
-    flag           Load(flag bIsSurgeType, pchar pRCTName, flag KeepState);
+    flag           Load(flag bAllowStateSemantics, pchar pRCTName, flag KeepState);
     flag           SetRCTName(pchar pRCTName);
     CReaction     *AddReaction(TagObjClass *pEqnClass);
     CReaction     *AddReaction(CReaction *pRct);
@@ -370,7 +370,7 @@ class DllImportExport CReactionBlock : public TaggedObject
     flag           InEvalDerivs()     { return m_InWhat==eEvalDerivs; };
     flag           InConvergeStates() { return m_InWhat==eConvergeStates; };
     flag           InDiscrete()       { return m_InWhat==eDiscrete; };
-    flag           IsSurgeType();
+    flag           HasStateSemantics();
     FlwNode      * Nd();
 
     flag           CpsOK();
@@ -584,13 +584,13 @@ class DllImportExport CReactionBase : public CBlockEvalBase
   friend class CReactionBlock;
 
   public:
-    CReactionBase(FlwNode * pAttach, bool IsSurgeType, LPTSTR Name="RB") : CBlockEvalBase(BEId_RB, 0, Name)
+    CReactionBase(FlwNode * pAttach, bool SurgeSemantics, LPTSTR Name="RB") : CBlockEvalBase(BEId_RB, 0, Name, SurgeSemantics)
       { 
       //m_sRBTag=Name;
       pRB=NULL; 
       m_pNd=pAttach; 
       fEnabled=bOn=0; 
-      m_bIsSurgeType=IsSurgeType; 
+      //m_bIsSurgeType=IsSurgeType; 
       sm_AllRBs.AddTail(this);
       };
     ~CReactionBase() 
@@ -606,7 +606,7 @@ class DllImportExport CReactionBase : public CBlockEvalBase
     flag           Open();
     flag           Open(byte OnOffSeq) { CBlockEvalBase::Open(OnOffSeq); return Open(); }
     byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
-    flag           Load(flag bIsSurgeType, char * pRCTFn) { return Open() ? pRB->Load(bIsSurgeType, pRCTFn, false) : False; };
+    flag           Load(flag HasStateSemantics, char * pRCTFn) { return Open() ? pRB->Load(HasStateSemantics, pRCTFn, false) : False; };
     char          *RBTag()   { return Name(); }//m_sRBTag(); };
     flag           SetRCTName(char * pRCTFn) { return Open() ? pRB->SetRCTName(pRCTFn) : False; };
     char          *RCTName() { return Open() ? pRB->RCTName() : NULL; };
@@ -614,7 +614,7 @@ class DllImportExport CReactionBase : public CBlockEvalBase
     void           Close();
     void           Enable() { bOn=1; };
     void           Disable() { bOn=0; };
-    flag           IsSurgeType() { return m_bIsSurgeType; };
+    //flag           IsSurgeType() { return m_bIsSurgeType; };
     //void           SetIsSurgeType(bool bIsSurgeType);// { m_bIsSurgeType = bIsSurgeType; };
     FlwNode      * Nd()          { return m_pNd; };
 
@@ -669,7 +669,7 @@ class DllImportExport CReactionBase : public CBlockEvalBase
     CReactionBlock * pRB;
     FlwNode       *m_pNd;
     //Strng          m_sRBTag;
-    flag           m_bIsSurgeType;
+    //flag           m_bIsSurgeType;
   
   public:
     static CList<CReactionBase*, CReactionBase*> sm_AllRBs;
@@ -681,9 +681,9 @@ class DllImportExport CReactionBase : public CBlockEvalBase
 //
 //===========================================================================
 
-inline long CReaction::Fidelity()         { return RB.OwnModel->Fidelity(); };
-inline flag CReactionBlock::IsSurgeType() { return m_RctBase->IsSurgeType(); };
-inline FlwNode * CReactionBlock::Nd()     { return m_RctBase->Nd(); };
+inline long CReaction::Fidelity()                 { return RB.OwnModel->Fidelity(); };
+inline flag CReactionBlock::HasStateSemantics()   { return m_RctBase->HasStateSemantics(); };
+inline FlwNode * CReactionBlock::Nd()             { return m_RctBase->Nd(); };
 
 //===========================================================================
 //

@@ -409,7 +409,7 @@ CTank::CTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
   MN_Surge(pClass_, TagIn, pAttach, eAttach)
   {
 #if SURGEEB_RB_EHX
-  m_BlkEval.Attach(&RB, NULL, &m_EHX, NULL, NULL);
+  m_BlkEval.Attach(true, &m_RB, NULL, &m_EHX, NULL, NULL);
 #endif
 
   //if (OrigPrjFileVerNo()<90)
@@ -471,11 +471,11 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility(NM_All|SM_All|HM_All);//|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
 
-  HX.Add_OnOff(DDB);
+  m_HX.Add_OnOff(DDB);
 #if SURGEEB_RB_EHX
   if (PrjFileVerNo()<112)
     {
-    RB.Add_OnOff(DDB);
+    m_RB.Add_OnOff(DDB);
     m_EHX.Add_OnOff(DDB);
     }
 #else
@@ -533,11 +533,11 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   m_BlkEval.BuildDataDefn(DDB);
 
 
-  HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
+  m_HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
 #if SURGEEB_RB_EHX
   if (PrjFileVerNo()<112)
     {
-    RB.BuildDataDefn(DDB);
+    m_RB.BuildDataDefn(DDB);
     m_EHX.BuildDataDefn(DDB);
     }
 #endif
@@ -591,7 +591,7 @@ flag CTank::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_VLE.DataXchg(DCB))
     return 1;
-  if (HX.DataXchg(DCB))
+  if (m_HX.DataXchg(DCB))
     return 1;
   if (SolveSurgeMethod() && m_EqThermals.DataXchg(DCB))
     return 1;  

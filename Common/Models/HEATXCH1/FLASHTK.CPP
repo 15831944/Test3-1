@@ -281,7 +281,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &m_bTrackVapFdStatus,  this, isParm);
 #endif
   DDB.Visibility();
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   if (SolveBufferedMethod())
     m_EHX.Add_OnOff(DDB);
   m_VLE.Add_OnOff(DDB);
@@ -308,7 +308,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   if (SolveBufferedMethod())
     BuildDataDefnIOOpts(DDB);
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   if (SolveBufferedMethod())
     m_EHX.BuildDataDefn(DDB);
 
@@ -583,7 +583,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
         flag OK=false;
         if (fOnLine)
           {
-          RB.EvalProducts(Ql);
+          m_RB.EvalProducts(Ql);
           m_EHX.EvalProducts(Ql);
 
 #if WITHNONCONDENSABLES

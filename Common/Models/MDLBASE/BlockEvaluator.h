@@ -23,6 +23,7 @@ class DllImportExport CBlockEvaluator
     static const int MaxBEBlocks           =   1  +1   +1   +1   +MaxNdMakeups+MaxNdBleeds;
 
     CBlockEvaluator(FlwNode * pNd,
+                    bool AllowStateSemantics,
                     CReactionBase * pRB = NULL,
                     CHXBase *pHX = NULL,
                     CEnvironHXBase * pEHX = NULL,
@@ -30,7 +31,8 @@ class DllImportExport CBlockEvaluator
                     CEvapBase * pEvap = NULL);
     ~CBlockEvaluator(void);
 
-    void Attach(CReactionBase * pRB = NULL,
+    void Attach(bool AllowStateSemantics,
+                CReactionBase * pRB = NULL,
                 CHXBase *pHX = NULL,
                 CEnvironHXBase * pEHX = NULL,
                 CVLEBase * pVLE = NULL,
@@ -46,10 +48,12 @@ class DllImportExport CBlockEvaluator
     void              Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs=DDB_NoPage);
     void              BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs=DDB_RqdPage);
     flag              DataXchg(DataChangeBlk & DCB);
-    flag              ValidateData(ValidateDataBlk & VDB);
+    flag              ValidateData(ValidateDataBlk & VDB, bool AllowStateSemantics);
     //int               DefBlkSeqNo(byte SeqID);
     //int               BlkSeqNo(byte SeqID);
     //void              SetBlkSeqNo(byte SeqID, byte No);
+    void              BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence, LPCSTR StateName);
+
     void              SortBlocks();
 
     double            Duty();
@@ -91,8 +95,12 @@ class DllImportExport CBlockEvaluator
     CArray <CMakeupBase*, CMakeupBase*> m_pMakeups;
     CArray <CBleedBase*, CBleedBase*> m_pBleeds;
 
+    bool              m_bAllowStateSemantics;
+    //bool              m_bIsSurgeType;
+
     Strng             m_sBlkSeq;
     DDBValueLstMem    m_OnOffValLst;  
+    DDBValueLstMem    m_OnOffStateValLst;  
   };
 
 

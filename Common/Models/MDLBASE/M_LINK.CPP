@@ -652,7 +652,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
 #if WITHLINKBLEED 
   , m_Bleed(eDIO_Bleed, this, false, true, "Bleed")
 #endif
-  , m_BlkEval(this, &m_RB, NULL, &m_EHX, &m_VLE, &m_Evap)
+  , m_BlkEval(this, false, &m_RB, NULL, &m_EHX, &m_VLE, &m_Evap)
   {
   AttachClassInfo(nc_MLnk,NULL);
 
@@ -1804,7 +1804,7 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
       }
     }
 
-  if (!m_BlkEval.ValidateData(VDB))
+  if (!m_BlkEval.ValidateData(VDB, false))
     OK=false;
 
   return OK;

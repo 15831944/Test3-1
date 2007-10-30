@@ -222,7 +222,7 @@ void Precip::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text  ("");
   DDB.CheckBox    ("On",               "",DC_,       "",       &bOnLine         , this, isParm|SetOnChange);
   DDB.Text  ("");
-  RB.Add_OnOff(DDB);//, False);
+  m_RB.Add_OnOff(DDB);//, False);
   DDB.Text("");
   DDB.Text  ("Requirements");
   DDB.Double("TankVol",	       "V",    DC_Vol,  "m^3",   &TankVol         , this,	isParm);
@@ -333,7 +333,7 @@ void Precip::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   BuildDataDefnShowIOs(DDB);
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
 
   if (NetDynamicMethod())
     {
@@ -557,7 +557,7 @@ void Precip::DoPrecip(SpConduit & Qp)
         }
 
       //evaluate reactions (if present)...
-      RB.EvalProducts(Qp);
+      m_RB.EvalProducts(Qp);
 
       m_StdHfFd0=0.0;
       m_StdHfPr0=0.0;

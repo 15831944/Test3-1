@@ -143,14 +143,14 @@ void CElectroCell::BuildDataDefn(DataDefnBlk & DDB)
 
 
   DDB.Text    ("");
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
 
   DDB.Visibility();
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB, true);
   BuildDataDefnIOOpts(DDB);
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
 
   if (SolveSurgeMethod())
     {
@@ -240,11 +240,11 @@ void CElectroCell::EvalProducts(CNodeEvalIndex & NEI)
   
       const double TotHfAtFeedT_Before = Sd().totHf(som_ALL, m_TempKFeed, Sd().Press());
 
-      RB.EvalProducts(Sd());
+      m_RB.EvalProducts(Sd());
      
       const double TotHfAtFeedT_After = Sd().totHf(som_ALL, m_TempKFeed, Sd().Press());
       
-      if (RB())
+      if (m_RB())
         {
         // Input energy from the electrical work applied to the cell...
         m_dElecEnergyReact = TotHfAtFeedT_After - TotHfAtFeedT_Before;
@@ -295,17 +295,17 @@ void CElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       m_TempKFeed=Sd().Temp();
       if (SolveMethod()==SM_Inline)
         {
-        RB.EvalProducts(Sd());
+        m_RB.EvalProducts(Sd());
         }
       else
         {
         //RB.EvalDerivs(Contents, Sd(), Sd());
         }
 
-      if (RB())
+      if (m_RB())
         {
         // Input energy from the electrical work applied to the cell...
-        m_dElecEnergyReact = RB()->HfSumTot();
+        m_dElecEnergyReact = m_RB()->HfSumTot();
         m_dElecEnergyHeat  = (m_dElecEnergyReact/ dCellEff)-m_dElecEnergyReact;
         m_dElecEnergyTotal = m_dElecEnergyReact + m_dElecEnergyHeat;
         
@@ -373,7 +373,7 @@ void CElectroCell::ConvergeStates(CConvergeStateBlk &CSB)
   if (SolveMethod()==SM_Buffered)
     {
 
-    if (RB())
+    if (m_RB())
       {//only call this code if the surge is actualy used
       //#if dbgMSurge
       //if (dbgEvalConverge())
@@ -384,7 +384,7 @@ void CElectroCell::ConvergeStates(CConvergeStateBlk &CSB)
       double TotHfAtFeedT_Before = Contents.totHf(som_ALL, m_TempKFeed, Contents.Press());
 
       Contents.SetMeanResTimeCalcsReqd(true);
-      RB.ConvergeStates(CSB, Contents, Contents.MeanResTimes());
+      m_RB.ConvergeStates(CSB, Contents, Contents.MeanResTimes());
 
       double TotHfAtFeedT_After = Contents.totHf(som_ALL, m_TempKFeed, Contents.Press());
 
@@ -414,8 +414,8 @@ void CElectroCell::ClosureInfo()
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];
-    if (RB.Enabled())
-      RB.GetClosureInfo(CI);
+    if (m_RB.Enabled())
+      m_RB.GetClosureInfo(CI);
     
     CI.m_PowerIn += m_dElecEnergyTotal;
     

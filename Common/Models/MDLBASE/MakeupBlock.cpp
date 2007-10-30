@@ -65,7 +65,7 @@ void CMakeupBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, d
 //
 //============================================================================
 
-CMakeupBase::CMakeupBase(TaggedObject * pAttach, int Index, LPTSTR Name) : CBlockEvalBase(BEId_Makeup, Index, Name),
+CMakeupBase::CMakeupBase(TaggedObject * pAttach, int Index, LPTSTR Name) : CBlockEvalBase(BEId_Makeup, Index, Name, false),
 m_SrcIO(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, false, 
         Name, IOId_Makeup2Area+Index, IOId_AreaMakeupO, "MakeupSrc", "MakeupSrc_1")
   { 

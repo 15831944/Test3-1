@@ -1622,7 +1622,7 @@ flag CReactionBlock::ValidateData(ValidateDataBlk & VDB)
   flag RetOK=true;
   if (fOn)
     {
-    if (Nd()->SolveBufferedMethod() != m_RctBase->IsSurgeType())
+    if (Nd()->SolveBufferedMethod() != /*m_RctBase->*/HasStateSemantics())
       {
       Load(Nd()->SolveBufferedMethod(), sRCTName(), true);
       }
@@ -1775,12 +1775,14 @@ flag CReactionBlock::SetRCTName(pchar pRCTName)
 
 //---------------------------------------------------------------------------
 
-flag CReactionBlock::Load(flag bIsSurgeType, pchar pRCTName, flag KeepState)
+flag CReactionBlock::Load(flag HasStateSemantics, pchar pRCTName, flag KeepState)
   {
   //if (LoadAttempted)
   //  return False;
   //LoadAttempted=true;
-  m_RctBase->m_bIsSurgeType=bIsSurgeType;
+  
+  m_RctBase->m_bHasStateSemantics=HasStateSemantics!=0;
+  //m_bIs//m_RctBase->m_bCanBeSurge=bIsSurgeType;
 
   // Save the current values
   CXM_ObjectData CurrentData(0);
@@ -2924,7 +2926,7 @@ void CReactionBase::Close()
 
 void CReactionBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
   {
-  DDB.Byte("",     "Reactions",  DC_,    "",     xidRCTEnable,  m_pNd, Flags, GetOnOffValLst());
+  DDB.Byte("",     "Reactions",  DC_,    "",     xidRCTEnable,  m_pNd, Flags, GetOnOffValLst());  // TEMPORARY
   }
 
 //--------------------------------------------------------------------------

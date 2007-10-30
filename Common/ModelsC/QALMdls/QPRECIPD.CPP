@@ -258,7 +258,7 @@ void QPrecipD::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double      ("PrevT_out",          "",DC_T,      "dC",     &dPrevTout       , this, 0|noView);
   DDB.Visibility();
 //  DDB.Text    ("");
-  RB.Add_OnOff(DDB, False);
+  m_RB.Add_OnOff(DDB, False);
   
   DDB.Visibility();
 
@@ -303,7 +303,7 @@ void QPrecipD::BuildDataDefn(DataDefnBlk & DDB)
 //            SQSzDist1::SplitSolids(Info, Qm(), Qo, Qu);
 #endif
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
 
 
@@ -865,7 +865,7 @@ void QPrecipD::EvalProducts(CNodeEvalIndex & NEI)
             }
           }
 
-        RB.EvalProducts(Qp);
+        m_RB.EvalProducts(Qp);
         //m_EHX.EvalProducts(Qp);
 
         Damping = Range(0.0, Damping, 1.0);

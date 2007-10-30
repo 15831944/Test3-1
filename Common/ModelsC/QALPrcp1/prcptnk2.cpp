@@ -282,7 +282,7 @@ void QPrecipMain2::BuildDataDefn(DataDefnBlk & DDB)
   DDB.EndStruct();       
   DDB.Text("");
 
-  RB.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage);
+  m_RB.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage);
   DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
   DDB.EndStruct();
   }
@@ -356,7 +356,7 @@ void QPrecipMain2::EvalProducts(CNodeEvalIndex & NEI)
       SigmaQInPMin(m_QFeed, som_ALL, Id_2_Mask(ioid_Feed));//, &QSMBayerClass);
       if (bOnLine && m_QFeed.QMass()>UsableMass)
         {
-        RB.EvalProducts(m_QFeed);
+        m_RB.EvalProducts(m_QFeed);
         //EHX.EvalProducts(Qp);
 
         SMBayerB * pBm = dynamic_cast<SMBayerB*>(m_QFeed.Model());

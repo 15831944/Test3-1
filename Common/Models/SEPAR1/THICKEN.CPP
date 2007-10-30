@@ -153,7 +153,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   m_BlkEval.Add_OnOff(DDB);  
 
   DDB.Visibility();
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (SolveInlineMethod())
@@ -193,7 +193,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   m_BlkEval.BuildDataDefn(DDB);
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   m_EHX.BuildDataDefn(DDB);
 
   if (m_bShowQFeed)// && NetProbalMethod())
@@ -287,7 +287,7 @@ double CThickenerOFFnd::Function(double x)
   
   Wrk.QCopy(Fd);
   
-  pSurge->RB.EvalProducts(Wrk);
+  pSurge->m_RB.EvalProducts(Wrk);
   pSurge->m_EHX.EvalProducts(Wrk);
 
   //put all vapours (if any) to vent (if present)...

@@ -218,13 +218,13 @@ void CCWasher::BuildDataDefn(DataDefnBlk & DDB)
     }
 
   DDB.Text    ("");
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   m_EHX.Add_OnOff(DDB);
 
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   m_EHX.BuildDataDefn(DDB);
 
   DDB.Visibility();
@@ -579,7 +579,7 @@ void CCWasher::EvalProducts(CNodeEvalIndex & NEI)
         double Cf = Qm.SpecieConc(Qm.Temp(), iScanEffSpecie, som_Liq);
 				double Cw = Qw.SpecieConc(Qw.Temp(), iScanEffSpecie, som_Liq);
       
-        RB.EvalProducts(Qm);
+        m_RB.EvalProducts(Qm);
         m_EHX.EvalProducts(Qm);
 
         //double Qg = Qm.QMass(som_Gas);

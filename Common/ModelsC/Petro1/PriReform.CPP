@@ -60,7 +60,7 @@ static IOAreaRec m_PriReformIOAreaList[] =
   { {"",              "AirIn" ,  ioidAir,       LIO_In ,  nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry, 1.0f, {0,0,0,0}, NULL, &ValveGroup},//, "Side[iP].I"},
     {"",              "FuelIn" , ioidFuel ,     LIO_In ,  nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry, 1.0f, {0,0,0,0}, NULL, &ValveGroup},//, "Side[iP].I"},
     {"",              "Exhaust", ioidExhaust,   LIO_Out,  nc_MLnk, 1,  5, IOGRP(1)|IOPipeEntry, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iP].O"},
-    {"",              "FalseAir",ioidFalseAir,  LIO_In ,  nc_MLnk, 1,  5, IOGRP(1)|IOPipeEntry, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iP].O"},
+    {"",              "FalseAir",ioidFalseAir,  LIO_In ,  nc_MLnk, 0,  5, IOGRP(1)|IOPipeEntry, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iP].O"},
     {"",              "GasIn" ,  ioidGasIn ,    LIO_In ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
     {"",              "GasOut",  ioidGasOut,    LIO_Out,  nc_MLnk, 1,  5, IOGRP(2)|IOPipeEntry, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
     {NULL}};

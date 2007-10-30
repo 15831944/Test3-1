@@ -28,8 +28,8 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_QFeed("QFeed", this),
   m_QProd("QProd", this),
   //QSigmaOut("QSigOut", this, TOA_Embedded),
-  RB(this, true),
-  HX(this, NULL),
+  m_RB(this, true),
+  m_HX(this, NULL),
   m_VLE(this, VLEF_QVFlash),
   m_EHX(this, EHXF_Node),
   //Preset(&VLE),
@@ -41,7 +41,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_AccIn(eDIO_Accum, this, false, true, AccumIOTag),
   m_AccOut(eDIO_Deplete, this, false, true, DepleteIOTag),
   m_AccCalc(this, m_AccIn, m_AccOut),
-  m_BlkEval(this)
+  m_BlkEval(this, true)
   {
   //pQFeed=NULL;
   //pQProd=NULL;
@@ -122,12 +122,12 @@ void MN_Surge::AddMdlNetworked(DataDefnBlk & DDB)
 
 flag MN_Surge::DataXchg(DataChangeBlk & DCB)
   {
-  if (RB.DataXchg(DCB))
+  if (m_RB.DataXchg(DCB))
     return 1;
 
   if (m_BlkEval.DataXchg(DCB))
     return 1;
-  if (HX.DataXchg(DCB))
+  if (m_HX.DataXchg(DCB))
     return 1;
   if (m_EHX.DataXchg(DCB))
     return true;
@@ -197,6 +197,22 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
     m_EqThermals.ValidateData(VDB);
   
   flag OK=true;
+  flag XferNotAllowed=false;
+  if (Contents.Closed())
+    {
+    for (int i=0; i<NoProcessIOs(); i++)
+      {
+      if (Nd_Rmt(i)->XferFlowMode())
+        XferNotAllowed=true;
+      }
+    }
+
+  if (XferNotAllowed)
+    {
+    SetValidateFailMsg("E\tTranfer Mode Links not allowed to Closed Tanks");
+    OK=false;
+    }
+
   //if (NetDynamicMethod())
   //  {
   //  //Check all links are xfer
@@ -218,13 +234,13 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
   //      LogStop(Tag(), 0, "Non TransferMode Links Connected : Makeup count > 0");
   //    }
   //  }
-  if (!m_BlkEval.ValidateData(VDB))
+  if (!m_BlkEval.ValidateData(VDB, SolveSurgeMethod()!=0))
     OK=false;
   if (!MdlNode::ValidateData(VDB))
     OK=false;
   if (!m_EHX.ValidateData(VDB))
     OK=false;
-  return OK;
+  return OK && !XferNotAllowed;
   }
 
 //--------------------------------------------------------------------------
@@ -595,14 +611,14 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
       else if (NoProcessJoins()>=2)
         {
 //? Makeup
-        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, RB(), m_EHX(), &m_BlkEval);
+        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, m_RB(), m_EHX(), &m_BlkEval);
         //WRONG!!! (reactions and ehx ignored!!) Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, &m_BlkEval);//, RB(), m_EHX());
         CRqdPressCtrl PBCtrl1;
         Xfer_EvalProducts_Info I1(1, Joins[1].Pressure(), NULL, NULL, NULL, &PBCtrl1, NULL, NULL);
-        Xfer_EvalProducts(I0, I1, &HX);
+        Xfer_EvalProducts(I0, I1, &m_HX);
         }
       else if (NoProcessJoins()>=1)
-        Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, RB(), m_EHX(), &m_BlkEval);
+        Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, m_RB(), m_EHX(), &m_BlkEval);
         //WRONG!!! (reactions and ehx ignored!!) Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, &m_BlkEval);//RB(), m_EHX());
       break;
     case SM_Inline:
@@ -618,9 +634,9 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
       if (NoProcessJoins()>=2)
         Xfer_EvalProducts(1, Joins[1].Pressure(), NULL, &m_QProd, NULL, NULL, NULL);//RB());
 
-      if (HX())
+      if (m_HX())
         {
-        HX.SetPrimary(NULL, Contents, som_ALL, 1.0, Contents.Press(), NULL);
+        m_HX.SetPrimary(NULL, Contents, som_ALL, 1.0, Contents.Press(), NULL);
         if (NIOsWithId_Self(IOId_HX)>=2)
           {
           for (int ioOut1 = IOWithId_Self(IOId_HX); ioOut1<NoFlwIOs(); ioOut1++)
@@ -629,11 +645,11 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
           if (ioOut1<NoFlwIOs())
             {
             SigmaQInPMin(*IOConduit(ioOut1), som_ALL, IOId_HX, IOId_HX);
-            HX.SetSecondary(NULL, *IOConduit(ioOut1), IOP_Self(ioOut1), NULL);
+            m_HX.SetSecondary(NULL, *IOConduit(ioOut1), IOP_Self(ioOut1), NULL);
             }
           }
 
-        HX.EvalProducts();
+        m_HX.EvalProducts();
         }
 
       if (SolveInlineMethod())
@@ -723,8 +739,8 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
       //    }
 
       }
-    if (HX())
-      HX.EvalDerivs();
+    if (m_HX())
+      m_HX.EvalDerivs();
 
     m_VLE.AddQVDerivs(Contents, 0, 0);
 
@@ -1014,7 +1030,7 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
 
   if (SolveBufferedMethod())
     {
-    if (RB())
+    if (m_RB() && m_RB.StateSemanticsSelected())
       {//only call this code if the surge is actualy used
       #if dbgMSurge
       if (dbgEvalConverge())
@@ -1022,7 +1038,7 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
       #endif
       
       Contents.SetMeanResTimeCalcsReqd(true);
-      RB.ConvergeStates(CSB, Contents, Contents.MeanResTimes());
+      m_RB.ConvergeStates(CSB, Contents, Contents.MeanResTimes());
       
       #if dbgMSurge
       if (dbgEvalConverge())
@@ -1072,7 +1088,7 @@ void MN_Surge::EvalDiscrete()
     }
 
   m_AccCalc.Complete(0, Contents);
-  m_ExtAudit.Complete(0, &RB, 0.0, m_BlkEval.Duty());
+  m_ExtAudit.Complete(0, &m_RB, 0.0, m_BlkEval.Duty());
 
   if (1)  //restore Qm/QvAcc
     {
@@ -1219,8 +1235,8 @@ void MN_Surge::ClosureInfo()
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];
-    if (RB.Enabled())
-      RB.GetClosureInfo(CI);
+    if (m_RB.Enabled())
+      m_RB.GetClosureInfo(CI);
     if (m_EHX.Enabled())
       CI.m_EHXPowerIn += m_EHX.HeatFlow();
 

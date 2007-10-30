@@ -90,19 +90,19 @@ class DllImportExport MN_Surge : public MdlNode
       {
       if (bActive)
         {
-        RB.OnAppActivate(bActive);
+        m_RB.OnAppActivate(bActive);
         MdlNode::OnAppActivate(bActive);
         }
       };
     virtual int    FilesUsed(CFilesUsedArray & Files)   
       {
-      RB.FilesUsed(Files);
+      m_RB.FilesUsed(Files);
       MdlNode::FilesUsed(Files);
       return Files.GetCount();
       //return RB.FilesUsed(Files); 
       };
-    virtual flag   GetOtherData(FilingControlBlock &FCB)  { return RB.GetOtherData(FCB); };
-    virtual flag   PutOtherData(FilingControlBlock &FCB)  { return RB.PutOtherData(FCB); };
+    virtual flag   GetOtherData(FilingControlBlock &FCB)  { return m_RB.GetOtherData(FCB); };
+    virtual flag   PutOtherData(FilingControlBlock &FCB)  { return m_RB.PutOtherData(FCB); };
 
 #if DOPBSMOOTHING
     virtual void   EvalMsAGDatas();
@@ -127,8 +127,8 @@ class DllImportExport MN_Surge : public MdlNode
 //    flag           fDamped;
     CCnStartCnds    m_CnStart;
 
-    CHXBase         HX;
-    CReactionBase   RB;
+    CHXBase         m_HX;
+    CReactionBase   m_RB;
     CVLEBase        m_VLE;
     CEnvironHXBase  m_EHX;
 

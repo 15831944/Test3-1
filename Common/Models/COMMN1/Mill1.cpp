@@ -147,13 +147,13 @@ void Mill1::BuildDataDefn(DataDefnBlk & DDB)
   m_Pwr.BuildDataDefn(DDB);
   DDB.Visibility();
   
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
 
   DDB.Text("");
   BuildDataDefnShowIOs(DDB);
 
   CB.Add_ObjectDataDefn(DDB, true);
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
 
   if (NetDynamicMethod())
     {

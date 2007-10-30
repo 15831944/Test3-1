@@ -124,7 +124,7 @@ void Dryer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",           "ReqdTemp",        DC_T,    "C",      &TReqd,         this, isParm);
   DDB.Double  ("",           "RqdSolidsLoss",   DC_Frac, "%",      &RqdFiltSolids, this, isParm);
   DDB.Double  ("",           "RqdCakeMoist",    DC_Frac, "%",      &RqdCakeMoist,  this, isParm);
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   DDB.Text    ("");
   DDB.Text    ("Results");
   DDB.Double  ("",           "CakeMoist",       DC_Frac, "%",      &CakeMoist,     this, isResult);
@@ -134,7 +134,7 @@ void Dryer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
 
   if (SolveSurgeMethod())
     {
@@ -192,7 +192,7 @@ void Dryer::EvalProducts(CNodeEvalIndex & NEI)
       flag HasFlwIn = (Sd().QMass()>UsableMass);
       if (fOn && HasFlwIn)
         {
-        RB.EvalProducts(Sd());
+        m_RB.EvalProducts(Sd());
   		  
         m_VLE.SetHfInAtZero(Sd());
 
@@ -274,7 +274,7 @@ void Dryer::EvalProducts(CNodeEvalIndex & NEI)
     case SM_Buffered:
       {
       Contents.ZeroDeriv();
-      RB.EvalProducts(Sd());
+      m_RB.EvalProducts(Sd());
 
       double SolMass = Contents.Mass(som_Sol);
       double LiqMass = Contents.Mass(som_Liq);
@@ -317,8 +317,8 @@ void Dryer::ClosureInfo()
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];
-    if (RB.Enabled())
-      RB.GetClosureInfo(CI);
+    if (m_RB.Enabled())
+      m_RB.GetClosureInfo(CI);
 
     CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
 	  CI.m_PowerIn+=m_EnergyRqd; 

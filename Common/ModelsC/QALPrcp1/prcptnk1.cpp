@@ -43,12 +43,12 @@ void QPrecipMain1::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility();
   DDB.Text    ("xxxx");
-  RB.Add_OnOff(DDB, False);
+  m_RB.Add_OnOff(DDB, False);
   
   DDB.Visibility();
   BuildDataDefnShowIOs(DDB);
 
-  RB.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage);
+  m_RB.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage);
   DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
   DDB.EndStruct();
   }

@@ -195,7 +195,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("TRiseRqd",  "",  DC_dT,   "C",     &dTRiseRqd,  this, isParm);
   DDB.Visibility();
   DDB.Double  ("SteamVentRqd", "", DC_Qm, "kg/s",  &dVentRqd,   this, isParm);
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
@@ -245,7 +245,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   if (SolveBufferedMethod())
     BuildDataDefnIOOpts(DDB);
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   m_EHX.BuildDataDefn(DDB);
 
   if (m_bShowQFeed && NetProbalMethod())
@@ -384,7 +384,7 @@ double FinalTempFnd::Function(double x)
   {
   HL.QSetF(Liq, som_ALL, 1.0, LP);
   HL.QAddM(Vp, som_ALL, Max(VQm, x));
-  CH.RB.EvalProducts(HL);
+  CH.m_RB.EvalProducts(HL);
   CH.m_EHX.EvalProducts(HL);
   const double RqdFrac = (VentRqd>UsableMass ? VentRqd/GTZ(HL.VMass[CH.m_VLE.SatPVapIndex()/*H2OVap()*/]+HL.VMass[CH.m_VLE.SatPLiqIndex()/*H2OLiq()*/]) : 0.0);
   const double f = Max(RqdFrac, 1.0-Min(1.0, x/GTZ(VQm)));
@@ -602,7 +602,7 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
         {
         iCalcMode = QST_General;
         //SetCI(2, (Mixture().Qm(si)<1.0e-6));???
-        RB.EvalProducts(Mixture());
+        m_RB.EvalProducts(Mixture());
         m_EHX.EvalProducts(Mixture());
 
         double TPress = LiquorP;

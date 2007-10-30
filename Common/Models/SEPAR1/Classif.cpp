@@ -150,7 +150,7 @@ void Classifier::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("UnderFlow_SolidsRecovery","UFSolRec",        DC_Frac, "%",      &ActUFSolRec,        this, isResult);
  
   DDB.Text    ("");
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
@@ -159,7 +159,7 @@ void Classifier::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
   
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   m_EHX.BuildDataDefn(DDB);
 
   if (SolveSurgeMethod())
@@ -219,7 +219,7 @@ void Classifier::EvalProducts(CNodeEvalIndex & NEI)
   SigmaQInPMin(Qm(), som_ALL, Id_2_Mask(ioidFeed));
   flag HasFlw = (Qm().QMass(som_ALL)>UsableMass);
 
-  RB.EvalProducts(Qm());
+  m_RB.EvalProducts(Qm());
   m_EHX.EvalProducts(Qm());
 
   //put all vapours (if any) to vent (if present)...

@@ -22,15 +22,17 @@ XID xidNBleeds        = EvalBlkXID(2);
 XID xidOldBlkSeq      = EvalBlkXID(3);
 
 CBlockEvaluator::CBlockEvaluator(FlwNode * pNd,
+                                 bool AllowStateSemantics,
                                  CReactionBase * pRB,
                                  CHXBase *pHX,
                                  CEnvironHXBase * pEHX,
                                  CVLEBase * pVLE,
                                  CEvapBase * pEvap)
   {
-  m_pNd = pNd;
+  m_pNd             = pNd;
+  m_bAllowStateSemantics = AllowStateSemantics;
   
-  Attach(pRB, pHX, pEHX, pVLE, pEvap);
+  Attach(AllowStateSemantics, pRB, pHX, pEHX, pVLE, pEvap);
   };
 
 //-------------------------------------------------------------------------
@@ -57,13 +59,15 @@ CBlockEvaluator::~CBlockEvaluator(void)
 
 //-------------------------------------------------------------------------
 
-void CBlockEvaluator::Attach(CReactionBase * pRB,
-                CHXBase *pHX,
-                CEnvironHXBase * pEHX,
-                CVLEBase * pVLE,
-                CEvapBase * pEvap)
+void CBlockEvaluator::Attach(bool AllowStateSemantics,
+                             CReactionBase * pRB,
+                             CHXBase *pHX,
+                             CEnvironHXBase * pEHX,
+                             CVLEBase * pVLE,
+                             CEvapBase * pEvap)
   {
   m_nBlocks   = 0;
+  m_bAllowStateSemantics = AllowStateSemantics;
 
   m_pRB   = pRB;
   m_pHX   = pHX;
@@ -123,7 +127,7 @@ void CBlockEvaluator::AddBlk(CBlockEvalBase *p, int DefSeqNo)
     {
     if (0)
       dbgpln("AddBlk %3i %s", m_nBlocks, m_pNd->FullObjTag());
-    p->SetOnOffValLst(&m_OnOffValLst);
+    p->SetOnOffValLst(p->HasStateSemantics() && m_bAllowStateSemantics ? &m_OnOffStateValLst : &m_OnOffValLst);
     p->SetDefBlkSeqNo(DefSeqNo);
     m_Blks[m_nBlocks++]=p;
     }
@@ -353,8 +357,9 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
 
 //-------------------------------------------------------------------------
 
-flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB)
+flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB, bool AllowStateSemantics)
   {
+  m_bAllowStateSemantics = AllowStateSemantics;
   SortBlocks();
 
   flag OK=1;
@@ -370,6 +375,42 @@ flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB)
     }
 
   return OK;
+  };
+
+//-------------------------------------------------------------------------
+
+static const LPTSTR SeqNames[] =
+  {
+  //"On (Priority 1)",
+  //"On (Priority 2)",
+  //"On (Priority 3)",
+  //"On (Priority 4)",
+  //"On (Priority 5)",
+  //"On (Priority 6)",
+  "On-1",
+  "On-2",
+  "On-3",
+  "On-4",
+  "On-5",
+  "On-6",
+  "On-7",
+  "On-8",
+  "On-9",
+  "On-10",
+  "On-11",
+  "On-12",
+  };
+
+
+void CBlockEvaluator::BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence, LPCSTR StateName)
+  {
+  ValLst->Empty();
+  ValLst->Add(BlkEval_Off, "Off");
+  ValLst->Add(BlkEval_On, "On");
+  for (int i=0; i<NInSequence; i++)
+    ValLst->Add(BlkEval_First+i, SeqNames[i]);
+  if (StateName && m_bAllowStateSemantics)
+    ValLst->Add(BlkEval_State, Strng("On-", StateName)());
   };
 
 //-------------------------------------------------------------------------
@@ -390,7 +431,8 @@ flag CBlockEvaluator::ValidateData(ValidateDataBlk & VDB)
 
 void CBlockEvaluator::SortBlocks()
   {
-  CBlockEvalBase::BuildOnOffValLst(&m_OnOffValLst, m_nBlocks);
+  BuildOnOffValLst(&m_OnOffValLst, m_nBlocks, NULL);
+  BuildOnOffValLst(&m_OnOffStateValLst, m_nBlocks, "Content");
 
   int i;
   for (i=1 ; i<m_nBlocks; )
@@ -446,6 +488,7 @@ void CBlockEvaluator::SortBlocks()
     dbgpln("         ===============");
     }
 
+  bool AddComma=false;
   m_sBlkSeq="";
   i=0;
   for (; i<m_nBlocks&& m_Blks[i]->BlkSeqNo(true)<BlkEval_On; )
@@ -471,19 +514,33 @@ void CBlockEvaluator::SortBlocks()
       }
     else
       {
-      if (m_sBlkSeq.GetLength()>0)
+      if (AddComma)
         m_sBlkSeq+=".";
       m_sBlkSeq+=S;
+      AddComma=true;
       }
     }
 
+  bool HasState=false;
   for (  ; i<m_nBlocks && m_Blks[i]->BlkSeqNo()<255; i++)
     {
-    if (m_sBlkSeq.GetLength()>0)
+    if (!HasState && m_Blks[i]->BlkSeqNo()>=BlkEval_State)
+      {
+      HasState=true;
+      m_sBlkSeq+="->\\";
+      }
+    else if (AddComma)
       m_sBlkSeq+=".";
+
     m_sBlkSeq+=m_Blks[i]->Name();
+    AddComma=true;
     }
 
+  if (HasState)
+    m_sBlkSeq+="/";
+  else
+    m_sBlkSeq+="->\\ /";
+                 
   int xxx=0;
   }
 
@@ -546,10 +603,14 @@ double CBlockEvaluator::Duty()
 
 void CBlockEvaluator::EvalProducts(int iJoinNo, SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
+
   if (dbgBlkEvalProd && m_nBlocks>0)
     dbgpln("CBlockEvaluator::EvalProducts >> Qm:%10.3f %s", Fo.QMass(), m_pNd->Tag());
   for (int i=0; i<m_nBlocks ; i++)
     {
+    int iSeq=m_Blks[i]->BlkSeqNo();
+    if (iSeq>=BlkEval_State)
+      continue;
     switch (m_Blks[i]->BEId())
       {
       case BEId_RB:    
@@ -615,6 +676,9 @@ void CBlockEvaluator::EvalProductsInline(int iJoinNo, SpConduit & Fo, double Len
     dbgpln("CBlockEvaluator::EvalProductsInline >> Qm:%10.3f %s", Fo.QMass(), m_pNd->Tag());
   for (int i=0; i<m_nBlocks; i++)
     {
+    int iSeq=m_Blks[i]->BlkSeqNo();
+    if (iSeq>=BlkEval_State)
+      continue;
     switch (m_Blks[i]->BEId())
       {
       case BEId_RB:    

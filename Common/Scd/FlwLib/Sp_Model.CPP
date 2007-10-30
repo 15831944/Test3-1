@@ -5731,7 +5731,14 @@ long SpModel::CheckDataRanges()
       ClrCI(8);
 #endif
       }
+    
+    if (gs_RngChecks.Selected(RngChk_T))
+      {
+      SetCI(9, Temp()<gs_CDB.MinT);
+      SetCI(10, Temp()>gs_CDB.MaxT);
+      }
     }
+
   return NBadTempRanges+NBadDensRanges;
   };
 

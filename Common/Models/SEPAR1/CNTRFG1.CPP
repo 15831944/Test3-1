@@ -164,7 +164,7 @@ void Centrifuge1::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("CentrateSolidsConc@25",   "CentrateSolConc25",DC_Conc,"g/L",    &ActCentrateSolConc, this, isResult);//|noFile|noSnap);
   
   DDB.Text    ("");
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
@@ -173,7 +173,7 @@ void Centrifuge1::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
   
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   m_EHX.BuildDataDefn(DDB);
 
   if (SolveSurgeMethod())
@@ -259,7 +259,7 @@ void Centrifuge1::EvalProducts(CNodeEvalIndex & NEI)
     SigmaQInPMin(Qm(), som_ALL, Id_2_Mask(ioidFeed));
     flag HasFlw = (Qm().QMass(som_ALL)>UsableMass);
 
-    RB.EvalProducts(Qm());
+    m_RB.EvalProducts(Qm());
     m_EHX.EvalProducts(Qm());
 
     const double Qg = Qm().QMass(som_Gas);

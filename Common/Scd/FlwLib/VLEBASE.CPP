@@ -130,7 +130,7 @@ CGlblStopWatch CVLEBase::sm_swQMVapFlash(gs_swFlwSolve,  "VLE", "MVapFlash");
 #endif
 
 CVLEBase::CVLEBase(TaggedObject * pAttach, dword SelectMask, LPTSTR Name) : 
-CBlockEvalBase(BEId_VLE,0,Name) 
+CBlockEvalBase(BEId_VLE,0,Name, true) 
   { 
   m_pVLE            = NULL; 
   m_pNd             = pAttach; 

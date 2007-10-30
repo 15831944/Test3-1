@@ -190,7 +190,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Scandrett_Wash_Eff",      "ScandrettEff",    DC_Frac, "%",      &ActScandrettEff,    this, isResult);//|noFile|noSnap);
 
   DDB.Text    (" ");
-  RB.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
@@ -208,7 +208,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
     }
 
-  RB.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
+  m_RB.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
 	DDB.Object(&UFSolidsFn, this, NULL, NULL, DDB_RqdPage);
@@ -304,7 +304,7 @@ double CWasherOFFnd::Function(double x)
   Sd.QSetF(Fd, som_ALL, 1.0, POut);
   Sd.QAddF(Ww, som_ALL, 1.0);
 
-  pSurge->RB.EvalProducts(Sd); //React mixture
+  pSurge->m_RB.EvalProducts(Sd); //React mixture
   pSurge->m_EHX.EvalProducts(Sd);
 
   //put all vapours (if any) to vent (if present)...
@@ -572,7 +572,7 @@ void Washer::EvalProducts(CNodeEvalIndex & NEI)
     case SM_Buffered:
       {
       Contents.ZeroDeriv();
-      RB.EvalProducts(Sd());
+      m_RB.EvalProducts(Sd());
       m_EHX.EvalProducts(Sd());
 
       double SolMass = Contents.Mass(som_Sol);

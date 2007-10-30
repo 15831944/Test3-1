@@ -120,8 +120,8 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
 
   GSM.Add_OnOff(DDB);
   m_VLE.Add_OnOff(DDB);
-  HX.Add_OnOff(DDB);
-  RB.Add_OnOff(DDB);
+  m_HX.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
   BuildDataDefnElevation(DDB);
   DDB.Text("");
   DDB.Visibility();
@@ -159,8 +159,8 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   BuildDataDefnShowIOs(DDB);
 
-  HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
-  RB.BuildDataDefn(DDB);
+  m_HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
+  m_RB.BuildDataDefn(DDB);
   m_VLE.BuildDataDefn(DDB);
   
   GSM.BuildDataDefn(DDB);

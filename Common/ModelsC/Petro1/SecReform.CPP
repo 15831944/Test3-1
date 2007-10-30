@@ -107,8 +107,8 @@ void SecReformer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Visibility();
   m_VLE.Add_OnOff(DDB);
-  HX.Add_OnOff(DDB);
-  RB.Add_OnOff(DDB);
+  m_HX.Add_OnOff(DDB);
+  m_RB.Add_OnOff(DDB);
 
   DDB.Visibility();
  
@@ -126,8 +126,8 @@ void SecReformer::BuildDataDefn(DataDefnBlk & DDB)
   //  }
   m_EqThermals.BuildDataDefn(DDB, "Body");
 
-  HX.BuildDataDefn(DDB);
-  RB.BuildDataDefn(DDB);
+  m_HX.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   m_VLE.BuildDataDefn(DDB);
 
   if (NetDynamicMethod())
@@ -157,7 +157,7 @@ flag SecReformer::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_VLE.DataXchg(DCB))
     return 1;
-  if (HX.DataXchg(DCB))
+  if (m_HX.DataXchg(DCB))
     return 1;
   if (m_EqThermals.DataXchg(DCB))
     return 1;  

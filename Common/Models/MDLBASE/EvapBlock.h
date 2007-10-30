@@ -138,7 +138,7 @@ class DllImportExport CEvapBase : public CBlockEvalBase
   {
   public:
 
-    CEvapBase(TaggedObject * pAttach, LPTSTR Name="Evap") : CBlockEvalBase(BEId_Evap, 0, Name) { m_pEvapB=NULL; m_pNd=pAttach; m_fEnabled=m_fFixed=False; };
+    CEvapBase(TaggedObject * pAttach, LPTSTR Name="Evap") : CBlockEvalBase(BEId_Evap, 0, Name, false) { m_pEvapB=NULL; m_pNd=pAttach; m_fEnabled=m_fFixed=False; };
     virtual ~CEvapBase()              { delete m_pEvapB; };
 
     flag           Open(TagObjClass * pEvapClass=NULL, flag Fixed=False);

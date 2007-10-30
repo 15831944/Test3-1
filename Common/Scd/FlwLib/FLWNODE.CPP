@@ -8615,7 +8615,7 @@ flag FlwNode::CIStrng(int No, pchar & pS)
     case 14: pS="W\tLink preventing network convergence";    return 1;
     case 15: pS="W\tLarge Flow - Set to Zero";               return 1;
     case 16: pS="E\tBad PreStartCheck";                      return 1;
-    case 17: pS=m_sValidateFailMsg() ? m_sValidateFailMsg() : "E\tInvalid Data";  return 1;
+    case 17: pS=m_sValidateFailMsg() ? m_sValidateFailMsg() : "E\tInvalid Configuration Data";  return 1;
     case 18: pS="W\tRegulator Out of range";                 return 1;
     case 19: pS="W\tEvalMsAGData not Balanced";              return 1;
     case 20: pS="E\t";                                       return 1;

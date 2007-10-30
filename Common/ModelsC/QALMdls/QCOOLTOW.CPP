@@ -136,11 +136,11 @@ void QCoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("EvapFraction",      "",  DC_Frac, "%",     &EvapFraction, this, isResult);
   DDB.Double  ("QmWaterEvap",       "",  DC_Qm,   "kg/s",  &QmWaterEvap,  this, isResult);
   
-  RB.Add_OnOff(DDB, False);
+  m_RB.Add_OnOff(DDB, False);
   
   BuildDataDefnShowIOs(DDB);
 
-  RB.BuildDataDefn(DDB);
+  m_RB.BuildDataDefn(DDB);
   DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
 
   DDB.EndStruct();
@@ -254,7 +254,7 @@ void QCoolingTower::EvalProducts(CNodeEvalIndex & NEI)
       Ql.QZero();
       SigmaQInPMin(Ql, som_ALL, Id_2_Mask(ioid_Feed));
 
-      RB.EvalProducts(Ql);
+      m_RB.EvalProducts(Ql);
 
 //   NoCellinLine  ??
       double AvgCellAgeY=AvgCellAge/(365.25*24.0*60.0*60.0);   
