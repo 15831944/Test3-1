@@ -32,6 +32,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_HX(this, NULL),
   m_VLE(this, VLEF_QVFlash),
   m_EHX(this, EHXF_Node),
+  m_Evap(this, true),
   //Preset(&VLE),
   m_PresetImg("PresetImg", this, TOA_Embedded),
   m_PCtrl0(PrjFileVerNo()<32 ? PC_MinFd : PC_Atmos, Std_P, true),
@@ -842,6 +843,7 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
     StkSpConduit QPF("QPF", chLINEID(), this);
 
     Contents.ZeroDeriv();
+
 #if dbgMSurge
     if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
       {
@@ -861,6 +863,7 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
       dbgpln(" %s.Contents", FullObjTag());
       }
 #endif
+
     for (int i=0; i<NoMaterialIOs(); i++)
       {
       int Id=IOId_Self(i);
@@ -1030,7 +1033,7 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
 
   if (SolveBufferedMethod())
     {
-    if (m_RB() && m_RB.StateSemanticsSelected())
+    if (m_RB() && m_RB.StateSemanticsOn())
       {//only call this code if the surge is actualy used
       #if dbgMSurge
       if (dbgEvalConverge())
@@ -1045,6 +1048,10 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
         dbgpln("-------------------------------------- ");
       #endif
       };
+    //if (m_Evap() && m_Evap.StateSemanticsOn())
+    //  {
+    //  m_Evap.ConvergeStates(CSB, Contents, Contents.MeanResTimes());
+    //  }
 
     if (!IntegralDone() && !GetActiveHold())
       {

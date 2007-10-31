@@ -25,7 +25,9 @@ class CEvapBase;
 //
 // ==========================================================================
 
-#define DEFINE_EVAL(SM) DEFINE_TAGOBJ(SM)
+enum EvapBlockTypes { EBT_None, EBT_Frac, EBT_Flow, EBT_TDiff };
+
+#define DEFINE_EVAP(SM) DEFINE_TAGOBJ(SM)
 #define IMPLEMENT_EVAP(Obj, ModelId, Version, Cat, SDesc, LDesc) \
   IMPLEMENT_TAGOBJ(Obj, CEvapBlock::GroupName, ModelId, Version, "", "", Cat, SDesc, LDesc)
 
@@ -36,97 +38,103 @@ class DllImportExport CEvapBlock : public TaggedObject
     virtual ~CEvapBlock();
 
     virtual void    BuildDataDefn(DataDefnBlk& DDB);
-    virtual flag    DataXchg(DataChangeBlk & DCB) { return 0; };
+    void            DoBuildDataDefn(DataDefnBlk& DDB);
+    virtual flag    DataXchg(DataChangeBlk & DCB); 
+    virtual flag    ValidateData(ValidateDataBlk & VDB);
 
-    virtual flag    ValidateData(ValidateDataBlk & VDB) { return 1; };
     virtual void    EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
     virtual void    EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
   public:
     static const pchar GroupName;
 
+    EvapBlockTypes  m_Type;
     CEvapBase     * m_pEvapBase;
-  };
-
-DEFINE_EVAL(CEvapBlock);
-
-// ===========================================================================
-
-class DllImportExport CEvBlk_Percentage: public CEvapBlock
-  {
-  public:
-    CEvBlk_Percentage(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
-    virtual ~CEvBlk_Percentage();
-
-    virtual void   BuildDataDefn(DataDefnBlk& DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ValidateData(ValidateDataBlk & VDB);
-
-    virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
   public:
-    double m_dEvapFrac;
-    double m_dQmEvap;
-    double m_dQmBleed;
-    double m_dQmFeed;
-    double m_dQmProd;
-    double m_dHeatFlow;
-    double m_dTempKFeed;
-    double m_dTempKProd;
+    byte           m_Dest;
+    double         m_EvapFrac;
+    double         m_QmEvap;
+    double         m_QmBleed;
+    double         m_QmFeed;
+    double         m_QmProd;
+    double         m_HeatFlow;
+    double         m_TempFeed;
+    double         m_TempProd;
+    double         m_PrevUsage;
+
+
+    DualDbl        m_AmbientT;
 
     class CEvapComp
       {
       public:
         long      m_CIndex;
-        byte      m_Dest;
-        double    m_Fraction;
-      };
-
-    CArray <CEvapComp, CEvapComp&> m_Components;
-
-  };
-
-DEFINE_EVAL(CEvBlk_Percentage);
-
-// ===========================================================================
-
-class DllImportExport CEvBlk_FixedFlow: public CEvapBlock
-  {
-  public:
-    CEvBlk_FixedFlow(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
-    virtual ~CEvBlk_FixedFlow();
-
-    virtual void   BuildDataDefn(DataDefnBlk& DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ValidateData(ValidateDataBlk & VDB);
-
-    virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
-
-  public:
-    double m_dEvapFrac;
-    double m_dQmEvap;
-    double m_dQmBleed;
-    double m_dQmFeed;
-    double m_dQmProd;
-    double m_dHeatFlow;
-    double m_dTempKFeed;
-    double m_dTempKProd;
-
-    class CEvapComp
-      {
-      public:
-        long      m_CIndex;
-        byte      m_Dest;
+        double    m_QmFrac;
         double    m_QmRqd;
+        double    m_OpTDiff;
+        double    m_OpQm;
+        double    m_PwrLaw;
       };
 
     CArray <CEvapComp, CEvapComp&> m_Components;
 
+    DEFINE_CI(CEvapBlock, TaggedObject, 8);
   };
 
-DEFINE_EVAL(CEvBlk_FixedFlow);
+DEFINE_EVAP(CEvapBlock);
+
+// ===========================================================================
+//
+// Evaporation 
+//
+// ===========================================================================
+
+class DllImportExport CEvBlk_Fraction: public CEvapBlock
+  {
+  public:
+    CEvBlk_Fraction(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
+    virtual ~CEvBlk_Fraction();
+
+    virtual void   BuildDataDefn(DataDefnBlk& DDB);
+  };
+
+// ===========================================================================
+//
+// Evaporation 
+//
+// ===========================================================================
+
+DEFINE_EVAP(CEvBlk_Fraction);
+
+class DllImportExport CEvBlk_Flow: public CEvapBlock
+  {
+  public:
+    CEvBlk_Flow(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
+    virtual ~CEvBlk_Flow();
+
+    virtual void   BuildDataDefn(DataDefnBlk& DDB);
+  };
+
+DEFINE_EVAP(CEvBlk_Flow);
+
+// ===========================================================================
+//
+// Evaporation 
+//
+// ===========================================================================
+
+class DllImportExport CEvBlk_TDiff: public CEvapBlock
+  {
+  public:
+    CEvBlk_TDiff(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
+    virtual ~CEvBlk_TDiff();
+
+    virtual void   BuildDataDefn(DataDefnBlk& DDB);
+
+  };
+
+DEFINE_EVAP(CEvBlk_TDiff);
 
 // ===========================================================================
 //
@@ -138,7 +146,7 @@ class DllImportExport CEvapBase : public CBlockEvalBase
   {
   public:
 
-    CEvapBase(TaggedObject * pAttach, LPTSTR Name="Evap") : CBlockEvalBase(BEId_Evap, 0, Name, false) { m_pEvapB=NULL; m_pNd=pAttach; m_fEnabled=m_fFixed=False; };
+    CEvapBase(TaggedObject * pAttach, bool StateSemantics, LPTSTR Name="Evap") : CBlockEvalBase(BEId_Evap, 0, Name, StateSemantics) { m_pEvapB=NULL; m_pNd=pAttach; m_fEnabled=m_fFixed=False; };
     virtual ~CEvapBase()              { delete m_pEvapB; };
 
     flag           Open(TagObjClass * pEvapClass=NULL, flag Fixed=False);
@@ -161,7 +169,8 @@ class DllImportExport CEvapBase : public CBlockEvalBase
     void           EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
       { if (Enabled()) m_pEvapB->EvalProductsInline(Fo, Len, Diam, Po, FinalTEst); };
 
-    SpConduit    & DiscardCd() { return m_DiscardCd; };
+    SpConduit    & DiscardCd()  { return m_DiscardCd; };
+    TaggedObject & Nd()         { return *m_pNd; };
 
   protected:
     flag            m_fFixed;

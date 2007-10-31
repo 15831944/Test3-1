@@ -409,7 +409,7 @@ CTank::CTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
   MN_Surge(pClass_, TagIn, pAttach, eAttach)
   {
 #if SURGEEB_RB_EHX
-  m_BlkEval.Attach(true, &m_RB, NULL, &m_EHX, NULL, NULL);
+  m_BlkEval.Attach(true, &m_RB, NULL, &m_EHX, NULL, &m_Evap);
 #endif
 
   //if (OrigPrjFileVerNo()<90)

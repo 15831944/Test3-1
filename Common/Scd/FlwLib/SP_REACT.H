@@ -584,7 +584,7 @@ class DllImportExport CReactionBase : public CBlockEvalBase
   friend class CReactionBlock;
 
   public:
-    CReactionBase(FlwNode * pAttach, bool SurgeSemantics, LPTSTR Name="RB") : CBlockEvalBase(BEId_RB, 0, Name, SurgeSemantics)
+    CReactionBase(FlwNode * pAttach, bool StateSemantics, LPTSTR Name="RB") : CBlockEvalBase(BEId_RB, 0, Name, StateSemantics)
       { 
       //m_sRBTag=Name;
       pRB=NULL; 

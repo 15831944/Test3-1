@@ -641,7 +641,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   m_RB(this, false),
   m_VLE(this, VLEF_QPFlash),
   m_EHX(this, EHXF_Inline),
-  m_Evap(this),
+  m_Evap(this, false),
   m_MFB("MFB", this, TOA_Embedded, 0, 1, &m_VLE),
   m_PFI(this),
   m_FEP(NULL, FBOpt_HasSimpleRes, 0.1),
