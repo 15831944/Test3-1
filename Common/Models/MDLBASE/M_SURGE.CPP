@@ -1048,10 +1048,10 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
         dbgpln("-------------------------------------- ");
       #endif
       };
-    //if (m_Evap() && m_Evap.StateSemanticsOn())
-    //  {
-    //  m_Evap.ConvergeStates(CSB, Contents, Contents.MeanResTimes());
-    //  }
+    if (m_Evap.Enabled() && m_Evap.StateSemanticsOn())
+      {
+      m_Evap.ConvergeStates(CSB, Contents/*, Contents.MeanResTimes()*/);
+      }
 
     if (!IntegralDone() && !GetActiveHold())
       {

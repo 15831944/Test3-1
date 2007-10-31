@@ -44,6 +44,7 @@ class DllImportExport CEvapBlock : public TaggedObject
 
     virtual void    EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
     virtual void    EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void    ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner & Cn, double EstFinalT);
 
   public:
     static const pchar GroupName;
@@ -168,6 +169,9 @@ class DllImportExport CEvapBase : public CBlockEvalBase
       { if (Enabled()) m_pEvapB->EvalProducts(Fo, Po, FinalTEst); };
     void           EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
       { if (Enabled()) m_pEvapB->EvalProductsInline(Fo, Len, Diam, Po, FinalTEst); };
+
+    void           ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner & Cn, double EstFinalT=dNAN)
+      { if (Enabled()) m_pEvapB->ConvergeStates(CSB, Cn, EstFinalT); }
 
     SpConduit    & DiscardCd()  { return m_DiscardCd; };
     TaggedObject & Nd()         { return *m_pNd; };

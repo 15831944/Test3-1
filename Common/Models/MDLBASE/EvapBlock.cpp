@@ -299,15 +299,7 @@ class CEvapFinderTmp : public MRootFinderBase
         int iVap        = C.VapPhInx();
         double Liq      = m_MassInit[iLiq];
         double Vap      = m_MassInit[iVap];
-        //double D;
-        //switch (m_EB.m_Type)
-        //  {
-        //  case EBT_Frac:     D=Liq*EC.m_QmFrac;                                                                  break;
-        //  case EBT_Fixed:    D=Min(EC.m_QmRqd, Liq);                                                             break;
-        //  case EBT_Var:      D=Min(EC.m_OpQm*pow(GEZ(m_EB.m_TempFeed-m_EB.m_AmbientT()), EC.m_PwrLaw), Liq);     break;
-        //  case EBT_None:     D=0.0;                                                                              break;
-        //  }
-        double D = Min(EC.m_OpQm*pow(GEZ(x-m_EB.m_AmbientT())/EC.m_OpTDiff, EC.m_PwrLaw), Liq);     
+        double D        = Min(EC.m_OpQm*pow(GEZ(x-m_EB.m_AmbientT())/EC.m_OpTDiff, EC.m_PwrLaw), Liq);     
 
         m_TtlLiq += Liq;
         m_TtlEvap += D;
@@ -365,7 +357,7 @@ void CEvapBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
     if (m_Type==EBT_TDiff)
       {
       CEvapFinderTmp EvTmp(*this, Qf, Discard, OldVap, Po, TtlLiq, TtlEvap);
-      EvTmp.SetTarget(0.0);//ScandrettEff);
+      EvTmp.SetTarget(0.0);
       int iRet=EvTmp.Start(m_AmbientT(), m_TempFeed);
       Ok=(iRet==RF_OK && EvTmp.Solve_Brent()==RF_OK);
       ClrCI(2);
@@ -373,15 +365,18 @@ void CEvapBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
     else 
       {
       CEvapFinderQm EvQm(*this, Qf, Discard, OldVap, Po, TtlLiq, TtlEvap);
-      if (EvQm.Function(1.0)<1e-10) //tryit
+      if (EvQm.Function(1.0)<1e-10) 
         {
-        EvQm.SetTarget(0.0);//ScandrettEff);
+        EvQm.SetTarget(0.0);
         int iRet=EvQm.Start(0.0, 1.0);
         Ok=(iRet==RF_OK && EvQm.Solve_Brent()==RF_OK);
         SetCI(2);
         }
       else
+        {
+        Ok=true;
         ClrCI(2);
+        }
       }
 
     const double T=Qf.Temp();
@@ -424,14 +419,21 @@ void CEvapBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, dou
 
 //--------------------------------------------------------------------------
 
+void CEvapBlock::ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner & Cn, double EstFinalT)
+  {
+  int xxx=0;
+  };
+
+//--------------------------------------------------------------------------
+
 flag CEvapBlock::CIStrng(int No, pchar & pS)
   {
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case  1: pS="W\tSolution Failed";                    return 1;
-    case  2: pS="W\tTemperature Limited";                return 1;
-    case  3: pS="W\tFeed Temperature below Ambient";     return 1;
+    case  1: pS="W\tEvaporation:Solution Failed";                    return 1;
+    case  2: pS="W\tEvaporation:Temperature Limited";                return 1;
+    case  3: pS="W\tEvaporation:Feed Temperature below Ambient";     return 1;
     default:
       return TaggedObject::CIStrng(No, pS);
     }
