@@ -98,7 +98,8 @@ class DllImportExport CBlockEvaluator
     bool              m_bAllowStateSemantics;
     //bool              m_bIsSurgeType;
 
-    Strng             m_sBlkSeq;
+    Strng             m_sBlkSeqFeed;
+    Strng             m_sBlkSeqState;
     DDBValueLstMem    m_OnOffValLst;  
     DDBValueLstMem    m_OnOffStateValLst;  
   };

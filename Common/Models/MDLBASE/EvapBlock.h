@@ -42,9 +42,11 @@ class DllImportExport CEvapBlock : public TaggedObject
     virtual flag    DataXchg(DataChangeBlk & DCB); 
     virtual flag    ValidateData(ValidateDataBlk & VDB);
 
-    virtual void    EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void    EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void    EvalProducts(SpModelOwner & Fo,  double Po, double FinalTEst=dNAN);
+    virtual void    EvalProductsInline(SpModelOwner& Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
     virtual void    ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner & Cn, double EstFinalT);
+
+    bool            StateSemanticsOn();// { return m_pEvapBase->StateSemanticsOn(); }
 
   public:
     static const pchar GroupName;
@@ -54,6 +56,7 @@ class DllImportExport CEvapBlock : public TaggedObject
 
   public:
     byte           m_Dest;
+    bool           m_ShowMsgs;
     double         m_EvapFrac;
     double         m_QmEvap;
     double         m_QmBleed;
@@ -165,9 +168,9 @@ class DllImportExport CEvapBase : public CBlockEvalBase
 
     flag           ValidateData(ValidateDataBlk & VDB)
       { return Enabled() ? m_pEvapB->ValidateData(VDB) : 0; };
-    void           EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN)
+    void           EvalProducts(SpModelOwner & Fo, double Po, double FinalTEst=dNAN)
       { if (Enabled()) m_pEvapB->EvalProducts(Fo, Po, FinalTEst); };
-    void           EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
+    void           EvalProductsInline(SpModelOwner & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
       { if (Enabled()) m_pEvapB->EvalProductsInline(Fo, Len, Diam, Po, FinalTEst); };
 
     void           ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner & Cn, double EstFinalT=dNAN)
@@ -187,5 +190,9 @@ class DllImportExport CEvapBase : public CBlockEvalBase
   public:
 
   };
+
+
+inline bool CEvapBlock::StateSemanticsOn() { return m_pEvapBase->StateSemanticsOn(); }
+
 
 #undef DllImportExport

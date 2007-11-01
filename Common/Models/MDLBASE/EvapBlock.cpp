@@ -9,10 +9,11 @@
 //
 //=========================================================================
 
-XID xidEvapEnable = EvapXID(1);
-XID xidEvapEqnNm  = EvapXID(2);
-XID xidCompCount  = EvapXID(3);
-XID xidEBThermAmbT = EvapXID(4);
+XID xidEvapEnable   = EvapXID(1);
+XID xidEvapEqnNm    = EvapXID(2);
+XID xidCompCount    = EvapXID(3);
+XID xidEBThermAmbT  = EvapXID(4);
+XID xidEvapQm       = EvapXID(5);
 
 //============================================================================
 //
@@ -36,6 +37,7 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
   m_pEvapBase = NULL;
   m_Type      = EBT_None; 
   m_Dest      = Dest_Mix;
+  m_ShowMsgs  = true;
 
   m_Components.SetSize(gs_CDB.DDBCompListVapLiq.Length());
   for (int i=0; i<m_Components.GetSize(); i++)
@@ -92,7 +94,9 @@ void CEvapBlock::DoBuildDataDefn(DataDefnBlk& DDB)
 
   //if (m_Type==EBT_TDiff)
   m_AmbientT.BuildDataDefn(DDB, "", "AmbientT", DC_T, "C", xidEBThermAmbT, this, "Atmos", "LclAmb");
-  DDB.Byte  ("", "Destination", DC_,     "",  &m_Dest,      this, isParmStopped, DDBDestinations);
+  DDB.Byte        ("", "Destination",   DC_,     "",  &m_Dest,      this, isParmStopped, DDBDestinations);
+  DDB.CheckBoxBtn ("", "ShowLimitMsgs", DC_,     "",  &m_ShowMsgs,  this, isParm);
+  DDB.Text(" ");
 
   if (DDB.BeginArray(this, "Comp", "EVB_Comps", m_Components.GetSize()))
     {
@@ -123,34 +127,62 @@ void CEvapBlock::DoBuildDataDefn(DataDefnBlk& DDB)
     }
   DDB.EndArray();
 
-  DDB.Text("");
-  DDB.Text("Results");
-  DDB.Double ("Evap.Qm",            "", DC_Qm,   "kg/s",    &m_QmEvap,     this, isResult);
-  DDB.Double ("Evap.Frac",          "", DC_Frac, "%",       &m_EvapFrac,   this, isResult);
-  DDB.Text(" ");
-  DDB.Text("Total mass flow:");
-  DDB.Double ("Qm.Feed",            "", DC_Qm,   "kg/s",    &m_QmFeed,     this, isResult);
-  DDB.Double ("Qm.Vent",           "", DC_Qm,   "kg/s",    &m_QmBleed,    this, isResult);
-  DDB.Double ("Qm.Prod",            "", DC_Qm,   "kg/s",    &m_QmProd,     this, isResult);
-  if (!HeatSkipMethod())
+  if (StateSemanticsOn())
     {
     DDB.Text("");
-    DDB.Text("Total heat flow:");
-    DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_TempFeed,  this, isResult);//|noFileAtAll);
-    //DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_HeatFlow,   this, isResult);
-    DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_TempProd,  this, isResult);//|noFileAtAll);
+    DDB.Text("Results");
+    DDB.Double ("Evap.Qm",            "", DC_Qm,   "kg/s",    xidEvapQm,     this, isResult);
+    DDB.Double ("Evap.Frac",          "", DC_Frac, "%",       &m_EvapFrac,   this, isResult);
+    DDB.Text(" ");
+    DDB.Text("Total mass:");
+    DDB.Double ("Mass.Init",          "", DC_Qm,   "kg/s",    &m_QmFeed,     this, isResult);
+    //DDB.Double ("Qm.Vent",            "", DC_Qm,   "kg/s",    &m_QmBleed,    this, isResult);
+    DDB.Double ("Mass.Final",         "", DC_Qm,   "kg/s",    &m_QmProd,     this, isResult);
+    if (!HeatSkipMethod())
+      {
+      DDB.Text("");
+      DDB.Text("Temperatures:");
+      //DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_TempFeed,  this, isResult);//|noFileAtAll);  b0yk1e
+
+      //DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_HeatFlow,   this, isResult);
+      DDB.Double ("Temp.Final",          "", DC_T,    "C",       &m_TempProd,  this, isResult);//|noFileAtAll);
+      }
     }
+  else
+    {
+    DDB.Text("");
+    DDB.Text("Results");
+    DDB.Double ("Evap.Qm",            "", DC_Qm,   "kg/s",    xidEvapQm,     this, isResult);
+    DDB.Double ("Evap.Frac",          "", DC_Frac, "%",       &m_EvapFrac,   this, isResult);
+    DDB.Text(" ");
+    DDB.Text("Total mass flow:");
+    DDB.Double ("Qm.Feed",            "", DC_Qm,   "kg/s",    &m_QmFeed,     this, isResult);
+    //DDB.Double ("Qm.Vent",           "", DC_Qm,   "kg/s",     &m_QmBleed,    this, isResult);
+    DDB.Double ("Qm.Prod",            "", DC_Qm,   "kg/s",    &m_QmProd,     this, isResult);
+    if (!HeatSkipMethod())
+      {
+      DDB.Text("");
+      DDB.Text("Temperatures:");
+      DDB.Double ("Temp.Feed",          "", DC_T,    "C",       &m_TempFeed,  this, isResult);//|noFileAtAll);
+      //DDB.Double ("HeatFlow",           "", DC_Pwr,  "kW",      &m_HeatFlow,   this, isResult);
+      DDB.Double ("Temp.Prod",          "", DC_T,    "C",       &m_TempProd,  this, isResult);//|noFileAtAll);
+      }
+    };
   }
 
 //--------------------------------------------------------------------------
 
 flag CEvapBlock::DataXchg(DataChangeBlk & DCB)
   {
-  if (DCB.lHandle==xidEBThermAmbT)
+  switch (DCB.lHandle)
     {
-    m_AmbientT.SetVal(AmbientTemp(), this);
-    if (m_AmbientT.DataXchg(DCB,xidEBThermAmbT, this))
+    case xidEvapQm:
+      DCB.D=m_QmEvap;
       return 1;
+    case xidEBThermAmbT:
+      m_AmbientT.SetVal(AmbientTemp(), this);
+      if (m_AmbientT.DataXchg(DCB,xidEBThermAmbT, this))
+        return 1;
     }
   return 0;
   }
@@ -187,10 +219,11 @@ flag CEvapBlock::ValidateData(ValidateDataBlk & VDB)
 class CEvapFinderQm : public MRootFinderBase
   {
   public:
-    CEvapFinderQm(CEvapBlock & EB, SpConduit & Qf, SpConduit & Discard, SpMArray & OldVap, double Po, double & TtlLiq, double & TtlEvap) : \
+    CEvapFinderQm(CEvapBlock & EB, SpModel & Qf, SpModel & Discard, SpMArray & OldVap, double Po, double & TtlLiq, double & TtlEvap, double Scale) : \
       MRootFinderBase("EvapFinder", s_Tol), m_EB(EB), 
       m_Qf(Qf), m_Discard(Discard), m_OldVap(OldVap),
-      m_Po(Po), m_TtlLiq(TtlLiq), m_TtlEvap(TtlEvap)
+      m_Po(Po), m_TtlLiq(TtlLiq), m_TtlEvap(TtlEvap),
+      m_Scale(Scale)
       {
       m_HfInit = m_Qf.totHf();
       m_Qf.SetBadTempOK(true);
@@ -214,6 +247,7 @@ class CEvapFinderQm : public MRootFinderBase
       {
       m_TtlLiq  = 0.0;
       m_TtlEvap = 0.0;
+
       for (int i=0; i<m_EB.m_Components.GetSize(); i++)
         {
         CEvapBlock::CEvapComp  & EC = m_EB.m_Components[i];
@@ -226,7 +260,7 @@ class CEvapFinderQm : public MRootFinderBase
         switch (m_EB.m_Type)
           {
           case EBT_Frac:    D=Liq*EC.m_QmFrac*x;             break;
-          case EBT_Flow:    D=Min(EC.m_QmRqd*x, Liq);        break;
+          case EBT_Flow:    D=Min(EC.m_QmRqd*m_Scale*x, Liq);        break;
           default:
             _asm int 3;
             break;
@@ -248,8 +282,8 @@ class CEvapFinderQm : public MRootFinderBase
       };
 
     CEvapBlock & m_EB;
-    SpConduit & m_Qf;
-    SpConduit & m_Discard;
+    SpModel   & m_Qf;
+    SpModel   & m_Discard;
     SpMArray  & m_OldVap;
     
     double m_MassInit[MaxSpecies];
@@ -257,6 +291,7 @@ class CEvapFinderQm : public MRootFinderBase
     double m_Po;
     double & m_TtlLiq;
     double & m_TtlEvap;
+    double   m_Scale;
 
     static CToleranceBlock s_Tol;
 
@@ -269,10 +304,11 @@ CToleranceBlock CEvapFinderQm::s_Tol(TBF_BothSys, "EvapFinder:FinderQm", 0, 1.0e
 class CEvapFinderTmp : public MRootFinderBase
   {
   public:
-    CEvapFinderTmp (CEvapBlock & EB, SpConduit & Qf, SpConduit & Discard, SpMArray & OldVap, double Po, double & TtlLiq, double & TtlEvap) : \
+    CEvapFinderTmp (CEvapBlock & EB, SpModel & Qf, SpModel & Discard, SpMArray & OldVap, double Po, double & TtlLiq, double & TtlEvap, double Scale) : \
       MRootFinderBase("EvapFinder", s_Tol), m_EB(EB), 
       m_Qf(Qf), m_Discard(Discard), m_OldVap(OldVap),
-      m_Po(Po), m_TtlLiq(TtlLiq), m_TtlEvap(TtlEvap)
+      m_Po(Po), m_TtlLiq(TtlLiq), m_TtlEvap(TtlEvap),
+      m_Scale(Scale)
       {
       m_HfInit = m_Qf.totHf();
 
@@ -299,7 +335,7 @@ class CEvapFinderTmp : public MRootFinderBase
         int iVap        = C.VapPhInx();
         double Liq      = m_MassInit[iLiq];
         double Vap      = m_MassInit[iVap];
-        double D        = Min(EC.m_OpQm*pow(GEZ(x-m_EB.m_AmbientT())/EC.m_OpTDiff, EC.m_PwrLaw), Liq);     
+        double D        = Min(EC.m_OpQm*m_Scale*pow(GEZ(x-m_EB.m_AmbientT())/EC.m_OpTDiff, EC.m_PwrLaw), Liq);     
 
         m_TtlLiq += Liq;
         m_TtlEvap += D;
@@ -317,8 +353,8 @@ class CEvapFinderTmp : public MRootFinderBase
       };
 
     CEvapBlock & m_EB;
-    SpConduit & m_Qf;
-    SpConduit & m_Discard;
+    SpModel   & m_Qf;
+    SpModel   & m_Discard;
     SpMArray  & m_OldVap;
     
     double m_MassInit[MaxSpecies];
@@ -326,6 +362,7 @@ class CEvapFinderTmp : public MRootFinderBase
     double m_Po;
     double & m_TtlLiq;
     double & m_TtlEvap;
+    double   m_Scale;
 
     static CToleranceBlock s_Tol;
 
@@ -335,15 +372,18 @@ CToleranceBlock CEvapFinderTmp::s_Tol(TBF_BothSys, "EvapFinder:FinderTmp", 0, 1.
 
 //--------------------------------------------------------------------------
 
-void CEvapBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
+void CEvapBlock::EvalProducts(SpModelOwner &MdlOwn, double Po, double FinalTEst)
   {
   m_AmbientT.SetVal(AmbientTemp(), this);
 
-  m_QmFeed = Qf.QMass();
-  m_TempFeed = Qf.Temp();
-  const double HzIn = Qf.totHz();
+  SpModel & Mdl = *MdlOwn.Model();
+
+  m_QmFeed = Mdl.Mass();
+  m_TempFeed = Mdl.Temp();
+  const double HzIn = Mdl.totHz();
   double TtlLiq = 0.0;
   double TtlEvap = 0.0;
+  double Scale=StateSemanticsOn() ? ICGetTimeInc() : 1.0;
 
   if (m_TempFeed>m_AmbientT())
     {
@@ -351,12 +391,12 @@ void CEvapBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
     Discard.QZero();
     SpMArray OldVap;
 
-    Qf.SetPress(Po);
+    Mdl.SetPress(Po);
     
     flag Ok = false;
     if (m_Type==EBT_TDiff)
       {
-      CEvapFinderTmp EvTmp(*this, Qf, Discard, OldVap, Po, TtlLiq, TtlEvap);
+      CEvapFinderTmp EvTmp(*this, Mdl, Discard, OldVap, Po, TtlLiq, TtlEvap, Scale);
       EvTmp.SetTarget(0.0);
       int iRet=EvTmp.Start(m_AmbientT(), m_TempFeed);
       Ok=(iRet==RF_OK && EvTmp.Solve_Brent()==RF_OK);
@@ -364,13 +404,13 @@ void CEvapBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
       }
     else 
       {
-      CEvapFinderQm EvQm(*this, Qf, Discard, OldVap, Po, TtlLiq, TtlEvap);
+      CEvapFinderQm EvQm(*this, Mdl, Discard, OldVap, Po, TtlLiq, TtlEvap, Scale);
       if (EvQm.Function(1.0)<1e-10) 
         {
         EvQm.SetTarget(0.0);
         int iRet=EvQm.Start(0.0, 1.0);
         Ok=(iRet==RF_OK && EvQm.Solve_Brent()==RF_OK);
-        SetCI(2);
+        SetCI(2, m_ShowMsgs);
         }
       else
         {
@@ -379,8 +419,8 @@ void CEvapBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
         }
       }
 
-    const double T=Qf.Temp();
-    const double P=Qf.Press();
+    const double T=Mdl.Temp();
+    const double P=Mdl.Press();
     for (int i=0; i<m_Components.GetSize(); i++)
       {
       CEvapComp  & EC = m_Components[i];
@@ -392,27 +432,27 @@ void CEvapBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
           Discard.SetVValue(iVap, 0.0);
           break;
         case Dest_Discard:
-          Qf.SetVValue(iVap, OldVap[iVap]); // reset to original vapour mass
+          Mdl.SetVValue(iVap, OldVap[iVap]); // reset to original vapour mass
           break;
         }
       }
-    Qf.SetTempPress(T, P);
+    Mdl.SetTempPress(T, P);
     Discard.SetTempPress(T, P);
     SetCI(1, !Ok);
     ClrCI(3);
     }
   else
-    SetCI(3);
+    SetCI(3, m_ShowMsgs);
 
-  m_QmEvap     = TtlEvap;
+  m_QmEvap     = TtlEvap/Scale;
   m_EvapFrac   = (TtlLiq>SmallPosFlow ? TtlEvap/TtlLiq : 0.0);
-  m_QmProd     = Qf.QMass();
+  m_QmProd     = Mdl.Mass();
   m_QmBleed    = m_QmFeed-m_QmProd;
-  m_TempProd  = Qf.Temp();
-  m_HeatFlow   = Qf.totHz() - HzIn;
+  m_TempProd  = Mdl.Temp();
+  m_HeatFlow   = Mdl.totHz() - HzIn;
   };
 
-void CEvapBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CEvapBlock::EvalProductsInline(SpModelOwner & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
   m_AmbientT.SetVal(AmbientTemp(), this);
   };
@@ -421,7 +461,7 @@ void CEvapBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, dou
 
 void CEvapBlock::ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner & Cn, double EstFinalT)
   {
-  int xxx=0;
+  EvalProducts(Cn, Cn.Model()->Press(), EstFinalT);
   };
 
 //--------------------------------------------------------------------------

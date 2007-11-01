@@ -164,7 +164,9 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
   
   if (DoIt)
     {
-    DDB.String("EvaluationSequence", "EvalSeq", DC_, "", &m_sBlkSeq, m_pNd, 0); 
+    DDB.String("", "EvalSeq.Feed", DC_, "", &m_sBlkSeqFeed, m_pNd, 0); 
+    if (m_bAllowStateSemantics)
+      DDB.String("", "EvalSeq.Content", DC_, "", &m_sBlkSeqState, m_pNd, 0); 
     DDB.Long("Makeups", "", DC_, "", xidNMakeups, m_pNd, isParmStopped|SetOnChange); 
     DDB.Long("Bleeds",  "", DC_, "", xidNBleeds,  m_pNd, isParmStopped|SetOnChange); 
 
@@ -488,8 +490,10 @@ void CBlockEvaluator::SortBlocks()
     dbgpln("         ===============");
     }
 
-  bool AddComma=false;
-  m_sBlkSeq="";
+  bool AddCommaFeed=false;
+  bool AddCommaState=false;
+  m_sBlkSeqFeed="";
+  m_sBlkSeqState="";
   i=0;
   for (; i<m_nBlocks&& m_Blks[i]->BlkSeqNo(true)<BlkEval_On; )
     {
@@ -506,42 +510,38 @@ void CBlockEvaluator::SortBlocks()
       }
     if (N>1)
       {
-      if (m_sBlkSeq.GetLength()>0)
-        m_sBlkSeq+=".";
-      m_sBlkSeq+="[";
-      m_sBlkSeq+=S;
-      m_sBlkSeq+="]";
+      if (m_sBlkSeqFeed.GetLength()>0)
+        m_sBlkSeqFeed+=".";
+      m_sBlkSeqFeed+="[";
+      m_sBlkSeqFeed+=S;
+      m_sBlkSeqFeed+="]";
       }
     else
       {
-      if (AddComma)
-        m_sBlkSeq+=".";
-      m_sBlkSeq+=S;
-      AddComma=true;
+      if (AddCommaFeed)
+        m_sBlkSeqFeed+=".";
+      m_sBlkSeqFeed+=S;
+      AddCommaFeed=true;
       }
     }
 
-  bool HasState=false;
   for (  ; i<m_nBlocks && m_Blks[i]->BlkSeqNo()<255; i++)
     {
-    if (!HasState && m_Blks[i]->BlkSeqNo()>=BlkEval_State)
+    if (m_Blks[i]->BlkSeqNo()>=BlkEval_State)
       {
-      HasState=true;
-      m_sBlkSeq+="->\\";
+      if (AddCommaState)
+        m_sBlkSeqState+=".";
+      m_sBlkSeqState+=m_Blks[i]->Name();
+      AddCommaState=true;
       }
-    else if (AddComma)
-      m_sBlkSeq+=".";
-
-    m_sBlkSeq+=m_Blks[i]->Name();
-    AddComma=true;
+    else
+      {
+      if (AddCommaFeed)
+        m_sBlkSeqFeed+=".";
+      m_sBlkSeqFeed+=m_Blks[i]->Name();
+      AddCommaFeed=true;
+      }
     }
-
-  if (HasState)
-    m_sBlkSeq+="/";
-  else
-    m_sBlkSeq+="->\\ /";
-                 
-  int xxx=0;
   }
 
 //-------------------------------------------------------------------------
