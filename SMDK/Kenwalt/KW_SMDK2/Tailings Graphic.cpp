@@ -21,7 +21,7 @@ static double Drw_TailingsDam[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2.
 
 //---------------------------------------------------------------------------
 
-DEFINE_CONTROL_UNIT(TailingsGraphic, "Tailings Damn Graphic", DLL_GroupName)
+DEFINE_CONTROL_UNIT(TailingsGraphic, "Tailings Dam Graphic", DLL_GroupName)
 void TailingsGraphic_UnitDef::GetOptions()
 {
 	SetDefaultTag("TG");
@@ -46,6 +46,7 @@ TailingsGraphic::TailingsGraphic(MUnitDefBase * pUnitDef, TaggedObject * pNd) : 
 	vInterpolationAreas.resize(2, 1);
 	vVolumeLookup.resize(2);
 	SortInterpolationPoints();
+	lEvapRateUnits = 0;
 
 	eIntMethod = IM_Linear;
 
@@ -66,7 +67,9 @@ void TailingsGraphic::Init()
 bool TailingsGraphic::PreStartCheck()
 {
 	RecalculateVolumes();
-	return RecalculateLevels();
+	bool ret = RecalculateLevels();
+	Log.SetCondition(ret, 0, MMsg_Error, "Unable to retrieve critical tank information");
+	return ret;
 }
 
 //---------------------------------------------------------------------------
@@ -81,6 +84,24 @@ const int idDX_InterpolationArea = 2 * MaxIntPoints;
 
 void TailingsGraphic::BuildDataFields()
 {
+	static MCnvFamily qmFamily = gs_Cnvs[MC_Qm.Index];
+	static MDDValueLst* DDBQm = NULL;
+	if (DDBQm == NULL)
+	{
+		DDBQm = new MDDValueLst[qmFamily.Count() + 1];
+		for (int i = 0; i < qmFamily.Count(); i++)
+		{
+			int dstSize = strlen(qmFamily[i].Name()) + 1;
+			char* nonConst = new char[dstSize];
+			strcpy(nonConst, qmFamily[i].Name());
+
+			MDDValueLst cur = {i, nonConst};
+			DDBQm[i] = cur;
+		}
+		MDDValueLst terminator = {0};
+		DDBQm[qmFamily.Count()] = terminator;
+	}
+
 	// -- User entered data --
 	//Area calc: Number of interpolation points, and points
 	//solid moisture fraction, saturation concentration
@@ -90,15 +111,17 @@ void TailingsGraphic::BuildDataFields()
 	//liquid mass, solid mass, concentrations, densities.
 	DD.String("Tank", "", idDX_TankString, MF_PARAMETER);
 	DD.Double("Moisture_Fraction", "", &dMoistFrac, MF_PARAMETER, MC_Frac);
-	DD.String("Aqueous_Species", "", idDX_ConcSpecies, MF_PARAMETER);
+	DD.String("Specie_Of_Interest", "", idDX_ConcSpecies, MF_PARAMETER);
 	DD.Double("Saturation_Concentration", "", &dSatConc, MF_PARAMETER, MC_Conc);
 	DD.Double("Evaporation_Rate", "", &dEvapRate, MF_PARAMETER, MC_Qm);
 	DD.Double("Rainfall_Rate", "", &dRainRate, MF_PARAMETER, MC_Qm);
+	DD.Long("Evap_And_Rain_Rate_Units", "", &lEvapRateUnits, MF_PARAMETER, DDBQm);
 	DD.Double("Max_Capacity", "", &dMaxCapacity, MF_RESULT, MC_Vol);
 	DD.Text("");
 	DD.Double("Fluid_Level", "", &dFluidLevel, MF_RESULT, MC_L);
 	DD.Double("Solid_Level", "", &dSolidLevel, MF_RESULT, MC_L);
 	DD.Double("Fluid_Surface_Area", "", &dFSA, MF_RESULT, MC_Area);
+	DD.Double("Concentration_Of_Interest", "", &dConc, MF_RESULT, MC_Conc);
 
 	DD.Page("Surface_Volume_Calcs");
 	DD.Long("Data_Point_Count", "", idDX_DataPointCount, MF_PARAMETER);
@@ -171,14 +194,14 @@ bool TailingsGraphic::ExchangeDataFields()
 	{
 		if (DX.HasReqdValue)
 		{
-			CString str1 = DX.String;
-			int nt;
-			CString str2 = str1.MakeReverse().Tokenize(".", nt);
-			sConcSpecies = str2.MakeReverse(); //The somewhat complicated way to get everything AFTER the last '.'
+			sConcSpecies = DX.String;
+			int loc = sConcSpecies.ReverseFind('.');
+			if (loc > 0);
+				sConcSpecies = sConcSpecies.Right(sConcSpecies.GetLength() - loc - 1);
 
-			if (sConcSpecies.GetLength() > 0 && 
+			/*if (sConcSpecies.GetLength() > 0 && 
 				(sConcSpecies.GetLength() < 4 || sConcSpecies.Right(4) != "(aq)"))
-				sConcSpecies.Append("(aq)");
+				sConcSpecies.Append("(aq)");*/
 		}
 		DX.String = sConcSpecies;
 		SetTags();
@@ -385,6 +408,16 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 		//Draw arrows:
 		int nArrowSize = 8;
+
+		double offset = 0, scale = 1;
+		static MCnvFamily qmFamily = gs_Cnvs[MC_Qm.Index];
+
+		if (qmFamily[lEvapRateUnits].Valid())
+		{
+			offset = qmFamily[lEvapRateUnits].Offset();
+			scale = qmFamily[lEvapRateUnits].Scale();
+		}
+
 		//Evaporation:
 		CPen arrowPen(PS_SOLID, 2, Blue);
 		Wnd.m_pPaintDC->SelectObject(arrowPen);
@@ -405,7 +438,7 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			}
 			Wnd.m_pPaintDC->SetTextAlign(TA_CENTER | TA_TOP);
 			CString rainString;
-			rainString.Format("Rainfall: %.2f kg/s", dRainRate);
+			rainString.Format("Rainfall: %.2f %s", dRainRate * scale + offset, qmFamily[lEvapRateUnits].Name());
 			CSize txtSize = Wnd.m_pPaintDC->GetTextExtent(rainString);
 			Wnd.m_pPaintDC->FillSolidRect(
 				topRect.left + topRect.Width() / 4 - txtSize.cx / 2 - 1,
@@ -434,7 +467,7 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			}
 			Wnd.m_pPaintDC->SetTextAlign(TA_CENTER | TA_TOP);
 			CString evapString;
-			evapString.Format("Evaporation: %.2f kg/s", dEvapRate);
+			evapString.Format("Evaporation: %.2f %s", dEvapRate * scale + offset, qmFamily[lEvapRateUnits].Name());
 			CSize txtSize = Wnd.m_pPaintDC->GetTextExtent(evapString);
 			Wnd.m_pPaintDC->FillSolidRect(
 				topRect.left + 3 * topRect.Width() / 4 - txtSize.cx / 2 - 1,

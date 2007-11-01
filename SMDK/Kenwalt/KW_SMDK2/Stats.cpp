@@ -56,6 +56,9 @@ SingleVarStats::SingleVarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MB
 	TagCnv = MC_;
 	TagCnvFamily = gs_Cnvs[TagCnv.Index];
 	nTagCnvUsed = 0;
+	
+	MDDValueLst terminator = {0};
+	TagCnvList.push_back(terminator);
 
 	Reset();
 }
@@ -104,24 +107,6 @@ void SingleVarStats::BuildDataFields()
 	bool create = gs_Cnvs.Create("kPa", TagCnv);*/
 	//MCnv FindPrimary = gs_Cnvs.FindPrimary("Pressure");
 	//End Test Stuff
-
-	static vector<MDDValueLst> TagCnvList;
-	for (int i = 0; i < TagCnvList.size(); i++)
-		if (TagCnvList.at(i).m_pStr != NULL)
-			delete[] TagCnvList.at(i).m_pStr;
-	TagCnvList.clear();
-	for (int i = 0; i < TagCnvFamily.Count(); i++)
-	{
-		int dstSize = strlen(TagCnvFamily[i].Name()) + 1;
-		char* nonConst = new char[dstSize];
-		//strcpy_s(nonConst, dstSize, TagCnvFamily[i].Name());
-		strcpy(nonConst, TagCnvFamily[i].Name());
-
-		MDDValueLst cur = {i, nonConst};
-		TagCnvList.push_back(cur);
-	}
-	MDDValueLst terminator = {0};
-	TagCnvList.push_back(terminator);
 
 	DD.CheckBox("Logging","Logging", &bOn, MF_PARAMETER);
 	DD.String("StatTag", "StatTag", idDX_Tag, MF_PARAM_STOPPED);
@@ -275,6 +260,23 @@ bool SingleVarStats::ValidateDataFields()
 	}
 	TagCnv = tagSubs.IsActive ? tagSubs.Cnv : MC_;
 	TagCnvFamily = gs_Cnvs[TagCnv.Index];
+
+	for (int i = 0; i < TagCnvList.size(); i++)
+		if (TagCnvList.at(i).m_pStr != NULL)
+			delete[] TagCnvList.at(i).m_pStr;
+	TagCnvList.clear();
+	for (int i = 0; i < TagCnvFamily.Count(); i++)
+	{
+		int dstSize = strlen(TagCnvFamily[i].Name()) + 1;
+		char* nonConst = new char[dstSize];
+		//strcpy_s(nonConst, dstSize, TagCnvFamily[i].Name());
+		strcpy(nonConst, TagCnvFamily[i].Name());
+
+		MDDValueLst cur = {i, nonConst};
+		TagCnvList.push_back(cur);
+	}
+	MDDValueLst terminator = {0};
+	TagCnvList.push_back(terminator);
 
 	if (lHistoCount < 1)
 		lHistoCount = 1;

@@ -26,13 +26,16 @@ namespace Reaction_Editor
         protected static Regex s_CommentRemovingRegex = new Regex(@"^(?<Active>[^;]*)(;(?<Comment>.*))?",
             RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Compiled);
 
-        protected static Regex s_OpeningCommentRegex = new Regex(@"^(?>;(?<Comment>[^\r\n]*)\r*\n)*",
+        protected static Regex s_OpeningCommentRegex = new Regex(@"^\s*(?>;(?<Comment>[^\r\n]*)\s*)*",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled); //If the first match is non-zero, discard.
 
-        protected static Regex s_RxnBlockStartRegex = new Regex(@"(^|\r*\n\s*)Reactions:",
+        protected static Regex s_RxnBlockStartRegex = new Regex(@"(^|\r*\n\s*)Reactions\s*:",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         protected static Regex s_RxnBlockEndRegex = new Regex(@"\r*\n\s*(End|^|HeatExchange|Sink)",
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+                                                                                                  //Maj .Min.Rev.Build
+        protected static Regex s_FileVersionRegex = new Regex(@"<ReactionEditorVer\s*=\s*(?<Version>\d+(\.\d+){0,3})>",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         #endregion Regex's
 
@@ -45,6 +48,7 @@ namespace Reaction_Editor
         protected string m_sTitle = "Untitled Reaction Block";
         protected FileStream m_File;
         protected SimpleReaction m_CurrentReaction;
+        protected bool m_bSupressSaveMessage = false;
 
         protected ILog m_Log;
 
@@ -129,6 +133,12 @@ namespace Reaction_Editor
         {
             get { return m_Log; }
             set { m_Log = value; }
+        }
+
+        public bool SupressSaveMessages
+        {
+            get { return m_bSupressSaveMessage; }
+            set { m_bSupressSaveMessage = value; }
         }
 
         protected ListViewGroup SelectedGroup
@@ -464,10 +474,11 @@ namespace Reaction_Editor
                 //Sources, if they exist:
                 if (m_Sources != null)
                 {
-                    sw.WriteLine(";RC1: " + txtSourceComments.Text + "");
+                    /*sw.WriteLine(";RC1: " + txtSourceComments.Text + "");
                     if (!chkSourcesEnabled.Checked)
                         sw.Write(';');
-                    sw.WriteLine("Source: " + txtSources.Text);
+                    sw.WriteLine("Source: " + txtSources.Text);*/
+                    sw.WriteLine(m_Sources.ToSaveString());
                     sw.WriteLine();
                 }
             }
@@ -501,10 +512,11 @@ namespace Reaction_Editor
             {
                 if (m_Sinks != null)
                 {
-                    sw.WriteLine(";RC" + m_Sinks.LVI.Text + ": " + txtSinkComments.Text);
+                    /*sw.WriteLine(";RC" + m_Sinks.LVI.Text + ": " + txtSinkComments.Text);
                     if (!chkSinksEnabled.Checked)
                         sw.Write(';');
-                    sw.WriteLine("Sink: " + txtSinks.Text);
+                    sw.WriteLine("Sink: " + txtSinks.Text);*/
+                    sw.WriteLine(m_Sinks.ToSaveString());
                     sw.WriteLine();
                 }
             }
@@ -517,10 +529,11 @@ namespace Reaction_Editor
             {
                 if (m_HX != null)
                 {
-                    sw.WriteLine(";RC" + m_HX.LVI.Text + ": " + txtHXComment.Text);
+                    /*sw.WriteLine(";RC" + m_HX.LVI.Text + ": " + txtHXComment.Text);
                     if (!chkHXEnabled.Checked)
                         sw.Write(';');
-                    sw.WriteLine(m_HX.ToString());
+                    sw.WriteLine(m_HX.ToString());*/
+                    sw.WriteLine(m_HX.ToSaveString());
                 }
             }
             catch (Exception ex)
@@ -534,6 +547,7 @@ namespace Reaction_Editor
             if (lstReactions.SelectedIndices.Count > 0)
                 LastSelected = lstReactions.SelectedIndices[0].ToString();
             sw.WriteLine(";<LastSelected=" + LastSelected + ">");
+            sw.WriteLine(";<ReactionEditorVer=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(4) + ">");
 
             sw.Flush();
 
@@ -710,9 +724,9 @@ namespace Reaction_Editor
                 CheckBox properChkSequence = chkSequence; //Because the new reaction will always carry sequence information.
                 chkSequence = new CheckBox();
                 //A reaction shouldn't be both enabled and disabled, so simply call both:
-                Match m = SimpleReaction.s_ReactionRegex.Match(data);
+                Match m = SimpleReaction.s_GeneralReactionRegex.Match(data);/*SimpleReaction.s_ReactionRegex.Match(data);
                 if (!m.Success)
-                    m = SimpleReaction.s_DisabledReactionRegex.Match(data);
+                    m = SimpleReaction.s_DisabledReactionRegex.Match(data);*/
                 SimpleReaction rxn = CreateReaction();
                 rxn.SetRegex(m, new MessageSource(""), "");
                 chkSequence = properChkSequence;
@@ -782,6 +796,28 @@ namespace Reaction_Editor
                 m_CurrentReaction.RemoveProduct(data.startIndex);
             else if (data.ctrl == txtReactants)
                 m_CurrentReaction.RemoveReactant(data.startIndex);
+        }
+
+        public void RenameFile(string newFileName)
+        {
+            string oldPath = m_File.Name;
+            string newPath = Path.Combine(Path.GetDirectoryName(m_File.Name), newFileName);
+            if (oldPath.ToLower() == newPath.ToLower())
+                return;
+            if (File.Exists(newPath))
+                throw new IOException("File with desired name already exists");
+            try
+            {
+                m_File.Close();
+                File.Move(m_File.Name, newPath);
+                m_File = new FileStream(newPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                this.Title = Path.GetFileName(newPath);
+            }
+            catch (Exception ex)
+            {
+                m_File = new FileStream(oldPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite); //If it failes, we re-open the old file...
+                throw ex;
+            }
         }
         #endregion Public Functions
 
@@ -871,11 +907,32 @@ namespace Reaction_Editor
                 m_File.Read(buffer, 0, (int)m_File.Length);
                 string contents = Encoding.Default.GetString(buffer);
 
+                //Version:
+                Match verMatch = s_FileVersionRegex.Match(contents);
+                Version savedVersion = new Version(0,0,0,0);
+                if (verMatch.Success)
+                    try{ savedVersion = new Version(verMatch.Groups["Version"].Value); }
+                    catch { }
+                Version MinVersion = new Version("1.0.17");
+
+                //General comments:
+                StringBuilder openingCommentsSB = new StringBuilder();
+                Match commentsMatch = s_OpeningCommentRegex.Match(contents);
+                if (commentsMatch.Success)
+                {
+                    Group g = commentsMatch.Groups["Comment"];
+                    if (g.Success)
+                        foreach (Capture c in g.Captures)
+                            openingCommentsSB.AppendLine(c.Value);
+                    txtDescription.Text = openingCommentsSB.ToString();
+                }
+
                 //Sources and sinks use a comment stripped version of the file:
                 StringBuilder activeSB = new StringBuilder();
                 StringBuilder commentSB = new StringBuilder();
                 StringBuilder relevantSB = new StringBuilder();
-                for (Match m = s_CommentRemovingRegex.Match(contents); m.Success; m = m.NextMatch())
+                for (Match m = s_CommentRemovingRegex.Match(contents, commentsMatch.Index + commentsMatch.Length);
+                     m.Success; m = m.NextMatch())
                 {
                     relevantSB.AppendLine(m.Value);
                     activeSB.AppendLine(m.Groups["Active"].Value);
@@ -893,16 +950,12 @@ namespace Reaction_Editor
                 if (!s_EndRegex.Match(commentsRemoved).Success)
                     Log.Message("'End' token not found. Reading to end of file (May cause unpredictable results)", MessageType.Warning);
 
-                //General comments:
-                StringBuilder openingCommentsSB = new StringBuilder();
-                Match commentsMatch = s_OpeningCommentRegex.Match(relevant);
-                if (commentsMatch.Success)
+                if (savedVersion < MinVersion)
                 {
-                    Group g = commentsMatch.Groups["Comment"];
-                    if (g.Success)
-                        foreach (Capture c in g.Captures)
-                            openingCommentsSB.AppendLine(c.Value);
-                    txtDescription.Text = openingCommentsSB.ToString();
+                    txtDescription.Text += "\r\n---- Upgraded To Reaction Editor Format " + DateTime.Now.Date.ToString("dd/MM/yyyy") + " ----";
+                    if (!string.IsNullOrEmpty(commentsOnly.Trim()))
+                        txtDescription.Text += "\r\n\r\n------------ Original Comments ------------\r\n"
+                                                + commentsOnly;
                 }
 
                 List<int> indexlist = new List<int>();
@@ -913,10 +966,15 @@ namespace Reaction_Editor
                 if (sourcesSinksMatch.Success && sourcesSinksMatch.Groups["Type"].Value.ToLowerInvariant() == "source")
                 {
                     m_Sources = new CompoundListReaction(sourcesSinksMatch);
-                    sourceIndex = sourcesSinksMatch.Index;
-                    SetupSources();
-                    indexlist.Add(sourceIndex);
-                    sourcesSinksMatch = sourcesSinksMatch.NextMatch();
+                    if (!m_Sources.Enabled && savedVersion < MinVersion)
+                        m_Sources = null;
+                    else
+                    {
+                        sourceIndex = sourcesSinksMatch.Index;
+                        SetupSources();
+                        indexlist.Add(sourceIndex);
+                        sourcesSinksMatch = sourcesSinksMatch.NextMatch();
+                    }
                 }
 
                 //Reactions:
@@ -930,30 +988,41 @@ namespace Reaction_Editor
                 string rxnBlock = relevant.Substring(rxnBlockStart, rxnBlockEnd - rxnBlockStart);
 
                 Dictionary<int, SimpleReaction> indices = new Dictionary<int, SimpleReaction>();
-                FindReactions(relevant, SimpleReaction.s_ReactionRegex, true, ref indices);
-                FindReactions(relevant, SimpleReaction.s_DisabledReactionRegex, false, ref indices);
-
-                chkFirstReactant.Checked = contents.ToLowerInvariant().Contains("<usefirstreactant=true>");
+                FindReactions(rxnBlock, SimpleReaction.s_GeneralReactionRegex, savedVersion >= MinVersion, ref indices, start.Index);
 
                 //Sinks:
                 if (sourcesSinksMatch.Success && sourcesSinksMatch.Groups["Type"].Value.ToLowerInvariant() == "sink")
                 {
-                    sinkindex = sourcesSinksMatch.Index;
-                    indexlist.Add(sinkindex);
                     m_Sinks = new CompoundListReaction(sourcesSinksMatch);
-                    SetupSinks();
+                    if (!m_Sinks.Enabled && savedVersion < MinVersion)
+                        m_Sinks = null;
+                    else
+                    {
+                        sinkindex = sourcesSinksMatch.Index;
+                        indexlist.Add(sinkindex);
+                        SetupSinks();
+                    }
                 }
 
                 //Heat Exchange:
                 Match HXMatch = HXReaction.s_HXRegex.Match(relevant);
                 if (HXMatch.Success)
                 {
-                    HXindex = HXMatch.Index;
-                    indexlist.Add(HXindex);
                     m_HX = new HXReaction(HXMatch);
-                    SetupHX();
+                    if (!m_HX.Enabled && savedVersion < MinVersion)
+                        m_HX = null;
+                    else
+                    {
+                        HXindex = HXMatch.Index;
+                        indexlist.Add(HXindex);
+                        SetupHX();
+                    }
                 }
 
+                //Reaction Editor Saved Comments:
+                //First Reactant:
+                chkFirstReactant.Checked = contents.ToLowerInvariant().Contains("<usefirstreactant=true>");
+                //LastSelected:
                 Match LSMatch = s_LastSelectedRegex.Match(contents);
                 if (LSMatch.Success)
                 {
@@ -1001,7 +1070,7 @@ namespace Reaction_Editor
         }
 
         //Now returning a dictionary containing the reaction indexes in the file.
-        protected void FindReactions(string rxnBlock, Regex reactionRegex, bool enabled, ref Dictionary<int, SimpleReaction> ret)
+        protected void FindReactions(string rxnBlock, Regex reactionRegex, bool includeDisabled, ref Dictionary<int, SimpleReaction> ret, int offset)
         {
             int lastSequence = 1;
             bool sequenceFound = false;
@@ -1019,31 +1088,31 @@ namespace Reaction_Editor
                     currentReaction.SetRegex(rxnMatch, source, this.Title);
                     currentReaction.OriginalReactionNumber = Reaction.DisabledReactionNumber;
 
-                    if (ret.ContainsKey(rxnMatch.Index))
-                        throw new Exception("Ambigous Comment Encountered");
-                    else
-                        ret.Add(rxnMatch.Index, currentReaction);
-
-                    Group grpSequence = rxnMatch.Groups["Sequence"];
-                    if (grpSequence.Success)
+                    if (currentReaction.Enabled || includeDisabled)
                     {
-                        Match sequenceMatch = SimpleReaction.s_SequenceRegex.Match(grpSequence.Captures[0].Value.Trim());
-                        if (sequenceMatch.Success)
-                        {
-                            sequenceFound = true;
-                            lastSequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value);
-                        }
-                        else
-                            Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
-                    }
-                    currentReaction.Sequence = lastSequence;
+                        ret.Add(rxnMatch.Index + offset, currentReaction);
 
-                    currentReaction.Enabled = enabled;
+                        Group grpSequence = rxnMatch.Groups["Sequence"];
+                        if (grpSequence.Success)
+                        {
+                            Match sequenceMatch = SimpleReaction.s_SequenceRegex.Match(grpSequence.Captures[0].Value.Trim());
+                            if (sequenceMatch.Success)
+                            {
+                                sequenceFound = true;
+                                lastSequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value);
+                            }
+                            else
+                                Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
+                        }
+                        currentReaction.Sequence = lastSequence;
+                    }
+                    else
+                        lstReactions.Items.Remove(currentReaction.LVI);
                 }
                 catch (Exception ex)
                 {
-                    lstReactions.Items.Remove(currentReaction.LVI);
                     Log.Message(ex.Message, MessageType.Error);
+                    lstReactions.Items.Remove(currentReaction.LVI);
                 }
                 Log.RemoveSource();
             }
@@ -1051,7 +1120,7 @@ namespace Reaction_Editor
                 chkSequence.Checked = true;
         }
 
-        public SimpleReaction CreateReaction()
+        protected SimpleReaction CreateReaction()
         {
             ListViewItem lvi = new ListViewItem();
             lvi.SubItems.AddRange(new string[] { "", "", "", "" });

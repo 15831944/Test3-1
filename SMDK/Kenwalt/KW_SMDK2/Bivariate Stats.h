@@ -65,6 +65,8 @@ class BivarStats : public MBaseMethod
 	GraphType graphType;
 
 	MTagIOSubscription tagSubs0, tagSubs1;
+	MCnv tagCnv0, tagCnv1;
+	bool bTag0Initialised, bTag1Initialised;
 	double dHistoMinX, dHistoMinY;
 	double dHistoMaxX, dHistoMaxY;
 	long lHistoCount;

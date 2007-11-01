@@ -107,7 +107,7 @@ namespace Auto_Complete
                 foreach (char c in m_DisallowedChars)
                     if (e.KeyChar == c)
                         e.Handled = true;
-            //We should display a tooltip in the event of c not being permitted.
+            //We should display a tooltip in the event of char not being permitted.
             if (e.Handled)
                 m_DisallowedTip.Show("The characters \"<>=;:\" are not permitted", this);
 

@@ -56,6 +56,7 @@ class TailingsGraphic : public MBaseMethod
 	vector<double> vInterpolationHeights, vInterpolationAreas;
 	vector<double> vSortedHeights, vSortedAreas;
 	InterpolationMethods eIntMethod;
+	long lEvapRateUnits;
 	
 	//Model calculated data:
     //double dTopArea;
@@ -64,7 +65,7 @@ class TailingsGraphic : public MBaseMethod
 	double dFluidLevel, dSolidLevel, dFSA;
 
 	//Data read from the tank:
-  MTagIOSubscription FluidMassSubs, SolidMassSubs;
+    MTagIOSubscription FluidMassSubs, SolidMassSubs;
 	double dFluidMass, dSolidMass;
 	MTagIOSubscription ConcSubs;
 	double dConc;

@@ -58,6 +58,7 @@ class SingleVarStats : public MBaseMethod
 	MCnv TagCnv;
 	MCnvFamily TagCnvFamily;
 	int nTagCnvUsed;
+	vector<MDDValueLst> TagCnvList;
 
 	CString sGraphUnit;
 

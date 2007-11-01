@@ -132,7 +132,6 @@ namespace Reaction_Editor
         }
     }
 
-    [Serializable]
     public class FractionExtent : RxnExtent
     {
         protected static Regex s_FractionRegex = new Regex(@"(Extent\s*:\s*)?Fraction\s*(?<Aim>Target|Strict)?\s*(?<Specie>[^\s=]+)?\s*(?<Rate>Rate)?\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)(?<Percent>%)?\s*(?<Stabilised>Stabilised)?",
@@ -168,16 +167,18 @@ namespace Reaction_Editor
                 ret = new FractionExtent();
             if (m.Groups["Specie"].Success)
                 ret.Specie = Compound.FromString(m.Groups["Specie"].Value);
-            ret.Value = double.Parse(m.Groups["Value"].Value);
+            
+            double tmp = double.Parse(m.Groups["Value"].Value);
             if (m.Groups["Percent"].Success)
-                ret.Value *= 0.01;
+                tmp *= 0.01;
+            ret.Value = tmp;
+
             if (m.Groups["Rate"].Success && Program.Dynamic && m.Groups["Stabilised"].Success)
                 ((RateExtent)ret).Stabilised = true;
             return ret;
         }
     }
 
-    [Serializable]
     public class RatioExtent : RxnExtent
     {
         protected Compound m_Specie2;
@@ -258,7 +259,6 @@ namespace Reaction_Editor
         }
     }
 
-    [Serializable]
     public class EquilibriumExtent : RxnExtent
     {
         public EquilibriumExtent(RxnExtent original)
@@ -292,7 +292,6 @@ namespace Reaction_Editor
         }
     }
 
-    [Serializable]
     public class Final_ConcExtent : RxnExtent
     {
         protected static Regex s_FinalConcRegex = new Regex(
@@ -339,7 +338,6 @@ namespace Reaction_Editor
         }
     }
 
-    [Serializable]
     public class Final_FracExtent : RxnExtent
     {
         protected static Regex s_FinalFracRegex = new Regex(
@@ -434,7 +432,7 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            return "Fraction " + Specie + " Rate = " + Value + (Stabilised ? "Stabilised" : "");
+            return "Fraction " + Specie + " Rate = " + Value + (Stabilised ? " Stabilised" : "");
         }
     }
     #endregion Reaction Extent Structures
@@ -799,9 +797,8 @@ namespace Reaction_Editor
 
     public class CompoundListReaction : Reaction
     {
-        //TODO: CompoundListReaction needs a copy of the log while loading. Maybe we just need to globalise the log...
         #region Regex's
-        public static Regex s_SourceSinkRegex = new Regex(@"(;RC(\d+|-):(?<Comment>[^\r\n]*))?(^|\r*\n)[^\S\r\n]*(?<Disabled>;)?(?<Type>Source|Sink):(?<Value>[^;\r\n]*)",
+        public static Regex s_SourceSinkRegex = new Regex(@"(;RC(\d+|-):(?<Comment>[^\r\n]*))?(^|\r*\n)[^\S\r\n]*(?<Disabled>;)?(?<Type>Source|Sink)[^\S\r\n]*:(?<Value>[^;\r\n]*)(?(Disabled)\s*;Enabled=false)",
             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         #endregion Regex's
 
@@ -896,8 +893,10 @@ namespace Reaction_Editor
         public override string ToSaveString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("RC" + ReactionNumber + ": " + Comment);
+            sb.AppendLine(";RC" + ReactionNumber + ": " + Comment);
             sb.AppendLine((Enabled ? ";" : "") + this.ToString());
+            if (!Enabled)
+                sb.AppendLine(";Enabled=False");
             return sb.ToString();
         }
 
@@ -971,7 +970,8 @@ namespace Reaction_Editor
         public static Regex s_HXRegex = new Regex(
             @"^\s*(;(RC(\d+|-): ?)?(?<Comment>[^\r\n]*)\r*\n)?\s*(?<Disabled>;)?HeatExchange:\s*(
                         (?<Type>FinalT|Power|Electrolysis)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+) |
-                        (?<Type>TargetT|Ambient)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*,\s*(ApproachT|ApproachAmbient)\s*=\s*(?<Value2>d+(\.\d+)?|\.\d+))",
+                        (?<Type>TargetT|Ambient)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*,\s*(ApproachT|ApproachAmbient)\s*=\s*(?<Value2>d+(\.\d+)?|\.\d+)
+                        )(?(Disabled)\s*;Enabled=false)",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
 
@@ -1083,8 +1083,10 @@ namespace Reaction_Editor
         public override string ToSaveString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("RC" + ReactionNumber + ": " + Comment);
+            sb.AppendLine(";RC" + ReactionNumber + ": " + Comment);
             sb.AppendLine(ToString());
+            if (!Enabled)
+                sb.AppendLine(";Enabled=False");
             return sb.ToString();
         }
 
@@ -1105,18 +1107,33 @@ namespace Reaction_Editor
         public static double sMinValue = 5E-3;
 
         #region regex's
-        public static Regex s_ReactionRegex = new Regex(
-            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n)?(?<Reactants>[^;\r\n<>=\:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>(?>\s*(;.*\r*\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
-            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        /*public static Regex s_ReactionRegex = new Regex(
+            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n)?
+             (?<Reactants>[^;\r\n<>=\:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))
+            (?>(?>\s*(;.*\r*\n)?)*
+            ((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
         public static Regex s_DisabledReactionRegex = new Regex(
-            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=\-;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>[^\S\r\n]*(\r*\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
-            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n[^\S\r\n]*)?
+            ;(?<Reactants>[^;\r\n<>=\:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))
+            (?>[^\S\r\n]*(\r*\n\s*;[^\S\r\n]*)?
+            ((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}
+            (\s*;Enabled=false)",
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);*/
+
+        public static Regex s_GeneralReactionRegex = new Regex(
+            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n[^\S\r\n]*)?
+            (?<Disabled>;)?(?<Reactants>[^;\r\n<>=\:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))
+            (?>(?(Disabled)[^\S\r\n]*(\r*\n\s*;[^\S\r\n]*)?|(?>\s*(;.*\r*\n)?)*)
+            ((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$)){0,3}
+            (?(Disabled)\s*;Enabled=false)",
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
         public static Regex s_SequenceRegex = new Regex(@"^Sequence\s*:\s*(?<Value>\d+)$",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public static Regex s_HORRegex = new Regex(
-            @"^\s*HeatOfReaction\s*:\s*(?<Type>MsFixed|MlFixed)\s*=\s*(?<Value>-?\d+(\.\d+)?|\.\d+)\s*(/\s*(?<Specie>\S*))?\s*(At\s*(?<Cond>(?<Condition>Feed|Prod|Std)|(?<T>\d*(\.\d+)?|\.\d+)(\s*,\s*(?<P>\d*(\.\d+)?|\.\d+))?))?\s*$",
+            @"^\s*HeatOfReaction\s*:\s*(?<Type>MsFixed|MlFixed)\s*=\s*(?<Value>(\+|-)?(\d+(\.\d+)?|\.\d+))\s*(/\s*(?<Specie>\S*))?\s*(At\s*(?<Cond>(?<Condition>Feed|Prod|Std)|(?<T>(\+|-)?(\d*(\.\d+)?|\.\d+))C?(\s*,\s*(?<P>\d*(\.\d+)?|\.\d+))?))?\s*$",
             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         public static Regex s_CompoundRegex = new Regex(
             @"^\s*(?<Unparseable>.*?)(?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s]*)(?>(?<Unparseable>.*?)\s+\+\s+(?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s]*))*\s*(?<Unparseable>.*?)$",
@@ -1728,6 +1745,8 @@ namespace Reaction_Editor
                 {
                     Program.Log.Message("Unable to parse HeatOfReaction '" + grpHOR.Value + "' Reason: " + ex.Message, MessageType.Warning);
                 }
+
+            this.Enabled = !rxnMatch.Groups["Disabled"].Success;
         }
 
         /// <summary>
@@ -1744,8 +1763,7 @@ namespace Reaction_Editor
         public SimpleReaction Revert()
         {
             this.m_bInitialised = false;
-            this.SetRegex(m_Original.Enabled ? s_ReactionRegex.Match(m_Original.ToSaveString(true)) :
-                s_DisabledReactionRegex.Match(m_Original.ToSaveString(true)), new MessageSource(""), "");
+            this.SetRegex(s_GeneralReactionRegex.Match(m_Original.ToSaveString(true)), new MessageSource(""), "");
             this.Enabled = m_Original.Enabled;
             if (!m_Original.CustomHeatOfReaction)
             {
@@ -1991,7 +2009,7 @@ namespace Reaction_Editor
                 ProductsChanged(this, new EventArgs());
         }
 
-        public string ToString(string numberFormat)
+        public override string ToString()
         {
             if (m_bUseOriginalString)
             {
@@ -2019,9 +2037,9 @@ namespace Reaction_Editor
         {
             StringBuilder sb = new StringBuilder();
             if (includeComment)
-                sb.AppendLine(";RC" + m_nReactionNumber + ": " + m_sComment);
+                sb.AppendLine(";RC" + (m_bEnabled ? m_nReactionNumber.ToString() : "-") + ": " + m_sComment);
             if (!m_bEnabled) sb.Append("; ");
-            sb.AppendLine(this.ToString("0.######")); //Formula
+            sb.AppendLine(this.ToString()); //Formula
             if (!m_bEnabled) sb.Append("; ");
             sb.AppendLine(" Extent : " + m_Extent.ToString());
             if (CustomHeatOfReaction)
@@ -2032,14 +2050,13 @@ namespace Reaction_Editor
             if (includeSequence)
             {
                 if (!m_bEnabled) sb.Append("; ");
-                sb.Append(" Sequence : " + m_nSequence);
+                sb.AppendLine(" Sequence : " + m_nSequence);
             }
-            return sb.ToString();
-        }
 
-        public override string ToString()
-        {
-            return ToString("0.##");
+            if (!m_bEnabled)
+                sb.AppendLine(";Enabled=False");
+
+            return sb.ToString();
         }
 
         public int ProductIndex(Compound c)
@@ -2288,9 +2305,7 @@ namespace Reaction_Editor
         public SimpleReaction Clone(ListViewItem newLVI)
         {
             SimpleReaction ret = new SimpleReaction(newLVI);
-            ret.SetRegex(this.Enabled ? 
-                s_ReactionRegex.Match(ToSaveString(true)) :
-                s_DisabledReactionRegex.Match(ToSaveString(true)) , 
+            ret.SetRegex(s_GeneralReactionRegex.Match(this.ToSaveString(true)), 
                 new MessageSource("SimpleReaction.Clone"), "Clone");
             /*SimpleReaction ret = (SimpleReaction) this.MemberwiseClone();
             ret.LVI = newLVI;

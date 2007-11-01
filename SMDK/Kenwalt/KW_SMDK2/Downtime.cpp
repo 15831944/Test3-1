@@ -206,6 +206,9 @@ void Downtime::BuildDataFields()
 			DD.Text("Set Tag Not Valid");
 		if (!tasks.at(i)->TagToTest.IsActive)
 			DD.Text("Test Tag Not Valid");
+		DD.Show(tasks.at(i)->TagToTest.IsActive);
+		DD.Double("", "TagToTest_CurrentValue", &tasks.at(i)->dTestValue, MF_RESULT, TestTagCnv);
+		DD.Show();
 		DD.Long("State", "", (long*) &tasks.at(i)->eCurrentState, MF_RESULT, DD_States);
 		DD.Long("StateValue", "", (long*) &tasks.at(i)->eCurrentState, MF_RESULT);
 		for (vector<CString>::iterator it = states.begin(); it != states.end(); it++)
@@ -235,10 +238,13 @@ bool Downtime::ExchangeDataFields()
 	if (DX.Handle >= idDX_SetTag && DX.Handle < idDX_SetTag + maxElements)
 	{
 		const int task = DX.Handle - idDX_SetTag;
+		CString dbg1, dbg2;
 		if (DX.HasReqdValue)
 		{
+			dbg1 = DX.String;
 			tasks.at(task)->TagToSet.Tag = DX.String;
 		}
+		dbg2 = tasks.at(task)->TagToSet.Tag;
 		DX.String = tasks.at(task)->TagToSet.Tag;
 		return true;
 	}
@@ -381,6 +387,7 @@ void Downtime::EvalCtrlActions(eScdCtrlTasks Tasks)
 				(*it)->eCurrentState = DTRS_Running;
 			else
 				(*it)->eCurrentState = DTRS_Off;
+			(*it)->dTestValue = (*it)->TagToTest.IsActive ? (*it)->TagToTest.DoubleSI : dNAN;
 			//In certain conditions, we will want to reset some timers:
 			if (ePreviousState == DTRS_MajorMaintenance && (*it)->eCurrentState != DTRS_MajorMaintenance)
 			{
@@ -491,6 +498,8 @@ bool Downtime::CheckTags()
 			Log.SetCondition(true, i, MMsg_Warning, warning);
 			ret = false;
 		}
+		else
+			Log.ClearCondition(i);
 	}
 	return ret;
 }
@@ -504,6 +513,7 @@ DowntimeVariables::DowntimeVariables(MTagIO & TagIO) : TagToSet(TagIO), TagToTes
 	dTotalDowntime = 0.0;
 	dOnValue = 1.0;
 	dOffValue = 0.0;
+	dTestValue = dNAN;
 
 	Reset();
 }

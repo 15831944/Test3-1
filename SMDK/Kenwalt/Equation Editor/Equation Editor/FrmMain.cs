@@ -133,7 +133,7 @@ namespace Reaction_Editor
                     MessageType.Note,
                     new MessageSource(filename));
                 TreeNode newNode = new TreeNode(filename);
-                newNode.ContextMenuStrip = menuDatabaseFile;
+                //newNode.ContextMenuStrip = menuDatabaseFile;
                 treeFiles.Nodes["SpecieDB"].Nodes.Add(newNode);
                 treeFiles.Nodes["SpecieDB"].Expand();
                 regKey.SetValue("Last Database", filename);
@@ -267,6 +267,7 @@ namespace Reaction_Editor
             frm.Show();
             TreeNode newNode = new TreeNode(frm.Text);
             newNode.Tag = frm;
+            newNode.ContextMenuStrip = menuReactionBlock;
             frm.Tag = newNode;
             newNode.Name = frm.Text;
             treeFiles.Nodes["RBs"].Nodes.Add(newNode);
@@ -431,7 +432,7 @@ namespace Reaction_Editor
             }
             catch { }
 
-            treeFiles.Nodes["SpecieDB"].ContextMenuStrip = menuDatabaseFile;
+            //treeFiles.Nodes["SpecieDB"].ContextMenuStrip = menuDatabaseFile;
             //ResourceReader rr = new ResourceReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(FrmMain), "Icons.resources"));
             lstSpecies.SmallImageList = Program.Images;
             Program.Log = new ListLog(lstLog);
@@ -462,6 +463,14 @@ namespace Reaction_Editor
             if (!string.IsNullOrEmpty(this.m_sActiveDirectory) && !string.IsNullOrEmpty(dir) &&
                 dir.ToLowerInvariant() != this.m_sActiveDirectory.ToLowerInvariant())
                 return; //Ignore messages not intended for our application.
+
+            bool bEndNotification = false;
+            foreach (string s in args)
+                if (s.ToLowerInvariant() == "/sessionended")
+                    bEndNotification = true;
+            if (bEndNotification)
+                MessageBox.Show("The SysCAD session associated with this instance of the reaction editor has ended.", "SysCAD Reaction Editor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
             if (this.InvokeRequired)
             {
                 this.BeginInvoke(new InteropMessenger.StringSentDelegate(HandleArgs), new object[] { dir, args });
@@ -496,7 +505,7 @@ namespace Reaction_Editor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.ToString());
+                    MessageBox.Show(ex.ToString(), "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
 
@@ -517,7 +526,7 @@ namespace Reaction_Editor
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.ToString());
+                        MessageBox.Show(ex.Message, "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
             }
 
@@ -539,7 +548,7 @@ namespace Reaction_Editor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.ToString());
+                    MessageBox.Show(ex.Message, "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
 
@@ -557,7 +566,7 @@ namespace Reaction_Editor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.ToString());
+                    MessageBox.Show(ex.Message, "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
 
@@ -685,7 +694,9 @@ namespace Reaction_Editor
             if (dlgOpenRxn.ShowDialog(this) != DialogResult.OK)
                 return;
             
-            if (CheckSpecieDB(dlgOpenRxn.FileName))
+            if (!string.IsNullOrEmpty(m_sActiveDirectory) && Path.GetDirectoryName(dlgOpenRxn.FileName) != m_sActiveDirectory)
+                MessageBox.Show(this, "Selected file is not in the active directory. Please launch a new instance of the Reaction Editor to edit this file.", "Open", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+            else if (CheckSpecieDB(dlgOpenRxn.FileName))
                 foreach (string file in dlgOpenRxn.FileNames)
                     Open(file);
         }
@@ -707,21 +718,25 @@ namespace Reaction_Editor
 
         void frm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!((FrmReaction)sender).Changed) return;
+            FrmReaction frm = (FrmReaction)sender;
+            if (!frm.Changed) return;
 
-            switch (MessageBox.Show(this,
-                "Do you want to save the changes you made to '" + ((FrmReaction)sender).Title + "'",
-                "SysCAD Reaction Editor",
-                MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
+            if (!frm.SupressSaveMessages)
             {
-                case DialogResult.Yes:
-                    Save((FrmReaction)sender);
-                    break;
-                case DialogResult.No:
-                    break;
-                case DialogResult.Cancel:
-                    e.Cancel = true;
-                    break;
+                switch (MessageBox.Show(this,
+                    "Do you want to save the changes you made to '" + frm.Title + "'",
+                    "SysCAD Reaction Editor",
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning))
+                {
+                    case DialogResult.Yes:
+                        Save(frm);
+                        break;
+                    case DialogResult.No:
+                        break;
+                    case DialogResult.Cancel:
+                        e.Cancel = true;
+                        break;
+                }
             }
         }
 
@@ -822,15 +837,6 @@ namespace Reaction_Editor
         private void menuExit_Click(object sender, EventArgs e)
         {
             this.Close();
-        }
-
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            menuClose.Enabled =
-                menuSave.Enabled =
-                menuSaveAs.Enabled =
-                menuRevert.Enabled = 
-                ActiveMdiChild is FrmReaction;
         }
 
         private void menuSaveAll_Click(object sender, EventArgs e)
@@ -951,39 +957,46 @@ namespace Reaction_Editor
             dlgOpenFolder.Description = "Select a directory containing the required reaction files and specie database.";
             if (dlgOpenFolder.ShowDialog(this) != DialogResult.OK)
                 return;
-            try
-            {
-                UpdateLastPath(dlgOpenFolder.SelectedPath);
 
-                lstLog.BeginUpdate();
-                treeFiles.BeginUpdate();
-                if (File.Exists(dlgOpenFolder.SelectedPath + "\\SpecieData.ini"))
+            if (!string.IsNullOrEmpty(m_sActiveDirectory) && m_sActiveDirectory != dlgOpenFolder.SelectedPath)
+            {
+                if (MessageBox.Show(this, "Folder will be opened in a new instance of the Reaction Editor.", "Open Folder", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                    System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location, "/all \"" + dlgOpenFolder.SelectedPath + '"');
+            }
+            else
+                try
                 {
-                    bool dbOpen = false;
-                    foreach (TreeNode tn in treeFiles.Nodes["SpecieDB"].Nodes)
-                        if (tn.Text == dlgOpenFolder.SelectedPath + "\\SpecieData.ini")
-                        {
-                            dbOpen = true;
-                            break;
-                        }
-                    if (!dbOpen)
-                    {
-                        if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show("Unload existing specie databases before loading new database?", "Open Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                            UnloadDatabase();
-                        OpenSpecieDB(dlgOpenFolder.SelectedPath + "\\SpecieData.ini");
-                    }
-                }
-                else
-                    MessageBox.Show(this, "Specie database not found in selected directory", "Open Directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    UpdateLastPath(dlgOpenFolder.SelectedPath);
 
-                foreach (string fn in Directory.GetFiles(dlgOpenFolder.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
-                    Open(fn);
-            }
-            finally
-            {
-                lstLog.EndUpdate();
-                treeFiles.EndUpdate();
-            }
+                    lstLog.BeginUpdate();
+                    treeFiles.BeginUpdate();
+                    if (File.Exists(dlgOpenFolder.SelectedPath + "\\SpecieData.ini"))
+                    {
+                        bool dbOpen = false;
+                        foreach (TreeNode tn in treeFiles.Nodes["SpecieDB"].Nodes)
+                            if (tn.Text == dlgOpenFolder.SelectedPath + "\\SpecieData.ini")
+                            {
+                                dbOpen = true;
+                                break;
+                            }
+                        if (!dbOpen)
+                        {
+                            if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show("Unload existing specie databases before loading new database?", "Open Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                UnloadDatabase();
+                            OpenSpecieDB(dlgOpenFolder.SelectedPath + "\\SpecieData.ini");
+                        }
+                    }
+                    else
+                        MessageBox.Show(this, "Specie database not found in selected directory", "Open Directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                    foreach (string fn in Directory.GetFiles(dlgOpenFolder.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
+                        Open(fn);
+                }
+                finally
+                {
+                    lstLog.EndUpdate();
+                    treeFiles.EndUpdate();
+                }
         }
 
         private void txtFilter_TextChanged(object sender, EventArgs e)
@@ -1016,7 +1029,14 @@ namespace Reaction_Editor
 
         private void menuFile_DropDownOpening(object sender, EventArgs e)
         {
-            menuSave.Enabled = menuSaveAs.Enabled = menuClose.Enabled = ActiveMdiChild is FrmReaction;
+
+            menuClose.Enabled =
+                menuSave.Enabled =
+                menuSaveAs.Enabled =
+                menuRevert.Enabled =
+                ActiveMdiChild is FrmReaction;
+            menuOpenDB.Enabled = treeFiles.Nodes["SpecieDB"].Nodes.Count == 0;
+
             bool anyFilesOpen = false;
             foreach (Form f in MdiChildren)
                 if (f is FrmReaction)
@@ -1313,6 +1333,104 @@ namespace Reaction_Editor
         {
             ((Form)((ToolStripMenuItem)sender).Tag).Activate();
         }
+
+        private void menuClearLog_Click(object sender, EventArgs e)
+        {
+            lstLog.Clear();
+        }
+
+        private void menuGotoSource_Click(object sender, EventArgs e)
+        {
+            ((ListLog)Program.Log).DoDoubleClick();
+        }
+
+        private void menuLog_Opening(object sender, CancelEventArgs e)
+        {
+            menuGotoSource.Enabled = lstLog.SelectedItems.Count > 0;
+        }
+
+        private void menuRB_Delete_Click(object sender, EventArgs e)
+        {
+            FrmReaction active = null;
+            TreeNode n = treeFiles.SelectedNode;
+            while (active == null)
+            {
+                if (n.Tag is FrmReaction)
+                    active = (FrmReaction)n.Tag;
+                else if (n.Parent != null)
+                    n = n.Parent;
+                else
+                    return;
+            }
+            
+            string fn = active.Filename;
+            if (MessageBox.Show("Are you sure you wish to delete " + fn, "Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.OK)
+            {
+                active.SupressSaveMessages = true;
+                active.Close();
+                File.Delete(fn);
+            }
+        }
+
+        private void menuRB_Rename_Click(object sender, EventArgs e)
+        {
+            treeFiles.LabelEdit = true;
+            treeFiles.SelectedNode.BeginEdit();
+        }
+
+        private void menuRB_Save_Click(object sender, EventArgs e)
+        {
+            Save((FrmReaction)treeFiles.SelectedNode.Tag);
+        }
+
+        private void menuRB_Close_Click(object sender, EventArgs e)
+        {
+            ((FrmReaction)treeFiles.SelectedNode.Tag).Close();
+        }
+
+        private void treeFiles_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            try
+            {
+                treeFiles.LabelEdit = false;
+                ((FrmReaction)treeFiles.SelectedNode.Tag).RenameFile(e.Label);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void menuReactionBlock_Opening(object sender, CancelEventArgs e)
+        {
+            FrmReaction frm = (FrmReaction)treeFiles.SelectedNode.Tag;
+            menuRB_Rename.Enabled = menuRB_Delete.Enabled = menuRB_Copy.Enabled = frm.FileOpen;
+            menuRB_Save.Enabled = frm.Changed;
+        }
+
+        private void treeFiles_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.Node.Tag is FrmReaction)
+                treeFiles.SelectedNode = treeFiles.GetNodeAt(e.Location);
+        }
+
+        private void menuRB_Copy_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                FrmReaction frm = (FrmReaction)treeFiles.SelectedNode.Tag;
+                int i = 2;
+                string newName = Path.GetFileNameWithoutExtension(frm.Filename) + "(2)";
+                while (File.Exists(newName + ".rct"))
+                    newName = Path.GetFileNameWithoutExtension(frm.Filename) + "(" + i + ")";
+                File.Copy(frm.Filename, newName);
+                Open(newName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
     }
 
     public class ListLog : ILog
@@ -1383,6 +1501,11 @@ namespace Reaction_Editor
             set { m_bActive = value; }
         }
         #endregion
+
+        public void DoDoubleClick()
+        {
+            listView1_DoubleClick(this, new EventArgs());
+        }
 
         private void listView1_DoubleClick(object sender, EventArgs e)
         {

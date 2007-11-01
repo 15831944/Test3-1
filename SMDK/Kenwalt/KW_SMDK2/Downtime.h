@@ -40,6 +40,7 @@ struct DowntimeVariables
 	double dOnValue, dOffValue;
 	MTagIOSubscription TagToTest;
 	double dOnThreshold;
+	double dTestValue;
 
 	DT_RunningStates eCurrentState;
 

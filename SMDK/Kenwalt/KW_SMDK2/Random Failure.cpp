@@ -99,10 +99,12 @@ void RandomFailure::BuildDataFields()
 		{ PDFType_Normal, "Normal" }, 
 		{ 0 } };
 
+	static MDDValueLst DDBStates[] = { { 0, "0: Failure" }, { 1, "1: Running" } };
+
 	DD.CheckBox("On", "", &bOn, MF_PARAMETER);
 	DD.Long ("Count", "", idDX_Count, MF_PARAMETER | MF_SET_ON_CHANGE);
 	DD.Text("");
-	DD.Double("TotalTime", "T(tot)", &dCurrentTime, MF_RESULT, MC_Time(""));
+	DD.Double("TotalTime", "", &dCurrentTime, MF_RESULT, MC_Time(""));
 	DD.Button("Reset_All", "", idDX_Reset, MF_PARAMETER);
 	DD.Text("");
 
@@ -113,32 +115,32 @@ void RandomFailure::BuildDataFields()
 			DD.Page("Tasks");
 
 		DD.ArrayElementStart(i);
-		DD.String("Description", "Desc", idDX_Description + i, MF_PARAMETER);
-		DD.Long ("Failure_PDF", "FPDF", (long*)&tasks.at(i)->eFailureType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
-		DD.Long ("Repair_PDF", "RPDF", (long*)&tasks.at(i)->eRepairType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
+		DD.String("Description", "", idDX_Description + i, MF_PARAMETER);
+		DD.Long ("Failure_PDF", "", (long*)&tasks.at(i)->eFailureType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
+		DD.Long ("Repair_PDF", "", (long*)&tasks.at(i)->eRepairType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
 
-		DD.Double ("Average_Uptime", "Tu", &tasks.at(i)->dAvgUptime, MF_PARAMETER, MC_Time(""));
+		DD.Double ("Average_Uptime", "", &tasks.at(i)->dAvgUptime, MF_PARAMETER, MC_Time(""));
 		if (tasks.at(i)->eFailureType != PDFType_Exponential)
-			DD.Double ("Uptime_StdDev", "Tus", &tasks.at(i)->dUptimeStdDev, MF_PARAMETER, MC_Time(""));
+			DD.Double ("Uptime_StdDev", "", &tasks.at(i)->dUptimeStdDev, MF_PARAMETER, MC_Time(""));
 		else
-			DD.Double ("Uptime_StdDev", "Tus", &tasks.at(i)->dAvgUptime, MF_RESULT, MC_Time(""));
+			DD.Double ("Uptime_StdDev", "", &tasks.at(i)->dAvgUptime, MF_RESULT, MC_Time(""));
 
-		DD.Double ("Average_Downtime", "Td", &tasks.at(i)->dAvgDowntime, MF_PARAMETER, MC_Time(""));
+		DD.Double ("Average_Downtime", "", &tasks.at(i)->dAvgDowntime, MF_PARAMETER, MC_Time(""));
 		if (tasks.at(i)->eRepairType != PDFType_Exponential)
-			DD.Double ("Downtime_StdDev", "Tds", &tasks.at(i)->dDowntimeStdDev, MF_PARAMETER, MC_Time(""));
+			DD.Double ("Downtime_StdDev", "", &tasks.at(i)->dDowntimeStdDev, MF_PARAMETER, MC_Time(""));
 		else
-			DD.Double ("Downtime_StdDev", "Tds", &tasks.at(i)->dAvgDowntime, MF_RESULT, MC_Time(""));
+			DD.Double ("Downtime_StdDev", "", &tasks.at(i)->dAvgDowntime, MF_RESULT, MC_Time(""));
 
 		DD.Text("");
-		DD.String("TagToSet", "TagToSet", idDX_Tag + i, MF_PARAM_STOPPED | MF_SET_ON_CHANGE);
+		DD.String("TagToSet", "", idDX_Tag + i, MF_PARAM_STOPPED | MF_SET_ON_CHANGE);
 		MCnv TagCnv = (tasks.at(i)->TagSubs.Tag != "" && tasks.at(i)->TagSubs.IsActive) ? tasks.at(i)->TagSubs.Cnv : MC_;
-		DD.Double("OnValueToSet", "TagOnVal", &tasks.at(i)->dOnValue, MF_PARAMETER, TagCnv);
-		DD.Double("OffValueToSet", "TagOffVal", &tasks.at(i)->dOffValue, MF_PARAMETER, TagCnv);
+		DD.Double("OnValueToSet", "", &tasks.at(i)->dOnValue, MF_PARAMETER, TagCnv);
+		DD.Double("OffValueToSet", "", &tasks.at(i)->dOffValue, MF_PARAMETER, TagCnv);
 
 		DD.Text("");
-		DD.Bool("Running", "", &tasks.at(i)->bRunning, MF_RESULT);
-		DD.Double("Total_Downtime", "TDown", &tasks.at(i)->dTotalDowntime, MF_RESULT, MC_Time(""));
-		DD.Long("Failure_Count", "Nf", &tasks.at(i)->lFailureCount, MF_RESULT);
+		DD.Bool("Running", "", &tasks.at(i)->bRunning, MF_RESULT, DDBStates);
+		DD.Double("Total_Downtime", "", &tasks.at(i)->dTotalDowntime, MF_RESULT, MC_Time(""));
+		DD.Long("Failure_Count", "", &tasks.at(i)->lFailureCount, MF_RESULT);
 		DD.Text("");
 		DD.ArrayElementEnd();
 	}

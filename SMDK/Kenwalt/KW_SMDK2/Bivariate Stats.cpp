@@ -39,6 +39,8 @@ BivarStats::BivarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMetho
 	lHistoCount = 20;
 	lRecordCount = 0;
 	graphType = GT_DENSITY;
+	tagCnv0 = tagCnv1 = MC_;
+	bTag0Initialised = bTag1Initialised = false;
 
 	//pHistoBucketBorders = NULL;
 	pHistoBucketCounts = NULL;
@@ -90,6 +92,26 @@ void BivarStats::BuildDataFields()
 
 	MCnv Var1Cnv = tagSubs0.IsActive ? tagSubs0.Cnv : MC_;
 	MCnv Var2Cnv = tagSubs1.IsActive ? tagSubs1.Cnv : MC_;
+
+	if (!bTag0Initialised && tagSubs0.IsActive)
+	{
+		tagCnv0 = Var1Cnv;
+		bTag0Initialised = true;
+	}
+	if (!bTag1Initialised && tagSubs1.IsActive)
+	{
+		tagCnv1 = Var2Cnv;
+		bTag1Initialised = true;
+	}
+
+	// Reset min/max values if units have changed (I guess BuildDataFields isn't the best place for this,
+	// but we have to deal with the tag infrastructure, and we know it's safe to do here).
+	if (Var1Cnv.Index != tagCnv0.Index)
+		dHistoMaxX = dHistoMinX = 0;
+	if (Var2Cnv.Index != tagCnv1.Index)
+		dHistoMaxY = dHistoMinY = 0;
+	tagCnv0 = Var1Cnv;
+	tagCnv1 = Var2Cnv;
 
 	DD.Double("Graph x Minimum", "GraphMinx", idDX_HistoMinX, MF_PARAMETER, Var1Cnv);
 	DD.Double("Graph x Maximum", "GraphMaxx", idDX_HistoMaxX, MF_PARAMETER, Var1Cnv);
@@ -180,11 +202,17 @@ bool BivarStats::ExchangeDataFields()
 		const int var = DX.Handle - idDX_Tag;
 		if (DX.HasReqdValue)
 		{
+			MTagIOSubscription* relevantSubs;
 			switch (var)
 			{
-			case 0: tagSubs0.Tag = DX.String; break;
-			case 1: tagSubs1.Tag = DX.String; break;
+			case 0: 
+				relevantSubs = &tagSubs0;
+				break;
+			case 1:
+				relevantSubs = &tagSubs1; 
+				break;
 			}
+			relevantSubs->Tag = DX.String;
 			Reset();
 		}
 		switch (var)

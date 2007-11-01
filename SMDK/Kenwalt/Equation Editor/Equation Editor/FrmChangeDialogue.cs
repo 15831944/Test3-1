@@ -36,16 +36,21 @@ namespace Reaction_Editor
 
         public static DialogResult Show(SimpleReaction curReaction, SimpleReaction newReaction, string title, string message, string newReactionTitle, bool bSeq, bool bExtent)
         {
+            return Show(curReaction, newReaction, title, message, newReactionTitle, bSeq, bExtent, true);
+        }
+        public static DialogResult Show(SimpleReaction curReaction, SimpleReaction newReaction, string title, string message, string newReactionTitle, bool bSeq, bool bExtent, bool bHOR)
+        {
             FrmChangeDialogue frmCurrent = frm.Visible ? new FrmChangeDialogue() : frm;
             frmCurrent.SuspendLayout();
             frmCurrent.txtMessage.Text = message;
             frmCurrent.grpNewReaction.Text = newReactionTitle;
             frmCurrent.Text = title;
 
-            frmCurrent.SetReactions(curReaction, newReaction, bSeq, bExtent);
+            frmCurrent.SetReactions(curReaction, newReaction, bSeq, bExtent, bHOR);
             frmCurrent.ResumeLayout();
             return frmCurrent.ShowDialog();
         }
+
 
         public static DialogResult Show(Reaction curReaction, Reaction newReaction, string title, string message, string newReactionTitle)
         {
@@ -145,12 +150,12 @@ namespace Reaction_Editor
             }
         }
 
-        protected void SetReactions(SimpleReaction curReaction, SimpleReaction newReaction, bool bSeq, bool bExtent)
+        protected void SetReactions(SimpleReaction curReaction, SimpleReaction newReaction, bool bSeq, bool bExtent, bool bHOR)
         {
             ChangeGeneric(false);
             Font BoldFont = new Font(txtCurReactants.Font, FontStyle.Bold);
 
-            bool HOR = curReaction.CustomHeatOfReaction || newReaction.CustomHeatOfReaction;
+            bool HOR = bHOR && (curReaction.CustomHeatOfReaction || newReaction.CustomHeatOfReaction);
 
             //Current Reaction:
             txtCurReactants.Text = curReaction.GetReactantsString();
