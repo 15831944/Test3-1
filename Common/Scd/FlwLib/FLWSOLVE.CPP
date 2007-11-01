@@ -469,10 +469,14 @@ XID xidSSPTolRel                      = FlwXID(5172);
 XID xidSSQmTolAbs                     = FlwXID(5173);
 XID xidSSQmTolRel                     = FlwXID(5174);
 
-XID xidNormT                          = FlwXID(5196);
-XID xidNormP                          = FlwXID(5197);
-XID xidStdT                           = FlwXID(5198);
-XID xidStdP                           = FlwXID(5199);
+XID xidNormT                          = FlwXID(5192);
+XID xidNormP                          = FlwXID(5193);
+XID xidStdT                           = FlwXID(5194);
+XID xidStdP                           = FlwXID(5195);
+XID xidPrjMinP                        = FlwXID(5196);
+XID xidPrjMaxP                        = FlwXID(5197);
+XID xidPrjMinT                        = FlwXID(5198);
+XID xidPrjMaxT                        = FlwXID(5199);
 XID xidNoOfTears                      = FlwXID(5200);
 XID xidNetCnvCount                    = FlwXID(5201);
 XID xidUDFCnvCount                    = FlwXID(5202);
@@ -10454,10 +10458,14 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
 
     //DDB.Text  ("");
     DDB.Text  ("Specie Database");
-    DDB.Double("NormalTemp",    "NormT",  DC_T,   "C",    xidNormT,       this, isResult|noFileAtAll);
-    DDB.Double("NormalPress",   "NormP",  DC_P,   "kPa",  xidNormP,       this, isResult|noFileAtAll);
-    DDB.Double("StandardTemp",  "StdT",   DC_T,   "C",    xidStdT,        this, isResult|noFileAtAll);
-    DDB.Double("StandardPress", "StdP",   DC_P,   "kPa",  xidStdP,        this, isResult|noFileAtAll);
+    DDB.Double("NormalTemp",      "NormT",  DC_T,   "C",    xidNormT,     this, isResult|noFileAtAll);
+    DDB.Double("NormalPress",     "NormP",  DC_P,   "kPa",  xidNormP,     this, isResult|noFileAtAll);
+    DDB.Double("StandardTemp",    "StdT",   DC_T,   "C",    xidStdT,      this, isResult|noFileAtAll);
+    DDB.Double("StandardPress",   "StdP",   DC_P,   "kPa",  xidStdP,      this, isResult|noFileAtAll);
+    DDB.Double("ProjectMinPress", "PrjMinP", DC_P,  "kPa",  xidPrjMinP,   this, isResult|noFileAtAll|InitHidden);
+    DDB.Double("ProjectMaxPress", "PrjMaxP", DC_P,  "kPa",  xidPrjMaxP,   this, isResult|noFileAtAll|InitHidden);
+    DDB.Double("ProjectMinTemp",  "PrjMinT", DC_T,  "C",    xidPrjMinT,   this, isResult|noFileAtAll|InitHidden);
+    DDB.Double("ProjectMaxTemp",  "PrjMaxT", DC_T,  "C",    xidPrjMaxT,   this, isResult|noFileAtAll|InitHidden);
     DDB.Text  ("");
     DDB.Text  ("Properties");
     DDB.Long  ("H2OProperties",         "", DC_,     "",  xidH2OProperties,                   this, isParmStopped|SetOnChange, CDB.H2ODDBList());
@@ -11159,6 +11167,10 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
     case xidNormP           : DCB.D=NormPress(); return 1;
     case xidStdT            : DCB.D=StdTemp(); return 1;
     case xidStdP            : DCB.D=StdPress(); return 1;
+    case xidPrjMinP         : DCB.D=gs_CDB.MinP; return 1;
+    case xidPrjMaxP         : DCB.D=gs_CDB.MaxP; return 1;
+    case xidPrjMinT         : DCB.D=gs_CDB.MinT; return 1;
+    case xidPrjMaxT         : DCB.D=gs_CDB.MaxT; return 1;
 
     case xidATearTag:
       DCB.pC="";  // Ignore

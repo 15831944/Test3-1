@@ -1478,8 +1478,8 @@ CExcelReport::CExcelReport(COleReportMngr* Mngr, OWorkbook* WkBook) :
   bIsTagList = 0;
   bIsTagOffsetList = 0;
   bIsAutoTags = 0;
-  m_bIgnoreMissingField = false;
-  m_bIgnoreMissingSelect = false;
+  m_bIgnoreMissingField = true;
+  m_bIgnoreMissingSelect = true;
   m_bIgnoreMissingOrder = false;
   m_bClearRange = false;
   m_bClearTags = false;

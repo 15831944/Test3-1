@@ -6,7 +6,7 @@
 
 //#include "optoff.h"
 
-#define dbgMakeup  01
+#define dbgMakeup  0
 
 //=========================================================================
 //
@@ -1428,7 +1428,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
         {
         case Type_Mass:     
           {
-          Strng S("Required Mass flow ", m_Meas1.Description(false));
+          Strng S("Required Mass fraction ", m_Meas1.Description(false));
           DDB.Text(S());
           DDB.Double("", "Rqd.Prod.QmFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
           //DDB.TagComment(m_Meas1.Description(false));
@@ -1439,7 +1439,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
           }
         case Type_Mole:     
           {
-          Strng S("Required Molar flow ", m_Meas1.Description(false));
+          Strng S("Required Molar fraction ", m_Meas1.Description(false));
           DDB.Text(S());
           DDB.Double("", "Rqd.Prod.QMlFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
           //DDB.TagComment(m_Meas1.Description(false));
@@ -1450,7 +1450,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
           }
         case Type_Volume:   
           {
-          Strng S("Required Volume flow ", m_Meas1.Description(false));
+          Strng S("Required Volume fraction ", m_Meas1.Description(false));
           DDB.Text(S());
           DDB.Double("", "Rqd.Prod.QvFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
           //DDB.TagComment(m_Meas1.Description(false));
@@ -1461,7 +1461,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
           }
         case Type_NVolume:  
           {
-          Strng S("Required NVolume flow ", m_Meas1.Description(false));
+          Strng S("Required NVolume fraction ", m_Meas1.Description(false));
           DDB.Text(S());
           DDB.Double("", "Rqd.Prod.NQvFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
           //DDB.TagComment(m_Meas1.Description(false));
