@@ -46,9 +46,10 @@ namespace Configuration_Editor
         //Allowed characters: Alphanumerics, _.*+-[]/
         protected static Regex s_AcceptableNameRegex = new Regex(@"^[A-Za-z][\w\[\]\.*+\-_/() ]*$", RegexOptions.Compiled);
         protected static Regex s_AcceptableSymbRegex = new Regex(        @"^[\w\[\]\.*+\-_/]*$", RegexOptions.Compiled);
+
         protected static Regex s_DefinitionRegex = new Regex(@"^
-             (((?<Symb>[A-Za-z]+)(?<Count>([0-9]+(/[0-9]+|\.[0-9]+)?)?)) |
-             ((?<CustomSymb>[A-Za-z]+)\((?<Wt>[0-9]+(\.[0-9]+)?\))))+$", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+             (((?<Symb>[A-Za-z]+)(?<Count>[0-9]+(/[0-9]+|\.[0-9]+)?)) |
+             ((?<CustomSymb>[A-Za-z]+)\((?<Wt>[0-9]+(\.[0-9]+)?)\)))+$", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
         #endregion Regexs
 
         #region Variables
@@ -83,16 +84,48 @@ namespace Configuration_Editor
             }
             catch { }
 
-            SetupSpecies();
-            SetupMisc();
-            SetupSpDbEditor();
+            this.Load += new EventHandler(FrmMain_Load);
 
-            menuOpenDatabase_Click(this, new EventArgs());
+            
         }
 
-        private void SetupSpDbEditor()
+        void FrmMain_Load(object sender, EventArgs e)
         {
-            LoadDBIni();
+            try
+            {
+                SetupSpecies();
+                SetupMisc();
+                SetupSpDbEditor();
+
+                if (dlgOpenDB.ShowDialog() == DialogResult.Cancel)
+                    this.Close();
+                else
+                    OpenDatabase(dlgOpenDB.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Initialisation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+            }
+
+        }
+
+        private bool SetupSpDbEditor()
+        {
+#if DEBUG
+            if (File.Exists("DatabaseColumns.ini"))
+                LoadDBIni("DatabaseColumns.ini");
+            else
+                LoadDBIni("..\\..\\DatabaseColumns.ini"); //Allow the database.ini to sit in the same folder as the source files
+#else
+            string loc = (string) regKey.GetValue("Install Path", "");
+            if (File.Exists(Path.Combine(loc, "DatabaseColumns.ini")))
+                LoadDBIni(Path.Combine(loc, "DatabaseColumns.ini"));
+            else
+            {
+                throw new Exception("DatabaseColumns.ini not found.");
+            }
+#endif
             LoadAtomicWts();
 
             #region Database stuff:
@@ -155,6 +188,7 @@ namespace Configuration_Editor
             txtCritTemp.DataBindings.Add("Text", m_SpecieDataTable, "Tc");
             txtAccentricity.DataBindings.Add("Text", m_SpecieDataTable, "Ac");
             txtPhaseChange.DataBindings.Add("Text", m_SpecieDataTable, "PhaseChange");
+            return true;
         }
 
         private void SetupMisc()
@@ -876,6 +910,11 @@ namespace Configuration_Editor
                         tlpEquations.Controls["txtMaxTemp" + i].Text = "";
                     }
                 }
+                else
+                    for (int i = 0; i < 4; i++)
+                    {
+                        tlpEquations.Controls["txtFormula" + i].Text = tlpEquations.Controls["txtMinTemp" + i].Text = tlpEquations.Controls["txtMaxTemp" + i].Text = "";
+                    }
             }
             catch 
             {
@@ -1034,9 +1073,9 @@ namespace Configuration_Editor
         Dictionary<string, Dictionary<string, FunctionValue>> availableDBFuncs = new Dictionary<string, Dictionary<string, FunctionValue>>();
         static Regex CSVRegex = new Regex(@"\s*(?<Quotes>"")?(?<Val>(?(Quotes)[^""]*|[^,]*))(?(Quotes)(?<-Quotes>""))
             (\s*,\s*(?<Quotes>"")?(?<Val>(?(Quotes)[^""]*|[^,]*))(?(Quotes)(?<-Quotes>"")))*", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
-        protected void LoadDBIni()
+        protected void LoadDBIni(string filename)
         {
-            string s = new StreamReader(new FileStream("DatabaseColumns.ini", FileMode.Open)).ReadToEnd();
+            string s = new StreamReader(new FileStream(filename, FileMode.Open)).ReadToEnd();
             Dictionary<string, Dictionary<string, string>> data = ReadIni(s, new Dictionary<string, Dictionary<string, string>>());
             foreach (KeyValuePair<string, Dictionary<string, string>> kvp1 in data)
             {
@@ -1317,6 +1356,9 @@ namespace Configuration_Editor
                 List<DataRow> toAdd = new List<DataRow>();
                 foreach (DataRow r in m_SpecieDataTable.Rows)
                 {
+                    if (r.RowState == DataRowState.Deleted)
+                        continue;
+
                     string symb = (string)r["Compound"] + "(" + (string)r["Phase"] + ")";
                     bool passesFilter = true;
                     foreach (string s in filterTokens)
@@ -1349,6 +1391,13 @@ namespace Configuration_Editor
 
         private void menuOpenDatabase_Click(object sender, EventArgs e)
         {
+            try
+            {
+                if (m_SpecieDataAdapter != null)
+                    SaveDatabase();
+            }
+            catch { }
+
             try
             {
                 if (dlgOpenDB.ShowDialog() == DialogResult.Cancel)
@@ -1690,6 +1739,7 @@ namespace Configuration_Editor
                     this.BindingContext[m_SpecieDataTable].Position = m_SpecieDataTable.Rows.IndexOf((DataRow)lstDBSpecies.SelectedItems[0].Tag);
                     LoadEquationsIntoGraph();
                     LoadEquationsIntoTextboxes();
+                    RecalculateMolWt();
                 }
                 catch (Exception ex)
                 {
@@ -1728,7 +1778,9 @@ namespace Configuration_Editor
         {
             RadioButton rSender = sender as RadioButton;
             m_GraphSeries[(string)rSender.Tag].Selected = rSender.Checked;
-            LoadEquationsIntoTextboxes((string)rSender.Tag);
+            if (rSender.Checked)
+                LoadEquationsIntoTextboxes((string)rSender.Tag);
+            tlpEquations.Enabled = true;
         }
 
         private void menuOpen_Click(object sender, EventArgs e)
@@ -1858,6 +1910,16 @@ namespace Configuration_Editor
                     case DialogResult.No: break;
                 }
             base.OnClosing(e);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            try
+            {
+                SaveDatabase();
+            }
+            catch { }
+            base.OnClosed(e);
         }
 
         private void txtName_Validating(object sender, CancelEventArgs e)
@@ -2013,6 +2075,68 @@ namespace Configuration_Editor
                 else if (gs is EquationGraphSeries)
                     ((EquationGraphSeries)gs).SetVariable("MolWt", m_dCurSpeciesMolWt);
             graph1.Invalidate();
+        }
+
+        private void menuSpDBContext_Opening(object sender, CancelEventArgs e)
+        {
+            menuDelete.Enabled = lstDBSpecies.SelectedItems.Count > 0;
+            menuSpDBAddToProject.Enabled = lstDBSpecies.SelectedItems.Count > 0;
+        }
+
+        private void menuDelete_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you wish to delete the selected species from the Specie Database and Project Vector?", "SysCAD Configuration Editor", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                DeleteSelectedSpecies();
+        }
+
+        protected void DeleteSelectedSpecies()
+        {
+            ArrayList selectedItems = new ArrayList(lstDBSpecies.SelectedItems);
+            lstProjectVector.BeginUpdate();
+            foreach (ListViewItem lvi in selectedItems)
+            {
+                lstDBSpecies.Items.Remove(lvi);
+                ((DataRow)lvi.Tag).Delete();
+                ArrayList projectItems = new ArrayList(lstProjectVector.Items);
+                foreach (ListViewItem projLVI in projectItems)
+                    if (projLVI.Tag is ProjectSpecie && ((ProjectSpecie)projLVI.Tag).SpDataRow == lvi.Tag)
+                        lstProjectVector.Items.Remove(projLVI);
+            }
+            lstProjectVector.EndUpdate();
+            UpdateFilter();
+            if (lstDBSpecies.Items.Count > 0)
+                lstDBSpecies.Items[0].Selected = true;
+            else
+            {
+                tcSpecies.SelectedTab = tabProjectSpecies;
+                tcSpecies.Enabled = false;
+            }
+        }
+
+        protected void CreateSpecies()
+        {
+            DataRow r = m_SpecieDataTable.NewRow();
+            int i = 1;
+            while (m_SpecieDataTable.Select("Compound = 'NewSpecie" + i + "'").Length > 0)
+                i++;
+            r["Name"] = r["Compound"] = "NewSpecie" + i;
+            r["Phase"] = "s";
+            r["Occurence"] = "s";
+            r["Ts"] = 298; r["Te"] = 500;
+            r["Definition"] = "Temp(1)";
+            m_SpecieDataTable.Rows.Add(r);
+            UpdateFilter();
+            foreach (ListViewItem lvi in lstDBSpecies.Items)
+                if (lvi.Tag == r)
+                {
+                    lvi.EnsureVisible();
+                    lvi.Selected = true;
+                }
+        }
+
+        private void menuNewSpecies_Click(object sender, EventArgs e)
+        {
+            CreateSpecies();
         }
     }
 

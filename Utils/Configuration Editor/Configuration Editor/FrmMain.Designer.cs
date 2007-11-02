@@ -60,6 +60,9 @@ namespace Configuration_Editor
             this.menuSortSpDBPhase = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.menuSpDBAddToProject = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuDelete = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuNewSpecies = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlFilter = new System.Windows.Forms.Panel();
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -452,7 +455,7 @@ namespace Configuration_Editor
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
             this.tcMain.Size = new System.Drawing.Size(952, 570);
-            this.tcMain.TabIndex = 2;
+            this.tcMain.TabIndex = 0;
             // 
             // tabSpecies
             // 
@@ -481,6 +484,7 @@ namespace Configuration_Editor
             this.splitContainer1.Size = new System.Drawing.Size(938, 538);
             this.splitContainer1.SplitterDistance = 225;
             this.splitContainer1.TabIndex = 1;
+            this.splitContainer1.TabStop = false;
             // 
             // grpAvailableSpecies
             // 
@@ -505,7 +509,7 @@ namespace Configuration_Editor
             this.lstDBSpecies.Location = new System.Drawing.Point(3, 16);
             this.lstDBSpecies.Name = "lstDBSpecies";
             this.lstDBSpecies.Size = new System.Drawing.Size(219, 492);
-            this.lstDBSpecies.TabIndex = 1;
+            this.lstDBSpecies.TabIndex = 0;
             this.lstDBSpecies.UseCompatibleStateImageBehavior = false;
             this.lstDBSpecies.View = System.Windows.Forms.View.Details;
             this.lstDBSpecies.ItemActivate += new System.EventHandler(this.lstDBSpecies_ItemActivate);
@@ -527,9 +531,13 @@ namespace Configuration_Editor
             this.menuSortSpDBAlph,
             this.menuSortSpDBPhase,
             this.toolStripMenuItem4,
-            this.menuSpDBAddToProject});
+            this.menuSpDBAddToProject,
+            this.toolStripMenuItem5,
+            this.menuDelete,
+            this.menuNewSpecies});
             this.menuSpDBContext.Name = "menuSpDBContext";
-            this.menuSpDBContext.Size = new System.Drawing.Size(191, 76);
+            this.menuSpDBContext.Size = new System.Drawing.Size(191, 126);
+            this.menuSpDBContext.Opening += new System.ComponentModel.CancelEventHandler(this.menuSpDBContext_Opening);
             // 
             // menuSortSpDBAlph
             // 
@@ -563,6 +571,25 @@ namespace Configuration_Editor
             this.menuSpDBAddToProject.Text = "&Add To Project Vector";
             this.menuSpDBAddToProject.Click += new System.EventHandler(this.menuSpDBAddToProject_Click);
             // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(187, 6);
+            // 
+            // menuDelete
+            // 
+            this.menuDelete.Name = "menuDelete";
+            this.menuDelete.Size = new System.Drawing.Size(190, 22);
+            this.menuDelete.Text = "Delete";
+            this.menuDelete.Click += new System.EventHandler(this.menuDelete_Click);
+            // 
+            // menuNewSpecies
+            // 
+            this.menuNewSpecies.Name = "menuNewSpecies";
+            this.menuNewSpecies.Size = new System.Drawing.Size(190, 22);
+            this.menuNewSpecies.Text = "New Species...";
+            this.menuNewSpecies.Click += new System.EventHandler(this.menuNewSpecies_Click);
+            // 
             // pnlFilter
             // 
             this.pnlFilter.Controls.Add(this.txtFilter);
@@ -571,7 +598,7 @@ namespace Configuration_Editor
             this.pnlFilter.Location = new System.Drawing.Point(3, 508);
             this.pnlFilter.Name = "pnlFilter";
             this.pnlFilter.Size = new System.Drawing.Size(219, 27);
-            this.pnlFilter.TabIndex = 0;
+            this.pnlFilter.TabIndex = 1;
             // 
             // txtFilter
             // 
@@ -651,7 +678,7 @@ namespace Configuration_Editor
             this.lstProjectVector.Location = new System.Drawing.Point(0, 0);
             this.lstProjectVector.Name = "lstProjectVector";
             this.lstProjectVector.Size = new System.Drawing.Size(685, 293);
-            this.lstProjectVector.TabIndex = 1;
+            this.lstProjectVector.TabIndex = 0;
             this.lstProjectVector.UseCompatibleStateImageBehavior = false;
             this.lstProjectVector.View = System.Windows.Forms.View.Details;
             this.lstProjectVector.DragEnter += new System.Windows.Forms.DragEventHandler(this.lstProjectVector_DragEnter);
@@ -687,7 +714,7 @@ namespace Configuration_Editor
             this.pnlListButtons.Location = new System.Drawing.Point(0, 293);
             this.pnlListButtons.Name = "pnlListButtons";
             this.pnlListButtons.Size = new System.Drawing.Size(685, 31);
-            this.pnlListButtons.TabIndex = 0;
+            this.pnlListButtons.TabIndex = 1;
             // 
             // btnAdd
             // 
@@ -695,7 +722,7 @@ namespace Configuration_Editor
             this.btnAdd.Location = new System.Drawing.Point(364, 5);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(75, 23);
-            this.btnAdd.TabIndex = 3;
+            this.btnAdd.TabIndex = 0;
             this.btnAdd.Text = "&Add";
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
@@ -707,7 +734,7 @@ namespace Configuration_Editor
             this.btnRemove.Location = new System.Drawing.Point(445, 5);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(75, 23);
-            this.btnRemove.TabIndex = 2;
+            this.btnRemove.TabIndex = 1;
             this.btnRemove.Text = "&Remove";
             this.btnRemove.UseVisualStyleBackColor = true;
             this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
@@ -720,7 +747,7 @@ namespace Configuration_Editor
             this.btnMoveUp.Location = new System.Drawing.Point(526, 5);
             this.btnMoveUp.Name = "btnMoveUp";
             this.btnMoveUp.Size = new System.Drawing.Size(75, 23);
-            this.btnMoveUp.TabIndex = 1;
+            this.btnMoveUp.TabIndex = 2;
             this.btnMoveUp.Text = "­";
             this.btnMoveUp.UseVisualStyleBackColor = true;
             this.btnMoveUp.Click += new System.EventHandler(this.btnMoveUp_Click);
@@ -733,7 +760,7 @@ namespace Configuration_Editor
             this.btnMoveDown.Location = new System.Drawing.Point(607, 5);
             this.btnMoveDown.Name = "btnMoveDown";
             this.btnMoveDown.Size = new System.Drawing.Size(75, 23);
-            this.btnMoveDown.TabIndex = 0;
+            this.btnMoveDown.TabIndex = 3;
             this.btnMoveDown.Text = "¯";
             this.btnMoveDown.UseVisualStyleBackColor = true;
             this.btnMoveDown.Click += new System.EventHandler(this.btnMoveDown_Click);
@@ -834,7 +861,7 @@ namespace Configuration_Editor
             0});
             this.numLowerTempTolerance.Name = "numLowerTempTolerance";
             this.numLowerTempTolerance.Size = new System.Drawing.Size(116, 20);
-            this.numLowerTempTolerance.TabIndex = 12;
+            this.numLowerTempTolerance.TabIndex = 1;
             this.numLowerTempTolerance.ValueChanged += new System.EventHandler(this.numLowerTempTolerance_ValueChanged);
             // 
             // label6
@@ -939,7 +966,7 @@ namespace Configuration_Editor
             0});
             this.numGreaterTempTolerance.Name = "numGreaterTempTolerance";
             this.numGreaterTempTolerance.Size = new System.Drawing.Size(117, 20);
-            this.numGreaterTempTolerance.TabIndex = 11;
+            this.numGreaterTempTolerance.TabIndex = 2;
             this.numGreaterTempTolerance.ValueChanged += new System.EventHandler(this.numGreaterTempTolerance_ValueChanged);
             // 
             // chkIdeal
@@ -947,7 +974,7 @@ namespace Configuration_Editor
             this.chkIdeal.Location = new System.Drawing.Point(6, 19);
             this.chkIdeal.Name = "chkIdeal";
             this.chkIdeal.Size = new System.Drawing.Size(92, 36);
-            this.chkIdeal.TabIndex = 2;
+            this.chkIdeal.TabIndex = 0;
             this.chkIdeal.Text = "Use Ideal Formulation";
             this.chkIdeal.UseVisualStyleBackColor = true;
             this.chkIdeal.CheckedChanged += new System.EventHandler(this.chkIdeal_CheckedChanged);
@@ -984,7 +1011,7 @@ namespace Configuration_Editor
             this.txtCalcSymbol.Location = new System.Drawing.Point(250, 15);
             this.txtCalcSymbol.Name = "txtCalcSymbol";
             this.txtCalcSymbol.Size = new System.Drawing.Size(100, 20);
-            this.txtCalcSymbol.TabIndex = 5;
+            this.txtCalcSymbol.TabIndex = 1;
             this.txtCalcSymbol.TextChanged += new System.EventHandler(this.txtCalcSymbol_TextChanged);
             // 
             // label26
@@ -1010,7 +1037,7 @@ namespace Configuration_Editor
             this.txtCalcName.Location = new System.Drawing.Point(77, 15);
             this.txtCalcName.Name = "txtCalcName";
             this.txtCalcName.Size = new System.Drawing.Size(100, 20);
-            this.txtCalcName.TabIndex = 2;
+            this.txtCalcName.TabIndex = 0;
             this.txtCalcName.TextChanged += new System.EventHandler(this.txtCalcName_TextChanged);
             // 
             // label23
@@ -1032,7 +1059,7 @@ namespace Configuration_Editor
             this.txtCalculation.Location = new System.Drawing.Point(77, 41);
             this.txtCalculation.Name = "txtCalculation";
             this.txtCalculation.Size = new System.Drawing.Size(595, 83);
-            this.txtCalculation.TabIndex = 0;
+            this.txtCalculation.TabIndex = 2;
             this.txtCalculation.Text = "";
             this.txtCalculation.TextChanged += new System.EventHandler(this.txtCalculation_TextChanged);
             // 
@@ -1121,7 +1148,7 @@ namespace Configuration_Editor
             this.comboAttributeType.Location = new System.Drawing.Point(47, 45);
             this.comboAttributeType.Name = "comboAttributeType";
             this.comboAttributeType.Size = new System.Drawing.Size(121, 21);
-            this.comboAttributeType.TabIndex = 3;
+            this.comboAttributeType.TabIndex = 1;
             this.comboAttributeType.SelectedIndexChanged += new System.EventHandler(this.comboAttributeType_SelectedIndexChanged);
             // 
             // label8
@@ -1140,7 +1167,7 @@ namespace Configuration_Editor
             this.txtAttributeName.Location = new System.Drawing.Point(47, 19);
             this.txtAttributeName.Name = "txtAttributeName";
             this.txtAttributeName.Size = new System.Drawing.Size(622, 20);
-            this.txtAttributeName.TabIndex = 1;
+            this.txtAttributeName.TabIndex = 0;
             this.txtAttributeName.TextChanged += new System.EventHandler(this.txtAttributeName_TextChanged);
             // 
             // label7
@@ -1176,7 +1203,7 @@ namespace Configuration_Editor
             this.groupBox6.Location = new System.Drawing.Point(3, 286);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(695, 223);
-            this.groupBox6.TabIndex = 19;
+            this.groupBox6.TabIndex = 4;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Temperature Dependant Properties";
             // 
@@ -1196,6 +1223,7 @@ namespace Configuration_Editor
             this.splitContainer2.Size = new System.Drawing.Size(562, 204);
             this.splitContainer2.SplitterDistance = 226;
             this.splitContainer2.TabIndex = 10;
+            this.splitContainer2.TabStop = false;
             // 
             // graph1
             // 
@@ -1244,6 +1272,7 @@ namespace Configuration_Editor
             this.tlpEquations.Controls.Add(this.txtFormula2, 0, 3);
             this.tlpEquations.Controls.Add(this.txtFormula3, 0, 4);
             this.tlpEquations.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpEquations.Enabled = false;
             this.tlpEquations.Location = new System.Drawing.Point(0, 0);
             this.tlpEquations.Name = "tlpEquations";
             this.tlpEquations.RowCount = 5;
@@ -1253,7 +1282,7 @@ namespace Configuration_Editor
             this.tlpEquations.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpEquations.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpEquations.Size = new System.Drawing.Size(332, 204);
-            this.tlpEquations.TabIndex = 9;
+            this.tlpEquations.TabIndex = 1;
             // 
             // txtMaxTemp3
             // 
@@ -1261,7 +1290,7 @@ namespace Configuration_Editor
             this.txtMaxTemp3.Location = new System.Drawing.Point(285, 115);
             this.txtMaxTemp3.Name = "txtMaxTemp3";
             this.txtMaxTemp3.Size = new System.Drawing.Size(44, 20);
-            this.txtMaxTemp3.TabIndex = 24;
+            this.txtMaxTemp3.TabIndex = 11;
             this.txtMaxTemp3.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtMinTemp3
@@ -1270,7 +1299,7 @@ namespace Configuration_Editor
             this.txtMinTemp3.Location = new System.Drawing.Point(220, 115);
             this.txtMinTemp3.Name = "txtMinTemp3";
             this.txtMinTemp3.Size = new System.Drawing.Size(44, 20);
-            this.txtMinTemp3.TabIndex = 23;
+            this.txtMinTemp3.TabIndex = 10;
             this.txtMinTemp3.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtMaxTemp2
@@ -1279,7 +1308,7 @@ namespace Configuration_Editor
             this.txtMaxTemp2.Location = new System.Drawing.Point(285, 89);
             this.txtMaxTemp2.Name = "txtMaxTemp2";
             this.txtMaxTemp2.Size = new System.Drawing.Size(44, 20);
-            this.txtMaxTemp2.TabIndex = 22;
+            this.txtMaxTemp2.TabIndex = 8;
             this.txtMaxTemp2.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtMinTemp2
@@ -1288,7 +1317,7 @@ namespace Configuration_Editor
             this.txtMinTemp2.Location = new System.Drawing.Point(220, 89);
             this.txtMinTemp2.Name = "txtMinTemp2";
             this.txtMinTemp2.Size = new System.Drawing.Size(44, 20);
-            this.txtMinTemp2.TabIndex = 21;
+            this.txtMinTemp2.TabIndex = 7;
             this.txtMinTemp2.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtMaxTemp1
@@ -1297,7 +1326,7 @@ namespace Configuration_Editor
             this.txtMaxTemp1.Location = new System.Drawing.Point(285, 63);
             this.txtMaxTemp1.Name = "txtMaxTemp1";
             this.txtMaxTemp1.Size = new System.Drawing.Size(44, 20);
-            this.txtMaxTemp1.TabIndex = 20;
+            this.txtMaxTemp1.TabIndex = 5;
             this.txtMaxTemp1.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtMinTemp1
@@ -1306,7 +1335,7 @@ namespace Configuration_Editor
             this.txtMinTemp1.Location = new System.Drawing.Point(220, 63);
             this.txtMinTemp1.Name = "txtMinTemp1";
             this.txtMinTemp1.Size = new System.Drawing.Size(44, 20);
-            this.txtMinTemp1.TabIndex = 19;
+            this.txtMinTemp1.TabIndex = 4;
             this.txtMinTemp1.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtMaxTemp0
@@ -1315,7 +1344,7 @@ namespace Configuration_Editor
             this.txtMaxTemp0.Location = new System.Drawing.Point(285, 37);
             this.txtMaxTemp0.Name = "txtMaxTemp0";
             this.txtMaxTemp0.Size = new System.Drawing.Size(44, 20);
-            this.txtMaxTemp0.TabIndex = 18;
+            this.txtMaxTemp0.TabIndex = 2;
             this.txtMaxTemp0.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtMinTemp0
@@ -1324,7 +1353,7 @@ namespace Configuration_Editor
             this.txtMinTemp0.Location = new System.Drawing.Point(220, 37);
             this.txtMinTemp0.Name = "txtMinTemp0";
             this.txtMinTemp0.Size = new System.Drawing.Size(44, 20);
-            this.txtMinTemp0.TabIndex = 17;
+            this.txtMinTemp0.TabIndex = 1;
             this.txtMinTemp0.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // label38
@@ -1394,7 +1423,7 @@ namespace Configuration_Editor
             this.txtFormula0.Location = new System.Drawing.Point(3, 37);
             this.txtFormula0.Name = "txtFormula0";
             this.txtFormula0.Size = new System.Drawing.Size(211, 20);
-            this.txtFormula0.TabIndex = 13;
+            this.txtFormula0.TabIndex = 0;
             this.txtFormula0.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtFormula1
@@ -1403,7 +1432,7 @@ namespace Configuration_Editor
             this.txtFormula1.Location = new System.Drawing.Point(3, 63);
             this.txtFormula1.Name = "txtFormula1";
             this.txtFormula1.Size = new System.Drawing.Size(211, 20);
-            this.txtFormula1.TabIndex = 14;
+            this.txtFormula1.TabIndex = 3;
             this.txtFormula1.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtFormula2
@@ -1412,7 +1441,7 @@ namespace Configuration_Editor
             this.txtFormula2.Location = new System.Drawing.Point(3, 89);
             this.txtFormula2.Name = "txtFormula2";
             this.txtFormula2.Size = new System.Drawing.Size(211, 20);
-            this.txtFormula2.TabIndex = 16;
+            this.txtFormula2.TabIndex = 6;
             this.txtFormula2.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // txtFormula3
@@ -1421,7 +1450,7 @@ namespace Configuration_Editor
             this.txtFormula3.Location = new System.Drawing.Point(3, 115);
             this.txtFormula3.Name = "txtFormula3";
             this.txtFormula3.Size = new System.Drawing.Size(211, 20);
-            this.txtFormula3.TabIndex = 15;
+            this.txtFormula3.TabIndex = 9;
             this.txtFormula3.Leave += new System.EventHandler(this.txtFormula0_Leave);
             // 
             // pnlTempDependantRadios
@@ -1436,7 +1465,7 @@ namespace Configuration_Editor
             this.pnlTempDependantRadios.Location = new System.Drawing.Point(3, 16);
             this.pnlTempDependantRadios.Name = "pnlTempDependantRadios";
             this.pnlTempDependantRadios.Size = new System.Drawing.Size(127, 204);
-            this.pnlTempDependantRadios.TabIndex = 11;
+            this.pnlTempDependantRadios.TabIndex = 0;
             // 
             // label37
             // 
@@ -1450,13 +1479,11 @@ namespace Configuration_Editor
             // radioDensity
             // 
             this.radioDensity.AutoSize = true;
-            this.radioDensity.Checked = true;
             this.radioDensity.ForeColor = System.Drawing.Color.Navy;
             this.radioDensity.Location = new System.Drawing.Point(3, 16);
             this.radioDensity.Name = "radioDensity";
             this.radioDensity.Size = new System.Drawing.Size(60, 17);
-            this.radioDensity.TabIndex = 1;
-            this.radioDensity.TabStop = true;
+            this.radioDensity.TabIndex = 0;
             this.radioDensity.Tag = "Density";
             this.radioDensity.Text = "Density";
             this.radioDensity.UseVisualStyleBackColor = true;
@@ -1469,7 +1496,7 @@ namespace Configuration_Editor
             this.radioEntropy.Location = new System.Drawing.Point(3, 108);
             this.radioEntropy.Name = "radioEntropy";
             this.radioEntropy.Size = new System.Drawing.Size(76, 17);
-            this.radioEntropy.TabIndex = 5;
+            this.radioEntropy.TabIndex = 4;
             this.radioEntropy.Tag = "S25";
             this.radioEntropy.Text = "Entropy (?)";
             this.radioEntropy.UseVisualStyleBackColor = true;
@@ -1482,7 +1509,7 @@ namespace Configuration_Editor
             this.radioHeatOfFormation.Location = new System.Drawing.Point(3, 39);
             this.radioHeatOfFormation.Name = "radioHeatOfFormation";
             this.radioHeatOfFormation.Size = new System.Drawing.Size(109, 17);
-            this.radioHeatOfFormation.TabIndex = 2;
+            this.radioHeatOfFormation.TabIndex = 1;
             this.radioHeatOfFormation.Tag = "Hf25";
             this.radioHeatOfFormation.Text = "Heat of Formation";
             this.radioHeatOfFormation.UseVisualStyleBackColor = true;
@@ -1495,7 +1522,7 @@ namespace Configuration_Editor
             this.radioHeatCapacity.Location = new System.Drawing.Point(3, 62);
             this.radioHeatCapacity.Name = "radioHeatCapacity";
             this.radioHeatCapacity.Size = new System.Drawing.Size(92, 17);
-            this.radioHeatCapacity.TabIndex = 4;
+            this.radioHeatCapacity.TabIndex = 2;
             this.radioHeatCapacity.Tag = "Cp";
             this.radioHeatCapacity.Text = "Heat Capacity";
             this.radioHeatCapacity.UseVisualStyleBackColor = true;
@@ -1532,7 +1559,7 @@ namespace Configuration_Editor
             this.groupBox8.Location = new System.Drawing.Point(3, 185);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(695, 101);
-            this.groupBox8.TabIndex = 18;
+            this.groupBox8.TabIndex = 3;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Thermodynamic Properties";
             // 
@@ -1541,7 +1568,7 @@ namespace Configuration_Editor
             this.txtPhaseChange.Location = new System.Drawing.Point(387, 19);
             this.txtPhaseChange.Name = "txtPhaseChange";
             this.txtPhaseChange.Size = new System.Drawing.Size(130, 20);
-            this.txtPhaseChange.TabIndex = 19;
+            this.txtPhaseChange.TabIndex = 1;
             // 
             // label48
             // 
@@ -1557,7 +1584,7 @@ namespace Configuration_Editor
             this.txtSolvent.Location = new System.Drawing.Point(125, 19);
             this.txtSolvent.Name = "txtSolvent";
             this.txtSolvent.Size = new System.Drawing.Size(130, 20);
-            this.txtSolvent.TabIndex = 17;
+            this.txtSolvent.TabIndex = 0;
             // 
             // label36
             // 
@@ -1573,14 +1600,14 @@ namespace Configuration_Editor
             this.txtAccentricity.Location = new System.Drawing.Point(387, 71);
             this.txtAccentricity.Name = "txtAccentricity";
             this.txtAccentricity.Size = new System.Drawing.Size(130, 20);
-            this.txtAccentricity.TabIndex = 15;
+            this.txtAccentricity.TabIndex = 5;
             // 
             // txtCritTemp
             // 
             this.txtCritTemp.Location = new System.Drawing.Point(387, 45);
             this.txtCritTemp.Name = "txtCritTemp";
             this.txtCritTemp.Size = new System.Drawing.Size(130, 20);
-            this.txtCritTemp.TabIndex = 14;
+            this.txtCritTemp.TabIndex = 3;
             // 
             // label47
             // 
@@ -1596,7 +1623,7 @@ namespace Configuration_Editor
             this.txtCritVol.Location = new System.Drawing.Point(125, 71);
             this.txtCritVol.Name = "txtCritVol";
             this.txtCritVol.Size = new System.Drawing.Size(130, 20);
-            this.txtCritVol.TabIndex = 12;
+            this.txtCritVol.TabIndex = 4;
             // 
             // label46
             // 
@@ -1612,7 +1639,7 @@ namespace Configuration_Editor
             this.txtCritPressure.Location = new System.Drawing.Point(125, 45);
             this.txtCritPressure.Name = "txtCritPressure";
             this.txtCritPressure.Size = new System.Drawing.Size(130, 20);
-            this.txtCritPressure.TabIndex = 10;
+            this.txtCritPressure.TabIndex = 2;
             // 
             // label43
             // 
@@ -1642,7 +1669,7 @@ namespace Configuration_Editor
             this.groupBox5.Location = new System.Drawing.Point(3, 134);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(695, 51);
-            this.groupBox5.TabIndex = 15;
+            this.groupBox5.TabIndex = 2;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Source";
             // 
@@ -1651,7 +1678,7 @@ namespace Configuration_Editor
             this.txtCheckedBy.Location = new System.Drawing.Point(387, 19);
             this.txtCheckedBy.Name = "txtCheckedBy";
             this.txtCheckedBy.Size = new System.Drawing.Size(130, 20);
-            this.txtCheckedBy.TabIndex = 3;
+            this.txtCheckedBy.TabIndex = 1;
             // 
             // label35
             // 
@@ -1692,7 +1719,7 @@ namespace Configuration_Editor
             this.groupBox4.Location = new System.Drawing.Point(3, 52);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(695, 82);
-            this.groupBox4.TabIndex = 14;
+            this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "General Properties";
             // 
@@ -1707,7 +1734,7 @@ namespace Configuration_Editor
             this.comboOccurence.Location = new System.Drawing.Point(387, 18);
             this.comboOccurence.Name = "comboOccurence";
             this.comboOccurence.Size = new System.Drawing.Size(130, 21);
-            this.comboOccurence.TabIndex = 10;
+            this.comboOccurence.TabIndex = 1;
             // 
             // label33
             // 
@@ -1723,7 +1750,7 @@ namespace Configuration_Editor
             this.txtMaxTemperature.Location = new System.Drawing.Point(387, 50);
             this.txtMaxTemperature.Name = "txtMaxTemperature";
             this.txtMaxTemperature.Size = new System.Drawing.Size(130, 20);
-            this.txtMaxTemperature.TabIndex = 7;
+            this.txtMaxTemperature.TabIndex = 3;
             this.txtMaxTemperature.TextChanged += new System.EventHandler(this.txtMaxTemperature_TextChanged);
             // 
             // txtMinTemperature
@@ -1731,7 +1758,7 @@ namespace Configuration_Editor
             this.txtMinTemperature.Location = new System.Drawing.Point(125, 50);
             this.txtMinTemperature.Name = "txtMinTemperature";
             this.txtMinTemperature.Size = new System.Drawing.Size(130, 20);
-            this.txtMinTemperature.TabIndex = 8;
+            this.txtMinTemperature.TabIndex = 2;
             this.txtMinTemperature.TextChanged += new System.EventHandler(this.txtMinTemperature_TextChanged);
             // 
             // txtElementalComposition
@@ -1739,7 +1766,7 @@ namespace Configuration_Editor
             this.txtElementalComposition.Location = new System.Drawing.Point(125, 19);
             this.txtElementalComposition.Name = "txtElementalComposition";
             this.txtElementalComposition.Size = new System.Drawing.Size(130, 20);
-            this.txtElementalComposition.TabIndex = 9;
+            this.txtElementalComposition.TabIndex = 0;
             this.txtElementalComposition.Validated += new System.EventHandler(this.txtElementalComposition_Validated);
             this.txtElementalComposition.Validating += new System.ComponentModel.CancelEventHandler(this.txtElementalComposition_Validating);
             // 
@@ -1783,7 +1810,7 @@ namespace Configuration_Editor
             this.grpNomenclature.Location = new System.Drawing.Point(3, 3);
             this.grpNomenclature.Name = "grpNomenclature";
             this.grpNomenclature.Size = new System.Drawing.Size(695, 49);
-            this.grpNomenclature.TabIndex = 13;
+            this.grpNomenclature.TabIndex = 0;
             this.grpNomenclature.TabStop = false;
             this.grpNomenclature.Text = "Nomenclature";
             // 
@@ -1795,7 +1822,7 @@ namespace Configuration_Editor
             this.comboPhase.Location = new System.Drawing.Point(436, 19);
             this.comboPhase.Name = "comboPhase";
             this.comboPhase.Size = new System.Drawing.Size(65, 21);
-            this.comboPhase.TabIndex = 13;
+            this.comboPhase.TabIndex = 2;
             this.comboPhase.Validated += new System.EventHandler(this.txtSymbol_Validated);
             // 
             // label25
@@ -1812,7 +1839,7 @@ namespace Configuration_Editor
             this.txtName.Location = new System.Drawing.Point(47, 19);
             this.txtName.Name = "txtName";
             this.txtName.Size = new System.Drawing.Size(100, 20);
-            this.txtName.TabIndex = 12;
+            this.txtName.TabIndex = 0;
             this.txtName.Validated += new System.EventHandler(this.txtName_Validated);
             this.txtName.Validating += new System.ComponentModel.CancelEventHandler(this.txtName_Validating);
             // 
@@ -1830,7 +1857,7 @@ namespace Configuration_Editor
             this.txtSymbol.Location = new System.Drawing.Point(314, 19);
             this.txtSymbol.Name = "txtSymbol";
             this.txtSymbol.Size = new System.Drawing.Size(100, 20);
-            this.txtSymbol.TabIndex = 11;
+            this.txtSymbol.TabIndex = 1;
             this.txtSymbol.Validated += new System.EventHandler(this.txtSymbol_Validated);
             this.txtSymbol.Validating += new System.ComponentModel.CancelEventHandler(this.txtSymbol_Validating);
             // 
@@ -1901,7 +1928,7 @@ namespace Configuration_Editor
             this.chkH2OAqueous.Location = new System.Drawing.Point(321, 19);
             this.chkH2OAqueous.Name = "chkH2OAqueous";
             this.chkH2OAqueous.Size = new System.Drawing.Size(169, 17);
-            this.chkH2OAqueous.TabIndex = 2;
+            this.chkH2OAqueous.TabIndex = 1;
             this.chkH2OAqueous.Text = "Recognise H2O(l) as Aqueous";
             this.chkH2OAqueous.UseVisualStyleBackColor = true;
             // 
@@ -1912,7 +1939,7 @@ namespace Configuration_Editor
             this.comboSpecieModel.Location = new System.Drawing.Point(104, 17);
             this.comboSpecieModel.Name = "comboSpecieModel";
             this.comboSpecieModel.Size = new System.Drawing.Size(121, 21);
-            this.comboSpecieModel.TabIndex = 1;
+            this.comboSpecieModel.TabIndex = 0;
             // 
             // label22
             // 
@@ -1970,42 +1997,42 @@ namespace Configuration_Editor
             this.txtMinP.Location = new System.Drawing.Point(297, 59);
             this.txtMinP.Name = "txtMinP";
             this.txtMinP.Size = new System.Drawing.Size(92, 20);
-            this.txtMinP.TabIndex = 13;
+            this.txtMinP.TabIndex = 6;
             // 
             // txtNP
             // 
             this.txtNP.Location = new System.Drawing.Point(199, 59);
             this.txtNP.Name = "txtNP";
             this.txtNP.Size = new System.Drawing.Size(92, 20);
-            this.txtNP.TabIndex = 12;
+            this.txtNP.TabIndex = 5;
             // 
             // txtStP
             // 
             this.txtStP.Location = new System.Drawing.Point(101, 59);
             this.txtStP.Name = "txtStP";
             this.txtStP.Size = new System.Drawing.Size(92, 20);
-            this.txtStP.TabIndex = 11;
+            this.txtStP.TabIndex = 4;
             // 
             // txtMaxT
             // 
             this.txtMaxT.Location = new System.Drawing.Point(395, 31);
             this.txtMaxT.Name = "txtMaxT";
             this.txtMaxT.Size = new System.Drawing.Size(92, 20);
-            this.txtMaxT.TabIndex = 10;
+            this.txtMaxT.TabIndex = 3;
             // 
             // txtMinT
             // 
             this.txtMinT.Location = new System.Drawing.Point(297, 31);
             this.txtMinT.Name = "txtMinT";
             this.txtMinT.Size = new System.Drawing.Size(92, 20);
-            this.txtMinT.TabIndex = 9;
+            this.txtMinT.TabIndex = 2;
             // 
             // txtNT
             // 
             this.txtNT.Location = new System.Drawing.Point(199, 31);
             this.txtNT.Name = "txtNT";
             this.txtNT.Size = new System.Drawing.Size(92, 20);
-            this.txtNT.TabIndex = 8;
+            this.txtNT.TabIndex = 1;
             // 
             // label21
             // 
@@ -2078,7 +2105,7 @@ namespace Configuration_Editor
             this.txtStT.Location = new System.Drawing.Point(101, 31);
             this.txtStT.Name = "txtStT";
             this.txtStT.Size = new System.Drawing.Size(92, 20);
-            this.txtStT.TabIndex = 6;
+            this.txtStT.TabIndex = 0;
             // 
             // txtMaxP
             // 
@@ -2138,7 +2165,7 @@ namespace Configuration_Editor
             this.comboDynamicHeat.Location = new System.Drawing.Point(247, 78);
             this.comboDynamicHeat.Name = "comboDynamicHeat";
             this.comboDynamicHeat.Size = new System.Drawing.Size(116, 21);
-            this.comboDynamicHeat.TabIndex = 14;
+            this.comboDynamicHeat.TabIndex = 7;
             // 
             // comboProBalHeat
             // 
@@ -2148,7 +2175,7 @@ namespace Configuration_Editor
             this.comboProBalHeat.Location = new System.Drawing.Point(125, 78);
             this.comboProBalHeat.Name = "comboProBalHeat";
             this.comboProBalHeat.Size = new System.Drawing.Size(116, 21);
-            this.comboProBalHeat.TabIndex = 13;
+            this.comboProBalHeat.TabIndex = 6;
             // 
             // comboMaxCompFlow
             // 
@@ -2158,7 +2185,7 @@ namespace Configuration_Editor
             this.comboMaxCompFlow.Location = new System.Drawing.Point(369, 53);
             this.comboMaxCompFlow.Name = "comboMaxCompFlow";
             this.comboMaxCompFlow.Size = new System.Drawing.Size(118, 21);
-            this.comboMaxCompFlow.TabIndex = 12;
+            this.comboMaxCompFlow.TabIndex = 5;
             // 
             // comboProbalFlow
             // 
@@ -2169,7 +2196,7 @@ namespace Configuration_Editor
             this.comboProbalFlow.Location = new System.Drawing.Point(125, 53);
             this.comboProbalFlow.Name = "comboProbalFlow";
             this.comboProbalFlow.Size = new System.Drawing.Size(116, 21);
-            this.comboProbalFlow.TabIndex = 11;
+            this.comboProbalFlow.TabIndex = 3;
             // 
             // comboMaxCompSurge
             // 
@@ -2180,7 +2207,7 @@ namespace Configuration_Editor
             this.comboMaxCompSurge.Location = new System.Drawing.Point(369, 28);
             this.comboMaxCompSurge.Name = "comboMaxCompSurge";
             this.comboMaxCompSurge.Size = new System.Drawing.Size(118, 21);
-            this.comboMaxCompSurge.TabIndex = 10;
+            this.comboMaxCompSurge.TabIndex = 2;
             // 
             // comboDynamicSurge
             // 
@@ -2190,7 +2217,7 @@ namespace Configuration_Editor
             this.comboDynamicSurge.Location = new System.Drawing.Point(247, 28);
             this.comboDynamicSurge.Name = "comboDynamicSurge";
             this.comboDynamicSurge.Size = new System.Drawing.Size(116, 21);
-            this.comboDynamicSurge.TabIndex = 9;
+            this.comboDynamicSurge.TabIndex = 1;
             // 
             // comboProBalSurge
             // 
@@ -2201,7 +2228,7 @@ namespace Configuration_Editor
             this.comboProBalSurge.Location = new System.Drawing.Point(125, 28);
             this.comboProBalSurge.Name = "comboProBalSurge";
             this.comboProBalSurge.Size = new System.Drawing.Size(116, 21);
-            this.comboProBalSurge.TabIndex = 8;
+            this.comboProBalSurge.TabIndex = 0;
             // 
             // label14
             // 
@@ -2277,7 +2304,7 @@ namespace Configuration_Editor
             this.comboDynamicFlow.Location = new System.Drawing.Point(247, 53);
             this.comboDynamicFlow.Name = "comboDynamicFlow";
             this.comboDynamicFlow.Size = new System.Drawing.Size(116, 21);
-            this.comboDynamicFlow.TabIndex = 6;
+            this.comboDynamicFlow.TabIndex = 4;
             // 
             // comboMaxCompHeat
             // 
@@ -2287,7 +2314,7 @@ namespace Configuration_Editor
             this.comboMaxCompHeat.Location = new System.Drawing.Point(369, 78);
             this.comboMaxCompHeat.Name = "comboMaxCompHeat";
             this.comboMaxCompHeat.Size = new System.Drawing.Size(118, 21);
-            this.comboMaxCompHeat.TabIndex = 7;
+            this.comboMaxCompHeat.TabIndex = 8;
             // 
             // grpSolution
             // 
@@ -2328,7 +2355,7 @@ namespace Configuration_Editor
             this.chkDynamicAllowed.Location = new System.Drawing.Point(247, 8);
             this.chkDynamicAllowed.Name = "chkDynamicAllowed";
             this.chkDynamicAllowed.Size = new System.Drawing.Size(116, 20);
-            this.chkDynamicAllowed.TabIndex = 2;
+            this.chkDynamicAllowed.TabIndex = 1;
             this.chkDynamicAllowed.Text = "Dynamic Allowed";
             this.chkDynamicAllowed.UseVisualStyleBackColor = true;
             // 
@@ -2352,7 +2379,7 @@ namespace Configuration_Editor
             this.chkProbalAllowed.Location = new System.Drawing.Point(369, 8);
             this.chkProbalAllowed.Name = "chkProbalAllowed";
             this.chkProbalAllowed.Size = new System.Drawing.Size(118, 20);
-            this.chkProbalAllowed.TabIndex = 1;
+            this.chkProbalAllowed.TabIndex = 2;
             this.chkProbalAllowed.Text = "Probal Allowed";
             this.chkProbalAllowed.UseVisualStyleBackColor = true;
             // 
@@ -2364,7 +2391,7 @@ namespace Configuration_Editor
             this.comboDefaultSolution.Location = new System.Drawing.Point(125, 8);
             this.comboDefaultSolution.Name = "comboDefaultSolution";
             this.comboDefaultSolution.Size = new System.Drawing.Size(116, 21);
-            this.comboDefaultSolution.TabIndex = 3;
+            this.comboDefaultSolution.TabIndex = 0;
             // 
             // grpDescription
             // 
@@ -2410,6 +2437,7 @@ namespace Configuration_Editor
             this.scModels.Size = new System.Drawing.Size(938, 538);
             this.scModels.SplitterDistance = 608;
             this.scModels.TabIndex = 4;
+            this.scModels.TabStop = false;
             // 
             // grpModels
             // 
@@ -2845,6 +2873,9 @@ namespace Configuration_Editor
         private System.Windows.Forms.Label label48;
         private System.Windows.Forms.ComboBox comboPhase;
         private System.Windows.Forms.ErrorProvider errorProvider1;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem menuDelete;
+        private System.Windows.Forms.ToolStripMenuItem menuNewSpecies;
     }
 }
 

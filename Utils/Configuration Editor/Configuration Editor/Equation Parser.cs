@@ -347,6 +347,8 @@ namespace Configuration_Editor
 
         public double[] Values()
         {
+            if (m_subFragments.Count == 0 && ParsedString != null)
+                return new double[] { Value() };
             double[] ret = new double[m_subFragments.Count];
             for (int i = 0; i < ret.Length; i++)
                 ret[i] = m_subFragments[i].Value();
@@ -451,7 +453,7 @@ namespace Configuration_Editor
             public override double Evaluate(double[] paramValue, Dictionary<string, double> extraVals)
             {
                 if (paramValue.Length != 1)
-                    throw new ArgumentException("Exp Accepts only one parameter", "paramValue");
+                    throw new ArgumentException("Log10 Accepts only one parameter", "paramValue");
                 return Math.Log10(paramValue[0]);
             }
         }

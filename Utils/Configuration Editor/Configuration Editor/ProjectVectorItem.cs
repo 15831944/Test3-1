@@ -306,7 +306,7 @@ namespace Configuration_Editor
             get
             {
                 if (m_DataRow != null)
-                    return (string)m_DataRow["Symbol"];
+                    return (string)m_DataRow["Compound"];
                 else
                     return m_sSymbol;
             }

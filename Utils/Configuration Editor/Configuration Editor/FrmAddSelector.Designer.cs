@@ -29,14 +29,14 @@ namespace Configuration_Editor
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.btnCancel = new System.Windows.Forms.Button();
+            this.btnOk = new System.Windows.Forms.Button();
+            this.radioAttribute = new System.Windows.Forms.RadioButton();
+            this.radioPageBreak = new System.Windows.Forms.RadioButton();
+            this.radioLabel = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
             this.radioCalculation = new System.Windows.Forms.RadioButton();
-            this.radioLabel = new System.Windows.Forms.RadioButton();
-            this.radioPageBreak = new System.Windows.Forms.RadioButton();
-            this.radioAttribute = new System.Windows.Forms.RadioButton();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.btnOk = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -68,6 +68,73 @@ namespace Configuration_Editor
             this.tableLayoutPanel1.Size = new System.Drawing.Size(197, 156);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
+            // panel1
+            // 
+            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel1.Controls.Add(this.btnCancel);
+            this.panel1.Controls.Add(this.btnOk);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(11, 116);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(175, 32);
+            this.panel1.TabIndex = 4;
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnCancel.Location = new System.Drawing.Point(90, 3);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.TabIndex = 5;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            // 
+            // btnOk
+            // 
+            this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btnOk.Location = new System.Drawing.Point(9, 3);
+            this.btnOk.Name = "btnOk";
+            this.btnOk.Size = new System.Drawing.Size(75, 23);
+            this.btnOk.TabIndex = 4;
+            this.btnOk.Text = "&OK";
+            this.btnOk.UseVisualStyleBackColor = true;
+            // 
+            // radioAttribute
+            // 
+            this.radioAttribute.AutoSize = true;
+            this.radioAttribute.Location = new System.Drawing.Point(11, 93);
+            this.radioAttribute.Name = "radioAttribute";
+            this.radioAttribute.Size = new System.Drawing.Size(64, 17);
+            this.radioAttribute.TabIndex = 3;
+            this.radioAttribute.TabStop = true;
+            this.radioAttribute.Text = "&Attribute";
+            this.radioAttribute.UseVisualStyleBackColor = true;
+            this.radioAttribute.CheckedChanged += new System.EventHandler(this.radioCalculation_CheckedChanged);
+            // 
+            // radioPageBreak
+            // 
+            this.radioPageBreak.AutoSize = true;
+            this.radioPageBreak.Location = new System.Drawing.Point(11, 70);
+            this.radioPageBreak.Name = "radioPageBreak";
+            this.radioPageBreak.Size = new System.Drawing.Size(81, 17);
+            this.radioPageBreak.TabIndex = 2;
+            this.radioPageBreak.TabStop = true;
+            this.radioPageBreak.Text = "&Page Break";
+            this.radioPageBreak.UseVisualStyleBackColor = true;
+            this.radioPageBreak.CheckedChanged += new System.EventHandler(this.radioCalculation_CheckedChanged);
+            // 
+            // radioLabel
+            // 
+            this.radioLabel.AutoSize = true;
+            this.radioLabel.Location = new System.Drawing.Point(11, 47);
+            this.radioLabel.Name = "radioLabel";
+            this.radioLabel.Size = new System.Drawing.Size(51, 17);
+            this.radioLabel.TabIndex = 1;
+            this.radioLabel.TabStop = true;
+            this.radioLabel.Text = "&Label";
+            this.radioLabel.UseVisualStyleBackColor = true;
+            this.radioLabel.CheckedChanged += new System.EventHandler(this.radioCalculation_CheckedChanged);
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -84,78 +151,11 @@ namespace Configuration_Editor
             this.radioCalculation.Location = new System.Drawing.Point(11, 24);
             this.radioCalculation.Name = "radioCalculation";
             this.radioCalculation.Size = new System.Drawing.Size(77, 17);
-            this.radioCalculation.TabIndex = 1;
+            this.radioCalculation.TabIndex = 0;
             this.radioCalculation.TabStop = true;
             this.radioCalculation.Text = "&Calculation";
             this.radioCalculation.UseVisualStyleBackColor = true;
             this.radioCalculation.CheckedChanged += new System.EventHandler(this.radioCalculation_CheckedChanged);
-            // 
-            // radioLabel
-            // 
-            this.radioLabel.AutoSize = true;
-            this.radioLabel.Location = new System.Drawing.Point(11, 47);
-            this.radioLabel.Name = "radioLabel";
-            this.radioLabel.Size = new System.Drawing.Size(51, 17);
-            this.radioLabel.TabIndex = 2;
-            this.radioLabel.TabStop = true;
-            this.radioLabel.Text = "&Label";
-            this.radioLabel.UseVisualStyleBackColor = true;
-            this.radioLabel.CheckedChanged += new System.EventHandler(this.radioCalculation_CheckedChanged);
-            // 
-            // radioPageBreak
-            // 
-            this.radioPageBreak.AutoSize = true;
-            this.radioPageBreak.Location = new System.Drawing.Point(11, 70);
-            this.radioPageBreak.Name = "radioPageBreak";
-            this.radioPageBreak.Size = new System.Drawing.Size(81, 17);
-            this.radioPageBreak.TabIndex = 3;
-            this.radioPageBreak.TabStop = true;
-            this.radioPageBreak.Text = "&Page Break";
-            this.radioPageBreak.UseVisualStyleBackColor = true;
-            this.radioPageBreak.CheckedChanged += new System.EventHandler(this.radioCalculation_CheckedChanged);
-            // 
-            // radioAttribute
-            // 
-            this.radioAttribute.AutoSize = true;
-            this.radioAttribute.Location = new System.Drawing.Point(11, 93);
-            this.radioAttribute.Name = "radioAttribute";
-            this.radioAttribute.Size = new System.Drawing.Size(64, 17);
-            this.radioAttribute.TabIndex = 4;
-            this.radioAttribute.TabStop = true;
-            this.radioAttribute.Text = "&Attribute";
-            this.radioAttribute.UseVisualStyleBackColor = true;
-            this.radioAttribute.CheckedChanged += new System.EventHandler(this.radioCalculation_CheckedChanged);
-            // 
-            // panel1
-            // 
-            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel1.Controls.Add(this.btnCancel);
-            this.panel1.Controls.Add(this.btnOk);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(11, 116);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(175, 32);
-            this.panel1.TabIndex = 1;
-            // 
-            // btnOk
-            // 
-            this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOk.Location = new System.Drawing.Point(9, 3);
-            this.btnOk.Name = "btnOk";
-            this.btnOk.Size = new System.Drawing.Size(75, 23);
-            this.btnOk.TabIndex = 0;
-            this.btnOk.Text = "&OK";
-            this.btnOk.UseVisualStyleBackColor = true;
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(90, 3);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 1;
-            this.btnCancel.Text = "Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // FrmAddSelector
             // 

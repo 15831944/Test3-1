@@ -54,7 +54,7 @@ namespace Configuration_Editor
             this.chkByPhase.Location = new System.Drawing.Point(6, 19);
             this.chkByPhase.Name = "chkByPhase";
             this.chkByPhase.Size = new System.Drawing.Size(93, 17);
-            this.chkByPhase.TabIndex = 1;
+            this.chkByPhase.TabIndex = 0;
             this.chkByPhase.Text = "Sort By Phase";
             this.chkByPhase.UseVisualStyleBackColor = true;
             this.chkByPhase.CheckedChanged += new System.EventHandler(this.chkByPhase_CheckedChanged);
@@ -67,7 +67,7 @@ namespace Configuration_Editor
             this.chkPreservePageAndLabels.Location = new System.Drawing.Point(6, 42);
             this.chkPreservePageAndLabels.Name = "chkPreservePageAndLabels";
             this.chkPreservePageAndLabels.Size = new System.Drawing.Size(196, 17);
-            this.chkPreservePageAndLabels.TabIndex = 2;
+            this.chkPreservePageAndLabels.TabIndex = 1;
             this.chkPreservePageAndLabels.Text = "Preserve Page And Label Locations";
             this.chkPreservePageAndLabels.UseVisualStyleBackColor = true;
             this.chkPreservePageAndLabels.CheckedChanged += new System.EventHandler(this.chkPreservePageAndLabels_CheckedChanged);
@@ -78,7 +78,7 @@ namespace Configuration_Editor
             this.chkPreserveCalculations.Location = new System.Drawing.Point(6, 65);
             this.chkPreserveCalculations.Name = "chkPreserveCalculations";
             this.chkPreserveCalculations.Size = new System.Drawing.Size(172, 17);
-            this.chkPreserveCalculations.TabIndex = 3;
+            this.chkPreserveCalculations.TabIndex = 2;
             this.chkPreserveCalculations.Text = "Preserve Calculation Locations";
             this.chkPreserveCalculations.UseVisualStyleBackColor = true;
             this.chkPreserveCalculations.CheckedChanged += new System.EventHandler(this.chkPreserveCalculations_CheckedChanged);
@@ -90,7 +90,7 @@ namespace Configuration_Editor
             this.radioAscending.Location = new System.Drawing.Point(6, 19);
             this.radioAscending.Name = "radioAscending";
             this.radioAscending.Size = new System.Drawing.Size(75, 17);
-            this.radioAscending.TabIndex = 4;
+            this.radioAscending.TabIndex = 0;
             this.radioAscending.TabStop = true;
             this.radioAscending.Text = "Ascending";
             this.radioAscending.UseVisualStyleBackColor = true;
@@ -102,7 +102,7 @@ namespace Configuration_Editor
             this.radioDescending.Location = new System.Drawing.Point(6, 42);
             this.radioDescending.Name = "radioDescending";
             this.radioDescending.Size = new System.Drawing.Size(82, 17);
-            this.radioDescending.TabIndex = 5;
+            this.radioDescending.TabIndex = 1;
             this.radioDescending.Text = "Descending";
             this.radioDescending.UseVisualStyleBackColor = true;
             // 
@@ -113,7 +113,7 @@ namespace Configuration_Editor
             this.grpLexiographicOrder.Location = new System.Drawing.Point(12, 108);
             this.grpLexiographicOrder.Name = "grpLexiographicOrder";
             this.grpLexiographicOrder.Size = new System.Drawing.Size(215, 66);
-            this.grpLexiographicOrder.TabIndex = 6;
+            this.grpLexiographicOrder.TabIndex = 1;
             this.grpLexiographicOrder.TabStop = false;
             this.grpLexiographicOrder.Text = "Lexiographic Order";
             // 
@@ -123,7 +123,7 @@ namespace Configuration_Editor
             this.grpPhaseOrder.Location = new System.Drawing.Point(12, 180);
             this.grpPhaseOrder.Name = "grpPhaseOrder";
             this.grpPhaseOrder.Size = new System.Drawing.Size(215, 62);
-            this.grpPhaseOrder.TabIndex = 7;
+            this.grpPhaseOrder.TabIndex = 2;
             this.grpPhaseOrder.TabStop = false;
             this.grpPhaseOrder.Text = "Phase Order";
             // 
@@ -148,7 +148,7 @@ namespace Configuration_Editor
             this.grpApplicable.Location = new System.Drawing.Point(12, 12);
             this.grpApplicable.Name = "grpApplicable";
             this.grpApplicable.Size = new System.Drawing.Size(215, 90);
-            this.grpApplicable.TabIndex = 8;
+            this.grpApplicable.TabIndex = 0;
             this.grpApplicable.TabStop = false;
             this.grpApplicable.Text = "Applicable Objects";
             // 
@@ -160,7 +160,7 @@ namespace Configuration_Editor
             this.panel1.Location = new System.Drawing.Point(0, 244);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(240, 42);
-            this.panel1.TabIndex = 9;
+            this.panel1.TabIndex = 3;
             // 
             // btnCancel
             // 
