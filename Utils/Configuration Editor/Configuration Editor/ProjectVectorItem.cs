@@ -306,7 +306,7 @@ namespace Configuration_Editor
             get
             {
                 if (m_DataRow != null)
-                    return (string)m_DataRow["Compound"];
+                    return (string)m_DataRow["Compound"] + "(" + m_DataRow["Phase"] + ")";
                 else
                     return m_sSymbol;
             }
@@ -447,14 +447,17 @@ namespace Configuration_Editor
     public enum AttributeType { Extensive, Intensive }
     public class ProjectAttribute : ProjectVectorItem
     {
-        public static Regex ParseRegex = new Regex("Attribute,[^,]*,(?<Name>[^,]*)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        public static Regex ParseRegex = new Regex("Attribute,(?<Parent>[^,]*),[^,]*,(?<Name>[^,]*),[^,]*,(?<Cnv>[^,]*)(,[^,]*){3},(?<Type>[^,]*)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         protected AttributeType m_eType;
+        protected string m_sParent;
+        protected string m_sCnv;
 
         public ProjectAttribute()
         {
             LVI.ImageKey = "Attribute";
         }
 
+        #region Properties
         public override string Value
         {
             get
@@ -478,22 +481,53 @@ namespace Configuration_Editor
             }
         }
 
+        public string Parent
+        {
+            get { return m_sParent; }
+            set 
+            {
+                m_sParent = value;
+                UpdateLVI();
+            }
+        }
+
+        public string Cnv
+        {
+            get { return m_sCnv; }
+            set
+            {
+                m_sCnv = value;
+                UpdateLVI();
+            }
+        }
+        #endregion Properties
+
+        #region Functions
+        public override string ToString()
+        {
+            return Name + ": {Parent - " + Parent + ", " + "Type - " + AttributeType + "}";
+        }
+
         public override string ToSaveString()
         {
-            return "Attribute,," + Name; //TODO: Find out what this is all about, 'eh?
+            return "Attribute," + Parent + ",," + Name + ",," + Cnv + ",,,," + AttributeType;
         }
 
         public static ProjectAttribute Parse(Match m)
         {
             ProjectAttribute ret = new ProjectAttribute();
             ret.Name = m.Groups["Name"].Value;
+            ret.AttributeType = m.Groups["Type"].Value.ToLower() == "quantity" || m.Groups["Type"].Value.ToLower() == "extensive" ? AttributeType.Extensive : AttributeType.Intensive;
+            ret.Cnv = m.Groups["Cnv"].Value;
+            ret.Parent = m.Groups["Parent"].Value;
             return ret;
         }
+        #endregion Functions
     }
 
     public class ProjectPage : ProjectVectorItem
     {
-        public static Regex ParseRegex = new Regex(@"RqdPage(,[^,]*){2},(?<Name>)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+        public static Regex ParseRegex = new Regex(@"RqdPage(,[^,]*),(?<Name>[^,]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
 
         public ProjectPage()
         {

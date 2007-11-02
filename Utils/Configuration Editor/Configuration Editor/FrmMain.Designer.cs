@@ -112,6 +112,10 @@ namespace Configuration_Editor
             this.pnlBlank = new System.Windows.Forms.Panel();
             this.tabIDEAttribute = new System.Windows.Forms.TabPage();
             this.grpAttribute = new System.Windows.Forms.GroupBox();
+            this.txtAttDimension = new System.Windows.Forms.TextBox();
+            this.label50 = new System.Windows.Forms.Label();
+            this.txtAttParent = new System.Windows.Forms.TextBox();
+            this.label49 = new System.Windows.Forms.Label();
             this.comboAttributeType = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.txtAttributeName = new System.Windows.Forms.TextBox();
@@ -1012,6 +1016,7 @@ namespace Configuration_Editor
             this.txtCalcSymbol.Name = "txtCalcSymbol";
             this.txtCalcSymbol.Size = new System.Drawing.Size(100, 20);
             this.txtCalcSymbol.TabIndex = 1;
+            this.txtCalcSymbol.Validated += new System.EventHandler(this.FireCheckCalculations);
             this.txtCalcSymbol.TextChanged += new System.EventHandler(this.txtCalcSymbol_TextChanged);
             // 
             // label26
@@ -1126,6 +1131,10 @@ namespace Configuration_Editor
             // 
             // grpAttribute
             // 
+            this.grpAttribute.Controls.Add(this.txtAttDimension);
+            this.grpAttribute.Controls.Add(this.label50);
+            this.grpAttribute.Controls.Add(this.txtAttParent);
+            this.grpAttribute.Controls.Add(this.label49);
             this.grpAttribute.Controls.Add(this.comboAttributeType);
             this.grpAttribute.Controls.Add(this.label8);
             this.grpAttribute.Controls.Add(this.txtAttributeName);
@@ -1138,6 +1147,42 @@ namespace Configuration_Editor
             this.grpAttribute.TabStop = false;
             this.grpAttribute.Text = "Attribute Details";
             // 
+            // txtAttDimension
+            // 
+            this.txtAttDimension.Location = new System.Drawing.Point(68, 48);
+            this.txtAttDimension.Name = "txtAttDimension";
+            this.txtAttDimension.Size = new System.Drawing.Size(121, 20);
+            this.txtAttDimension.TabIndex = 6;
+            this.txtAttDimension.TextChanged += new System.EventHandler(this.txtAttDimension_TextChanged);
+            // 
+            // label50
+            // 
+            this.label50.AutoSize = true;
+            this.label50.Location = new System.Drawing.Point(6, 51);
+            this.label50.Name = "label50";
+            this.label50.Size = new System.Drawing.Size(56, 13);
+            this.label50.TabIndex = 5;
+            this.label50.Text = "Dimension";
+            // 
+            // txtAttParent
+            // 
+            this.txtAttParent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtAttParent.Location = new System.Drawing.Point(249, 19);
+            this.txtAttParent.Name = "txtAttParent";
+            this.txtAttParent.Size = new System.Drawing.Size(121, 20);
+            this.txtAttParent.TabIndex = 4;
+            this.txtAttParent.TextChanged += new System.EventHandler(this.txtAttParent_TextChanged);
+            // 
+            // label49
+            // 
+            this.label49.AutoSize = true;
+            this.label49.Location = new System.Drawing.Point(205, 22);
+            this.label49.Name = "label49";
+            this.label49.Size = new System.Drawing.Size(38, 13);
+            this.label49.TabIndex = 3;
+            this.label49.Text = "Parent";
+            // 
             // comboAttributeType
             // 
             this.comboAttributeType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -1145,7 +1190,7 @@ namespace Configuration_Editor
             this.comboAttributeType.Items.AddRange(new object[] {
             "Extensive",
             "Intensive"});
-            this.comboAttributeType.Location = new System.Drawing.Point(47, 45);
+            this.comboAttributeType.Location = new System.Drawing.Point(249, 45);
             this.comboAttributeType.Name = "comboAttributeType";
             this.comboAttributeType.Size = new System.Drawing.Size(121, 21);
             this.comboAttributeType.TabIndex = 1;
@@ -1154,7 +1199,7 @@ namespace Configuration_Editor
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 48);
+            this.label8.Location = new System.Drawing.Point(212, 48);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(31, 13);
             this.label8.TabIndex = 2;
@@ -1162,18 +1207,17 @@ namespace Configuration_Editor
             // 
             // txtAttributeName
             // 
-            this.txtAttributeName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAttributeName.Location = new System.Drawing.Point(47, 19);
+            this.txtAttributeName.Location = new System.Drawing.Point(68, 19);
             this.txtAttributeName.Name = "txtAttributeName";
-            this.txtAttributeName.Size = new System.Drawing.Size(622, 20);
+            this.txtAttributeName.Size = new System.Drawing.Size(121, 20);
             this.txtAttributeName.TabIndex = 0;
+            this.txtAttributeName.Validated += new System.EventHandler(this.FireCheckCalculations);
             this.txtAttributeName.TextChanged += new System.EventHandler(this.txtAttributeName_TextChanged);
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 22);
+            this.label7.Location = new System.Drawing.Point(27, 22);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(35, 13);
             this.label7.TabIndex = 0;
@@ -2876,6 +2920,10 @@ namespace Configuration_Editor
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem menuDelete;
         private System.Windows.Forms.ToolStripMenuItem menuNewSpecies;
+        private System.Windows.Forms.TextBox txtAttDimension;
+        private System.Windows.Forms.Label label50;
+        private System.Windows.Forms.TextBox txtAttParent;
+        private System.Windows.Forms.Label label49;
     }
 }
 

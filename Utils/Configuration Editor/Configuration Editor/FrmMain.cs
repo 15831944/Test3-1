@@ -354,7 +354,7 @@ namespace Configuration_Editor
                 {
                     try
                     {
-                        sw.WriteLine("S" + i.ToString("0000") + "=" + ((ProjectVectorItem)lvi.Tag).ToSaveString());
+                        sw.WriteLine("S" + i++.ToString("0000") + "=" + ((ProjectVectorItem)lvi.Tag).ToSaveString());
                     }
                     catch (Exception ex)
                     {
@@ -500,7 +500,14 @@ namespace Configuration_Editor
                 lstProjectVector.BeginUpdate();
                 foreach (string s in data["species"].Values)
                 {
-                    lstProjectVector.Items.Add(ProjectVectorItem.Parse(s, m_SpecieDataTable, ret).LVI);
+                    try
+                    {
+                        lstProjectVector.Items.Add(ProjectVectorItem.Parse(s, m_SpecieDataTable, ret).LVI);
+                    }
+                    catch
+                    {
+                        ret.Add("Unalbe to Parse: '" + s + "'");
+                    }
                 }
                 AddSumItems();
                 lstProjectVector.EndUpdate();
@@ -1158,6 +1165,8 @@ namespace Configuration_Editor
             {
                 grpCalculation.Visible = true;
                 txtCalculation.Text = item.Value;
+                txtCalcName.Text = item.Name;
+                txtCalcSymbol.Text = ((ProjectCalculation)item).Symbol;
             }
             else if (item.GetType() == typeof(ProjectText))
             {
@@ -1173,6 +1182,8 @@ namespace Configuration_Editor
             {
                 grpAttribute.Visible = true;
                 txtAttributeName.Text = item.Value;
+                txtAttDimension.Text = ((ProjectAttribute)item).Cnv;
+                txtAttParent.Text = ((ProjectAttribute)item).Parent;
                 comboAttributeType.SelectedIndex = (int)((ProjectAttribute)item).AttributeType;
             }
             this.ResumeLayout();
@@ -1289,7 +1300,7 @@ namespace Configuration_Editor
             return null;
         }
 
-        protected void CheckCalculations()
+        List<string> GetAvailableVariables()
         {
             List<string> availableVariables = new List<string>();
             foreach (ListViewItem lvi in lstProjectVector.Items)
@@ -1297,6 +1308,26 @@ namespace Configuration_Editor
                     availableVariables.Add("[" + ((ProjectSpecie)lvi.Tag).Symbol + "]");
                 else if (lvi.Tag is ProjectAttribute)
                     availableVariables.Add("[" + ((ProjectAttribute)lvi.Tag).Name + "]");
+                else if (lvi.Tag is ProjectCalculation)
+                    availableVariables.Add("[" + ((ProjectCalculation)lvi.Tag).Symbol + "]");
+            return availableVariables;
+        }
+
+        List<string> GetAvailableParents()
+        {
+            List<string> ret = new List<string>();
+            foreach (ListViewItem lvi in lstProjectVector.Items)
+                if (lvi.Tag is ProjectSpecie)
+                    ret.Add(((ProjectSpecie)lvi.Tag).Symbol);
+                else if (lvi.Tag is ProjectCalculation)
+                    ret.Add(((ProjectCalculation)lvi.Tag).Symbol);
+            return ret;
+        }
+
+        protected void CheckCalculations() //Also checks Attributes.
+        {
+            List<string> availableVariables = GetAvailableVariables();
+            List<string> availableParents = GetAvailableParents();
             foreach (ListViewItem lvi in lstProjectVector.Items)
                 if (lvi.Tag is ProjectCalculation)
                 {
@@ -1317,6 +1348,16 @@ namespace Configuration_Editor
                         calc.Valid = false;
                     }
                 }
+                else if (lvi.Tag is ProjectAttribute)
+                {
+                    ProjectAttribute att = (ProjectAttribute)lvi.Tag;
+                    if (!availableParents.Contains(att.Parent))
+                    {
+                        att.StatusDetails = "Parent not found.";
+                        att.Valid = false;
+                    }
+                }
+
             List<object> temp = new List<object>();
             foreach (object o in txtCalculation.Items)
                 temp.Add(o);
@@ -1521,6 +1562,7 @@ namespace Configuration_Editor
 
         private void txtCalculation_TextChanged(object sender, EventArgs e)
         {
+            List<string> availableVariables = GetAvailableVariables();
             int oldSelectionStart = txtCalculation.SelectionStart;
             int oldSelectionLength = txtCalculation.SelectionLength;
             txtCalculation.SelectAll();
@@ -1537,15 +1579,7 @@ namespace Configuration_Editor
                     List<string> invalidNames = new List<string>();
                     foreach (string s in frag.ReqVariableNames)
                     {
-                        bool ok = false;
-                        if (s.StartsWith("[") && s.EndsWith("]")) //It's a variable not enclosed in square brackets - and therefore not allowed in a vector calculation. We may want to extend this.
-                            foreach (ListViewItem lvi in lstProjectVector.Items)
-                                if ((lvi.Tag is ProjectSpecie && "[" + ((ProjectSpecie)lvi.Tag).Symbol + "]" == s) ||
-                                    (lvi.Tag is ProjectAttribute && "[" + ((ProjectAttribute)lvi.Tag).Name == s))
-                                {
-                                    ok = true;
-                                    break;
-                                }
+                        bool ok = availableVariables.Contains(s);
                         if (!ok)
                         {
                             int i = txtCalculation.Text.IndexOf(s, 0);
@@ -1756,7 +1790,11 @@ namespace Configuration_Editor
         {
             if (m_CurrentItem is ProjectCalculation)
                 ((ProjectCalculation)m_CurrentItem).Symbol = txtCalcSymbol.Text;
-            
+        }
+
+        private void FireCheckCalculations(object sender, EventArgs e)
+        {
+            CheckCalculations();
         }
 
         private void txtMinTemperature_TextChanged(object sender, EventArgs e)
@@ -2137,6 +2175,28 @@ namespace Configuration_Editor
         private void menuNewSpecies_Click(object sender, EventArgs e)
         {
             CreateSpecies();
+        }
+
+        private void txtAttParent_TextChanged(object sender, EventArgs e)
+        {
+            if (m_CurrentItem is ProjectAttribute)
+            {
+                ((ProjectAttribute)m_CurrentItem).Parent = txtAttParent.Text;
+                if (string.IsNullOrEmpty(txtAttParent.Text) || !GetAvailableParents().Contains(txtAttParent.Text))
+                {
+                    m_CurrentItem.Valid = false;
+                    m_CurrentItem.StatusDetails = "Parent Not Found.";
+                }
+                else
+                    m_CurrentItem.Valid = true;
+            }
+            UpdateStatusBar();
+        }
+
+        private void txtAttDimension_TextChanged(object sender, EventArgs e)
+        {
+            if (m_CurrentItem is ProjectAttribute)
+                ((ProjectAttribute)m_CurrentItem).Cnv = txtAttDimension.Text;
         }
     }
 
