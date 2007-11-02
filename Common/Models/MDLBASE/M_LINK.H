@@ -217,6 +217,9 @@ XID xidTearNQvRqd         = MdlBsXID(9033);
 XID xidTearPRqd           = MdlBsXID(9034);
 XID xidTearTRqd           = MdlBsXID(9035);
 
+XID xidTearFlangeTag      = MdlBsXID(9036);
+XID xidTearBlockTag       = MdlBsXID(9037);
+
 XID xidSI_On              = MdlBsXID(9040);
 XID xidSI_Type            = MdlBsXID(9041);
 XID xidSI_ResetStats      = MdlBsXID(9042);
@@ -522,6 +525,8 @@ class DllImportExport MN_Lnk : public MdlNode
 #if DOPBSMOOTHING
     virtual void   EvalMsAGDatas();
 #endif
+
+    virtual int    UpdateAssocGrfs(int & Count);
 
     virtual dword  ModelStatus();
     virtual void   ClosureInfo();

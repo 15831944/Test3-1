@@ -48,8 +48,8 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   //pQProd=NULL;
   AttachClassInfo(nc_Process,NULL, &PipeEntryGroup);
 
-  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show);
-  InitAssocGrfShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_Show, eAGS_Show);
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show, eAGS_Show);
+  InitAssocGrfShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_Show, eAGS_Show, eAGS_Show);
 
   Contents.SetStateAction(IE_Integrate);
   m_EqThermals.SetStateAction(IE_Integrate);
@@ -555,7 +555,7 @@ flag MN_Surge::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
 void MN_Surge::EvalState()
   {
   
-  dbgpln("VentSpill  %10.2e  %10.2e  %s", Contents.Vent.Cd.QMass(), Contents.Spill.Cd.QMass(), Tag());
+  //dbgpln("VentSpill  %10.2e  %10.2e  %s", Contents.Vent.Cd.QMass(), Contents.Spill.Cd.QMass(), Tag());
   
   Contents.SetCI(1, Contents.Spill.Flowing());
   Contents.SetCI(4, Contents.Vent.Flowing());

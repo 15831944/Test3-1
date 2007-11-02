@@ -348,6 +348,7 @@ void Duct::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Byte        ("Priority",      "",   DC_,    "",       xidTearPriority,     this, isParm|SetOnChange, DDB2T);
     DDB.Byte        ("RqdType",       "",   DC_,    "",       xidTearType,         this, isParm|SetOnChange, DDB3T);
     DDB.Byte        ("State",         "",   DC_,    "",       xidTearState,        this, 0, DDB4T);
+    DDB.String      ("TearBlk",       "",   DC_,    "",       xidTearBlockTag,     this, 0|isTag);
 
     DDB.Visibility(NSHM_All, (NoFlwIOs()>1 && IOFlange(0)->RqdTearType()>=TT_ManualTear));
 

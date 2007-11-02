@@ -49,14 +49,16 @@ const dword nc_HLnk       = eScdNodeType_HLnk     ;// 0x00040000;
 const dword nc_ALnk       = eScdNodeType_ALnk     ;// 0x00080000;
 const dword nc_Cbl        = eScdNodeType_Cbl      ;// 0x00100000;
 
-#define FlwUnitGrp      "FlwUnit"
-#define FlwLinkGrp      "FlwLink"
-#define CtrlLinkGrp     "CtrlLinkGrp"
-#define ElecLinkGrp     "ElecLinkGrp"
-#define AirLinkGrp      "AirLinkGrp"
-#define DirectLinkGrp   "DirectLinkGrp"
+#define FlwUnitGrp            "FlwUnit"
+#define FlwLinkGrp            "FlwLink"
+#define CtrlLinkGrp           "CtrlLinkGrp"
+#define ElecLinkGrp           "ElecLinkGrp"
+#define AirLinkGrp            "AirLinkGrp"
+#define FlangeGrp             "FlangeGrp"
+#define DirectLinkGrp         "DirectLinkGrp"
 
-#define DirectLinkClass "DirectLink"
+#define DirectLinkClassStr    "DirectLink"
+#define FlangeClassStr        "Flange"
 
 const int NErr_NotFound                = 2000;
 const int NErr_NoSpace                 = 2001;

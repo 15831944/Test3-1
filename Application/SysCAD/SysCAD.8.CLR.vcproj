@@ -574,7 +574,7 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\LogView.dll"
-			AssemblyName="LogView, Version=1.0.2832.25292, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
+			AssemblyName="LogView, Version=1.0.2852.13027, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
 		/>
 	</References>
 	<Files>
@@ -6161,6 +6161,22 @@
 				Name="Resource Files"
 				Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 				>
+				<File
+					RelativePath=".\res\accnext.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\accnext1.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\accnextlr.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\accnextlr1.bmp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Resource Files"

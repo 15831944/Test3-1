@@ -1993,8 +1993,8 @@ void TearObjectEdt::Build()
     SetDesc(L, (char*)p->Tag(), -1, TagWide, 0, " ");
     
     SetParm(L, "", Id_TearBlkMethod, 10, 0, "  ");
-    for (int itr=0; DDBTearMethod[itr].m_pStr; itr++)
-      FldHasFixedStrValue(DDBTearMethod[itr].m_lVal, DDBTearMethod[itr].m_pStr);
+    for (int itr=0; DDBTearMethodDef[itr].m_pStr; itr++)
+      FldHasFixedStrValue(DDBTearMethodDef[itr].m_lVal, DDBTearMethod[itr].m_pStr);
     Tag.Set("%s.TearMethod", (char*)p->Tag()); 
     SetTag(Tag());
     SetParm(L, "", Id_TearBlkNVars,      4, 2, " ", false);
@@ -2290,7 +2290,7 @@ void TearObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           EI.Fld->fEditable=(IsAdaptSubs);
           break;
         case Id_TearDmpBlkDamp:
-          DFmt.FormatFloat(DCnv.Human(m_pSlctTVB->m_dDampingRqd), Str);
+          DFmt.FormatFloat(DCnv.Human(m_pSlctTVB->m_DampingRqd), Str);
           EI.Fld->fEditable=(IsAdaptSubs);
           break;
         }

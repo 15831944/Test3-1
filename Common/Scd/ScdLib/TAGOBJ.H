@@ -725,6 +725,7 @@ enum eAssocGrfTypes
     eAG_Spill, eAG_Vent, eAG_Leak,                   // Real IOs
     eAG_Makeup, eAG_Bleed,
     eAG_Src, eAG_Snk, eAG_Accum, eAG_Deplete,        // Direct
+    eAG_Tear,
     eAG_RB,
     eAG_Last
   };
@@ -850,7 +851,7 @@ class DllImportExport TagObjClass
     CAssocGrfShowArray & AssocGrfShow()                    { return m_AssocGrfShow; }       
     bool           AssocGrfShowInited()                    { return m_AssocGrfShowInited; } 
 
-    void           InitAssocGrfShowPB(flag PBMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows RB)
+    void           InitAssocGrfShowPB(flag PBMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows Tear, eAssocGrfShows RB)
       {
       if (PBMode && !m_AssocGrfShowInited)
         {
@@ -859,11 +860,12 @@ class DllImportExport TagObjClass
         m_AssocGrfShow[eAG_Leak] = Leak;
         m_AssocGrfShow[eAG_Makeup] = Makeup;
         m_AssocGrfShow[eAG_Bleed] = Bleed;
+        m_AssocGrfShow[eAG_Tear] = Tear;
         m_AssocGrfShow[eAG_RB] = RB;
         m_AssocGrfShowInited=true;
         }
       }
-    void           InitAssocGrfShowDyn(flag DynMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows RB)
+    void           InitAssocGrfShowDyn(flag DynMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows Tear, eAssocGrfShows RB)
       {
       if (DynMode && !m_AssocGrfShowInited)
         {
@@ -872,6 +874,7 @@ class DllImportExport TagObjClass
         m_AssocGrfShow[eAG_Leak] = Leak;
         m_AssocGrfShow[eAG_Makeup] = Makeup;
         m_AssocGrfShow[eAG_Bleed] = Bleed;
+        m_AssocGrfShow[eAG_Tear] = Tear;
         m_AssocGrfShow[eAG_RB] = RB;
         m_AssocGrfShowInited=true;
         }
@@ -1425,10 +1428,10 @@ class DllImportExport TaggedObject : public ConditionBlk
     CTOSelectData *SelectData()             { return TagObjClass::m_bEquipSpecs && m_pClass->m_SelectData.DataSetCount()>0 ? &m_pClass->m_SelectData:NULL; };
 #endif
 
-    void           InitAssocGrfShowPB(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Show, eAssocGrfShows Bleed=eAGS_Show, eAssocGrfShows RB=eAGS_Hide)
-      { Class()->InitAssocGrfShowPB(NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, RB); }
-    void           InitAssocGrfShowDyn(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Show, eAssocGrfShows Bleed=eAGS_Show, eAssocGrfShows RB=eAGS_Hide)
-      { Class()->InitAssocGrfShowDyn(!NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, RB); }
+    void           InitAssocGrfShowPB(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Show, eAssocGrfShows Bleed=eAGS_Show, eAssocGrfShows Tear=eAGS_Show, eAssocGrfShows RB=eAGS_Hide)
+      { Class()->InitAssocGrfShowPB(NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, Tear, RB); }
+    void           InitAssocGrfShowDyn(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Show, eAssocGrfShows Bleed=eAGS_Show, eAssocGrfShows Tear=eAGS_Show, eAssocGrfShows RB=eAGS_Hide)
+      { Class()->InitAssocGrfShowDyn(!NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, Tear, RB); }
     
     bool           AssocGrfOn(eAssocGrfTypes AGType, byte UseStatus);                       
     CAssocGrfShowArray & AssocGrfShowClass()                                 { return Class()->AssocGrfShow();      }       
@@ -1779,19 +1782,26 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
     void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
     void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+
     void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { CheckBox(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
-      { CheckBox(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
     void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
       { CheckBox(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLst, pDesc); };
     void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
       { CheckBox(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLstMem, pDesc); }
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { CheckBox(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { CheckBox(Tag, Sym, Cnv, CnvTxt, Handle, Handle2, This, Flags, (DDBValueLst *)NULL, pDesc); }
 
     void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
     void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
     void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
     void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
 
     void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
       { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLst, pDesc); }
@@ -1801,6 +1811,8 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
       { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
     void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+      { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, Handle, Handle2, This, Flags, (DDBValueLst *)NULL, pDesc); }
 
     void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
     void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
@@ -1872,6 +1884,9 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     void           Short (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, short* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
     void           Short (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
     void           Short (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Short (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Short (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+
     void           Short(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, short* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Short(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
     void           Short(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
@@ -1882,10 +1897,14 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     void           Long  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
     void           Long  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
     void           Long  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Long  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Long  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+
     void           Long(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Long(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
     void           Long(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Long(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
+
     void           Range (long Min, long Max);
 
     void           Float (LPSTR Tag, LPSTR Sym, CCnvFamily * CnvFam, float* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);

@@ -327,6 +327,72 @@ INLINE void DataDefnBlk::CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar Cnv
   };
 
 //---------------------------------------------------------------------------
+
+INLINE void DataDefnBlk::CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, 
+                                  long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags,
+                                  DDBValueLst * ValueLst, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Bool;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags|DDEF_CHECKBOX;
+  pTag   = Tag;
+  pSym   = Sym;     
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv     = (Cnv);
+    pCnvTxt  = CnvTxt;
+    pCnvFam  = NULL;
+    pData    = NULL;
+    lHandle  = Handle;
+    lHandle2 = Handle2;
+    pThis    = This ? This : Nest[lCallLevel].pThis;
+    pValueLst    = ValueLst;
+    pValueLstMem = NULL;
+    CHKSTUFF1(this);
+    DoBool();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  };
+
+//---------------------------------------------------------------------------
+
+INLINE void DataDefnBlk::CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, 
+                                  long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags,
+                                  DDBValueLstMem * ValueLstMem, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Bool;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags|DDEF_CHECKBOX;
+  pTag   = Tag;
+  pSym   = Sym;
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv     = (Cnv);
+    pCnvTxt  = CnvTxt;
+    pCnvFam  = NULL;
+    pData    = NULL;
+    lHandle  = Handle;
+    lHandle2 = Handle2;
+    pThis    = This ? This : Nest[lCallLevel].pThis;
+    pValueLst    = ValueLstMem->List();
+    pValueLstMem = ValueLstMem;
+    CHKSTUFF1(this);
+    DoBool();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  };
+
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
 INLINE void DataDefnBlk::CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, 
@@ -447,6 +513,72 @@ INLINE void DataDefnBlk::CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar 
     pData    = NULL;
     lHandle  = Handle;
     lHandle2 = 0;
+    pThis    = This ? This : Nest[lCallLevel].pThis;
+    pValueLst    = ValueLstMem->List();
+    pValueLstMem = ValueLstMem;
+    CHKSTUFF1(this);
+    DoBool();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  };
+
+//---------------------------------------------------------------------------
+
+INLINE void DataDefnBlk::CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, 
+                                     long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags, 
+                                     DDBValueLst * ValueLst, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Bool;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags|DDEF_CHECKBOX|DDEF_BUTTON;
+  pTag   = Tag;
+  pSym   = Sym;
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv     = (Cnv);
+    pCnvTxt  = CnvTxt;
+    pCnvFam  = NULL;
+    pData    = NULL;
+    lHandle  = Handle;
+    lHandle2 = Handle2;
+    pThis    = This ? This : Nest[lCallLevel].pThis;
+    pValueLst    = ValueLst;
+    pValueLstMem = NULL;
+    CHKSTUFF1(this);
+    DoBool();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  };
+
+//---------------------------------------------------------------------------
+
+INLINE void DataDefnBlk::CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, 
+                                     long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags, 
+                                     DDBValueLstMem * ValueLstMem, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Bool;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags|DDEF_CHECKBOX|DDEF_BUTTON;
+  pTag   = Tag;
+  pSym   = Sym;
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv     = (Cnv);
+    pCnvTxt  = CnvTxt;
+    pCnvFam  = NULL;
+    pData    = NULL;
+    lHandle  = Handle;
+    lHandle2 = Handle2;
     pThis    = This ? This : Nest[lCallLevel].pThis;
     pValueLst    = ValueLstMem->List();
     pValueLstMem = ValueLstMem;
@@ -1523,6 +1655,72 @@ INLINE void DataDefnBlk::Short(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt
 
 //---------------------------------------------------------------------------
 
+INLINE void DataDefnBlk::Short(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, 
+                               long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags, 
+                               DDBValueLst * ValueLst, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Short;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags;
+  pTag   = Tag;
+  pSym   = Sym;
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv     = (Cnv);
+    pCnvTxt  = CnvTxt;
+    pCnvFam  = NULL;
+    pData    = NULL;
+    lHandle  = Handle;
+    lHandle2 = Handle2;
+    pThis    = This ? This : Nest[lCallLevel].pThis;
+    pValueLst    = ValueLst;
+    pValueLstMem = NULL;
+    CHKSTUFF1(this);
+    DoShort();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  };
+
+//---------------------------------------------------------------------------
+
+INLINE void DataDefnBlk::Short(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, 
+                               long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags, 
+                               DDBValueLstMem * ValueLstMem, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Short;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags;
+  pTag   = Tag;
+  pSym   = Sym;
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv     = (Cnv);
+    pCnvTxt  = CnvTxt;
+    pCnvFam  = NULL;
+    pData    = NULL;
+    lHandle  = Handle;
+    lHandle2 = Handle2;
+    pThis    = This ? This : Nest[lCallLevel].pThis;
+    pValueLst    = ValueLstMem->List();
+    pValueLstMem = ValueLstMem;
+    CHKSTUFF1(this);
+    DoShort();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  };
+
+//---------------------------------------------------------------------------
+
 INLINE void DataDefnBlk::Range(short Min, short Max)
   {
   if (eTask==DDBTask_GetData && Nest[lCallLevel].fItemReqd)
@@ -1655,6 +1853,72 @@ INLINE void DataDefnBlk::Long(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt,
     pData    = NULL;
     lHandle  = Handle;
     lHandle2 = 0;
+    pThis    = This ? This : Nest[lCallLevel].pThis;
+    pValueLst    = ValueLstMem->List();
+    pValueLstMem = ValueLstMem;
+    CHKSTUFF1(this);
+    DoLong();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  };
+
+//---------------------------------------------------------------------------
+
+INLINE void DataDefnBlk::Long(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt,
+                              long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags, 
+                              DDBValueLst * ValueLst, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Long;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags;
+  pTag   = Tag;
+  pSym   = Sym;
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv     = (Cnv);
+    pCnvTxt  = CnvTxt;
+    pCnvFam  = NULL;
+    pData    = NULL;
+    lHandle  = Handle;
+    lHandle2 = Handle2;
+    pThis    = This ? This : Nest[lCallLevel].pThis;
+    pValueLst    = ValueLst;
+    pValueLstMem = NULL;
+    CHKSTUFF1(this);
+    DoLong();
+    if (pDesc)
+      Description(pDesc);
+    }
+  else
+    Nest[lCallLevel].fItemReqd = False;
+  };
+
+//---------------------------------------------------------------------------
+
+INLINE void DataDefnBlk::Long(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt,
+                              long Handle, long Handle2, pTaggedObject This, DDEF_Flags Flags, 
+                              DDBValueLstMem * ValueLstMem, LPCTSTR pDesc)
+  {
+  CHKSTUFF0();
+  iType  = tt_Long;
+  iFlags = Nest[lCallLevel].dwDefaultFlags|Flags;
+  pTag   = Tag;
+  pSym   = Sym;
+  if (((eTask&(DDBTask_FndData|DDBTask_GetData)) && GetReqdItem()) ||
+      (eTask==DDBTask_PutData && PutReqdItem()))
+    {
+    Nest[lCallLevel].fItemReqd = True;
+    iCnv     = (Cnv);
+    pCnvTxt  = CnvTxt;
+    pCnvFam  = NULL;
+    pData    = NULL;
+    lHandle  = Handle;
+    lHandle2 = Handle2;
     pThis    = This ? This : Nest[lCallLevel].pThis;
     pValueLst    = ValueLstMem->List();
     pValueLstMem = ValueLstMem;

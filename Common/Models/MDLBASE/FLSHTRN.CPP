@@ -854,10 +854,13 @@ void CMMFlashTrain::TearInputs2Outputs()
 
 //--------------------------------------------------------------------------
     
-char * CMMFlashTrain::TearGetTag(Strng & RootTag) 
+char * CMMFlashTrain::TearGetTag() 
   { 
-  RootTag.Set("%s#", Tag());
-  return RootTag(); 
+  //if (/*0 &&*/ m_pVarBlk)
+  //  m_sTearTag = m_pVarBlk->Tag();
+  //else
+  m_sTearTag.Set("%s#", Tag());
+  return m_sTearTag(); 
   };
 
 //--------------------------------------------------------------------------

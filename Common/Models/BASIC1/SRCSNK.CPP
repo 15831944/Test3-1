@@ -347,7 +347,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   if (1)
     {
     DDB.Text  ("");
-    DDB.Text  ("________________________________________");
+    DDB.Text  (StdSepUnderbar);
     //DDB.Page   ("XPg", DDB_OptPage);
     }
   else

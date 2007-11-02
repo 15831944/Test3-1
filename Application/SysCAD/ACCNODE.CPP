@@ -2938,28 +2938,49 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
           if (d.fHasCheck)
             {
-#if CHECKBOXESRIGHT
+#if CHECKBOXESRIGHT 
             int DWidth = NamW-TagComLen+WdtAdj;
             int VWidth = VW-WdtAdj;
 #else
             int DWidth = NamW-TagComLen;
             int VWidth = 2;
 #endif
-            FxdEdtFld* pFld=SetDesc(LnNo,NameBuff(), -(Id_FldParms+fi), DWidth, 3, TagComStr());
-            pFld->m_fUnderLine=true;
-#if WITHEQUIPSPECS
-            //pFld->m_fRmtData = (d.m_ValStatus&CTOSelectData::VS_Set)!=0;
-            //pFld->m_fRmtChgd = (d.m_ValStatus&CTOSelectData::VS_Changed)!=0;
-#endif
-
-            if (d.sFullTag())
-              SetTag(d.sFullTag());
-            SetMarkerFlags(d.m_Markers);
-
-            if (d.fHasButton)
-              f.ValFld=SetCheckBoxBtn(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+            if (DoingGrid)
+              {
+              if (d.m_iGridCol==0)
+                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,"");
+              }
             else
-              f.ValFld=SetCheckBox(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+              {
+              FxdEdtFld* pFld=SetDesc(LnNo,NameBuff(), -(Id_FldParms+fi), DWidth, 3, TagComStr());
+              pFld->m_fUnderLine=true;
+  #if WITHEQUIPSPECS
+              //pFld->m_fRmtData = (d.m_ValStatus&CTOSelectData::VS_Set)!=0;
+              //pFld->m_fRmtChgd = (d.m_ValStatus&CTOSelectData::VS_Changed)!=0;
+  #endif
+
+              if (d.sFullTag())
+                SetTag(d.sFullTag());
+              SetMarkerFlags(d.m_Markers);
+              }
+
+            if (DoingGrid)
+              {
+              int FldW = ColHdrs[d.m_iGridCol+1].m_Width;
+              Strng Sep;
+              Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[d.m_iGridCol+1].m_Gap+Max(0, FldW-VWidth));
+              if (d.fHasButton)
+                f.ValFld=SetCheckBoxBtn(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+              else
+                f.ValFld=SetCheckBox(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+              }
+            else
+              {
+              if (d.fHasButton)
+                f.ValFld=SetCheckBoxBtn(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+              else
+                f.ValFld=SetCheckBox(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+              }
             }
           else if (d.fHasButton)
             {

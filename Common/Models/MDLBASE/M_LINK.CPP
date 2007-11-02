@@ -656,8 +656,8 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   {
   AttachClassInfo(nc_MLnk,NULL);
 
-  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show);
-  InitAssocGrfShowDyn(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show);
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show, eAGS_Show);
+  InitAssocGrfShowDyn(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show, eAGS_Show);
 
   m_RiseRqd=dNAN;
   m_DatumChg=dNAN;
@@ -1234,6 +1234,23 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
         DCB.B=Max(IOFlange(iT)->TearType(), IOFlange(1)->TearType());
       else
         DCB.B=TT_NoTear;
+      return 1;
+      }
+    case xidTearFlangeTag:
+      {
+      //if (IOFlange(0)->TearType()>TT_NoTear)
+      if (NoIOs()>=1)      
+        DCB.pC=IOFlange(0)->Tag();
+      else
+        DCB.pC="";
+      return 1;
+      }
+    case xidTearBlockTag:
+      {
+      if (IOFlange(0)->TearType()>TT_NoTear)
+        DCB.pC=IOFlange(0)->TearGetTag();
+      else
+        DCB.pC="";
       return 1;
       }
     case xidTearPriority:
@@ -1918,6 +1935,11 @@ void MN_Lnk::GlobalConnect()
 #if WITHLINKBLEED 
   m_Bleed.SysEnable = m_Evap.Enabled();
 #endif
+
+  
+  //if (m_Simple)// && OK)
+  //  RedirectIO(0, 1);
+
   MdlNode::GlobalConnect();
   }
 
@@ -3552,6 +3574,42 @@ void MN_Lnk::EvalMsAGDatas()
 //--------------------------------------------------------------------------
 
 #endif
+
+//--------------------------------------------------------------------------
+
+int MN_Lnk::UpdateAssocGrfs(int & Count) 
+  { 
+  int Chgs=0;
+
+  if (!IOFlange(0)->IsTear())
+    return Chgs; 
+  
+  if (m_AssocGrf.m_Items.GetCount()<Count+1)
+    m_AssocGrf.m_Items.SetSize(Count+1);
+
+  CMdlAssocGrfItem &I=m_AssocGrf.m_Items[Count++];
+
+  if (I.m_sTag != IOFlange(0)->Tag())
+    Chgs++;
+
+  eAssocGrfTypes Type = eAG_Tear;// AGTypeFromDIOType(D.Type);
+  if (I.m_eAGType != Type)
+    Chgs++;
+
+  //IOFlange(0)->UseStatus();
+
+  //CConnect *pC  = IOFLange dynamic_cast<CConnect*>(&D.Flange);
+
+  bool Show = AssocGrfOn(Type, CUseMsk_InUse);//pC->UseStatus());
+  if (I.m_bShowIt != Show)
+    Chgs++;
+
+  I.m_sTag   = IOFlange(0)->Tag();
+  I.m_eAGType = Type;
+  I.m_bShowIt = Show;
+  
+  return Chgs;
+  };
 
 //--------------------------------------------------------------------------
 

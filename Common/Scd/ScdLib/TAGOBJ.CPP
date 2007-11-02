@@ -3394,7 +3394,6 @@ void TaggedObject::BuildCommonEndDefn(DataDefnBlk &DDB)
   {
   if (!DDB.ForFileSnpScn())
     {  
-    DDB.Page("Node", DDB_RqdPage);
     BuildCommonSEDefn(DDB);
     }
   };

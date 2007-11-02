@@ -49,13 +49,13 @@ static const int Ids[] =
   IDC_CLASS_SHOW2,
   IDC_CLASS_SHOW3,
   IDC_CLASS_SHOW4,
-  //IDC_CLASS_SHOW5,
+  IDC_CLASS_SHOW5,
   IDC_TAG_SHOW0,
   IDC_TAG_SHOW1,
   IDC_TAG_SHOW2,
   IDC_TAG_SHOW3,
   IDC_TAG_SHOW4,
-  //IDC_TAG_SHOW5,
+  IDC_TAG_SHOW5,
   -1,
   };
 
@@ -91,14 +91,16 @@ BOOL CAssocGrfTag::OnInitDialog()
     ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW2))->SetCurSel(Msk.m_ShowClass[eAG_Spill]-1);
     ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW3))->SetCurSel(Msk.m_ShowClass[eAG_Vent]-1);
     ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW4))->SetCurSel(Msk.m_ShowClass[eAG_Leak]-1);
-    //((CComboBox *)GetDlgItem(IDC_CLASS_SHOW5))->SetCurSel(Msk.m_ShowClass[eAG_RB]-1);
+    ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW5))->SetCurSel(Msk.m_ShowClass[eAG_Tear]-1);
+    //((CComboBox *)GetDlgItem(IDC_CLASS_SHOW6))->SetCurSel(Msk.m_ShowClass[eAG_RB]-1);
 
     ((CComboBox *)GetDlgItem(IDC_TAG_SHOW0))->SetCurSel(Msk.m_ShowNode[eAG_Makeup]);
     ((CComboBox *)GetDlgItem(IDC_TAG_SHOW1))->SetCurSel(Msk.m_ShowNode[eAG_Bleed]);
     ((CComboBox *)GetDlgItem(IDC_TAG_SHOW2))->SetCurSel(Msk.m_ShowNode[eAG_Spill]);
     ((CComboBox *)GetDlgItem(IDC_TAG_SHOW3))->SetCurSel(Msk.m_ShowNode[eAG_Vent]);
     ((CComboBox *)GetDlgItem(IDC_TAG_SHOW4))->SetCurSel(Msk.m_ShowNode[eAG_Leak]);
-    //((CComboBox *)GetDlgItem(IDC_TAG_SHOW5))->SetCurSel(Msk.m_ShowNode[eAG_RB]);
+    ((CComboBox *)GetDlgItem(IDC_TAG_SHOW5))->SetCurSel(Msk.m_ShowNode[eAG_Tear]);
+    //((CComboBox *)GetDlgItem(IDC_TAG_SHOW6))->SetCurSel(Msk.m_ShowNode[eAG_RB]);
     }
 
   ShowWindow(SW_SHOW);
@@ -128,14 +130,16 @@ void CAssocGrfTag::OnBnClickedApply()
   Msk.m_ShowClass[eAG_Spill ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW2))->GetCurSel()+1;
   Msk.m_ShowClass[eAG_Vent  ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW3))->GetCurSel()+1;
   Msk.m_ShowClass[eAG_Leak  ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW4))->GetCurSel()+1;
-  //Msk.m_ShowClass[eAG_RB    ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW5))->GetCurSel()+1;
+  Msk.m_ShowClass[eAG_Tear  ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW5))->GetCurSel()+1;
+  //Msk.m_ShowClass[eAG_RB    ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW6))->GetCurSel()+1;
 
   Msk.m_ShowNode[eAG_Makeup] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW0))->GetCurSel();
   Msk.m_ShowNode[eAG_Bleed ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW1))->GetCurSel();
   Msk.m_ShowNode[eAG_Spill ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW2))->GetCurSel();
   Msk.m_ShowNode[eAG_Vent  ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW3))->GetCurSel();
   Msk.m_ShowNode[eAG_Leak  ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW4))->GetCurSel();
-  //Msk.m_ShowNode[eAG_RB    ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW5))->GetCurSel();
+  Msk.m_ShowNode[eAG_Tear  ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW5))->GetCurSel();
+  //Msk.m_ShowNode[eAG_RB    ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW6))->GetCurSel();
 
   CModelAssocGrfMasks Msks;
   Msks.AddTail(Msk);

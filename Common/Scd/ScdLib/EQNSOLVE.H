@@ -158,22 +158,6 @@ class DllImportExport TearPosBlk //: public TaggedObject
   {
   friend class EqnSolverBlk;
 
-  protected:
-    POSITION ListPos;
-  public:
-    byte           m_iRqdTearType,
-                   m_iTearType,     // Tear Type
-                   m_iTearPriority, // Tear Priority
-                   m_iTearInitWhen, // Initialise Time
-                   m_iTearInitHow,  // Initialise How to Init (Zero,Hold,Ramp)
-                   m_iTearInitEstUsage;  // Initialise Estimate usage
-    int            m_iTearHoldRqdCnt,
-                   m_iTearHoldCount;
-
-    TearVarBlk    *m_pVarBlk;
-
-  protected:
-
   public:
 
     static TearPosBlkList List;
@@ -214,18 +198,32 @@ class DllImportExport TearPosBlk //: public TaggedObject
     void           BumpTearInitCounters();
     double         EstimatePortion();
 
-    virtual byte   TearVarType() { return TVT_None; };
-    virtual void   TearInitialiseOutputs(double EstimatePortion) {};
-    virtual void   TearInputs2Outputs() {};
-    virtual char * TearGetTag(Strng & RootTag) { return NULL; };
-    virtual int    TearGetConvergeInfo(TearVarArray & TV) { return 0; };
-    virtual void   TearGetErrors(TearVarArray & TV) { };
-    virtual void   TearGetInputs(TearVarArray & TV) { };
-    virtual void   TearGetOutputs(TearVarArray & TV) { };
-    virtual void   TearSetOutputs(TearVarArray & TV) { };
+    virtual byte   TearVarType()                                  { return TVT_None; };
+    virtual void   TearInitialiseOutputs(double EstimatePortion)  {};
+    virtual void   TearInputs2Outputs()                           {};
+    virtual char * TearGetTag()                                   { m_sTearTag=""; return NULL; };
+    virtual int    TearGetConvergeInfo(TearVarArray & TV)         { return 0; };
+    virtual void   TearGetErrors(TearVarArray & TV)               { };
+    virtual void   TearGetInputs(TearVarArray & TV)               { };
+    virtual void   TearGetOutputs(TearVarArray & TV)              { };
+    virtual void   TearSetOutputs(TearVarArray & TV)              { };
     virtual flag   TearAdvance(TearVarArray & TV, EqnSlvCtrlBlk & EqnCB) { return 0; };
 
   protected:
+    POSITION ListPos;
+
+  public:
+    byte           m_iRqdTearType,
+                   m_iTearType,     // Tear Type
+                   m_iTearPriority, // Tear Priority
+                   m_iTearInitWhen, // Initialise Time
+                   m_iTearInitHow,  // Initialise How to Init (Zero,Hold,Ramp)
+                   m_iTearInitEstUsage;  // Initialise Estimate usage
+    int            m_iTearHoldRqdCnt,
+                   m_iTearHoldCount;
+
+    TearVarBlk    *m_pVarBlk;
+    Strng          m_sTearTag;
 
   };
 
@@ -251,6 +249,7 @@ const byte DAG_Last = 3;
 
 extern DllImportExport char * TearMethodStrings[];
 extern DllImportExport DDBValueLst DDBTearMethod[];
+extern DllImportExport DDBValueLst DDBTearMethodDef[];
 extern DllImportExport char * EPSStrategyStrings[];
 extern DllImportExport DDBValueLst DDBEPSStrategy[];
 
@@ -326,6 +325,7 @@ class DllImportExport TearVarBlk : public TaggedObject
 #endif
   friend class EqnSolverBlk;
   friend class TearObjectEdt;
+  friend class CFlange;
 
   protected:
     POSITION ListPos;
@@ -343,9 +343,9 @@ class DllImportExport TearVarBlk : public TaggedObject
     TearPosBlk    *pPosBlk;
     long           nVariables;
     long           nHistory;
-    double         m_dDampingRqd;
-    double         dEPS_Abs;
-    double         dEPS_Rel;
+    double         m_DampingRqd;
+    double         m_EPS_Abs;
+    double         m_EPS_Rel;
     flag           m_bHoldDamping;
 
     byte           iTearTagTyp;
@@ -354,7 +354,7 @@ class DllImportExport TearVarBlk : public TaggedObject
 
     double         GrpDampFactor;
     long           m_lStageCnt;
-    Strng          RootTag;
+    //Strng          RootTag;
 
     TearVarArray   TV;
 
@@ -412,11 +412,13 @@ class DllImportExport TearVarBlk : public TaggedObject
     bool           SetEPSStrategy(LPCTSTR Str)
       {
       for (int i=0; i<TCM_Last; i++)
+        {
         if (_stricmp(Str, EPSStrategyStrings[i])==0)
           {
           m_iEPSStrategy=i;
           return true;
           }
+        }
       return false;
       };
 
@@ -460,7 +462,7 @@ class DllImportExport TearVarBlk : public TaggedObject
 
     void           TearInitialiseOutputs(double EstimatePortion) { pPosBlk->TearInitialiseOutputs(EstimatePortion); };
     void           TearInputs2Outputs()       { pPosBlk->TearInputs2Outputs(); };
-    char *         TearGetTag(Strng & RootTag) { return pPosBlk->TearGetTag(RootTag); };
+    char *         TearGetTag()               { return pPosBlk->TearGetTag(); };
     int            TearGetConvergeInfo()      { return pPosBlk->TearGetConvergeInfo(TV); };
     void           TearGetErrors()            { pPosBlk->TearGetErrors(TV); };
     void           TearGetInputs()            { pPosBlk->TearGetInputs(TV); };
@@ -475,13 +477,24 @@ class DllImportExport TearVarBlk : public TaggedObject
     double         EPS_Rel(EqnSlvCtrlBlk & EqnCB, int iVar);
 
     byte           DampAsGroupCfg() { return m_iDampAsGroup; };
-    double         DampingRqdCfg() { return m_dDampingRqd; };
-    double         EPS_AbsCfg() { return dEPS_Abs; };
-    double         EPS_RelCfg() { return dEPS_Rel; };
+    double         DampingRqdCfg()  { return m_DampingRqd; };
+    double         EPS_AbsCfg()     { return m_EPS_Abs; };
+    double         EPS_RelCfg()     { return m_EPS_Rel; };
     void           SetDampAsGroupCfg(byte On) { m_iDampAsGroup=On; };
-    void           SetDampingRqdCfg(double Val) { m_dDampingRqd=Val; };
-    void           SetEPS_AbsCfg(double Val) { dEPS_Abs=Val; };
-    void           SetEPS_RelCfg(double Val) { dEPS_Rel=Val; };
+    void           SetDampAsGroupCfg(LPSTR Str)
+      {
+      for (int i=0; i<TCM_Last; i++)
+        {
+        if (_stricmp(Str, DampAsGroupStrings[i])==0)
+          {
+          m_iDampAsGroup=i;
+          return;
+          }
+        }
+      };
+    void           SetDampingRqdCfg(double Val) { m_DampingRqd=Val; };
+    void           SetEPS_AbsCfg(double Val)    { m_EPS_Abs=Val; };
+    void           SetEPS_RelCfg(double Val)    { m_EPS_Rel=Val; };
 
     void           SetHoldDamping(bool On)   { m_bHoldDamping=On; };
     flag           HoldDamping()             { return m_bHoldDamping; };

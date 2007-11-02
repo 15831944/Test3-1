@@ -37,7 +37,7 @@ extern "C"
 #define dbgBlk            0
 #define dbgexplode        0
 #define dbgLineExport     0
-#define dbgAssocGrf       0
+#define dbgAssocGrf       01
 #define dbgTagManagement  0
 
 
@@ -813,7 +813,12 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrf
         else //if (I.m_bShowIt)
           {
           //ASSERT_ALWAYS(stricmp(Tag, GI.m_pG->m_sNdTag)==0, "Tag Should match", __FILE__, __LINE__); 
-          GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
+          if (GI.m_pG->m_bIsLnk)
+            {
+            GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
+            }
+          else
+            GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
           WorkReqd= 1;
           }
         }
@@ -4259,10 +4264,21 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
             CMdlAssocGrfItem & I = G.m_Items[i];
             if (!I.m_bExists && I.m_bShowIt)
               {
-              PT3 pt;
-              pt[0] = GX.m_NdX;
-              pt[1] = GX.m_NdY;
-              pt[2] = 0.0;
+              PT3 pt;//, pte;
+              switch (I.m_eAGType)
+                {
+                case eAG_Tear:
+                  //_asm int 3;
+                  pt[0] = GX.m_NdX;
+                  pt[1] = GX.m_NdY;
+                  pt[2] = 0.0;
+                  break;
+                default:
+                  pt[0] = GX.m_NdX;
+                  pt[1] = GX.m_NdY;
+                  pt[2] = 0.0;
+                  break;
+                }
 
               DXF_ENTITY Ins = Add_AssocGrf(I.m_eAGType, pt, TypeCount[I.m_eAGType], (LPSTR)(LPCSTR)G.m_sNdTag, (LPSTR)(LPCSTR)I.m_sTag, (DXF_ENTITY)GX.m_Entity);
               pDsp->Draw(Ins, -1);
@@ -9051,6 +9067,39 @@ static CSym VentSym[] =
     {0, 0, 0,   {     8 ,     3 }, },
     {0, 0, 1,                      },
   };
+static CSym TearSymH[] =
+  {
+    {0, 1, 0,   {    -1 ,    2 }, },
+    {0, 0, 0,   {    -0 ,    1 }, },
+    {0, 0, 0,   {    -1 ,   -1 }, },
+    {0, 0, 0,   {    -0 ,   -2 }, },
+    {0, 1, 0,   {     0 ,    2 }, },
+    {0, 0, 0,   {     1 ,    1 }, },
+    {0, 0, 0,   {     0 ,   -1 }, },
+    {0, 0, 0,   {     1 ,   -2 }, },
+    {0, 0, 1,                     },
+  };
+static CSym TearSymV[] =
+  {
+    {0, 1, 0,   {     2 ,   -1 }, },
+    {0, 0, 0,   {     1 ,   -0 }, },
+    {0, 0, 0,   {    -1 ,   -1 }, },
+    {0, 0, 0,   {    -2 ,   -0 }, },
+    {0, 1, 0,   {     2 ,    0 }, },
+    {0, 0, 0,   {     1 ,    1 }, },
+    {0, 0, 0,   {    -1 ,    0 }, },
+    {0, 0, 0,   {    -2 ,    1 }, },
+    {0, 0, 1,                     },
+  };
+//static CSym TearSym[] =
+//  {
+//    {0, 1, 0,   {    -2 ,    0 }, },
+//    {0, 0, 0,   {     0 ,    2 }, },
+//    {0, 0, 0,   {     2 ,    0 }, },
+//    {0, 0, 0,   {     0 ,   -2 }, },
+//    {0, 0, 0,   {    -2 ,    0 }, },
+//    {0, 0, 1,                     },
+//  };
 
 DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount, LPCSTR NdTagStr, LPCSTR TagStr, DXF_ENTITY OwnerEntity)
   {
@@ -9107,6 +9156,25 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount,
         pSym=VentSym;
         AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1]+TypeCount*4, pt[2]);
         AssTagPos.Set(0.0, -2.0, 0.0);
+        AssTagPos = AssTagPos+ AssocGrfPos;                                          
+        break;
+        }
+      case eAG_Tear:
+        {
+        if (1)
+          {
+          BlockName="TEARH_ASSOCGRF";
+          pSym=TearSymH;
+          AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1], pt[2]);
+          }
+        else
+          {
+          BlockName="TEARV_ASSOCGRF";
+          pSym=TearSymV;
+          AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1], pt[2]);
+          }
+
+        AssTagPos.Set(0.0, 0.0, 0.0);
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;
         }

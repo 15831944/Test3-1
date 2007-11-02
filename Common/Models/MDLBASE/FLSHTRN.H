@@ -222,7 +222,7 @@ class DllImportExport CMMFlashTrain : public CMacroMdl, public TearPosBlk
 //    virtual flag   TearCnvTestReqd();
     virtual void   TearInitialiseOutputs(double EstimatePortion);
     virtual void   TearInputs2Outputs();
-    virtual char * TearGetTag(Strng & RootTag);
+    virtual char * TearGetTag();
     virtual void   TearGetInputs(TearVarArray & TV);
     virtual void   TearGetOutputs(TearVarArray & TV);
     virtual void   TearSetOutputs(TearVarArray & TV);

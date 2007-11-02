@@ -131,6 +131,13 @@ class CTraceList;
 class CNodeProcedures;
 class CNodeTagIOList;
 
+//============================================================================
+// ===========================================================================
+
+const LPSTR StdSepUnderbar = "________________________________________";
+const LPSTR StdSepDash     = "----------------------------------------";
+const LPSTR StdSepEquals   = "========================================";
+
 //===========================================================================
 //
 //
@@ -1636,9 +1643,35 @@ class DllImportExport CAirTermX : public CCtrlData, public CTerminal
 
 // =========================================================================
 
-XID xidFlangeTag     = MdlBsXID(5500);
-XID xidFlngSrcTag    = MdlBsXID(5501);
-XID xidFlngDstTag    = MdlBsXID(5502);
+XID xidFlangeTag             = MdlBsXID(5500);
+XID xidFlngSrcTag            = MdlBsXID(5501);
+XID xidFlngDstTag            = MdlBsXID(5502);
+
+XID xidGlblTearMeth           = MdlBsXID(5510);
+XID xidGlblTearMaxIters       = MdlBsXID(5511);
+XID xidGlblTearDampGroup      = MdlBsXID(5512);
+XID xidGlblTearDampReqd       = MdlBsXID(5513);
+XID xidGlblTearDampGrowth     = MdlBsXID(5514);
+XID xidGlblTearDampDecay      = MdlBsXID(5515);
+XID xidGlblTearWegDelay       = MdlBsXID(5516);
+XID xidGlblTearWegBound       = MdlBsXID(5517);
+XID xidGlblTearWegClamp       = MdlBsXID(5518);
+XID xidGlblTearTolStrat       = MdlBsXID(5519);
+XID xidGlblTearTolAbs         = MdlBsXID(5520);
+XID xidGlblTearTolRel         = MdlBsXID(5521);
+
+XID xidFlngTearMeth           = MdlBsXID(5530);
+XID xidFlngTearCnvIters       = MdlBsXID(5531);
+XID xidFlngTearNVar           = MdlBsXID(5532);
+XID xidFlngTearDampGrp        = MdlBsXID(5533);
+XID xidFlngTearDampReqd       = MdlBsXID(5534);
+XID xidFlngTearTolStrat       = MdlBsXID(5535);
+XID xidFlngTearTolAbs         = MdlBsXID(5536);
+XID xidFlngTearTolRel         = MdlBsXID(5537);
+XID xidFlngTearValues         = MdlBsXID(5550);
+XID xidFlngTearDamping        = MdlBsXID(5551);
+XID xidFlngTearBlock          = MdlBsXID(5552); // temporary
+XID xidFlngTearBlocks         = MdlBsXID(5553); // temporary
 
 const int MaxFlangeQs = 2;
 
@@ -1660,8 +1693,11 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     virtual ~CFlange();
 
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual void   BuildCommonSEDefn(DataDefnBlk &DDB) {}; // Hide 'Info Page' for flanges
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
+    void           BuildDataDefnTearError(DataDefnBlk & DDB);
+    void           BuildDataDefnTearDamp(DataDefnBlk & DDB);
 
     virtual LPSTR  Tag();
     virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
@@ -1681,7 +1717,7 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     //flag           TearCnvTestReqd();
     void           TearInitialiseOutputs(double EstimatePortion);
     void           TearInputs2Outputs();                                              
-    char *         TearGetTag(Strng & RootTag);                                       
+    char *         TearGetTag();                                       
     void           TearGetInputs(TearVarArray & TV);                                  
     void           TearGetOutputs(TearVarArray & TV);                                 
     void           TearSetOutputs(TearVarArray & TV);
@@ -1775,6 +1811,7 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     SpConduit*     pQIn;
     SpConduit*     pQMem;
 
+    bool           m_ShowFlws;
     SpImage*       m_pTearImg;
     byte           m_nHoldRqd;
     byte           m_nHoldCnt;
@@ -1796,6 +1833,8 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
 
     CAreaSum       m_Sum;
 
+    Strng          m_sTmp;
+    int            m_iNameWidth;
 
 #if DOPB_FILT_RESULTS
     int            nMSRqd;
@@ -1805,6 +1844,22 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
 
 typedef CSCDList <CFlange*, CFlange*> CFlangeList;
 typedef CSCDPtrListIter<CFlangeList, CFlange*> CFlangeIter;
+
+// ----------------------------------------------------------
+
+DEFINE_TAGOBJ(CDirectLink)
+class DllImportExport CDirectLink : public CFlange 
+  {
+  //DEFINE_MEMSTATS(CFlange)
+  //public:
+  //  CFlange(bool MustDelete=false);
+  //  virtual ~CFlange();
+
+
+  public:
+    CDirectLink(TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
+    virtual ~CDirectLink();
+  };
 
 // ----------------------------------------------------------
 
@@ -4376,7 +4431,9 @@ class DllImportExport FlwNode : public CTNode
     virtual void   UpdateMsSoln(SparseSolver & SS);
 #endif
 
-    virtual int    ModelAssocGrfs(CMdlAssocGrfArray & Grfs, int Index);
+    int            ModelAssocGrfs(CMdlAssocGrfArray & Grfs, int Index);
+    virtual int    UpdateAssocGrfs(int & Count) { return 0; };
+
     //virtual int    ModelAssocGrfsChgCnt();
 
     virtual dword  ModelStatus();
@@ -4688,6 +4745,8 @@ XID xidFlwNdRqdArea               = FlwXID(24);
 
 XID xidSrcIOTag                   = FlwXID(40);
 XID xidDstIOTag                   = FlwXID(41);
+XID xidSrcFlangeTag               = FlwXID(42);
+XID xidDstFlangeTag               = FlwXID(43);
 
 XID xidSetStateZeroFlows          = FlwXID(50);
 XID xidSetStateEmpty              = FlwXID(51);

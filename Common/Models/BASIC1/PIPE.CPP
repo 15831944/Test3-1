@@ -286,8 +286,10 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility();
   DDB.Text   ("Connections", Marker);
-  DDB.String ("Link_Source",      "SrcIO",   DC_,  "",     xidSrcIOTag,    this, isTag|noFile|noSnap);
-  DDB.String ("Link_Destination", "DstIO",   DC_,  "",     xidDstIOTag,    this, isTag|noFile|noSnap);
+  DDB.String ("Link_Source",      "SrcIO",       DC_,  "",     xidSrcIOTag,      this, isTag|noFile|noSnap);
+  DDB.String ("Link_Destination", "DstIO",       DC_,  "",     xidDstIOTag,      this, isTag|noFile|noSnap);
+  DDB.String ("",                 "SrcFlange",   DC_,  "",     xidSrcFlangeTag,  this, isTag|noFile|noSnap);
+  DDB.String ("",                 "DstFlange",   DC_,  "",     xidDstFlangeTag,  this, isTag|noFile|noSnap);
 
   DDB.Visibility(NSHM_All);
   //Strng Page;
@@ -296,7 +298,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   if (NetProbalMethod())
     {
     //DDB.Page("..", DDB_OptPage);
-    DDB.Text  ("________________________________________");
+    DDB.Text  (StdSepUnderbar);
     }
   else
     {
@@ -517,6 +519,8 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Byte        ("Priority",      "",   DC_,    "",       xidTearPriority,     this, isParm|SetOnChange, DDBTearPri);
     DDB.Byte        ("RqdType",       "",   DC_,    "",       xidTearType,         this, isParm|SetOnChange, DDBTearTypeRqd);
     DDB.Byte        ("State",         "",   DC_,    "",       xidTearState,        this, 0, DDBTearState);
+    DDB.String      ("TearFlange",    "",   DC_,    "",       xidTearFlangeTag,    this, 0|isTag);
+    DDB.String      ("TearBlock",     "",   DC_,    "",       xidTearBlockTag,     this, 0|isTag);
 
     bool TearVis=(NoFlwIOs()>1 && IOFlange(0)->RqdTearType()>=TT_ManualTear);
     DDB.Visibility(NSHM_All, TearVis);
@@ -873,13 +877,13 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   if ((NoFlwIOs() > 1) && IOFlange(0))
     {
-    if (IOConduitIn(0))
-      {
-      DDB.Visibility(NSHM_All);
-      IOConduitIn(0)->SetTag("QiI");
-      DDB.Object(IOConduitIn(0), this, "QiI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
-      DDB.Visibility(NSHM_All);
-      }
+    //if (IOConduitIn(0))
+    //  {
+    //  DDB.Visibility(NSHM_All);
+    //  IOConduitIn(0)->SetTag("QiI");
+    //  DDB.Object(IOConduitIn(0), this, "QiI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
+    //  DDB.Visibility(NSHM_All);
+    //  }
     IOConduit(0)->SetTag("Qi");
     DDB.Object(IOConduit(0), this, "Qi", Nd_Rmt(0)->FullObjTag(), DDB_RqdPage);
     }
@@ -907,13 +911,13 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     {
     IOConduit(1)->SetTag("Qo");
     DDB.Object(IOConduit(1), this, "Qo", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
-    if (IOConduitIn(1))
-      {
-      DDB.Visibility(NSHM_All);
-      IOConduitIn(1)->SetTag("QoI");
-      DDB.Object(IOConduitIn(1), this, "QoI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
-      DDB.Visibility(NSHM_All);
-      }
+    //if (IOConduitIn(1))
+    //  {
+    //  DDB.Visibility(NSHM_All);
+    //  IOConduitIn(1)->SetTag("QoI");
+    //  DDB.Object(IOConduitIn(1), this, "QoI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
+    //  DDB.Visibility(NSHM_All);
+    //  }
     }
 
   DDB.Visibility();

@@ -5856,7 +5856,7 @@ flag CProject::SaveAssocGrfsStatus(LPCSTR Path)
     if (pClass->AssocGrfShowInited())
       {
       CAssocGrfShowArray & A = pClass->AssocGrfShow();
-      Value.Format("%s,%i,%i,%i,%i,%i,%i", pClass->ClassIdNoVersion(), A[eAG_Spill], A[eAG_Vent], A[eAG_Leak], A[eAG_Makeup], A[eAG_Bleed], A[eAG_RB]);
+      Value.Format("%s,%i,%i,%i,%i,%i,%i", pClass->ClassIdNoVersion(), A[eAG_Spill], A[eAG_Vent], A[eAG_Leak], A[eAG_Makeup], A[eAG_Bleed], A[eAG_Tear]/*, A[eAG_RB]*/);
       Entry.Format("Cl%05i", nClasses++);
       PF.WrStr("Classes", Entry, Value);
       }
@@ -5873,7 +5873,7 @@ flag CProject::SaveAssocGrfsStatus(LPCSTR Path)
       {
       CModelAssocGrfMask & Msk = Msks.GetNext(Pos);
       CAssocGrfShowArray & A = Msk.m_ShowNode;
-      Value.Format("%s,%i,%i,%i,%i,%i,%i", Msk.m_Tag, A[eAG_Spill], A[eAG_Vent], A[eAG_Leak], A[eAG_Makeup], A[eAG_Bleed], A[eAG_RB]);
+      Value.Format("%s,%i,%i,%i,%i,%i,%i", Msk.m_Tag, A[eAG_Spill], A[eAG_Vent], A[eAG_Leak], A[eAG_Makeup], A[eAG_Bleed], A[eAG_Tear], A[eAG_RB]);
       Entry.Format("Tg%05i", nTags++);
       PF.WrStr("Tags", Entry, Value);
       }
@@ -5914,6 +5914,7 @@ flag CProject::LoadAssocGrfsStatus(LPCSTR Path)
           if (i<nToks)        A[eAG_Leak  ]  = SafeAtoI(C[i++], A[eAG_Leak  ]);
           if (i<nToks)        A[eAG_Makeup]  = SafeAtoI(C[i++], A[eAG_Makeup]);
           if (i<nToks)        A[eAG_Bleed ]  = SafeAtoI(C[i++], A[eAG_Bleed ]);
+          if (i<nToks)        A[eAG_Tear  ]  = SafeAtoI(C[i++], A[eAG_Tear  ]);
           if (i<nToks)        A[eAG_RB    ]  = SafeAtoI(C[i++], A[eAG_RB    ]);
 
           SetsDone=true;
@@ -5945,6 +5946,7 @@ flag CProject::LoadAssocGrfsStatus(LPCSTR Path)
         if (i<nToks)        A[eAG_Leak  ]  = SafeAtoI(C[i++], A[eAG_Leak  ]);
         if (i<nToks)        A[eAG_Makeup]  = SafeAtoI(C[i++], A[eAG_Makeup]);
         if (i<nToks)        A[eAG_Bleed ]  = SafeAtoI(C[i++], A[eAG_Bleed ]);
+        if (i<nToks)        A[eAG_Tear  ]  = SafeAtoI(C[i++], A[eAG_Tear  ]);
         if (i<nToks)        A[eAG_RB    ]  = SafeAtoI(C[i++], A[eAG_RB    ]);
 
         Msks.AddTail(Msk);

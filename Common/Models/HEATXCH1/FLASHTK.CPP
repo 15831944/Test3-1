@@ -235,6 +235,9 @@ m_FTF(this)
   dBPE=0.0;
   dWaterSatT=Std_T;
 
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show);
+  InitAssocGrfShowDyn(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show);
+
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(FlashTank), ioidFT_Vap, mmio_MODEL, &typeid(CFT_Flash));
   };
 
@@ -256,9 +259,21 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,   "kg/s",   &m_QmAcc,       this, isResult|0);
     DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,   "L/s",    &m_QvAcc,       this, isResult|0);
     }
-  DDB.Visibility();
 
+  DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
   DDB.Text    ("");
+  DDB.Text    ("Results");
+  DDB.String  ("VapourCalcs",   "",       DC_,     "",      xidFlashDesc,       this, isResult|noFileAtAll);
+  DDB.Double  ("TemperatureIn", "Ti",     DC_T,    "C",     &dTempIn,           this, isResult|noFile|noSnap);
+  DDB.Double  ("BoilPtElevIn",  "BPEIn",  DC_dT,   "C",     &dBPEIn,            this, isResult|noFile|noSnap);
+  DDB.Double  ("BoilPtElev",    "BPE",    DC_dT,   "C",     &dBPE,              this, isResult|noFile|noSnap);
+  DDB.Double  ("WaterSatT",     "",       DC_T,    "C",     &dWaterSatT,        this, isResult|noFile|noSnap|InitHidden);
+
+  m_FTF.BuildDataDefn(DDB);
+
+  DDB.Visibility();
+  DDB.Text    ("");
+  DDB.Text  (StdSepUnderbar);
   DDB.Text    ("Requirements");
   DDB.Bool    ("On_Line",      "",      DC_,     "",       &fOnLine,       this, isParmStopped, DDBYesNo);
   DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
@@ -285,17 +300,6 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   if (SolveBufferedMethod())
     m_EHX.Add_OnOff(DDB);
   m_VLE.Add_OnOff(DDB);
-
-  DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
-  DDB.Text    ("");
-  DDB.Text    ("Results");
-  DDB.String  ("VapourCalcs",   "",       DC_,     "",      xidFlashDesc,       this, isResult|noFileAtAll);
-  DDB.Double  ("TemperatureIn", "Ti",     DC_T,    "C",     &dTempIn,           this, isResult|noFile|noSnap);
-  DDB.Double  ("BoilPtElevIn",  "BPEIn",  DC_dT,   "C",     &dBPEIn,            this, isResult|noFile|noSnap);
-  DDB.Double  ("BoilPtElev",    "BPE",    DC_dT,   "C",     &dBPE,              this, isResult|noFile|noSnap);
-  DDB.Double  ("WaterSatT",     "",       DC_T,    "C",     &dWaterSatT,        this, isResult|noFile|noSnap|InitHidden);
-
-  m_FTF.BuildDataDefn(DDB);
 
   DDB.Visibility(SM_Buffered|HM_All);
   //  DDB.CheckBoxBtn("Closed",    "",      DC_     , "",      xidClosed,      this, isParm, DDBYesNo);
