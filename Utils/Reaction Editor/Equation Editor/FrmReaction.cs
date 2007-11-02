@@ -26,9 +26,11 @@ namespace Reaction_Editor
         protected static Regex s_CommentRemovingRegex = new Regex(@"^(?<Active>[^;]*)(;(?<Comment>.*))?",
             RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Compiled);
 
-        protected static Regex s_OpeningCommentRegex = new Regex(@"^\s*(?>;(?<Comment>[^\r\n]*)\s*)*",
+        protected static Regex s_GenericOpeningCommentRegex = new Regex(@"^\s*(?>;(?<Comment>[^\r\n]*)\s*)*",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled); //If the first match is non-zero, discard.
-
+        protected static Regex s_OpeningCommentRegex = new Regex(@"^\s*(?>;(?<Comment>[^\r\n]*)\r*\n)*",
+            RegexOptions.ExplicitCapture | RegexOptions.Compiled); //If the first match is non-zero, discard.
+        
         protected static Regex s_RxnBlockStartRegex = new Regex(@"(^|\r*\n\s*)Reactions\s*:",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -918,6 +920,8 @@ namespace Reaction_Editor
                 //General comments:
                 StringBuilder openingCommentsSB = new StringBuilder();
                 Match commentsMatch = s_OpeningCommentRegex.Match(contents);
+                if (savedVersion < MinVersion)
+                    commentsMatch = s_GenericOpeningCommentRegex.Match(contents);
                 if (commentsMatch.Success)
                 {
                     Group g = commentsMatch.Groups["Comment"];

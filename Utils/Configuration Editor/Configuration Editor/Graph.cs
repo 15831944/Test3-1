@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Text.RegularExpressions;
 
 namespace Configuration_Editor
 {
@@ -115,6 +116,7 @@ namespace Configuration_Editor
         {
             if (RedrawRequired != null)
                 RedrawRequired(sender, e);
+            RecalculateMinMax();
         }
     }
 
@@ -137,6 +139,11 @@ namespace Configuration_Editor
         #endregion Variables
 
         #region Properties
+        public System.Collections.ObjectModel.ReadOnlyCollection<GraphSeries> Series
+        {
+            get { return m_Datasets.AsReadOnly(); }
+        }
+
         public int Border
         {
             get { return m_nBorder; }
@@ -496,4 +503,231 @@ namespace Configuration_Editor
             base.OnPaint(e);
         }
     }
+
+    public class EquationGraphSeries : GraphSeries
+    {
+        protected EquationFragment m_Frag;
+        protected string m_GraphVariable;
+
+        public string GraphVariable
+        {
+            get { return m_GraphVariable; }
+            set
+            {
+                m_GraphVariable = value;
+                FireRedrawRequired(this, new EventArgs());
+                RecalculateMinMax();
+            }
+        }
+
+        public override double Granularity
+        {
+            get { return 0; }
+        }
+
+        public override float ValueAt(double x)
+        {
+            if (!string.IsNullOrEmpty(m_GraphVariable))
+                m_Frag.VariableValues[m_GraphVariable] = x;
+            return (float)m_Frag.Value();
+        }
+
+        public override bool ValidAt(double x)
+        {
+            return true; //Currently Fragments cannot contain a function that is not valid everywhere.
+        }
+
+        public EquationFragment Frag
+        {
+            get { return m_Frag; }
+            set
+            {
+                m_Frag = value;
+                FireRedrawRequired(this, new EventArgs());
+                RecalculateMinMax();
+            }
+        }
+
+        public void SetVariable(string varName, double val)
+        {
+            m_Frag.VariableValues[varName] = val;
+            FireRedrawRequired(this, new EventArgs());
+        }
+
+        public EquationGraphSeries(EquationFragment frag, string VariableName, double _MinX, double _MaxX)
+        {
+            m_Frag = frag;
+            MinX = _MinX;
+            MaxX = _MaxX;
+            m_GraphVariable = VariableName;
+        }
+
+        public EquationGraphSeries(EquationFragment frag, string VariableName)
+        {
+            m_Frag = frag;
+            m_GraphVariable = VariableName;
+        }
+    }
+
+    public class PolyEquationSeries : GraphSeries
+    {
+        protected List<double> m_Coefficients = new List<double>();
+
+        #region Graph Functions
+        public override double Granularity
+        {
+            get { return 0; }
+        }
+
+
+
+        public override float ValueAt(double x)
+        {
+            double val = 1;
+            double ret = 0;
+            foreach (double coeff in m_Coefficients)
+            {
+                ret += val * coeff;
+                val *= x;
+            }
+            return (float)ret;
+        }
+
+        public override bool ValidAt(double x)
+        {
+            return m_Coefficients.Count > 0;
+        }
+        #endregion Graph Functions
+
+        public PolyEquationSeries(string s)
+        {
+            SetString(s);
+        }
+
+        public PolyEquationSeries(string s, double minX, double maxX)
+        {
+            SetString(s);
+            m_dMinX = minX;
+            m_dMaxX = maxX;
+            RecalculateMinMax();
+        }
+
+        public int ScanResolution
+        {
+            get { return m_nScanResolution; }
+            set
+            {
+                if (value < 2) value = 2;
+                m_nScanResolution = value;
+                RecalculateMinMax();
+            }
+        }
+
+        static Regex numberGetter = new Regex(@"(\+|-)?(\d+(\.\d+)?|\.\d+)(e(\+|-)?\d+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public void SetString(string s)
+        {
+            m_Coefficients.Clear();
+            for (Match m = numberGetter.Match(s); m.Success; m = m.NextMatch())
+                try
+                {
+                    m_Coefficients.Add(double.Parse(m.Value));
+                }
+                catch { } //for out of range problems.
+            RecalculateMinMax();
+        }
+
+
+    }
+
+    public class MultiEquationDataset : GraphSeries
+    {
+        protected List<GraphSeries> m_DataSets = new List<GraphSeries>();
+        protected GraphSeries m_BackupSeries;
+
+        public System.Collections.ObjectModel.ReadOnlyCollection<GraphSeries> SubSeries
+        {
+            get
+            {
+                List<GraphSeries> ret = new List<GraphSeries>(m_DataSets);
+                if (m_BackupSeries != null)
+                    ret.Add(m_BackupSeries);
+                return ret.AsReadOnly();
+            }
+        }
+
+        public GraphSeries BackupSeries
+        {
+            get { return m_BackupSeries; }
+            set
+            {
+                m_BackupSeries = value;
+                m_BackupSeries.MinX = MinX;
+                m_BackupSeries.MaxX = MaxX;
+                m_BackupSeries.RedrawRequired += new EventHandler(series_RedrawRequired);
+                RecalculateMinMax();
+                FireRedrawRequired(this, new EventArgs());
+            }
+        }
+
+        public void AddSeries(GraphSeries series)
+        {
+            m_DataSets.Add(series);
+            series.RedrawRequired += new EventHandler(series_RedrawRequired);
+            RecalculateMinMax();
+            FireRedrawRequired(this, new EventArgs());
+        }
+
+        public void RemoveSeries(GraphSeries series)
+        {
+            m_DataSets.Remove(series);
+            series.RedrawRequired -= new EventHandler(series_RedrawRequired);
+            FireRedrawRequired(this, new EventArgs());
+        }
+
+        public void ClearSeries()
+        {
+            m_DataSets.Clear();
+            m_BackupSeries = null;
+            this.m_fMin = this.m_fMax = float.NaN;
+            FireRedrawRequired(this, new EventArgs());
+        }
+
+        public GraphSeries GetSeries(int i) { return m_DataSets[i]; }
+
+        void series_RedrawRequired(object sender, EventArgs e)
+        {
+            FireRedrawRequired(this, e);
+        }
+
+        #region IDataSet Members
+        public override double Granularity
+        {
+            get
+            {
+                double minVal = m_BackupSeries != null ? m_BackupSeries.Granularity : double.PositiveInfinity;
+                foreach (GraphSeries d in m_DataSets)
+                    if (d.Granularity < minVal)
+                        minVal = d.Granularity;
+                return minVal;
+            }
+        }
+
+        public override float ValueAt(double x)
+        {
+            foreach (GraphSeries gs in m_DataSets)
+                if (gs.MinX < x && gs.MaxX > x && gs.ValidAt(x))
+                    return gs.ValueAt(x);
+            return m_BackupSeries != null ? m_BackupSeries.ValueAt(x) : float.NaN;
+        }
+
+        public override bool ValidAt(double x)
+        {
+            foreach (GraphSeries gs in m_DataSets)
+                if (gs.MinX < x && gs.MaxX > x && gs.ValidAt(x))
+                    return true;
+            return m_BackupSeries != null && m_BackupSeries.ValidAt(x);
+        }
+        #endregion
+    }
+
 }

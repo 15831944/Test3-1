@@ -171,12 +171,12 @@ namespace Configuration_Editor
             this.label27 = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
             this.grpNomenclature = new System.Windows.Forms.GroupBox();
+            this.comboPhase = new System.Windows.Forms.ComboBox();
             this.label25 = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
             this.label30 = new System.Windows.Forms.Label();
             this.txtSymbol = new System.Windows.Forms.TextBox();
             this.label31 = new System.Windows.Forms.Label();
-            this.txtPhase = new System.Windows.Forms.TextBox();
             this.label32 = new System.Windows.Forms.Label();
             this.tabMisc = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -240,6 +240,7 @@ namespace Configuration_Editor
             this.dlgOpenDB = new System.Windows.Forms.OpenFileDialog();
             this.dlgOpenConfig = new System.Windows.Forms.OpenFileDialog();
             this.dlgSaveConfig = new System.Windows.Forms.SaveFileDialog();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.menuMain.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabSpecies.SuspendLayout();
@@ -298,6 +299,7 @@ namespace Configuration_Editor
             this.pnlModelOptions.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.pnlReqSpecieOptions.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // ssMain
@@ -1738,6 +1740,8 @@ namespace Configuration_Editor
             this.txtElementalComposition.Name = "txtElementalComposition";
             this.txtElementalComposition.Size = new System.Drawing.Size(130, 20);
             this.txtElementalComposition.TabIndex = 9;
+            this.txtElementalComposition.Validated += new System.EventHandler(this.txtElementalComposition_Validated);
+            this.txtElementalComposition.Validating += new System.ComponentModel.CancelEventHandler(this.txtElementalComposition_Validating);
             // 
             // label29
             // 
@@ -1768,12 +1772,12 @@ namespace Configuration_Editor
             // 
             // grpNomenclature
             // 
+            this.grpNomenclature.Controls.Add(this.comboPhase);
             this.grpNomenclature.Controls.Add(this.label25);
             this.grpNomenclature.Controls.Add(this.txtName);
             this.grpNomenclature.Controls.Add(this.label30);
             this.grpNomenclature.Controls.Add(this.txtSymbol);
             this.grpNomenclature.Controls.Add(this.label31);
-            this.grpNomenclature.Controls.Add(this.txtPhase);
             this.grpNomenclature.Controls.Add(this.label32);
             this.grpNomenclature.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpNomenclature.Location = new System.Drawing.Point(3, 3);
@@ -1782,6 +1786,17 @@ namespace Configuration_Editor
             this.grpNomenclature.TabIndex = 13;
             this.grpNomenclature.TabStop = false;
             this.grpNomenclature.Text = "Nomenclature";
+            // 
+            // comboPhase
+            // 
+            this.comboPhase.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.comboPhase.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.comboPhase.FormattingEnabled = true;
+            this.comboPhase.Location = new System.Drawing.Point(436, 19);
+            this.comboPhase.Name = "comboPhase";
+            this.comboPhase.Size = new System.Drawing.Size(65, 21);
+            this.comboPhase.TabIndex = 13;
+            this.comboPhase.Validated += new System.EventHandler(this.txtSymbol_Validated);
             // 
             // label25
             // 
@@ -1798,6 +1813,8 @@ namespace Configuration_Editor
             this.txtName.Name = "txtName";
             this.txtName.Size = new System.Drawing.Size(100, 20);
             this.txtName.TabIndex = 12;
+            this.txtName.Validated += new System.EventHandler(this.txtName_Validated);
+            this.txtName.Validating += new System.ComponentModel.CancelEventHandler(this.txtName_Validating);
             // 
             // label30
             // 
@@ -1810,31 +1827,26 @@ namespace Configuration_Editor
             // 
             // txtSymbol
             // 
-            this.txtSymbol.Location = new System.Drawing.Point(340, 19);
+            this.txtSymbol.Location = new System.Drawing.Point(314, 19);
             this.txtSymbol.Name = "txtSymbol";
             this.txtSymbol.Size = new System.Drawing.Size(100, 20);
             this.txtSymbol.TabIndex = 11;
+            this.txtSymbol.Validated += new System.EventHandler(this.txtSymbol_Validated);
+            this.txtSymbol.Validating += new System.ComponentModel.CancelEventHandler(this.txtSymbol_Validating);
             // 
             // label31
             // 
             this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(446, 22);
+            this.label31.Location = new System.Drawing.Point(420, 22);
             this.label31.Name = "label31";
             this.label31.Size = new System.Drawing.Size(10, 13);
             this.label31.TabIndex = 5;
             this.label31.Text = "(";
             // 
-            // txtPhase
-            // 
-            this.txtPhase.Location = new System.Drawing.Point(462, 19);
-            this.txtPhase.Name = "txtPhase";
-            this.txtPhase.Size = new System.Drawing.Size(39, 20);
-            this.txtPhase.TabIndex = 10;
-            // 
             // label32
             // 
             this.label32.AutoSize = true;
-            this.label32.Location = new System.Drawing.Point(293, 22);
+            this.label32.Location = new System.Drawing.Point(267, 22);
             this.label32.Name = "label32";
             this.label32.Size = new System.Drawing.Size(41, 13);
             this.label32.TabIndex = 6;
@@ -2522,6 +2534,10 @@ namespace Configuration_Editor
             this.dlgSaveConfig.Title = "Save As";
             this.dlgSaveConfig.FileOk += new System.ComponentModel.CancelEventHandler(this.dlgOpenDB_FileOk);
             // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2610,6 +2626,7 @@ namespace Configuration_Editor
             this.groupBox3.ResumeLayout(false);
             this.pnlReqSpecieOptions.ResumeLayout(false);
             this.pnlReqSpecieOptions.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2756,7 +2773,6 @@ namespace Configuration_Editor
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.TextBox txtName;
         private System.Windows.Forms.TextBox txtSymbol;
-        private System.Windows.Forms.TextBox txtPhase;
         private System.Windows.Forms.TextBox txtElementalComposition;
         private System.Windows.Forms.TextBox txtMinTemperature;
         private System.Windows.Forms.TextBox txtMaxTemperature;
@@ -2827,6 +2843,8 @@ namespace Configuration_Editor
         private System.Windows.Forms.ToolStripMenuItem aboutSysCADConfigurationEditorToolStripMenuItem;
         private System.Windows.Forms.TextBox txtPhaseChange;
         private System.Windows.Forms.Label label48;
+        private System.Windows.Forms.ComboBox comboPhase;
+        private System.Windows.Forms.ErrorProvider errorProvider1;
     }
 }
 

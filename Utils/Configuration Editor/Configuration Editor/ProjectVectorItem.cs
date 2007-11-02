@@ -70,7 +70,16 @@ namespace Configuration_Editor
         #endregion Properties
 
         #region Protected Functions
-        protected virtual void UpdateLVI()
+        
+        #endregion Protected Functions
+
+        #region Public Functions
+        public override string ToString()
+        {
+            return Name;
+        }
+
+        public virtual void UpdateLVI()
         {
             if (m_LVI != null)
             {
@@ -78,13 +87,6 @@ namespace Configuration_Editor
 
                 m_LVI.ForeColor = m_bValid ? SystemColors.WindowText : Color.Red;
             }
-        }
-        #endregion Protected Functions
-
-        #region Public Functions
-        public override string ToString()
-        {
-            return Name;
         }
 
         public abstract string ToSaveString();
@@ -204,24 +206,25 @@ namespace Configuration_Editor
         {
             get
             {
-                return m_sSymbol;
+                return Symbol;
             }
             set
             {
             }
         }
 
-        protected override void UpdateLVI()
+        public override void UpdateLVI()
         {
-            m_LVI.SubItems[0].Text = m_sSymbol;
             if (m_DataRow != null)
             {
+                m_LVI.SubItems[0].Text = (string)m_DataRow["Compound"];
                 m_LVI.SubItems[1].Text = ((float)m_DataRow["Ts"] - m_dExtrapBelowT).ToString();
                 m_LVI.SubItems[2].Text = ((float)m_DataRow["Te"] + m_dExtrapAboveT).ToString();
                 m_LVI.ForeColor = SystemColors.WindowText;
             }
             else
             {
+                m_LVI.SubItems[0].Text = m_sSymbol;
                 m_LVI.SubItems[1].Text = m_LVI.SubItems[2].Text = "*";
                 m_LVI.ForeColor = Color.Red;
             }
@@ -302,7 +305,10 @@ namespace Configuration_Editor
         {
             get
             {
-                return m_sSymbol;
+                if (m_DataRow != null)
+                    return (string)m_DataRow["Symbol"];
+                else
+                    return m_sSymbol;
             }
         }
 

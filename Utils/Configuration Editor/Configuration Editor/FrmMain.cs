@@ -42,6 +42,15 @@ namespace Configuration_Editor
             "Dissociation",
             "Reference"};
 
+        #region Regex's
+        //Allowed characters: Alphanumerics, _.*+-[]/
+        protected static Regex s_AcceptableNameRegex = new Regex(@"^[A-Za-z][\w\[\]\.*+\-_/() ]*$", RegexOptions.Compiled);
+        protected static Regex s_AcceptableSymbRegex = new Regex(        @"^[\w\[\]\.*+\-_/]*$", RegexOptions.Compiled);
+        protected static Regex s_DefinitionRegex = new Regex(@"^
+             (((?<Symb>[A-Za-z]+)(?<Count>([0-9]+(/[0-9]+|\.[0-9]+)?)?)) |
+             ((?<CustomSymb>[A-Za-z]+)\((?<Wt>[0-9]+(\.[0-9]+)?\))))+$", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+        #endregion Regexs
+
         #region Variables
         ProjectVectorItem m_CurrentItem = null;
         FrmAddSelector m_AddSelector = new FrmAddSelector();
@@ -58,6 +67,9 @@ namespace Configuration_Editor
         Dictionary<string, Dictionary<string, string>> m_DefaultIniDictionary;
 
         RegistryKey regKey;
+
+        double m_dCurSpeciesMolWt = double.NaN;
+        Dictionary<string, double> AtomicWts = new Dictionary<string, double>();
         #endregion Variables
         
         #region Constructors
@@ -81,6 +93,7 @@ namespace Configuration_Editor
         private void SetupSpDbEditor()
         {
             LoadDBIni();
+            LoadAtomicWts();
 
             #region Database stuff:
             m_SpecieDataTable = new DataTable("Species");
@@ -113,6 +126,8 @@ namespace Configuration_Editor
                 m_SpecieDataTable.Columns["Phase"],
                 m_SpecieDataTable.Columns["Ts"],
                 m_SpecieDataTable.Columns["Te"]};
+
+            errorProvider1.DataSource = m_SpecieDataTable;
             #endregion Database stuff
 
             foreach (Control c in pnlTempDependantRadios.Controls)
@@ -126,7 +141,7 @@ namespace Configuration_Editor
             
             txtName.DataBindings.Add("Text", m_SpecieDataTable, "Name");
             txtSymbol.DataBindings.Add("Text", m_SpecieDataTable, "Compound");
-            txtPhase.DataBindings.Add("Text", m_SpecieDataTable, "Phase");
+            comboPhase.DataBindings.Add("Text", m_SpecieDataTable, "Phase");
 
             txtElementalComposition.DataBindings.Add("Text", m_SpecieDataTable, "Definition");
             comboOccurence.DataBindings.Add("Text", m_SpecieDataTable, "Occurence");
@@ -541,6 +556,7 @@ namespace Configuration_Editor
                 MaxLengths[c.ColumnName] = 0;
 
             foreach (DataRow r in m_SpecieDataTable.Rows)
+                if (r.RowState != DataRowState.Deleted)
                 foreach (DataColumn c in m_SpecieDataTable.Columns)
                     if (r[c] is string && MaxLengths[c.ColumnName] < ((string)r[c]).Length)
                     {
@@ -655,6 +671,7 @@ namespace Configuration_Editor
 
             m_SpecieDataAdapter = new OleDbDataAdapter("SELECT * FROM Species", conn);
 
+            m_SpecieDataTable.Clear();
             m_SpecieDataAdapter.FillSchema(m_SpecieDataTable, SchemaType.Source);
             m_SpecieDataAdapter.Fill(m_SpecieDataTable);
 
@@ -700,6 +717,11 @@ namespace Configuration_Editor
             MergeRows();
 
             SaveDatabase();
+
+            //After we have merged the variables, we no longer need to have a 4 column primary key (Ts and Te can be removed).
+            m_SpecieDataTable.PrimaryKey = new DataColumn[] { m_SpecieDataTable.Columns["Compound"], m_SpecieDataTable.Columns["Phase"] };
+            cmd.CommandText = "ALTER TABLE Species DROP CONSTRAINT pk"; cmd.ExecuteNonQuery();
+            cmd.CommandText = "ALTER TABLE Species ADD CONSTRAINT pk PRIMARY KEY(Compound, Phase)"; cmd.ExecuteNonQuery();
 
             UpdateFilter();
             conn.Close();
@@ -788,8 +810,8 @@ namespace Configuration_Editor
             object o = m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][col];
             MultiEquationDataset series = m_GraphSeries[col];
             string s = "";
-            try { s = (string)o; }
-            catch { }
+            if ((o is string))
+                s = (string) o;
             Match m = EquationSplitterRegex.Match(s);
             series.ClearSeries();
             if (m.Groups["GeneralEquation"].Success)
@@ -800,7 +822,8 @@ namespace Configuration_Editor
                 double TMin; double.TryParse(m.Groups["TMin"].Captures[i].Value, out TMin);
                 double TMax; double.TryParse(m.Groups["TMax"].Captures[i].Value, out TMax);
 
-                series.AddSeries(new EquationGraphSeries(CreateEquationFrag(m.Groups["Equation"].Captures[i].Value, col), "T", TMin, TMax));
+                EquationGraphSeries EGS = new EquationGraphSeries(CreateEquationFrag(m.Groups["Equation"].Captures[i].Value, col), "T", TMin, TMax);
+                series.AddSeries(EGS);
             }
         }
 
@@ -809,6 +832,7 @@ namespace Configuration_Editor
             Dictionary<string, FunctionValue> funcs = availableDBFuncs.ContainsKey(col.ToLower()) ? availableDBFuncs[col.ToLower()] : null;
             EquationFragment frag = EquationFragment.Parse(equation, funcs);
             frag.VariableValues.Add("T", 0);
+            frag.VariableValues.Add("MolWt", m_dCurSpeciesMolWt);
             if (!frag.CanEvaluate())
                 frag = EquationFragment.Parse("0", null);
             return frag;
@@ -826,27 +850,31 @@ namespace Configuration_Editor
             string s = "";
             try
             {
-                s = (string)m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][column];
-                Match m = EquationSplitterRegex.Match(s);
-                int start = 0;
-                if (m.Groups["GeneralEquation"].Success)
+                object o = m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][column];
+                if (o is string)
                 {
-                    txtFormula0.Text = m.Groups["GeneralEquation"].Value; start++;
-                    txtMinTemp0.Text = txtMaxTemp0.Text = "*";
-                }
-                int end = m.Groups["Equation"].Captures.Count + start < 4 ? m.Groups["Equation"].Captures.Count + start : 4;
-                for (int i = start; i < end; i++)
-                {
-                    tlpEquations.Controls["txtFormula" + i].Text = m.Groups["Equation"].Captures[i - start].Value;
-                    tlpEquations.Controls["txtMinTemp" + i].Text = m.Groups["TMin"].Captures[i - start].Value;
-                    tlpEquations.Controls["txtMaxTemp" + i].Text = m.Groups["TMax"].Captures[i - start].Value;
-                }
-                for (int i = end; i < 4; i++)
-                {
+                    s = (string)m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][column];
+                    Match m = EquationSplitterRegex.Match(s);
+                    int start = 0;
+                    if (m.Groups["GeneralEquation"].Success)
+                    {
+                        txtFormula0.Text = m.Groups["GeneralEquation"].Value; start++;
+                        txtMinTemp0.Text = txtMaxTemp0.Text = "*";
+                    }
+                    int end = m.Groups["Equation"].Captures.Count + start < 4 ? m.Groups["Equation"].Captures.Count + start : 4;
+                    for (int i = start; i < end; i++)
+                    {
+                        tlpEquations.Controls["txtFormula" + i].Text = m.Groups["Equation"].Captures[i - start].Value;
+                        tlpEquations.Controls["txtMinTemp" + i].Text = m.Groups["TMin"].Captures[i - start].Value;
+                        tlpEquations.Controls["txtMaxTemp" + i].Text = m.Groups["TMax"].Captures[i - start].Value;
+                    }
+                    for (int i = end; i < 4; i++)
+                    {
 
-                    tlpEquations.Controls["txtFormula" + i].Text = "";
-                    tlpEquations.Controls["txtMinTemp" + i].Text = "";
-                    tlpEquations.Controls["txtMaxTemp" + i].Text = "";
+                        tlpEquations.Controls["txtFormula" + i].Text = "";
+                        tlpEquations.Controls["txtMinTemp" + i].Text = "";
+                        tlpEquations.Controls["txtMaxTemp" + i].Text = "";
+                    }
                 }
             }
             catch 
@@ -982,7 +1010,7 @@ namespace Configuration_Editor
 
                 foreach (DataRow r in kvp.Value)
                     if (r != resultantRow)
-                        m_SpecieDataTable.Rows.Remove(r);
+                        r.Delete();
             }
             m_SpecieDataTable.EndLoadData();
         }
@@ -1030,6 +1058,15 @@ namespace Configuration_Editor
                         FunctionValue val = new EquationFunctionValue(m.Groups["Val"].Captures[0].Value, m.Groups["Val"].Captures[2].Value, defaults.ToArray());
                         availableDBFuncs[kvp1.Key].Add(val.Name, val);
                     }
+            }
+        }
+
+        static Regex AtomicWtsRegex = new Regex(@"(?<Symb>[^,\r\n]*),(?<Val>[^,\r\n]*)");
+        protected void LoadAtomicWts()
+        {
+            for (Match m = AtomicWtsRegex.Match(Configuration_Editor.Properties.Resources.AtmoicWts); m.Success; m = m.NextMatch())
+            {
+                AtomicWts[m.Groups["Symb"].Value] = double.Parse(m.Groups["Val"].Value);
             }
         }
         #endregion Specie DB stuff
@@ -1648,9 +1685,16 @@ namespace Configuration_Editor
         {
             if (lstDBSpecies.SelectedItems.Count > 0)
             {
-                this.BindingContext[m_SpecieDataTable].Position = m_SpecieDataTable.Rows.IndexOf((DataRow)lstDBSpecies.SelectedItems[0].Tag);
-                LoadEquationsIntoGraph();
-                LoadEquationsIntoTextboxes();
+                try
+                {
+                    this.BindingContext[m_SpecieDataTable].Position = m_SpecieDataTable.Rows.IndexOf((DataRow)lstDBSpecies.SelectedItems[0].Tag);
+                    LoadEquationsIntoGraph();
+                    LoadEquationsIntoTextboxes();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Invalid Data", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else
             {
@@ -1815,215 +1859,161 @@ namespace Configuration_Editor
                 }
             base.OnClosing(e);
         }
-    }
 
-    public class EquationGraphSeries : GraphSeries
-    {
-        protected EquationFragment m_Frag;
-        protected string m_GraphVariable;
-
-        public string GraphVariable
+        private void txtName_Validating(object sender, CancelEventArgs e)
         {
-            get { return m_GraphVariable; }
-            set
+            e.Cancel = !s_AcceptableNameRegex.Match(txtName.Text).Success;
+            if (e.Cancel)
+                errorProvider1.SetError(txtName, "Invalid Characters");
+            else
+                errorProvider1.SetError(txtName, "");
+        }
+
+        private void txtSymbol_Validating(object sender, CancelEventArgs e)
+        {
+            e.Cancel = !s_AcceptableSymbRegex.Match(txtSymbol.Text).Success;
+            if (e.Cancel)
+                errorProvider1.SetError(txtSymbol, "Invalid Characters");
+            else
+                errorProvider1.SetError(txtSymbol, "");
+        }
+
+        private void comboPhase_Validated(object sender, EventArgs e)
+        {
+            //Rebuild the dropdown list:
+            comboPhase.Items.Clear();
+            foreach (DataRow r in m_SpecieDataTable.Rows)
+                if (!comboPhase.Items.Contains(r["Phase"]))
+                    comboPhase.Items.Add(r["Phase"]);
+        }
+
+        private void txtSymbol_Validated(object sender, EventArgs e)
+        {
+            UpdateProjectLVIs();
+            UpdateDBLVIs();
+        }
+
+        //Called after a symbol is changed in the database. If the selected compound is in the project specie list, updates that compound & rechecks calculations (Does not refactor calculations).
+        protected void UpdateProjectLVIs()
+        {
+            bool changed = false;
+            try
             {
-                m_GraphVariable = value;
-                FireRedrawRequired(this, new EventArgs());
-                RecalculateMinMax();
+                DataRow curRow = ((DataRowView)this.BindingContext[m_SpecieDataTable].Current).Row;
+                foreach (ListViewItem lvi in lstProjectVector.Items)
+                    if (lvi.Tag is ProjectSpecie &&
+                        ((ProjectSpecie)lvi.Tag).SpDataRow == curRow)
+                    {
+                        changed = true;
+                        ((ProjectSpecie)lvi.Tag).UpdateLVI();
+                    }
+            }
+            catch { }
+            if (changed)
+                CheckCalculations();
+        }
+
+        protected void UpdateDBLVIs()
+        {
+            try
+            {
+                DataRow curRow = ((DataRowView)this.BindingContext[m_SpecieDataTable].Current).Row;
+                foreach (ListViewItem lvi in lstDBSpecies.Items)
+                    if (lvi.Tag == curRow)
+                    {
+                        lvi.SubItems[0].Text = (string) curRow["Compound"] + "(" + curRow["Phase"] + ")";
+                        lvi.SubItems[1].Text = (string) curRow["Name"];
+                        break; //Should only occur once.
+                    }
+            }
+            catch { };
+        }
+
+        private void txtName_Validated(object sender, EventArgs e)
+        {
+            UpdateDBLVIs();
+        }
+
+        private void txtElementalComposition_Validating(object sender, CancelEventArgs e)
+        {
+            Match m = s_DefinitionRegex.Match(txtElementalComposition.Text);
+            if (!m.Success)
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(txtElementalComposition, "Unable To Parse Definition");
+            }
+            else
+            {
+                bool ok = true;
+                foreach (Capture c in m.Groups["Symb"].Captures)
+                    if (!AtomicWts.ContainsKey(c.Value))
+                    {
+                        errorProvider1.SetError(txtElementalComposition, "Unknown symbol " + c.Value);
+                        ok = false;
+                        break;
+                    }
+                if (ok)
+                    errorProvider1.SetError(txtElementalComposition, "");
             }
         }
 
-        public override double Granularity
+        private void txtElementalComposition_Validated(object sender, EventArgs e)
         {
-            get { return 0; }
+            RecalculateMolWt();
         }
 
-        public override float ValueAt(double x)
+        protected void RecalculateMolWt()
         {
-            if (!string.IsNullOrEmpty(m_GraphVariable))
-                m_Frag.VariableValues[m_GraphVariable] = x;
-            return (float)m_Frag.Value();
-        }
-
-        public override bool ValidAt(double x)
-        {
-            return true; //Currently Fragments cannot contain a function that is not valid everywhere.
-        }
-
-        public EquationFragment Frag
-        {
-            get { return m_Frag; }
-            set
+            try
             {
-                m_Frag = value;
-                FireRedrawRequired(this, new EventArgs());
-                RecalculateMinMax();
-            }
-        }
-
-        public EquationGraphSeries(EquationFragment frag, string VariableName, double _MinX, double _MaxX)
-        {
-            m_Frag = frag;
-            MinX = _MinX;
-            MaxX = _MaxX;
-            m_GraphVariable = VariableName;
-        }
-
-        public EquationGraphSeries(EquationFragment frag, string VariableName)
-        {
-            m_Frag = frag;
-            m_GraphVariable = VariableName;
-        }
-    }
-
-    public class PolyEquationSeries : GraphSeries
-    {
-        protected List<double> m_Coefficients = new List<double>();
-
-        #region Graph Functions
-        public override double Granularity
-        {
-            get { return 0; }
-        }
-
-
-
-        public override float ValueAt(double x)
-        {
-            double val = 1;
-            double ret = 0;
-            foreach (double coeff in m_Coefficients)
-            {
-                ret += val * coeff;
-                val *= x;
-            }
-            return (float) ret;
-        }
-
-        public override bool ValidAt(double x)
-        {
-            return m_Coefficients.Count > 0;
-        }
-        #endregion Graph Functions
-
-        public PolyEquationSeries(string s)
-        {
-            SetString(s);
-        }
-
-        public PolyEquationSeries(string s, double minX, double maxX)
-        {
-            SetString(s);
-            m_dMinX = minX;
-            m_dMaxX = maxX;
-            RecalculateMinMax();
-        }
-
-        public int ScanResolution
-        {
-            get { return m_nScanResolution; }
-            set
-            {
-                if (value < 2) value = 2;
-                m_nScanResolution = value;
-                RecalculateMinMax();
-            }
-        }
-
-        static Regex numberGetter = new Regex(@"(\+|-)?(\d+(\.\d+)?|\.\d+)(e(\+|-)?\d+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        public void SetString(string s)
-        {
-            m_Coefficients.Clear();
-            for (Match m = numberGetter.Match(s); m.Success; m = m.NextMatch())
-                try
+                Match m = s_DefinitionRegex.Match(txtElementalComposition.Text);
+                if (!m.Success)
                 {
-                    m_Coefficients.Add(double.Parse(m.Value));
+                    m_dCurSpeciesMolWt = double.NaN; return;
                 }
-                catch { } //for out of range problems.
-            RecalculateMinMax();
-        }
-
-        
-    }
-
-    public class MultiEquationDataset : GraphSeries
-    {
-        protected List<GraphSeries> m_DataSets  = new List<GraphSeries>();
-        protected GraphSeries m_BackupSeries;
-
-        public GraphSeries BackupSeries
-        {
-            get { return m_BackupSeries; }
-            set
-            {
-                m_BackupSeries = value;
-                m_BackupSeries.MinX = MinX;
-                m_BackupSeries.MaxX = MaxX;
-                m_BackupSeries.RedrawRequired += new EventHandler(series_RedrawRequired);
-                RecalculateMinMax();
-                FireRedrawRequired(this, new EventArgs());
+                double temp = 0;
+                for (int i = 0; i < m.Groups["Symb"].Captures.Count; i++)
+                {
+                    if (!AtomicWts.ContainsKey(m.Groups["Symb"].Captures[i].Value))
+                    {
+                        m_dCurSpeciesMolWt = double.NaN; return;
+                    }
+                    double count = 1;
+                    if (m.Groups["Count"].Captures[i].Length > 0)
+                    {
+                        if (!double.TryParse(m.Groups["Count"].Captures[i].Value, out count))
+                            count = FracParse(m.Groups["Count"].Captures[i].Value);
+                    }
+                    temp += AtomicWts[m.Groups["Symb"].Captures[i].Value] * count;
+                }
+                for (int i = 0; i < m.Groups["Wt"].Captures.Count; i++)
+                    temp += double.Parse(m.Groups["Wt"].Captures[i].Value);
+                m_dCurSpeciesMolWt = temp;
             }
+            catch { }
+            UpdateGraphValues();
         }
 
-        public void AddSeries(GraphSeries series)
+        protected double FracParse(string s)
         {
-            m_DataSets.Add(series);
-            series.RedrawRequired += new EventHandler(series_RedrawRequired);
-            RecalculateMinMax();
-            FireRedrawRequired(this, new EventArgs());
+            string[] subs = s.Split('/');
+            return double.Parse(subs[0]) / double.Parse(subs[1]);
         }
 
-        public void RemoveSeries(GraphSeries series)
+        protected void UpdateGraphValues()
         {
-            m_DataSets.Remove(series);
-            series.RedrawRequired -= new EventHandler(series_RedrawRequired);
-            FireRedrawRequired(this, new EventArgs());
+            UpdateGraphValues(graph1.Series);                
         }
 
-        public void ClearSeries()
+        private void UpdateGraphValues(ICollection<GraphSeries> series)
         {
-            m_DataSets.Clear();
-            m_BackupSeries = null;
-            this.m_fMin = this.m_fMax = float.NaN;
-            FireRedrawRequired(this, new EventArgs());
+            foreach (GraphSeries gs in series)
+                if (gs is MultiEquationDataset)
+                    UpdateGraphValues(((MultiEquationDataset)gs).SubSeries);
+                else if (gs is EquationGraphSeries)
+                    ((EquationGraphSeries)gs).SetVariable("MolWt", m_dCurSpeciesMolWt);
+            graph1.Invalidate();
         }
-
-        public GraphSeries GetSeries(int i) { return m_DataSets[i]; }
-
-        void series_RedrawRequired(object sender, EventArgs e)
-        {
-            FireRedrawRequired(this, e);
-        }
-
-        #region IDataSet Members
-        public override double Granularity
-        {
-            get 
-            {
-                double minVal = m_BackupSeries != null ? m_BackupSeries.Granularity : double.PositiveInfinity;
-                foreach (GraphSeries d in m_DataSets)
-                    if (d.Granularity < minVal)
-                        minVal = d.Granularity;
-                return minVal;
-            }
-        }
-
-        public override float ValueAt(double x)
-        {
-            foreach (GraphSeries gs in m_DataSets)
-                if (gs.MinX < x && gs.MaxX > x && gs.ValidAt(x))
-                    return gs.ValueAt(x);
-            return m_BackupSeries != null ? m_BackupSeries.ValueAt(x) : float.NaN;
-        }
-
-        public override bool ValidAt(double x)
-        {
-            foreach (GraphSeries gs in m_DataSets)
-                if (gs.MinX < x && gs.MaxX > x && gs.ValidAt(x))
-                    return true;
-            return m_BackupSeries != null && m_BackupSeries.ValidAt(x);
-        }
-        #endregion
     }
 
     public class PVIOrderer

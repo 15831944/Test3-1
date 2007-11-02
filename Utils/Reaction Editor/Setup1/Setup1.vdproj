@@ -176,14 +176,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SysCAD Reaction Editor"
-        "ProductCode" = "8:{1782BA7B-F252-4495-A2AD-7992207452D7}"
-        "PackageCode" = "8:{511C9592-DF89-47CF-AD8C-E8CDF5289A8D}"
+        "ProductCode" = "8:{7630AC0A-A10B-430B-B5C7-7305CCEF0627}"
+        "PackageCode" = "8:{921FD57D-B927-4F8D-841A-1331E92BF6DE}"
         "UpgradeCode" = "8:{2CAC4030-9028-48CB-8671-1DC146191CF4}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.16"
+        "ProductVersion" = "8:1.0.18"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.SysCAD.net"
@@ -711,7 +711,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_8669B8BDACB041BE976A93BF8146B6C7"
             {
-            "SourcePath" = "8:..\\Equation Editor\\obj\\Release\\SysCADReactionEditor.exe"
+            "SourcePath" = "8:..\\Equation Editor\\obj\\Debug\\SysCADReactionEditor.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9A59EBE1B0C143D5B40A32504BFFF372"

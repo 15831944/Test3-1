@@ -894,7 +894,7 @@ namespace Reaction_Editor
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(";RC" + ReactionNumber + ": " + Comment);
-            sb.AppendLine((Enabled ? ";" : "") + this.ToString());
+            sb.AppendLine((Enabled ? "" : ";") + this.ToString());
             if (!Enabled)
                 sb.AppendLine(";Enabled=False");
             return sb.ToString();
@@ -1084,7 +1084,7 @@ namespace Reaction_Editor
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(";RC" + ReactionNumber + ": " + Comment);
-            sb.AppendLine(ToString());
+            sb.AppendLine((Enabled ? "" : ";" ) + ToString());
             if (!Enabled)
                 sb.AppendLine(";Enabled=False");
             return sb.ToString();
