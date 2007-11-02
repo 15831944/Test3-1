@@ -29,19 +29,20 @@ namespace Configuration_Editor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuNew = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuOpenConfig = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuClose = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSave = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSaveAs = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.menuOpenDatabase = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuSort = new System.Windows.Forms.ToolStripMenuItem();
             this.menuAdvancedSort = new System.Windows.Forms.ToolStripMenuItem();
@@ -100,7 +101,7 @@ namespace Configuration_Editor
             this.label24 = new System.Windows.Forms.Label();
             this.txtCalcName = new System.Windows.Forms.TextBox();
             this.label23 = new System.Windows.Forms.Label();
-            this.txtCalculation = new Be.Windows.Forms.RichTextBoxEx();
+            this.txtCalculation = new Auto_Complete.BoxAutoComplete();
             this.tabIDELabel = new System.Windows.Forms.TabPage();
             this.grpTextValue = new System.Windows.Forms.GroupBox();
             this.txtText = new System.Windows.Forms.TextBox();
@@ -143,6 +144,8 @@ namespace Configuration_Editor
             this.radioHeatCapacity = new System.Windows.Forms.RadioButton();
             this.radioVapourPressure = new System.Windows.Forms.RadioButton();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.txtPhaseChange = new System.Windows.Forms.TextBox();
+            this.label48 = new System.Windows.Forms.Label();
             this.txtSolvent = new System.Windows.Forms.TextBox();
             this.label36 = new System.Windows.Forms.Label();
             this.txtAccentricity = new System.Windows.Forms.TextBox();
@@ -320,58 +323,60 @@ namespace Configuration_Editor
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newToolStripMenuItem,
-            this.openToolStripMenuItem,
-            this.closeToolStripMenuItem,
+            this.MenuNew,
+            this.menuOpenConfig,
+            this.menuClose,
             this.toolStripMenuItem1,
-            this.saveToolStripMenuItem,
-            this.saveAsToolStripMenuItem,
+            this.menuSave,
+            this.menuSaveAs,
             this.toolStripMenuItem2,
             this.menuOpenDatabase,
             this.toolStripMenuItem3,
-            this.exitToolStripMenuItem});
+            this.menuExit});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
             this.fileToolStripMenuItem.Text = "&File";
+            this.fileToolStripMenuItem.DropDownOpening += new System.EventHandler(this.fileToolStripMenuItem_DropDownOpening);
             // 
-            // newToolStripMenuItem
+            // MenuNew
             // 
-            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.newToolStripMenuItem.Text = "&New";
-            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
+            this.MenuNew.Name = "MenuNew";
+            this.MenuNew.Size = new System.Drawing.Size(179, 22);
+            this.MenuNew.Text = "&New";
+            this.MenuNew.Click += new System.EventHandler(this.menuNew_Click);
             // 
-            // openToolStripMenuItem
+            // menuOpenConfig
             // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.openToolStripMenuItem.Text = "&Open Configuration";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.menuOpen_Click);
+            this.menuOpenConfig.Name = "menuOpenConfig";
+            this.menuOpenConfig.Size = new System.Drawing.Size(179, 22);
+            this.menuOpenConfig.Text = "&Open Configuration";
+            this.menuOpenConfig.Click += new System.EventHandler(this.menuOpen_Click);
             // 
-            // closeToolStripMenuItem
+            // menuClose
             // 
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.closeToolStripMenuItem.Text = "&Close";
+            this.menuClose.Enabled = false;
+            this.menuClose.Name = "menuClose";
+            this.menuClose.Size = new System.Drawing.Size(179, 22);
+            this.menuClose.Text = "&Close";
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(176, 6);
             // 
-            // saveToolStripMenuItem
+            // menuSave
             // 
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveToolStripMenuItem.Text = "&Save";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            this.menuSave.Name = "menuSave";
+            this.menuSave.Size = new System.Drawing.Size(179, 22);
+            this.menuSave.Text = "&Save";
+            this.menuSave.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
-            // saveAsToolStripMenuItem
+            // menuSaveAs
             // 
-            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveAsToolStripMenuItem.Text = "Save &As";
-            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+            this.menuSaveAs.Name = "menuSaveAs";
+            this.menuSaveAs.Size = new System.Drawing.Size(179, 22);
+            this.menuSaveAs.Text = "Save &As";
+            this.menuSaveAs.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -390,11 +395,12 @@ namespace Configuration_Editor
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
             this.toolStripMenuItem3.Size = new System.Drawing.Size(176, 6);
             // 
-            // exitToolStripMenuItem
+            // menuExit
             // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.exitToolStripMenuItem.Text = "E&xit";
+            this.menuExit.Name = "menuExit";
+            this.menuExit.Size = new System.Drawing.Size(179, 22);
+            this.menuExit.Text = "E&xit";
+            this.menuExit.Click += new System.EventHandler(this.menuExit_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -1018,6 +1024,9 @@ namespace Configuration_Editor
             // 
             this.txtCalculation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtCalculation.CompSelection = false;
+            this.txtCalculation.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.txtCalculation.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtCalculation.HitCounts")));
             this.txtCalculation.Location = new System.Drawing.Point(77, 41);
             this.txtCalculation.Name = "txtCalculation";
             this.txtCalculation.Size = new System.Drawing.Size(595, 83);
@@ -1505,6 +1514,8 @@ namespace Configuration_Editor
             // 
             // groupBox8
             // 
+            this.groupBox8.Controls.Add(this.txtPhaseChange);
+            this.groupBox8.Controls.Add(this.label48);
             this.groupBox8.Controls.Add(this.txtSolvent);
             this.groupBox8.Controls.Add(this.label36);
             this.groupBox8.Controls.Add(this.txtAccentricity);
@@ -1522,6 +1533,22 @@ namespace Configuration_Editor
             this.groupBox8.TabIndex = 18;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Thermodynamic Properties";
+            // 
+            // txtPhaseChange
+            // 
+            this.txtPhaseChange.Location = new System.Drawing.Point(387, 19);
+            this.txtPhaseChange.Name = "txtPhaseChange";
+            this.txtPhaseChange.Size = new System.Drawing.Size(130, 20);
+            this.txtPhaseChange.TabIndex = 19;
+            // 
+            // label48
+            // 
+            this.label48.AutoSize = true;
+            this.label48.Location = new System.Drawing.Point(304, 22);
+            this.label48.Name = "label48";
+            this.label48.Size = new System.Drawing.Size(77, 13);
+            this.label48.TabIndex = 18;
+            this.label48.Text = "Phase Change";
             // 
             // txtSolvent
             // 
@@ -1669,7 +1696,12 @@ namespace Configuration_Editor
             // 
             // comboOccurence
             // 
+            this.comboOccurence.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboOccurence.FormattingEnabled = true;
+            this.comboOccurence.Items.AddRange(new object[] {
+            "s",
+            "l",
+            "g"});
             this.comboOccurence.Location = new System.Drawing.Point(387, 18);
             this.comboOccurence.Name = "comboOccurence";
             this.comboOccurence.Size = new System.Drawing.Size(130, 21);
@@ -2618,18 +2650,18 @@ namespace Configuration_Editor
         private System.Windows.Forms.NumericUpDown numGreaterTempTolerance;
         private System.Windows.Forms.CheckBox chkIdeal;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem MenuNew;
+        private System.Windows.Forms.ToolStripMenuItem menuOpenConfig;
+        private System.Windows.Forms.ToolStripMenuItem menuClose;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menuSave;
+        private System.Windows.Forms.ToolStripMenuItem menuSaveAs;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem menuOpenDatabase;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menuExit;
         private System.Windows.Forms.GroupBox grpSpecie;
-        private Be.Windows.Forms.RichTextBoxEx txtCalculation;
+        private Auto_Complete.BoxAutoComplete txtCalculation;
         private System.Windows.Forms.GroupBox grpCalculation;
         private System.Windows.Forms.TabPage tabIDELabel;
         private System.Windows.Forms.GroupBox grpTextValue;
@@ -2793,6 +2825,8 @@ namespace Configuration_Editor
         private System.Windows.Forms.ToolStripMenuItem menuSpDBAddToProject;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutSysCADConfigurationEditorToolStripMenuItem;
+        private System.Windows.Forms.TextBox txtPhaseChange;
+        private System.Windows.Forms.Label label48;
     }
 }
 

@@ -317,7 +317,6 @@ namespace Auto_Complete
 
         #region Events
         public event EventHandler CompoundDragged;
-        public event CancelEventHandler PreCompSelect;
         #endregion Events
 
         #region Overrides
@@ -356,7 +355,7 @@ namespace Auto_Complete
                     m_AutoForm.SetFilter(m.Groups["Last"].Value);
                 else
                 {
-                    if (e.KeyChar == ' ' || e.KeyChar == ',' || e.KeyChar == '+')
+                    if (e.KeyChar == ' ')
                         if (m_AutoForm.HotSelected)
                             m_AutoForm.InsertText();
                     m_AutoForm.Hide();
@@ -446,6 +445,7 @@ namespace Auto_Complete
         }
 
         //Although I guess this should be in another derived class, I like it here.
+#if false
         protected override void OnDoubleClick(EventArgs e)
         {
             CancelEventArgs ce = new CancelEventArgs(false);
@@ -473,11 +473,13 @@ namespace Auto_Complete
             }
         }
 
+
         protected override void OnSelectionChanged(EventArgs e)
         {
             CompSelected = false;
             base.OnSelectionChanged(e);
         }
+#endif
 
         protected override void OnMouseMove(MouseEventArgs e)
         {

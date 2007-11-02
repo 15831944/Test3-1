@@ -76,14 +76,14 @@ namespace Configuration_Editor.Properties {
         ///NumericTagsBad=1
         ///UseStdFns4H2O=1
         ///Default_SpModel=Standard
+        ///H2O_as_aqueous=1
         ///
         ///[Modes]
         ///Default_NetMode=Dynamic
         ///Probal_Allowed=1
         ///Probal_NodeMode=Direct
         ///Probal_FlowMode=Transfer
-        ///Probal_HeatMode=Rigorous
-        ///Dynamic_Allowed=1 [rest of string was truncated]&quot;;.
+        ///Probal_HeatMode=Rigorous        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DefaultInI {
             get {

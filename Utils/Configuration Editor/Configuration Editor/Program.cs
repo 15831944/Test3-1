@@ -14,8 +14,12 @@ namespace Configuration_Editor
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            EquationFragment.Setup();
+
             Application.Run(new FrmMain());
         }
+
 
         public static Random rnd = new Random();
         //public static Database SpecieDatabase;

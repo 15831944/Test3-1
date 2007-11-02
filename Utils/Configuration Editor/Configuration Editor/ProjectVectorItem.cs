@@ -12,6 +12,8 @@ namespace Configuration_Editor
         #region Variables
         protected ListViewItem m_LVI;
         protected string m_sName;
+        protected bool m_bValid = true;
+        protected string m_sStatusDetails;
         #endregion Variables
 
         public ProjectVectorItem()
@@ -21,6 +23,22 @@ namespace Configuration_Editor
         }
 
         #region Properties
+        public string StatusDetails
+        {
+            get { return m_sStatusDetails; }
+            set { m_sStatusDetails = value; }
+        }
+
+        public virtual bool Valid
+        {
+            get { return m_bValid; }
+            set
+            {
+                m_bValid = value;
+                UpdateLVI();
+            }
+        }
+
         public ListViewItem LVI
         {
             get { return m_LVI; }
@@ -55,7 +73,11 @@ namespace Configuration_Editor
         protected virtual void UpdateLVI()
         {
             if (m_LVI != null)
+            {
                 m_LVI.Text = this.ToString();
+
+                m_LVI.ForeColor = m_bValid ? SystemColors.WindowText : Color.Red;
+            }
         }
         #endregion Protected Functions
 
@@ -367,13 +389,14 @@ namespace Configuration_Editor
     {
         public static Regex ParseRegex = new Regex(@"Calculation(,[^,]*),(?<Name>[^,]*),(?<Symbol>[^,]+)(,[^,]*){5},(?<Value>[^,]*)",
             RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
-        protected string m_sValue;
-        protected string m_sSymbol;
+        protected string m_sValue = "";
+        protected string m_sSymbol = "";
 
         public ProjectCalculation()
         {
             LVI.ImageKey = "Calculation";
         }
+
 
         public override string Value
         {

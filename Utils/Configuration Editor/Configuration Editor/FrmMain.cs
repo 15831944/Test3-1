@@ -17,7 +17,8 @@ namespace Configuration_Editor
 {
     public partial class FrmMain : Form
     {
-        public static string[] ReqColumnList = new string[] {"Name",
+        public static string[] ReqColumnList = new string[] {
+            "Name",
             "Compound",
             "Phase",
             "Definition",
@@ -73,11 +74,13 @@ namespace Configuration_Editor
             SetupSpecies();
             SetupMisc();
             SetupSpDbEditor();
+
+            menuOpenDatabase_Click(this, new EventArgs());
         }
 
         private void SetupSpDbEditor()
         {
-            LoadDBInI();
+            LoadDBIni();
 
             #region Database stuff:
             m_SpecieDataTable = new DataTable("Species");
@@ -136,6 +139,7 @@ namespace Configuration_Editor
             txtCritVol.DataBindings.Add("Text", m_SpecieDataTable, "Vc");
             txtCritTemp.DataBindings.Add("Text", m_SpecieDataTable, "Tc");
             txtAccentricity.DataBindings.Add("Text", m_SpecieDataTable, "Ac");
+            txtPhaseChange.DataBindings.Add("Text", m_SpecieDataTable, "PhaseChange");
         }
 
         private void SetupMisc()
@@ -400,9 +404,10 @@ namespace Configuration_Editor
             string contents = new StreamReader(m_ConfigFile).ReadToEnd();
 
             List<string> errors = LoadFromDictionary(ReadIni(contents, m_DefaultIniDictionary));
+            CheckCalculations();
             if (errors.Count != 0)
             {
-                StringBuilder sb = new StringBuilder("The following errors occured trying to load the file:");
+                StringBuilder sb = new StringBuilder("The following errors occured trying to load the file:\n");
                 foreach (string error in errors)
                     sb.AppendLine(error);
                 MessageBox.Show(sb.ToString(), "Load Configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -486,6 +491,7 @@ namespace Configuration_Editor
             return ret;
         }
 
+        protected static Regex CommentStripper = new Regex(@"^[^;\r\n]*", RegexOptions.Compiled | RegexOptions.Multiline);
         protected static Regex iniRegex1 = new Regex(@"(^\[(?<Title>\w*)\](?<Values>.*?))*\Z", 
             RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.Multiline); //This'll be kinda slow with that .*?
         protected static Regex iniRegex2 = new Regex(@"^(?<Variable>[^\s=]*)=(?<Value>.*)",
@@ -494,8 +500,14 @@ namespace Configuration_Editor
         //Work in pure lowercase.
         protected Dictionary<string, Dictionary<string, string>> ReadIni(string contents, Dictionary<string, Dictionary<string, string>> defaults)
         {
+            StringBuilder sb = new StringBuilder();
+            for (Match m = CommentStripper.Match(contents); m.Success; m = m.NextMatch())
+                sb.AppendLine(m.Value);
+            contents = sb.ToString();
             Match tier1Match = iniRegex1.Match(contents);
-            Dictionary<string, Dictionary<string, string>> ret = new Dictionary<string,Dictionary<string,string>>(defaults);
+            Dictionary<string, Dictionary<string, string>> ret = new Dictionary<string,Dictionary<string,string>>();
+            foreach (KeyValuePair<string, Dictionary<string, string>> kvp in defaults) //Make a deep copy
+                ret[kvp.Key] = new Dictionary<string, string>(kvp.Value);
             for (int i = 0; i < tier1Match.Groups["Title"].Captures.Count; i++)
             {
                 if (!ret.ContainsKey(tier1Match.Groups["Title"].Captures[i].Value.ToLower()))
@@ -788,7 +800,7 @@ namespace Configuration_Editor
                 double TMin; double.TryParse(m.Groups["TMin"].Captures[i].Value, out TMin);
                 double TMax; double.TryParse(m.Groups["TMax"].Captures[i].Value, out TMax);
 
-                series.AddSeries(new EquationGraphSeries(CreateEquationFrag(m.Groups["Equation"].Value, col), "T", TMin, TMax));
+                series.AddSeries(new EquationGraphSeries(CreateEquationFrag(m.Groups["Equation"].Captures[i].Value, col), "T", TMin, TMax));
             }
         }
 
@@ -994,7 +1006,7 @@ namespace Configuration_Editor
         Dictionary<string, Dictionary<string, FunctionValue>> availableDBFuncs = new Dictionary<string, Dictionary<string, FunctionValue>>();
         static Regex CSVRegex = new Regex(@"\s*(?<Quotes>"")?(?<Val>(?(Quotes)[^""]*|[^,]*))(?(Quotes)(?<-Quotes>""))
             (\s*,\s*(?<Quotes>"")?(?<Val>(?(Quotes)[^""]*|[^,]*))(?(Quotes)(?<-Quotes>"")))*", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
-        protected void LoadDBInI()
+        protected void LoadDBIni()
         {
             string s = new StreamReader(new FileStream("DatabaseColumns.ini", FileMode.Open)).ReadToEnd();
             Dictionary<string, Dictionary<string, string>> data = ReadIni(s, new Dictionary<string, Dictionary<string, string>>());
@@ -1015,7 +1027,7 @@ namespace Configuration_Editor
                             if (double.TryParse(m.Groups["Val"].Captures[i].Value, out temp))
                                 defaults.Add(temp);
 
-                        FunctionValue val = new FunctionValue(m.Groups["Val"].Captures[0].Value, m.Groups["Val"].Captures[2].Value, defaults.ToArray());
+                        FunctionValue val = new EquationFunctionValue(m.Groups["Val"].Captures[0].Value, m.Groups["Val"].Captures[2].Value, defaults.ToArray());
                         availableDBFuncs[kvp1.Key].Add(val.Name, val);
                     }
             }
@@ -1186,6 +1198,7 @@ namespace Configuration_Editor
                 lstProjectVector.SelectedItems.Clear();
                 foreach (ListViewItem lvi in lvisToSelect)
                     lvi.Selected = true;
+                CheckCalculations();
             }
             lstProjectVector.EndUpdate();
             return ret;
@@ -1198,6 +1211,62 @@ namespace Configuration_Editor
                     if (((ProjectSpecie)lvi.Tag).SpDataRow == s)
                         return lvi;
             return null;
+        }
+
+        protected void CheckCalculations()
+        {
+            List<string> availableVariables = new List<string>();
+            foreach (ListViewItem lvi in lstProjectVector.Items)
+                if (lvi.Tag is ProjectSpecie)
+                    availableVariables.Add("[" + ((ProjectSpecie)lvi.Tag).Symbol + "]");
+                else if (lvi.Tag is ProjectAttribute)
+                    availableVariables.Add("[" + ((ProjectAttribute)lvi.Tag).Name + "]");
+            foreach (ListViewItem lvi in lstProjectVector.Items)
+                if (lvi.Tag is ProjectCalculation)
+                {
+                    ProjectCalculation calc = (ProjectCalculation)lvi.Tag;
+                    calc.Valid = true;
+                    try
+                    {
+                        EquationFragment frag = EquationFragment.Parse(calc.Value, new Dictionary<string, FunctionValue>());
+                        foreach (string s in frag.ReqVariableNames)
+                            if (!availableVariables.Contains(s))
+                            {
+                                calc.Valid = false;
+                                break;
+                            }
+                    }
+                    catch
+                    {
+                        calc.Valid = false;
+                    }
+                }
+            List<object> temp = new List<object>();
+            foreach (object o in txtCalculation.Items)
+                temp.Add(o);
+            foreach (string s in temp)
+            {
+                if (!availableVariables.Contains(s))
+                    txtCalculation.Items.Remove(s);
+            }
+            foreach (string s in availableVariables)
+                if (!txtCalculation.Items.Contains(s))
+                    txtCalculation.Items.Add(s);
+        }
+
+        protected void UpdateStatusBar()
+        {
+            if (tcSpecies.SelectedTab == this.tabProjectSpecies)
+                if (m_CurrentItem != null)
+                {
+                    ssMain.Text = m_CurrentItem.Valid ? "Status: Ok" :
+                        "Status: Invalid. " + m_CurrentItem.StatusDetails;
+                    ssMain.ForeColor = m_CurrentItem.Valid ? SystemColors.WindowText : Color.Red;
+                }
+                else
+                    ssMain.Text = "";
+            else
+                ssMain.Text = "";
         }
         #endregion Project Vector Stuff
 
@@ -1317,6 +1386,8 @@ namespace Configuration_Editor
             else
                 LoadItem(null);
 
+            UpdateStatusBar();
+
             SetBtnEnables();
         }
 
@@ -1368,21 +1439,59 @@ namespace Configuration_Editor
             int oldSelectionLength = txtCalculation.SelectionLength;
             txtCalculation.SelectAll();
             txtCalculation.SelectionBackColor = SystemColors.Window;//Color.FromArgb(0,0,0,0);
+            txtCalculation.SelectionColor = SystemColors.WindowText;
             if (m_CurrentItem is ProjectCalculation)
             {
                 m_CurrentItem.Value = txtCalculation.Text;
+
                 try
                 {
-                    EquationFragment frag = EquationFragment.Parse(txtCalculation.Text, null);
-                    //TODO: variable and function name checking.
+                    EquationFragment frag = EquationFragment.Parse(txtCalculation.Text, new Dictionary<string,FunctionValue>());
+                    bool eqnOk = true;
+                    List<string> invalidNames = new List<string>();
+                    foreach (string s in frag.ReqVariableNames)
+                    {
+                        bool ok = false;
+                        if (s.StartsWith("[") && s.EndsWith("]")) //It's a variable not enclosed in square brackets - and therefore not allowed in a vector calculation. We may want to extend this.
+                            foreach (ListViewItem lvi in lstProjectVector.Items)
+                                if ((lvi.Tag is ProjectSpecie && "[" + ((ProjectSpecie)lvi.Tag).Symbol + "]" == s) ||
+                                    (lvi.Tag is ProjectAttribute && "[" + ((ProjectAttribute)lvi.Tag).Name == s))
+                                {
+                                    ok = true;
+                                    break;
+                                }
+                        if (!ok)
+                        {
+                            int i = txtCalculation.Text.IndexOf(s, 0);
+                            while (i >= 0)
+                            {
+                                HighlightText(txtCalculation, i, s.Length);
+                                i = txtCalculation.Text.IndexOf(s, i + 1);
+                            }
+                            invalidNames.Add(s);
+                        }
+                        eqnOk = eqnOk && ok;
+                    }
+
+                    if (!eqnOk)
+                    {
+                        StringBuilder statusDetails = new StringBuilder("Unrecognised Variables: ");
+                        foreach (string s in invalidNames)
+                            statusDetails.Append("'" + s + "', ");
+                        m_CurrentItem.StatusDetails = statusDetails.ToString().Substring(0, statusDetails.Length - 2);
+                    }
+                    ((ProjectCalculation)m_CurrentItem).Valid = eqnOk;
+
                 }
                 catch (Function.FunctionNotFoundException ex)
                 {
                     Regex r = new Regex(@"(?<=\b\d*)(?<Func>" + Regex.Escape(ex.FunctionName) + @")\(");
                     for (Match m = r.Match(txtCalculation.Text); m.Success; m = m.NextMatch())
                         HighlightText(txtCalculation, m.Groups["Func"].Index, m.Groups["Func"].Length);
+                    m_CurrentItem.Valid = false;
+                    m_CurrentItem.StatusDetails = "Unrecognised Function Found";
                 }
-                catch
+                catch (Exception ex)
                 {
                     int temp = 0;
                     Match vbm = EquationFragment.VariableBracketsRegex.Match(txtCalculation.Text);
@@ -1403,6 +1512,8 @@ namespace Configuration_Editor
                             }
                         vbm = EquationFragment.BracketsRegex.Match(txtCalculation.Text);
                     }
+                    m_CurrentItem.Valid = false;
+                    m_CurrentItem.StatusDetails = "Equation unpareseable (" + ex.Message + ")";
                 }
             }
             txtCalculation.Select(oldSelectionStart, oldSelectionLength);
@@ -1476,6 +1587,7 @@ namespace Configuration_Editor
                     continue;
                 else
                     lstProjectVector.Items.Remove(lvi);
+            CheckCalculations();
             lstProjectVector.EndUpdate();
         }
 
@@ -1579,6 +1691,13 @@ namespace Configuration_Editor
         {
             try
             {
+                if (m_ConfigFile != null)
+                    switch (MessageBox.Show("Do you wish to save changes to " + Path.GetFileName(m_ConfigFile.Name) + "?", "SysCAD Configuration Editor", MessageBoxButtons.YesNoCancel))
+                    {
+                        case DialogResult.Yes: Save(); break;
+                        case DialogResult.Cancel:return;
+                        case DialogResult.No: break;
+                    }
                 if (m_SpecieDataTable.Rows.Count == 0)
                 {
                     string t = dlgOpenDB.Title;
@@ -1611,13 +1730,20 @@ namespace Configuration_Editor
 
         private void txtFormula0_Leave(object sender, EventArgs e)
         {
-            foreach (Control c in pnlTempDependantRadios.Controls)
-                if (c is RadioButton && ((RadioButton)c).Checked)
-                {
-                    string col = (string)c.Tag;
-                    m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][col] = CreateDBString();
-                    LoadEquationsIntoGraph(col);
-                }
+            try
+            {
+                foreach (Control c in pnlTempDependantRadios.Controls)
+                    if (c is RadioButton && ((RadioButton)c).Checked)
+                    {
+                        string col = (string)c.Tag;
+                        m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][col] = CreateDBString();
+                        LoadEquationsIntoGraph(col);
+                    }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Formulae", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void menuSortSpDBAlph_CheckedChanged(object sender, EventArgs e)
@@ -1630,9 +1756,31 @@ namespace Configuration_Editor
             TransferSpecies();
         }
 
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        private void menuNew_Click(object sender, EventArgs e)
         {
-            LoadFromDictionary(m_DefaultIniDictionary);
+            if (m_ConfigFile != null)
+                switch (MessageBox.Show("Do you wish to save changes to " + Path.GetFileName(m_ConfigFile.Name) + "?", "SysCAD Configuration Editor", MessageBoxButtons.YesNoCancel))
+                {
+                    case DialogResult.Yes: Save(); break;
+                    case DialogResult.Cancel: return;
+                    case DialogResult.No: break;
+                }
+            if (m_SpecieDataTable.Rows.Count == 0)
+            {
+                string t = dlgOpenDB.Title;
+                dlgOpenDB.Title = "Please select a specie database to open before creating a configuration file";
+                DialogResult d = dlgOpenDB.ShowDialog();
+                dlgOpenDB.Title = t;
+
+                if (d != DialogResult.OK)
+                    return;
+                OpenDatabase(dlgOpenDB.FileName);
+            }
+            Dictionary<string, Dictionary<string, string>> tmp = new Dictionary<string, Dictionary<string, string>>();
+            foreach (KeyValuePair<string, Dictionary<string, string>> kvp in m_DefaultIniDictionary)
+                tmp[kvp.Key] = new Dictionary<string,string>(kvp.Value);
+            LoadFromDictionary(tmp);
+            AddSumItems();
         }
 
         private void aboutSysCADConfigurationEditorToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1644,6 +1792,28 @@ namespace Configuration_Editor
         private void dlgOpenDB_FileOk(object sender, CancelEventArgs e)
         {
             SetDirectory(((FileDialog)sender).InitialDirectory);
+        }
+
+        private void fileToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
+        {
+            menuSave.Enabled = menuSaveAs.Enabled = m_ConfigFile != null;
+        }
+
+        private void menuExit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (m_ConfigFile != null)
+                switch (MessageBox.Show("Do you wish to save changes to " + Path.GetFileName(m_ConfigFile.Name) + "?", "SysCAD Configuration Editor", MessageBoxButtons.YesNoCancel))
+                {
+                    case DialogResult.Yes: Save(); break;
+                    case DialogResult.Cancel: e.Cancel = true; break;
+                    case DialogResult.No: break;
+                }
+            base.OnClosing(e);
         }
     }
 
@@ -1704,9 +1874,7 @@ namespace Configuration_Editor
             m_Frag = frag;
             m_GraphVariable = VariableName;
         }
-
     }
-
 
     public class PolyEquationSeries : GraphSeries
     {
@@ -1816,6 +1984,7 @@ namespace Configuration_Editor
         {
             m_DataSets.Clear();
             m_BackupSeries = null;
+            this.m_fMin = this.m_fMax = float.NaN;
             FireRedrawRequired(this, new EventArgs());
         }
 

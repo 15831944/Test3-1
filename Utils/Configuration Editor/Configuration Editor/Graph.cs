@@ -454,7 +454,13 @@ namespace Configuration_Editor
                         gfx.DrawLine(yAxisPen, checkRight, checkLeft);
                         if (labelChecks)
                         {
-                            string label = (selectedSeries.Min + YFact2 * i).ToString("G2");
+                            //G2 seems to love to show 100 as 1E2, which looks like shit.
+                            double val = selectedSeries.Min + YFact2 * i;
+                            string label;
+                            if (Math.Abs(val) < 10000 && Math.Abs(val) > 10)
+                                label = val.ToString("F0");
+                            else
+                                label = val.ToString("G2");
                             PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
                             gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
                         }

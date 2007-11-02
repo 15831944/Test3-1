@@ -133,6 +133,7 @@ NumericStartingTagsBad=0
 NumericTagsBad=1
 UseStdFns4H2O=1
 Default_SpModel=Standard
+H2O_as_aqueous=1
 
 [Modes]
 Default_NetMode=Dynamic
