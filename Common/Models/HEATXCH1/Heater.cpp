@@ -415,7 +415,11 @@ void SimpleHeater::EvalCtrlActions(eScdCtrlTasks Tasks)
 
 void SimpleHeater::EvalProducts(CNodeEvalIndex & NEI)
   {
-  if (iDutyMethod==HDM_DutyTag)
+  if (iDutyMethod==HDM_Duty)
+    {
+    dTout_Rqd = dNAN;
+    }
+  else if (iDutyMethod==HDM_DutyTag)
     {
     dDuty_Rqd = dFarDutyVal * dDutyFactor;
     dTout_Rqd = dNAN;
