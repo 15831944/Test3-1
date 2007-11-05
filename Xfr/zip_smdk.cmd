@@ -20,8 +20,8 @@ goto continue
 
 :blankname
 echo ..
-echo NBNB Usage should be: zip_smdk VerName [size]
-echo Usage example: zip_smdk bin120
+echo NBNB Usage should be: zip_smdk VerName
+echo Usage example: zip_smdk bin125_2795
 echo ---- Ctrl-C to cancel ----
 echo Any key to continue and place files in SMDK folder
 echo ..
@@ -33,15 +33,13 @@ set fn=xfr\%foldr%\SMDK_120
 
 :continue 
 
-PATH = %pt1%;PATH
-
 pushd ..
 
 rem ========== SMDK Units ==========
 set fn2=%fn%_Units.zip
 del %fn2%
-wzzip -a -P -r %fn2% smdk\devlic.exe
-wzzip -a -P -r %fn2% smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\devlic.exe smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\regsmdk.cmd smdk\crypkeycom.dll smdk\crypkeycomserver.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
 wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
@@ -57,8 +55,8 @@ wzzip -a -P -r %fn2% smdk\examples\demousr\demousr.vcproj smdk\examples\demousr\
 rem ========== SMDK Props ==========
 set fn2=%fn%_Props.zip
 del %fn2%
-wzzip -a -P -r %fn2% smdk\devlic.exe
-wzzip -a -P -r %fn2% smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\devlic.exe smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\regsmdk.cmd smdk\crypkeycom.dll smdk\crypkeycomserver.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
 wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
@@ -74,8 +72,8 @@ wzzip -a -P -r %fn2% smdk\examples\demospusr\demospusr.vcproj smdk\examples\demo
 rem ========== SMDK Alumina Props ==========
 set fn2=%fn%_AlProps.zip
 del %fn2%
-wzzip -a -P -r %fn2% smdk\devlic.exe
-wzzip -a -P -r %fn2% smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\devlic.exe smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\regsmdk.cmd smdk\crypkeycom.dll smdk\crypkeycomserver.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
 wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
@@ -93,8 +91,8 @@ wzzip -a -P -r %fn2% smdk\examples\demoalspusr\demoalspusr.vcproj smdk\examples\
 rem ========== SMDK Full ==========
 set fn2=%fn%_Full.zip
 del %fn2%
-wzzip -a -P -r %fn2% smdk\devlic.exe
-wzzip -a -P -r %fn2% smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\devlic.exe smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\regsmdk.cmd smdk\crypkeycom.dll smdk\crypkeycomserver.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
 wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
@@ -114,8 +112,8 @@ wzzip -a -P -r %fn2% smdk\examples\demoalspusr\demoalspusr.vcproj smdk\examples\
 rem ========== SMDK Internal ==========
 set fn2=%fn%_Internal.zip
 del %fn2%
-wzzip -a -P -r %fn2% smdk\devlic.exe
-wzzip -a -P -r %fn2% smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\devlic.exe smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\regsmdk.cmd smdk\crypkeycom.dll smdk\crypkeycomserver.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
 wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
@@ -132,8 +130,8 @@ wzzip -a -P -r %fn2% smdk\binex\rls\devlibex.lib
 rem ========== SMDK Alcan ==========
 set fn2=%fn%_Alcan.zip
 del %fn2%
-wzzip -a -P -r %fn2% smdk\devlic.exe
-wzzip -a -P -r %fn2% smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\devlic.exe smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\regsmdk.cmd smdk\crypkeycom.dll smdk\crypkeycomserver.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
 wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
@@ -158,8 +156,8 @@ rem wzzip -a -P -r %fn2% smdk\alcan\alcanspusr\alcanspusr.vcproj smdk\alcan\alca
 rem ========== SMDK Simutron ==========
 set fn2=%fn%_Simutron.zip
 del %fn2%
-wzzip -a -P -r %fn2% smdk\devlic.exe
-wzzip -a -P -r %fn2% smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\devlic.exe smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\regsmdk.cmd smdk\crypkeycom.dll smdk\crypkeycomserver.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
 wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
@@ -181,8 +179,8 @@ wzzip -a -P -r %fn2% smdk\simutron\skospmdls\skospmdls.vcproj smdk\simutron\skos
 rem ========== SMDK Kenwalt ==========
 set fn2=%fn%_Kenwalt.zip
 del %fn2%
-wzzip -a -P -r %fn2% smdk\devlic.exe
-wzzip -a -P -r %fn2% smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\devlic.exe smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\regsmdk.cmd smdk\crypkeycom.dll smdk\crypkeycomserver.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
 wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
@@ -224,9 +222,8 @@ echo %pt% or %pt1% does not exist!!!
 goto done
 
 :use
-echo Usage: zip_smdk VerName [size]
-echo example1: zip_smdk bin114
-echo example2: zip_smdk bin112u3 1024
+echo Usage: zip_smdk VerName
+echo example1: zip_smdk bin125_2795
 
 goto done
 
