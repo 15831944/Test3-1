@@ -1567,12 +1567,12 @@ ReTry:
               int LenP=Prefix.Length();
               int LenR=RqdPrefix.Length();
 #if dbgLoadObjMDBPf
-              dbgpln("  %60s   :%3i %3i %-15s %-15s","", LenP, LenR, Prefix() ? Prefix() : "", RqdPrefix());
+              dbgpln("  %60s   :%3i %3i %-15s %-15s","", LenP, LenR, Prefix() ? Prefix() : "", RqdPrefix()?RqdPrefix():"");
 #endif
               if ((LenP!=LenR) || ((LenP>0) && (Prefix.XStrCmp(RqdPrefix())!=0)))
                 {
 #if dbgLoadObjMDBPf
-                dbgpln("     :%-15s != %-15s", Prefix() ? Prefix() : "", RqdPrefix());
+                dbgpln("     :%-15s != %-15s", Prefix() ? Prefix() : "", RqdPrefix()?RqdPrefix():"");
 #endif
                 // find no of chars for which current prefix == reqd prefix
                 int i=0,j=Min(RqdPrefix.Length(), Prefix.Length());
