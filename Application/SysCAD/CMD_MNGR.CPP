@@ -729,7 +729,7 @@ class CCmdSaveSnapshot : public CCmdBase
       flags |= CmdFlagDoNotExecNext; 
       };
     CCmdSaveSnapshot(const CScdCmdSnapshot & Data) : \
-      CCmdBase(ComCmd_LoadSnapshot) 
+      CCmdBase(ComCmd_SaveSnapshot) 
       { 
       m_Data.m_sFileName = Data.m_sFileName; 
       flags |= CmdFlagDoNotExecNext; 
