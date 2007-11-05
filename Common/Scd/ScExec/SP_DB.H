@@ -792,18 +792,18 @@ class DllImportExport CSpFidelData
     double         TestLoT();
     double         TestHiT();
 
-    double         mlCp(double T, double P)
-      {
-      _asm int 3;
-      };// { int i=FindTIndex(T); return m_pCp[i]->AtTP(T, P); };
-    double         mlSf(double T, double P)
-      {
-      _asm int 3;
-      };// { int i=FindTIndex(T); return (m_pS[i] ? m_pS[i]->AtTP(T, P) : m_pCp[i]->IntegrateOverT_dT(m_pCp[i]->m_dTs, GTZ(T), P)); };
-    double         mlHf(double T, double P)
-      {
-      _asm int 3;
-      };// { int i=FindTIndex(T); return (m_pH[i] ? m_pH[i]->AtTP(T, P) : m_pCp[i]->Integrate_dT(m_pCp[i]->m_dTs, T, P)); };
+    //double         mlCp(double T, double P)
+    //  {
+    //  _asm int 3;
+    //  };// { int i=FindTIndex(T); return m_pCp[i]->AtTP(T, P); };
+    //double         mlSf(double T, double P)
+    //  {
+    //  _asm int 3;
+    //  };// { int i=FindTIndex(T); return (m_pS[i] ? m_pS[i]->AtTP(T, P) : m_pCp[i]->IntegrateOverT_dT(m_pCp[i]->m_dTs, GTZ(T), P)); };
+    //double         mlHf(double T, double P)
+    //  {
+    //  _asm int 3;
+    //  };// { int i=FindTIndex(T); return (m_pH[i] ? m_pH[i]->AtTP(T, P) : m_pCp[i]->Integrate_dT(m_pCp[i]->m_dTs, T, P)); };
 
   protected:
     int            xFindTIndex(double T);

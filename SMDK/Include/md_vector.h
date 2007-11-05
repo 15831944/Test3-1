@@ -552,9 +552,6 @@ class DllImportExport MStreamI : public MStream
 
     MStreamI & operator*=(const double &D)  { *(MStream*)this *= D; return *this; };
     MStreamI & operator=(const MStream & S) { *(MStream*)this = S; return *this; };
-
-  //protected:
-  //  MBaseMethod * m_pMethod;
   };
 
 //---------------------------------------------------------------------------
@@ -623,12 +620,7 @@ class DllImportExport MContainerI : public MContainer
 
     MContainerI & operator*=(const double &D)     { *(MContainer*)this *= D; return *this; };
     MContainer & operator=(const MContainer & C)  { *(MContainer*)this = C; return *this; };
-
-  //protected:
-  //  MBaseMethod * m_pMethod;
   };
-
-//class MContainers : public CArray <MContainer, MContainer&> {};
 
 //---------------------------------------------------------------------------
 
