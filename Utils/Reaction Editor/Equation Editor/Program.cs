@@ -22,9 +22,14 @@ namespace Reaction_Editor
         [STAThread]
         static void Main(string[] args)
         {
+            startupMutexRequiresRelease = startupMutex.WaitOne(20000, false);
             Args = args;
             if (!SetupInterop())
+            {
+                if (startupMutexRequiresRelease)
+                    startupMutex.ReleaseMutex();
                 return;
+            }
          
             Assembly asm = Assembly.GetExecutingAssembly();
             ResourceReader rr = new ResourceReader(asm.GetManifestResourceStream(typeof(FrmMain), "Images.Icons.resources"));
@@ -56,8 +61,7 @@ namespace Reaction_Editor
 
             //The application responsible for the communication channel must not shut down:
             if (ResponsibleForChannel)
-                while (interopMessenger.OpenDirectories.Count > 0)
-                    Thread.Sleep(1000);
+                interopMessenger.DoKeepAliveLoop();
         }
 
         public static ILog Log;
@@ -67,20 +71,21 @@ namespace Reaction_Editor
         public static bool Dynamic = true;
         public static String[] Args;
         public static Dictionary<object, int> AutocompleteHitCounts = new Dictionary<object, int>();
+        
         public static InteropMessenger interopMessenger;
-
+        public static Mutex startupMutex = new Mutex(false, "KWA_ReactionEditor_Startup");
+        public static bool startupMutexRequiresRelease;
         private static bool ResponsibleForChannel = false;
-
+        
         private static bool SetupInterop()
         {
             IpcChannel ipcChannel = null;
+            System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+            serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+            BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+
             try
             {
-                System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
-                serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
-
-                BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
-
                 Hashtable ipcProps = new Hashtable();
                 ipcProps["portName"] = "SysCAD.ReactionEditor";
                 //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
@@ -99,22 +104,17 @@ namespace Reaction_Editor
                     foreach (string s in Args)
                         try  //Because GetDirectoryName has a few exceptions it likes to throw.
                         {
-                            if (Directory.Exists(Path.GetDirectoryName(s)))
+                            if (Directory.Exists(s) || File.Exists(s))
                             {
-                                directory = Path.GetFullPath(Path.GetDirectoryName(s));
+                                directory = Directory.Exists(s) ? s : 
+                                    Path.GetDirectoryName(s);
                                 if (directory == "")
                                     directory = Path.GetPathRoot(Path.GetDirectoryName(s));
                                 break;
                             }
                         }
                         catch { }
-                    bool alreadyOpen = string.IsNullOrEmpty(directory);
-                    foreach (string s in interopMessenger.OpenDirectories)
-                        if (s.ToLowerInvariant() == directory.ToLowerInvariant())
-                        {
-                            alreadyOpen = true;
-                            break;
-                        }
+                    bool alreadyOpen = Program.interopMessenger.AlreadyOpen(directory);
                     if (alreadyOpen)
                     {
                         interopMessenger.SendStrings(directory, Args);
@@ -154,7 +154,27 @@ namespace Reaction_Editor
 
     class InteropMessenger : MarshalByRefObject
     {
-        public List<String> OpenDirectories = new List<string>();
+        private List<String> OpenDirectories = new List<string>();
+
+        public void RegisterDirectory(string dir)
+        {
+            OpenDirectories.Add(dir);
+        }
+
+        public void UnRegisterDirectory(string dir)
+        {
+            if (OpenDirectories.Contains(dir))
+                OpenDirectories.Remove(dir);
+        }
+
+        public bool AlreadyOpen(string dir)
+        {
+            string d = dir.ToLower();
+            foreach (string s in OpenDirectories)
+                if (d == s.ToLower())
+                    return true;
+            return false;
+        }
 
         public override object InitializeLifetimeService()
         {
@@ -170,5 +190,11 @@ namespace Reaction_Editor
         public event StringSentDelegate StringSent;
 
         public delegate void StringSentDelegate(string dir, string[] s);
+
+        public void DoKeepAliveLoop()
+        {
+            while (OpenDirectories.Count > 0)
+                Thread.Sleep(1000);
+        }
     }
 }

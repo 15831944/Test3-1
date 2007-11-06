@@ -391,16 +391,22 @@ namespace Reaction_Editor
 
         protected override void OnClosed(EventArgs e)
         {
-            foreach (string s in regKey.GetValueNames())
-                if (recentFileRegex.Match(s).Success)
-                    regKey.DeleteValue(s);
+            try
+            {
+                foreach (string s in regKey.GetValueNames())
+                    if (recentFileRegex.Match(s).Success)
+                        regKey.DeleteValue(s);
 
-            int i = 0;
-            foreach(ToolStripMenuItem item in m_RecentFiles)
-                regKey.SetValue("RecentFile" + i++, item.Tag);
-
-            if (Program.interopMessenger.OpenDirectories.Contains(m_sActiveDirectory))
-                Program.interopMessenger.OpenDirectories.Remove(m_sActiveDirectory);
+                int i = 0;
+                foreach (ToolStripMenuItem item in m_RecentFiles)
+                    regKey.SetValue("RecentFile" + i++, item.Tag);
+            }
+            catch { }
+            try
+            {
+                Program.interopMessenger.UnRegisterDirectory(m_sActiveDirectory);
+            }
+            catch { }
         }
 
         protected void UpdateToolbar()
@@ -424,167 +430,196 @@ namespace Reaction_Editor
 
         public FrmMain()
         {
-            InitializeComponent();
-
             try
             {
-                regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
-            }
-            catch { }
+                InitializeComponent();
 
-            //treeFiles.Nodes["SpecieDB"].ContextMenuStrip = menuDatabaseFile;
-            //ResourceReader rr = new ResourceReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(FrmMain), "Icons.resources"));
-            lstSpecies.SmallImageList = Program.Images;
-            Program.Log = new ListLog(lstLog);
-
-            string[] valueNames = regKey.GetValueNames();
-            Array.Sort<String>(valueNames);
-            List<ToolStripMenuItem> recentList = new List<ToolStripMenuItem>();
-            foreach (string s in valueNames)
-                if (recentFileRegex.Match(s).Success)
+                try
                 {
-                    if (m_RecentFiles.Count >= m_nRecentFileCount)
-                        break; //Don't load more than [m_nRecentFileCount] files.
-                    RegisterRecentFile(regKey.GetValue(s).ToString());
+                    regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
                 }
+                catch { }
 
-            Program.FrmAutobalanceExtraComps = new FrmAutobalanceExtraComps(regKey.CreateSubKey("Autobalance Sets"));
+                //treeFiles.Nodes["SpecieDB"].ContextMenuStrip = menuDatabaseFile;
+                //ResourceReader rr = new ResourceReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(FrmMain), "Icons.resources"));
+                lstSpecies.SmallImageList = Program.Images;
+                Program.Log = new ListLog(lstLog);
 
-            Program.FrmAutobalanceExtraComps.VisibleChanged += new EventHandler(FrmAutobalanceExtraComps_VisibleChanged);
+                string[] valueNames = regKey.GetValueNames();
+                Array.Sort<String>(valueNames);
+                List<ToolStripMenuItem> recentList = new List<ToolStripMenuItem>();
+                foreach (string s in valueNames)
+                    if (recentFileRegex.Match(s).Success)
+                    {
+                        if (m_RecentFiles.Count >= m_nRecentFileCount)
+                            break; //Don't load more than [m_nRecentFileCount] files.
+                        RegisterRecentFile(regKey.GetValue(s).ToString());
+                    }
 
-            UpdateToolbar();
+                Program.FrmAutobalanceExtraComps = new FrmAutobalanceExtraComps(regKey.CreateSubKey("Autobalance Sets"));
 
-            HandleArgs(m_sActiveDirectory, Program.Args);
-            Program.interopMessenger.StringSent += new InteropMessenger.StringSentDelegate(HandleArgs);
+                Program.FrmAutobalanceExtraComps.VisibleChanged += new EventHandler(FrmAutobalanceExtraComps_VisibleChanged);
+
+                UpdateToolbar();
+
+                HandleArgs(m_sActiveDirectory, Program.Args);
+                Program.interopMessenger.StringSent += new InteropMessenger.StringSentDelegate(HandleArgs);
+            }
+            finally
+            {
+                if (Program.startupMutexRequiresRelease)
+                    Program.startupMutex.ReleaseMutex();
+            }
         }
 
         void HandleArgs(string dir, string[] args)
         {
-            if (!string.IsNullOrEmpty(this.m_sActiveDirectory) && !string.IsNullOrEmpty(dir) &&
-                dir.ToLowerInvariant() != this.m_sActiveDirectory.ToLowerInvariant())
-                return; //Ignore messages not intended for our application.
-
-            bool bEndNotification = false;
-            foreach (string s in args)
-                if (s.ToLowerInvariant() == "/sessionended")
-                    bEndNotification = true;
-            if (bEndNotification)
-                MessageBox.Show("The SysCAD session associated with this instance of the reaction editor has ended.", "SysCAD Reaction Editor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
             if (this.InvokeRequired)
             {
+                //This seems to cause some issues with the interop.
+                Console.WriteLine("FrmMain::HandleArgs() about to invoke");
                 this.BeginInvoke(new InteropMessenger.StringSentDelegate(HandleArgs), new object[] { dir, args });
+                Console.WriteLine("FrmMain::HandleArgs() about to return");
                 return;
             }
-            string lastPath = "My Documents";
+            Console.WriteLine("FrmMain::HandleArgs() passed InvokeRequired()");
             try
             {
-                lastPath = (string)regKey.GetValue("Last Folder", "My Documents");
-            }
-            catch { }
+                if (!string.IsNullOrEmpty(this.m_sActiveDirectory) && !string.IsNullOrEmpty(dir) &&
+                    dir.ToLowerInvariant() != this.m_sActiveDirectory.ToLowerInvariant())
+                    return; //Ignore messages not intended for our application.
 
-            bool bDBOpen = treeFiles.Nodes["SpecieDB"].Nodes.Count > 0;
-            bool bAll = false;
-            foreach (string s in args)
-                if (s.Trim().ToLowerInvariant() == "/all")
-                    bAll = true;
+                bool bEndNotification = false;
+                foreach (string s in args)
+                    if (s.ToLowerInvariant() == "/sessionended")
+                        bEndNotification = true;
+                if (bEndNotification)
+                    MessageBox.Show("The SysCAD session associated with this instance of the reaction editor has ended.", "SysCAD Reaction Editor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-            //Check for a specified specieDB:
-            foreach (string s in args)
-            {
+                string regLastPath = "My Documents";
+                string lastPath = "";
                 try
                 {
-                    if (Path.GetExtension(s).ToLowerInvariant() == ".ini")
-                    {
-                        lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
-                        if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
-                        OpenSpecieDB(s);
-                        bDBOpen = true;
-                        break;
-                    }
+                    regLastPath = (string)regKey.GetValue("Last Folder", "My Documents");
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.ToString(), "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
+                catch { }
 
-            //Check for a specified folder with a specieDB:
-            if (!bDBOpen)
-            {
+                bool bDBOpen = treeFiles.Nodes["SpecieDB"].Nodes.Count > 0;
+                bool bAll = false;
                 foreach (string s in args)
+                    if (s.Trim().ToLowerInvariant() == "/all")
+                        bAll = true;
+
+                //Check for a specified specieDB:
+                foreach (string s in args)
+                {
                     try
                     {
-                        if (File.Exists(Path.Combine(Path.GetDirectoryName(s), "speciedata.ini")))
+                        if (Path.GetExtension(s).ToLowerInvariant() == ".ini")
                         {
                             lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
                             if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
-                            OpenSpecieDB(Path.Combine(Path.GetDirectoryName(s), "speciedata.ini"));
+                            OpenSpecieDB(s);
                             bDBOpen = true;
                             break;
                         }
                     }
                     catch (Exception ex)
                     {
+                        MessageBox.Show(ex.ToString(), "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
+                //Check for a specified folder with a specieDB:
+                if (!bDBOpen)
+                {
+                    foreach (string s in args)
+                        try
+                        {
+                            string curDir = Directory.Exists(s) ? s : Path.GetDirectoryName(s);
+                            if (File.Exists(Path.Combine(curDir, "speciedata.ini")))
+                            {
+                                lastPath = Path.GetFullPath(curDir);
+                                if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
+                                OpenSpecieDB(Path.Combine(curDir, "speciedata.ini"));
+                                bDBOpen = true;
+                                break;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message, "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                }
+
+                //Load any folders specified:
+                foreach (string s in args)
+                {
+                    try
+                    {
+                        string s2 = bAll && Path.GetExtension(s).ToLowerInvariant() == ".rct" ?
+                            Path.GetDirectoryName(s) : s;
+                        if (Directory.Exists(s2))
+                        {
+                            lastPath = Path.GetFullPath(s2);
+                            if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s2));
+                            foreach (string f in Directory.GetFiles(s2, "*.rct"))
+                                if (AlreadyOpen(f) == null && f.ToLowerInvariant() != s.ToLowerInvariant())
+                                    Open(f);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
                         MessageBox.Show(ex.Message, "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-            }
+                }
 
-            //Load any folders specified:
-            foreach (string s in args)
-            {
-                try
+                //Load any reactions:
+                foreach (string s in args)
                 {
-                    string s2 = bAll && Path.GetExtension(s).ToLowerInvariant() == ".rct" ?
-                        Path.GetDirectoryName(s) : s;
-                    if (Directory.Exists(s2))
+                    try
                     {
-                        lastPath = Path.GetDirectoryName(Path.GetFullPath(s2));
-                        if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s2));
-                        foreach (string f in Directory.GetFiles(s2, "*.rct"))
-                            if (AlreadyOpen(f) == null && f.ToLowerInvariant() != s.ToLowerInvariant())
-                                Open(f);
+                        if (Path.GetExtension(s).ToLowerInvariant() == ".rct")
+                        {
+                            lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
+                            if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
+                            Open(s).WindowState = FormWindowState.Maximized;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
 
-            //Load any reactions:
-            foreach (string s in args)
+                if (!string.IsNullOrEmpty(lastPath))
+                    UpdateLastPath(lastPath);
+                else
+                    SetDirs(regLastPath);
+                this.Activate();
+            }
+            catch (Exception ex)
             {
-                try
-                {
-                    if (Path.GetExtension(s).ToLowerInvariant() == ".rct")
-                    {
-                        lastPath = Path.GetDirectoryName(Path.GetFullPath(s));
-                        if (lastPath == "") lastPath = Path.GetPathRoot(Path.GetFullPath(s));
-                        Open(s).WindowState = FormWindowState.Maximized;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Command Line Arguments", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                Console.WriteLine(ex.ToString());
             }
-
-            UpdateLastPath(lastPath);
-            this.Activate();
+            Console.WriteLine("FrmMain::HandleArgs() about to complete");
         }
 
         protected void UpdateLastPath(string lastPath)
         {
-            if (Program.interopMessenger.OpenDirectories.Contains(m_sActiveDirectory))
-                Program.interopMessenger.OpenDirectories.Remove(m_sActiveDirectory);
+            Program.interopMessenger.UnRegisterDirectory(m_sActiveDirectory);
             m_sActiveDirectory = lastPath;
-            Program.interopMessenger.OpenDirectories.Add(m_sActiveDirectory);
+            Program.interopMessenger.RegisterDirectory(m_sActiveDirectory);
             regKey.SetValue("Last Folder", lastPath);
-            dlgOpenDB.InitialDirectory = lastPath;
-            dlgOpenRxn.InitialDirectory = lastPath;
-            dlgSaveRxn.InitialDirectory = lastPath;
-            dlgOpenFolder.SelectedPath = lastPath;
+            SetDirs(lastPath);
+        }
+
+        protected void SetDirs(string path)
+        {
+            dlgOpenDB.InitialDirectory = path;
+            dlgOpenRxn.InitialDirectory = path;
+            dlgSaveRxn.InitialDirectory = path;
+            dlgOpenFolder.SelectedPath = path;
         }
 
         void FrmAutobalanceExtraComps_VisibleChanged(object sender, EventArgs e)
@@ -958,7 +993,7 @@ namespace Reaction_Editor
             if (dlgOpenFolder.ShowDialog(this) != DialogResult.OK)
                 return;
 
-            if (!string.IsNullOrEmpty(m_sActiveDirectory) && m_sActiveDirectory != dlgOpenFolder.SelectedPath)
+            if (!string.IsNullOrEmpty(m_sActiveDirectory) && m_sActiveDirectory.ToLower() != dlgOpenFolder.SelectedPath.ToLower())
             {
                 if (MessageBox.Show(this, "Folder will be opened in a new instance of the Reaction Editor.", "Open Folder", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                     System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location, "/all \"" + dlgOpenFolder.SelectedPath + '"');
@@ -974,7 +1009,7 @@ namespace Reaction_Editor
                     {
                         bool dbOpen = false;
                         foreach (TreeNode tn in treeFiles.Nodes["SpecieDB"].Nodes)
-                            if (tn.Text == dlgOpenFolder.SelectedPath + "\\SpecieData.ini")
+                            if (tn.Text.ToLower() == dlgOpenFolder.SelectedPath.ToLower() + "\\speciedata.ini")
                             {
                                 dbOpen = true;
                                 break;
