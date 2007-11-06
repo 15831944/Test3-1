@@ -68,16 +68,16 @@
     <Compile Include="FrmChangeDialogue.Designer.cs">
       <DependentUpon>FrmChangeDialogue.cs</DependentUpon>
     </Compile>
+    <Compile Include="NumericTextbox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="TextBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Third Party Controls\BANumEdit.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Data Structures.cs" />
     <Compile Include="FrmAutoComplete.cs">
-      <SubType>Form</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="FrmAutoComplete.designer.cs">
       <DependentUpon>FrmAutoComplete.cs</DependentUpon>
@@ -125,10 +125,6 @@
     <EmbeddedResource Include="FrmChangeDialogue.resx">
       <SubType>Designer</SubType>
       <DependentUpon>FrmChangeDialogue.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Third Party Controls\BANumEdit.resx">
-      <DependentUpon>BANumEdit.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmAutoComplete.resx">
       <DependentUpon>FrmAutoComplete.cs</DependentUpon>

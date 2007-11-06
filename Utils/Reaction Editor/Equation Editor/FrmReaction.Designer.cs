@@ -63,12 +63,12 @@ namespace Reaction_Editor
             this.chkExtentOption = new System.Windows.Forms.CheckBox();
             this.lblExtent2 = new System.Windows.Forms.Label();
             this.lblExtent3 = new System.Windows.Forms.Label();
-            this.numExtentVal3 = new CtrlLib.NumEdit();
-            this.numExtentVal2 = new CtrlLib.NumEdit();
+            this.numExtentVal3 = new Reaction_Editor.NumericTextbox();
+            this.numExtentVal2 = new Reaction_Editor.NumericTextbox();
             this.lblExtentUnits = new System.Windows.Forms.Label();
             this.comboExtentSpecie = new System.Windows.Forms.ComboBox();
             this.lblExtentValue = new System.Windows.Forms.Label();
-            this.numExtentValue = new CtrlLib.NumEdit();
+            this.numExtentValue = new Reaction_Editor.NumericTextbox();
             this.comboExtentType = new System.Windows.Forms.ComboBox();
             this.btnBalance = new System.Windows.Forms.Button();
             this.txtReactants = new Auto_Complete.BoxAutoComplete();
@@ -76,15 +76,15 @@ namespace Reaction_Editor
             this.grpHOR = new System.Windows.Forms.GroupBox();
             this.chkHOROverride = new System.Windows.Forms.CheckBox();
             this.lblHORPUnits = new System.Windows.Forms.Label();
-            this.numHORP = new CtrlLib.NumEdit();
+            this.numHORP = new Reaction_Editor.NumericTextbox();
             this.lblHORP = new System.Windows.Forms.Label();
             this.lblHORT = new System.Windows.Forms.Label();
-            this.numHORT = new CtrlLib.NumEdit();
+            this.numHORT = new Reaction_Editor.NumericTextbox();
             this.comboHORConditions = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.comboHORUnits = new System.Windows.Forms.ComboBox();
             this.comboHORSpecie = new System.Windows.Forms.ComboBox();
-            this.numHORValue = new CtrlLib.NumEdit();
+            this.numHORValue = new Reaction_Editor.NumericTextbox();
             this.lblHORValue = new System.Windows.Forms.Label();
             this.txtFormula = new System.Windows.Forms.TextBox();
             this.comboDirection = new System.Windows.Forms.ComboBox();
@@ -117,7 +117,7 @@ namespace Reaction_Editor
             this.numHXApproach = new System.Windows.Forms.NumericUpDown();
             this.lblHXApproach = new System.Windows.Forms.Label();
             this.lblHXUnits = new System.Windows.Forms.Label();
-            this.numHX = new CtrlLib.NumEdit();
+            this.numHX = new Reaction_Editor.NumericTextbox();
             this.lblHXValue = new System.Windows.Forms.Label();
             this.comboHXType = new System.Windows.Forms.ComboBox();
             this.tabBlank = new System.Windows.Forms.TabPage();
@@ -126,12 +126,12 @@ namespace Reaction_Editor
             this.grpDescription = new System.Windows.Forms.GroupBox();
             this.txtDescription = new Reaction_Editor.TextBoxEx();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.chkFirstReactant = new System.Windows.Forms.CheckBox();
             this.chkSequence = new System.Windows.Forms.CheckBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.label7 = new System.Windows.Forms.Label();
             this.tcMain.SuspendLayout();
             this.tabReactions.SuspendLayout();
             this.pnlList.SuspendLayout();
@@ -504,7 +504,6 @@ namespace Reaction_Editor
             // 
             // numExtentVal3
             // 
-            this.numExtentVal3.InputType = CtrlLib.NumEdit.NumEditType.Double;
             this.numExtentVal3.Location = new System.Drawing.Point(548, 15);
             this.numExtentVal3.Name = "numExtentVal3";
             this.numExtentVal3.Size = new System.Drawing.Size(78, 20);
@@ -514,7 +513,6 @@ namespace Reaction_Editor
             // 
             // numExtentVal2
             // 
-            this.numExtentVal2.InputType = CtrlLib.NumEdit.NumEditType.Double;
             this.numExtentVal2.Location = new System.Drawing.Point(424, 15);
             this.numExtentVal2.Name = "numExtentVal2";
             this.numExtentVal2.Size = new System.Drawing.Size(78, 20);
@@ -552,7 +550,6 @@ namespace Reaction_Editor
             // 
             // numExtentValue
             // 
-            this.numExtentValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
             this.numExtentValue.Location = new System.Drawing.Point(177, 15);
             this.numExtentValue.Name = "numExtentValue";
             this.numExtentValue.Size = new System.Drawing.Size(44, 20);
@@ -676,7 +673,6 @@ namespace Reaction_Editor
             // 
             // numHORP
             // 
-            this.numHORP.InputType = CtrlLib.NumEdit.NumEditType.Double;
             this.numHORP.Location = new System.Drawing.Point(590, 15);
             this.numHORP.Name = "numHORP";
             this.numHORP.Size = new System.Drawing.Size(48, 20);
@@ -706,7 +702,6 @@ namespace Reaction_Editor
             // 
             // numHORT
             // 
-            this.numHORT.InputType = CtrlLib.NumEdit.NumEditType.Double;
             this.numHORT.Location = new System.Drawing.Point(505, 15);
             this.numHORT.Name = "numHORT";
             this.numHORT.Size = new System.Drawing.Size(48, 20);
@@ -759,7 +754,6 @@ namespace Reaction_Editor
             // 
             // numHORValue
             // 
-            this.numHORValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
             this.numHORValue.Location = new System.Drawing.Point(177, 15);
             this.numHORValue.Name = "numHORValue";
             this.numHORValue.Size = new System.Drawing.Size(44, 20);
@@ -1153,7 +1147,6 @@ namespace Reaction_Editor
             // 
             // numHX
             // 
-            this.numHX.InputType = CtrlLib.NumEdit.NumEditType.Double;
             this.numHX.Location = new System.Drawing.Point(210, 15);
             this.numHX.Name = "numHX";
             this.numHX.Size = new System.Drawing.Size(78, 20);
@@ -1237,6 +1230,7 @@ namespace Reaction_Editor
             this.txtDescription.Location = new System.Drawing.Point(3, 16);
             this.txtDescription.Multiline = true;
             this.txtDescription.Name = "txtDescription";
+            this.txtDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtDescription.Size = new System.Drawing.Size(701, 315);
             this.txtDescription.TabIndex = 0;
             this.txtDescription.TextChanged += new System.EventHandler(this.txtDescription_TextChanged);
@@ -1254,6 +1248,27 @@ namespace Reaction_Editor
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Miscellaneous";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(7, 68);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(76, 13);
+            this.label7.TabIndex = 3;
+            this.label7.Text = "Extent Options";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "Probal",
+            "Dynamic Surge"});
+            this.comboBox1.Location = new System.Drawing.Point(89, 65);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 21);
+            this.comboBox1.TabIndex = 2;
             // 
             // chkFirstReactant
             // 
@@ -1293,27 +1308,6 @@ namespace Reaction_Editor
             // 
             this.statusLabel.Name = "statusLabel";
             this.statusLabel.Size = new System.Drawing.Size(0, 17);
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
-            "Probal",
-            "Dynamic Surge"});
-            this.comboBox1.Location = new System.Drawing.Point(89, 65);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 21);
-            this.comboBox1.TabIndex = 2;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(7, 68);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(76, 13);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "Extent Options";
             // 
             // FrmReaction
             // 
@@ -1382,11 +1376,11 @@ namespace Reaction_Editor
         private System.Windows.Forms.TextBox txtFormula;
         private System.Windows.Forms.GroupBox grpExtent;
         private System.Windows.Forms.Label lblExtentValue;
-        private CtrlLib.NumEdit numExtentValue;
+        private Reaction_Editor.NumericTextbox numExtentValue;
         private System.Windows.Forms.ComboBox comboExtentType;
         private System.Windows.Forms.GroupBox grpHOR;
         private System.Windows.Forms.ComboBox comboHORSpecie;
-        private CtrlLib.NumEdit numHORValue;
+        private Reaction_Editor.NumericTextbox numHORValue;
         private System.Windows.Forms.Label lblHORValue;
         private System.Windows.Forms.GroupBox grpOther;
         private System.Windows.Forms.Label label1;
@@ -1404,8 +1398,8 @@ namespace Reaction_Editor
         private System.Windows.Forms.Label lblExtentUnits;
         private System.Windows.Forms.Label lblExtent2;
         private System.Windows.Forms.Label lblExtent3;
-        private CtrlLib.NumEdit numExtentVal3;
-        private CtrlLib.NumEdit numExtentVal2;
+        private Reaction_Editor.NumericTextbox numExtentVal3;
+        private Reaction_Editor.NumericTextbox numExtentVal2;
         private System.Windows.Forms.CheckBox chkExtentOption;
         private System.Windows.Forms.CheckBox chkEnabled;
         private System.Windows.Forms.Label label3;
@@ -1420,10 +1414,10 @@ namespace Reaction_Editor
         private System.Windows.Forms.Button btnCopy;
         private System.Windows.Forms.CheckBox chkFirstReactant;
         private System.Windows.Forms.Label lblHORT;
-        private CtrlLib.NumEdit numHORT;
+        private Reaction_Editor.NumericTextbox numHORT;
         private System.Windows.Forms.ComboBox comboHORConditions;
         private System.Windows.Forms.Label label2;
-        private CtrlLib.NumEdit numHORP;
+        private Reaction_Editor.NumericTextbox numHORP;
         private System.Windows.Forms.Label lblHORP;
         private System.Windows.Forms.Label lblHORPUnits;
         private System.Windows.Forms.Button btnBalance;
@@ -1442,7 +1436,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.NumericUpDown numHXApproach;
         private System.Windows.Forms.Label lblHXApproach;
         private System.Windows.Forms.Label lblHXUnits;
-        private CtrlLib.NumEdit numHX;
+        private Reaction_Editor.NumericTextbox numHX;
         private System.Windows.Forms.Label lblHXValue;
         private System.Windows.Forms.ComboBox comboHXType;
         private Auto_Complete.BoxAutoComplete txtSinks;
