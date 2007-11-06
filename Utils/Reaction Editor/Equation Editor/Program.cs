@@ -102,10 +102,9 @@ namespace Reaction_Editor
                 {
 #if true           //Tests where the client would also register a channel...
                     Hashtable props = new Hashtable();
-                    props.Add("port", "0");
-                    IpcChannel chan = new IpcChannel(props, null, serverProv);
-                    Console.WriteLine("Registering channel");
-                    ChannelServices.RegisterChannel(chan);
+                    props["portName"] = "Remoting" + new Random().Next().ToString();
+                    ipcChannel = new IpcChannel(props, null, serverProv);
+                    ChannelServices.RegisterChannel(ipcChannel, false);
 #endif
 
                     interopMessenger = Activator.GetObject(typeof(InteropMessenger), "ipc://SysCAD.ReactionEditor/interopMessenger") as InteropMessenger;
@@ -161,49 +160,4 @@ namespace Reaction_Editor
         public static extern uint RegisterWindowMessage(string lpString);*/
     }
 
-    class InteropMessenger : MarshalByRefObject
-    {
-        private List<String> OpenDirectories = new List<string>();
-
-        public void RegisterDirectory(string dir)
-        {
-            OpenDirectories.Add(dir);
-        }
-
-        public void UnRegisterDirectory(string dir)
-        {
-            if (OpenDirectories.Contains(dir))
-                OpenDirectories.Remove(dir);
-        }
-
-        public bool AlreadyOpen(string dir)
-        {
-            string d = dir.ToLower();
-            foreach (string s in OpenDirectories)
-                if (d == s.ToLower())
-                    return true;
-            return false;
-        }
-
-        public override object InitializeLifetimeService()
-        {
-            return null;
-        }
-
-        public void SendStrings(string dir, string[] s)
-        {
-            if (StringSent != null)
-                StringSent(dir, s);
-        }
-
-        public event StringSentDelegate StringSent;
-
-        public delegate void StringSentDelegate(string dir, string[] s);
-
-        public void DoKeepAliveLoop()
-        {
-            while (OpenDirectories.Count > 0)
-                Thread.Sleep(1000);
-        }
-    }
 }

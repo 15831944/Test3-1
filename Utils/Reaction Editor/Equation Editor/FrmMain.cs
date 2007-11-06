@@ -405,7 +405,6 @@ namespace Reaction_Editor
             try
             {
                 Program.interopMessenger.UnRegisterDirectory(m_sActiveDirectory);
-                Program.interopMessenger.StringSent -= new InteropMessenger.StringSentDelegate(HandleArgs);
             }
             catch { }
         }
@@ -464,8 +463,8 @@ namespace Reaction_Editor
                 UpdateToolbar();
 
                 HandleArgs(m_sActiveDirectory, Program.Args);
-                if (!Program.ResponsibleForChannel)
-                    Program.interopMessenger.StringSent += new InteropMessenger.StringSentDelegate(HandleArgs);
+
+                //Program.interopMessenger.RegisterDirectory(m_sActiveDirectory, new StringHandler(HandleArgs));
             }
             finally
             {
@@ -480,7 +479,7 @@ namespace Reaction_Editor
             {
                 //This seems to cause some issues with the interop.
                 Console.WriteLine("FrmMain::HandleArgs() about to invoke");
-                this.BeginInvoke(new InteropMessenger.StringSentDelegate(HandleArgs), new object[] { dir, args });
+                this.BeginInvoke(new StringHandler(HandleArgs), new object[] { dir, args });
                 Console.WriteLine("FrmMain::HandleArgs() about to return");
                 return;
             }
@@ -611,7 +610,7 @@ namespace Reaction_Editor
         {
             Program.interopMessenger.UnRegisterDirectory(m_sActiveDirectory);
             m_sActiveDirectory = lastPath;
-            Program.interopMessenger.RegisterDirectory(m_sActiveDirectory);
+            Program.interopMessenger.RegisterDirectory(m_sActiveDirectory, StringShim.Create(new StringHandler(HandleArgs)));
             regKey.SetValue("Last Folder", lastPath);
             SetDirs(lastPath);
         }
