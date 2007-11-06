@@ -848,9 +848,7 @@ namespace Reaction_Editor
             for (int i = 0; i < orderedLVIs.Length; i++)
                 if ((orderedLVIs[i].Tag is SimpleReaction && ((SimpleReaction)orderedLVIs[i].Tag).Enabled))
                     ((SimpleReaction)orderedLVIs[i].Tag).ReactionNumber = index++;
-                else if ((orderedLVIs[i].Tag == m_Sources && chkSourcesEnabled.Checked)
-                    || (orderedLVIs[i].Tag == m_Sinks && chkSinksEnabled.Checked)
-                    || (orderedLVIs[i].Tag == m_HX && chkHXEnabled.Checked))
+                else if ((orderedLVIs[i].Tag is Reaction && ((Reaction)orderedLVIs[i].Tag).Enabled))
                     ((Reaction)orderedLVIs[i].Tag).ReactionNumber = index++;
                 else
                     orderedLVIs[i].Text = "-";
