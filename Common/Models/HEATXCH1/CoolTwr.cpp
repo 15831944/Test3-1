@@ -62,7 +62,7 @@ CoolingTower::CoolingTower(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   MN_Surge(pClass_, TagIn, pAttach, eAttach)
   {
   AttachIOAreas(CoolingTowerIOAreaList, &PipeEntryGroup);
-  Contents.SetClosed(true);
+  Contents.SetClosed(false);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
 
   iMethod          = CTM_Merkel;

@@ -129,15 +129,9 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+  DDB.Visibility(NM_Dynamic|SM_Inline|SM_Buffered|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text    ("");
-  DDB.Double  ("Bed_Height",              "BedHgt",          DC_L,    "m",      &BedHgt,             this, isResult|0);
-  DDB.Double  ("Pressure",                "P",               DC_P,    "kPag",   xidPMean,            this, isResult|0);
-  DDB.Double  ("Density",                 "Rho",             DC_Rho,  "kg/m^3", xidRho,              this, isResult|0);
-  DDB.Double  ("Level",                   "Lvl",             DC_Frac, "%",      xidLevel,            this, isResult|0);
-  DDB.Double  ("Mass_Accum",              "QmAcc",           DC_Qm,   "kg/s",   &m_QmAcc,            this, isResult|0);
-  DDB.Double  ("Vol_Accum",               "QvAcc",           DC_Qv,   "L/s",    &m_QvAcc,            this, isResult|0);
 
   static DDBValueLst DDB0a[]=
     {
@@ -159,7 +153,7 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
       {0}
     };
 
-  DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
+  DDB.Visibility();
   DDB.Text    ("");
   DDB.Text    ("Requirements");
   DDB.Byte    ("Bypass_Option",           "BypassOpt",       DC_,     "",       &iRqdBypassMethod,   this, isParm|AffectsStruct, DDB1);
@@ -178,7 +172,16 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, (iRqdBypassMethod == IBM_Underflow));
   DDB.Double  ("Internal_UF_SolidsUsed",  "IntUFSolidsUsed", DC_Frac, "%",      &IntUFSolidsUsed,    this, isResult|InitHidden);//|noView);
   DDB.Visibility();
+  DDB.Text    ("");
   DDB.Text    ("Results");
+  DDB.Visibility(NM_Dynamic|SM_Inline|SM_Buffered|HM_All);
+  DDB.Double  ("Bed_Height",              "BedHgt",          DC_L,    "m",      &BedHgt,             this, isResult|0);
+  DDB.Double  ("Pressure",                "P",               DC_P,    "kPag",   xidPMean,            this, isResult|0);
+  DDB.Double  ("Density",                 "Rho",             DC_Rho,  "kg/m^3", xidRho,              this, isResult|0);
+  DDB.Double  ("Level",                   "Lvl",             DC_Frac, "%",      xidLevel,            this, isResult|0);
+  DDB.Double  ("Mass_Accum",              "QmAcc",           DC_Qm,   "kg/s",   &m_QmAcc,            this, isResult|0);
+  DDB.Double  ("Vol_Accum",               "QvAcc",           DC_Qv,   "L/s",    &m_QvAcc,            this, isResult|0);
+  DDB.Text    ("");
   DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All, (iRqdBypassMethod != IBM_None));
   DDB.Double  ("Bypass_Flowrate",         "BypassQm",        DC_Qm,   "kg/s",   &BypassQm,           this, isResult);
   DDB.Visibility();

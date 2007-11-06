@@ -133,7 +133,7 @@ BarometricCondenser::BarometricCondenser(pTagObjClass pClass_, pchar TagIn, pTag
   m_FTC(this)
   {
   AttachIOAreas(BarometricCondenserIOAreaList, &PipeEntryGroup);
-  Contents.SetClosed(true);
+  Contents.SetClosed(false);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
 
   ApproachTemp    = 10.0;
@@ -153,17 +153,11 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-  DDB.Text    ("");
+  DDB.Visibility(NM_Dynamic|SM_Inline|SM_Buffered|HM_All);
   BuildDataDefnElevation(DDB);
-  DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
-  DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, isResult|0);
-  DDB.Double  ("Density",      "Rho",   DC_Rho,  "kg/m^3", xidRho,         this, isResult|0);
-  DDB.Double  ("Level",        "Lvl",   DC_Frac, "%",      xidLevel,       this, isResult|0);
-  DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,  "kg/s",    &m_QmAcc,       this, isResult|0);
-  DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &m_QvAcc,       this, isResult|0);
-  DDB.Visibility();
+  DDB.Text    ("");
 
+  DDB.Visibility();
   DDB.Text    ("");
   DDB.Text    ("Requirements");
   DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
@@ -179,6 +173,14 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
 
   DDB.Text    ("Results");
+  DDB.Visibility(NM_Dynamic|SM_Inline|SM_Buffered|HM_All);
+  DDB.Double  ("Pressure",     "P",     DC_P,    "kPag",   xidPMean,       this, isResult|0);
+  DDB.Double  ("Temperature",  "T",     DC_T,    "C",      xidTemp,        this, isResult|0);
+  DDB.Double  ("Density",      "Rho",   DC_Rho,  "kg/m^3", xidRho,         this, isResult|0);
+  DDB.Double  ("Level",        "Lvl",   DC_Frac, "%",      xidLevel,       this, isResult|0);
+  DDB.Double  ("Mass_Accum",   "QmAcc", DC_Qm,  "kg/s",    &m_QmAcc,       this, isResult|0);
+  DDB.Double  ("Vol_Accum",    "QvAcc", DC_Qv,  "L/s",     &m_QvAcc,       this, isResult|0);
+  DDB.Text    ("");
   DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   DDB.Double  ("Cond_Press",       "",  DC_P,    "kPag",  &dFlashP, this, isResult|0);
   DDB.Double  ("Cond_Temp",        "",  DC_T,    "C",     &dFlashT, this, isResult|0);
@@ -195,6 +197,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   //  }
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+  AddMdlClosed(DDB);
   AddMdlNetworked(DDB);
   DDB.Visibility();
 

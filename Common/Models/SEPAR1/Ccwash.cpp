@@ -192,7 +192,7 @@ void CCWasher::BuildDataDefn(DataDefnBlk & DDB)
     {
     DDB.Text    ("Requirements");
     DDB.CheckBox("On",                      "",                DC_,     "",       &fOn,                this, isParm);
-	  DDB.Byte    ("",                        "ScanEffSpecie",   DC_,     "",       &iScanEffSpecie,     this, isParm, SDB.DDBLiqSpList());
+    DDB.Byte    ("",                        "ScanEffSpecie",   DC_,     "",       &iScanEffSpecie,     this, isParm, SDB.DDBLiqSpList());
     DDB.Byte    ("Wash_Eff_Method",         "EffMethod",       DC_,      "",      &iEffMethod,         this, isParm, DDB0);
     DDB.Visibility(NSHM_All, iEffMethod==MEM_Mixing);
     DDB.Double  ("Mixing_Efficiency",       "MixingEff",       DC_Frac, "%",      &MixEff,             this, isParm);
@@ -205,16 +205,17 @@ void CCWasher::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Visibility(NSHM_All, !SA);
     DDB.Double  ("Rqd_UnderFlow_Solids",    "RqdUFSolids",     DC_Frac, "%",      &RqdUFSolids,        this, isParm);
     DDB.Visibility();
+    DDB.Text    ("");
     DDB.Text    ("Results");
-	  DDB.Double  ("UnderFlow_Solids",        "UFSolids",        DC_Frac, "%",      &UFSolids,           this, isResult|0);
+    DDB.Double  ("UnderFlow_Solids",        "UFSolids",        DC_Frac, "%",      &UFSolids,           this, isResult|0);
     //DDB.Double  ("OverFlow_Solids",         "OFSolids",        DC_Frac, "%",      &OFSolids,           this, isResult|InitHidden);
     DDB.Double  ("UnderFlow_SolidsConc@25", "UFSolConc25",     DC_Conc, "g/L",    &ActUFSolidsConc25,  this, isResult|InitHidden);
     //DDB.Double  ("OverFlow_SolidsConc@25",  "OFSolConc25",     DC_Conc, "g/L",    &ActOFSolidsConc25,  this, isResult|InitHidden);
     DDB.Double  ("Scandrett_Wash_Eff",      "ScandrettEff",    DC_Frac, "%",      &ActScandrettEff,    this, isResult);//|noFile|noSnap);
-	  DDB.Double  ("UnderFlow_Specie",        "UFSpecie",        DC_Conc, "g/L",    &UFCaustic,				   this, isResult|0);
-	  DDB.Double  ("OverFlow_Specie",         "OFSpecie",        DC_Conc, "g/L",    &OFCaustic,				   this, isResult|0);
-	  DDB.Double  ("ByPassGuess",             "",                DC_,     "",       &ByPassGuess,				 this, noView|isParm|NAN_OK);
-	  DDB.Double  ("WashByPassGuess",         "",                DC_,     "",       &WashByPassGuess,		 this, noView|isParm|NAN_OK);
+    DDB.Double  ("UnderFlow_Specie",        "UFSpecie",        DC_Conc, "g/L",    &UFCaustic,				   this, isResult|0);
+    DDB.Double  ("OverFlow_Specie",         "OFSpecie",        DC_Conc, "g/L",    &OFCaustic,				   this, isResult|0);
+    DDB.Double  ("ByPassGuess",             "",                DC_,     "",       &ByPassGuess,				 this, noView|isParm|NAN_OK);
+    DDB.Double  ("WashByPassGuess",         "",                DC_,     "",       &WashByPassGuess,		 this, noView|isParm|NAN_OK);
     }
 
   DDB.Text    ("");

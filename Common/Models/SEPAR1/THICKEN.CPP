@@ -122,14 +122,16 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB0.Add(OFM_OFSolFrac, "OverFlowSolidsFraction");
   if (NetProbalMethod())
     DDB0.Add(OFM_OFSolConc, "OverFlowSolidsConcentration");
-  DDB.Visibility(NM_All|SM_All|HM_All);
+
+  DDB.Visibility();
 	DDB.Text    ("");
   DDB.Text    ("Requirements");
   DDB.Visibility(NM_Dynamic|SM_Inline|SM_Buffered|HM_All);
   DDB.Double  ("RqdBedLevel",      "",                       DC_L,    "m",      &m_RqdBedHgt,        this, isParm);
   DDB.Visibility(NM_All|SM_All|HM_All);
   DDB.Double  ("Rqd_UnderFlow_Solids",    "RqdUFSolids",     DC_Frac, "%",      &m_RqdUFSolids,      this, isParm);
-  DDB.TagComment("@ RqdBedLevel");
+  if (SolveSurgeMethod())
+    DDB.TagComment("@ RqdBedLevel");
   DDB.Byte    ("OverFlow_Method",         "Method",          DC_,     "",       &m_iRqdOFMethod,     this, isParm|AffectsStruct, DDB0());
   DDB.Visibility(NM_All|SM_All|HM_All, (m_iRqdOFMethod == OFM_OFSolFrac) || NetDynamicMethod());
   DDB.Double  ("Rqd_OverFlow_Solids",     "RqdOFSolids",     DC_Frac, "%",      &m_RqdOFSolids,      this, isParm);
@@ -162,7 +164,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &m_bTrackStatus,       this, isParm);
 
   DDB.Visibility();
-	DDB.Text    ("");
+  DDB.Text    ("");
   DDB.Text    ("Results");
   DDB.Visibility(NM_Dynamic|SM_Inline|SM_Buffered|HM_All);
   DDB.Double  ("Pressure",                "P",               DC_P,    "kPag",   xidPMean,            this, isResult|0);
@@ -170,9 +172,9 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Level",                   "Lvl",             DC_Frac, "%",      xidLevel,            this, isResult|0);
   DDB.Double  ("Mass_Accum",              "QmAcc",           DC_Qm,   "kg/s",   &m_QmAcc,            this, isResult|0);
   DDB.Double  ("Vol_Accum",               "QvAcc",           DC_Qv,   "L/s",    &m_QvAcc,            this, isResult|0);
-	DDB.Text    ("");
+  DDB.Text    ("");
   DDB.Visibility();
-	DDB.Double  ("UnderFlow_Solids",        "UFSolids",        DC_Frac, "%",      &m_UFSolids,         this, isParmConstruct|isResult);
+  DDB.Double  ("UnderFlow_Solids",        "UFSolids",        DC_Frac, "%",      &m_UFSolids,         this, isParmConstruct|isResult);
   DDB.Double  ("OverFlow_Solids",         "OFSolids",        DC_Frac, "%",      &m_OFSolids,         this, isParmConstruct|isResult);
   DDB.Double  ("UnderFlow_SolidsConc@25", "UFSolConc25",     DC_Conc, "g/L",    &m_ActUFSolidsConc25,  this, isParmConstruct|isResult|InitHidden);
   DDB.Double  ("OverFlow_SolidsConc@25",  "OFSolConc25",     DC_Conc, "g/L",    &m_ActOFSolidsConc25,  this, isParmConstruct|isResult|InitHidden);

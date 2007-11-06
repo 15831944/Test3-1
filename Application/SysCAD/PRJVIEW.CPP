@@ -1120,7 +1120,7 @@ void CPrjForm::RebuildFileTree()
   SFEFlwLib* pFlwLib = gs_pPrj->FlwLib();
   if (pFlwLib)
     {
-    CWaitMsgCursor WaitMsg("Building file list tree");
+    CWaitMsgCursor WaitMsg("Building Explorer list of windows and models");
     UpdateData(TRUE);
     Strng s;
     Strng Fn,Path,XPath;

@@ -750,8 +750,6 @@ LRESULT CMainFrame::OnUpdateMainWnd(WPARAM wParam, LPARAM lParam)
     }
   if (wParam==SUB_UPDMAIN_PRJLOADED && ScdPFUser.RdInt("General", "CascadeOnLoad", 0)!=0)
     PostMessage(WM_COMMAND, ID_WINDOW_CASCADE, 0);
-  if (wParam==SUB_UPDMAIN_PRJLOADED)
-    ScdMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_LoadProject, 0); //let script cmd mngr know cmd is complete
   if (wParam==SUB_UPDMAIN_PRJLOADED && gs_pPrj)
     {
     //dbgpln("TODO - Fix Modes");
@@ -768,6 +766,11 @@ LRESULT CMainFrame::OnUpdateMainWnd(WPARAM wParam, LPARAM lParam)
     {
     CWindowLists::DetermineActiveGraphics();
     CWindowLists::SetGrfTagGroups(true);
+    }
+  if (wParam==SUB_UPDMAIN_PRJLOADED)
+    {
+    //let script cmd mngr know cmd is complete...
+    ScdMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_LoadProject, 0); //NBNB: this must be the last project loaded action
     }
 
   #if (!CK_LICENSINGON)
