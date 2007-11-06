@@ -966,6 +966,8 @@
 #define IDC_GRFAUTOACCESS               24563
 #define IDC_PRJNUMERICSTARTOK           24563
 #define IDC_VIEWPAGES                   24563
+#define IDC_PARAMSONLY                  24563
+#define IDC_SHOWPARAMSONLY              24563
 #define IDC_ANIMATIONON                 24564
 #define IDC_PVSHOWUNITS                 24564
 #define IDD_MERGEDLG                    24564

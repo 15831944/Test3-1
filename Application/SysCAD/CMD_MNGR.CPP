@@ -1030,6 +1030,7 @@ void CCmdExec::Reset()
   CompInfo.bShowAllMissing = 0;
   CompInfo.bResetOutFile = 0;
   CompInfo.bShowAllTags = 0;
+  CompInfo.bShowParamsOnly = 1;
   CompInfo.bShowSortedFile = 0;
   }
 

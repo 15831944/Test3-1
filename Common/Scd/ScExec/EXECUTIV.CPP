@@ -6675,7 +6675,12 @@ ASSERT_ALWAYS(!XM.MsgAvail(), "Too Many Messages", __FILE__, __LINE__); //only e
       //  dbgpln(" Cnv:'%s'[%i]", pItem1->CnvTxt(), pItem1->CnvIndex()); there is no cnv info for tags!
       if (FoundTag)
         {
-        if ((pItem1->Flags()&DDEF_NOCOMPARE)==0 && (pItem2->Flags()&DDEF_NOCOMPARE)==0)
+        bool DoIt=true;
+        if ((pItem1->Flags()&DDEF_NOCOMPARE)!=0 || (pItem2->Flags()&DDEF_NOCOMPARE)!=0)
+          DoIt=false;
+        if (Info.bShowParamsOnly && ((pItem1->Flags()&DDEF_PARAM)==0 || (pItem2->Flags()&DDEF_PARAM)==0))
+          DoIt=false;       
+        if (DoIt)
           {
           flag AreDiff = 0;
           flag Show = 1;

@@ -712,6 +712,7 @@ class DllImportExport CCompareInfo
                 bShowAllMissing:1,   //show all tags where tag from one set is missing
                 bResetOutFile:1,     //Reset output file to empty as apposed to appending to end
                 bShowAllTags:1,      //send ALL tags to file
+                bShowParamsOnly:1,   //only test parameters
                 bShowSortedFile:1,   //send sorted list of largwest errors to file
                 bListHeaderRqd:1;    //Must still write list header
     double      dMinErr;             //used for building sorted list

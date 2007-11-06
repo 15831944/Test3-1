@@ -3654,6 +3654,7 @@ class CCompareOptionsDlg : public CDialog
     ~CCompareOptionsDlg();
     //{{AFX_DATA(CCompareOptionsDlg)
     enum { IDD = IDD_COMPAREOPTIONSDLG };
+    BOOL m_ShowParamsOnly;
     BOOL m_ShowAllTags;
     BOOL m_ShowStrings;
     BOOL m_ShowAllMissing;
@@ -3676,6 +3677,7 @@ class CCompareOptionsDlg : public CDialog
     //}}AFX_MSG
     afx_msg BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
     DECLARE_MESSAGE_MAP()
+  public:
   };
 
 //--------------------------------------------------------------------------
@@ -3685,6 +3687,7 @@ CCompareOptionsDlg::CCompareOptionsDlg(CWnd* pParent /*=NULL*/)
   {
   pTTC = NULL;
   //{{AFX_DATA_INIT(CCompareOptionsDlg)
+  m_ShowParamsOnly = TRUE;
   m_ShowAllTags = FALSE;
   m_ShowStrings = FALSE;
   m_ShowAllMissing = FALSE;
@@ -3709,6 +3712,7 @@ void CCompareOptionsDlg::DoDataExchange(CDataExchange* pDX)
   {
   CDialog::DoDataExchange(pDX);
   //{{AFX_DATA_MAP(CCompareOptionsDlg)
+  DDX_Check(pDX, IDC_SHOWPARAMSONLY, m_ShowParamsOnly);
   DDX_Check(pDX, IDC_SHOWALLTAGS, m_ShowAllTags);
   DDX_Check(pDX, IDC_SHOWSTRINGS, m_ShowStrings);
   DDX_Check(pDX, IDC_SHOWALLMISSING, m_ShowAllMissing);
@@ -4335,6 +4339,7 @@ BOOL CCompareDlg::OnInitDialog()
   CompInfo.dAbsTolerance = PF.RdDouble("CompareScenarios", "AbsTolerance", 1.0e-6);
   CompInfo.iMaxCount = PF.RdLong("CompareScenarios", "MaxCount", 200);
   CompInfo.bShowAllTags = (PF.RdInt("CompareScenarios", "ShowAllTags", 0)!=0);
+  CompInfo.bShowParamsOnly = (PF.RdInt("CompareScenarios", "ShowParamsOnly", 1)!=0);
   CompInfo.bShowStrings = (PF.RdInt("CompareScenarios", "ShowStrings", 0)!=0);
   CompInfo.bShowSortedFile = (PF.RdInt("CompareScenarios", "ShowSortedFile", 0)!=0);
   CompInfo.bShowAllMissing = (PF.RdInt("CompareScenarios", "ShowAllMissing", 0)!=0);
@@ -4407,6 +4412,7 @@ void CCompareDlg::OnOK()
   PF.WrDouble("CompareScenarios", "AbsTolerance", CompInfo.dAbsTolerance);
   PF.WrLong("CompareScenarios", "MaxCount", CompInfo.iMaxCount);
   PF.WrInt("CompareScenarios", "ShowAllTags", CompInfo.bShowAllTags);
+  PF.WrInt("CompareScenarios", "ShowParamsOnly", CompInfo.bShowParamsOnly);
   PF.WrInt("CompareScenarios", "ShowStrings", CompInfo.bShowStrings);
   PF.WrInt("CompareScenarios", "ShowSortedFile", CompInfo.bShowSortedFile);
   PF.WrInt("CompareScenarios", "ShowAllMissing", CompInfo.bShowAllMissing);
@@ -4519,6 +4525,7 @@ void CCompareDlg::OnOptions()
   UpdateData(TRUE);
   CompInfo.bResetOutFile = m_ResetOutFile;
   CCompareOptionsDlg Dlg(this);
+  Dlg.m_ShowParamsOnly = CompInfo.bShowParamsOnly;
   Dlg.m_ShowAllTags = CompInfo.bShowAllTags;
   Dlg.m_ShowStrings = CompInfo.bShowStrings;
   Dlg.m_ShowAllMissing = CompInfo.bShowAllMissing;
@@ -4529,6 +4536,7 @@ void CCompareDlg::OnOptions()
   Dlg.m_MaxCount = CompInfo.iMaxCount;
   if (Dlg.DoModal()==IDOK)
     {
+    CompInfo.bShowParamsOnly = Dlg.m_ShowParamsOnly;
     CompInfo.bShowAllTags = Dlg.m_ShowAllTags;
     CompInfo.bShowStrings = Dlg.m_ShowStrings;
     CompInfo.bShowAllMissing = Dlg.m_ShowAllMissing;
@@ -4620,5 +4628,3 @@ void CCompareDlg::OnDblclkFilelist()
   }
 
 //===========================================================================
-
-
