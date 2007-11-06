@@ -199,21 +199,20 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
   
   flag OK=true;
   flag XferNotAllowed=false;
-  if (Contents.Closed())
+  if (NetDynamicMethod() && Contents.Closed())
     {
     for (int i=0; i<NoProcessIOs(); i++)
       {
       if (Nd_Rmt(i)->XferFlowMode())
         XferNotAllowed=true;
       }
-    }
 
-  if (XferNotAllowed)
-    {
-    SetValidateFailMsg("E\tTranfer Mode Links not allowed to Closed Tanks");
-    OK=false;
+    if (XferNotAllowed)
+      {
+      SetValidateFailMsg("E\tTransfer Mode Links not allowed to Closed Tanks in Dynamic");
+      OK=false;
+      }
     }
-
   //if (NetDynamicMethod())
   //  {
   //  //Check all links are xfer

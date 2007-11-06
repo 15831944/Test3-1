@@ -133,7 +133,7 @@ BarometricCondenser::BarometricCondenser(pTagObjClass pClass_, pchar TagIn, pTag
   m_FTC(this)
   {
   AttachIOAreas(BarometricCondenserIOAreaList, &PipeEntryGroup);
-  Contents.SetClosed(false);
+  Contents.SetClosed(true);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
 
   ApproachTemp    = 10.0;
