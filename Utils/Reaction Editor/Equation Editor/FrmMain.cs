@@ -405,6 +405,7 @@ namespace Reaction_Editor
             try
             {
                 Program.interopMessenger.UnRegisterDirectory(m_sActiveDirectory);
+                Program.interopMessenger.StringSent -= new InteropMessenger.StringSentDelegate(HandleArgs);
             }
             catch { }
         }
@@ -463,7 +464,8 @@ namespace Reaction_Editor
                 UpdateToolbar();
 
                 HandleArgs(m_sActiveDirectory, Program.Args);
-                Program.interopMessenger.StringSent += new InteropMessenger.StringSentDelegate(HandleArgs);
+                if (!Program.ResponsibleForChannel)
+                    Program.interopMessenger.StringSent += new InteropMessenger.StringSentDelegate(HandleArgs);
             }
             finally
             {

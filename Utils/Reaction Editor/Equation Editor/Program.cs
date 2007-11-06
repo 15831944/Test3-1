@@ -11,6 +11,8 @@ using System.Runtime.Remoting.Channels.Ipc;
 using System.Threading;
 using System.Runtime.Remoting;
 using System.IO;
+using System.Runtime.Remoting.Channels.Tcp;
+using System.Runtime.Serialization.Formatters;
 
 namespace Reaction_Editor
 {
@@ -75,7 +77,7 @@ namespace Reaction_Editor
         public static InteropMessenger interopMessenger;
         public static Mutex startupMutex = new Mutex(false, "KWA_ReactionEditor_Startup");
         public static bool startupMutexRequiresRelease;
-        private static bool ResponsibleForChannel = false;
+        public static bool ResponsibleForChannel = false;
         
         private static bool SetupInterop()
         {
@@ -88,8 +90,7 @@ namespace Reaction_Editor
             {
                 Hashtable ipcProps = new Hashtable();
                 ipcProps["portName"] = "SysCAD.ReactionEditor";
-                //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
-                ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
+                ipcChannel = new IpcChannel(ipcProps, null, serverProv);
                 ChannelServices.RegisterChannel(ipcChannel, false);
                 interopMessenger = new InteropMessenger();
                 RemotingServices.Marshal(interopMessenger, "interopMessenger");
@@ -99,6 +100,14 @@ namespace Reaction_Editor
             {
                 try
                 {
+#if true           //Tests where the client would also register a channel...
+                    Hashtable props = new Hashtable();
+                    props.Add("port", "0");
+                    IpcChannel chan = new IpcChannel(props, null, serverProv);
+                    Console.WriteLine("Registering channel");
+                    ChannelServices.RegisterChannel(chan);
+#endif
+
                     interopMessenger = Activator.GetObject(typeof(InteropMessenger), "ipc://SysCAD.ReactionEditor/interopMessenger") as InteropMessenger;
                     string directory = "";
                     foreach (string s in Args)
