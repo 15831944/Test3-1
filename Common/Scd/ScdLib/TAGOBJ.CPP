@@ -1956,6 +1956,9 @@ void DataDefnBlk::DoChecks(DWORD RetAddress, dword UserInfo)
     flag GotSym=false;
     if (pSym && strlen(pSym))
       {
+      if (S.XStrCmp("SpImage:Vapours")==0)
+        { int xxx=0; }
+
       GotSym=true;
       S.Concat(Chk[lCallLevel].pTagStart, strlen(Chk[lCallLevel].pTagStart)?".":"", pSym);
       if (!CheckMap.Lookup(S(), CRS))
@@ -1971,6 +1974,7 @@ void DataDefnBlk::DoChecks(DWORD RetAddress, dword UserInfo)
         AltName=true;
         CheckMap.SetAt(CRS->m_Tag(), CRS);
         CheckVars.Add(CRS);
+        
         //dbgpln("  %08x %2i '%s:%s'", RetAddress, PrjFileVerNo(), CheckClass.m_ClassName(), S());
         }
       else if (CRS->m_lOpenCnt==Chk[lCallLevel].lOpenCnts)// ||

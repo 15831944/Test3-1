@@ -858,12 +858,13 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     SpImage &Img=*IOFlange(0)->TearImage();
     DDB.Visibility(NSHM_All, IOFlange(0)->RqdTearType()>=TT_ManualTear && 
                             IOFlange(0)->TearInitEstUsage()>TIEU_None);
-    static const BDDSpecies_Blk sbImageM[]= { {SVV_AsMassFlow,    SVV_AsMassFrac,  true,  true, VAMsk_SpMass },
-                                              {SVV_AsMassFrac,    SVV_AsMassFrac,  true,  true, VAMsk_SpMass }, };
-    static const BDDSpecies_Blk sbImageV[]= { {SVV_AsVolFlow,     SVV_AsMassFrac,  true,  true, VAMsk_SpVol  },
-                                              {SVV_AsMassFrac,    SVV_AsMassFrac,  true,  true, VAMsk_SpMass }, };
-    static const BDDSpecies_Blk sbImageN[]= { {SVV_AsNVolFlow,    SVV_AsMassFrac,  true,  true, VAMsk_SpNVol },
-                                              {SVV_AsMassFrac,    SVV_AsMassFrac,  true,  true, VAMsk_SpMass }, };
+    static const BDDSpecies_Blk sbImageM[]= { {SVV_AsMassFlow,    SVV_AsMassFrac,  true,  false, VAMsk_SpMass },
+                                              {SVV_AsMassFrac,    SVV_AsMassFrac,  true,  true,  VAMsk_SpMass }, };
+    static const BDDSpecies_Blk sbImageV[]= { {SVV_AsVolFlow,     SVV_AsMassFrac,  true,  false, VAMsk_SpVol  },
+                                              {SVV_AsMassFrac,    SVV_AsMassFrac,  true,  true,  VAMsk_SpMass }, };
+    static const BDDSpecies_Blk sbImageN[]= { {SVV_AsNVolFlow,    SVV_AsMassFrac,  true,  false, VAMsk_SpNVol },
+                                              {SVV_AsMassFrac,    SVV_AsMassFrac,  true,  true,  VAMsk_SpMass }, };
+     //{SVV_AsRawMassFlow, SVV_AsRawMassFlow,  true,  false, true}
 
     SpImgMode Md=SPI_QModeNone;
     if (IOFlange(0)->TearImage())
