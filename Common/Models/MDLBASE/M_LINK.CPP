@@ -767,6 +767,9 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
 
   m_bAdjustToEstFlow=false;
 
+  m_bSimplify   = OrigPrjFileVerNo()<115 ? false : true;
+  m_bSimplified = false;
+
   m_pLastFlw=NULL;
   //m_Spill.SetCd(m_SpillFlng.Conduit(false));
   };
@@ -1680,6 +1683,11 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
     }
   SetCI(2, NoProcLnkIOs()<2);
 
+  bool SimplifyAllowed=NetProbalMethod();
+
+  if (m_EHX.Enabled() || m_RB.Enabled() || m_VLE.Enabled() || m_BlkEval.EnabledCount())
+    SimplifyAllowed = false;
+
   flag OK=MdlNode::ValidateData(VDB);
   if (!m_EHX.ValidateData(VDB))
     OK=0;
@@ -1824,6 +1832,11 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
   if (!m_BlkEval.ValidateData(VDB, false))
     OK=false;
 
+  if (SimplifyAllowed)
+    m_bSimplified=m_bSimplify;
+  else
+    m_bSimplified=false;
+
   return OK;
   }
 
@@ -1936,6 +1949,8 @@ void MN_Lnk::GlobalConnect()
   m_Bleed.SysEnable = m_Evap.Enabled();
 #endif
 
+  if (m_bSimplified)
+    ReDirectIO(0, 1);
   
   //if (m_Simple)// && OK)
   //  RedirectIO(0, 1);
@@ -2177,7 +2192,6 @@ bool MN_Lnk::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 void MN_Lnk::ConfigureJoins()
   {
   const int JnId_Pipe=0;
-
   if (GetActiveHold())
     {
     SetIO_Open(0, JnId_Pipe, false, ESS_Required, m_iFlwPhaseRqd);
@@ -2787,6 +2801,13 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
 #endif
   if (fDoDbgBrk)
     { int xxx=0; }
+
+  if (IOFlange(0)->RedirectOK())
+    {
+    m_Src.Sum.ZeroFlows();
+    m_Snk.Sum.ZeroFlows();
+    return;
+    }
 
   const flag DoXfer=XferFlowMode();
   if (NetDynamicMethod() && !DoXfer && (m_PFI.Method==VFFX_Plugflow))

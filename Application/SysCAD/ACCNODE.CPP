@@ -1354,48 +1354,54 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
 void AccNodeWnd::LoadNdHist(int iNo)
   {
   m_NdHistList.SetSize(MaxNdHistListSize);
-  int Cnt = 0;
-  char Buffer[8192];
-  CProfINIFile PF(PrjIniFile());
-  Strng Section;
-  Section.Set("AccessWndTagHistory%i", iNo);
-  if (PF.RdSection(Section(), Buffer, sizeof(Buffer))>0)
+  if (PrjIniFile())
     {
-    char* pBuff = Buffer;
-    char* pName;
-    char* pFindTxt;
-    while (pBuff[0] && Cnt<MaxNdHistListSize)
+    int Cnt = 0;
+    char Buffer[8192];
+    CProfINIFile PF(PrjIniFile());
+    Strng Section;
+    Section.Set("AccessWndTagHistory%i", iNo);
+    if (PF.RdSection(Section(), Buffer, sizeof(Buffer))>0)
       {
-      PF.GetProfItem(pBuff, pName, pFindTxt);
-      if (pFindTxt && pName && (strnicmp(pName, "Hist", 4)==0))
-        m_NdHistList[Cnt++] = pFindTxt;
+      char* pBuff = Buffer;
+      char* pName;
+      char* pFindTxt;
+      while (pBuff[0] && Cnt<MaxNdHistListSize)
+        {
+        PF.GetProfItem(pBuff, pName, pFindTxt);
+        if (pFindTxt && pName && (strnicmp(pName, "Hist", 4)==0))
+          m_NdHistList[Cnt++] = pFindTxt;
+        }
       }
+    m_NdHistList.SetSize(Cnt);
+    m_iNdHistPos=PF.RdInt(Section(), "Position", 0);
     }
-  m_NdHistList.SetSize(Cnt);
-  m_iNdHistPos=PF.RdInt(Section(), "Position", 0);
   }
 
 //---------------------------------------------------------------------------
 
 void AccNodeWnd::SaveNdHist(int iNo)
   {
-  char Buff[8192];
-  const int Size = m_NdHistList.GetSize();
-  if (Size>0)
+  if (PrjIniFile())
     {
-    CProfINIFile PF(PrjIniFile());
-    int Pos = 0;
-    Pos+=sprintf(&Buff[Pos], "Position=%i", m_iNdHistPos)+1;
-    for (int i=0; i<Size; i++)
+    char Buff[8192];
+    const int Size = m_NdHistList.GetSize();
+    if (Size>0)
       {
-      if (m_NdHistList[i].Len()>0)
-        Pos+=sprintf(&Buff[Pos], "Hist%i=%s", i, m_NdHistList[i]())+1;
+      CProfINIFile PF(PrjIniFile());
+      int Pos = 0;
+      Pos+=sprintf(&Buff[Pos], "Position=%i", m_iNdHistPos)+1;
+      for (int i=0; i<Size; i++)
+        {
+        if (m_NdHistList[i].Len()>0)
+          Pos+=sprintf(&Buff[Pos], "Hist%i=%s", i, m_NdHistList[i]())+1;
+        }
+      Buff[Pos++] = 0;
+      Buff[Pos++] = 0;
+      Strng Section;
+      Section.Set("AccessWndTagHistory%i", iNo);
+      PF.WrSection(Section(), Buff);
       }
-    Buff[Pos++] = 0;
-    Buff[Pos++] = 0;
-    Strng Section;
-    Section.Set("AccessWndTagHistory%i", iNo);
-    PF.WrSection(Section(), Buff);
     }
   }
 

@@ -14,18 +14,23 @@
 #include "share.h"
 #include "dbhelper.h"
 #include <oledberr.h>
+#include "dbgmngr.h"
 
-#define dbgSaveObjMDB       0
-#define dbgSaveObjMDBFlds   0
-#define dbgLoadObjectMDB    0
-#define dbgLoadObjMDB       0
-#define dbgLoadObjMDBFlds   0
-#define dbgLoadObjMDBPf     0
-#define dbgOpenMDB          0
+#define dbgTagDB            1
 
 #define dbgShowTiming       0
 
 #define QUOTETAGS           0
+
+#if dbgTagDB
+static CDbgMngr dbgOpenMDB      ("TagDB",   "OpenMDB");
+static CDbgMngr dbgSaveObj      ("TagDB",   "SaveObj");
+static CDbgMngr dbgSaveObjFields("TagDB",   "SaveObjFields");
+static CDbgMngr dbgLoadObj      ("TagDB",   "LoadObj");
+static CDbgMngr dbgLoadObjExists("TagDB",   "LoadObjExists");
+static CDbgMngr dbgLoadObjFields("TagDB",   "LoadObjFields");
+static CDbgMngr dbgLoadObjPrefix("TagDB",   "LoadObjPrefix");
+#endif
 
 typedef char BigBuffer[65536];
 
@@ -343,8 +348,9 @@ int CTagDBMDB::Open(long DBFmt, DWORD DBOpts, pchar pRoot, pchar pRootOld, pchar
 
   //  CStopWatchList::Clear();
 
-#if dbgOpenMDB
-  dbgpln("TagDB:Open %s -------------------------",pRoot);
+#if dbgTagDB
+  if (dbgOpenMDB())
+    dbgpln("TagDB:Open %s -------------------------",pRoot);
 #endif
   sRoot=pRoot;
 
@@ -433,7 +439,7 @@ void CTagDBMDB::SetChanged(flag Changed)
   };
 
 //------------------------------------------------------------------------
-#if dbgSaveObjMDBFlds
+#if dbgTagDB
 static int dbgIndent=0;
 #endif
 
@@ -493,9 +499,12 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
     ThisObjTag=SDOTag();
   ThisObjTagMem=ThisObjTag;
   Strng StructTag, ItemTag;
-#if dbgSaveObjMDBFlds
-  dbgpln("%*sObject Start :%s [%s] ",dbgIndent,"",pClass, ThisObjTag()); 
-  dbgIndent+=3;  
+#if dbgTagDB
+  if (dbgSaveObjFields())
+    {
+    dbgpln("%*sObject Start :%s [%s] ",dbgIndent,"",pClass, ThisObjTag()); 
+    dbgIndent+=3;  
+    }
 #endif
   //CTagDBase::sCurrTag = ThisObjTag; //used for error reporting if critical error occurs
   //CTagDBase::sCurrType = ClassNV;
@@ -526,8 +535,9 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
     if (ThisType==tt_Object || ThisType==tt_Array)
       {
       CPkDataItem * pObjItem=pItem;
-#if dbgSaveObjMDBFlds
-      dbgpln("%*sSave:%-15s %-20s = %s",dbgIndent,"",tt_TypeString(pObjItem->Type()), pObjItem->TagStr(), pObjItem->Class());
+#if dbgTagDB
+      if (dbgSaveObjFields())
+        dbgpln("%*sSave:%-15s %-20s = %s",dbgIndent,"",tt_TypeString(pObjItem->Type()), pObjItem->TagStr(), pObjItem->Class());
 #endif
       flag DoObject=(pObjItem->Type()==tt_Object);
       flag DoArray=(pObjItem->Type()==tt_Array);
@@ -586,8 +596,9 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
       nKWFlds++;
       nFlds++;
 
-#if dbgSaveObjMDBFlds
-      dbgpln("%*sDone:%-15s %-20s = %s",dbgIndent,"", tt_TypeString(pObjItem->Type()), ItemTag(), sClass());
+#if dbgTagDB
+      if (dbgSaveObjFields())
+        dbgpln("%*sDone:%-15s %-20s = %s",dbgIndent,"", tt_TypeString(pObjItem->Type()), ItemTag(), sClass());
 #endif
       }
     else 
@@ -611,8 +622,9 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
             case tt_Element_E:
             case tt_Object_E:
               Busy=0;
-#if dbgSaveObjMDBFlds
-              dbgpln("%*sEnd :%s %-20s",dbgIndent,"",tt_TypeString(ItemType), pClass);
+#if dbgTagDB
+              if (dbgSaveObjFields())
+                dbgpln("%*sEnd :%s %-20s",dbgIndent,"",tt_TypeString(ItemType), pClass);
 #endif
               break;
             case tt_Struct:
@@ -621,16 +633,18 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                 StructTag.Set("%s.%s", StructTag(), ITag());
               else
                 StructTag=ITag();
-#if dbgSaveObjMDBFlds
-              dbgpln("%*sStructTag>>:%s",dbgIndent,"", StructTag());
+#if dbgTagDB
+              if (dbgSaveObjFields())
+                dbgpln("%*sStructTag>>:%s",dbgIndent,"", StructTag());
 #endif
               break;
             case tt_Struct_E:
               //CTagDBase::EscapeFlds(ITag);
               p=strrchr(StructTag(), '.');
               StructTag.SetLength(p ? p-StructTag() : 0);
-#if dbgSaveObjMDBFlds
-              dbgpln("%*sStructTag<<:%s",dbgIndent,"", StructTag());
+#if dbgTagDB
+              if (dbgSaveObjFields())
+                dbgpln("%*sStructTag<<:%s",dbgIndent,"", StructTag());
 #endif
               break;
             case tt_NULL:
@@ -798,8 +812,9 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                 nKWFlds++;
                 nFlds++;
 
-#if dbgSaveObjMDBFlds
-                dbgpln("%*sSave:%-15s %-20s = %s",dbgIndent,"", tt_TypeString(ItemType), ItemTag(), StrValue); 
+#if dbgTagDB
+                if (dbgSaveObjFields())
+                  dbgpln("%*sSave:%-15s %-20s = %s",dbgIndent,"", tt_TypeString(ItemType), ItemTag(), StrValue); 
 #endif
                 }
             }
@@ -824,8 +839,9 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
     if (MustCreate)
       CreateFields(ClassNV(), KWFlds, nKWFlds);
 
-#if dbgSaveObjMDB
-    dbgpln("%*sObject Flds OK :%s [%s]",dbgIndent,"",pClass, ThisObjTag()); 
+#if dbgTagDB
+    if (dbgSaveObj())
+      dbgpln("%*sObject Flds OK :%s [%s]",dbgIndent,"",pClass, ThisObjTag()); 
 #endif
 
 #if dbgShowTiming
@@ -858,11 +874,14 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
       }
     }
 
-#if dbgSaveObjMDB
-  dbgIndent-=3;
-  dbgpln("%*sObject Done  :%s [%s]",dbgIndent,"",pClass, ThisObjTag()); 
-  //dbgpln("       Flds: %s ",FldBuff); 
-  //dbgpln("       Data: %s ",DataBuff); 
+#if dbgTagDB
+  if (dbgSaveObj())
+    {
+    dbgIndent-=3;
+    dbgpln("%*sObject Done  :%s [%s]",dbgIndent,"",pClass, ThisObjTag()); 
+    //dbgpln("       Flds: %s ",FldBuff); 
+    //dbgpln("       Data: %s ",DataBuff); 
+    }
 #endif
 
   return 0;
@@ -902,9 +921,12 @@ int CTagDBMDB::SaveArr(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
 
   Strng ItemTag;
 
-#if dbgSaveObjMDBFlds
-  dbgpln("%*sArray Start:%s ",dbgIndent,"",ThisObjTag()); 
-  dbgIndent+=3;
+#if dbgTagDB
+  if (dbgSaveObjFields())
+    {
+    dbgpln("%*sArray Start:%s ",dbgIndent,"",ThisObjTag()); 
+    dbgIndent+=3;
+    }
 #endif
 
   while (IsLayout(pItem->Type()))
@@ -917,8 +939,9 @@ int CTagDBMDB::SaveArr(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
       pItem=List.NextItem(Iter);
 
     CPkDataItem * pElemItem=pItem;
-#if dbgSaveObjMDBFlds
-    dbgpln("%*sSave Ele %s:%s",dbgIndent,"",tt_TypeString(pElemItem->Type()), pElemItem->TagStr());
+#if dbgTagDB
+    if (dbgSaveObjFields())
+      dbgpln("%*sSave Ele %s:%s",dbgIndent,"",tt_TypeString(pElemItem->Type()), pElemItem->TagStr());
 #endif
 
     Strng SDOTag;
@@ -927,16 +950,22 @@ int CTagDBMDB::SaveArr(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
     SaveObj(pObjType, ItemTag(), List, Iter, SDOTag);
     pItem=List.CurrentItem(Iter);
 
-#if dbgSaveObjMDBFlds
-    char EndType=pItem->Type();
-    dbgpln("%*sEnd  Ele",dbgIndent,"");
+#if dbgTagDB
+    if (dbgSaveObjFields())
+      {
+      char EndType=pItem->Type();
+      dbgpln("%*sEnd  Ele",dbgIndent,"");
+      }
 #endif
     iElem++;
     }
 
-#if dbgSaveObjMDBFlds
-  dbgIndent-=3;
-  dbgpln("%*sArray End:%s ",dbgIndent,"",ThisObjTag()); 
+#if dbgTagDB
+  if (dbgSaveObjFields())
+    {
+    dbgIndent-=3;
+    dbgpln("%*sArray End:%s ",dbgIndent,"",ThisObjTag()); 
+    }
 #endif
   ASSERT(pItem->Type()==tt_Array_E);
   pItem=List.NextItem(Iter);
@@ -1209,9 +1238,12 @@ int CTagDBMDB::LoadObject(CXM_ObjectData *pObjData, flag CreateOnly)
 
   if (DoIt)
     {
-#if dbgLoadObjectMDB
-    static long xxxCall=0;
-    dbgpln("                                                             Load  %5i %s  %s", xxxCall++, Class(), Tag());
+#if dbgTagDB                
+    if (dbgLoadObjExists()) 
+      {
+      static long xxxCall=0;
+      dbgpln("                                                             Load  %5i %s  %s", xxxCall++, Class(), Tag());
+      }
 #endif
     if (CreateOnly)
       {//object node is being created, return required info...
@@ -1288,9 +1320,12 @@ in a record refers to another table. Tag names are built using a dot
 notation for each level.*/
 int CTagDBMDB::LoadObj(flag IsConn, pchar pFullTag, pchar pTag, pchar pClass, CXM_ObjectData *pObjData, /*CPkDataItem * &pItem,*/ flag LoadArray)
   {
-#if dbgLoadObjMDB
-  static long LoadObjCall=0;
-  dbgpln("LoadObj[%4i]:%s %s %s", LoadObjCall++, pFullTag, pTag, pClass);
+#if dbgTagDB
+  if (dbgLoadObj())
+    {
+    static long LoadObjCall=0;
+    dbgpln("LoadObj[%4i]:%s %s %s", LoadObjCall++, pFullTag, pTag, pClass);
+    }
 #endif
   CPkDataList & List=pObjData->List;
 
@@ -1349,8 +1384,9 @@ ReTry:
           }
         //dbgpln("RecCount: %i", pRS->RecordCount);
         flag Exists = (!pRS->adEOF);
-#if dbgLoadObjectMDB
-        dbgpln("%s", Exists?"Exists":"Missing");
+#if dbgTagDB                
+        if (dbgLoadObjExists()) 
+          dbgpln("%s", Exists?"Exists":"Missing");
 #endif
         if (Exists)
           //if (pRS->Seek(">=", &VTag, &VRev))
@@ -1566,13 +1602,15 @@ ReTry:
                 }
               int LenP=Prefix.Length();
               int LenR=RqdPrefix.Length();
-#if dbgLoadObjMDBPf
-              dbgpln("  %60s   :%3i %3i %-15s %-15s","", LenP, LenR, Prefix() ? Prefix() : "", RqdPrefix()?RqdPrefix():"");
+#if dbgTagDB
+              if (dbgLoadObjPrefix())
+                dbgpln("  %60s   :%3i %3i %-15s %-15s","", LenP, LenR, Prefix() ? Prefix() : "", RqdPrefix()?RqdPrefix():"");
 #endif
               if ((LenP!=LenR) || ((LenP>0) && (Prefix.XStrCmp(RqdPrefix())!=0)))
                 {
-#if dbgLoadObjMDBPf
-                dbgpln("     :%-15s != %-15s", Prefix() ? Prefix() : "", RqdPrefix()?RqdPrefix():"");
+#if dbgTagDB
+                if (dbgLoadObjPrefix())
+                  dbgpln("     :%-15s != %-15s", Prefix() ? Prefix() : "", RqdPrefix()?RqdPrefix():"");
 #endif
                 // find no of chars for which current prefix == reqd prefix
                 int i=0,j=Min(RqdPrefix.Length(), Prefix.Length());
@@ -1594,8 +1632,9 @@ ReTry:
                   {
                   pchar p=strrchr(Prefix(), '.');
                   pchar q=p ? p+1 : Prefix();
-#if dbgLoadObjMDBPf
-                  dbgpln("   } :%-15s - %-15s [%i]", RqdPrefix(), q, LenEql);
+#if dbgTagDB
+                  if (dbgLoadObjPrefix())
+                    dbgpln("   } :%-15s - %-15s [%i]", RqdPrefix(), q, LenEql);
 #endif
                   List.SetStructureE(/*pItem,*/ tt_Struct_E, XchgTag(q), 0);
                   Prefix.SetLength(p ? p-Prefix(): 0);
@@ -1612,8 +1651,9 @@ ReTry:
                   pchar q=strchr(p+1, '.');
                   if (q) *q=0;
 
-#if dbgLoadObjMDBPf
-                  dbgpln("   { :%-15s - %-15s [%i]", RqdPrefix(), p, LenEql);
+#if dbgTagDB
+                  if (dbgLoadObjPrefix())
+                    dbgpln("   { :%-15s - %-15s [%i]", RqdPrefix(), p, LenEql);
 #endif
                   if (*p=='.')
                     { int xxx=0;};
@@ -1655,7 +1695,7 @@ ReTry:
                 pStrValue="";
 
               int StrValLen=strlen(pStrValue);
-              //              #if dbgLoadObjMDB
+              //              #if dbgLoadObj
               //              dbgpln("LdObj:%-15s = %s", RqdPrefix(), (const char *)CCrack::strVARIANT(TheValue));
               //              #endif
 
@@ -1685,8 +1725,9 @@ ReTry:
                 else
                   FullTag.Set("%s.%s", RecTag(), Tag());
 
-#if dbgLoadObjMDB
-                dbgpln("LdObj:%-15s = %s", FullTag(), Class());
+#if dbgTagDB
+                if (dbgLoadObj())
+                  dbgpln("LdObj:%-15s = %s", FullTag(), Class());
 #endif
 
                 LoadObj(IsConn, FullTag(), Tag(), Class(), pObjData, /*pItem,*/ LoadArray);
@@ -1820,8 +1861,9 @@ ReTry:
                     }
                   }
                 List.SetDataValue(/*pItem,*/ PTag(), 0, DU);
-#if dbgLoadObjMDBFlds
-                dbgpln("  LdVal:%-15s:%-15s [%3i]= %s", ClassNV(), PTag(), TheValue.vt, DU.GetString());
+#if dbgTagDB
+                if (dbgLoadObjFields())
+                  dbgpln("  LdVal:%-15s:%-15s [%3i]= %s", ClassNV(), PTag(), TheValue.vt, DU.GetString());
 #endif
                 }
               }
@@ -1832,8 +1874,9 @@ ReTry:
             {
             pchar p=strrchr(Prefix(), '.');
             pchar q=p ? p+1 : Prefix();
-#if dbgLoadObjMDBPf
-            dbgpln("   } :%-15s - %-15s [%i]", RqdPrefix(), q, 0);
+#if dbgTagDB
+            if (dbgLoadObjPrefix())
+              dbgpln("   } :%-15s - %-15s [%i]", RqdPrefix(), q, 0);
 #endif
             List.SetStructureE(/*pItem,*/ tt_Struct_E, XchgTag(q), 0);
             Prefix.SetLength(p ? p-Prefix(): 0);

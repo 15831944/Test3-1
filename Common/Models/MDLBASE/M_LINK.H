@@ -532,6 +532,8 @@ class DllImportExport MN_Lnk : public MdlNode
     virtual void   ClosureInfo();
 
 
+    bool           m_bSimplify;
+    bool           m_bSimplified;
 
     double         m_QmSpilt;
     byte           m_iXferCapOption;

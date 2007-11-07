@@ -893,12 +893,12 @@ class CThreadTimer
     CThreadTimer(int What, int NdSW)
       {
       m_What=What;
+      m_NdSW=NdSW;
       #if (DOTHREADTIMERTOTAL || DOTHREADTIMERALL)
       m_Total.ReStart();
       m_bComplete=false;
       #if (DOTHREADTIMERALL)
       //m_iThread=-1;
-      m_NdSW=NdSW;
       m_WaitTotal=0;
       m_LockTotal=0;
       m_ExecTotal=0;
@@ -973,15 +973,21 @@ class CThreadTimer
       m_LockTotal+=t-m_Memory;//m_SW.Lap();
       m_Memory=t;
       m_iDone++;
-      if (m_NdSW!=FSW_Null)
-        NDSTARTSW(m_pNd, m_NdSW);
       #else if (DOTHREADSHOWNODES)
       m_Memory=m_Total.Secs();
+      #endif
+      #if TimingStats           
+      if (m_NdSW!=FSW_Null)
+        NDSTARTSW(m_pNd, m_NdSW);
       #endif
       }
 
     inline void ExecDone()
       {
+      #if TimingStats           
+      if (m_NdSW!=FSW_Null)
+        NDSTOPSW(m_pNd, m_NdSW);
+      #endif
       #if DOTHREADSHOWNODES 
       #if dbgFlwSolve
       if (dbgThreadsNodes())
@@ -992,8 +998,6 @@ class CThreadTimer
       #endif
       #endif
       #if (DOTHREADTIMERALL)
-      if (m_NdSW!=FSW_Null)
-        NDSTOPSW(m_pNd, m_NdSW);
       double t=m_Total.Secs();
       m_ExecTotal+=t-m_Memory;//m_SW.Lap();
       m_Memory=t;
@@ -1765,7 +1769,7 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
         }
 
       int ir=p->IOIONo_Rmt(i);
-      if (p->Nd_Rmt(i)->Nd_Rmt(ir)!=p)
+      if ((!p->m_IOs[i].m_bRedirected) && (p->Nd_Rmt(i)->Nd_Rmt(ir)!=p))
         {
         LogError("Solver", 0, "Bad Connection %s Connects to %s & %s",
            p->Nd_Rmt(i)->FullObjTag(),
@@ -3117,14 +3121,25 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
           {
           if (p->m_Clusters[c].m_iProcOrder<0)
             {
-            if (nCluster==0)
-              sClstr.Set("%i", c);
-            else
+            int nRedirected=0;
+            for (int cio=0; cio<p->m_Clusters[c].NoIOs(); cio++)
               {
-              S.Set(",%i", c);
-              sClstr+=S;
+              int io=p->m_Clusters[c].IONo(cio);
+              if (p->m_IOs[io].m_bRedirected)
+                nRedirected++;
               }
-            nCluster++;
+
+            if (nRedirected!=p->m_Clusters[c].NoIOs())
+              {
+              if (nCluster==0)
+                sClstr.Set("%i", c);
+              else
+                {
+                S.Set(",%i", c);
+                sClstr+=S;
+                }
+              nCluster++;
+              }
             //LogError(p->FullObjTag(), 0, "Cluster %i Not in Process Evaluation Sequence [%s]", c, p->ClassId());
             };
           }
@@ -4618,9 +4633,9 @@ void FlwSlvBlk::TestClosure(CNodeEvalIndexList &TOSequence)
           if (pF->IsTear() && !pF->fIsBuffered)
             {
             if (NJ.Nd.IO_In(i))
-              Cd=pF->pQIO;// TearOutput
+              Cd=pF->m_pQIO;// TearOutput
             else
-              Cd=pF->pQIn;// TearInput;
+              Cd=pF->m_pQIn;// TearInput;
             }
           else
             Cd=NJ.Nd.IOConduit(i);
@@ -6345,6 +6360,26 @@ void FlwSlvPB::DumpNdStats(int What, double TotTime)
     for (int i=0; i<FSW_Max; i++)
       MaxSW=Max(MaxSW, p->SW(i).Secs());
 
+  int Selection[] = 
+    {
+    FSW_EvalJoinPressures,
+    FSW_EvalProducts,
+    FSW_EvalDiscrete,
+    FSW_PBEvalMakeUpAvail,
+    FSW_PBEvalMakeUpReqd,
+    FSW_PBEvalConvergence,
+    FSW_EvalMsAGData,
+    -1
+    };
+  
+  const int StatCount = sizeof(Selection)/sizeof(Selection[0]);
+  CArray<double, double>  ClassTotals[StatCount];
+  CArray<long, long>      ClassInstances[StatCount];
+  double                  TaskTotals[StatCount]={0,0,0,0,0,0,0};
+  double                  TheTotal = 0;       
+  CArray<TagObjClass*, TagObjClass*>  Classes;
+
+
   for (p=All.First(); (p); p=All.Next())
     {
     #if dbgFlwSolve
@@ -6356,16 +6391,16 @@ void FlwSlvPB::DumpNdStats(int What, double TotTime)
       DoIt=DoIt || p->SW(i).Secs()>0.05*MaxSW;
     if (DoIt)
       {
-      int Selection[]= {FSW_EvalJoinPressures,
-                        FSW_EvalProducts,
-                        FSW_EvalDiscrete,
-                        FSW_PBEvalMakeUpAvail,
-                        FSW_PBEvalMakeUpReqd,
-                        FSW_PBEvalConvergence,
-                        FSW_EvalMsAGData,-1};
+      int ClassIdNo=p->Class()->IdNo();
+      Classes.SetSize(Max(ClassIdNo+1, Classes.GetSize()));
+      Classes[ClassIdNo]=p->Class();
 
       for (int i=0, j; (j=Selection[i])>=0; i++)
         {
+        ClassTotals[i].SetSize(Max(ClassIdNo+1, ClassTotals[i].GetSize()));
+        ClassTotals[i][ClassIdNo]+=p->SW(j).Secs();
+        ClassInstances[i].SetSize(Max(ClassIdNo+1, ClassInstances[i].GetSize()));
+        ClassInstances[i][ClassIdNo]++;
         switch (What)
           {
           case NDS_LapTime:
@@ -6387,9 +6422,63 @@ void FlwSlvPB::DumpNdStats(int What, double TotTime)
           }
         }
 
-      dbgpln(" %s", p->Tag());
+      dbgpln(" %-30s %s", p->Tag(), p->ClassId());
       }
     }
+
+
+  if (What==NDS_TotalTime)
+    {
+    dbgpln(" %s", "============================================= Class Totals");
+    for (int c=0; c<Classes.GetCount(); c++)
+      {
+      if (Classes[c])
+        {
+        for (int i=0, j; (j=Selection[i])>=0; i++)
+          {
+          TaskTotals[i]+=ClassTotals[i][Classes[c]->IdNo()];
+          TheTotal+=ClassTotals[i][Classes[c]->IdNo()];
+          dbgp(" %12.6f", ClassTotals[i][Classes[c]->IdNo()]);
+          }
+        dbgpln(" %s", Classes[c]->ShortDesc());
+        }
+      }
+    dbgpln(" %s", "---------------------------------------------");
+    for (int i=0, j; (j=Selection[i])>=0; i++)
+      dbgp(" %12.6f", TaskTotals[i]);
+    dbgpln(" %s", "TaskTotal");
+    dbgpln(" %s", "============================================= Class Averages");
+    for (int c=0; c<Classes.GetCount(); c++)
+      {
+      if (Classes[c])
+        {
+        for (int i=0, j; (j=Selection[i])>=0; i++)
+          {
+          dbgp(" %12.6f", ClassTotals[i][Classes[c]->IdNo()]/Max(1L, ClassInstances[i][Classes[c]->IdNo()]));
+          }
+        dbgpln(" %s", Classes[c]->ShortDesc());
+        }
+      }
+    dbgpln(" %s", "============================================= Class % Time");
+    for (int c=0; c<Classes.GetCount(); c++)
+      {
+      if (Classes[c])
+        {
+        for (int i=0, j; (j=Selection[i])>=0; i++)
+          {
+          dbgp(" %12.6f", 100.0*ClassTotals[i][Classes[c]->IdNo()]/GTZ(TheTotal));
+          }
+        dbgpln(" %s", Classes[c]->ShortDesc());
+        }
+      }
+    //dbgpln(" %s", "---------------------------------------------");
+    //for (int i=0, j; (j=Selection[i])>=0; i++)
+    //  dbgp(" %12.6f", TaskTotals[i]);
+    //dbgpln(" %s", "TaskTotal");
+    }
+
+  dbgpln(" %s", "=============================================");
+
 #endif
   }
 

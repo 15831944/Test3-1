@@ -244,17 +244,18 @@ flag CIO_Digital::Set(flag SetIt)
 
 void CIO_Digital::BuildDataDefn(pTaggedObject pObj, pchar pTag, DataDefnBlk & DDB)
   {
-  if (DDB.BeginStruct(pObj, pTag, NULL, DDB_NoPage))
+  if (pLogic)
     {
-    if (pLogic)
+    if (DDB.BeginStruct(pObj, pTag, NULL, DDB_NoPage))
       pLogic->BuildDataDefn(pObj, pTag, DDB);
-    else
-      {
-      DDB.CheckBoxBtn("",      "On",     DC_,    "",     &bSet,  pObj, isParm, DDBOnOff);
-      //DDB.Bool("",    "On",  DC_,    "",     &bSet,          pObj, isParm, DDBOnOff);
-      } 
+    DDB.EndStruct();
     }
-  DDB.EndStruct();
+  else
+    {
+    Strng Tg(pTag?pTag:pObj->Tag(), ".", "On");
+    DDB.CheckBoxBtn("",      "On",     DC_,    "",     &bSet,  pObj, isParm, DDBOnOff);
+    //DDB.Bool("",    "On",  DC_,    "",     &bSet,          pObj, isParm, DDBOnOff);
+    } 
   };
 
 //---------------------------------------------------------------------------

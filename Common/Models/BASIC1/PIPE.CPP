@@ -164,6 +164,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   //const flag IsXfer=((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlwMode();
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
 
+
   if (!NetProbalMethod() && PrjFileVerNo()<73)
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
@@ -190,7 +191,6 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility();
   DDB.Text   ("");
-
   DDB.Text   ("Results: Flow Conditions");
   DDB.Double("",              "QmPrvPB",  DC_Qm,   "kg/s",   xidFEQmPrvPB,     this, isResult|noView|NAN_OK);
 
@@ -305,12 +305,25 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Page("..", DDB_RqdPage);
     }
 
-  DDB.Text   ("Requirements");
+  DDB.Text   ("Requirements:");
+  DDB.Text   ("");
+  //DDB.Text   ("Results: Flow Conditions");
+
+  DDB.CheckBoxBtn("Simplify", "", DC_, "", &m_bSimplify, this, isParmStopped|AffectsStruct);
+  if (m_bSimplify)
+    {
+    if (!m_bSimplified)
+      DDB.TagComment("Inactive-Config");
+    else if (!IOFlange(0)->RedirectOK())
+      DDB.TagComment("Inactive-Tear");
+      
+    }
   cioOn.BuildDataDefn(this, "Flow", DDB);
+  DDB.Text   ("");
 
   if (!NetProbalMethod())
     {
-    DDB.Text   ("");
+    //DDB.Text   ("");
     if (IsXfer || !DDB.ForFileSnpScn() || PrjFileVerNo()<40)
       {
       DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && IsXfer);
@@ -414,7 +427,9 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
 
   DDB.Visibility();
-  m_BlkEval.Add_OnOff(DDB);  
+  
+  if (!DDB.ForView() || !m_bSimplified)
+    m_BlkEval.Add_OnOff(DDB);  
   
   if (!NetProbalMethod())
     {
@@ -804,7 +819,9 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
 
   DDB.Visibility();
-  m_BlkEval.BuildDataDefn(DDB);
+
+  if (!DDB.ForView() || !m_bSimplified)
+    m_BlkEval.BuildDataDefn(DDB);
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All, (NetDynamicMethod() && IsSrcSnk) || DDB.ForFileSnpScn());
   if (IsPipe)
@@ -875,7 +892,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Visibility();
     }
 
-  if ((NoFlwIOs() > 1) && IOFlange(0))
+  if ((NoFlwIOs() > 1) && IOFlange(0) && !IOFlange(0)->RedirectOK())
     {
     //if (IOConduitIn(0))
     //  {

@@ -77,7 +77,7 @@
 #define DOPBHSMOOTHING      0
 #define DOPB_FILT_ALPHAS    0
 #define DOPB_FILT_RESULTS   0
-#define NDSTOPWATCHES       0 /*(1 || WITHTIMERS)*/
+#define NDSTOPWATCHES       WITHTIMERS
 
 #define dbgTrackQmModes     0
 
@@ -1723,10 +1723,12 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     void           TearSetOutputs(TearVarArray & TV);
 
     // Model Config Methods
-    SpConduit    * Conduit(flag fIn)                { if (!fIsBuffered && IsTear()) return fIn ? pQIO : pQIn; return pQIO; };
-    SpConduit    * ConduitIO()                      { return pQIO; };
-    SpConduit    * ConduitIn()                      { return pQIn; };
-    SpConduit    * ConduitMem()                     { if (pQMem==NULL) pQMem = new SpConduit("QMem", NULL, TOA_Free); return pQMem; };
+    SpConduit    * Conduit(flag fIn)   ;//             { if (!fIsBuffered && IsTear()) return fIn ? m_pQIO : m_pQIn; return m_pQIO; };
+    SpConduit    * ConduitIO()         ;//             { return m_pQIO; };
+    SpConduit    * ConduitIn()         ;//             { return m_pQIn; };
+    SpConduit    * ConduitMem()        ;//             { if (m_pQMem==NULL) m_pQMem = new SpConduit("QMem", NULL, TOA_Free); return m_pQMem; };
+
+    bool           RedirectOK();
 
     void           SetPMU(PMU_OPTIONS OnOpts, PMU_OPTIONS OffOpts)   { m_bPMUOpts = (m_bPMUOpts|OnOpts) & ~OffOpts; };
     flag           HasPMU(PMU_OPTIONS Opts)                          { return (m_bPMUOpts & Opts) !=0; };
@@ -1807,9 +1809,9 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     double         dMkUpRqdLcl;
     double         dMkUpAvl;
 
-    SpConduit*     pQIO;
-    SpConduit*     pQIn;
-    SpConduit*     pQMem;
+    SpConduit*     m_pQIO;
+    SpConduit*     m_pQIn;
+    SpConduit*     m_pQMem;
 
     bool           m_ShowFlws;
     SpImage*       m_pTearImg;
@@ -1821,6 +1823,8 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     CPressBlk      PB;
     CSpPropInfo    m_NetProps;
 
+    bool           m_bRedirectActive;
+    CFlange      * m_pRedirectTo;
 #if DOPBSMOOTHING
     CMSIndex       MS;
 #endif
@@ -2210,23 +2214,25 @@ class DllImportExport CIORec
     CIORec();
     ~CIORec();
 
+    void Clear();
+
     CIORec & operator=(CIORec & A);
 
-    FlwBlkArray   &FBs()                            { return (*pFBs); };
-    CPressBlkArray &PBs()                            { return (*pPBs); };
+    FlwBlkArray    &FBs()                           { return (*m_pFBs); };
+    CPressBlkArray &PBs()                           { return (*m_pPBs); };
 
-    SpConduit*     Conduit()                        { return pFlng->Conduit(FlwPos(FBs()[0].GetQmEst()));};
-    SpConduit*     ConduitIO()                      { return pFlng->ConduitIO();};
-    SpConduit*     ConduitIn()                      { return pFlng->ConduitIn();};
-    SpConduit*     ConduitMem()                     { return pFlng->ConduitMem();};
+    SpConduit*     Conduit()                        { return m_pFlng->Conduit(FlwPos(FBs()[0].GetQmEst()));};
+    SpConduit*     ConduitIO()                      { return m_pFlng->ConduitIO();};
+    SpConduit*     ConduitIn()                      { return m_pFlng->ConduitIn();};
+    SpConduit*     ConduitMem()                     { return m_pFlng->ConduitMem();};
 
-    void           SetPMU(PMU_OPTIONS OnOpts, PMU_OPTIONS OffOpts)  { pFlng->SetPMU(OnOpts, OffOpts); };
-    flag           HasPMU(PMU_OPTIONS Opts)                         { return pFlng->HasPMU(Opts); };
-    CSysVector   * PMUFilter()                                      { return pFlng->PMUFilter(); };
-    void           SetPMUValue1(double V)                           { pFlng->SetPMUValue1(V); };
-    double         PMUValue1()                                      { return pFlng->PMUValue1(); };
-    void           SetPMUFilterDens(double V)                       { pFlng->SetPMUFilterDens(V); };
-    double         PMUFilterDens()                                  { return pFlng->PMUFilterDens(); };
+    void           SetPMU(PMU_OPTIONS OnOpts, PMU_OPTIONS OffOpts)  { m_pFlng->SetPMU(OnOpts, OffOpts); };
+    flag           HasPMU(PMU_OPTIONS Opts)                         { return m_pFlng->HasPMU(Opts); };
+    CSysVector   * PMUFilter()                                      { return m_pFlng->PMUFilter(); };
+    void           SetPMUValue1(double V)                           { m_pFlng->SetPMUValue1(V); };
+    double         PMUValue1()                                      { return m_pFlng->PMUValue1(); };
+    void           SetPMUFilterDens(double V)                       { m_pFlng->SetPMUFilterDens(V); };
+    double         PMUFilterDens()                                  { return m_pFlng->PMUFilterDens(); };
 
 #if DOPB_FILT_RESULTS
     SpVector     * MSRqd(int i)                     { return pFlng->MSRqd(i); };
@@ -2254,61 +2260,65 @@ class DllImportExport CIORec
 
   protected:
     // common
-    int            m_iIODescSelf,
-                   m_iIODescRmt,
-                   m_iIONoRmt;
-    eEvalSeqStart  m_eEvalSeqStart;
-    CTraceArray   *m_pChgs;
+    int              m_iIODescSelf,
+                     m_iIODescRmt,
+                     m_iIONoRmt;
+    eEvalSeqStart    m_eEvalSeqStart;
+    CTraceArray    * m_pChgs;
 
     // PwrCtrl Common
-    CTerminal     *m_pTerm;
-
+    CTerminal      * m_pTerm;
+                   
     // flw specific
-    FlwNode       *Rmt;
-    CFlange       *pFlng;
-    FlwBlkArray   *pFBs;
-    CPressBlkArray *pPBs;
+    FlwNode        * m_pRmt;
+    CFlange        * m_pFlng;
+    FlwBlkArray    * m_pFBs;
+    CPressBlkArray * m_pPBs;
 
-    sint           iHgtOrd;
-    flag           fSameHgt,
-                   fIsBuffer,
-                   fIsSetXfer,
-                   fIsComplete,
-                   fDamped,
-                   fV2LReqd,
-                   fConnToRmt,
-                   fAutoConnect;
-    bool           fEvalSeqIn;
-    bool           fEvalSeqOut;
-    bool           fEvalSeqWasIn;
-    bool           fEvalSeqWasOut;
+    sint             iHgtOrd;
+    flag             fSameHgt,
+                     fIsBuffer,
+                     fIsSetXfer,
+                     fIsComplete,
+                     fDamped,
+                     fV2LReqd,
+                     fConnToRmt,
+                     fAutoConnect;
+    bool             fEvalSeqIn;
+    bool             fEvalSeqOut;
+    bool             fEvalSeqWasIn;
+    bool             fEvalSeqWasOut;
 
-    double         m_dFracHgt,
-                   m_dApertureAngle,
-                   m_dAperture,
-                   m_dEntrainRateSL,
-                   m_dEntrainRateG,
-                   m_dEstV2LOnEntry,
-                   m_dEstL2VOnEntry;
+    double           m_dFracHgt,
+                     m_dApertureAngle,
+                     m_dAperture,
+                     m_dEntrainRateSL,
+                     m_dEntrainRateG,
+                     m_dEstV2LOnEntry,
+                     m_dEstL2VOnEntry;
 
-    byte           iExitRule;
-    SpVectorObj  * m_pFilter;
+    byte             m_iExitRule;
+    SpVectorObj    * m_pFilter;
 
-    double         dV2LQmVFact;
-    double         dV2LQmLFact;
-    double         dRhoHSensV;
-    double         dRhoHSensL;
-    double         dPSensV;
-    double         dPSensL;
+    double           dV2LQmVFact;
+    double           dV2LQmLFact;
+    double           dRhoHSensV;
+    double           dRhoHSensL;
+    double           dPSensV;
+    double           dPSensL;
 
-    int            iJoinTp;
-    int            iJoinId;
-    int            iJoinConnNo;
-    int            iClusterId;
+    int              iJoinTp;
+    int              iJoinId;
+    int              iJoinConnNo;
+    int              iClusterId;
 
-    CSrgFlwInfo    m_Srg;
+    CSrgFlwInfo      m_Srg;
 
-    CIOMFlwDmdRec * m_pMFlwDmd;
+    CIOMFlwDmdRec  * m_pMFlwDmd;
+
+    int              m_iRedirectTo;
+    bool             m_bRedirected;
+    CIORec         * m_pOrigIORec;
 
     #if WithIOChgMonitor
     CDArray        DataMem;
@@ -2319,15 +2329,15 @@ class DllImportExport CIORec
 class CIORecArray : public CArray<CIORec*, CIORec*>
   {
   public:
-    ~CIORecArray()              { SetMySize(0);}
+    ~CIORecArray()              { SetSize(0);}
     CIORec & operator[](int i)  { return *ElementAt(i); }
-    void SetMySize(int RqdSize)
+    void SetSize(INT_PTR nNewSize, INT_PTR nGrowBy = -1)
       {
       int n=GetSize();
-      for (int i=RqdSize; i<n; i++)
+      for (int i=nNewSize; i<n; i++)
         delete ElementAt(i);
-      SetSize(RqdSize, Max(4, RqdSize/8));
-      for (int i=n; i<RqdSize; i++)
+      CArray::SetSize(nNewSize, nGrowBy >=0 ? nGrowBy : Max(4, nNewSize/8));
+      for (int i=n; i<nNewSize; i++)
         ElementAt(i)=new CIORec;
       };
   };
@@ -3607,6 +3617,10 @@ class DllImportExport FlwNode : public CTNode
     int            DisConnectTag(FlwNode* Root, char * Tag1, char * Tag2);
     void           DisConnectAll();
 
+    void           ReDirectIO(int IOSrc, int IODst)  { IOFlange(IOSrc)->m_pRedirectTo = IOFlange(IODst); };
+    void           DoReDirectIO(int IO);
+    void           UndoReDirectIO(int IO);
+
     bool           PostConnectDirect(int IONo);
     bool           PreDisConnectDirect(int IONo);
 
@@ -3659,7 +3673,7 @@ class DllImportExport FlwNode : public CTNode
 
     flag           SolutionBusy() { return fSolutionBusy; };
 
-    FlwNode*       Nd_Rmt(int i)              { return (FlwNode*)(i<m_IOs.GetCount() ? m_IOs[i].Rmt : NULL);};
+    FlwNode*       Nd_Rmt(int i)              { return (FlwNode*)(i<m_IOs.GetCount() ? m_IOs[i].m_pRmt : NULL);};
     flag           SolveInlineMethod_Rmt(int i)  { return Nd_Rmt(i) ? Nd_Rmt(i)->SolveInlineMethod() : false; };
 
     IOAreaRec     *getIOAreas()           { return m_pIOAreasOwned ? m_pIOAreasOwned : m_pIOAreas; };
@@ -3686,7 +3700,7 @@ class DllImportExport FlwNode : public CTNode
     int            NIOFBs_Rmt(int i)      {return IO_Rmt(i).FBs().GetSize();};
     int            IOFBJoinIndex(int i)   {return NIOFBs(i)-1;};
     int            IOFBFlngIndex(int i)   {return 0;};
-    FlwBlkArray   *IOFBs(int i)           {return IO_Self(i).pFBs;};
+    FlwBlkArray   *IOFBs(int i)           {return IO_Self(i).m_pFBs;};
     FlwBlk        *IOFB(int i, int fe)    {return &IO_Self(i).FBs()[fe];};
     FlwBlk        *IOFBJoin(int i)        {return &IO_Self(i).FBs()[NIOFBs(i)-1];};
     FlwBlk        *IOFBFlng(int i)        {return &IO_Self(i).FBs()[0];};
@@ -3706,13 +3720,13 @@ class DllImportExport FlwNode : public CTNode
     
     CConnect      *IOConnect(int i)
       {
-      if(m_IOs[i].pFlng) return dynamic_cast<CConnect*>(m_IOs[i].pFlng); 
+      if(m_IOs[i].m_pFlng) return dynamic_cast<CConnect*>(m_IOs[i].m_pFlng); 
       if(m_IOs[i].m_pTerm) return dynamic_cast<CConnect*>(m_IOs[i].m_pTerm); 
       return NULL;                                    
       };
 
-    CFlange       *IOFlange(int i)        { return m_IOs[i].pFlng; };
-    CFlange       *IOFlangeTst(int i)     { return (m_IOs.GetCount() && (i >=0 && i < NoFlwIOs())) ? m_IOs[i].pFlng : NULL; };
+    CFlange       *IOFlange(int i)        { return m_IOs[i].m_pFlng; };
+    CFlange       *IOFlangeTst(int i)     { return (m_IOs.GetCount() && (i >=0 && i < NoFlwIOs())) ? m_IOs[i].m_pFlng : NULL; };
     CAreaSum      *IOAreaSum(int i)       { return &IOFlange(i)->Sum; };
     SpConduit     *IOConduit(int i)       { return m_IOs[i].Conduit(); };
     SpConduit     *IOConduitIO(int i)     { return m_IOs[i].ConduitIO(); };
@@ -3727,8 +3741,8 @@ class DllImportExport FlwNode : public CTNode
     CAreaSum     * AreaSum(int i)         { return i<NoProcLnkIOs() ? IOAreaSum(i) : &m_EnabledDirectIOs[i-NoProcLnkIOs()]->Sum; }
 
     virtual CSpPropInfo *IOGetNetProps(int i, double Qm) { return NULL; };
-    virtual void   IOSetNetProps(int i, CSpPropInfo * pNP) { m_IOs[i].pFlng->m_NetProps=*pNP; };
-    CSpPropInfo   *IONetProps(int i)      { return &m_IOs[i].pFlng->m_NetProps; };
+    virtual void   IOSetNetProps(int i, CSpPropInfo * pNP) { m_IOs[i].m_pFlng->m_NetProps=*pNP; };
+    CSpPropInfo   *IONetProps(int i)      { return &m_IOs[i].m_pFlng->m_NetProps; };
     CSpPropInfo   *IOFlwProps(int i, int fe);
     CSpPropInfo   *IOFwdFlwProps(int i, int fe) { return &IOFB(i,fe)->m_FlwProps[0]; };
     CSpPropInfo   *IORevFlwProps(int i, int fe) { return &IOFB(i,fe)->m_FlwProps[1]; };
@@ -3784,7 +3798,7 @@ class DllImportExport FlwNode : public CTNode
       };
     CTerminal     *Ctrl_Terminal(int i)           { return m_IOs[i].m_pTerm; };
     flag           Ctrl_EvalSeqStartOK(int i)     { return false; };
-    void           Ctrl_GetConnIDStr(int i, Strng & ID, Strng & Tg)       { ID=Tg=""; m_IOs[i].Rmt->Ctrl_ConnIDStr(IOIONo_Rmt(i), ID, Tg); };
+    void           Ctrl_GetConnIDStr(int i, Strng & ID, Strng & Tg)       { ID=Tg=""; m_IOs[i].m_pRmt->Ctrl_ConnIDStr(IOIONo_Rmt(i), ID, Tg); };
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg)          { ID=Tg=FullObjTag(); };
     void           LockCtrls();
     void           UnLockCtrls();
@@ -3915,7 +3929,7 @@ class DllImportExport FlwNode : public CTNode
     int            IOWithId_Self(int  RqdId)    { for (int i = 0; i < NoFlwIOs(); i++) if (IOId_Self(i)==RqdId) return i; return -1;};
     int            NIOsWithId_Self(int  RqdId)  { for (int i=0, j=0; i < NoFlwIOs(); i++) if (IOId_Self(i)==RqdId) j++; return j;};
 #endif
-    int            IOId_Rmt(int i)              { return m_IOs[i].Rmt->IOAreas[m_IOs[i].m_iIODescRmt].m_Id; };
+    int            IOId_Rmt(int i)              { return m_IOs[i].m_pRmt->IOAreas[m_IOs[i].m_iIODescRmt].m_Id; };
     IDMask         IOIdMask_Rmt(int i)          { return IDMask(1) << IOId_Rmt(i); };
     //int            IOWithId_Rmt(int  RqdId)     { for (int i = 0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) return i; return -1;};
     //int            NIOsWithId_Rmt(int  RqdId)   { for (int i = 0, j=0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) j++; return j;};
@@ -4064,7 +4078,7 @@ class DllImportExport FlwNode : public CTNode
     void           SetIOEstV2LOnEntry(int i, double d) { m_IOs[i].m_dEstV2LOnEntry=d; };
     void           SetIOEstL2VOnEntry(int i, double d) { m_IOs[i].m_dEstL2VOnEntry=d; };
 
-    byte           IOExitRule(int i)                   { return m_IOs[i].iExitRule; };
+    byte           IOExitRule(int i)                   { return m_IOs[i].m_iExitRule; };
     SpVectorObj  * IOExitFilter(int i)                 { return m_IOs[i].m_pFilter; };
     void           SetIOExitRule(int i, byte Rule);
 

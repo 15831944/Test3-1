@@ -46,6 +46,7 @@ static CDbgMngr dbgTraceChanges     ("FlwNode",  "TraceChanges");
 static CDbgMngr dbgDumpChanges      ("FlwNode",  "DumpChanges");
 static CDbgMngr dbgDumpChangesIn    ("FlwNode",  "DumpChangesIn");
 static CDbgMngr dbgDumpChangeTol    ("FlwNode",  "DumpChangeTol");
+static CDbgMngr dbgDumpChangeAll    ("FlwNode",  "DumpChangeAll");
 #endif
 
 static CDbgMngr dbgEvalJoinPress    ("ProBal",   "EvalJoinPress");
@@ -117,149 +118,236 @@ char *cJoinType[JTyp_NoOf+1] =
 
 CIORec::CIORec()
   {
-  m_iIODescSelf=0;
-  m_iIODescRmt=0;
-  m_iIONoRmt=0;
-  Rmt=NULL;
-  pFlng=NULL;
-  //m_dwClass=0;
-  m_pTerm=NULL;
-  //m_pCData=NULL;
-  //m_pEData=NULL;
-  //m_pAData=NULL;
+  m_pChgs               = NULL;
+  m_pFBs                = NULL;
+  m_pPBs                = NULL;
 
-  iJoinId=IOPt_UnKnown; // InValid Value - will force the initial change
-  iJoinTp=IOJn_UnKnown; // InValid Value - will force the initial change
-  iJoinConnNo=-1;
-  iClusterId=-1;
-  fIsSetXfer=0;
-  fIsBuffer=0;
-  fIsComplete=0;
-  fSameHgt=0;
-  fDamped=0;
-  fV2LReqd=0;
-  fConnToRmt=0;
-  fAutoConnect=0;
-  fEvalSeqIn=0;
-  fEvalSeqOut=0;
-  fEvalSeqWasIn=0;
-  fEvalSeqWasOut=0;
-  m_eEvalSeqStart=ESS_Denied;
+  Clear();
 
-  m_pChgs=NULL;
-  pFBs=NULL;
-  pPBs=NULL;
+  //m_iIODescSelf=0;
+  //m_iIODescRmt=0;
+  //m_iIONoRmt=0;
+  //m_pRmt=NULL;
+  //m_pFlng=NULL;
+  ////m_dwClass=0;
+  //m_pTerm=NULL;
+  ////m_pCData=NULL;
+  ////m_pEData=NULL;
+  ////m_pAData=NULL;
+
+  //iJoinId=IOPt_UnKnown; // InValid Value - will force the initial change
+  //iJoinTp=IOJn_UnKnown; // InValid Value - will force the initial change
+  //iJoinConnNo=-1;
+  //iClusterId=-1;
+  //fIsSetXfer=0;
+  //fIsBuffer=0;
+  //fIsComplete=0;
+  //fSameHgt=0;
+  //fDamped=0;
+  //fV2LReqd=0;
+  //fConnToRmt=0;
+  //fAutoConnect=0;
+  //fEvalSeqIn=0;
+  //fEvalSeqOut=0;
+  //fEvalSeqWasIn=0;
+  //fEvalSeqWasOut=0;
+  //m_eEvalSeqStart=ESS_Denied;
+
+  //m_pChgs=NULL;
+  //m_pFBs=NULL;
+  //m_pPBs=NULL;
 
 
-  iHgtOrd=0;
+  //iHgtOrd=0;
 
-  m_dFracHgt=0;
-  m_dApertureAngle=0;
-  m_dAperture=0;
-  m_dEntrainRateSL=0;
-  m_dEntrainRateG=0;
-  m_dEstV2LOnEntry=0;
-  m_dEstL2VOnEntry=0;
+  //m_dFracHgt=0;
+  //m_dApertureAngle=0;
+  //m_dAperture=0;
+  //m_dEntrainRateSL=0;
+  //m_dEntrainRateG=0;
+  //m_dEstV2LOnEntry=0;
+  //m_dEstL2VOnEntry=0;
 
-  iExitRule=0;
-  m_pFilter=NULL;
+  //m_iExitRule=0;
+  //m_pFilter=NULL;
 
-  dV2LQmVFact=0;
-  dV2LQmLFact=0;
-  dRhoHSensV=0;
-  dRhoHSensL=0;
-  dPSensV=0;
-  dPSensL=0;
+  //dV2LQmVFact=0;
+  //dV2LQmLFact=0;
+  //dRhoHSensV=0;
+  //dRhoHSensL=0;
+  //dPSensV=0;
+  //dPSensL=0;
 
-  iJoinTp=0;
-  iJoinId=0;
-  iJoinConnNo=0;
+  //iJoinTp=0;
+  //iJoinId=0;
+  //iJoinConnNo=0;
 
-  m_pMFlwDmd = NULL;
+  //m_pMFlwDmd = NULL;
+  //m_pOrigIORec = NULL;
   };
 
 CIORec::~CIORec()
   {
+  //delete m_pFBs;
+  //delete m_pPBs;
+  //delete m_pChgs;
+
   delete m_pMFlwDmd;
   delete m_pFilter;
-  m_pFilter=NULL;
   }
+
+//--------------------------------------------------------------------------
+
+void CIORec::Clear()
+  {
+  m_iIODescSelf         = 0;
+  m_iIODescRmt          = 0;
+  m_iIONoRmt            = 0;
+  m_pRmt                = NULL;
+  m_pFlng               = NULL;
+  //m_dwClass             = 0;
+  m_pTerm               = NULL;
+  //m_pCData              = NULL;
+  //m_pEData              = NULL;
+  //m_pAData              = NULL;
+
+  iJoinId               = IOPt_UnKnown; // InValid Value - will force the initial change
+  iJoinTp               = IOJn_UnKnown; // InValid Value - will force the initial change
+  iJoinConnNo           = -1;
+  iClusterId            = -1;
+  fIsSetXfer            = 0;
+  fIsBuffer             = 0;
+  fIsComplete           = 0;
+  fSameHgt              = 0;
+  fDamped               = 0;
+  fV2LReqd              = 0;
+  fConnToRmt            = 0;
+  fAutoConnect          = 0;
+  fEvalSeqIn            = 0;
+  fEvalSeqOut           = 0;
+  fEvalSeqWasIn         = 0;
+  fEvalSeqWasOut        = 0;
+  m_eEvalSeqStart       = ESS_Denied;
+
+  //delete m_pFBs;
+  //delete m_pPBs;
+  //delete m_pChgs;
+
+  //m_pFBs                = new FlwBlkArray;
+  //m_pPBs                = new CPressBlkArray;
+  //m_pChgs               = new CTraceArray;
+
+
+  iHgtOrd               = -1;
+
+  m_dFracHgt            = 0;
+  m_dApertureAngle      = 0;
+  m_dAperture           = 0;
+  m_dEntrainRateSL      = 0;
+  m_dEntrainRateG       = 0;
+  m_dEstV2LOnEntry      = 0;
+  m_dEstL2VOnEntry      = 0;
+
+  m_iExitRule           = 0;
+  m_pFilter             = NULL;
+
+  dV2LQmVFact           = 0;
+  dV2LQmLFact           = 0;
+  dRhoHSensV            = 0;
+  dRhoHSensL            = 0;
+  dPSensV               = 0;
+  dPSensL               = 0;
+
+  iJoinTp               = 0;
+  iJoinId               = 0;
+  iJoinConnNo           = 0;
+
+  m_pMFlwDmd            =  NULL;
+  
+  m_iRedirectTo         = -1;
+  m_bRedirected         = false;
+  m_pOrigIORec          =  NULL;
+  };
 
 //--------------------------------------------------------------------------
 
 CIORec & CIORec::operator=(CIORec &A)
   {
-  m_iIODescSelf    = A.m_iIODescSelf;
-  m_iIODescRmt     = A.m_iIODescRmt;
-  m_iIONoRmt       = A.m_iIONoRmt;
-  m_eEvalSeqStart  = A.m_eEvalSeqStart;
-  m_pChgs          = A.m_pChgs;
+  m_iIODescSelf         = A.m_iIODescSelf;
+  m_iIODescRmt          = A.m_iIODescRmt;
+  m_iIONoRmt            = A.m_iIONoRmt;
+  m_eEvalSeqStart       = A.m_eEvalSeqStart;
+  m_pChgs               = A.m_pChgs;
 
-  m_pTerm          = A.m_pTerm;
+  m_pTerm               = A.m_pTerm;
 
-  Rmt              = A.Rmt;
-  pFlng            = A.pFlng;
-  pFBs             = A.pFBs;
-  pPBs             = A.pPBs;
+  m_pRmt                = A.m_pRmt;
+  m_pFlng               = A.m_pFlng;
+  m_pFBs                = A.m_pFBs;
+  m_pPBs                = A.m_pPBs;
 
-  iHgtOrd          = A.iHgtOrd;
-  fSameHgt         = A.fSameHgt;
-  fIsBuffer        = A.fIsBuffer;
-  fIsSetXfer       = A.fIsSetXfer;
-  fIsComplete      = A.fIsComplete;
-  fDamped          = A.fDamped;
-  fV2LReqd         = A.fV2LReqd;
-  fConnToRmt       = A.fConnToRmt;
-  fAutoConnect     = A.fAutoConnect;
+  iHgtOrd               = A.iHgtOrd;
+  fSameHgt              = A.fSameHgt;
+  fIsBuffer             = A.fIsBuffer;
+  fIsSetXfer            = A.fIsSetXfer;
+  fIsComplete           = A.fIsComplete;
+  fDamped               = A.fDamped;
+  fV2LReqd              = A.fV2LReqd;
+  fConnToRmt            = A.fConnToRmt;
+  fAutoConnect          = A.fAutoConnect;
 
-  m_dFracHgt       = A.m_dFracHgt;
-  m_dApertureAngle = A.m_dApertureAngle;
-  m_dAperture      = A.m_dAperture;
-  m_dEntrainRateSL = A.m_dEntrainRateSL;
-  m_dEntrainRateG  = A.m_dEntrainRateG;
-  m_dEstV2LOnEntry = A.m_dEstV2LOnEntry;
-  m_dEstL2VOnEntry = A.m_dEstL2VOnEntry;
+  m_dFracHgt            = A.m_dFracHgt;
+  m_dApertureAngle      = A.m_dApertureAngle;
+  m_dAperture           = A.m_dAperture;
+  m_dEntrainRateSL      = A.m_dEntrainRateSL;
+  m_dEntrainRateG       = A.m_dEntrainRateG;
+  m_dEstV2LOnEntry      = A.m_dEstV2LOnEntry;
+  m_dEstL2VOnEntry      = A.m_dEstL2VOnEntry;
 
 
-  dV2LQmVFact      = A.dV2LQmVFact;
-  dV2LQmLFact      = A.dV2LQmLFact;
-  dRhoHSensV       = A.dRhoHSensV;
-  dRhoHSensL       = A.dRhoHSensL;
-  dPSensV          = A.dPSensV;
-  dPSensL          = A.dPSensL;
+  dV2LQmVFact           = A.dV2LQmVFact;
+  dV2LQmLFact           = A.dV2LQmLFact;
+  dRhoHSensV            = A.dRhoHSensV;
+  dRhoHSensL            = A.dRhoHSensL;
+  dPSensV               = A.dPSensV;
+  dPSensL               = A.dPSensL;
 
-  iJoinTp          = A.iJoinTp;
-  iJoinId          = A.iJoinId;
-  iJoinConnNo      = A.iJoinConnNo;
+  iJoinTp               = A.iJoinTp;
+  iJoinId               = A.iJoinId;
+  iJoinConnNo           = A.iJoinConnNo;
 
-  m_Srg            = A.m_Srg;
+  m_Srg                 = A.m_Srg;
 
 #if WithIOChgMonitor
-  DataMem          = A.DataMem;
+  DataMem               = A.DataMem;
 #endif
 
   // Transfer the Image if it exists
-  iExitRule        = A.iExitRule;
-  m_pFilter        = A.m_pFilter;
-  A.m_pFilter      = NULL;
+  m_iExitRule           = A.m_iExitRule;
+  m_pFilter             = A.m_pFilter;
+  A.m_pFilter           = NULL;
 
-  m_pMFlwDmd       = A.m_pMFlwDmd;
-  A.m_pMFlwDmd     = NULL;
-  return *this;
+  m_pMFlwDmd            = A.m_pMFlwDmd;
+  A.m_pMFlwDmd          = NULL;
+  
+  m_iRedirectTo         = A.m_iRedirectTo;
+  m_bRedirected         = A.m_bRedirected;
+  m_pOrigIORec          = A.m_pOrigIORec;
+  return *this;      
   }
 
 //--------------------------------------------------------------------------
 
 void CIORec::SetNFBs(int n)
   {
-  (*pFBs).SetSize(n);
-  (*pPBs).SetSize(n);
-  (*pFBs)[0].m_pNdPB=&(*pPBs)[0];
-  (*pFBs)[0].m_pFlPB=&pFlng->PB;
+  (*m_pFBs).SetSize(n);
+  (*m_pPBs).SetSize(n);
+  (*m_pFBs)[0].m_pNdPB=&(*m_pPBs)[0];
+  (*m_pFBs)[0].m_pFlPB=&m_pFlng->PB;
   for (int i=1; i<n; i++)
     {
-    (*pFBs)[i].m_pNdPB=&(*pPBs)[i];
-    (*pFBs)[i].m_pFlPB=&(*pPBs)[i-1];
+    (*m_pFBs)[i].m_pNdPB=&(*m_pPBs)[i];
+    (*m_pFBs)[i].m_pFlPB=&(*m_pPBs)[i-1];
     }
   };
 
@@ -1102,42 +1190,45 @@ TearPosBlk(TT_NoTear),
 CConnect(Connect_Flange, pClass_, TagIn, pAttach, eAttach)
   {
   //InitializeCriticalSection(&ConnectLockSect);
-  m_Attachments=0;
-  m_bMustDelete=false;//MustDelete;
+  m_Attachments       = 0;
+  m_bMustDelete       = false;//MustDelete;
 
-  m_pDirectFlwIO=NULL;
-  m_ShowFlws=true;
+  m_pDirectFlwIO      = NULL;
+  m_ShowFlws          = true;
 
-  m_Datum=0.0;
-  m_DeltaZ=0.0;
-  //fFlngSetUp=false;
-  fIsBufferPos=false;
-  fIsBuffered=false;
-  fInFlangeList=false;
-  //fIsEvalSeqStart=false;
+  m_Datum             = 0.0;
+  m_DeltaZ            = 0.0;
+  //fFlngSetUp          = false;
+  fIsBufferPos        = false;
+  fIsBuffered         = false;
+  fInFlangeList       = false;
+  //fIsEvalSeqStart     = false;
 
-  pQIO = new SpConduit("Qio", NULL, TOA_Free);
-  pQIn = NULL;
-  pQMem= NULL;
+  m_pQIO              =  new SpConduit("Qio", NULL, TOA_Free);
+  m_pQIn              =  NULL;
+  m_pQMem             =  NULL;
 
-  m_pPMUFilter    = NULL;
-  m_bPMUOpts      = 0;
-  m_PMUFilterDens = dNAN;
-  m_PMUValue1     = dNAN;
+  m_pPMUFilter        =  NULL;
+  m_bPMUOpts          =  0;
+  m_PMUFilterDens     =  dNAN;
+  m_PMUValue1         =  dNAN;
 
-  dMkUpRqd=dNAN;
-  dMkUpRqdLcl=dNAN;
-  dMkUpAvl=dNAN;
-  iMkUpRqdOK=0;
-  iMkUpRqdLclOK=0;
-  iMkUpAvlOK=0;
+  dMkUpRqd            = dNAN;
+  dMkUpRqdLcl         = dNAN;
+  dMkUpAvl            = dNAN;
+  iMkUpRqdOK          = 0;
+  iMkUpRqdLclOK       = 0;
+  iMkUpAvlOK          = 0;
 
-//  dV2LFrac=dNAN;
+//  dV2LFrac            = dNAN;
 
-  m_pTearImg=NULL;
+  m_pTearImg          = NULL;
 
-  m_SubTag= "Qo";
-  m_iNameWidth=-1;
+  m_SubTag            =  "Qo";
+  m_iNameWidth        = -1;
+
+  m_bRedirectActive   = false;
+  m_pRedirectTo       =  NULL;
 
 #if DOPB_FILT_RESULTS
   for (int i=0; i<MaxMSRqd; i++)
@@ -1150,9 +1241,9 @@ CConnect(Connect_Flange, pClass_, TagIn, pAttach, eAttach)
 
 CFlange::~CFlange()
   {
-  delete pQIO;
-  delete pQIn;
-  delete pQMem;
+  delete m_pQIO;
+  delete m_pQIn;
+  delete m_pQMem;
   delete m_pPMUFilter;
 
   delete m_pTearImg;
@@ -1618,24 +1709,51 @@ flag CFlange::ValidateData(ValidateDataBlk & VDB)
 
 // --------------------------------------------------------------------------
 
+SpConduit * CFlange::Conduit(flag fIn)   
+  { 
+  if (RedirectOK())
+    {
+    return m_pRedirectTo->Conduit(fIn);
+    }
+
+  if (!fIsBuffered && IsTear()) 
+    return fIn ? m_pQIO : m_pQIn; 
+  return m_pQIO; 
+  };
+
+SpConduit * CFlange::ConduitIO()         
+  {
+  
+  return m_pQIO;
+  };
+SpConduit * CFlange::ConduitIn()         { return m_pQIn; };
+SpConduit * CFlange::ConduitMem()        { if (m_pQMem==NULL) m_pQMem = new SpConduit("QMem", NULL, TOA_Free); return m_pQMem; };
+
+bool CFlange::RedirectOK()
+  {
+  return m_pRedirectTo && !(fIsBuffered || IsTear());
+  };
+
+// --------------------------------------------------------------------------
+
 void CFlange::SetTearType(byte Type, FlwNode * pNd)
   {
   TearPosBlk::SetTearType(Type);
   ASSERT(m_pNdSrc);
   ASSERT(m_pNdDst);
 
-  if (!fIsBuffered && IsTear() && pQIn==NULL)
+  if (!fIsBuffered && IsTear() && m_pQIn==NULL)
     {
-    pQIn = new SpConduit("Qx", pNd, TOA_Embedded);
-    pQIn->QCopy(*pQIO);
-    TaggedObject::StructureChanged(pQIn);
+    m_pQIn = new SpConduit("Qx", pNd, TOA_Embedded);
+    m_pQIn->QCopy(*m_pQIO);
+    TaggedObject::StructureChanged(m_pQIn);
     TaggedObject::StructureChanged(m_pNdSrc);
     TaggedObject::StructureChanged(m_pNdDst);
     }
-  else if (!IsTear() && pQIn!=NULL)
+  else if (!IsTear() && m_pQIn!=NULL)
     {
-    delete pQIn;
-    pQIn=NULL;
+    delete m_pQIn;
+    m_pQIn=NULL;
     TaggedObject::StructureChanged(m_pNdSrc);
     TaggedObject::StructureChanged(m_pNdDst);
     };
@@ -1718,8 +1836,8 @@ void CFlange::TearInitialiseOutputs(double EstimatePortion)
   if (TearImageExists() && (TearType()>=TT_ManualTear) && EstimatePortion>=0.0)
     {
     m_pVarBlk->SetHoldDamping(true);
-    SpModel * QIOMdl=pQIO->Model();
-    SpModel * QInMdl=pQIn->Model();
+    SpModel * QIOMdl=m_pQIO->Model();
+    SpModel * QInMdl=m_pQIn->Model();
     SpModel * ImgMdl=TearImage()->Model();
     CSysVector & QIOM =QIOMdl->MArray();
     CSysVector & QInM =QInMdl->MArray();
@@ -1734,7 +1852,7 @@ void CFlange::TearInitialiseOutputs(double EstimatePortion)
     EstimatePortion=Min(EstimatePortion, 1.0);
 
     double TRqd=TearImage()->TRqd();
-    double TIn=pQIn->Temp();
+    double TIn=m_pQIn->Temp();
     double T2Set=TIn;
     if (Valid(TRqd))
       T2Set=EstimatePortion*TRqd+(1.0-EstimatePortion)*TIn;
@@ -1742,7 +1860,7 @@ void CFlange::TearInitialiseOutputs(double EstimatePortion)
       T2Set=TIn;
 
     double PRqd=TearImage()->PRqd();
-    double PIn=pQIn->Press();
+    double PIn=m_pQIn->Press();
     double P2Set=PIn;
     if (Valid(PRqd))
       P2Set=EstimatePortion*PRqd+(1.0-EstimatePortion)*PIn;
@@ -1818,7 +1936,7 @@ void CFlange::TearInitialiseOutputs(double EstimatePortion)
         else
           {
           double QmRqd=TearImage()->QmRqd();
-          double QmIn=pQIn->QMass();
+          double QmIn=m_pQIn->QMass();
           double Qm2SetIn=QmIn;
           double Qm2SetImg=0;
           if (Valid(QmRqd))
@@ -1870,7 +1988,7 @@ void CFlange::TearInitialiseOutputs(double EstimatePortion)
         else
           {
           double QmRqd=TearImage()->QmRqd();
-          double QmIn=pQIn->QMass();
+          double QmIn=m_pQIn->QMass();
           double Qm2SetIn=QmIn;
           double Qm2SetImg=0;
           if (Valid(QmRqd))
@@ -1917,14 +2035,14 @@ void CFlange::TearInitialiseOutputs(double EstimatePortion)
     }
   else
     {
-    pQIO->QZero();
-    pQIO->SetTempPress(StdT, StdP);
+    m_pQIO->QZero();
+    m_pQIO->SetTempPress(StdT, StdP);
     m_pNdDst->Set_IOP_Self(m_iIODst, Std_P);
     #if dbgFlwNode
     if (dbgTearOutputs())
       {
-      dbgpln(" Temp   %10.4f", K2C(pQIO->Temp()));
-      dbgpln(" Press  %10.4f", pQIO->Press()-AtmosPress());
+      dbgpln(" Temp   %10.4f", K2C(m_pQIO->Temp()));
+      dbgpln(" Press  %10.4f", m_pQIO->Press()-AtmosPress());
       dbgpln(" Mass   Zero");
       }
     #endif
@@ -1938,7 +2056,7 @@ void CFlange::TearInputs2Outputs()
   if (fIsBuffered)
     return;
   // See Method Conduit for Direction Info
-  pQIO->QCopy(*pQIn);
+  m_pQIO->QCopy(*m_pQIn);
   if (gs_Exec.DoingPB())
     m_pNdDst->Set_IOP_Self(m_iIODst, m_pNdSrc->IOP_Flng(m_iIOSrc));
   }
@@ -1967,21 +2085,22 @@ void CFlange::TearGetInputs(TearVarArray & TV)
     return;
 
   int n=0;
-  TV[n++].Y[0]=pQIn->Temp();
+  TV[n++].Y[0]=m_pQIn->Temp();
   TV[n++].Y[0]=m_pNdSrc->IOP_Flng/*Self*/(m_iIOSrc);
   for (int s=0; s<SVSpcCount(); s++)
-    TV[n++].Y[0]=pQIn->VMass[s];
+    TV[n++].Y[0]=m_pQIn->VMass[s];
   for (int s=0; s<SVAttCount(); s++)
-    TV[n++].Y[0]=pQIn->VAttr[s];
+    TV[n++].Y[0]=m_pQIn->VAttr[s];
 
 
   int iQ;
   TagObjClass *pQC;
   SQTagObjClass * pSQC;
   LOOP_THRU_QUALITIES(iQ, pQC, pSQC)
+    {
     if (/*pQC->Selectable() &&*/ pSQC)
       {
-      SpQuality *pQ=pQIn->FindQuality(iQ);
+      SpQuality *pQ=m_pQIn->FindQuality(iQ);
       int N=pSQC->NTearVariables();
       if (pQ)
         {
@@ -1995,7 +2114,7 @@ void CFlange::TearGetInputs(TearVarArray & TV)
         n+=N;
         }
       }
-
+    }
   };
 
 // --------------------------------------------------------------------------
@@ -2006,20 +2125,21 @@ void CFlange::TearGetOutputs(TearVarArray & TV)
     return;
 
   int n=0;
-  TV[n++].X[0]=pQIO->Temp();
+  TV[n++].X[0]=m_pQIO->Temp();
   TV[n++].X[0]=m_pNdDst->IOP_Self(m_iIODst);
   for (int s=0; s<SVSpcCount(); s++)
-    TV[n++].X[0]=pQIO->VMass[s];
+    TV[n++].X[0]=m_pQIO->VMass[s];
   for (int s=0; s<SVAttCount(); s++)
-    TV[n++].X[0]=pQIO->VAttr[s];
+    TV[n++].X[0]=m_pQIO->VAttr[s];
 
   int iQ;
   TagObjClass *pQC;
   SQTagObjClass * pSQC;
   LOOP_THRU_QUALITIES(iQ, pQC, pSQC)
+    {
     if (/*pQC->Selectable() &&*/ pSQC)
       {
-      SpQuality *pQ=pQIO->FindQuality(iQ);
+      SpQuality *pQ=m_pQIO->FindQuality(iQ);
       int N=pSQC->NTearVariables();
       if (pQ)
         {
@@ -2033,6 +2153,7 @@ void CFlange::TearGetOutputs(TearVarArray & TV)
         n+=N;
         }
       }
+    }
   };
 
 // --------------------------------------------------------------------------
@@ -2045,18 +2166,18 @@ void CFlange::TearSetOutputs(TearVarArray & TV)
   // Must not Transfer Qualities this way
   //  pQIO->QCopy(*pQIn);
 
-  pQIO->ChangeModel(pQIn);
+  m_pQIO->ChangeModel(m_pQIn);
 
   int n=0;
   double T=TV[n++].X[0];
   double P=TV[n++].X[0];
   //pQIO->SetTemp(T);
   for (int s=0; s<SVSpcCount(); s++)
-    pQIO->SetVValue(s, Max(0.0, TV[n++].X[0]));
+    m_pQIO->SetVValue(s, Max(0.0, TV[n++].X[0]));
   for (int s=0; s<SVAttCount(); s++)
-    pQIO->SetVAttr(s, TV[n++].X[0]);
-  pQIO->Model()->ClrMStatesOK();
-  pQIO->SetTempPress(T, P);
+    m_pQIO->SetVAttr(s, TV[n++].X[0]);
+  m_pQIO->Model()->ClrMStatesOK();
+  m_pQIO->SetTempPress(T, P);
   m_pNdDst->Set_IOP_Self(m_iIODst, P);
 
   int iQ;
@@ -2064,16 +2185,16 @@ void CFlange::TearSetOutputs(TearVarArray & TV)
   SQTagObjClass * pSQC;
   LOOP_THRU_QUALITIES(iQ, pQC, pSQC)
     {
-    SpQuality *pQI=pQIn->FindQuality(iQ);
+    SpQuality *pQI=m_pQIn->FindQuality(iQ);
     if (pSQC && pQI)
       {
-      SpQuality *pQO=pQIO->FindQuality(iQ);
+      SpQuality *pQO=m_pQIO->FindQuality(iQ);
       int N=pSQC->NTearVariables();
       if (N>0 && pQO==NULL) // CFlange Outlet does not have qualities
-        pQIO->CopyQualities(pQIn->Model(), iQ, iQ);
+        m_pQIO->CopyQualities(m_pQIn->Model(), iQ, iQ);
       else // if (pQI)
         {
-        SpQuality *pQO=pQIO->CreateQuality(iQ);
+        SpQuality *pQO=m_pQIO->CreateQuality(iQ);
         pQO->TearSetOutputs(TV, n);
         n+=N;
         }
@@ -2098,7 +2219,7 @@ void CFlange::TearSetOutputs(TearVarArray & TV)
 */
       }
     else
-      pQIO->CopyQualities(pQIn->Model(), iQ, iQ);
+      m_pQIO->CopyQualities(m_pQIn->Model(), iQ, iQ);
     }
   };
 
@@ -3859,6 +3980,12 @@ void FlwNode::GlobalConnect()
     if (!m_PwrUsers[i]->GlobalConnect(this, NULL))
       BadPower++;
 
+  for (int i=0; i<NoFlwIOs(); i++)
+    {
+    if (m_IOs[i].m_iRedirectTo>=0)
+      DoReDirectIO(i);
+    };
+
 Done:
   if (AuditOK)
     ClrCI(30);
@@ -3935,6 +4062,12 @@ void FlwNode::PostGlobalConnect()
 
 void FlwNode::GlobalDisConnect()
   {
+  for (int i=0; i<NoFlwIOs(); i++)
+    {
+    if (m_IOs[i].m_iRedirectTo>=0)
+      UndoReDirectIO(i);
+    };
+
   for (int i=0; i<m_PwrUsers.GetSize(); i++)
     m_PwrUsers[i]->GlobalDisConnect();
 
@@ -4456,9 +4589,9 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
             DDB.String("SeqStartRmt", "",   DC_,    "",       xidIORmtSeqStartOK,        this, 0);
             DDB.String("SeqStart",    "",   DC_,    "",       xidIOSeqStart,             this, 0);
 
-            DDB.Double("MkUpRqd",    "",   DC_Qm,  "kg/s",   &m_IOs[i].pFlng->dMkUpRqd,   this, isParmConstruct|InitHidden|NAN_OK);
-            DDB.Double("MkUpRqdLcl", "",   DC_Qm,  "kg/s",   &m_IOs[i].pFlng->dMkUpRqdLcl,this, isParmConstruct|InitHidden|NAN_OK);
-            DDB.Double("MkUpAvl",    "",   DC_Qm,  "kg/s",   &m_IOs[i].pFlng->dMkUpAvl,   this, isParmConstruct|InitHidden|NAN_OK);
+            DDB.Double("MkUpRqd",    "",   DC_Qm,  "kg/s",   &m_IOs[i].m_pFlng->dMkUpRqd,   this, isParmConstruct|InitHidden|NAN_OK);
+            DDB.Double("MkUpRqdLcl", "",   DC_Qm,  "kg/s",   &m_IOs[i].m_pFlng->dMkUpRqdLcl,this, isParmConstruct|InitHidden|NAN_OK);
+            DDB.Double("MkUpAvl",    "",   DC_Qm,  "kg/s",   &m_IOs[i].m_pFlng->dMkUpAvl,   this, isParmConstruct|InitHidden|NAN_OK);
             }
           }
     DDB.EndArray();
@@ -6916,7 +7049,7 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     {
     if (RqdIONo>=NoIOs())
       {
-      m_IOs.SetMySize(RqdIONo+1);//m_IOs.SetSize(RqdIONo+1);
+      m_IOs.SetSize(RqdIONo+1);//m_IOs.SetSize(RqdIONo+1);
       ion=RqdIONo;
       }
     else
@@ -6932,70 +7065,71 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     m_IOs.InsertAt(ion, new CIORec);
     }
 
-  CIORec &io=m_IOs[ion];
+  CIORec &IO=m_IOs[ion];
   dword flags=IOAreas[LIONo].m_dwFlags;
-
+  
   flag IsProc=(IOAreas[LIONo].m_dwType & nc_MLnk)!=0;
   flag IsCtrl=(IOAreas[LIONo].m_dwType & nc_CLnk)!=0;
   flag IsElec=(IOAreas[LIONo].m_dwType & nc_ELnk)!=0;
   flag IsAir=(IOAreas[LIONo].m_dwType & nc_ALnk)!=0;
 
-  io.Rmt          = R;
-  io.m_iIONoRmt   = 0;
-  io.fIsComplete  = False;
-  io.m_iIODescRmt = RIONo;
-  io.m_iIODescSelf= LIONo;
-  io.fAutoConnect = false;
-  io.pFlng        = pF;
-  io.m_pTerm      = pT;
-  io.pFBs         = new FlwBlkArray;
-  io.pPBs         = new CPressBlkArray;
-  io.m_pChgs      = new CTraceArray;
+  IO.Clear();
+  IO.m_pRmt       = R;
+  //IO.m_iIONoRmt   = 0;
+  //IO.fIsComplete  = False;
+  IO.m_iIODescRmt = RIONo;
+  IO.m_iIODescSelf= LIONo;
+  //IO.fAutoConnect = false;
+  IO.m_pFlng      = pF;
+  IO.m_pTerm      = pT;
+  IO.m_pFBs       = new FlwBlkArray;
+  IO.m_pPBs       = new CPressBlkArray;
+  IO.m_pChgs      = new CTraceArray;
   if (pF)
     {
-    io.SetNFBs(1);
+    IO.SetNFBs(1);
     CFlwEqnGrp * pFG = IOAreas[LIONo].m_pFlwGroup;
     if (pFG)
-      io.FBs()[0].AssignFlwEqnGroup(*pFG, pFG->Default(), this);
+      IO.FBs()[0].AssignFlwEqnGroup(*pFG, pFG->Default(), this);
 
-    io.m_dFracHgt       = IOAreas[LIONo].m_dFracHgt;
-    io.m_dAperture      = 0.0;
-    io.m_dApertureAngle = (flags & IOApertureHoriz) ? 0.0 : Degs2Rads(90.0);
-    io.m_dEntrainRateSL  = 0.0;
-    io.m_dEntrainRateG  = 0.0;
-    io.m_dEstV2LOnEntry = 0.0,
-    io.m_dEstL2VOnEntry = 0.0;
+    IO.m_dFracHgt       = IOAreas[LIONo].m_dFracHgt;
+    //IO.m_dAperture      = 0.0;
+    IO.m_dApertureAngle = (flags & IOApertureHoriz) ? 0.0 : Degs2Rads(90.0);
+    //IO.m_dEntrainRateSL  = 0.0;
+    //IO.m_dEntrainRateG  = 0.0;
+    //IO.m_dEstV2LOnEntry = 0.0,
+    //IO.m_dEstL2VOnEntry = 0.0;
 
-    io.iExitRule   = 0;
+    IO.m_iExitRule   = 0;
     if (flags & IOBlockSolids)
-      io.iExitRule |= IOER_NoSol;
+      IO.m_iExitRule |= IOER_NoSol;
     if (flags & IOBlockLiquids)
-      io.iExitRule |= IOER_NoLiq;
+      IO.m_iExitRule |= IOER_NoLiq;
     if (flags & IOBlockVapours)
-      io.iExitRule |= IOER_NoVap;
-    io.m_pFilter    = NULL;
+      IO.m_iExitRule |= IOER_NoVap;
+    IO.m_pFilter    = NULL;
 
-    io.dV2LQmVFact  = 0.0;
-    io.dV2LQmLFact  = 0.0;
+    //IO.dV2LQmVFact  = 0.0;
+    //IO.dV2LQmLFact  = 0.0;
 
-    io.dRhoHSensV   = 0.0;
-    io.dRhoHSensL   = 0.0;
+    //IO.dRhoHSensV   = 0.0;
+    //IO.dRhoHSensL   = 0.0;
 
-    io.dPSensV      = 0.0;
-    io.dPSensL      = 0.0;
+    //IO.dPSensV      = 0.0;
+    //IO.dPSensL      = 0.0;
 
-    io.iHgtOrd      = -1;
-    io.fSameHgt     = 0;
-    //io.PB.Init();
-    io.fIsSetXfer   = IOISSETXFER(IOAreas[LIONo].m_dwFlags);
-    io.fIsBuffer    = IOISBUFFER(IOAreas[LIONo].m_dwFlags);
-    if (io.fIsBuffer)
+    //IO.iHgtOrd      = -1;
+    //IO.fSameHgt     = 0;
+    //IO.PB.Init();
+    IO.fIsSetXfer   = IOISSETXFER(IOAreas[LIONo].m_dwFlags);
+    IO.fIsBuffer    = IOISBUFFER(IOAreas[LIONo].m_dwFlags);
+    if (IO.fIsBuffer)
       {
       pF->fIsBufferPos=true;
       pF->SetTearPriority(TP_First);
       }
 
-    io.m_pMFlwDmd   = NULL;
+    //IO.m_pMFlwDmd   = NULL;
     }
   if (pF)
     pF->m_Attachments++;
@@ -7012,8 +7146,8 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     for (int l=ion ;l<NoIOs() ;l++)
       {
       //m_IOs[l+1] = OldIOs[l];
-      m_IOs[l+1].Rmt->m_IOs[m_IOs[l+1].m_iIONoRmt].m_iIONoRmt++;
-      if (m_IOs[l+1].pFlng)
+      m_IOs[l+1].m_pRmt->m_IOs[m_IOs[l+1].m_iIONoRmt].m_iIONoRmt++;
+      if (m_IOs[l+1].m_pFlng)
         IOFlange(l+1)->AdjustConnection(this, +1);
       };
     }
@@ -7065,18 +7199,18 @@ int FlwNode::Detach(int IONo)
   //pIORec OldIOs;
 
   //dbgpln("%2i %08x %08x %08x %s", IONo, m_IOs[IONo].pFBs, m_IOs[IONo].pPBs, m_IOs[IONo].m_pChgs, sTag());
-  CIORec &io=m_IOs[IONo];
-  int AreaId = IOAreas[io.m_iIODescSelf].m_Id;
+  CIORec &IO=m_IOs[IONo];
+  int AreaId = IOAreas[IO.m_iIODescSelf].m_Id;
 
 #if KWIKCONNECT
-  m_IOAreaLcl[io.m_iIODescSelf].m_nConnected--;
+  m_IOAreaLcl[IO.m_iIODescSelf].m_nConnected--;
 #endif
 
-  delete io.m_pChgs;
-  delete io.pPBs;
-  delete io.pFBs;
+  delete IO.m_pChgs;
+  delete IO.m_pPBs;
+  delete IO.m_pFBs;
 
-  CFlange* pF=m_IOs[IONo].pFlng;
+  CFlange* pF=m_IOs[IONo].m_pFlng;
   CTerminal* pT=m_IOs[IONo].m_pTerm;
   if (pF && (--pF->m_Attachments)==0 && pF->m_bMustDelete)
     delete pF;
@@ -7097,8 +7231,8 @@ int FlwNode::Detach(int IONo)
       dbgpln("  %s %2i %3i %s",
         i==IONo?"*":" ",
         m_IOs[i].m_iIONoRmt,
-        m_IOs[i].m_iIONoRmt<m_IOs[i].Rmt->m_IOs.GetCount()?m_IOs[i].Rmt->m_IOs[m_IOs[i].m_iIONoRmt].m_iIONoRmt:-1,
-        m_IOs[i].Rmt->FullObjTag()
+        m_IOs[i].m_iIONoRmt<m_IOs[i].m_pRmt->m_IOs.GetCount()?m_IOs[i].m_pRmt->m_IOs[m_IOs[i].m_iIONoRmt].m_iIONoRmt:-1,
+        m_IOs[i].m_pRmt->FullObjTag()
         );
       }
     }
@@ -7111,15 +7245,15 @@ int FlwNode::Detach(int IONo)
     m_nIOs=m_IOs.GetSize();
     for (l = IONo ; l < m_nIOs; l++)
       {
-      if (m_IOs[l].Rmt)
-        m_IOs[l].Rmt->m_IOs[m_IOs[l].m_iIONoRmt].m_iIONoRmt--;
-      if (m_IOs[l].pFlng)
+      if (m_IOs[l].m_pRmt)
+        m_IOs[l].m_pRmt->m_IOs[m_IOs[l].m_iIONoRmt].m_iIONoRmt--;
+      if (m_IOs[l].m_pFlng)
         IOFlange(l)->AdjustConnection(this, -1);
       };
     }
   else
     {
-    m_IOs.SetMySize(0); //m_IOs.SetSize(0);
+    m_IOs.SetSize(0); //m_IOs.SetSize(0);
     m_nIOs=m_IOs.GetSize();
     }
 
@@ -7157,8 +7291,8 @@ int FlwNode::Detach(int IONo)
       dbgpln("  %s %2i %3i %s",
         i==IONo?"*":" ",
         m_IOs[i].m_iIONoRmt,
-        m_IOs[i].m_iIONoRmt<m_IOs[i].Rmt->m_IOs.GetCount()?m_IOs[i].Rmt->m_IOs[m_IOs[i].m_iIONoRmt].m_iIONoRmt:-1,
-        m_IOs[i].Rmt->FullObjTag()
+        m_IOs[i].m_iIONoRmt<m_IOs[i].m_pRmt->m_IOs.GetCount()?m_IOs[i].m_pRmt->m_IOs[m_IOs[i].m_iIONoRmt].m_iIONoRmt:-1,
+        m_IOs[i].m_pRmt->FullObjTag()
         );
       }
     }
@@ -7170,6 +7304,75 @@ int FlwNode::Detach(int IONo)
   StructureChanged(this);
 
   return(1);
+  };
+
+//--------------------------------------------------------------------------
+
+void FlwNode::DoReDirectIO(int IO)
+  {
+  //ASSERT(m_IOs[IO].m_iRedirectTo>=0);
+
+  //int IOSrc=IO;
+  //int IODst=m_IOs[IO].m_iRedirectTo;
+
+  //// Create 
+  //CIORec * pNewIOSrc=new CIORec;
+  //CIORec * pNewIODst=new CIORec;
+
+  //int IODescSrc = IODescNo_Rmt(IOSrc);
+  //int IONoSrc   = IOIONo_Rmt(IOSrc);
+  //int IODescDst = IODescNo_Rmt(IODst);
+  //int IONoDst   = IOIONo_Rmt(IODst);
+  //
+  //CIORec * pOldIOSrc=Nd_Rmt(IOSrc)->m_IOs.ElementAt(IONoSrc);
+  //CIORec * pOldIODst=Nd_Rmt(IODst)->m_IOs.ElementAt(IONoDst);
+  //
+  //*pNewIOSrc = *pOldIOSrc;
+  //*pNewIODst = *pOldIODst;
+
+  //pNewIOSrc->m_pOrigIORec = pOldIOSrc;
+  //pNewIODst->m_pOrigIORec = pOldIODst;
+
+  //Nd_Rmt(IOSrc)->m_IOs.ElementAt(IONoSrc) = pNewIOSrc;
+  //Nd_Rmt(IODst)->m_IOs.ElementAt(IONoDst) = pNewIODst;
+
+  //// Redirect
+  //pNewIOSrc->m_pRmt = Nd_Rmt(IODst);
+  //pNewIOSrc->m_iIODescRmt = IODescDst;
+  //pNewIOSrc->m_iIONoRmt   = IONoDst;
+
+  //pNewIODst->m_pRmt = Nd_Rmt(IOSrc);
+  //pNewIODst->m_iIODescRmt = IODescDst;
+  //pNewIODst->m_iIONoRmt   = IONoDst;
+
+  //m_IOs[IOSrc].m_bRedirected = true;
+  //m_IOs[IODst].m_bRedirected = true;
+  };
+
+void FlwNode::UndoReDirectIO(int IO)
+  {
+  //ASSERT(m_IOs[IO].m_iRedirectTo>=0);
+
+  //int IOSrc=IO;
+  //int IODst=m_IOs[IO].m_iRedirectTo;
+
+  //// Restore;
+  //int IOIndexSrc=IOIONo_Rmt(IOSrc);
+  //int IOIndexDst=IOIONo_Rmt(IODst);
+
+  //CIORec * pNewSrc = Nd_Rmt(IOSrc)->m_IOs.ElementAt(IOIndexSrc);
+  //CIORec * pNewDst = Nd_Rmt(IODst)->m_IOs.ElementAt(IOIndexDst);
+
+  //Nd_Rmt(IOSrc)->m_IOs.ElementAt(IOIndexSrc) = pNewSrc->m_pOrigIORec;
+  //Nd_Rmt(IODst)->m_IOs.ElementAt(IOIndexDst) = pNewDst->m_pOrigIORec;
+
+  //delete pNewSrc;
+  //delete pNewDst;
+
+  //m_IOs[IOSrc].m_bRedirected = false;
+  //m_IOs[IODst].m_bRedirected = false;
+
+  //m_IOs[IO].m_iRedirectTo=-1;
   };
 
 //--------------------------------------------------------------------------
@@ -7201,7 +7404,7 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, in
       FlwNode *p=Info[j].p;
       int n=0;
       for (int i=0; i < p->m_nIOs; i++)
-        if (p->m_IOs[i].Rmt && p->IOId_Self(i)==Info[j].Id)
+        if (p->m_IOs[i].m_pRmt && p->IOId_Self(i)==Info[j].Id)
           n++;
 
       if(n>=p->IODesc_SelfId(Info[j].Id)->m_nIOMax)
@@ -7502,7 +7705,7 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
     for (int i=0 ; i<p->m_nIOs; i++)
       {
       CIORec & io=p->m_IOs[i];
-      if (io.Rmt)
+      if (io.m_pRmt)
         {
         if (!io.fIsComplete)
           {
@@ -8992,8 +9195,8 @@ void FlwNode::SetEquilibratingV2L(int JoinId, SpContainer & C, ContStartInfo & S
 void FlwNode::SetIOExitRule(int i, byte Rule)
   {
   CIORec &io=m_IOs[i];
-  bool FixIt = (io.iExitRule!=Rule);
-  io.iExitRule=Rule;
+  bool FixIt = (io.m_iExitRule!=Rule);
+  io.m_iExitRule=Rule;
 
   if (FixIt)
     {
@@ -9444,10 +9647,22 @@ void FlwNode::MonitorPostEvalProducts()
         }
       }
 
-    for (i=0; i<NoFlwIOs(); i++)
+    for (int Pass=0; Pass<2; Pass++)
       {
-      if (!IOQmEst_In(i) || dbgDumpChangesIn())
+      for (i=0; i<NoFlwIOs(); i++)
         {
+        if (IOQmEst_In(i)>0.0)
+          {
+          if ((Pass > 0) || !dbgDumpChangesIn())
+            continue;
+          }
+        else // !IOQmEst_In(i)
+          {
+          if ((Pass == 0)) // || !dbgDumpChangesIn()))
+            continue;
+          }
+      //if (!IOQmEst_In(i) || dbgDumpChangesIn())
+      //  {
         CDArray &DM=m_IOs[i].DataMem;
 
         int j1=IOQmEst_In(i)?0:1;
@@ -9459,12 +9674,12 @@ void FlwNode::MonitorPostEvalProducts()
             continue;
 
           #define DBGIT(A,B,C,D,ShowIt,T)                                                                         \
-          if (ShowIt && fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChangeTol()*1.0e-6)                         \
+          if (ShowIt && (dbgDumpChangeAll() || fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChangeTol()*1.0e-6)) \
             dbgpln("EP %18.10f > %18.10f %+15.6f %+25.16f *e-6 %+25.16f *e-6 %s(%-4.4s): %2s%s %s->%s",           \
             A, B, (B-A), ShowIt?Range(-9999999., 9999999*(B-A)/GTZ(Max(fabs(A), fabs(B))), 9999999.):0.0,         \
                          ShowIt?Range(-9999999., 9999999*(B-A)/GTZ(Max(Max(fabs(A), fabs(B)), C)), 9999999.):0.0, \
                          IOQmEst_In(i)>0.0 ? (j==0?"TrIn":"In  "):"Out ",                                         \
-                         IODesc_Self(i)->IOName(), D, T,                                                             \
+                         IODesc_Self(i)->IOName(), D, T,                                                          \
                          FullObjTag(), Nd_Rmt(i)->FullObjTag());
 
           char * Tmp=(j==0)?"*":" ";

@@ -599,11 +599,56 @@ double CBlockEvaluator::Duty()
     }
   return D;
   }
+
+//-------------------------------------------------------------------------
+
+int CBlockEvaluator::EnabledCount()
+  {
+  int Cnt=0;
+  for (int i=0; i<m_nBlocks ; i++)
+    {
+    int iSeq=m_Blks[i]->BlkSeqNo();
+    if (iSeq>=BlkEval_State)
+      continue;
+    switch (m_Blks[i]->BEId())
+      {
+      case BEId_RB:    
+        if (m_pRB->Enabled())
+          Cnt++;
+        break;
+      case BEId_HX:    
+        if (m_pHX->Enabled())
+          Cnt++;
+        break;
+      case BEId_EHX:  
+        if (m_pEHX->Enabled())
+          Cnt++;
+        break;
+      case BEId_VLE:   
+        if (m_pVLE->Enabled())
+          Cnt++;
+        break;
+      case BEId_Evap:  
+        if (m_pEvap->Enabled())
+          Cnt++;
+        break;
+      case BEId_Makeup:  
+        if (m_pMakeups[m_Blks[i]->Index()]->Enabled())
+          Cnt++;
+        break;
+      case BEId_Bleed:  
+        if (m_pBleeds[m_Blks[i]->Index()]->Enabled())
+          Cnt++;
+        break;
+      }
+    }
+  return Cnt;
+  };
+
 //-------------------------------------------------------------------------
 
 void CBlockEvaluator::EvalProducts(int iJoinNo, SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
-
   if (dbgBlkEvalProd && m_nBlocks>0)
     dbgpln("CBlockEvaluator::EvalProducts >> Qm:%10.3f %s", Fo.QMass(), m_pNd->Tag());
   for (int i=0; i<m_nBlocks ; i++)

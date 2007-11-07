@@ -72,6 +72,8 @@ class DllImportExport CBlockEvaluator
 
     void              CheckFlowsConsistent(int iJoinNo, bool ForMakeup);
 
+    int               EnabledCount();
+
     bool              RBAttached()      { return m_pRB!=NULL; };
     bool              HXAttached()      { return m_pHX!=NULL; };
     bool              EHXAttached()     { return m_pEHX!=NULL; };

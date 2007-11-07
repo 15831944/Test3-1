@@ -37,7 +37,7 @@ extern "C"
 #define dbgBlk            0
 #define dbgexplode        0
 #define dbgLineExport     0
-#define dbgAssocGrf       01
+#define dbgAssocGrf       0
 #define dbgTagManagement  0
 
 
