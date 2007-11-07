@@ -199,7 +199,7 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
   
   flag OK=true;
   flag XferNotAllowed=false;
-  if (NetDynamicMethod() && Contents.Closed())
+  if (NetDynamicMethod() && SolveSurgeMethod() && Contents.Closed())
     {
     for (int i=0; i<NoProcessIOs(); i++)
       {
