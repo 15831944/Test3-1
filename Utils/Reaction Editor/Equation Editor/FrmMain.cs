@@ -36,6 +36,8 @@ namespace Reaction_Editor
         protected static Regex s_GroupRegex = new Regex(
             @"^S(?<Index>\d{3})=Annotation\s*,\s*(?<Name>[^\r\n,]*)",
             RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+
+        protected FrmAbout m_aboutForm = new FrmAbout();
         #endregion Internal Variables
 
         protected ILog Log { get { return Program.Log; } }
@@ -866,8 +868,9 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string ver = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-            MessageBox.Show(this, "SysCAD Reaction Editor version " + ver + "\r\nTest version.", "About");
+            //string ver = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+            //MessageBox.Show(this, "SysCAD Reaction Editor version " + ver + "\r\nTest version.", "About");
+            m_aboutForm.ShowDialog(this);
         }
 
         private void menuExit_Click(object sender, EventArgs e)

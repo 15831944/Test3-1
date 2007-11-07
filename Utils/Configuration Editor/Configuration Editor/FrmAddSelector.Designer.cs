@@ -169,6 +169,8 @@ namespace Configuration_Editor
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FrmAddSelector";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Add";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

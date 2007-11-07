@@ -181,6 +181,10 @@ namespace Reaction_Editor
 
     public class RatioExtent : RxnExtent
     {
+        protected static Regex s_RatioRegex = new Regex(@"(Extent\s*:\s*)?Ratio\s*(?<Aim>Target|Strict)?\s*
+            (?<Specie1>[^\s:]+)\s*:\s*(?<Specie2>[^\s=]+)\s*=\s*(?<Value1>\d+(\.\d+)?|\.\d+)\s*:\s*(?<Value2>\d+(\.\d+)?|\.\d+)
+            (\s*@\s*(?<Time>\d+(\.\d+)?|\.\d+)\s*=\s*(?<Value3>\d+(\.\d+)?|\.\d+)\s*:\s*(?<Value4>\d+(\.\d+)?|\.\d+))?",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.ExplicitCapture);
         protected Compound m_Specie2;
         protected double m_Ratio2 = double.NaN;
         protected double m_Time = double.NaN;
@@ -225,16 +229,38 @@ namespace Reaction_Editor
         }
         public override string ToString()
         {
-            return "Ratio - Not implemented.";
+            string ret = "Ratio " + m_Specie + ":" + m_Specie2 + " = 1 : " + m_dValue;
+            if (!double.IsNaN(m_Time) && !double.IsNaN(m_Ratio2))
+                ret += " @ " + m_Time + " = 1 : " + m_Ratio2;
+            return ret;
         }
 
         public override bool IsValid()
         {
-            return base.IsValid() && Specie2 != null;
+            return base.IsValid() && Specie2 != null && Specie2 != Specie;
         }
 
         public static RatioExtent Parse(string s)
         {
+            Match m = s_RatioRegex.Match(s);
+            if (!m.Success)
+                throw new Exception("Unable to parse string");
+            RatioExtent ret = new RatioExtent();
+            try { ret.m_Specie = Compound.FromString(m.Groups["Specie1"].Value); }
+            catch (Exception ex) { Program.Log.Message(ex.Message, MessageType.Error); }
+            try { ret.m_Specie2 = Compound.FromString(m.Groups["Specie2"].Value); }
+            catch (Exception ex) { Program.Log.Message(ex.Message, MessageType.Error); }
+            try { ret.m_dValue = double.Parse(m.Groups["Value2"].Value) / double.Parse(m.Groups["Value1"].Value); }
+            catch (Exception ex) { Program.Log.Message("Unable to parse ratio", MessageType.Error); }
+            if ( m.Groups["Time"].Success )
+            {
+                try { ret.m_Time = double.Parse(m.Groups["Time"].Value); }
+                catch (Exception ex) { Program.Log.Message("Unable to parse time", MessageType.Error); }
+                try { ret.Ratio2 = double.Parse(m.Groups["Value3"].Value) / double.Parse(m.Groups["Value4"].Value); }
+                catch (Exception ex) { Program.Log.Message("Unable to parse ratio", MessageType.Error); }
+            }
+            return ret;
+#if false   //Old method of going about it.
             if (!s.ToLowerInvariant().StartsWith("ratio"))
                 throw new RxnEdException("Invalid string passed to RatioExtent.Parse");
             RatioExtent ret = new RatioExtent();
@@ -256,6 +282,7 @@ namespace Reaction_Editor
             double r4 = double.Parse(subPri[3].Trim());
             ret.Value = r4 / r3;
             return ret;
+#endif
         }
     }
 

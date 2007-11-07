@@ -31,6 +31,7 @@ namespace Configuration_Editor
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.ssMain = new System.Windows.Forms.StatusStrip();
+            this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuNew = new System.Windows.Forms.ToolStripMenuItem();
@@ -144,13 +145,11 @@ namespace Configuration_Editor
             this.txtFormula2 = new System.Windows.Forms.TextBox();
             this.txtFormula3 = new System.Windows.Forms.TextBox();
             this.pnlTempDependantRadios = new System.Windows.Forms.Panel();
+            this.tlpTempDependantRadios = new System.Windows.Forms.TableLayoutPanel();
             this.label37 = new System.Windows.Forms.Label();
-            this.radioDensity = new System.Windows.Forms.RadioButton();
-            this.radioEntropy = new System.Windows.Forms.RadioButton();
-            this.radioHeatOfFormation = new System.Windows.Forms.RadioButton();
-            this.radioHeatCapacity = new System.Windows.Forms.RadioButton();
-            this.radioVapourPressure = new System.Windows.Forms.RadioButton();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label51 = new System.Windows.Forms.Label();
             this.txtPhaseChange = new System.Windows.Forms.TextBox();
             this.label48 = new System.Windows.Forms.Label();
             this.txtSolvent = new System.Windows.Forms.TextBox();
@@ -163,7 +162,7 @@ namespace Configuration_Editor
             this.txtCritPressure = new System.Windows.Forms.TextBox();
             this.label43 = new System.Windows.Forms.Label();
             this.label44 = new System.Windows.Forms.Label();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.txtDensityCorrection = new System.Windows.Forms.GroupBox();
             this.txtCheckedBy = new System.Windows.Forms.TextBox();
             this.label35 = new System.Windows.Forms.Label();
             this.label34 = new System.Windows.Forms.Label();
@@ -248,6 +247,7 @@ namespace Configuration_Editor
             this.dlgOpenConfig = new System.Windows.Forms.OpenFileDialog();
             this.dlgSaveConfig = new System.Windows.Forms.SaveFileDialog();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.ssMain.SuspendLayout();
             this.menuMain.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabSpecies.SuspendLayout();
@@ -285,7 +285,7 @@ namespace Configuration_Editor
             this.tlpEquations.SuspendLayout();
             this.pnlTempDependantRadios.SuspendLayout();
             this.groupBox8.SuspendLayout();
-            this.groupBox5.SuspendLayout();
+            this.txtDensityCorrection.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.grpNomenclature.SuspendLayout();
             this.tabMisc.SuspendLayout();
@@ -311,11 +311,18 @@ namespace Configuration_Editor
             // 
             // ssMain
             // 
+            this.ssMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusLabel});
             this.ssMain.Location = new System.Drawing.Point(0, 594);
             this.ssMain.Name = "ssMain";
             this.ssMain.Size = new System.Drawing.Size(952, 22);
             this.ssMain.TabIndex = 0;
             this.ssMain.Text = "statusStrip1";
+            // 
+            // statusLabel
+            // 
+            this.statusLabel.Name = "statusLabel";
+            this.statusLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // menuMain
             // 
@@ -1016,6 +1023,7 @@ namespace Configuration_Editor
             this.txtCalcSymbol.Name = "txtCalcSymbol";
             this.txtCalcSymbol.Size = new System.Drawing.Size(100, 20);
             this.txtCalcSymbol.TabIndex = 1;
+            this.txtCalcSymbol.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
             this.txtCalcSymbol.Validated += new System.EventHandler(this.FireCheckCalculations);
             this.txtCalcSymbol.TextChanged += new System.EventHandler(this.txtCalcSymbol_TextChanged);
             // 
@@ -1043,6 +1051,7 @@ namespace Configuration_Editor
             this.txtCalcName.Name = "txtCalcName";
             this.txtCalcName.Size = new System.Drawing.Size(100, 20);
             this.txtCalcName.TabIndex = 0;
+            this.txtCalcName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
             this.txtCalcName.TextChanged += new System.EventHandler(this.txtCalcName_TextChanged);
             // 
             // label23
@@ -1066,6 +1075,7 @@ namespace Configuration_Editor
             this.txtCalculation.Size = new System.Drawing.Size(595, 83);
             this.txtCalculation.TabIndex = 2;
             this.txtCalculation.Text = "";
+            this.txtCalculation.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
             this.txtCalculation.TextChanged += new System.EventHandler(this.txtCalculation_TextChanged);
             // 
             // tabIDELabel
@@ -1097,6 +1107,7 @@ namespace Configuration_Editor
             this.txtText.Name = "txtText";
             this.txtText.Size = new System.Drawing.Size(669, 20);
             this.txtText.TabIndex = 0;
+            this.txtText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
             this.txtText.TextChanged += new System.EventHandler(this.txtText_TextChanged);
             // 
             // tabIDEBlank
@@ -1153,6 +1164,7 @@ namespace Configuration_Editor
             this.txtAttDimension.Name = "txtAttDimension";
             this.txtAttDimension.Size = new System.Drawing.Size(121, 20);
             this.txtAttDimension.TabIndex = 6;
+            this.txtAttDimension.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
             this.txtAttDimension.TextChanged += new System.EventHandler(this.txtAttDimension_TextChanged);
             // 
             // label50
@@ -1172,6 +1184,7 @@ namespace Configuration_Editor
             this.txtAttParent.Name = "txtAttParent";
             this.txtAttParent.Size = new System.Drawing.Size(121, 20);
             this.txtAttParent.TabIndex = 4;
+            this.txtAttParent.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
             this.txtAttParent.TextChanged += new System.EventHandler(this.txtAttParent_TextChanged);
             // 
             // label49
@@ -1211,6 +1224,7 @@ namespace Configuration_Editor
             this.txtAttributeName.Name = "txtAttributeName";
             this.txtAttributeName.Size = new System.Drawing.Size(121, 20);
             this.txtAttributeName.TabIndex = 0;
+            this.txtAttributeName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
             this.txtAttributeName.Validated += new System.EventHandler(this.FireCheckCalculations);
             this.txtAttributeName.TextChanged += new System.EventHandler(this.txtAttributeName_TextChanged);
             // 
@@ -1228,7 +1242,7 @@ namespace Configuration_Editor
             this.tabSpecieDatabase.AutoScroll = true;
             this.tabSpecieDatabase.Controls.Add(this.groupBox6);
             this.tabSpecieDatabase.Controls.Add(this.groupBox8);
-            this.tabSpecieDatabase.Controls.Add(this.groupBox5);
+            this.tabSpecieDatabase.Controls.Add(this.txtDensityCorrection);
             this.tabSpecieDatabase.Controls.Add(this.groupBox4);
             this.tabSpecieDatabase.Controls.Add(this.grpNomenclature);
             this.tabSpecieDatabase.Location = new System.Drawing.Point(4, 22);
@@ -1244,9 +1258,9 @@ namespace Configuration_Editor
             this.groupBox6.Controls.Add(this.splitContainer2);
             this.groupBox6.Controls.Add(this.pnlTempDependantRadios);
             this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox6.Location = new System.Drawing.Point(3, 286);
+            this.groupBox6.Location = new System.Drawing.Point(3, 309);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(695, 223);
+            this.groupBox6.Size = new System.Drawing.Size(695, 200);
             this.groupBox6.TabIndex = 4;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Temperature Dependant Properties";
@@ -1264,7 +1278,7 @@ namespace Configuration_Editor
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.tlpEquations);
-            this.splitContainer2.Size = new System.Drawing.Size(562, 204);
+            this.splitContainer2.Size = new System.Drawing.Size(562, 181);
             this.splitContainer2.SplitterDistance = 226;
             this.splitContainer2.TabIndex = 10;
             this.splitContainer2.TabStop = false;
@@ -1282,7 +1296,7 @@ namespace Configuration_Editor
             this.graph1.MaxXValue = 0;
             this.graph1.MinXValue = 0;
             this.graph1.Name = "graph1";
-            this.graph1.Size = new System.Drawing.Size(226, 204);
+            this.graph1.Size = new System.Drawing.Size(226, 181);
             this.graph1.TabIndex = 6;
             this.graph1.UnselectedTransparency = 64;
             this.graph1.XLabel = "Temperature (K)";
@@ -1325,7 +1339,7 @@ namespace Configuration_Editor
             this.tlpEquations.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpEquations.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpEquations.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpEquations.Size = new System.Drawing.Size(332, 204);
+            this.tlpEquations.Size = new System.Drawing.Size(332, 181);
             this.tlpEquations.TabIndex = 1;
             // 
             // txtMaxTemp3
@@ -1336,6 +1350,7 @@ namespace Configuration_Editor
             this.txtMaxTemp3.Size = new System.Drawing.Size(44, 20);
             this.txtMaxTemp3.TabIndex = 11;
             this.txtMaxTemp3.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtMaxTemp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly);
             // 
             // txtMinTemp3
             // 
@@ -1345,6 +1360,7 @@ namespace Configuration_Editor
             this.txtMinTemp3.Size = new System.Drawing.Size(44, 20);
             this.txtMinTemp3.TabIndex = 10;
             this.txtMinTemp3.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtMinTemp3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly);
             // 
             // txtMaxTemp2
             // 
@@ -1354,6 +1370,7 @@ namespace Configuration_Editor
             this.txtMaxTemp2.Size = new System.Drawing.Size(44, 20);
             this.txtMaxTemp2.TabIndex = 8;
             this.txtMaxTemp2.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtMaxTemp2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly);
             // 
             // txtMinTemp2
             // 
@@ -1363,6 +1380,7 @@ namespace Configuration_Editor
             this.txtMinTemp2.Size = new System.Drawing.Size(44, 20);
             this.txtMinTemp2.TabIndex = 7;
             this.txtMinTemp2.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtMinTemp2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly);
             // 
             // txtMaxTemp1
             // 
@@ -1372,6 +1390,7 @@ namespace Configuration_Editor
             this.txtMaxTemp1.Size = new System.Drawing.Size(44, 20);
             this.txtMaxTemp1.TabIndex = 5;
             this.txtMaxTemp1.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtMaxTemp1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly);
             // 
             // txtMinTemp1
             // 
@@ -1381,6 +1400,7 @@ namespace Configuration_Editor
             this.txtMinTemp1.Size = new System.Drawing.Size(44, 20);
             this.txtMinTemp1.TabIndex = 4;
             this.txtMinTemp1.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtMinTemp1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly);
             // 
             // txtMaxTemp0
             // 
@@ -1390,6 +1410,7 @@ namespace Configuration_Editor
             this.txtMaxTemp0.Size = new System.Drawing.Size(44, 20);
             this.txtMaxTemp0.TabIndex = 2;
             this.txtMaxTemp0.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtMaxTemp0.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly);
             // 
             // txtMinTemp0
             // 
@@ -1399,6 +1420,7 @@ namespace Configuration_Editor
             this.txtMinTemp0.Size = new System.Drawing.Size(44, 20);
             this.txtMinTemp0.TabIndex = 1;
             this.txtMinTemp0.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtMinTemp0.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly);
             // 
             // label38
             // 
@@ -1469,6 +1491,7 @@ namespace Configuration_Editor
             this.txtFormula0.Size = new System.Drawing.Size(211, 20);
             this.txtFormula0.TabIndex = 0;
             this.txtFormula0.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtFormula0.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCurlyBraces);
             // 
             // txtFormula1
             // 
@@ -1478,6 +1501,7 @@ namespace Configuration_Editor
             this.txtFormula1.Size = new System.Drawing.Size(211, 20);
             this.txtFormula1.TabIndex = 3;
             this.txtFormula1.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtFormula1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCurlyBraces);
             // 
             // txtFormula2
             // 
@@ -1487,6 +1511,7 @@ namespace Configuration_Editor
             this.txtFormula2.Size = new System.Drawing.Size(211, 20);
             this.txtFormula2.TabIndex = 6;
             this.txtFormula2.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtFormula2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCurlyBraces);
             // 
             // txtFormula3
             // 
@@ -1496,97 +1521,45 @@ namespace Configuration_Editor
             this.txtFormula3.Size = new System.Drawing.Size(211, 20);
             this.txtFormula3.TabIndex = 9;
             this.txtFormula3.Leave += new System.EventHandler(this.txtFormula0_Leave);
+            this.txtFormula3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCurlyBraces);
             // 
             // pnlTempDependantRadios
             // 
+            this.pnlTempDependantRadios.Controls.Add(this.tlpTempDependantRadios);
             this.pnlTempDependantRadios.Controls.Add(this.label37);
-            this.pnlTempDependantRadios.Controls.Add(this.radioDensity);
-            this.pnlTempDependantRadios.Controls.Add(this.radioEntropy);
-            this.pnlTempDependantRadios.Controls.Add(this.radioHeatOfFormation);
-            this.pnlTempDependantRadios.Controls.Add(this.radioHeatCapacity);
-            this.pnlTempDependantRadios.Controls.Add(this.radioVapourPressure);
             this.pnlTempDependantRadios.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnlTempDependantRadios.Location = new System.Drawing.Point(3, 16);
             this.pnlTempDependantRadios.Name = "pnlTempDependantRadios";
-            this.pnlTempDependantRadios.Size = new System.Drawing.Size(127, 204);
+            this.pnlTempDependantRadios.Size = new System.Drawing.Size(127, 181);
             this.pnlTempDependantRadios.TabIndex = 0;
+            // 
+            // tlpTempDependantRadios
+            // 
+            this.tlpTempDependantRadios.AutoScroll = true;
+            this.tlpTempDependantRadios.ColumnCount = 1;
+            this.tlpTempDependantRadios.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tlpTempDependantRadios.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpTempDependantRadios.Location = new System.Drawing.Point(0, 13);
+            this.tlpTempDependantRadios.Name = "tlpTempDependantRadios";
+            this.tlpTempDependantRadios.RowCount = 1;
+            this.tlpTempDependantRadios.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tlpTempDependantRadios.Size = new System.Drawing.Size(127, 168);
+            this.tlpTempDependantRadios.TabIndex = 1;
             // 
             // label37
             // 
             this.label37.AutoSize = true;
-            this.label37.Location = new System.Drawing.Point(3, 0);
+            this.label37.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label37.Location = new System.Drawing.Point(0, 0);
             this.label37.Name = "label37";
             this.label37.Size = new System.Drawing.Size(92, 13);
             this.label37.TabIndex = 0;
             this.label37.Text = "Adjust Values For:";
             // 
-            // radioDensity
-            // 
-            this.radioDensity.AutoSize = true;
-            this.radioDensity.ForeColor = System.Drawing.Color.Navy;
-            this.radioDensity.Location = new System.Drawing.Point(3, 16);
-            this.radioDensity.Name = "radioDensity";
-            this.radioDensity.Size = new System.Drawing.Size(60, 17);
-            this.radioDensity.TabIndex = 0;
-            this.radioDensity.Tag = "Density";
-            this.radioDensity.Text = "Density";
-            this.radioDensity.UseVisualStyleBackColor = true;
-            this.radioDensity.CheckedChanged += new System.EventHandler(this.radioEntropy_CheckedChanged);
-            // 
-            // radioEntropy
-            // 
-            this.radioEntropy.AutoSize = true;
-            this.radioEntropy.ForeColor = System.Drawing.Color.MediumSlateBlue;
-            this.radioEntropy.Location = new System.Drawing.Point(3, 108);
-            this.radioEntropy.Name = "radioEntropy";
-            this.radioEntropy.Size = new System.Drawing.Size(76, 17);
-            this.radioEntropy.TabIndex = 4;
-            this.radioEntropy.Tag = "S25";
-            this.radioEntropy.Text = "Entropy (?)";
-            this.radioEntropy.UseVisualStyleBackColor = true;
-            this.radioEntropy.CheckedChanged += new System.EventHandler(this.radioEntropy_CheckedChanged);
-            // 
-            // radioHeatOfFormation
-            // 
-            this.radioHeatOfFormation.AutoSize = true;
-            this.radioHeatOfFormation.ForeColor = System.Drawing.Color.DarkRed;
-            this.radioHeatOfFormation.Location = new System.Drawing.Point(3, 39);
-            this.radioHeatOfFormation.Name = "radioHeatOfFormation";
-            this.radioHeatOfFormation.Size = new System.Drawing.Size(109, 17);
-            this.radioHeatOfFormation.TabIndex = 1;
-            this.radioHeatOfFormation.Tag = "Hf25";
-            this.radioHeatOfFormation.Text = "Heat of Formation";
-            this.radioHeatOfFormation.UseVisualStyleBackColor = true;
-            this.radioHeatOfFormation.CheckedChanged += new System.EventHandler(this.radioEntropy_CheckedChanged);
-            // 
-            // radioHeatCapacity
-            // 
-            this.radioHeatCapacity.AutoSize = true;
-            this.radioHeatCapacity.ForeColor = System.Drawing.Color.DarkOrange;
-            this.radioHeatCapacity.Location = new System.Drawing.Point(3, 62);
-            this.radioHeatCapacity.Name = "radioHeatCapacity";
-            this.radioHeatCapacity.Size = new System.Drawing.Size(92, 17);
-            this.radioHeatCapacity.TabIndex = 2;
-            this.radioHeatCapacity.Tag = "Cp";
-            this.radioHeatCapacity.Text = "Heat Capacity";
-            this.radioHeatCapacity.UseVisualStyleBackColor = true;
-            this.radioHeatCapacity.CheckedChanged += new System.EventHandler(this.radioEntropy_CheckedChanged);
-            // 
-            // radioVapourPressure
-            // 
-            this.radioVapourPressure.AutoSize = true;
-            this.radioVapourPressure.ForeColor = System.Drawing.Color.DarkGreen;
-            this.radioVapourPressure.Location = new System.Drawing.Point(3, 85);
-            this.radioVapourPressure.Name = "radioVapourPressure";
-            this.radioVapourPressure.Size = new System.Drawing.Size(103, 17);
-            this.radioVapourPressure.TabIndex = 3;
-            this.radioVapourPressure.Tag = "Vp";
-            this.radioVapourPressure.Text = "Vapour Pressure";
-            this.radioVapourPressure.UseVisualStyleBackColor = true;
-            this.radioVapourPressure.CheckedChanged += new System.EventHandler(this.radioEntropy_CheckedChanged);
-            // 
             // groupBox8
             // 
+            this.groupBox8.Controls.Add(this.textBox1);
+            this.groupBox8.Controls.Add(this.label51);
             this.groupBox8.Controls.Add(this.txtPhaseChange);
             this.groupBox8.Controls.Add(this.label48);
             this.groupBox8.Controls.Add(this.txtSolvent);
@@ -1602,10 +1575,26 @@ namespace Configuration_Editor
             this.groupBox8.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox8.Location = new System.Drawing.Point(3, 185);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(695, 101);
+            this.groupBox8.Size = new System.Drawing.Size(695, 124);
             this.groupBox8.TabIndex = 3;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Thermodynamic Properties";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(125, 97);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(392, 20);
+            this.textBox1.TabIndex = 19;
+            // 
+            // label51
+            // 
+            this.label51.AutoSize = true;
+            this.label51.Location = new System.Drawing.Point(26, 100);
+            this.label51.Name = "label51";
+            this.label51.Size = new System.Drawing.Size(93, 13);
+            this.label51.TabIndex = 20;
+            this.label51.Text = "Density Correction";
             // 
             // txtPhaseChange
             // 
@@ -1703,19 +1692,19 @@ namespace Configuration_Editor
             this.label44.TabIndex = 7;
             this.label44.Text = "Critical Pressure";
             // 
-            // groupBox5
+            // txtDensityCorrection
             // 
-            this.groupBox5.Controls.Add(this.txtCheckedBy);
-            this.groupBox5.Controls.Add(this.label35);
-            this.groupBox5.Controls.Add(this.label34);
-            this.groupBox5.Controls.Add(this.txtSource);
-            this.groupBox5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox5.Location = new System.Drawing.Point(3, 134);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(695, 51);
-            this.groupBox5.TabIndex = 2;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Source";
+            this.txtDensityCorrection.Controls.Add(this.txtCheckedBy);
+            this.txtDensityCorrection.Controls.Add(this.label35);
+            this.txtDensityCorrection.Controls.Add(this.label34);
+            this.txtDensityCorrection.Controls.Add(this.txtSource);
+            this.txtDensityCorrection.Dock = System.Windows.Forms.DockStyle.Top;
+            this.txtDensityCorrection.Location = new System.Drawing.Point(3, 134);
+            this.txtDensityCorrection.Name = "txtDensityCorrection";
+            this.txtDensityCorrection.Size = new System.Drawing.Size(695, 51);
+            this.txtDensityCorrection.TabIndex = 2;
+            this.txtDensityCorrection.TabStop = false;
+            this.txtDensityCorrection.Text = "Source";
             // 
             // txtCheckedBy
             // 
@@ -1746,7 +1735,7 @@ namespace Configuration_Editor
             // 
             this.txtSource.Location = new System.Drawing.Point(125, 19);
             this.txtSource.Name = "txtSource";
-            this.txtSource.Size = new System.Drawing.Size(130, 20);
+            this.txtSource.Size = new System.Drawing.Size(183, 20);
             this.txtSource.TabIndex = 0;
             // 
             // groupBox4
@@ -2618,9 +2607,12 @@ namespace Configuration_Editor
             this.Controls.Add(this.tcMain);
             this.Controls.Add(this.ssMain);
             this.Controls.Add(this.menuMain);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuMain;
             this.Name = "FrmMain";
             this.Text = "SysCAD Configuration Editor";
+            this.ssMain.ResumeLayout(false);
+            this.ssMain.PerformLayout();
             this.menuMain.ResumeLayout(false);
             this.menuMain.PerformLayout();
             this.tcMain.ResumeLayout(false);
@@ -2667,8 +2659,8 @@ namespace Configuration_Editor
             this.pnlTempDependantRadios.PerformLayout();
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
+            this.txtDensityCorrection.ResumeLayout(false);
+            this.txtDensityCorrection.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.grpNomenclature.ResumeLayout(false);
@@ -2859,7 +2851,7 @@ namespace Configuration_Editor
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.ComboBox comboOccurence;
         private System.Windows.Forms.Label label33;
-        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.GroupBox txtDensityCorrection;
         private System.Windows.Forms.TextBox txtCheckedBy;
         private System.Windows.Forms.Label label35;
         private System.Windows.Forms.Label label34;
@@ -2874,17 +2866,12 @@ namespace Configuration_Editor
         private System.Windows.Forms.TextBox txtAccentricity;
         private System.Windows.Forms.TextBox txtCritTemp;
         private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.RadioButton radioDensity;
         private System.Windows.Forms.Label label37;
         private System.Windows.Forms.TextBox txtSolvent;
         private System.Windows.Forms.Label label36;
         private System.Windows.Forms.Label label39;
         private System.Windows.Forms.Label label38;
         private Graph graph1;
-        private System.Windows.Forms.RadioButton radioEntropy;
-        private System.Windows.Forms.RadioButton radioHeatCapacity;
-        private System.Windows.Forms.RadioButton radioVapourPressure;
-        private System.Windows.Forms.RadioButton radioHeatOfFormation;
         private System.Windows.Forms.TableLayoutPanel tlpEquations;
         private System.Windows.Forms.TextBox txtMaxTemp3;
         private System.Windows.Forms.TextBox txtMinTemp3;
@@ -2924,6 +2911,10 @@ namespace Configuration_Editor
         private System.Windows.Forms.Label label50;
         private System.Windows.Forms.TextBox txtAttParent;
         private System.Windows.Forms.Label label49;
+        private System.Windows.Forms.TableLayoutPanel tlpTempDependantRadios;
+        private System.Windows.Forms.ToolStripStatusLabel statusLabel;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label51;
     }
 }
 

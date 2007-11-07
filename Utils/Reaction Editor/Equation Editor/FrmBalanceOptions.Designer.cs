@@ -114,7 +114,12 @@ namespace Reaction_Editor
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.lblNote);
             this.Controls.Add(this.lblInfo);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "FrmBalanceOptions";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "FrmBalanceOptions";
             this.ResumeLayout(false);
 

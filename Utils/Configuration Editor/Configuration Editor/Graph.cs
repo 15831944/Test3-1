@@ -16,6 +16,7 @@ namespace Configuration_Editor
         protected float m_fMax = 100, m_fMin = 0;
         protected double m_dMinX = double.NaN, m_dMaxX = double.NaN;
         protected int m_nScanResolution = 100;
+        protected bool m_bLogarithmic = false;
 
         public GraphSeries()
         {
@@ -23,6 +24,16 @@ namespace Configuration_Editor
         }
 
         public virtual double LineLoc { get { return m_dLineLoc; } }
+
+        public bool Logarithmic
+        {
+            get { return m_bLogarithmic; }
+            set
+            {
+                m_bLogarithmic = value;
+                FireRedrawRequired(this, new EventArgs());
+            }
+        }
 
         public Color DefaultColour
         {
@@ -333,7 +344,14 @@ namespace Configuration_Editor
             PointF lastPoint = PointF.Empty;
 
             float XFact = plotRect.Width / (dataPoints - 1);
-            if (d.Max == d.Min)
+
+            float dMin;
+            if (d.Logarithmic && d.Min * d.Max <= 0)
+                dMin = d.Max * 1E-6f;
+            else
+                dMin = d.Min;
+
+            if (d.Max == dMin)
             {
                 //This is the special case of the function not varying with x. However, the function may still not be valid for all x:
                 float Y = (plotRect.Top + plotRect.Bottom) / 2 + lineLoc;
@@ -348,11 +366,13 @@ namespace Configuration_Editor
             }
             else
             {
-                float YFact = plotRect.Height / (d.Max - d.Min);
+                float YFact = (float) (d.Logarithmic ? plotRect.Height  / Math.Log(d.Max / dMin) : plotRect.Height / (d.Max - dMin));
                 for (int i = 0; i < dataPoints; i++)
                 {
                     double x = i * gran + m_dMinXValue;
-                    PointF newPoint = d.ValidAt(x) ? new PointF(plotRect.Left + i * XFact, plotRect.Bottom - (d.ValueAt(x) - d.Min) * YFact) : PointF.Empty;
+                    double y = d.ValidAt(x) ? d.ValueAt(x) : 0;
+                    float yScreenSpace = (float) (d.Logarithmic ? y * dMin > 0 ? Math.Log(y/dMin) : double.NaN : (y - dMin));
+                    PointF newPoint = d.ValidAt(x) && !double.IsNaN(yScreenSpace) ? new PointF(plotRect.Left + i * XFact, plotRect.Bottom - YFact * yScreenSpace) : PointF.Empty;
                     if (lastPoint != PointF.Empty && newPoint != PointF.Empty)
                         gfx.DrawLine(dataPen, lastPoint, newPoint);
                     lastPoint = newPoint;
@@ -431,61 +451,102 @@ namespace Configuration_Editor
                 {
                     selectedSeries = gs; break;
                 }
+
             if (m_bDrawYLabel && selectedSeries != null && !float.IsNaN(selectedSeries.Min) && !float.IsNaN(selectedSeries.Max)
                 &&!float.IsInfinity(selectedSeries.Min) && !float.IsInfinity(selectedSeries.Max))
             {
-                double SeriesRange = selectedSeries.Max - selectedSeries.Min;
-
                 Brush textBrush2 = new SolidBrush(selectedSeries.DefaultColour);
                 Pen yAxisPen = new Pen(textBrush2);
-                float sHeight = gfx.MeasureString("0", this.Font).Height;
-                int maxPossibleChecks = (int)(plotRect.Height / sHeight) + 1;
-                
-                int numChecks = maxPossibleChecks > m_nMaxChecks ? m_nMaxChecks : maxPossibleChecks;
 
-                bool labelChecks = numChecks > 1;
-
-                if (numChecks < 2) numChecks = 2;
-
-                float YFact = plotRect.Height / (numChecks - 1);
-                double YFact2 = SeriesRange / (numChecks - 1);
                 sfmt.Alignment = StringAlignment.Far;
                 sfmt.LineAlignment = StringAlignment.Center;
 
-                if (SeriesRange != 0)
+                if (selectedSeries.Logarithmic)
                 {
-                    for (int i = 0; i < numChecks; i++)
+                    if (selectedSeries.Min == selectedSeries.Max)
                     {
-                        PointF checkRight = new PointF(plotRect.Left, plotRect.Bottom - YFact * i);
+                        PointF checkRight = new PointF(plotRect.Left, (plotRect.Bottom + plotRect.Top) / 2);
                         PointF checkLeft = new PointF(checkRight.X - m_nCheckSize, checkRight.Y);
                         gfx.DrawLine(yAxisPen, checkRight, checkLeft);
-                        if (labelChecks)
+                        string label = (selectedSeries.Min).ToString("G2");
+                        PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
+                        gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
+                    }
+                    else
+                    {
+                        float graphMin = selectedSeries.Min * selectedSeries.Max > 0 ? selectedSeries.Min : selectedSeries.Max * 1E-6f;
+                        bool seriesNegative = graphMin < 0;
+                        int min = (int)Math.Log10(seriesNegative ? -selectedSeries.Max : graphMin);
+                        int max = (int)Math.Log10(seriesNegative ? -graphMin : selectedSeries.Max);
+                        for (int i = max; i > min; i--)
                         {
-                            //G2 seems to love to show 100 as 1E2, which looks like shit.
-                            double val = selectedSeries.Min + YFact2 * i;
-                            string label;
-                            if (Math.Abs(val) < 10000 && Math.Abs(val) > 10)
-                                label = val.ToString("F0");
-                            else
-                                label = val.ToString("G2");
+                            if (!seriesNegative && Math.Pow(10, i) < graphMin)
+                                continue;
+                            else if (seriesNegative && -Math.Pow(10, i) < graphMin)
+                                continue;
+
+                            float y = plotRect.Bottom - plotRect.Height * (float) ((i - Math.Log10((seriesNegative ? -1 : 1) * graphMin)) / Math.Log10(selectedSeries.Max / graphMin));
+                            PointF checkRight = new PointF(plotRect.Left, y);
+                            PointF checkLeft = new PointF(checkRight.X - m_nCheckSize, checkRight.Y);
+                            gfx.DrawLine(yAxisPen, checkRight, checkLeft);
+                            string label = (seriesNegative ? "-" : "") + "10^" + i;
                             PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
                             gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
                         }
                     }
                 }
-                else //Draw one check in the centre...
+                else
                 {
-                    PointF checkRight = new PointF(plotRect.Left, (plotRect.Bottom + plotRect.Top) / 2);
-                    PointF checkLeft = new PointF(checkRight.X - m_nCheckSize, checkRight.Y);
-                    gfx.DrawLine(yAxisPen, checkRight, checkLeft);
-                    string label = (selectedSeries.Min).ToString("G2");
-                    PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
-                    gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
-                }
+                    double SeriesRange = selectedSeries.Max - selectedSeries.Min;
 
-                /*gfx.TranslateTransform(plotRect.Left, plotRect.Bottom);
-                gfx.RotateTransform(-90);
-                gfx.DrawString("I'm a happy treestump", Font, textBrush, 0, 0);*/
+                    
+                    float sHeight = gfx.MeasureString("0", this.Font).Height;
+                    int maxPossibleChecks = (int)(plotRect.Height / sHeight) + 1;
+
+                    int numChecks = maxPossibleChecks > m_nMaxChecks ? m_nMaxChecks : maxPossibleChecks;
+
+                    bool labelChecks = numChecks > 1;
+
+                    if (numChecks < 2) numChecks = 2;
+
+                    float YFact = plotRect.Height / (numChecks - 1);
+                    double YFact2 = SeriesRange / (numChecks - 1);
+
+                    if (SeriesRange != 0)
+                    {
+                        for (int i = 0; i < numChecks; i++)
+                        {
+                            PointF checkRight = new PointF(plotRect.Left, plotRect.Bottom - YFact * i);
+                            PointF checkLeft = new PointF(checkRight.X - m_nCheckSize, checkRight.Y);
+                            gfx.DrawLine(yAxisPen, checkRight, checkLeft);
+                            if (labelChecks)
+                            {
+                                //G2 seems to love to show 100 as 1E2, which looks like shit.
+                                double val = selectedSeries.Min + YFact2 * i;
+                                string label;
+                                if (Math.Abs(val) < 10000 && Math.Abs(val) > 10)
+                                    label = val.ToString("F0");
+                                else
+                                    label = val.ToString("G2");
+                                PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
+                                gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
+                            }
+                        }
+                    }
+                    else //Draw one check in the centre...
+                    {
+                        PointF checkRight = new PointF(plotRect.Left, (plotRect.Bottom + plotRect.Top) / 2);
+                        PointF checkLeft = new PointF(checkRight.X - m_nCheckSize, checkRight.Y);
+                        gfx.DrawLine(yAxisPen, checkRight, checkLeft);
+                        string label = (selectedSeries.Min).ToString("G2");
+                        PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
+                        gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
+                    }
+
+                    /*gfx.TranslateTransform(plotRect.Left, plotRect.Bottom);
+                    gfx.RotateTransform(-90);
+                    gfx.DrawString("I'm a happy treestump", Font, textBrush, 0, 0);*/
+                }
             }
             #endregion Y-Axis
 

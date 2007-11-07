@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="About" xml:space="preserve">
+    <value>SysCAD Configuration Editor {0}
+
+www.SysCAD.net
+Copyright © 2007
+KWA Kenwalt Australia Pty Ltd.
+
+Warning:This program is copyright protected.</value>
+  </data>
   <data name="AtmoicWts" xml:space="preserve">
     <value>H,1.00794
 He,4.002602
@@ -235,6 +244,7 @@ Uuq,289
 Uup,288
 Uuh,293
 Uuo,294</value>
+    <comment>CSV list of elements and their atomic weights</comment>
   </data>
   <data name="DefaultInI" xml:space="preserve">
     <value>[General]

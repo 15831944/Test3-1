@@ -61,6 +61,21 @@ namespace Configuration_Editor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SysCAD Configuration Editor {0}
+        ///
+        ///www.SysCAD.net
+        ///Copyright © 2007
+        ///KWA Kenwalt Australia Pty Ltd.
+        ///
+        ///Warning:This program is copyright protected..
+        /// </summary>
+        internal static string About {
+            get {
+                return ResourceManager.GetString("About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to H,1.00794
         ///He,4.002602
         ///Li,6.941

@@ -30,12 +30,14 @@ namespace Reaction_Editor
             }
             else
                 oldString = this.Text;
+
+            base.OnTextChanged(e);
         }
 
         protected override void OnValidating(System.ComponentModel.CancelEventArgs e)
         {
             double temp;
-            e.Cancel = !double.TryParse(this.Text, out temp);
+            e.Cancel = !string.IsNullOrEmpty(this.Text.Trim()) && !double.TryParse(this.Text, out temp);
             if (e.Cancel)
                 ep.SetError(this, "Invalid Number Format");
             else

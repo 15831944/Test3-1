@@ -355,7 +355,9 @@ namespace Reaction_Editor
                 this.numExtentVal3,
                 this.chkExtentOption,
                 this.lblExtent2,
-                this.lblExtent3 });
+                this.lblExtent3,
+                this.lblExtent4,
+                this.comboExtentSpecie2});
 
             m_HXControls = new Control[] {
                 this.numHXApproach,
@@ -1254,10 +1256,16 @@ namespace Reaction_Editor
 
             object cHOR = comboHORSpecie.SelectedItem;
             object cExt = chkFirstReactant.Checked ? m_CurrentReaction.FirstReactant : comboExtentSpecie.SelectedItem;
+            object c2Ext = comboExtentSpecie2.SelectedItem;
+
             RepopulateSpecies();
             if (cExt != null && comboExtentSpecie.Items.Contains(cExt))
                 comboExtentSpecie.SelectedItem = cExt;
             comboExtentSpecie_SelectedIndexChanged(this, new EventArgs());
+            if (c2Ext != null && comboExtentSpecie.Items.Contains(c2Ext))
+                comboExtentSpecie2.SelectedItem = c2Ext;
+            comboExtentSpecie2_SelectedIndexChanged(this, new EventArgs());
+
             if (cHOR != null && comboHORSpecie.Items.Contains(cHOR))
                 comboHORSpecie.SelectedItem = cHOR;
             comboHORSpecie_SelectedIndexChanged(this, new EventArgs());
@@ -1267,12 +1275,14 @@ namespace Reaction_Editor
 
         protected void RepopulateSpecies()
         {
+            comboExtentSpecie2.Items.Clear();
             comboExtentSpecie.Items.Clear();
             comboHORSpecie.Items.Clear();
             foreach (Compound c in m_CurrentReaction.Compounds)
             {
                 comboExtentSpecie.Items.Add(c);
                 comboHORSpecie.Items.Add(c);
+                comboExtentSpecie2.Items.Add(c);
             }
         }
 
@@ -1714,10 +1724,15 @@ namespace Reaction_Editor
                     numExtentVal2.Visible =
                         numExtentVal3.Visible =
                         lblExtent2.Visible =
-                        lblExtent3.Visible = true;
+                        lblExtent3.Visible = 
+                        lblExtent4.Visible = 
+                        comboExtentSpecie2.Visible = true;
                     numExtentVal2.Text = ratExtent.Time.ToString();
                     numExtentVal3.Text = ratExtent.Ratio2.ToString();
-                    lblExtent2.Text = "At Time";
+                    comboExtentSpecie2.SelectedItem = ratExtent.Specie2;
+                    numExtentVal2.Text = double.IsNaN(ratExtent.Time) ? "" : ratExtent.Time.ToString();
+                    numExtentVal3.Text = double.IsNaN(ratExtent.Ratio2) ? "" : ratExtent.Ratio2.ToString();
+                    lblExtent2.Text = "(At Time";
                     lblExtent3.Text = "Val 1:";
                     break;
                 case ExtentTypes.Equilibrium:
@@ -1903,6 +1918,12 @@ namespace Reaction_Editor
         {
             if (m_CurrentReaction == null) return;
             m_CurrentReaction.ExtentInfo.Specie = (Compound) comboExtentSpecie.SelectedItem;
+        }
+
+        private void comboExtentSpecie2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (m_CurrentReaction == null || m_CurrentReaction.ExtentType != ExtentTypes.Ratio) return;
+            ((RatioExtent)m_CurrentReaction.ExtentInfo).Specie2 = (Compound)comboExtentSpecie2.SelectedItem;
         }
 
         private void chkExtentOption_CheckedChanged(object sender, EventArgs e)

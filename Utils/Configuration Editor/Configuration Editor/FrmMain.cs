@@ -12,6 +12,7 @@ using System.IO;
 using System.Data.Common;
 using System.Reflection;
 using Microsoft.Win32;
+using System.Globalization;
 
 namespace Configuration_Editor
 {
@@ -60,6 +61,7 @@ namespace Configuration_Editor
 
         DataTable m_SpecieDataTable = new DataTable("Species");
         OleDbDataAdapter m_SpecieDataAdapter;
+        string m_CurrentGraphColumn = null;
 
         Dictionary<string, MultiEquationDataset> m_GraphSeries = new Dictionary<string, MultiEquationDataset>();
 
@@ -71,6 +73,7 @@ namespace Configuration_Editor
 
         double m_dCurSpeciesMolWt = double.NaN;
         Dictionary<string, double> AtomicWts = new Dictionary<string, double>();
+
         #endregion Variables
         
         #region Constructors
@@ -112,20 +115,13 @@ namespace Configuration_Editor
 
         private bool SetupSpDbEditor()
         {
-#if DEBUG
             if (File.Exists("DatabaseColumns.ini"))
                 LoadDBIni("DatabaseColumns.ini");
-            else
+            else if (File.Exists("..\\..\\DatabaseColumns.ini"))
                 LoadDBIni("..\\..\\DatabaseColumns.ini"); //Allow the database.ini to sit in the same folder as the source files
-#else
-            string loc = (string) regKey.GetValue("Install Path", "");
-            if (File.Exists(Path.Combine(loc, "DatabaseColumns.ini")))
-                LoadDBIni(Path.Combine(loc, "DatabaseColumns.ini"));
             else
-            {
                 throw new Exception("DatabaseColumns.ini not found.");
-            }
-#endif
+
             LoadAtomicWts();
 
             #region Database stuff:
@@ -163,14 +159,7 @@ namespace Configuration_Editor
             errorProvider1.DataSource = m_SpecieDataTable;
             #endregion Database stuff
 
-            foreach (Control c in pnlTempDependantRadios.Controls)
-                if (c is RadioButton)
-                {
-                    MultiEquationDataset equations = new MultiEquationDataset();
-                    equations.DefaultColour = c.ForeColor;
-                    m_GraphSeries.Add((string)c.Tag, equations);
-                    graph1.AddDataset(equations);
-                }
+            
             
             txtName.DataBindings.Add("Text", m_SpecieDataTable, "Name");
             txtSymbol.DataBindings.Add("Text", m_SpecieDataTable, "Compound");
@@ -188,6 +177,7 @@ namespace Configuration_Editor
             txtCritTemp.DataBindings.Add("Text", m_SpecieDataTable, "Tc");
             txtAccentricity.DataBindings.Add("Text", m_SpecieDataTable, "Ac");
             txtPhaseChange.DataBindings.Add("Text", m_SpecieDataTable, "PhaseChange");
+            txtDensityCorrection.DataBindings.Add("Text", m_SpecieDataTable, "DensityCorrection");
             return true;
         }
 
@@ -235,7 +225,6 @@ namespace Configuration_Editor
                 {
                     c.Parent = tcIDE.Parent;
                     c.Visible = false;
-                    Console.WriteLine(c.ToString() + " Moved to " + tcIDE.Parent.ToString());
                     c.Dock = DockStyle.Fill;
                     c.Visible = false;
                 }
@@ -502,7 +491,9 @@ namespace Configuration_Editor
                 {
                     try
                     {
-                        lstProjectVector.Items.Add(ProjectVectorItem.Parse(s, m_SpecieDataTable, ret).LVI);
+                        ProjectVectorItem item = ProjectVectorItem.Parse(s, m_SpecieDataTable, ret);
+                        item.Changed += new EventHandler(item_Changed);
+                        lstProjectVector.Items.Add(item.LVI);
                     }
                     catch
                     {
@@ -610,13 +601,14 @@ namespace Configuration_Editor
 
         protected void OpenDatabase(string filename)
         {
+            string tableName = "Species";
+
             OleDbConnection conn = new OleDbConnection(@"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + filename);
             conn.Open();
-
             //Putting things in Try {} Catch{} is the worst form of flow control, or so they say.
             //But there seems no other option
             DataTable t = new DataTable();
-            OleDbDataAdapter da = new OleDbDataAdapter("SELECT * FROM Species", conn);
+            OleDbDataAdapter da = new OleDbDataAdapter("SELECT * FROM " + tableName, conn);
             da.FillSchema(t, SchemaType.Source);
 
             #region Change column layout to what is expected:
@@ -644,9 +636,9 @@ namespace Configuration_Editor
                 for (int i = 0; i < NewColumns.Count; i++)
                 {
                     if (NewColumns[i] == "Ts" || NewColumns[i] == "Te")
-                        cmd.CommandText = "ALTER TABLE Species ADD " + NewColumns[i] + " single;";
+                        cmd.CommandText = "ALTER TABLE " + tableName + " ADD " + NewColumns[i] + " single;";
                     else
-                        cmd.CommandText = "ALTER TABLE Species ADD " + NewColumns[i] + " varchar;";
+                        cmd.CommandText = "ALTER TABLE " + tableName + " ADD " + NewColumns[i] + " varchar;";
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -654,10 +646,10 @@ namespace Configuration_Editor
             {
                 foreach (KeyValuePair<string, string> kvp in Remapping)
                 {
-                    cmd.CommandText = "ALTER TABLE Species ADD COLUMN " + kvp.Key + " varchar;";
+                    cmd.CommandText = "ALTER TABLE " + tableName + " ADD COLUMN " + kvp.Key + " varchar;";
                     cmd.ExecuteNonQuery();
                 }
-                StringBuilder sb = new StringBuilder("UPDATE Species SET ");
+                StringBuilder sb = new StringBuilder("UPDATE " + tableName + " SET ");
                 int j = 0;
                 foreach (KeyValuePair<string, string> kvp in Remapping)
                 {
@@ -670,13 +662,13 @@ namespace Configuration_Editor
                 cmd.ExecuteNonQuery();
                 /*foreach (KeyValuePair<string, string> kvp in Remapping)
                 {
-                    cmd.CommandText = "UPDATE Species SET " + kvp.Key + " = " + kvp.Value;
+                    cmd.CommandText = "UPDATE " + tableName + " SET " + kvp.Key + " = " + kvp.Value;
                     cmd.ExecuteNonQuery();
                 }*/
 
                 foreach (KeyValuePair<string, string> kvp in Remapping)
                 {
-                    cmd.CommandText = "ALTER TABLE Species DROP COLUMN " + kvp.Value + ";";
+                    cmd.CommandText = "ALTER TABLE " + tableName + " DROP COLUMN " + kvp.Value + ";";
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -686,14 +678,14 @@ namespace Configuration_Editor
             List<DataColumn> PK = new List<DataColumn>(t.PrimaryKey);
             if (t.PrimaryKey.Length == 0) //If we need to remove or change the primary key...
             {
-                cmd.CommandText = "ALTER TABLE Species ADD CONSTRAINT pk PRIMARY KEY(Compound, Phase, Ts, Te)";
+                cmd.CommandText = "ALTER TABLE " + tableName + " ADD CONSTRAINT pk PRIMARY KEY(Compound, Phase, Ts, Te)";
                 cmd.ExecuteNonQuery();
             }
 
             foreach (DataColumn c in t.Columns)
                 if (c.DataType == typeof(string) && !Remapping.ContainsValue(c.ColumnName))
                 {
-                    cmd.CommandText = "ALTER TABLE Species ALTER COLUMN " + c.ColumnName + " varchar(255)";
+                    cmd.CommandText = "ALTER TABLE " + tableName + " ALTER COLUMN " + c.ColumnName + " varchar(255)";
                     cmd.ExecuteNonQuery();
                 }
 
@@ -703,14 +695,14 @@ namespace Configuration_Editor
             foreach (string s in RequiredConstraints.Keys)
                 if (!t.Constraints.Contains(s))
                 {
-                    cmd.CommandText = "ALTER TABLE Species ADD CONSTRAINT " + s + " " + RequiredConstraints[s];
+                    cmd.CommandText = "ALTER TABLE " + tableName + " ADD CONSTRAINT " + s + " " + RequiredConstraints[s];
                     cmd.ExecuteNonQuery();
                 }*/ //It seems that it really doesn't like these constraints for an unkown reason.
 
 
             #endregion Check Constraints
 
-            m_SpecieDataAdapter = new OleDbDataAdapter("SELECT * FROM Species", conn);
+            m_SpecieDataAdapter = new OleDbDataAdapter("SELECT * FROM " + tableName, conn);
 
             m_SpecieDataTable.Clear();
             m_SpecieDataAdapter.FillSchema(m_SpecieDataTable, SchemaType.Source);
@@ -731,9 +723,9 @@ namespace Configuration_Editor
             }
             catch
             {
-                m_SpecieDataAdapter = new OleDbDataAdapter("SELECT * FROM Species", conn);
+                m_SpecieDataAdapter = new OleDbDataAdapter("SELECT * FROM " + tableName, conn);
 
-                DataTableMapping mapping = m_SpecieDataAdapter.TableMappings.Add("Table", "Species");
+                DataTableMapping mapping = m_SpecieDataAdapter.TableMappings.Add("Table", "" + tableName);
                 mapping.ColumnMappings.Add("Rho", "Density");
                 mapping.ColumnMappings.Add("dHf", "Hf25");
                 mapping.ColumnMappings.Add("S°298", "S25");
@@ -761,8 +753,8 @@ namespace Configuration_Editor
 
             //After we have merged the variables, we no longer need to have a 4 column primary key (Ts and Te can be removed).
             m_SpecieDataTable.PrimaryKey = new DataColumn[] { m_SpecieDataTable.Columns["Compound"], m_SpecieDataTable.Columns["Phase"] };
-            cmd.CommandText = "ALTER TABLE Species DROP CONSTRAINT pk"; cmd.ExecuteNonQuery();
-            cmd.CommandText = "ALTER TABLE Species ADD CONSTRAINT pk PRIMARY KEY(Compound, Phase)"; cmd.ExecuteNonQuery();
+            cmd.CommandText = "ALTER TABLE " + tableName + " DROP CONSTRAINT pk"; cmd.ExecuteNonQuery();
+            cmd.CommandText = "ALTER TABLE " + tableName + " ADD CONSTRAINT pk PRIMARY KEY(Compound, Phase)"; cmd.ExecuteNonQuery();
 
             UpdateFilter();
             conn.Close();
@@ -881,9 +873,8 @@ namespace Configuration_Editor
 
         protected void LoadEquationsIntoTextboxes()
         {
-            foreach (Control c in pnlTempDependantRadios.Controls)
-                if (c is RadioButton && ((RadioButton)c).Checked)
-                    LoadEquationsIntoTextboxes((string)c.Tag);
+            if (!string.IsNullOrEmpty(m_CurrentGraphColumn))
+                LoadEquationsIntoTextboxes(m_CurrentGraphColumn);
         }
 
         protected void LoadEquationsIntoTextboxes(string column)
@@ -1082,6 +1073,7 @@ namespace Configuration_Editor
             (\s*,\s*(?<Quotes>"")?(?<Val>(?(Quotes)[^""]*|[^,]*))(?(Quotes)(?<-Quotes>"")))*", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
         protected void LoadDBIni(string filename)
         {
+            tlpTempDependantRadios.RowCount = 0;
             string s = new StreamReader(new FileStream(filename, FileMode.Open)).ReadToEnd();
             Dictionary<string, Dictionary<string, string>> data = ReadIni(s, new Dictionary<string, Dictionary<string, string>>());
             foreach (KeyValuePair<string, Dictionary<string, string>> kvp1 in data)
@@ -1089,6 +1081,39 @@ namespace Configuration_Editor
                 if (!availableDBFuncs.ContainsKey(kvp1.Key))
                     availableDBFuncs[kvp1.Key] = new Dictionary<string, FunctionValue>();
 
+                MultiEquationDataset equations = new MultiEquationDataset();
+                Color c;
+                try
+                {
+                    c = Color.FromName(kvp1.Value["colour"].Trim('"'));
+                }
+                catch
+                {
+                    try
+                    {
+                        c = Color.FromArgb(int.Parse(kvp1.Value["colour"].Trim('"'), NumberStyles.HexNumber));
+                    }
+                    catch { throw new Exception("Unable to parse colour associated with " + kvp1.Key); }
+                }
+
+                //Read in meta data
+                equations.DefaultColour = c;
+                equations.Logarithmic = kvp1.Value.ContainsKey("logarithmic") && kvp1.Value["logarithmic"] != "0";
+
+                m_GraphSeries.Add(kvp1.Key, equations);
+                graph1.AddDataset(equations);
+
+                RadioButton rb = new RadioButton();
+                rb.Text = kvp1.Value.ContainsKey("friendlyname") ? kvp1.Value["friendlyname"].Trim('"') : kvp1.Key;
+                rb.ForeColor = c;
+                rb.CheckedChanged += new EventHandler(radioEntropy_CheckedChanged);
+                rb.Tag = kvp1.Key;
+                //tlpTempDependantRadios.RowCount++;
+                //tlpTempDependantRadios.RowStyles[tlpTempDependantRadios.RowCount - 1].SizeType = SizeType.AutoSize;
+                tlpTempDependantRadios.Controls.Add(rb);
+                rb.Dock = DockStyle.Top;
+
+                //Read in available equations.
                 foreach (KeyValuePair<string, string> kvp2 in kvp1.Value)
                     if (kvp2.Key.StartsWith("eqn"))
                     {
@@ -1268,6 +1293,7 @@ namespace Configuration_Editor
                 if (alreadyItem == null)
                 {
                     ProjectSpecie specie = new ProjectSpecie(r);
+                    specie.Changed += new EventHandler(item_Changed);
 
                     lvisToSelect.Add(specie.LVI);
                     
@@ -1376,14 +1402,14 @@ namespace Configuration_Editor
             if (tcSpecies.SelectedTab == this.tabProjectSpecies)
                 if (m_CurrentItem != null)
                 {
-                    ssMain.Text = m_CurrentItem.Valid ? "Status: Ok" :
+                    statusLabel.Text = m_CurrentItem.Valid ? "Status: Ok" :
                         "Status: Invalid. " + m_CurrentItem.StatusDetails;
-                    ssMain.ForeColor = m_CurrentItem.Valid ? SystemColors.WindowText : Color.Red;
+                    statusLabel.ForeColor = m_CurrentItem.Valid ? SystemColors.WindowText : Color.Red;
                 }
                 else
-                    ssMain.Text = "";
+                    statusLabel.Text = "";
             else
-                ssMain.Text = "";
+                statusLabel.Text = "";
         }
         #endregion Project Vector Stuff
 
@@ -1418,6 +1444,24 @@ namespace Configuration_Editor
                 }
             }
             lstDBSpecies.EndUpdate();
+        }
+
+        protected void PreventCommas(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == ',')
+                e.Handled = true;
+        }
+
+        protected void PreventCurlyBraces(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '{' || e.KeyChar == '}')
+                e.Handled = true;
+        }
+
+        protected void NumbersOnly(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar < '0' || e.KeyChar > '9')
+                e.Handled = true;
         }
 
         private int DataRowComparison(DataRow r1, DataRow r2)
@@ -1557,7 +1601,13 @@ namespace Configuration_Editor
             else
                 lstProjectVector.Items.Insert(lstProjectVector.SelectedIndices[0], item.LVI);
 
+            item.Changed += new EventHandler(item_Changed);
             item.LVI.Selected = true;
+        }
+
+        void item_Changed(object sender, EventArgs e)
+        {
+            UpdateStatusBar();
         }
 
         private void txtCalculation_TextChanged(object sender, EventArgs e)
@@ -1566,7 +1616,7 @@ namespace Configuration_Editor
             int oldSelectionStart = txtCalculation.SelectionStart;
             int oldSelectionLength = txtCalculation.SelectionLength;
             txtCalculation.SelectAll();
-            txtCalculation.SelectionBackColor = SystemColors.Window;//Color.FromArgb(0,0,0,0);
+            txtCalculation.SelectionBackColor = SystemColors.Window;
             txtCalculation.SelectionColor = SystemColors.WindowText;
             if (m_CurrentItem is ProjectCalculation)
             {
@@ -1815,9 +1865,10 @@ namespace Configuration_Editor
         private void radioEntropy_CheckedChanged(object sender, EventArgs e)
         {
             RadioButton rSender = sender as RadioButton;
-            m_GraphSeries[(string)rSender.Tag].Selected = rSender.Checked;
+            m_CurrentGraphColumn = (string)rSender.Tag;
+            m_GraphSeries[m_CurrentGraphColumn].Selected = rSender.Checked;
             if (rSender.Checked)
-                LoadEquationsIntoTextboxes((string)rSender.Tag);
+                LoadEquationsIntoTextboxes(m_CurrentGraphColumn);
             tlpEquations.Enabled = true;
         }
 
@@ -1866,13 +1917,11 @@ namespace Configuration_Editor
         {
             try
             {
-                foreach (Control c in pnlTempDependantRadios.Controls)
-                    if (c is RadioButton && ((RadioButton)c).Checked)
-                    {
-                        string col = (string)c.Tag;
-                        m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][col] = CreateDBString();
-                        LoadEquationsIntoGraph(col);
-                    }
+                if (!string.IsNullOrEmpty(m_CurrentGraphColumn))
+                {
+                    m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][m_CurrentGraphColumn] = CreateDBString();
+                    LoadEquationsIntoGraph(m_CurrentGraphColumn);
+                }
             }
             catch (Exception ex)
             {
@@ -1919,8 +1968,9 @@ namespace Configuration_Editor
 
         private void aboutSysCADConfigurationEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string ver = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-            MessageBox.Show(this, "SysCAD Configuration Editor version " + ver + "\r\nTest version.", "About");
+            //string ver = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+            //MessageBox.Show(this, "SysCAD Configuration Editor version " + ver + "\r\nTest version.", "About");
+            new About.FrmAbout().ShowDialog(this);
         }
 
         private void dlgOpenDB_FileOk(object sender, CancelEventArgs e)
@@ -2190,7 +2240,6 @@ namespace Configuration_Editor
                 else
                     m_CurrentItem.Valid = true;
             }
-            UpdateStatusBar();
         }
 
         private void txtAttDimension_TextChanged(object sender, EventArgs e)

@@ -44,6 +44,12 @@
     <Compile Include="FractionalUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="FrmAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmAbout.Designer.cs">
+      <DependentUpon>FrmAbout.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmAddSelector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,7 +84,7 @@
     </Compile>
     <Compile Include="Data Structures.cs" />
     <Compile Include="FrmAutoComplete.cs">
-      <SubType>Component</SubType>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="FrmAutoComplete.designer.cs">
       <DependentUpon>FrmAutoComplete.cs</DependentUpon>
@@ -111,6 +117,10 @@
     <Compile Include="Third Party Controls\NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FrmAbout.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FrmAbout.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmAddSelector.resx">
       <SubType>Designer</SubType>
       <DependentUpon>FrmAddSelector.cs</DependentUpon>

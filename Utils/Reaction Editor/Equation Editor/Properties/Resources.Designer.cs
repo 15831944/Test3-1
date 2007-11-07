@@ -60,6 +60,21 @@ namespace Reaction_Editor.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to SysCAD Reaction Editor {0}
+        ///
+        ///www.SysCAD.net
+        ///Copyright © 2007
+        ///KWA Kenwalt Australia Pty Ltd.
+        ///
+        ///Warning:This program is copyright protected..
+        /// </summary>
+        internal static string About {
+            get {
+                return ResourceManager.GetString("About", resourceCulture);
+            }
+        }
+        
         internal static System.Drawing.Bitmap Critical {
             get {
                 object obj = ResourceManager.GetObject("Critical", resourceCulture);

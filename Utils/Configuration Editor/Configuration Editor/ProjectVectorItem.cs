@@ -23,10 +23,14 @@ namespace Configuration_Editor
         }
 
         #region Properties
-        public string StatusDetails
+        public virtual string StatusDetails
         {
             get { return m_sStatusDetails; }
-            set { m_sStatusDetails = value; }
+            set 
+            { 
+                m_sStatusDetails = value;
+                FireChanged();
+            }
         }
 
         public virtual bool Valid
@@ -35,7 +39,10 @@ namespace Configuration_Editor
             set
             {
                 m_bValid = value;
+                if (value == true)
+                    m_sStatusDetails = "";
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -47,6 +54,7 @@ namespace Configuration_Editor
                 m_LVI = value;
                 m_LVI.Tag = this;
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -59,6 +67,7 @@ namespace Configuration_Editor
                     return;
                 m_sName = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -125,6 +134,11 @@ namespace Configuration_Editor
         }
 
         #endregion
+
+        #region Events
+        public event EventHandler Changed;
+        public void FireChanged() { if (Changed != null) Changed(this, new EventArgs()); }
+        #endregion Events
     }
 
     public enum Phase { Unkown = -1, Solid = 1, Liquid, Gas, Total }
@@ -253,6 +267,7 @@ namespace Configuration_Editor
                 if (m_dExtrapBelowT == value) return;
                 m_dExtrapBelowT = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -264,6 +279,7 @@ namespace Configuration_Editor
                 if (m_dExtrapAboveT == value) return;
                 m_dExtrapAboveT = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -298,7 +314,10 @@ namespace Configuration_Editor
         public bool Ideal
         {
             get { return m_bIdeal; }
-            set { m_bIdeal = value; }
+            set { 
+                m_bIdeal = value;
+                FireChanged();
+            }
         }
 
         public string Symbol
@@ -375,6 +394,7 @@ namespace Configuration_Editor
             {
                 m_sName = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -403,6 +423,17 @@ namespace Configuration_Editor
             LVI.ImageKey = "Calculation";
         }
 
+        public override bool Valid
+        {
+            get
+            {
+                return base.Valid && !string.IsNullOrEmpty(m_sSymbol) && !string.IsNullOrEmpty(m_sValue);
+            }
+            set
+            {
+                base.Valid = value;
+            }
+        }
 
         public override string Value
         {
@@ -411,6 +442,7 @@ namespace Configuration_Editor
             {
                 m_sValue = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -421,6 +453,7 @@ namespace Configuration_Editor
             {
                 m_sSymbol = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -431,7 +464,7 @@ namespace Configuration_Editor
 
         public override string ToSaveString()
         {
-            return "Calculation,," + Name + "," + Symbol + ",,*,,,," + Value;
+            return "Calculation,," + Name + "," + Symbol + ",,*,,,," + Regex.Replace(Value, "\\s+", " ");
         }
 
         public static ProjectCalculation Parse(Match m)
@@ -468,6 +501,19 @@ namespace Configuration_Editor
             {
                 m_sName = value;
                 UpdateLVI();
+                FireChanged();
+            }
+        }
+
+        public override bool Valid
+        {
+            get
+            {
+                return base.Valid && !string.IsNullOrEmpty(Value.Trim());
+            }
+            set
+            {
+                base.Valid = value;
             }
         }
 
@@ -478,6 +524,7 @@ namespace Configuration_Editor
             {
                 m_eType = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -488,6 +535,7 @@ namespace Configuration_Editor
             {
                 m_sParent = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
 
@@ -498,6 +546,7 @@ namespace Configuration_Editor
             {
                 m_sCnv = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
         #endregion Properties
@@ -544,6 +593,7 @@ namespace Configuration_Editor
             {
                 m_sName = value;
                 UpdateLVI();
+                FireChanged();
             }
         }
 

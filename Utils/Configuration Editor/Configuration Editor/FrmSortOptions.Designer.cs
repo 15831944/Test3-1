@@ -193,7 +193,12 @@ namespace Configuration_Editor
             this.Controls.Add(this.grpApplicable);
             this.Controls.Add(this.grpPhaseOrder);
             this.Controls.Add(this.grpLexiographicOrder);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "FrmSortOptions";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Advanced Sort";
             this.grpLexiographicOrder.ResumeLayout(false);
             this.grpLexiographicOrder.PerformLayout();
