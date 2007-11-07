@@ -263,10 +263,6 @@ void CIORec::Clear()
   iJoinConnNo           = 0;
 
   m_pMFlwDmd            =  NULL;
-  
-  m_iRedirectTo         = -1;
-  m_bRedirected         = false;
-  m_pOrigIORec          =  NULL;
   };
 
 //--------------------------------------------------------------------------
@@ -329,10 +325,6 @@ CIORec & CIORec::operator=(CIORec &A)
 
   m_pMFlwDmd            = A.m_pMFlwDmd;
   A.m_pMFlwDmd          = NULL;
-  
-  m_iRedirectTo         = A.m_iRedirectTo;
-  m_bRedirected         = A.m_bRedirected;
-  m_pOrigIORec          = A.m_pOrigIORec;
   return *this;      
   }
 
@@ -1708,31 +1700,6 @@ flag CFlange::ValidateData(ValidateDataBlk & VDB)
   };
 
 // --------------------------------------------------------------------------
-
-SpConduit * CFlange::Conduit(flag fIn)   
-  { 
-  if (RedirectOK())
-    {
-    return m_pRedirectTo->Conduit(fIn);
-    }
-
-  if (!fIsBuffered && IsTear()) 
-    return fIn ? m_pQIO : m_pQIn; 
-  return m_pQIO; 
-  };
-
-SpConduit * CFlange::ConduitIO()         
-  {
-  
-  return m_pQIO;
-  };
-SpConduit * CFlange::ConduitIn()         { return m_pQIn; };
-SpConduit * CFlange::ConduitMem()        { if (m_pQMem==NULL) m_pQMem = new SpConduit("QMem", NULL, TOA_Free); return m_pQMem; };
-
-bool CFlange::RedirectOK()
-  {
-  return m_pRedirectTo && !(fIsBuffered || IsTear());
-  };
 
 // --------------------------------------------------------------------------
 
@@ -3980,12 +3947,6 @@ void FlwNode::GlobalConnect()
     if (!m_PwrUsers[i]->GlobalConnect(this, NULL))
       BadPower++;
 
-  for (int i=0; i<NoFlwIOs(); i++)
-    {
-    if (m_IOs[i].m_iRedirectTo>=0)
-      DoReDirectIO(i);
-    };
-
 Done:
   if (AuditOK)
     ClrCI(30);
@@ -4062,12 +4023,6 @@ void FlwNode::PostGlobalConnect()
 
 void FlwNode::GlobalDisConnect()
   {
-  for (int i=0; i<NoFlwIOs(); i++)
-    {
-    if (m_IOs[i].m_iRedirectTo>=0)
-      UndoReDirectIO(i);
-    };
-
   for (int i=0; i<m_PwrUsers.GetSize(); i++)
     m_PwrUsers[i]->GlobalDisConnect();
 
@@ -7304,75 +7259,6 @@ int FlwNode::Detach(int IONo)
   StructureChanged(this);
 
   return(1);
-  };
-
-//--------------------------------------------------------------------------
-
-void FlwNode::DoReDirectIO(int IO)
-  {
-  //ASSERT(m_IOs[IO].m_iRedirectTo>=0);
-
-  //int IOSrc=IO;
-  //int IODst=m_IOs[IO].m_iRedirectTo;
-
-  //// Create 
-  //CIORec * pNewIOSrc=new CIORec;
-  //CIORec * pNewIODst=new CIORec;
-
-  //int IODescSrc = IODescNo_Rmt(IOSrc);
-  //int IONoSrc   = IOIONo_Rmt(IOSrc);
-  //int IODescDst = IODescNo_Rmt(IODst);
-  //int IONoDst   = IOIONo_Rmt(IODst);
-  //
-  //CIORec * pOldIOSrc=Nd_Rmt(IOSrc)->m_IOs.ElementAt(IONoSrc);
-  //CIORec * pOldIODst=Nd_Rmt(IODst)->m_IOs.ElementAt(IONoDst);
-  //
-  //*pNewIOSrc = *pOldIOSrc;
-  //*pNewIODst = *pOldIODst;
-
-  //pNewIOSrc->m_pOrigIORec = pOldIOSrc;
-  //pNewIODst->m_pOrigIORec = pOldIODst;
-
-  //Nd_Rmt(IOSrc)->m_IOs.ElementAt(IONoSrc) = pNewIOSrc;
-  //Nd_Rmt(IODst)->m_IOs.ElementAt(IONoDst) = pNewIODst;
-
-  //// Redirect
-  //pNewIOSrc->m_pRmt = Nd_Rmt(IODst);
-  //pNewIOSrc->m_iIODescRmt = IODescDst;
-  //pNewIOSrc->m_iIONoRmt   = IONoDst;
-
-  //pNewIODst->m_pRmt = Nd_Rmt(IOSrc);
-  //pNewIODst->m_iIODescRmt = IODescDst;
-  //pNewIODst->m_iIONoRmt   = IONoDst;
-
-  //m_IOs[IOSrc].m_bRedirected = true;
-  //m_IOs[IODst].m_bRedirected = true;
-  };
-
-void FlwNode::UndoReDirectIO(int IO)
-  {
-  //ASSERT(m_IOs[IO].m_iRedirectTo>=0);
-
-  //int IOSrc=IO;
-  //int IODst=m_IOs[IO].m_iRedirectTo;
-
-  //// Restore;
-  //int IOIndexSrc=IOIONo_Rmt(IOSrc);
-  //int IOIndexDst=IOIONo_Rmt(IODst);
-
-  //CIORec * pNewSrc = Nd_Rmt(IOSrc)->m_IOs.ElementAt(IOIndexSrc);
-  //CIORec * pNewDst = Nd_Rmt(IODst)->m_IOs.ElementAt(IOIndexDst);
-
-  //Nd_Rmt(IOSrc)->m_IOs.ElementAt(IOIndexSrc) = pNewSrc->m_pOrigIORec;
-  //Nd_Rmt(IODst)->m_IOs.ElementAt(IOIndexDst) = pNewDst->m_pOrigIORec;
-
-  //delete pNewSrc;
-  //delete pNewDst;
-
-  //m_IOs[IOSrc].m_bRedirected = false;
-  //m_IOs[IODst].m_bRedirected = false;
-
-  //m_IOs[IO].m_iRedirectTo=-1;
   };
 
 //--------------------------------------------------------------------------

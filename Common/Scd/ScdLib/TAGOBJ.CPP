@@ -111,6 +111,8 @@ static COld2NewItem gs_Old2New[] =
     {eO2N_Class,  "Pipe-1.Qm_MaxCap",                 ".Flw.Qm.MaxCap",                         ""},
     {eO2N_Class,  "Pipe-1.Qm_Rqd",                    ".Eqn.Qm.Rqd",                            ""},
 
+    {eO2N_Class,  "Pipe-1.Qi",                        ".Qo",                                    ""}, // simplified pipe
+
     {eO2N_Class,  "NdOpts.ExitRule",                   ".Exit.Rule",                             ""},
 
     {eO2N_Class,  "SpConduit.SatT@P",                 ".Saturation.SatT@P",                     ""},
@@ -126,7 +128,7 @@ static COld2NewItem gs_Old2New[] =
 static CMap<LPCTSTR, LPCTSTR, COld2NewItem*, COld2NewItem*> gs_Old2NewMapDirect;
 static CMap<LPCTSTR, LPCTSTR, COld2NewItem*, COld2NewItem*> gs_Old2NewMapClass;
 
-COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR pOldTag, Strng & NewTag)
+COld2NewItem * FindAndFixOld2New(TaggedObject * Owner, TaggedObject * pSrchRoot, LPCTSTR pOldTag, Strng & NewTag)
   {
   Strng OldTag(pOldTag);
   const int NLogs=10;
@@ -154,9 +156,7 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR pOldTag, Strn
     NewTag=pRet->m_NewTag;
     if (pRet->m_nLogged<NLogs)
       {
-      LogWarning("Executive", 0,
-        pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'",
-        OldTag(), NewTag(), pRet->m_Comment);
+      LogWarning(Owner ? Owner->Tag() : "Executive", 0, pRet->m_Comment ? "Reference '%s' now refers to '%s' : %s":"Reference '%s' now refers to '%s'", OldTag(), NewTag(), pRet->m_Comment);
       pRet->m_nLogged++;
       }
     return pRet;
@@ -167,6 +167,35 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR pOldTag, Strn
   TaggedObject *p=pSrchRoot->FindObjTag(OldTag(), true, ObjTagLen, MinTagLen);
   if (p)
     {
+    Strng ObjTag(p->Tag());
+    Strng TestTag(p->ClassId());
+    TestTag+=OldTag.Right(OldTag.GetLength()-ObjTag.GetLength());
+    Strng TestTagMem(TestTag);
+    int iDot=-1;
+    for (;;)
+      {
+      if (gs_Old2NewMapClass.Lookup(TestTag(), pRet))
+        {
+        NewTag=ObjTag;
+        NewTag+=pRet->m_NewTag;
+        if (iDot>=0)
+          NewTag+=TestTagMem.Mid(iDot);
+        if (pRet->m_nLogged<NLogs)
+          {
+          LogWarning(Owner ? Owner->Tag() : "Executive", 0, pRet->m_Comment ? "Reference '%s' now refers to '%s' : %s":"Reference '%s' now refers to '%s'", OldTag(), NewTag(), pRet->m_Comment);
+          pRet->m_nLogged++;
+          }
+        return pRet;
+        }
+      iDot=TestTag.XStrRChr('.')-TestTag();
+      if (iDot>=ObjTag.GetLength())
+        {
+        TestTag.SetLength(iDot);
+        }
+      else
+        break;
+      }
+
     TaggedObject *pAtt=p->pAttachments;
     while (pAtt)
       {
@@ -185,9 +214,7 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR pOldTag, Strn
           NewTag+=pRet->m_NewTag;
           if (pRet->m_nLogged<NLogs)
             {
-            LogWarning("Executive", 0,
-              pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'",
-              OldTag(), NewTag(), pRet->m_Comment);
+            LogWarning(Owner ? Owner->Tag() : "Executive", 0, pRet->m_Comment ? "Reference '%s' now refers to '%s' : %s":"Reference '%s' now refers to '%s'", OldTag(), NewTag(), pRet->m_Comment);
             pRet->m_nLogged++;
             }
           return pRet;
@@ -7782,7 +7809,7 @@ Failed:
     {
     ReMapTried=true;
     // Try Remap ????
-    COld2NewItem *pOld2New = FindAndFixOld2New(pSrchRoot, sTag(), sTag);
+    COld2NewItem *pOld2New = FindAndFixOld2New(m_pOwner, pSrchRoot, sTag(), sTag);
     if (pOld2New)
       {
       pAccObj=NULL;

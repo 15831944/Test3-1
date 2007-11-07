@@ -1723,12 +1723,18 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     void           TearSetOutputs(TearVarArray & TV);
 
     // Model Config Methods
-    SpConduit    * Conduit(flag fIn)   ;//             { if (!fIsBuffered && IsTear()) return fIn ? m_pQIO : m_pQIn; return m_pQIO; };
-    SpConduit    * ConduitIO()         ;//             { return m_pQIO; };
-    SpConduit    * ConduitIn()         ;//             { return m_pQIn; };
-    SpConduit    * ConduitMem()        ;//             { if (m_pQMem==NULL) m_pQMem = new SpConduit("QMem", NULL, TOA_Free); return m_pQMem; };
-
-    bool           RedirectOK();
+    SpConduit *   Conduit(flag fIn)   
+      { 
+      if (RedirectOK())
+        return m_pRedirectTo->Conduit(fIn);
+      if (!fIsBuffered && IsTear()) 
+        return fIn ? m_pQIO : m_pQIn; 
+      return m_pQIO; 
+      };
+    SpConduit    * ConduitIO()                      { return m_pQIO; };
+    SpConduit    * ConduitIn()                      { return m_pQIn; };
+    SpConduit    * ConduitMem()                     { if (m_pQMem==NULL) m_pQMem = new SpConduit("QMem", NULL, TOA_Free); return m_pQMem; };
+    bool           RedirectOK()                     { return m_pRedirectTo && !(fIsBuffered || IsTear()); };
 
     void           SetPMU(PMU_OPTIONS OnOpts, PMU_OPTIONS OffOpts)   { m_bPMUOpts = (m_bPMUOpts|OnOpts) & ~OffOpts; };
     flag           HasPMU(PMU_OPTIONS Opts)                          { return (m_bPMUOpts & Opts) !=0; };
@@ -1825,6 +1831,7 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
 
     bool           m_bRedirectActive;
     CFlange      * m_pRedirectTo;
+
 #if DOPBSMOOTHING
     CMSIndex       MS;
 #endif
@@ -2315,10 +2322,6 @@ class DllImportExport CIORec
     CSrgFlwInfo      m_Srg;
 
     CIOMFlwDmdRec  * m_pMFlwDmd;
-
-    int              m_iRedirectTo;
-    bool             m_bRedirected;
-    CIORec         * m_pOrigIORec;
 
     #if WithIOChgMonitor
     CDArray        DataMem;
@@ -3618,8 +3621,6 @@ class DllImportExport FlwNode : public CTNode
     void           DisConnectAll();
 
     void           ReDirectIO(int IOSrc, int IODst)  { IOFlange(IOSrc)->m_pRedirectTo = IOFlange(IODst); };
-    void           DoReDirectIO(int IO);
-    void           UndoReDirectIO(int IO);
 
     bool           PostConnectDirect(int IONo);
     bool           PreDisConnectDirect(int IONo);

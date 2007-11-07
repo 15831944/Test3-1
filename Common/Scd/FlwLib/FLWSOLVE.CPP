@@ -1769,7 +1769,7 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
         }
 
       int ir=p->IOIONo_Rmt(i);
-      if ((!p->m_IOs[i].m_bRedirected) && (p->Nd_Rmt(i)->Nd_Rmt(ir)!=p))
+      if (p->Nd_Rmt(i)->Nd_Rmt(ir)!=p)
         {
         LogError("Solver", 0, "Bad Connection %s Connects to %s & %s",
            p->Nd_Rmt(i)->FullObjTag(),
@@ -3121,25 +3121,14 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
           {
           if (p->m_Clusters[c].m_iProcOrder<0)
             {
-            int nRedirected=0;
-            for (int cio=0; cio<p->m_Clusters[c].NoIOs(); cio++)
+            if (nCluster==0)
+              sClstr.Set("%i", c);
+            else
               {
-              int io=p->m_Clusters[c].IONo(cio);
-              if (p->m_IOs[io].m_bRedirected)
-                nRedirected++;
+              S.Set(",%i", c);
+              sClstr+=S;
               }
-
-            if (nRedirected!=p->m_Clusters[c].NoIOs())
-              {
-              if (nCluster==0)
-                sClstr.Set("%i", c);
-              else
-                {
-                S.Set(",%i", c);
-                sClstr+=S;
-                }
-              nCluster++;
-              }
+            nCluster++;
             //LogError(p->FullObjTag(), 0, "Cluster %i Not in Process Evaluation Sequence [%s]", c, p->ClassId());
             };
           }
