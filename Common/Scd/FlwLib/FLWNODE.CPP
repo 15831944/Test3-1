@@ -3951,22 +3951,22 @@ Done:
   if (AuditOK)
     ClrCI(30);
   else
-    SetCI(30, "W\t%s NOT an Audit Node", m_pArea.m_sTag());
+    SetCI(30, "WL\t%s NOT an Audit Node", m_pArea.m_sTag());
 
   if (AreaOK)
     ClrCI(31);
   else
-    SetCI(31, "W\tArea %s NOT Found", m_pArea.m_sTag());
+    SetCI(31, "WL\tArea %s NOT Found", m_pArea.m_sTag());
 
   if (BadDirects==0)
     ClrCI(32);
   else
-    SetCI(32, "W\t%i Bad Direct connection(s)", BadDirects);
+    SetCI(32, "WL\t%i Bad Direct connection(s)", BadDirects);
 
   if (BadPower==0)
     ClrCI(33);
   else
-    SetCI(33, "W\t%i Bad Power connection(s)", BadPower);
+    SetCI(33, "WL\t%i Bad Power connection(s)", BadPower);
 
 
   };
@@ -9145,10 +9145,10 @@ flag FlwNode::CIStrng(int No, pchar & pS)
     case 27: pS="W\tEngineering units invalid";              return 1;
     case 28: pS="W\tDynTags missing ";                       return 1;
     //case 29: pS="W\tSpecie Model Operating Out of Range";    return 1;
-    case 30: pS="W\tNotAuditNode";                           return 1;
-    case 31: pS="W\tAreaNotFOund";                           return 1;
-    case 32: pS="W\tNBadDirects";                            return 1;
-    case 33: pS="W\tNBadPwrCOnnects";                        return 1;
+    case 30: pS="WL\tNotAuditNode";                          return 1;
+    case 31: pS="WL\tAreaNotFOund";                          return 1;
+    case 32: pS="WL\tNBadDirects";                           return 1;
+    case 33: pS="WL\tNBadPwrCOnnects";                       return 1;
     case 34: pS="W\tNBadCluster";                            return 1;
     case 35: pS="W\tProcedure reload required";              return 1;
     default:

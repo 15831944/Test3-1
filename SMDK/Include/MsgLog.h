@@ -30,6 +30,7 @@ const DWORD LogFlag_Warning       = 0x00000080;
 const DWORD LogFlag_Note          = 0x00000100;
 const DWORD LogFlag_Cmd           = 0x00000200;
 const DWORD LogFlag_Separator     = 0x00000400;
+const DWORD LogFlag_LongTermCond  = 0x00000200;
 
 const DWORD LogFlag_AutoClear     = 0x00001000;
 const DWORD LogFlag_ClearErrList  = 0x00002000;

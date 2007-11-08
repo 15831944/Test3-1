@@ -3920,13 +3920,13 @@ flag TaggedObject::GetAllCIs(Strng_List & L, int MaxNo)
 
 //---------------------------------------------------------------------------
 
-void TaggedObject::ClrAllCIs()
+void TaggedObject::ClrAllCIs(bool ClrPermanent)
   {
-  ConditionBlk::ClrAllCIs();
+  ConditionBlk::ClrAllCIs(ClrPermanent);
   TaggedObject *p=pAttachments;
   while (p)
     {
-    p->ClrAllCIs();
+    p->ClrAllCIs(ClrPermanent);
     p=p->pNxtAttachment;
     }
   };

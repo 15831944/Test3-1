@@ -1068,23 +1068,23 @@ char * ConditionBlk::GetTxtInfo(int No, flag SetIt, dword &Flag)
   char * pT=strchr(pS, '\t');
   char C0=0;
   char C1=0;
+  char C2=0;
 
   if (pT)
     {
     pT++;
     C0=pS[0];
     C1=pS[1];
+    C2=pS[2];
     }
   else
     pT=pS;
   if (SetIt)
     {
-    switch (C1)
-      {
-      case 'p': Flag = LogFlag_FromPGM; break;
-      case 'r': Flag = LogFlag_Rng;     break;
-      default:  Flag = LogFlag_Cond;    break;
-      }
+    Flag = LogFlag_Cond;
+    if (C1=='p' || C2=='p') Flag |= LogFlag_FromPGM;
+    if (C1=='r' || C2=='r') Flag |= LogFlag_Rng;
+    if (C1=='L' || C2=='L') Flag |= LogFlag_LongTermCond;
     switch (toupper(C0))
       {
       case 'F' : Flag|=LogFlag_Fatal  ; break;
@@ -1203,7 +1203,7 @@ flag ConditionBlk::SetCICntxt(int No, int Context, bool WithLog, char * S)
 
 //---------------------------------------------------------------------------
 
-flag ConditionBlk::ClrCICntxt(int No, int Context, bool WithLog) 
+flag ConditionBlk::ClrCICntxt(int No, int Context, bool WithLog, bool ClrPermanent) 
   { 
   if (pInfo==NULL)
     return False;
@@ -1212,6 +1212,15 @@ flag ConditionBlk::ClrCICntxt(int No, int Context, bool WithLog)
   int n=Index(No);
   if (pInfo->EA.GetSize()<=n)
     return False;
+
+
+  if (!ClrPermanent)
+    {
+    dword Flag;
+    char * pT=GetTxtInfo(No, true, Flag);
+    if (Flag & LogFlag_LongTermCond)
+      return false;
+    }
 
 
   if ((pInfo->EA[n] & ErrMsk(No))!=0)
@@ -1242,13 +1251,13 @@ flag ConditionBlk::ClrCICntxt(int No, int Context, bool WithLog)
 
 //---------------------------------------------------------------------------
 
-void ConditionBlk::ClrAllCIs() 
+void ConditionBlk::ClrAllCIs(bool ClrPermanent) 
   {
   if (pInfo==NULL)
     return;
   int n=MaxIndex();
   for (int i=0; i<n; i++)
-    ClrCICntxt(i, 0, true);
+    ClrCICntxt(i, 0, true, ClrPermanent);
   }
 //---------------------------------------------------------------------------
 

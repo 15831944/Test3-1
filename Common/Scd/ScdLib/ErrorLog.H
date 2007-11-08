@@ -58,9 +58,9 @@ class DllImportExport ConditionBlk
     ConditionBlk();
     virtual ~ConditionBlk();
 
-    void           ClrAllCIs();
+    void           ClrAllCIs(bool ClrPermanent);
     flag           SetCICntxt(int No, int Context, bool WithLog);
-    flag           ClrCICntxt(int No, int Context, bool WithLog);
+    flag           ClrCICntxt(int No, int Context, bool WithLog, bool ClrPermanent);
     flag           SetCICntxt(int No, int Context, bool WithLog, char * S);
 
     flag           TestCISetCntxt(int No, int Context);
@@ -103,7 +103,7 @@ flag SetCI(int No)                                                              
   };                                                                                 \
 flag ClrCI(int No)                                                                   \
   {                                                                                  \
-  return ConditionBlk::ClrCICntxt(No, Class::CBContext(), true);                     \
+  return ConditionBlk::ClrCICntxt(No, Class::CBContext(), true, true);               \
   };                                                                                 \
 flag SetCI(int No, char * Fmt, ...)                                                  \
   {                                                                                  \
@@ -119,14 +119,14 @@ flag SetCI(int No, flag State)                                                  
   if (State)                                                                         \
     return ConditionBlk::SetCICntxt(No, Class::CBContext(), true);                   \
   else                                                                               \
-    return ConditionBlk::ClrCICntxt(No, Class::CBContext(), true);                   \
+    return ConditionBlk::ClrCICntxt(No, Class::CBContext(), true, true);             \
   };                                                                                 \
 flag ClrCI(int No, flag State)                                                       \
   {                                                                                  \
   if (!State)                                                                        \
     return ConditionBlk::SetCICntxt(No, Class::CBContext(), true);                   \
   else                                                                               \
-    return ConditionBlk::ClrCICntxt(No, Class::CBContext(), true);                   \
+    return ConditionBlk::ClrCICntxt(No, Class::CBContext(), true, true);             \
   };                                                                                 \
 flag SetCINoLog(int No)                                                              \
   {                                                                                  \
@@ -134,7 +134,7 @@ flag SetCINoLog(int No)                                                         
   };                                                                                 \
 flag ClrCINoLog(int No)                                                              \
   {                                                                                  \
-  return ConditionBlk::ClrCICntxt(No, Class::CBContext(), false);                    \
+  return ConditionBlk::ClrCICntxt(No, Class::CBContext(), false, true);              \
   };                                                                                 \
 flag SetCINoLog(int No, char * Fmt, ...)                                             \
   {                                                                                  \
@@ -150,14 +150,14 @@ flag SetCINoLog(int No, flag State)                                             
   if (State)                                                                         \
     return ConditionBlk::SetCICntxt(No, Class::CBContext(), false);                  \
   else                                                                               \
-    return ConditionBlk::ClrCICntxt(No, Class::CBContext(), false);                  \
+    return ConditionBlk::ClrCICntxt(No, Class::CBContext(), false, true);            \
   };                                                                                 \
 flag ClrCINoLog(int No, flag State)                                                  \
   {                                                                                  \
   if (!State)                                                                        \
     return ConditionBlk::SetCICntxt(No, Class::CBContext(), false);                  \
   else                                                                               \
-    return ConditionBlk::ClrCICntxt(No, Class::CBContext(), false);                  \
+    return ConditionBlk::ClrCICntxt(No, Class::CBContext(), false, true);            \
   };                                                                                 \
 flag TestCISet(int No)                                                               \
   {                                                                                  \

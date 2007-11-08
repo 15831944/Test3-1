@@ -1700,7 +1700,7 @@ flag FlwSlvBlk::PreStartCheckAll()
   CFlwNodeIter All(m_AllNds);
   for (FlwNode * p=All.First(); (p); p=All.Next())
     {
-    p->ClrAllCIs();
+    p->ClrAllCIs(false);
     #if dbgFlwSolve
     if (dbgXRefsBuild())// && p->m_bXRefsValid)
       dbgpln("PreStart:UnlinkAllXRefs ------------------------------------------------ %s", p->GetOwnerTag());

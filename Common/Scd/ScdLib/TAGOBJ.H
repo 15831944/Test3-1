@@ -1410,7 +1410,7 @@ class DllImportExport TaggedObject : public ConditionBlk
     char *          CBTag()                 { return FullObjTag(); };
     void            CBChanged()             { /*StructureChanged(this);*/ };
     flag            GetAllCIs(Strng_List & L, int MaxNo=100);
-    void            ClrAllCIs();
+    void            ClrAllCIs(bool ClrPermanent);
     int             CountAllCIs(int MaxNo=1, dword RqdFlags=0);
 
     virtual dword   ModelStatus() { return 0; };
