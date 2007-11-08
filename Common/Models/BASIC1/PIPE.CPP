@@ -288,8 +288,8 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Text   ("Connections", Marker);
   DDB.String ("Link_Source",      "SrcIO",       DC_,  "",     xidSrcIOTag,      this, isTag|noFile|noSnap);
   DDB.String ("Link_Destination", "DstIO",       DC_,  "",     xidDstIOTag,      this, isTag|noFile|noSnap);
-  DDB.String ("",                 "SrcFlange",   DC_,  "",     xidSrcFlangeTag,  this, isTag|noFile|noSnap);
-  DDB.String ("",                 "DstFlange",   DC_,  "",     xidDstFlangeTag,  this, isTag|noFile|noSnap);
+  DDB.String ("",                 "SrcFlange",   DC_,  "",     xidSrcFlangeTag,  this, isTag|noFile|noSnap|InitHidden);
+  DDB.String ("",                 "DstFlange",   DC_,  "",     xidDstFlangeTag,  this, isTag|noFile|noSnap|InitHidden);
 
   DDB.Visibility(NSHM_All);
   //Strng Page;
@@ -306,16 +306,18 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
 
   DDB.Text   ("Requirements:");
-  DDB.Text   ("");
+  //DDB.Text   ("");
   //DDB.Text   ("Results: Flow Conditions");
 
   DDB.CheckBoxBtn("Simplify", "", DC_, "", &m_bSimplify, this, isParmStopped|AffectsStruct);
   if (m_bSimplify)
     {
-    if (!m_bSimplified)
-      DDB.TagComment("Inactive-Config");
+    if (m_pSimplifyNote)
+      DDB.TagComment((LPSTR)m_pSimplifyNote);
+    //if (!m_bSimplified)
+    //  DDB.TagComment("Inactive-Config");
     else if (!IOFlange(0)->RedirectOK())
-      DDB.TagComment("Inactive-Tear");
+      DDB.TagComment("Tear-Exists");
       
     }
   cioOn.BuildDataDefn(this, "Flow", DDB);
@@ -600,6 +602,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       }
 
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+    DDB.CheckBoxBtn ("ShowQi",        "",   DC_,    "",       &m_bShowQi,           this, isParm|SetOnChange);
     DDB.CheckBoxBtn ("AdjQmToEstQm",  "",   DC_,    "",       &m_bAdjustToEstFlow,  this, isParm|SetOnChange);
     DDB.SetVisibility(B4TearVis);
     }
@@ -902,8 +905,11 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     //  DDB.Object(IOConduitIn(0), this, "QiI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
     //  DDB.Visibility(NSHM_All);
     //  }
-    IOConduit(0)->SetTag("Qi");
-    DDB.Object(IOConduit(0), this, "Qi", Nd_Rmt(0)->FullObjTag(), DDB_RqdPage);
+    if (m_bShowQi || !DDB.ForView())
+      {
+      IOConduit(0)->SetTag("Qi");
+      DDB.Object(IOConduit(0), this, "Qi", Nd_Rmt(0)->FullObjTag(), DDB_RqdPage);
+      }
     }
 
   if (m_PFI.CnExists)

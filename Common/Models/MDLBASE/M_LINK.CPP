@@ -767,8 +767,10 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
 
   m_bAdjustToEstFlow=false;
 
-  m_bSimplify   = OrigPrjFileVerNo()<115 ? false : true;
-  m_bSimplified = false;
+  m_bSimplify     = OrigPrjFileVerNo()<115 ? false : true;
+  m_bSimplified   = false;
+  m_pSimplifyNote = NULL;
+  m_bShowQi       = false;
 
   m_pLastFlw=NULL;
   //m_Spill.SetCd(m_SpillFlng.Conduit(false));
@@ -1683,15 +1685,15 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
     }
   SetCI(2, NoProcLnkIOs()<2);
 
-  bool SimplifyAllowed=NetProbalMethod();
-
-  if (m_EHX.Enabled() || m_RB.Enabled() || m_VLE.Enabled() || m_BlkEval.EnabledCount())
-    SimplifyAllowed = false;
-
   flag OK=MdlNode::ValidateData(VDB);
   if (!m_EHX.ValidateData(VDB))
     OK=0;
 
+  if (NetDynamicMethod())
+    {
+//    if (m_FEP.M.
+//SimplifyAllowed
+    }
 
   //if (FlowModeReqd()==0)
   //  {
@@ -1832,7 +1834,28 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
   if (!m_BlkEval.ValidateData(VDB, false))
     OK=false;
 
-  if (SimplifyAllowed)
+  //flag SimplifyAllowed=true;//NetProbalMethod();
+  m_pSimplifyNote=NULL;
+  if (m_EHX.Enabled())
+    m_pSimplifyNote = "EHX Enabled";
+  else if (m_RB.Enabled())
+    m_pSimplifyNote = "RB Enabled";
+  else if (m_VLE.Enabled())
+    m_pSimplifyNote = "VLE Enabled";
+  else if (m_BlkEval.EnabledCount())
+    m_pSimplifyNote = "BlkEval Enabled";
+  else if (XferFlowMode())
+    {
+    CFlwEqnFlwRqd &FR=m_FEP.FlwRqd();
+    if (FR.m_BatchMethod==BO_TotalMass)
+      m_pSimplifyNote = "Batch Enabled";
+    else if (FR.m_AsMass && (Valid(FR.m_RqdQmCap) || Valid(FR.m_MaxQmCap)))
+      m_pSimplifyNote = "QmCap Configured";
+    else if (!FR.m_AsMass && (Valid(FR.m_RqdQvCap) || Valid(FR.m_MaxQvCap)))
+      m_pSimplifyNote = "QvCap Configured";
+    }
+
+  if (m_pSimplifyNote==NULL)
     m_bSimplified=m_bSimplify;
   else
     m_bSimplified=false;
@@ -2804,6 +2827,36 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
 
   if (IOFlange(0)->RedirectOK())
     {
+    int iIn  = TwoIOInIndex(m_iLF_Direction==LFD_Reverse);
+    int iOut = OtherEnd(iIn);
+    //SpConduit & Fi=*IOConduit(iIn);
+    SpConduit & Fo=*IOConduit(iOut);
+    //Fi.SanityCheck();
+    Fo.SanityCheck();
+    if (fDoDbgBrk)
+      { int xxx=0; }
+
+    double PIn=IOP_Flng(iIn);
+    double POut=IOP_Flng(iOut);
+    double IOQInEst=IOQmEst_In(iIn);
+    double IOQOutEst=IOQmEst_Out(iOut);
+
+    //Fi.SetSQFlags(SQF_RemoveOK, false);
+    //Fo.SetSQFlags(SQF_RemoveOK, true);
+    
+    // WHAT ABOUT SPILLS
+
+    SetIOQm_In(iIn, Fo.QMass());//IOQInEst);
+    SetIOQm_Out(iOut, Fo.QMass());//IOQOutEst);
+    
+    //Fo.SetPress(POut);
+    if (fabs(POut-Fo.Press())>1e-3)
+      Fo.Set_totHf(Fo.totHf(), POut);
+
+    //Fo.SetSQFlags(SQF_RemoveOK, false);
+    //Fi.SetDataSign(IOSign(0));
+    Fo.SetDataSign(IOSign(0));
+
     m_Src.Sum.ZeroFlows();
     m_Snk.Sum.ZeroFlows();
     return;

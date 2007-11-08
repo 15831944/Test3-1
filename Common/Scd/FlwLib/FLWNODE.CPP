@@ -853,6 +853,152 @@ void CConnect::FixTag(LPCSTR ReqdTag, bool Checkit)
 // --------------------------------------------------------------------------
 
 static inline bool TestEqual(dword Type, dword Mask)   {   return ((Type & Mask) == Mask); }
+// --------------------------------------------------------------------------
+
+#define NewTagFmt 1
+
+#if NewTagFmt
+
+static inline long ExtractIndexFromTag(int iStart, LPSTR Tag)
+  {
+  //int iLen=strlen(Tag);
+  LPCSTR pOpen= Tag[iStart] =='_' ? &Tag[iStart] : NULL;//strchr(Tag, '<');
+  if (pOpen)
+    {
+    LPCSTR pClose=pOpen+1;
+    while (*(pClose+1)!=0 && (*pClose!='>') && isdigit(*pClose))
+      pClose++;
+    if (*pClose=='>' && *(pClose+1)==0)
+      return SafeAtoL((pOpen+1), 0);
+    }
+  return 0;
+  }
+
+
+void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName)
+  {
+  FlwNode * p=NULL;
+  if (pRmtNd)
+    {
+    dword LclType = pNd->m_dwType;
+    dword RmtType = pRmtNd->m_dwType;
+#if dbgFlwNode
+    if (dbgConnectsInitIds())
+      {
+      dbgp("InitConnId: 0x%08x %s 0x%08x > %s 0x%08x", this, pNd->Tag(), LclType, pRmtNd->Tag(), RmtType);
+      if ((stricmp(pNd->Tag(), "P_1")==0) && (stricmp(pRmtNd->Tag(), "PlantARea")==0))
+        { int xxx=0; };
+      }
+#endif
+    if (TestEqual(LclType, nc_Process) || TestEqual(LclType, nc_MXfer))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_Process) || TestEqual(RmtType, nc_MXfer))
+      p=pRmtNd;
+    else if (TestEqual(LclType, nc_MSrcSnk) && !TestEqual(LclType, nc_Audit))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_MSrcSnk) && !TestEqual(RmtType, nc_Audit))
+      p=pRmtNd;
+    else if (TestEqual(LclType, nc_MBst))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_MBst))
+      p=pRmtNd;
+    else if (TestEqual(LclType, nc_MLnk))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_MLnk))
+      p=pRmtNd;    
+    else if (TestEqual(LclType, nc_MSrcSnk|nc_MkupBled))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_MSrcSnk|nc_MkupBled))
+      p=pRmtNd;
+    else if (TestEqual(LclType, nc_MSrcSnk|nc_Audit))
+      p=pRmtNd; // Other End
+    else if (TestEqual(RmtType, nc_MSrcSnk|nc_Audit))
+      p=pNd;    // Other End
+    else
+      p=pNd;
+    }
+  else
+    {
+#if dbgFlwNode
+    if (dbgConnectsInitIds())
+      dbgp("InitConnId: 0x%08x %s", this, pNd->Tag());
+#endif
+    p=pNd;
+    }  
+
+#if dbgFlwNode
+  if (dbgConnectsInitIds())
+    dbgp("  [%s] ", p->Tag());
+#endif
+
+
+  m_sRefIOTg.Set("%s<%s_",p->FullObjTag(), DIOName ? DIOName : p==pNd ? IOName : IONameRmt);
+
+  long iNext=0;
+  // Must use m_IOs - NoFlwIOs does not return the correct values until all connections are made
+  for (int i=0; i<p->m_IOs.GetCount(); i++)
+    {
+    CConnect *pC=p->IOConnect(i);
+    if (pC)
+      {
+      LPSTR pTag=p->IOConnect(i)->m_sRefIOTg();
+      if (pTag)
+        {
+        int iTagLen=strlen(pTag);
+        int iRefLen=m_sRefIOTg.GetLength();
+        if (m_sRefIOTg.XStrNICmp(pTag, iRefLen)==0)
+          {
+          iNext=Max(iNext, ExtractIndexFromTag(iRefLen-1, pTag));
+#if dbgFlwNode
+          if (dbgConnectsInitIds())
+            dbgp("{%i %s}", iNext, pTag);
+            //dbgpln(">>>>IO  %3i %s", iNext, pTag);
+#endif
+          }
+        }
+      }
+    }
+  for (int i=0; i<p->m_AttachedDirectIOs.GetCount(); i++)
+    {
+    CDirectFlwIO *pDIO=p->m_AttachedDirectIOs[i];
+    LPSTR pTag=NULL;
+    if (pDIO->HasConduit)
+      pTag=pDIO->Flange.FullObjTag();
+    else
+      pTag=pDIO->m_sConnTagMem();
+    if (pTag)
+      {
+      int iTagLen=strlen(pTag);
+      int iRefLen=m_sRefIOTg.GetLength();
+      if (m_sRefIOTg.XStrNICmp(pTag, iRefLen)==0)
+        {
+        iNext=Max(iNext, ExtractIndexFromTag(iRefLen, pTag));
+#if dbgFlwNode
+        if (dbgConnectsInitIds())
+          dbgp("{D%i %s}", iNext, pTag);
+          //dbgpln(">>>>DIO %3i %s", iNext, pTag);
+#endif
+        }
+      }
+    }
+  iNext++;
+
+  m_sRefIOTg.Set("%s%i>",m_sRefIOTg(), iNext);
+
+  //if (DIOName)
+  //  m_sRefIOTg.Set("%s_<%i>%s",p->FullObjTag(), iNext, DIOName);
+  //else
+  //  {
+  //  m_sRefIOTg.Set("%s_<%i>%s",p->FullObjTag(), iNext, p==pNd ? IOName : IONameRmt);
+  //  }
+#if dbgFlwNode
+  if (dbgConnectsInitIds())
+    dbgpln("    = %s", m_sRefIOTg());
+#endif
+  };
+
+#else
+
 static inline long ExtractIndexFromTag(LPSTR Tag)
   {
   int iLen=strlen(Tag);
@@ -867,9 +1013,6 @@ static inline long ExtractIndexFromTag(LPSTR Tag)
     }
   return 0;
   }
-
-// --------------------------------------------------------------------------
-
 
 void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName)
   {
@@ -978,6 +1121,7 @@ void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR I
 #endif
   };
 
+#endif
 // --------------------------------------------------------------------------
 
 void CConnect::AdjustConnection(FlwNode* This, int By)

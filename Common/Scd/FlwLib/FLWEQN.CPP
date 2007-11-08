@@ -1064,14 +1064,15 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
           DDB.String  ("Name",        "", DC_, "", xidFlwEqnNm,   pOwnObj, ((DDB0.Length()>1?isParm:0)|SetOnChange), DDB0());
           DDB.Long    ("Evaluations", "", DC_, "", &Eqn()->m_nEvals,   pOwnObj, isResult|InitHidden);
           //Eqn()->BuildDataDefn(DDB);
+          DDB.Text("");
           }
 
         //if ((Md==FBMode_Simple || Md==FBMode_Linear || Md==FBMode_Full) && (LclOptions & (FBDDOpt_WithQmSpec|FBDDOpt_WithDPSpec)))
         if (LclOptions & (FBDDOpt_WithQmSpec|FBDDOpt_WithDPSpec))
           {
-          DDB.Text("");
           DDB.CheckBoxBtn("",              "AsMass",        DC_,      "",        xidFlwEqnQmAsMass,   pOwnObj, isParm|SetOnChange);
           DDB.Double ("",                  "MeasRho",       DC_Rho,   "kg/m^3",  xidFlwEqnQmMeasRho,  pOwnObj, 0|InitHidden);
+          //DDB.Text("");
           }
 
         const bool AsMass = FlwRqd().m_AsMass;

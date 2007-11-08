@@ -534,6 +534,10 @@ class DllImportExport MN_Lnk : public MdlNode
 
     bool           m_bSimplify;
     bool           m_bSimplified;
+    LPCSTR         m_pSimplifyNote;
+
+    bool           m_bShowQi;
+
 
     double         m_QmSpilt;
     byte           m_iXferCapOption;

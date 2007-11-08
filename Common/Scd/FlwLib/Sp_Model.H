@@ -1296,7 +1296,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
   public:
     static const pchar GroupName;
 
-#ifndef _RELEASE
+#ifdef _RELEASE
     void           SanityCheck(eSanity Check = eSanity_None);
 #else
     void           SanityCheck(eSanity Check = eSanity_Msg); 
@@ -1450,7 +1450,7 @@ class DllImportExport SpModelOwner : public TaggedObject, public CPropertyBase
     CVLEBase      * VLEBlk() { return pModel->m_pVLE; };
 
 
-#ifndef _RELEASE
+#ifdef _RELEASE
     void           SanityCheck(eSanity Check = eSanity_None)  { pModel->SanityCheck(Check); };
 #else
     void           SanityCheck(eSanity Check = eSanity_Msg)   { pModel->SanityCheck(Check); }; 
