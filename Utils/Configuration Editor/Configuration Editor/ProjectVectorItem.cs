@@ -231,7 +231,7 @@ namespace Configuration_Editor
         {
             if (m_DataRow != null)
             {
-                m_LVI.SubItems[0].Text = (string)m_DataRow["Compound"];
+                m_LVI.SubItems[0].Text = Symbol;
                 m_LVI.SubItems[1].Text = ((float)m_DataRow["Ts"] - m_dExtrapBelowT).ToString();
                 m_LVI.SubItems[2].Text = ((float)m_DataRow["Te"] + m_dExtrapAboveT).ToString();
                 m_LVI.ForeColor = SystemColors.WindowText;
@@ -413,10 +413,10 @@ namespace Configuration_Editor
 
     public class ProjectCalculation : ProjectVectorItem
     {
-        public static Regex ParseRegex = new Regex(@"Calculation(,[^,]*),(?<Name>[^,]*),(?<Symbol>[^,]+)(,[^,]*){5},(?<Value>[^,]*)",
+        public static Regex ParseRegex = new Regex(@"Calculation(,[^,]*),(?<Desc>[^,]*),(?<Symbol>[^,]+)(,[^,]*){5},(?<Value>[^,]*)",
             RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
         protected string m_sValue = "";
-        protected string m_sSymbol = "";
+        protected string m_sDesc = "";
 
         public ProjectCalculation()
         {
@@ -427,7 +427,7 @@ namespace Configuration_Editor
         {
             get
             {
-                return base.Valid && !string.IsNullOrEmpty(m_sSymbol) && !string.IsNullOrEmpty(m_sValue);
+                return base.Valid && !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(m_sValue);
             }
             set
             {
@@ -446,12 +446,12 @@ namespace Configuration_Editor
             }
         }
 
-        public string Symbol
+        public string Desc
         {
-            get { return m_sSymbol; }
+            get { return m_sDesc; }
             set
             {
-                m_sSymbol = value;
+                m_sDesc = value;
                 UpdateLVI();
                 FireChanged();
             }
@@ -459,19 +459,19 @@ namespace Configuration_Editor
 
         public override string ToString()
         {
-            return m_sSymbol + ": " + Regex.Replace(Value, "\\s+", " ");
+            return Name + ": " + Regex.Replace(Value, "\\s+", " ");
         }
 
         public override string ToSaveString()
         {
-            return "Calculation,," + Name + "," + Symbol + ",,*,,,," + Regex.Replace(Value, "\\s+", " ");
+            return "Calculation,," + Desc + "," + Name + ",,*,,,," + Regex.Replace(Value, "\\s+", " ");
         }
 
         public static ProjectCalculation Parse(Match m)
         {
             ProjectCalculation ret = new ProjectCalculation();
-            ret.Name = m.Groups["Name"].Value;
-            ret.Symbol = m.Groups["Symbol"].Value;
+            ret.Desc = m.Groups["Desc"].Value;
+            ret.Name = m.Groups["Symbol"].Value;
             ret.Value = m.Groups["Value"].Value;
             return ret;
         }

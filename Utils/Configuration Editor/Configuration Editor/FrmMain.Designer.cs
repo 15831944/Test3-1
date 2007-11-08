@@ -103,7 +103,7 @@ namespace Configuration_Editor
             this.txtCalcSymbol = new System.Windows.Forms.TextBox();
             this.label26 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
-            this.txtCalcName = new System.Windows.Forms.TextBox();
+            this.txtCalcDesc = new System.Windows.Forms.TextBox();
             this.label23 = new System.Windows.Forms.Label();
             this.txtCalculation = new Auto_Complete.BoxAutoComplete();
             this.tabIDELabel = new System.Windows.Forms.TabPage();
@@ -1006,7 +1006,7 @@ namespace Configuration_Editor
             this.grpCalculation.Controls.Add(this.txtCalcSymbol);
             this.grpCalculation.Controls.Add(this.label26);
             this.grpCalculation.Controls.Add(this.label24);
-            this.grpCalculation.Controls.Add(this.txtCalcName);
+            this.grpCalculation.Controls.Add(this.txtCalcDesc);
             this.grpCalculation.Controls.Add(this.label23);
             this.grpCalculation.Controls.Add(this.txtCalculation);
             this.grpCalculation.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1019,7 +1019,7 @@ namespace Configuration_Editor
             // 
             // txtCalcSymbol
             // 
-            this.txtCalcSymbol.Location = new System.Drawing.Point(250, 15);
+            this.txtCalcSymbol.Location = new System.Drawing.Point(77, 15);
             this.txtCalcSymbol.Name = "txtCalcSymbol";
             this.txtCalcSymbol.Size = new System.Drawing.Size(100, 20);
             this.txtCalcSymbol.TabIndex = 1;
@@ -1030,7 +1030,7 @@ namespace Configuration_Editor
             // label26
             // 
             this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(203, 18);
+            this.label26.Location = new System.Drawing.Point(30, 18);
             this.label26.Name = "label26";
             this.label26.Size = new System.Drawing.Size(41, 13);
             this.label26.TabIndex = 4;
@@ -1039,29 +1039,29 @@ namespace Configuration_Editor
             // label24
             // 
             this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(6, 44);
+            this.label24.Location = new System.Drawing.Point(9, 44);
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(62, 13);
             this.label24.TabIndex = 3;
             this.label24.Text = "Calculation:";
             // 
-            // txtCalcName
+            // txtCalcDesc
             // 
-            this.txtCalcName.Location = new System.Drawing.Point(77, 15);
-            this.txtCalcName.Name = "txtCalcName";
-            this.txtCalcName.Size = new System.Drawing.Size(100, 20);
-            this.txtCalcName.TabIndex = 0;
-            this.txtCalcName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
-            this.txtCalcName.TextChanged += new System.EventHandler(this.txtCalcName_TextChanged);
+            this.txtCalcDesc.Location = new System.Drawing.Point(249, 15);
+            this.txtCalcDesc.Name = "txtCalcDesc";
+            this.txtCalcDesc.Size = new System.Drawing.Size(100, 20);
+            this.txtCalcDesc.TabIndex = 0;
+            this.txtCalcDesc.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
+            this.txtCalcDesc.TextChanged += new System.EventHandler(this.txtCalcDesc_TextChanged);
             // 
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(33, 18);
+            this.label23.Location = new System.Drawing.Point(217, 18);
             this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(35, 13);
+            this.label23.Size = new System.Drawing.Size(26, 13);
             this.label23.TabIndex = 1;
-            this.label23.Text = "Name";
+            this.label23.Text = "Tag";
             // 
             // txtCalculation
             // 
@@ -2815,7 +2815,7 @@ namespace Configuration_Editor
         private System.Windows.Forms.ComboBox comboDefaultSolution;
         private System.Windows.Forms.ToolStripMenuItem menuAdvancedSort;
         private System.Windows.Forms.Label label24;
-        private System.Windows.Forms.TextBox txtCalcName;
+        private System.Windows.Forms.TextBox txtCalcDesc;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Panel pnlActiveList;
         private System.Windows.Forms.TreeView treeModels;

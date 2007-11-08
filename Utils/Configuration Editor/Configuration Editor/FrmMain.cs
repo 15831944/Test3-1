@@ -1190,8 +1190,8 @@ namespace Configuration_Editor
             {
                 grpCalculation.Visible = true;
                 txtCalculation.Text = item.Value;
-                txtCalcName.Text = item.Name;
-                txtCalcSymbol.Text = ((ProjectCalculation)item).Symbol;
+                txtCalcDesc.Text = ((ProjectCalculation)item).Desc;
+                txtCalcSymbol.Text = item.Name;
             }
             else if (item.GetType() == typeof(ProjectText))
             {
@@ -1206,7 +1206,7 @@ namespace Configuration_Editor
             else if (item.GetType() == typeof(ProjectAttribute))
             {
                 grpAttribute.Visible = true;
-                txtAttributeName.Text = item.Value;
+                txtAttributeName.Text = item.Name;
                 txtAttDimension.Text = ((ProjectAttribute)item).Cnv;
                 txtAttParent.Text = ((ProjectAttribute)item).Parent;
                 comboAttributeType.SelectedIndex = (int)((ProjectAttribute)item).AttributeType;
@@ -1335,7 +1335,7 @@ namespace Configuration_Editor
                 else if (lvi.Tag is ProjectAttribute)
                     availableVariables.Add("[" + ((ProjectAttribute)lvi.Tag).Name + "]");
                 else if (lvi.Tag is ProjectCalculation)
-                    availableVariables.Add("[" + ((ProjectCalculation)lvi.Tag).Symbol + "]");
+                    availableVariables.Add("[" + ((ProjectCalculation)lvi.Tag).Desc + "]");
             return availableVariables;
         }
 
@@ -1346,7 +1346,7 @@ namespace Configuration_Editor
                 if (lvi.Tag is ProjectSpecie)
                     ret.Add(((ProjectSpecie)lvi.Tag).Symbol);
                 else if (lvi.Tag is ProjectCalculation)
-                    ret.Add(((ProjectCalculation)lvi.Tag).Symbol);
+                    ret.Add(((ProjectCalculation)lvi.Tag).Desc);
             return ret;
         }
 
@@ -1580,6 +1580,19 @@ namespace Configuration_Editor
             }
         }
 
+        protected string GetNextName(string start)
+        {
+            List<string> RelevantItems = new List<string>();
+            foreach (ListViewItem lvi in lstProjectVector.Items)
+                if (((ProjectVectorItem)lvi.Tag).Name.StartsWith(start))
+                    RelevantItems.Add(((ProjectVectorItem)lvi.Tag).Name);
+
+            int i = 1;
+            while (RelevantItems.Contains(start + i))
+                i++;
+            return start + i;
+        }
+
         private void btnAdd_Click(object sender, EventArgs e)
         {
             if (lstDBSpecies.Focused && TransferSpecies())
@@ -1588,13 +1601,25 @@ namespace Configuration_Editor
             lstProjectVector.SelectedItems.Clear();
             ProjectVectorItem item = null;
             if (m_AddSelector.radioAttribute.Checked)
+            {
                 item = new ProjectAttribute();
+                item.Name = GetNextName("Att"); item.Valid = false;
+            }
             else if (m_AddSelector.radioCalculation.Checked)
+            {
                 item = new ProjectCalculation();
+                item.Name = GetNextName("Calc"); item.Valid = false;
+            }
             else if (m_AddSelector.radioLabel.Checked)
+            {
                 item = new ProjectText();
+                item.Name = GetNextName("Label");
+            }
             else if (m_AddSelector.radioPageBreak.Checked)
+            {
                 item = new ProjectPage();
+                item.Name = GetNextName("Page");
+            }
 
             if (lstProjectVector.SelectedItems.Count == 0)
                 lstProjectVector.Items.Add(item.LVI);
@@ -1711,7 +1736,7 @@ namespace Configuration_Editor
         private void txtAttributeName_TextChanged(object sender, EventArgs e)
         {
             if (m_CurrentItem is ProjectAttribute)
-                m_CurrentItem.Value = txtAttributeName.Text;
+                m_CurrentItem.Name = txtAttributeName.Text;
         }
 
         private void comboAttributeType_SelectedIndexChanged(object sender, EventArgs e)
@@ -1802,10 +1827,10 @@ namespace Configuration_Editor
             }
         }
 
-        private void txtCalcName_TextChanged(object sender, EventArgs e)
+        private void txtCalcDesc_TextChanged(object sender, EventArgs e)
         {
             if (m_CurrentItem is ProjectCalculation)
-                m_CurrentItem.Name = txtCalcName.Text;
+                ((ProjectCalculation)m_CurrentItem).Desc = txtCalcDesc.Text;
         }
 
         private void lstProjectVector_KeyDown(object sender, KeyEventArgs e)
@@ -1839,7 +1864,7 @@ namespace Configuration_Editor
         private void txtCalcSymbol_TextChanged(object sender, EventArgs e)
         {
             if (m_CurrentItem is ProjectCalculation)
-                ((ProjectCalculation)m_CurrentItem).Symbol = txtCalcSymbol.Text;
+                m_CurrentItem.Name = txtCalcSymbol.Text;
         }
 
         private void FireCheckCalculations(object sender, EventArgs e)
