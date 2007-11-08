@@ -593,6 +593,7 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
 
     void           PutSettings();
     void           GetSettings();
+    int            MoveFilesToDefaultFolder(LPCSTR Ext, LPCSTR DefaultFolder);
 
     flag           DoOpen(pchar pPrjPath, pchar NewModelCfg, PrjLoadTypes PrjLoadType);
     

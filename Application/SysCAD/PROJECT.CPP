@@ -6088,6 +6088,30 @@ void CProject::GetSettings()
   //gs_HstMngr.GetOnRqd();
   }
 
+int CProject::MoveFilesToDefaultFolder(LPCSTR Ext, LPCSTR DefaultFolder)
+  {
+  int N=0;
+  Strng Fn(PrjFiles(), "*.", Ext);
+  WIN32_FIND_DATA fd;
+  HANDLE H = FindFirstFile(Fn(), &fd);
+  bool AllDone = (H==INVALID_HANDLE_VALUE);
+  while (!AllDone)
+    {
+    Strng Fn1(PrjFiles(), fd.cFileName);
+    Strng Fn2(DefaultFolder, fd.cFileName);
+    if (MoveFile(Fn1(), Fn2()))
+      {
+      LogNote("Project", 0, "File '%s' moved to '%s'", Fn1(), DefaultFolder);
+      N++;
+      }
+    else
+      LogError("Project", 0, "File '%s' move to '%s' Failed", Fn1(), DefaultFolder);
+    AllDone = !FindNextFile(H, &fd);
+    }
+  FindClose(H);
+  return N;
+  };
+
 //===========================================================================
 
 flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadType)
@@ -6385,6 +6409,9 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
       bDrvNoiseOn = (PF.RdLong("DrvManager", "NoiseOn", bDrvNoiseOn) != 0);
       bDrvStartFBKCheck = (byte)PF.RdLong("DrvManager", "StartFBKCheck ", FBKCheckNever);
 #endif
+
+      MoveFilesToDefaultFolder("RCT", (LPSTR)FnDefaultReactionsFolder().Str());
+      //MoveFilesToDefaultFolder("PGM", FnDefaultControlsFolder());
 
       LoadColours(PF);
 
