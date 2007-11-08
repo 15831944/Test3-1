@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "scdver.h"
+#define  __ZIPSTUFF_CPP
 #if WITHZIP
 #include "zipstuff.h"
 #include "gpfuncs.h"
@@ -17,14 +18,14 @@
 
 extern "C"
   {
-  #include "..\..\common\scd\zip32\api.h"
+  #include "..\..\..\common\scd\zip32\api.h"
   //#include "..\unzip\unzip.h"
-  #include "..\..\common\scd\unzip32\windll\structs.h"
-  #include "..\..\common\scd\unzip32\windll\decs.h"
+  #include "..\..\..\common\scd\unzip32\windll\structs.h"
+  #include "..\..\..\common\scd\unzip32\windll\decs.h"
   }
 
-#pragma LIBCOMMENT("..\\..\\common\\scd\\Zip32\\", "\\Zip32" )
-#pragma LIBCOMMENT("..\\..\\common\\scd\\UnZip32\\", "\\UnZip32" )
+#pragma LIBCOMMENT("..\\..\\..\\common\\scd\\Zip32\\", "\\Zip32" )
+#pragma LIBCOMMENT("..\\..\\..\\common\\scd\\UnZip32\\", "\\UnZip32" )
 
 #undef NO_MKTEMP
 #undef API
@@ -416,6 +417,43 @@ int CZipFile::UnZipOne(LPCTSTR FileName)
   int retcode = zf.UnZipIt();
   return retcode;
   }
+
+//---------------------------------------------------------------------------
+
+CTemporaryUnzip::CTemporaryUnzip(Strng &Fn, LPCSTR Extn)
+  {
+#if WITHZIP
+  Strng Ext;
+  Ext.FnExt(Fn());
+  m_IsZip = (Ext.Len() && _stricmp(Ext(), ".zip")==0);
+#else
+  m_IsZip = false;
+#endif
+  if (!m_IsZip && Extn)
+    Fn.FnCheckExtension((LPSTR)Extn);
+  Fn.FnSearchExpand();
+#if WITHZIP
+  if (m_IsZip)
+    {
+    int ret = CZipFile::UnZipOne(Fn());
+    if (ret!=0)
+      {
+      LogError("UnZipFile", LF_Exclamation, "Unable to unzip file '%s'", Fn());
+      m_IsZip=false;
+      }
+    Fn = Fn.FnDrivePathName();
+    }
+#endif
+  m_Fn = Fn;
+  }
+
+CTemporaryUnzip::~CTemporaryUnzip()
+  {
+#if WITHZIP
+  if (m_IsZip)
+    DeleteFile(m_Fn());
+#endif
+  };
 
 //---------------------------------------------------------------------------
 

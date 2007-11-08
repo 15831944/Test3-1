@@ -3256,25 +3256,8 @@ flag CProject::DoLoadSnapShotScenario(flag DoSnapShot, pchar pName)
     Fn = m_sSSName;
   if (Fn.Length()==0)
     return false;
-#if WITHZIP
-  Strng Ext;
-  Ext.FnExt(Fn());
-  bool IsZip = (Ext.Len() && _stricmp(Ext(), ".zip")==0);
-#else
-  bool IsZip = false;
-#endif
-  if (!IsZip)
-    Fn.FnCheckExtension(DoSnapShot ? "snp" : "scn");
-  Fn.FnSearchExpand();
-#if WITHZIP
-  if (IsZip)
-    {
-    int ret = CZipFile::UnZipOne(Fn());
-    if (ret!=0)
-      LogError("UnZipFile", LF_Exclamation, "Unable to unzip file '%s'", Fn());
-    Fn = Fn.FnDrivePathName();
-    }
-#endif
+
+  CTemporaryUnzip UZ1(Fn, DoSnapShot ? "snp" : "scn");
   pName = Fn();
 
   gs_AccessWnds.CloseAccessData(-1, false, false, true);
@@ -3305,10 +3288,6 @@ flag CProject::DoLoadSnapShotScenario(flag DoSnapShot, pchar pName)
       FixSnapshot(Fx());
     }
 
-#if WITHZIP
-  if (IsZip)
-    DeleteFile(Fn());
-#endif
   return true;
   }
 

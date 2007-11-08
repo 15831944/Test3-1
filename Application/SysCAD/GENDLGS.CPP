@@ -3916,14 +3916,14 @@ void CCompareUpdateDlg::Browse(CString& Filename, char* pFilter)
 
 void CCompareUpdateDlg::OnBrowse() 
   {
-  Browse(m_Filename1, "Scenarios (*.scn)|*.scn|SnapShots (*.snp)|*.snp|All files (*.*)|*.*||");
+  Browse(m_Filename1, "Scenarios (*.scn;*.scn.zip)|*.scn;*.scn.zip|SnapShots (*.snp;*.snp.zip)|*.snp;*.snp.zip|All files (*.*)|*.*||");
   }
 
 //--------------------------------------------------------------------------
 
 void CCompareUpdateDlg::OnBrowse2() 
   {
-  Browse(m_Filename2, "Scenarios (*.scn)|*.scn|SnapShots (*.snp)|*.snp|All files (*.*)|*.*||");
+  Browse(m_Filename2, "Scenarios (*.scn;*.scn.zip)|*.scn;*.scn.zip|SnapShots (*.snp;*.snp.zip)|*.snp;*.snp.zip|All files (*.*)|*.*||");
   }
 
 //--------------------------------------------------------------------------
@@ -4323,6 +4323,9 @@ BOOL CCompareDlg::OnInitDialog()
           case 4: Line.bWindow = (PF.RdInt("CompareScenarios", Sect(), 1)!=0); break;
           }
         }
+      Line.sFilename1.FnContract();
+      Line.sFilename2.FnContract();
+      Line.sOutFilename.FnContract();
       Lines.Add(Line);
       Sect.Set("Selected%i", i);
       BOOL Selected = (PF.RdLong("CompareScenarios", Sect(), 0) != 0);
@@ -4387,6 +4390,10 @@ void CCompareDlg::OnOK()
     CString s;
     if (i<m_List.GetCount())
       {
+      Lines[i].sFilename1.FnContract();
+      Lines[i].sFilename2.FnContract();
+      Lines[i].sOutFilename.FnContract();
+
       for (int j=0; j<5; j++)
         {
         Sect.Set("%s%i", PFCompareSections[j], i);
@@ -4500,9 +4507,19 @@ void CCompareDlg::OnEdit()
       Lines[i].sOutFilename = (const char*)Dlg.m_OutFilename;
       Lines[i].bCurrent = (Dlg.m_Current==0);
       Lines[i].bWindow = (Dlg.m_Window==0);
+
+      Lines[i].sFilename1.FnExpand();
+      Lines[i].sFilename2.FnExpand();
+      Lines[i].sOutFilename.FnExpand();
+
       CheckPath(Lines[i].sFilename1);
       CheckPath(Lines[i].sFilename2);
       CheckPath(Lines[i].sOutFilename);
+
+      Lines[i].sFilename1.FnContract();
+      Lines[i].sFilename2.FnContract();
+      Lines[i].sOutFilename.FnContract();
+
       Strng TheLine;
       Lines[i].MakeLine(TheLine);
       m_List.DeleteString(i);
@@ -4565,6 +4582,11 @@ void CCompareDlg::OnCompare()
     Info.sFilename1 = Lines[i].sFilename1;
     Info.sFilename2 = Lines[i].sFilename2;
     Info.sOutFilename = Lines[i].sOutFilename;
+
+    Info.sFilename1.FnExpand();
+    Info.sFilename2.FnExpand();
+    Info.sOutFilename.FnExpand();
+
     Info.iMaxCount = CompInfo.iMaxCount;
     Info.dRelTolerance = CompInfo.dRelTolerance;
     Info.dAbsTolerance = CompInfo.dAbsTolerance;

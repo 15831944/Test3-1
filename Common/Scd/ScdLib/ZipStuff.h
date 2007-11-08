@@ -8,7 +8,15 @@
 //---------------------------------------------------------------------------
 #if WITHZIP
 
-class CZipFile
+#ifdef __ZIPSTUFF_CPP
+  #define DllImportExport DllExport
+#elif !defined(SCDLIB)
+  #define DllImportExport DllImport
+#else
+  #define DllImportExport
+#endif
+
+class DllImportExport CZipFile
   {
   protected:
     Strng      m_Name;
@@ -50,6 +58,18 @@ class CZipFile
     static int UnZipOne(LPCTSTR FileName);
 
   };
+
+class DllImportExport CTemporaryUnzip
+  {
+  public:
+    CTemporaryUnzip(Strng &Fn, LPCSTR Extn=NULL);
+    ~CTemporaryUnzip();
+  protected:
+    bool m_IsZip;
+    Strng m_Fn;
+  };
+
+#undef DllImportExport
 
 #endif
 //---------------------------------------------------------------------------

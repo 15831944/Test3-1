@@ -16,6 +16,7 @@
 #include "dbhelper.h"
 #include "licbase.h"
 #include "sfe_base.h"
+#include "zipstuff.h"
 //#include "scdcomcmdsatlconv.h"
 //#include "optoff.h"
 
@@ -6877,7 +6878,11 @@ int CExecutive::CompareScenarios(CCompareInfo& Info)
     Info.bListHeaderRqd=true;
     }
 
+  CTemporaryUnzip UZ1(Fn1);//, LPCSTR Extn)
+  CTemporaryUnzip UZ2(Fn2);//, LPCSTR Extn)
+
   //build lookup table of tag object positions in 2nd file...
+
   Dots += '.';
   CDlgBusy::SetLine(1, "Comparing Scenarios%s", Dots());
   CStringArray ObjTags;

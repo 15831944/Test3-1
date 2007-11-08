@@ -1074,6 +1074,7 @@ char * ConditionBlk::GetTxtInfo(int No, flag SetIt, dword &Flag)
     {
     pT++;
     C0=pS[0];
+
     C1=pS[1];
     C2=pS[2];
     }
