@@ -1483,23 +1483,36 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
         int RetCode = DCB.DoEditBtn(hEditProcess, dwEditProcessId, "", FileName(), "rct", &FullFilename, true, FnDefaultReactionsFolder()());
         if (RetCode==-1)
           {
-          FILE* f = fopen(FullFilename(), "wt");
-          if (f)
+          Strng RctCfg(CfgFiles(), "Template.rct");
+          Strng RctBase(BaseCfgFiles(), "Template.rct");
+          if (FileExists(RctCfg()))
             {
-            fwrite(DefaultRCT1, sizeof(char), DefaultRCT1Len, f);
-            char Buff[256];
-            for (int i=0; i<SVCfgCount(); i++)
+            CopyFile(RctCfg(), FullFilename(), true);
+            }
+          else if (FileExists(RctBase()))
+            {
+            CopyFile(RctBase(), FullFilename(), true);
+            }
+          else
+            {
+            FILE* f = fopen(FullFilename(), "wt");
+            if (f)
               {
-              CSysVecItem &I=*SVI.Cfg(i);
-              if (I.Type()==SVT_Specie)
+              fwrite(DefaultRCT1, sizeof(char), DefaultRCT1Len, f);
+              char Buff[256];
+              for (int i=0; i<SVCfgCount(); i++)
                 {
-                const int iSp=I.SDBIndex();
-                sprintf(Buff, "%s\n", SDB[iSp].SymOrTag());
-                fwrite(Buff, sizeof(char), strlen(Buff), f);
+                CSysVecItem &I=*SVI.Cfg(i);
+                if (I.Type()==SVT_Specie)
+                  {
+                  const int iSp=I.SDBIndex();
+                  sprintf(Buff, "%s\n", SDB[iSp].SymOrTag());
+                  fwrite(Buff, sizeof(char), strlen(Buff), f);
+                  }
                 }
+              fwrite(DefaultRCT2, sizeof(char), DefaultRCT2Len, f);
+              fclose(f);
               }
-            fwrite(DefaultRCT2, sizeof(char), DefaultRCT2Len, f);
-            fclose(f);
             }
           sRCTName = FullFilename();
           sRCTName.FnContract();

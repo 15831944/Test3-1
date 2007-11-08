@@ -1,0 +1,9 @@
+;--- SysCAD General Controller (PGM) include file ---
+;--- referenced in main pgm file with '>>'
+
+;--- place functions or classes here ---
+
+
+
+; --- end of include file (Note: $ must NOT be used) ---
+

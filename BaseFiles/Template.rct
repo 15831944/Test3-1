@@ -1,0 +1,123 @@
+Reactions:
+
+;reactions to be completed...
+H2O(l) -> H2O(g) Extent: Fraction H2O(l)=0.8
+HeatExchange: FinalT = 150
+
+End
+;----------------------------------------------------------------------
+
+H2O(g)
+CO2(g)
+N2(g)
+O2(g)
+H2O(l)
+CoSO4(aq)
+CuSO4(aq)
+FeSO4(aq)
+Fe2[SO4]3(aq)
+H3AsO4(aq)
+H2SO4(aq)
+HCl(aq)
+MgSO4(aq)
+MnSO4(aq)
+NaCl(aq)
+Na2SO4(aq)
+NiSO4(aq)
+CaCO3(s)
+CaO(s)
+Ca[OH]2(s)
+CoO(s)
+CoS(s)
+Cu(s)
+CuO(s)
+Cu[OH]2(s)
+Cu9S5(s)
+CuS(s)
+FeAsO4(s)
+Fe2O3(s)
+Fe[OH]3(s)
+MgO(s)
+Na2CO3(s)
+Na2S(s)
+Ni(s)
+NiO(s)
+Ni3S4(s)
+NiS(s)
+SiO2(s)
+
+;+++++++++++++++++++++
+;++ Optional Fields ++
+;+++++++++++++++++++++
+
+  Source: HCl(aq)
+  HeatOfReaction : msFixed = 10 / MgCO3(s)
+  HeatOfReaction : msFixed = 10 / MgCO3(s) At 25
+  HeatOfReaction : msFixed = 10 / MgCO3(s) At FeedTemp
+  HeatOfReaction : msFixed = 10 / MgCO3(s) At ProdTemp
+  HeatOfReaction: mlFixed = 12 / Na2CO3(s)
+  HeatExchange: FinalT = 60
+  HeatExchange: Power = 80
+  Sink: CO2(g)
+
+;+++++++++++++++++++++
+;++ Extent Examples ++
+;+++++++++++++++++++++
+
+Extent: Fraction Na2CO3(s) = 0.50
+Extent: FinalConc H2SO4(aq) = 5.5
+Extent: FinalConc H2SO4(aq) = 5.5 At 25
+Extent: mlFinalFraction MgCO3(s) = 0.35
+Extent: msFinalFraction MgCO3(s) = 0.35
+Extent: msFinalFraction Total MgCO3(s) = 0.2
+Extent: Ratio Na2CO3(s):Na2SO4(s) = 1:500
+Extent: Equilibrium 2.5
+
+----------------------------------
+--- Example of a reaction file ---
+----------------------------------
+Reactions:
+
+;Reaction 1 - Specifies the reaction extent of a reactant in mass fractions
+  MgCO3(s) + 2HCl(aq) = MgCl2(aq) + H2O(l) + CO2(g)
+   Extent : Fraction  MgCO3(s) = 0.6
+   Sequence : 1
+
+;Reaction 2 - Specifies the molar ratio of two components at the end of reaction
+  CaCO3(s) + 2HCl(aq) = CaCl2(aq) + H2O(l) + CO2(g)
+   Extent : Ratio CaCO3(s):CaCl2(aq) = 1:10
+   Sequence : 1
+
+;Reaction 3 - Specifies the reaction's equilibrium constant
+  Na2CO3(s) + 2HCl(aq) = 2NaCl(aq) + H2O(l) + CO2(g)
+   Extent : Equilibrium 2.5
+   Sequence : 2
+
+End
+
+-------------------------
+--- Example reactions ---
+-------------------------
+  H2O(g) -> H2O(l)
+   Extent : Fraction  H2O(g) = 1.0
+
+  H2O(l) -> H2O(g)
+   Extent : Fraction  H2O(l) = 0.01
+
+  CaS(s) + 2O2(g) = CaSO4(aq)
+   Extent: mlFinalFraction CaS(s) = 0.1
+
+  Na2CO3(s) + H2SO4(l) -> Na2SO4(s) + CO2(g) + H2O(l)
+   Extent : Fraction Na2CO3(s) = 0.50
+   HeatOfReaction : msFixed = 10 / Na2CO3(s)
+
+;+++++++++++
+;++ NOTES ++
+;+++++++++++
+1) The tokens 'Reactions:' and 'End' are compulsory as they mark the start and end of the reactions block.
+2) Everything after the word 'End' is ignored.
+3) If source is used to add in reactants, it needs to be placed before the keyword 'Reactions:'
+4) For HeatOfReaction, if a reference temperature is not specified, then FeedTemp is assumed.'
+5) For FinalConc extent option, if a reference temperature is not specified, then product temperature is assumed.'
+6) For more information on the Reaction file format, please refer to SysCAD 9 Models Help - Sub Models - RB Section.
+

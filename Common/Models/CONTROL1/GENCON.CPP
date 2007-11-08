@@ -535,7 +535,7 @@ flag GControl::LoadPGM(char * pPGMName, flag WithDebug)
 
 //--------------------------------------------------------------------------
 
-const char* DefaultPGM =
+LPCSTR DefaultPGM =
 ";--- SysCAD General Controller (PGM) program logic file ---\n"
 ";--- See http://help.syscad.net/index.php/PGMs for online documentation ---\n"
 "\n"
@@ -554,7 +554,7 @@ const char* DefaultPGM =
 "\n";
 const int DefaultPGMLen = strlen(DefaultPGM);
 
-const char* DefaultPGMInc =
+LPCSTR DefaultPGMInc =
 ";--- SysCAD General Controller (PGM) include file ---\n"
 ";--- referenced in main pgm file with '>>'\n"
 "\n"
@@ -566,6 +566,32 @@ const char* DefaultPGMInc =
 "\n";
 const int DefaultPGMIncLen = strlen(DefaultPGMInc);
 
+void CreateDefault(LPCSTR Tag, LPCSTR Name, LPCSTR DefaultPGM, int DefaultPGMLen, Strng &FullFileName)
+  {
+  Strng PgmCfg(CfgFiles(),      Name);
+  Strng PgmBase(BaseCfgFiles(), Name);
+  if (FileExists(PgmCfg()))
+    {
+    if (!CopyFile(PgmCfg(), FullFileName(), true))
+      LogError(Tag, 0, "FileCopy failed '%s' to %s'", PgmCfg(), FullFileName());
+    }
+  else if (FileExists(PgmBase()))
+    {
+    if (!CopyFile(PgmBase(), FullFileName(), true))
+      LogError(Tag, 0, "FileCopy failed '%s' to %s'", PgmBase(), FullFileName());
+    }
+  else
+    {
+    FILE* f = fopen(FullFileName(), "wt");
+    if (f)
+      {
+      fwrite(DefaultPGM, sizeof(char), DefaultPGMLen, f);
+      fclose(f);
+      }
+    }
+  }
+
+//--------------------------------------------------------------------------
 
 flag GControl::DataXchg(DataChangeBlk & DCB)
   {
@@ -619,12 +645,8 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
         int RetCode = DCB.DoEditBtn(m_hProcess[0], m_dwProcessId[0], "", FileName(), "pgm", &FullFilename, true, FnDefaultControlsFolder()());
         if (RetCode==-1)
           {
-          FILE* f = fopen(FullFilename(), "wt");
-          if (f)
-            {
-            fwrite(DefaultPGM, sizeof(char), DefaultPGMLen, f);
-            fclose(f);
-            }
+          CreateDefault(Tag(), "Template.pgm", DefaultPGM, DefaultPGMLen, FullFilename);
+
           sPGMName = FullFilename();
           sPGMName.FnContract();
           FileName = sPGMName();
@@ -662,12 +684,7 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
         int RetCode = DCB.DoEditBtn(hNewProcess, dwNewProcessId, "", FileName(), "pgm", &FullFilename, true);
         if (RetCode==-1)
           {
-          FILE* f = fopen(FullFilename(), "wt");
-          if (f)
-            {
-            fwrite(DefaultPGMInc, sizeof(char), DefaultPGMIncLen, f);
-            fclose(f);
-            }
+          CreateDefault(Tag(), "Template.Inc.pgm", DefaultPGMInc, DefaultPGMIncLen, FullFilename);
           RetCode = DCB.DoEditBtn(hNewProcess, dwNewProcessId, "", FileName(), "pgm");
           }
         m_sEditFileNameNew="";
@@ -743,15 +760,13 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
           int RetCode = DCB.DoEditBtn(m_hProcess[inc], m_dwProcessId[inc], "", FileName(), "pgm", &FullFilename, true);
           if (RetCode==-1)
             {
-            FILE* f = fopen(FullFilename(), "wt");
-            if (f)
-              {
-              if (DCB.lHandle==idmEditFileBtn)
-                fwrite(DefaultPGM, sizeof(char), DefaultPGMLen, f);
-              else
-                fwrite(DefaultPGMInc, sizeof(char), DefaultPGMIncLen, f);
-              fclose(f);
-              }
+            bool IsMain = (DCB.lHandle==idmEditFileBtn);
+            
+            if (IsMain)
+              CreateDefault(Tag(), "Template.pgm", DefaultPGM, DefaultPGMLen, FullFilename);
+            else
+              CreateDefault(Tag(), "Template.Inc.pgm", DefaultPGMInc, DefaultPGMIncLen, FullFilename);
+
             RetCode = DCB.DoEditBtn(m_hProcess[inc], m_dwProcessId[inc], "", FileName(), "pgm");
             }
           //if (RetCode==0)

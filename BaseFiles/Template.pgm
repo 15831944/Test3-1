@@ -1,0 +1,15 @@
+;--- SysCAD General Controller (PGM) program logic file ---
+;--- See http://help.syscad.net/index.php/PGMs for online documentation ---
+
+;--- variable declarations ---
+
+if (OnInitialise)
+  ;--- place logic here for execution before first iteration --- (use SetDynTag in OnInitialise)
+  
+else
+  ;--- place logic here for execution each iteration ---
+  
+endif
+
+$ ; --- end of file ---
+
