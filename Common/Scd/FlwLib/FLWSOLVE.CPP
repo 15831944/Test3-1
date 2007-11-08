@@ -7120,7 +7120,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       if (DCB.rD)
         {
         double NSteps=Max(1.0, TimeCB().m_StepSizeMax.Seconds/GTZ(IntCB.GetTimeIncMxRqd()));
-        gs_Exec.StepSizeMax=*DCB.rD;
+        gs_Exec.StepSizeMax=Max(0.001, *DCB.rD);
 
         IntCB.SetTimeIncMxRqd(gs_Exec.StepSizeMax/NSteps);
         IntCB.SetTimeInc(IntCB.GetTimeIncMxRqd());
@@ -7138,12 +7138,12 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidODETimeInc:
       if (DCB.rD)
-        IntCB.SetTimeInc(*DCB.rD);
+        IntCB.SetTimeInc(Max(0.001, *DCB.rD));
       DCB.D=IntCB.GetTimeInc();
       return 1;
     case xidStepSizeRqd:
       if (DCB.rD)
-        TimeCB().m_StepSizeMax=*DCB.rD;
+        TimeCB().m_StepSizeMax=Max(0.001, *DCB.rD);
       DCB.D=TimeCB().m_StepSizeMax;
       return 1;
     case xidIterPerStep:
@@ -7156,7 +7156,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidODETimeIncMxRqd:
       if (DCB.rD)
-        IntCB.SetTimeIncMxRqd(Min(*DCB.rD, TimeCB().m_StepSizeMax.Seconds));
+        IntCB.SetTimeIncMxRqd(Min(Max(0.001, *DCB.rD), TimeCB().m_StepSizeMax.Seconds));
       DCB.D=IntCB.GetTimeIncMxRqd();
       return 1;
     case xidODETimeIncMnRqd:
