@@ -105,7 +105,6 @@ namespace Configuration_Editor
             this.label24 = new System.Windows.Forms.Label();
             this.txtCalcDesc = new System.Windows.Forms.TextBox();
             this.label23 = new System.Windows.Forms.Label();
-            this.txtCalculation = new Auto_Complete.BoxAutoComplete();
             this.tabIDELabel = new System.Windows.Forms.TabPage();
             this.grpTextValue = new System.Windows.Forms.GroupBox();
             this.txtText = new System.Windows.Forms.TextBox();
@@ -124,7 +123,6 @@ namespace Configuration_Editor
             this.tabSpecieDatabase = new System.Windows.Forms.TabPage();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.graph1 = new Configuration_Editor.Graph();
             this.tlpEquations = new System.Windows.Forms.TableLayoutPanel();
             this.txtMaxTemp3 = new System.Windows.Forms.TextBox();
             this.txtMinTemp3 = new System.Windows.Forms.TextBox();
@@ -247,6 +245,10 @@ namespace Configuration_Editor
             this.dlgOpenConfig = new System.Windows.Forms.OpenFileDialog();
             this.dlgSaveConfig = new System.Windows.Forms.SaveFileDialog();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.tabProjectSpeciesTest = new System.Windows.Forms.TabPage();
+            this.txtCalculation = new Auto_Complete.BoxAutoComplete();
+            this.graph1 = new Configuration_Editor.Graph();
+            this.projectVectorControl1 = new Configuration_Editor.ProjectVectorControl();
             this.ssMain.SuspendLayout();
             this.menuMain.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -307,6 +309,7 @@ namespace Configuration_Editor
             this.groupBox3.SuspendLayout();
             this.pnlReqSpecieOptions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
+            this.tabProjectSpeciesTest.SuspendLayout();
             this.SuspendLayout();
             // 
             // ssMain
@@ -635,6 +638,7 @@ namespace Configuration_Editor
             // 
             this.tcSpecies.Controls.Add(this.tabProjectSpecies);
             this.tcSpecies.Controls.Add(this.tabSpecieDatabase);
+            this.tcSpecies.Controls.Add(this.tabProjectSpeciesTest);
             this.tcSpecies.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcSpecies.Location = new System.Drawing.Point(0, 0);
             this.tcSpecies.Name = "tcSpecies";
@@ -1063,21 +1067,6 @@ namespace Configuration_Editor
             this.label23.TabIndex = 1;
             this.label23.Text = "Tag";
             // 
-            // txtCalculation
-            // 
-            this.txtCalculation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtCalculation.CompSelection = false;
-            this.txtCalculation.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtCalculation.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtCalculation.HitCounts")));
-            this.txtCalculation.Location = new System.Drawing.Point(77, 41);
-            this.txtCalculation.Name = "txtCalculation";
-            this.txtCalculation.Size = new System.Drawing.Size(595, 83);
-            this.txtCalculation.TabIndex = 2;
-            this.txtCalculation.Text = "";
-            this.txtCalculation.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
-            this.txtCalculation.TextChanged += new System.EventHandler(this.txtCalculation_TextChanged);
-            // 
             // tabIDELabel
             // 
             this.tabIDELabel.Controls.Add(this.grpTextValue);
@@ -1282,26 +1271,6 @@ namespace Configuration_Editor
             this.splitContainer2.SplitterDistance = 226;
             this.splitContainer2.TabIndex = 10;
             this.splitContainer2.TabStop = false;
-            // 
-            // graph1
-            // 
-            this.graph1.BackColor = System.Drawing.Color.LightGray;
-            this.graph1.Border = 5;
-            this.graph1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.graph1.CheckSize = 5;
-            this.graph1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.graph1.DrawYLabel = true;
-            this.graph1.Location = new System.Drawing.Point(0, 0);
-            this.graph1.MaxChecks = 6;
-            this.graph1.MaxXValue = 0;
-            this.graph1.MinXValue = 0;
-            this.graph1.Name = "graph1";
-            this.graph1.Size = new System.Drawing.Size(226, 181);
-            this.graph1.TabIndex = 6;
-            this.graph1.UnselectedTransparency = 64;
-            this.graph1.XLabel = "Temperature (K)";
-            this.graph1.YLabel = null;
-            this.graph1.YLabelColour = System.Drawing.Color.Empty;
             // 
             // tlpEquations
             // 
@@ -2599,6 +2568,64 @@ namespace Configuration_Editor
             // 
             this.errorProvider1.ContainerControl = this;
             // 
+            // tabProjectSpeciesTest
+            // 
+            this.tabProjectSpeciesTest.Controls.Add(this.projectVectorControl1);
+            this.tabProjectSpeciesTest.Location = new System.Drawing.Point(4, 22);
+            this.tabProjectSpeciesTest.Name = "tabProjectSpeciesTest";
+            this.tabProjectSpeciesTest.Padding = new System.Windows.Forms.Padding(3);
+            this.tabProjectSpeciesTest.Size = new System.Drawing.Size(701, 512);
+            this.tabProjectSpeciesTest.TabIndex = 2;
+            this.tabProjectSpeciesTest.Text = "Project Species (Test)";
+            this.tabProjectSpeciesTest.UseVisualStyleBackColor = true;
+            // 
+            // txtCalculation
+            // 
+            this.txtCalculation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtCalculation.CompSelection = false;
+            this.txtCalculation.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.txtCalculation.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtCalculation.HitCounts")));
+            this.txtCalculation.Location = new System.Drawing.Point(77, 41);
+            this.txtCalculation.Name = "txtCalculation";
+            this.txtCalculation.Size = new System.Drawing.Size(595, 83);
+            this.txtCalculation.TabIndex = 2;
+            this.txtCalculation.Text = "";
+            this.txtCalculation.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
+            this.txtCalculation.TextChanged += new System.EventHandler(this.txtCalculation_TextChanged);
+            // 
+            // graph1
+            // 
+            this.graph1.BackColor = System.Drawing.Color.LightGray;
+            this.graph1.Border = 5;
+            this.graph1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.graph1.CheckSize = 5;
+            this.graph1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.graph1.DrawYLabel = true;
+            this.graph1.Location = new System.Drawing.Point(0, 0);
+            this.graph1.MaxChecks = 6;
+            this.graph1.MaxXValue = 0;
+            this.graph1.MinXValue = 0;
+            this.graph1.Name = "graph1";
+            this.graph1.Size = new System.Drawing.Size(226, 181);
+            this.graph1.TabIndex = 6;
+            this.graph1.UnselectedTransparency = 64;
+            this.graph1.XLabel = "Temperature (K)";
+            this.graph1.YLabel = null;
+            this.graph1.YLabelColour = System.Drawing.Color.Empty;
+            // 
+            // projectVectorControl1
+            // 
+            this.projectVectorControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.projectVectorControl1.ListDBSpecies = null;
+            this.projectVectorControl1.Location = new System.Drawing.Point(3, 3);
+            this.projectVectorControl1.Name = "projectVectorControl1";
+            this.projectVectorControl1.Size = new System.Drawing.Size(695, 506);
+            this.projectVectorControl1.SpecieDataTable = null;
+            this.projectVectorControl1.StatusColour = System.Drawing.Color.Empty;
+            this.projectVectorControl1.StatusMessage = null;
+            this.projectVectorControl1.TabIndex = 0;
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2691,6 +2718,7 @@ namespace Configuration_Editor
             this.pnlReqSpecieOptions.ResumeLayout(false);
             this.pnlReqSpecieOptions.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
+            this.tabProjectSpeciesTest.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2915,6 +2943,8 @@ namespace Configuration_Editor
         private System.Windows.Forms.ToolStripStatusLabel statusLabel;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label51;
+        private System.Windows.Forms.TabPage tabProjectSpeciesTest;
+        private ProjectVectorControl projectVectorControl1;
     }
 }
 

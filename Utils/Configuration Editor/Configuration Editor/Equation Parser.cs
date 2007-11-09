@@ -113,6 +113,29 @@ namespace Configuration_Editor
         #endregion variables
 
         #region Properties
+        public bool SingleFunc
+        {
+            get
+            {
+                if (m_subFragments != null && m_subFragments.Count > 1)
+                    return false;
+
+                //Return false if we have more than one function, or any non-constant variables, or any
+                int functionCount = 0;
+                foreach (EquationFragment frag in Fragments)
+                    if (frag.GetType() == typeof(EquationFragment) || frag.GetType() == typeof(EmptyEquationFragment)
+                        || frag is UnaryOperand
+                        || (frag is ValueFragment && ((ValueFragment)frag).IsConst))
+                        continue;
+                    else if (frag is Function)
+                        functionCount++;
+                    else
+                        return false;
+                
+                return functionCount < 2;
+            }
+        }
+
         public Dictionary<string, double> VariableValues
         {
             get

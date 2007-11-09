@@ -88,17 +88,17 @@ namespace Configuration_Editor
             catch { }
 
             this.Load += new EventHandler(FrmMain_Load);
-
-            
         }
 
         void FrmMain_Load(object sender, EventArgs e)
         {
             try
             {
-                SetupSpecies();
+                m_DefaultIniDictionary = ReadIni(Configuration_Editor.Properties.Resources.DefaultInI, new Dictionary<string, Dictionary<string, string>>());
+
                 SetupMisc();
                 SetupSpDbEditor();
+                SetupSpecies();
 
                 if (dlgOpenDB.ShowDialog() == DialogResult.Cancel)
                     this.Close();
@@ -249,7 +249,11 @@ namespace Configuration_Editor
 
             AddSumItems();
 
-            m_DefaultIniDictionary = ReadIni(Configuration_Editor.Properties.Resources.DefaultInI, new Dictionary<string, Dictionary<string, string>>());
+            projectVectorControl1.Sorter = m_Sorter;
+            projectVectorControl1.ListDBSpecies = lstDBSpecies;
+            projectVectorControl1.SpecieDataTable = m_SpecieDataTable;
+
+            projectVectorControl1.SetupSpecies();
 
             this.ResumeLayout();
         }
@@ -298,9 +302,6 @@ namespace Configuration_Editor
             {
                 Dictionary<string, Dictionary<string, string>> temp = new Dictionary<string, Dictionary<string, string>>(m_UnparsedInfo);
                 sw.WriteLine("[General]");
-                //sw.WriteLine("PrjFileVersion=" + FileVersion);
-                //sw.WriteLine("TagMonitor=0"); //TODO: Check what is happening
-                //sw.WriteLine("UseStdFns4H2O=1"); //TODO: Check what this is.
                 sw.WriteLine("Std_Temp=" + txtStT.Text);
                 sw.WriteLine("Std_Press=" + txtStP.Text);
                 sw.WriteLine("Norm_Temp=" + txtNT.Text);
@@ -309,7 +310,6 @@ namespace Configuration_Editor
                 sw.WriteLine("Minimum_Press=" + txtMinP.Text);
                 sw.WriteLine("Maximum_Temp=" + txtMaxT.Text);
                 sw.WriteLine("Maximum_Press=" + txtMaxP.Text);
-                //sw.WriteLine("Atmospheric_Press=101.287, -11.83e-3, 0.4793e-6"); //TODO: Check what this is
                 sw.WriteLine("Default_SpModel=" + comboSpecieModel.Text);
                 sw.WriteLine("H2O_As_Aqueous=" + (chkH2OAqueous.Checked ? "1" : "0"));
                 if (temp.ContainsKey("general"))
@@ -456,7 +456,6 @@ namespace Configuration_Editor
         {
             List<string> ret = new List<string>();
             m_UnparsedInfo = new Dictionary<string, Dictionary<string, string>>();
-            lstProjectVector.Items.Clear();
 
             if (data.ContainsKey("general"))
             {
@@ -486,22 +485,8 @@ namespace Configuration_Editor
 
             if (data.ContainsKey("species"))
             {
-                lstProjectVector.BeginUpdate();
-                foreach (string s in data["species"].Values)
-                {
-                    try
-                    {
-                        ProjectVectorItem item = ProjectVectorItem.Parse(s, m_SpecieDataTable, ret);
-                        item.Changed += new EventHandler(item_Changed);
-                        lstProjectVector.Items.Add(item.LVI);
-                    }
-                    catch
-                    {
-                        ret.Add("Unalbe to Parse: '" + s + "'");
-                    }
-                }
-                AddSumItems();
-                lstProjectVector.EndUpdate();
+                LoadSpecies(data["species"], ret);
+                projectVectorControl1.LoadSpecies(data["species"], ret);
                 data.Remove("species");
             }
 
@@ -536,6 +521,30 @@ namespace Configuration_Editor
 
             m_UnparsedInfo = data;
             return ret;
+        }
+
+        private static Regex SpecieRegex = new Regex(@"^\s*S\d+\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public void LoadSpecies(Dictionary<string, string> RelevantContents, List<string> Errors)
+        {
+            lstProjectVector.BeginUpdate();
+            lstProjectVector.Items.Clear();
+            foreach (KeyValuePair<string, string> s in RelevantContents)
+            {
+                if (!SpecieRegex.Match(s.Key).Success)
+                    continue;
+                try
+                {
+                    ProjectVectorItem item = ProjectVectorItem.Parse(s.Value, m_SpecieDataTable, Errors);
+                    item.Changed += new EventHandler(item_Changed);
+                    lstProjectVector.Items.Add(item.LVI);
+                }
+                catch
+                {
+                    Errors.Add("Unalbe to Parse: '" + s + "'");
+                }
+            }
+            AddSumItems();
+            lstProjectVector.EndUpdate();
         }
 
         protected static Regex CommentStripper = new Regex(@"^[^;\r\n]*", RegexOptions.Compiled | RegexOptions.Multiline);
@@ -1889,21 +1898,6 @@ namespace Configuration_Editor
                 m_CurrentItem.Name = txtCalcSymbol.Text;
         }
 
-        private void txtMinTemperature_TextChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                graph1.MinXValue = double.Parse(txtMinTemperature.Text);
-            }
-            catch { }
-        }
-
-        private void txtMaxTemperature_TextChanged(object sender, EventArgs e)
-        {
-            try { graph1.MaxXValue = double.Parse(txtMaxTemperature.Text); }
-            catch { }
-        }
-        
         private void txtAttParent_TextChanged(object sender, EventArgs e)
         {
             if (m_CurrentItem is ProjectAttribute)
@@ -1944,15 +1938,24 @@ namespace Configuration_Editor
             if (changed)
                 CheckCalculations();
         }
- 
-        private void menuSpDBContext_Opening(object sender, CancelEventArgs e)
-        {
-            menuDelete.Enabled = lstDBSpecies.SelectedItems.Count > 0;
-            menuSpDBAddToProject.Enabled = lstDBSpecies.SelectedItems.Count > 0;
-        }
-        #endregion Project Species Tab
+         #endregion Project Species Tab
 
         #region Database Tab
+        private void txtMinTemperature_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                graph1.MinXValue = double.Parse(txtMinTemperature.Text);
+            }
+            catch { }
+        }
+
+        private void txtMaxTemperature_TextChanged(object sender, EventArgs e)
+        {
+            try { graph1.MaxXValue = double.Parse(txtMaxTemperature.Text); }
+            catch { }
+        }
+        
         private void radioEntropy_CheckedChanged(object sender, EventArgs e)
         {
             RadioButton rSender = sender as RadioButton;
@@ -2046,6 +2049,12 @@ namespace Configuration_Editor
         }
 
         #endregion Database Tab
+
+        private void menuSpDBContext_Opening(object sender, CancelEventArgs e)
+        {
+            menuDelete.Enabled = lstDBSpecies.SelectedItems.Count > 0;
+            menuSpDBAddToProject.Enabled = lstDBSpecies.SelectedItems.Count > 0;
+        }
 
         private void lstDBSpecies_ItemActivate(object sender, EventArgs e)
         {
