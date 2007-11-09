@@ -1,50 +1,9 @@
 Reactions:
 
 ;reactions to be completed...
-H2O(l) -> H2O(g) Extent: Fraction H2O(l)=0.8
-HeatExchange: FinalT = 150
 
 End
 ;----------------------------------------------------------------------
-
-H2O(g)
-CO2(g)
-N2(g)
-O2(g)
-H2O(l)
-CoSO4(aq)
-CuSO4(aq)
-FeSO4(aq)
-Fe2[SO4]3(aq)
-H3AsO4(aq)
-H2SO4(aq)
-HCl(aq)
-MgSO4(aq)
-MnSO4(aq)
-NaCl(aq)
-Na2SO4(aq)
-NiSO4(aq)
-CaCO3(s)
-CaO(s)
-Ca[OH]2(s)
-CoO(s)
-CoS(s)
-Cu(s)
-CuO(s)
-Cu[OH]2(s)
-Cu9S5(s)
-CuS(s)
-FeAsO4(s)
-Fe2O3(s)
-Fe[OH]3(s)
-MgO(s)
-Na2CO3(s)
-Na2S(s)
-Ni(s)
-NiO(s)
-Ni3S4(s)
-NiS(s)
-SiO2(s)
 
 ;+++++++++++++++++++++
 ;++ Optional Fields ++

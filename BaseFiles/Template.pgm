@@ -1,15 +1,191 @@
 ;--- SysCAD General Controller (PGM) program logic file ---
 ;--- See http://help.syscad.net/index.php/PGMs for online documentation ---
+; Revision: 1     Date:     Author:
 
 ;--- variable declarations ---
+
 
 if (OnInitialise)
   ;--- place logic here for execution before first iteration --- (use SetDynTag in OnInitialise)
   
 else
-  ;--- place logic here for execution each iteration ---
+  ;--- place logic here for normal execution each iteration ---
   
 endif
 
 $ ; --- end of file ---
+
+
+; SysCAD does not recognise anything after the $ symbol.
+
+;DATA TYPES
+
+;Variable Declaration   Variable Type         Range of Values
+
+;Bit                    Boolean               FALSE = 0; TRUE <> 0
+;Byte                   Integer               0 to 255
+;Long                   Integer               -2147483648 to
+;Double                 Real                  -1.0 E308 to 1.0 E308
+;Str                    String                ASCII Character Set; unlimited length
+
+;Variable names must be alphanumeric and uniquely declared.
+;The PGM language is NOT case sensitive.
+
+
+;VARIABLE DECLARATION
+
+;When a user declares a variable, they may choose to have the variable displayed in the access window
+;of the controller, as follows:
+;  1. The addition of '*' after the variable name allows the variable to be set in the access window (white box).
+;  2. The addition of '@' after the variable name allows the variable to be displayed, but not set in the access window (grey box).
+;  3. If there is neither a '*' nor an '@' then the variable is NOT displayed in the controller access window.
+  
+;The user may also choose to display units for a displayed variable (as shown in the examples below).
+;Some of the common conversion families are shown below:
+
+;Conversion Type     SysCAD Symbol     Some Common Units            Example
+
+;Concentration       Conc              g/L, mg/L, kg/m^3            ("Conc","g/L")
+;Density             Rho               kg/m^3, t/m^3, g/L           ("Rho","kg/m^3")
+;Energy              E                 J, kJ, cal                   ("E","kJ")
+;Fraction            Frac              %, ppm                       ("Frac","%")
+;Mass Flow           Qm                t/h, kg/h, t/d, kh/min       ("Qm","t/h")
+;Power               Pwr               kW, kJ/s, MJ/h               ("Pwr","kW")
+;Pressure            P                 bar, atm, kPa, kPag, psi     ("P","bar")
+;Temperature         T                 C, K, F                      ("T","C")
+;Time                Time              s, min, h, d, week, year     ("Time","h")
+;Volumetric Flow     Qv                m^3/h, L/h, L/min            ("Qv","m^3/h")
+
+;NOTE: The conversion family and conversion units ARE case sensitive. To find out the list of Engineering Units 
+;      that are available, from SysCAD, go to:
+;      File menu View|Project - this will open the Project.spj Dialog box.
+;      Select the Conversions Tab page to view the list.
+
+
+; PGM EXAMPLES
+
+
+;--- Example of a SysCAD General Controller ---
+; Revision A 7 November 2007.  Kenwalt
+
+; This example measures the solids flow to a thickener, multiplies it by a user defined ratio
+; and then sets the flow of wash water to the thickener.
+
+;--- variable declarations ---
+PageLabel("Thickener")
+
+TextLabel("The Ratio of Wash Water to Thickener Solids Feed")
+long Ratio*
+
+TextLabel(,"Flows")
+Double ThickenerSolidsFeed@("Qm","t/h")
+Double ReqdWashWater@("Qm","t/h")
+
+
+if (OnInitialise) ; This code is only executed ONCE, before starting the first iteration or step.
+
+  ; If the user has not set the ratio before starting the simulation, use a default value of 2.5 and send a warning.
+  if (Ratio < 0.01)
+    Ratio = 2.5
+    logerror("Ratio NOT set - Default value of 2.5 used!")
+  endif
+
+else  ; The code after this is executed at the end of EVERY iteration or step.
+
+  ThickenerSolidsFeed = GetTag("P_25.Qo.SQMt (t/h)")  ; Measure the solids feed to the thickener
+  
+  ReqdWashWater = ThickenerSolidsFeed * Ratio         ; Multiply the solids feed to the thickener by the ratio.
+  
+  SetTag("Wash_Water.Qm_Rqd (t/h)", ReqdWashWater)    ; Set the flow of wash water to the thickener
+  
+  
+endif
+  
+$ ; --- end of file ---
+
+
+
+;--- Example of a SysCAD General Controller ---
+; Revision A 7 November 2007.  Kenwalt
+
+; This example does a number of calculations:
+; 1. It adds or removes ore to the stream from the mine going to a milling and flotation plant.
+; 2. It calculates the water usage in the plant.
+; 3. It calculates the recoveries of copper, iron and sulphur across the palnt.
+
+;--- variable declarations ---
+TextLabel("Plant Feed")
+double ReqdPlantFeed*("Qm", "t/h")
+double OreFromMine@("Qm", "t/h")
+double OreFromStockPile@("Qm", "t/h")
+
+TextLabel(,"Water Usage")
+double WaterUsage@("Qv","m^3/h")
+
+PageLabel("Recoveries")
+double CopperRecovery@("Frac","%")
+double IronRecovery@("Frac","%")
+double SulphurRecovery@("Frac","%")
+
+
+;----- Local variables (not displayed in access window)
+double water1, water2, water3, water4
+double CuIn, CuInConc
+double Fein, FeInConc
+double SulphurIn, SulphurInConc
+
+
+if (OnInitialise)  ; This code is only executed ONCE, before starting the first iteration or step.
+  
+  
+else               ; The code after this is executed at the end of EVERY iteration or step.
+
+  OreFromMine = GetTag("P_1.Qi.SQMt (t/h)")
+  
+  ; Check if the required plant feed is greater than the ore from the mine.
+    if (ReqdPlantFeed >= OreFromMine) ; If less than required, import balance of ore from the stockpile.
+      OreFromStockPile = Max(ReqdPlantFeed - OreFromMine, 0)
+      SetTag("Ore_from_Stockpile.Qm_Rqd (t/h)", OreFromStockPile)
+    else  ; If the required plant feed is less than the ore from the mine, send some ore to the stockpile.
+      SetTag("Ore_from_Stockpile.Qm_Rqd (t/h)", 0)
+      SetTag("X_1.GM.IOs.[P_2].Flow (t/h)", ReqdPlantFeed)
+    endif
+  
+  ;--- Calculate Water used in Plant
+  ;Water in to repulping and launder water
+  water1 = GetTag("Mill.MU1.Qv.Makeup (m^3/h)")
+  water2 = GetTag("Flot_Launder.MU1.Qv.Makeup (m^3/h)")
+  
+  ;Water returned to water tank in thickener overflows
+  water3 = GetTag("P15.Qi.LQVt (m^3/h)")
+  water4 = GetTag("P21.Qi.LQVt (m^3/h)")
+
+  WaterUsage = (water1 + water2) - (water3 + water4)
+  
+  ;--- Do calculations to find Recoveries
+  ; Measure the mass flow of the element in the feed to the plant (in stream P_2)
+  ; Measure the mass flow of the element in the concentrate from the plant (P_32)
+  ; Calculate the recovery = (Mass in conc)/(Mass in Feed) * 100
+  
+  CuIn = GetTag("P_2.Qo.QEl:S.Cu (kg/h)")
+  CuInConc = GetTag("P_32.Qo.QEl:S.Cu (kg/h)")
+  CopperRecovery = iif(CuIn > 0.1, CuinConc/Cuin * 100, 0)
+  ; The iif function has the form: iif(expression, true part, False part)
+
+  ; Do calculations to find iron Recovery
+  Fein = GetTag("P_2.Qo.QEl:S.Fe (kg/h)")
+  FeInConc = GetTag("P_32.Qo.QEl:S.Fe (kg/h)")
+  IronRecovery = iif(Fein > 0.1, FeInConc/Fein * 100, 0)
+
+  ; Do calculations to find sulphur Recovery
+  SulphurIn = GetTag("P_2.Qo.QEl:S.S (kg/h)")
+  SulphurInConc = GetTag("P_32.Qo.QEl:S.S (kg/h)")
+  SulphurRecovery = iif(SulphurIn > 0.1, SulphurInConc/SulphurIn * 100, 0)
+
+
+  
+endif
+
+$ ; --- end of file ---
+
 
