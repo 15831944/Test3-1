@@ -344,6 +344,7 @@ class DllImportExport CReactionBlock : public TaggedObject
   public:
     // SetUp
     void           FileLoadAllowed(flag b) { fFileLoadAllowed=b; StructureChanged(this); };
+    flag           LoadForDynamic();
     flag           Load(flag bAllowStateSemantics, pchar pRCTName, flag KeepState);
     flag           SetRCTName(pchar pRCTName);
     CReaction     *AddReaction(TagObjClass *pEqnClass);
@@ -683,6 +684,7 @@ class DllImportExport CReactionBase : public CBlockEvalBase
 
 inline long CReaction::Fidelity()                 { return RB.OwnModel->Fidelity(); };
 inline flag CReactionBlock::HasStateSemantics()   { return m_RctBase->HasStateSemantics(); };
+inline flag CReactionBlock::LoadForDynamic()      { return m_RctBase->BlkSeqNo()>=BlkEval_State && Nd()->SolveBufferedMethod(); };
 inline FlwNode * CReactionBlock::Nd()             { return m_RctBase->Nd(); };
 
 //===========================================================================

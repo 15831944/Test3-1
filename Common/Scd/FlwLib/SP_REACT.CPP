@@ -1411,7 +1411,7 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
         S=Path0.Length()>0 ? Path0() : Path1();
         S+=File0.Length()>0 ? File0() : File1();
 
-        Load(Nd()->SolveBufferedMethod(), S(), false);//DCB.ForView());
+        Load(LoadForDynamic(), S(), false);//DCB.ForView());
         hEditProcess = NULL; // Kill this Filename Changed
         }
       if (DCB.ForView())
@@ -1447,7 +1447,7 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
 
         bReloadReqd=true;
         if (bAutoReload)
-          Load(Nd()->SolveBufferedMethod(), sRCTName(), false);//DCB.ForView());
+          Load(LoadForDynamic(), sRCTName(), false);//DCB.ForView());
 //        ValidateData(ValidateDataBlk & VDB);
         }
       return 1;
@@ -1455,14 +1455,14 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
       if (DCB.rB)
         {
         fOn=*DCB.rB;
-        Load(Nd()->SolveBufferedMethod(), sRCTName(), DCB.ForView());
+        Load(LoadForDynamic(), sRCTName(), DCB.ForView());
         pAttachedTo->StructureChanged(pAttachedTo);
         }
       DCB.B=fOn;
       return 1;
     case xidReloadRCTBtn:
       if (DCB.rB && (*DCB.rB!=0))
-        Load(Nd()->SolveBufferedMethod(), sRCTName(), DCB.ForView());
+        Load(LoadForDynamic(), sRCTName(), DCB.ForView());
       DCB.B=0;
       return 1;
     case xidEditRCTBtnTxt:
@@ -1635,9 +1635,9 @@ flag CReactionBlock::ValidateData(ValidateDataBlk & VDB)
   flag RetOK=true;
   if (fOn)
     {
-    if (Nd()->SolveBufferedMethod() != /*m_RctBase->*/HasStateSemantics())
+    if (LoadForDynamic() != /*m_RctBase->*/HasStateSemantics())
       {
-      Load(Nd()->SolveBufferedMethod(), sRCTName(), true);
+      Load(LoadForDynamic(), sRCTName(), true);
       }
 
     SetCI(2, bReloadReqd);
@@ -1748,7 +1748,7 @@ void CReactionBlock::OnAppActivate(BOOL bActive)
         bReloadReqd=true;
         if (bAutoReload)
           {
-          Load(Nd()->SolveBufferedMethod(), sRCTName(), true);
+          Load((), sRCTName(), true);
           char* pTag = new char[strlen(BaseTag())+1];
           strcpy(pTag, BaseTag());
           ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCREFRESHSAVE, (LPARAM)pTag);
@@ -2906,7 +2906,7 @@ flag CReactionBase::Open()
   m_pNd->fHasFiles=1;
   fEnabled=(pRB!=NULL);
   if (fEnabled)
-    pRB->Load(Nd()->SolveBufferedMethod(), NULL, false);
+    pRB->Load(pRB->LoadForDynamic(), NULL, false);
 
   return fEnabled;
   };
