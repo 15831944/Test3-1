@@ -34,11 +34,7 @@ namespace Reaction_Editor
         //Keep a static form which will be used...
         private static FrmChangeDialogue frm = new FrmChangeDialogue();
 
-        public static DialogResult Show(SimpleReaction curReaction, SimpleReaction newReaction, string title, string message, string newReactionTitle, bool bSeq, bool bExtent)
-        {
-            return Show(curReaction, newReaction, title, message, newReactionTitle, bSeq, bExtent, true);
-        }
-        public static DialogResult Show(SimpleReaction curReaction, SimpleReaction newReaction, string title, string message, string newReactionTitle, bool bSeq, bool bExtent, bool bHOR)
+        public static DialogResult Show(SimpleReaction curReaction, SimpleReaction newReaction, string title, string message, string newReactionTitle, bool bSeq, bool bExtentAndHOR)
         {
             FrmChangeDialogue frmCurrent = frm.Visible ? new FrmChangeDialogue() : frm;
             frmCurrent.SuspendLayout();
@@ -46,7 +42,7 @@ namespace Reaction_Editor
             frmCurrent.grpNewReaction.Text = newReactionTitle;
             frmCurrent.Text = title;
 
-            frmCurrent.SetReactions(curReaction, newReaction, bSeq, bExtent, bHOR);
+            frmCurrent.SetReactions(curReaction, newReaction, bSeq, bExtentAndHOR);
             frmCurrent.ResumeLayout();
             return frmCurrent.ShowDialog();
         }
@@ -150,12 +146,12 @@ namespace Reaction_Editor
             }
         }
 
-        protected void SetReactions(SimpleReaction curReaction, SimpleReaction newReaction, bool bSeq, bool bExtent, bool bHOR)
+        protected void SetReactions(SimpleReaction curReaction, SimpleReaction newReaction, bool bSeq, bool bExtentAndHOR)
         {
             ChangeGeneric(false);
             Font BoldFont = new Font(txtCurReactants.Font, FontStyle.Bold);
 
-            bool HOR = bHOR && (curReaction.CustomHeatOfReaction || newReaction.CustomHeatOfReaction);
+            bool HOR = bExtentAndHOR && (curReaction.CustomHeatOfReaction || newReaction.CustomHeatOfReaction);
 
             //Current Reaction:
             txtCurReactants.Text = curReaction.GetReactantsString();
@@ -185,14 +181,14 @@ namespace Reaction_Editor
             //Customise the layout:
             txtCurHOR.Visible = txtNewHOR.Visible = HOR;
             txtCurSeq.Visible = txtNewSeq.Visible = bSeq;
-            txtCurExtent.Visible = txtNewExtent.Visible = bExtent;
+            txtCurExtent.Visible = txtNewExtent.Visible = bExtentAndHOR;
 
             txtCurSeq.Top = txtNewSeq.Top = HOR ? sSeqLowTop : txtCurHOR.Top;
 
-            grpCurrentReaction.Height = grpNewReaction.Height = sMaxGrpHeight - ((HOR ? 0 : 1) + (bSeq ? 0 : 1) + (bExtent ? 0 : 1)) * sHeightPerBox;
+            grpCurrentReaction.Height = grpNewReaction.Height = sMaxGrpHeight - ((HOR ? 0 : 1) + (bSeq ? 0 : 1) + (bExtentAndHOR ? 0 : 1)) * sHeightPerBox;
             grpNewReaction.Top = grpCurrentReaction.Bottom + sPadding;
-            this.MaximumSize = this.MinimumSize = new Size(this.Width, sMaxFrmHeight - 2 * ((HOR ? 0 : 1) + (bSeq ? 0 : 1) + (bExtent ? 0 : 1)) * sHeightPerBox);
-            this.Height = sMaxFrmHeight - 2 * ((HOR ? 0 : 1) + (bSeq ? 0 : 1) + (bExtent ? 0 : 1)) * sHeightPerBox;
+            this.MaximumSize = this.MinimumSize = new Size(this.Width, sMaxFrmHeight - 2 * ((HOR ? 0 : 1) + (bSeq ? 0 : 1) + (bExtentAndHOR ? 0 : 1)) * sHeightPerBox);
+            this.Height = sMaxFrmHeight - 2 * ((HOR ? 0 : 1) + (bSeq ? 0 : 1) + (bExtentAndHOR ? 0 : 1)) * sHeightPerBox;
             
             //Width:
             Graphics gfx = txtCurReactants.CreateGraphics();

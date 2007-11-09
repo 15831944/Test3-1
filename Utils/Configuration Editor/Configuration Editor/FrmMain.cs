@@ -1140,6 +1140,76 @@ namespace Configuration_Editor
                 AtomicWts[m.Groups["Symb"].Value] = double.Parse(m.Groups["Val"].Value);
             }
         }
+
+        protected void UpdateDBLVIs()
+        {
+            try
+            {
+                DataRow curRow = ((DataRowView)this.BindingContext[m_SpecieDataTable].Current).Row;
+                foreach (ListViewItem lvi in lstDBSpecies.Items)
+                    if (lvi.Tag == curRow)
+                    {
+                        lvi.SubItems[0].Text = (string)curRow["Compound"] + "(" + curRow["Phase"] + ")";
+                        lvi.SubItems[1].Text = (string)curRow["Name"];
+                        break; //Should only occur once.
+                    }
+            }
+            catch { };
+        }
+
+        protected void RecalculateMolWt()
+        {
+            try
+            {
+                Match m = s_DefinitionRegex.Match(txtElementalComposition.Text);
+                if (!m.Success)
+                {
+                    m_dCurSpeciesMolWt = double.NaN; return;
+                }
+                double temp = 0;
+                for (int i = 0; i < m.Groups["Symb"].Captures.Count; i++)
+                {
+                    if (!AtomicWts.ContainsKey(m.Groups["Symb"].Captures[i].Value))
+                    {
+                        m_dCurSpeciesMolWt = double.NaN; return;
+                    }
+                    double count = 1;
+                    if (m.Groups["Count"].Captures[i].Length > 0)
+                    {
+                        if (!double.TryParse(m.Groups["Count"].Captures[i].Value, out count))
+                            count = FracParse(m.Groups["Count"].Captures[i].Value);
+                    }
+                    temp += AtomicWts[m.Groups["Symb"].Captures[i].Value] * count;
+                }
+                for (int i = 0; i < m.Groups["Wt"].Captures.Count; i++)
+                    temp += double.Parse(m.Groups["Wt"].Captures[i].Value);
+                m_dCurSpeciesMolWt = temp;
+            }
+            catch { }
+            UpdateGraphValues();
+        }
+
+        protected double FracParse(string s)
+        {
+            string[] subs = s.Split('/');
+            return double.Parse(subs[0]) / double.Parse(subs[1]);
+        }
+
+        protected void UpdateGraphValues()
+        {
+            UpdateGraphValues(graph1.Series);
+        }
+
+        protected void UpdateGraphValues(ICollection<GraphSeries> series)
+        {
+            foreach (GraphSeries gs in series)
+                if (gs is MultiEquationDataset)
+                    UpdateGraphValues(((MultiEquationDataset)gs).SubSeries);
+                else if (gs is EquationGraphSeries)
+                    ((EquationGraphSeries)gs).SetVariable("MolWt", m_dCurSpeciesMolWt);
+            graph1.Invalidate();
+        }
+
         #endregion Specie DB stuff
 
         #region Project Vector Stuff
@@ -1504,6 +1574,7 @@ namespace Configuration_Editor
             DoDragDrop(drag, DragDropEffects.Link);
         }
 
+        #region Project Species Tab
         private void lstProjectVector_DragDrop(object sender, DragEventArgs e)
         {
             try
@@ -1762,16 +1833,6 @@ namespace Configuration_Editor
                 e.Effect = DragDropEffects.Move;
         }
 
-        private void lstDBSpecies_ItemActivate(object sender, EventArgs e)
-        {
-            MessageBox.Show("Not Implemented");
-        }
-
-        private void txtFilter_TextChanged(object sender, EventArgs e)
-        {
-            UpdateFilter();
-        }
-
         private void btnRemove_Click(object sender, EventArgs e)
         {
             ListViewItem[] selectedItems = new ListViewItem[lstProjectVector.SelectedItems.Count];
@@ -1810,6 +1871,196 @@ namespace Configuration_Editor
             SetBtnEnables();
         }
 
+        private void txtCalcDesc_TextChanged(object sender, EventArgs e)
+        {
+            if (m_CurrentItem is ProjectCalculation)
+                ((ProjectCalculation)m_CurrentItem).Desc = txtCalcDesc.Text;
+        }
+
+        private void lstProjectVector_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+                btnRemove_Click(sender, e);
+        }
+
+        private void txtCalcSymbol_TextChanged(object sender, EventArgs e)
+        {
+            if (m_CurrentItem is ProjectCalculation)
+                m_CurrentItem.Name = txtCalcSymbol.Text;
+        }
+
+        private void txtMinTemperature_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                graph1.MinXValue = double.Parse(txtMinTemperature.Text);
+            }
+            catch { }
+        }
+
+        private void txtMaxTemperature_TextChanged(object sender, EventArgs e)
+        {
+            try { graph1.MaxXValue = double.Parse(txtMaxTemperature.Text); }
+            catch { }
+        }
+        
+        private void txtAttParent_TextChanged(object sender, EventArgs e)
+        {
+            if (m_CurrentItem is ProjectAttribute)
+            {
+                ((ProjectAttribute)m_CurrentItem).Parent = txtAttParent.Text;
+                if (string.IsNullOrEmpty(txtAttParent.Text) || !GetAvailableParents().Contains(txtAttParent.Text))
+                {
+                    m_CurrentItem.Valid = false;
+                    m_CurrentItem.StatusDetails = "Parent Not Found.";
+                }
+                else
+                    m_CurrentItem.Valid = true;
+            }
+        }
+
+        private void txtAttDimension_TextChanged(object sender, EventArgs e)
+        {
+            if (m_CurrentItem is ProjectAttribute)
+                ((ProjectAttribute)m_CurrentItem).Cnv = txtAttDimension.Text;
+        }
+
+        //Called after a symbol is changed in the database. If the selected compound is in the project specie list, updates that compound & rechecks calculations (Does not refactor calculations).
+        protected void UpdateProjectLVIs()
+        {
+            bool changed = false;
+            try
+            {
+                DataRow curRow = ((DataRowView)this.BindingContext[m_SpecieDataTable].Current).Row;
+                foreach (ListViewItem lvi in lstProjectVector.Items)
+                    if (lvi.Tag is ProjectSpecie &&
+                        ((ProjectSpecie)lvi.Tag).SpDataRow == curRow)
+                    {
+                        changed = true;
+                        ((ProjectSpecie)lvi.Tag).UpdateLVI();
+                    }
+            }
+            catch { }
+            if (changed)
+                CheckCalculations();
+        }
+ 
+        private void menuSpDBContext_Opening(object sender, CancelEventArgs e)
+        {
+            menuDelete.Enabled = lstDBSpecies.SelectedItems.Count > 0;
+            menuSpDBAddToProject.Enabled = lstDBSpecies.SelectedItems.Count > 0;
+        }
+        #endregion Project Species Tab
+
+        #region Database Tab
+        private void radioEntropy_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton rSender = sender as RadioButton;
+            m_CurrentGraphColumn = (string)rSender.Tag;
+            m_GraphSeries[m_CurrentGraphColumn].Selected = rSender.Checked;
+            if (rSender.Checked)
+                LoadEquationsIntoTextboxes(m_CurrentGraphColumn);
+            tlpEquations.Enabled = true;
+        }
+
+        private void txtFormula0_Leave(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(m_CurrentGraphColumn))
+                {
+                    m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][m_CurrentGraphColumn] = CreateDBString();
+                    LoadEquationsIntoGraph(m_CurrentGraphColumn);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Formulae", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void txtName_Validating(object sender, CancelEventArgs e)
+        {
+            e.Cancel = !s_AcceptableNameRegex.Match(txtName.Text).Success;
+            if (e.Cancel)
+                errorProvider1.SetError(txtName, "Invalid Characters");
+            else
+                errorProvider1.SetError(txtName, "");
+        }
+
+        private void txtSymbol_Validating(object sender, CancelEventArgs e)
+        {
+            e.Cancel = !s_AcceptableSymbRegex.Match(txtSymbol.Text).Success;
+            if (e.Cancel)
+                errorProvider1.SetError(txtSymbol, "Invalid Characters");
+            else
+                errorProvider1.SetError(txtSymbol, "");
+        }
+
+        private void comboPhase_Validated(object sender, EventArgs e)
+        {
+            //Rebuild the dropdown list:
+            comboPhase.Items.Clear();
+            foreach (DataRow r in m_SpecieDataTable.Rows)
+                if (!comboPhase.Items.Contains(r["Phase"]))
+                    comboPhase.Items.Add(r["Phase"]);
+        }
+
+        private void txtSymbol_Validated(object sender, EventArgs e)
+        {
+            UpdateProjectLVIs();
+            UpdateDBLVIs();
+        }
+ 
+        private void txtName_Validated(object sender, EventArgs e)
+        {
+            UpdateDBLVIs();
+        }
+
+        private void txtElementalComposition_Validating(object sender, CancelEventArgs e)
+        {
+            Match m = s_DefinitionRegex.Match(txtElementalComposition.Text);
+            if (!m.Success)
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(txtElementalComposition, "Unable To Parse Definition");
+            }
+            else
+            {
+                bool ok = true;
+                foreach (Capture c in m.Groups["Symb"].Captures)
+                    if (!AtomicWts.ContainsKey(c.Value))
+                    {
+                        errorProvider1.SetError(txtElementalComposition, "Unknown symbol " + c.Value);
+                        ok = false;
+                        break;
+                    }
+                if (ok)
+                    errorProvider1.SetError(txtElementalComposition, "");
+            }
+        }
+
+        private void txtElementalComposition_Validated(object sender, EventArgs e)
+        {
+            RecalculateMolWt();
+        }
+
+        #endregion Database Tab
+
+        private void lstDBSpecies_ItemActivate(object sender, EventArgs e)
+        {
+            if (tcSpecies.SelectedTab == tabProjectSpecies && m_CurrentItem is ProjectCalculation)
+            {
+                DataRow r = (DataRow)(lstDBSpecies.SelectedItems[0].Tag);
+                txtCalculation.Text += (string)r["Compound"] + "(" + r["Phase"] + ")";
+            }
+        }
+
+        private void txtFilter_TextChanged(object sender, EventArgs e)
+        {
+            UpdateFilter();
+        }
+
         private void MenuSort_Click(object sender, EventArgs e)
         {
             Sort();
@@ -1825,18 +2076,6 @@ namespace Configuration_Editor
                 m_Sorter = oldSorter;
                 m_SortOptions.Sorter = oldSorter;
             }
-        }
-
-        private void txtCalcDesc_TextChanged(object sender, EventArgs e)
-        {
-            if (m_CurrentItem is ProjectCalculation)
-                ((ProjectCalculation)m_CurrentItem).Desc = txtCalcDesc.Text;
-        }
-
-        private void lstProjectVector_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Delete)
-                btnRemove_Click(sender, e);
         }
 
         private void lstDBSpecies_SelectedIndexChanged(object sender, EventArgs e)
@@ -1861,40 +2100,9 @@ namespace Configuration_Editor
             }
         }
 
-        private void txtCalcSymbol_TextChanged(object sender, EventArgs e)
-        {
-            if (m_CurrentItem is ProjectCalculation)
-                m_CurrentItem.Name = txtCalcSymbol.Text;
-        }
-
         private void FireCheckCalculations(object sender, EventArgs e)
         {
             CheckCalculations();
-        }
-
-        private void txtMinTemperature_TextChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                graph1.MinXValue = double.Parse(txtMinTemperature.Text);
-            }
-            catch { }
-        }
-
-        private void txtMaxTemperature_TextChanged(object sender, EventArgs e)
-        {
-            try { graph1.MaxXValue = double.Parse(txtMaxTemperature.Text); }
-            catch { }
-        }
-
-        private void radioEntropy_CheckedChanged(object sender, EventArgs e)
-        {
-            RadioButton rSender = sender as RadioButton;
-            m_CurrentGraphColumn = (string)rSender.Tag;
-            m_GraphSeries[m_CurrentGraphColumn].Selected = rSender.Checked;
-            if (rSender.Checked)
-                LoadEquationsIntoTextboxes(m_CurrentGraphColumn);
-            tlpEquations.Enabled = true;
         }
 
         private void menuOpen_Click(object sender, EventArgs e)
@@ -1938,22 +2146,6 @@ namespace Configuration_Editor
             SaveAs();
         }
 
-        private void txtFormula0_Leave(object sender, EventArgs e)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(m_CurrentGraphColumn))
-                {
-                    m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][m_CurrentGraphColumn] = CreateDBString();
-                    LoadEquationsIntoGraph(m_CurrentGraphColumn);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Formulae", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private void menuSortSpDBAlph_CheckedChanged(object sender, EventArgs e)
         {
             UpdateFilter();
@@ -1993,8 +2185,6 @@ namespace Configuration_Editor
 
         private void aboutSysCADConfigurationEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //string ver = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-            //MessageBox.Show(this, "SysCAD Configuration Editor version " + ver + "\r\nTest version.", "About");
             new About.FrmAbout().ShowDialog(this);
         }
 
@@ -2033,167 +2223,6 @@ namespace Configuration_Editor
             }
             catch { }
             base.OnClosed(e);
-        }
-
-        private void txtName_Validating(object sender, CancelEventArgs e)
-        {
-            e.Cancel = !s_AcceptableNameRegex.Match(txtName.Text).Success;
-            if (e.Cancel)
-                errorProvider1.SetError(txtName, "Invalid Characters");
-            else
-                errorProvider1.SetError(txtName, "");
-        }
-
-        private void txtSymbol_Validating(object sender, CancelEventArgs e)
-        {
-            e.Cancel = !s_AcceptableSymbRegex.Match(txtSymbol.Text).Success;
-            if (e.Cancel)
-                errorProvider1.SetError(txtSymbol, "Invalid Characters");
-            else
-                errorProvider1.SetError(txtSymbol, "");
-        }
-
-        private void comboPhase_Validated(object sender, EventArgs e)
-        {
-            //Rebuild the dropdown list:
-            comboPhase.Items.Clear();
-            foreach (DataRow r in m_SpecieDataTable.Rows)
-                if (!comboPhase.Items.Contains(r["Phase"]))
-                    comboPhase.Items.Add(r["Phase"]);
-        }
-
-        private void txtSymbol_Validated(object sender, EventArgs e)
-        {
-            UpdateProjectLVIs();
-            UpdateDBLVIs();
-        }
-
-        //Called after a symbol is changed in the database. If the selected compound is in the project specie list, updates that compound & rechecks calculations (Does not refactor calculations).
-        protected void UpdateProjectLVIs()
-        {
-            bool changed = false;
-            try
-            {
-                DataRow curRow = ((DataRowView)this.BindingContext[m_SpecieDataTable].Current).Row;
-                foreach (ListViewItem lvi in lstProjectVector.Items)
-                    if (lvi.Tag is ProjectSpecie &&
-                        ((ProjectSpecie)lvi.Tag).SpDataRow == curRow)
-                    {
-                        changed = true;
-                        ((ProjectSpecie)lvi.Tag).UpdateLVI();
-                    }
-            }
-            catch { }
-            if (changed)
-                CheckCalculations();
-        }
-
-        protected void UpdateDBLVIs()
-        {
-            try
-            {
-                DataRow curRow = ((DataRowView)this.BindingContext[m_SpecieDataTable].Current).Row;
-                foreach (ListViewItem lvi in lstDBSpecies.Items)
-                    if (lvi.Tag == curRow)
-                    {
-                        lvi.SubItems[0].Text = (string) curRow["Compound"] + "(" + curRow["Phase"] + ")";
-                        lvi.SubItems[1].Text = (string) curRow["Name"];
-                        break; //Should only occur once.
-                    }
-            }
-            catch { };
-        }
-
-        private void txtName_Validated(object sender, EventArgs e)
-        {
-            UpdateDBLVIs();
-        }
-
-        private void txtElementalComposition_Validating(object sender, CancelEventArgs e)
-        {
-            Match m = s_DefinitionRegex.Match(txtElementalComposition.Text);
-            if (!m.Success)
-            {
-                e.Cancel = true;
-                errorProvider1.SetError(txtElementalComposition, "Unable To Parse Definition");
-            }
-            else
-            {
-                bool ok = true;
-                foreach (Capture c in m.Groups["Symb"].Captures)
-                    if (!AtomicWts.ContainsKey(c.Value))
-                    {
-                        errorProvider1.SetError(txtElementalComposition, "Unknown symbol " + c.Value);
-                        ok = false;
-                        break;
-                    }
-                if (ok)
-                    errorProvider1.SetError(txtElementalComposition, "");
-            }
-        }
-
-        private void txtElementalComposition_Validated(object sender, EventArgs e)
-        {
-            RecalculateMolWt();
-        }
-
-        protected void RecalculateMolWt()
-        {
-            try
-            {
-                Match m = s_DefinitionRegex.Match(txtElementalComposition.Text);
-                if (!m.Success)
-                {
-                    m_dCurSpeciesMolWt = double.NaN; return;
-                }
-                double temp = 0;
-                for (int i = 0; i < m.Groups["Symb"].Captures.Count; i++)
-                {
-                    if (!AtomicWts.ContainsKey(m.Groups["Symb"].Captures[i].Value))
-                    {
-                        m_dCurSpeciesMolWt = double.NaN; return;
-                    }
-                    double count = 1;
-                    if (m.Groups["Count"].Captures[i].Length > 0)
-                    {
-                        if (!double.TryParse(m.Groups["Count"].Captures[i].Value, out count))
-                            count = FracParse(m.Groups["Count"].Captures[i].Value);
-                    }
-                    temp += AtomicWts[m.Groups["Symb"].Captures[i].Value] * count;
-                }
-                for (int i = 0; i < m.Groups["Wt"].Captures.Count; i++)
-                    temp += double.Parse(m.Groups["Wt"].Captures[i].Value);
-                m_dCurSpeciesMolWt = temp;
-            }
-            catch { }
-            UpdateGraphValues();
-        }
-
-        protected double FracParse(string s)
-        {
-            string[] subs = s.Split('/');
-            return double.Parse(subs[0]) / double.Parse(subs[1]);
-        }
-
-        protected void UpdateGraphValues()
-        {
-            UpdateGraphValues(graph1.Series);                
-        }
-
-        private void UpdateGraphValues(ICollection<GraphSeries> series)
-        {
-            foreach (GraphSeries gs in series)
-                if (gs is MultiEquationDataset)
-                    UpdateGraphValues(((MultiEquationDataset)gs).SubSeries);
-                else if (gs is EquationGraphSeries)
-                    ((EquationGraphSeries)gs).SetVariable("MolWt", m_dCurSpeciesMolWt);
-            graph1.Invalidate();
-        }
-
-        private void menuSpDBContext_Opening(object sender, CancelEventArgs e)
-        {
-            menuDelete.Enabled = lstDBSpecies.SelectedItems.Count > 0;
-            menuSpDBAddToProject.Enabled = lstDBSpecies.SelectedItems.Count > 0;
         }
 
         private void menuDelete_Click(object sender, EventArgs e)
@@ -2250,27 +2279,6 @@ namespace Configuration_Editor
         private void menuNewSpecies_Click(object sender, EventArgs e)
         {
             CreateSpecies();
-        }
-
-        private void txtAttParent_TextChanged(object sender, EventArgs e)
-        {
-            if (m_CurrentItem is ProjectAttribute)
-            {
-                ((ProjectAttribute)m_CurrentItem).Parent = txtAttParent.Text;
-                if (string.IsNullOrEmpty(txtAttParent.Text) || !GetAvailableParents().Contains(txtAttParent.Text))
-                {
-                    m_CurrentItem.Valid = false;
-                    m_CurrentItem.StatusDetails = "Parent Not Found.";
-                }
-                else
-                    m_CurrentItem.Valid = true;
-            }
-        }
-
-        private void txtAttDimension_TextChanged(object sender, EventArgs e)
-        {
-            if (m_CurrentItem is ProjectAttribute)
-                ((ProjectAttribute)m_CurrentItem).Cnv = txtAttDimension.Text;
         }
     }
 

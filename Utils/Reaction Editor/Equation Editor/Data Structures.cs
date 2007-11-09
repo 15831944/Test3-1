@@ -1163,7 +1163,7 @@ namespace Reaction_Editor
             @"^\s*HeatOfReaction\s*:\s*(?<Type>MsFixed|MlFixed)\s*=\s*(?<Value>(\+|-)?(\d+(\.\d+)?|\.\d+))\s*(/\s*(?<Specie>\S*))?\s*(At\s*(?<Cond>(?<Condition>Feed|Prod|Std)|(?<T>(\+|-)?(\d*(\.\d+)?|\.\d+))C?(\s*,\s*(?<P>\d*(\.\d+)?|\.\d+))?))?\s*$",
             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         public static Regex s_CompoundRegex = new Regex(
-            @"^\s*(?<Unparseable>.*?)(?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s]*)(?>(?<Unparseable>.*?)\s+\+\s+(?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s]*))*\s*(?<Unparseable>.*?)$",
+            @"^\s*(?<Unparseable>.*?)((?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s]+))?(?>(?<Unparseable>.*?)\s+\+\s+(?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s]+))*\s*(?<Unparseable>.*?)$",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         #endregion Regex's
 

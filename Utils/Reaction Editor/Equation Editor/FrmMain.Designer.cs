@@ -41,14 +41,13 @@ namespace Reaction_Editor
             this.menuOpen = new System.Windows.Forms.ToolStripMenuItem();
             this.menuOpenDir = new System.Windows.Forms.ToolStripMenuItem();
             this.menuClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuCloseAll = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.menuRevert = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.menuSave = new System.Windows.Forms.ToolStripMenuItem();
             this.menuSaveAs = new System.Windows.Forms.ToolStripMenuItem();
             this.menuSaveAll = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-            this.menuOpenDB = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRecentFileSeperator = new System.Windows.Forms.ToolStripSeparator();
             this.menuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -99,6 +98,10 @@ namespace Reaction_Editor
             this.lstLog = new System.Windows.Forms.ListView();
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+            this.menuLog = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuGotoSource = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuClearLog = new System.Windows.Forms.ToolStripMenuItem();
             this.listView1 = new System.Windows.Forms.ListView();
             this.pnlLogHeader = new System.Windows.Forms.Panel();
             this.btnLogCollapse = new System.Windows.Forms.Button();
@@ -116,10 +119,6 @@ namespace Reaction_Editor
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnRevert = new System.Windows.Forms.ToolStripButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.menuLog = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.menuGotoSource = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
-            this.menuClearLog = new System.Windows.Forms.ToolStripMenuItem();
             this.menuReactionBlock = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuRB_Save = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRB_Close = new System.Windows.Forms.ToolStripMenuItem();
@@ -127,6 +126,8 @@ namespace Reaction_Editor
             this.menuRB_Delete = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRB_Rename = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRB_Copy = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuOlineHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
@@ -135,9 +136,9 @@ namespace Reaction_Editor
             this.pnlFilter.SuspendLayout();
             this.menuDatabaseFile.SuspendLayout();
             this.pnlLog.SuspendLayout();
+            this.menuLog.SuspendLayout();
             this.pnlLogHeader.SuspendLayout();
             this.toolStrip1.SuspendLayout();
-            this.menuLog.SuspendLayout();
             this.menuReactionBlock.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -162,14 +163,13 @@ namespace Reaction_Editor
             this.menuOpen,
             this.menuOpenDir,
             this.menuClose,
+            this.menuCloseAll,
             this.toolStripSeparator3,
             this.menuRevert,
             this.toolStripMenuItem1,
             this.menuSave,
             this.menuSaveAs,
             this.menuSaveAll,
-            this.toolStripMenuItem2,
-            this.menuOpenDB,
             this.menuRecentFileSeperator,
             this.menuExit});
             this.menuFile.Name = "menuFile";
@@ -207,6 +207,13 @@ namespace Reaction_Editor
             this.menuClose.Text = "&Close";
             this.menuClose.Click += new System.EventHandler(this.menuClose_Click);
             // 
+            // menuCloseAll
+            // 
+            this.menuCloseAll.Name = "menuCloseAll";
+            this.menuCloseAll.Size = new System.Drawing.Size(166, 22);
+            this.menuCloseAll.Text = "Close All";
+            this.menuCloseAll.Click += new System.EventHandler(this.menuCloseAll_Click);
+            // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
@@ -237,7 +244,7 @@ namespace Reaction_Editor
             this.menuSaveAs.Name = "menuSaveAs";
             this.menuSaveAs.Size = new System.Drawing.Size(166, 22);
             this.menuSaveAs.Text = "Save &As";
-            this.menuSaveAs.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+            this.menuSaveAs.Click += new System.EventHandler(this.menuSaveAs_Click);
             // 
             // menuSaveAll
             // 
@@ -245,18 +252,6 @@ namespace Reaction_Editor
             this.menuSaveAll.Size = new System.Drawing.Size(166, 22);
             this.menuSaveAll.Text = "Save A&ll";
             this.menuSaveAll.Click += new System.EventHandler(this.menuSaveAll_Click);
-            // 
-            // toolStripMenuItem2
-            // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(163, 6);
-            // 
-            // menuOpenDB
-            // 
-            this.menuOpenDB.Name = "menuOpenDB";
-            this.menuOpenDB.Size = new System.Drawing.Size(166, 22);
-            this.menuOpenDB.Text = "Open Da&tabase";
-            this.menuOpenDB.Click += new System.EventHandler(this.menuOpenDB_Click);
             // 
             // menuRecentFileSeperator
             // 
@@ -376,6 +371,8 @@ namespace Reaction_Editor
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuOlineHelp,
+            this.toolStripSeparator4,
             this.aboutSysCADReactionEditorToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
@@ -673,6 +670,7 @@ namespace Reaction_Editor
             this.lstLog.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2});
+            this.lstLog.ContextMenuStrip = this.menuLog;
             this.lstLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstLog.FullRowSelect = true;
             this.lstLog.Location = new System.Drawing.Point(0, 18);
@@ -692,6 +690,35 @@ namespace Reaction_Editor
             // 
             this.columnHeader2.Text = "Message";
             this.columnHeader2.Width = 700;
+            // 
+            // menuLog
+            // 
+            this.menuLog.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuGotoSource,
+            this.toolStripMenuItem6,
+            this.menuClearLog});
+            this.menuLog.Name = "menuLog";
+            this.menuLog.Size = new System.Drawing.Size(145, 54);
+            this.menuLog.Opening += new System.ComponentModel.CancelEventHandler(this.menuLog_Opening);
+            // 
+            // menuGotoSource
+            // 
+            this.menuGotoSource.Name = "menuGotoSource";
+            this.menuGotoSource.Size = new System.Drawing.Size(144, 22);
+            this.menuGotoSource.Text = "Goto Source";
+            this.menuGotoSource.Click += new System.EventHandler(this.menuGotoSource_Click);
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(141, 6);
+            // 
+            // menuClearLog
+            // 
+            this.menuClearLog.Name = "menuClearLog";
+            this.menuClearLog.Size = new System.Drawing.Size(144, 22);
+            this.menuClearLog.Text = "Clear Log";
+            this.menuClearLog.Click += new System.EventHandler(this.menuClearLog_Click);
             // 
             // listView1
             // 
@@ -862,35 +889,6 @@ namespace Reaction_Editor
             this.btnRevert.Text = "Revert";
             this.btnRevert.Click += new System.EventHandler(this.btnRevert_Click);
             // 
-            // menuLog
-            // 
-            this.menuLog.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuGotoSource,
-            this.toolStripMenuItem6,
-            this.menuClearLog});
-            this.menuLog.Name = "menuLog";
-            this.menuLog.Size = new System.Drawing.Size(145, 54);
-            this.menuLog.Opening += new System.ComponentModel.CancelEventHandler(this.menuLog_Opening);
-            // 
-            // menuGotoSource
-            // 
-            this.menuGotoSource.Name = "menuGotoSource";
-            this.menuGotoSource.Size = new System.Drawing.Size(144, 22);
-            this.menuGotoSource.Text = "Goto Source";
-            this.menuGotoSource.Click += new System.EventHandler(this.menuGotoSource_Click);
-            // 
-            // toolStripMenuItem6
-            // 
-            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(141, 6);
-            // 
-            // menuClearLog
-            // 
-            this.menuClearLog.Name = "menuClearLog";
-            this.menuClearLog.Size = new System.Drawing.Size(144, 22);
-            this.menuClearLog.Text = "Clear Log";
-            this.menuClearLog.Click += new System.EventHandler(this.menuClearLog_Click);
-            // 
             // menuReactionBlock
             // 
             this.menuReactionBlock.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -901,48 +899,62 @@ namespace Reaction_Editor
             this.menuRB_Rename,
             this.menuRB_Copy});
             this.menuReactionBlock.Name = "menuReactionBlock";
-            this.menuReactionBlock.Size = new System.Drawing.Size(153, 142);
+            this.menuReactionBlock.Size = new System.Drawing.Size(125, 120);
             this.menuReactionBlock.Opening += new System.ComponentModel.CancelEventHandler(this.menuReactionBlock_Opening);
             // 
             // menuRB_Save
             // 
             this.menuRB_Save.Name = "menuRB_Save";
-            this.menuRB_Save.Size = new System.Drawing.Size(152, 22);
+            this.menuRB_Save.Size = new System.Drawing.Size(124, 22);
             this.menuRB_Save.Text = "&Save";
             this.menuRB_Save.Click += new System.EventHandler(this.menuRB_Save_Click);
             // 
             // menuRB_Close
             // 
             this.menuRB_Close.Name = "menuRB_Close";
-            this.menuRB_Close.Size = new System.Drawing.Size(152, 22);
+            this.menuRB_Close.Size = new System.Drawing.Size(124, 22);
             this.menuRB_Close.Text = "&Close";
             this.menuRB_Close.Click += new System.EventHandler(this.menuRB_Close_Click);
             // 
             // toolStripMenuItem7
             // 
             this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-            this.toolStripMenuItem7.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(121, 6);
             // 
             // menuRB_Delete
             // 
             this.menuRB_Delete.Name = "menuRB_Delete";
-            this.menuRB_Delete.Size = new System.Drawing.Size(152, 22);
+            this.menuRB_Delete.Size = new System.Drawing.Size(124, 22);
             this.menuRB_Delete.Text = "&Delete";
             this.menuRB_Delete.Click += new System.EventHandler(this.menuRB_Delete_Click);
             // 
             // menuRB_Rename
             // 
             this.menuRB_Rename.Name = "menuRB_Rename";
-            this.menuRB_Rename.Size = new System.Drawing.Size(152, 22);
+            this.menuRB_Rename.Size = new System.Drawing.Size(124, 22);
             this.menuRB_Rename.Text = "&Rename";
             this.menuRB_Rename.Click += new System.EventHandler(this.menuRB_Rename_Click);
             // 
             // menuRB_Copy
             // 
             this.menuRB_Copy.Name = "menuRB_Copy";
-            this.menuRB_Copy.Size = new System.Drawing.Size(152, 22);
+            this.menuRB_Copy.Size = new System.Drawing.Size(124, 22);
             this.menuRB_Copy.Text = "C&opy";
             this.menuRB_Copy.Click += new System.EventHandler(this.menuRB_Copy_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(228, 6);
+            // 
+            // menuOlineHelp
+            // 
+            this.menuOlineHelp.Name = "menuOlineHelp";
+            this.menuOlineHelp.ShortcutKeyDisplayString = "F1";
+            this.menuOlineHelp.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.menuOlineHelp.Size = new System.Drawing.Size(231, 22);
+            this.menuOlineHelp.Text = "Online &Help";
+            this.menuOlineHelp.Click += new System.EventHandler(this.menuOlineHelp_Click);
             // 
             // FrmMain
             // 
@@ -979,11 +991,11 @@ namespace Reaction_Editor
             this.pnlFilter.PerformLayout();
             this.menuDatabaseFile.ResumeLayout(false);
             this.pnlLog.ResumeLayout(false);
+            this.menuLog.ResumeLayout(false);
             this.pnlLogHeader.ResumeLayout(false);
             this.pnlLogHeader.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
-            this.menuLog.ResumeLayout(false);
             this.menuReactionBlock.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -1010,7 +1022,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripMenuItem menuSave;
         private System.Windows.Forms.ToolStripMenuItem menuSaveAs;
         private System.Windows.Forms.ToolStripMenuItem menuSaveAll;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripSeparator menuRecentFileSeperator;
         private System.Windows.Forms.ToolStripMenuItem menuExit;
         private System.Windows.Forms.ColumnHeader chName;
         private System.Windows.Forms.ColumnHeader chSymbol;
@@ -1018,8 +1030,6 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripStatusLabel m_StatusLabel;
         private System.Windows.Forms.OpenFileDialog dlgOpenRxn;
         private System.Windows.Forms.SaveFileDialog dlgSaveRxn;
-        private System.Windows.Forms.ToolStripMenuItem menuOpenDB;
-        private System.Windows.Forms.ToolStripSeparator menuRecentFileSeperator;
         private System.Windows.Forms.OpenFileDialog dlgOpenDB;
         private System.Windows.Forms.ToolStripMenuItem arrangeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem undockToolStripMenuItem;
@@ -1084,6 +1094,9 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripMenuItem menuRB_Delete;
         private System.Windows.Forms.ToolStripMenuItem menuRB_Rename;
         private System.Windows.Forms.ToolStripMenuItem menuRB_Copy;
+        private System.Windows.Forms.ToolStripMenuItem menuCloseAll;
+        private System.Windows.Forms.ToolStripMenuItem menuOlineHelp;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
 
 
     }

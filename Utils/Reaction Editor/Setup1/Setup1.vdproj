@@ -129,7 +129,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_9A59EBE1B0C143D5B40A32504BFFF372"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder]SysCAD91"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -150,7 +150,7 @@
                 {
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_9BD652251790409087AB0E225D70A43A"
                     {
-                    "Name" = "8:SysCAD Reaction Editor"
+                    "Name" = "8:SysCAD 9.1"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
@@ -176,14 +176,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SysCAD Reaction Editor"
-        "ProductCode" = "8:{ED9D739B-94E8-40A5-8FB6-6AA65544F6C3}"
-        "PackageCode" = "8:{F2BB81E0-4CE6-46DC-80E1-F0CA7328F2F6}"
+        "ProductCode" = "8:{6353E02B-FF9D-4D75-933E-2DAC508D17F5}"
+        "PackageCode" = "8:{78176F91-84CD-4AC8-A9AE-5799F3E99C26}"
         "UpgradeCode" = "8:{2CAC4030-9028-48CB-8671-1DC146191CF4}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.19"
+        "ProductVersion" = "8:1.0.20"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.SysCAD.net"

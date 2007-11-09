@@ -63,6 +63,12 @@
       <DependentUpon>FrmSortOptions.cs</DependentUpon>
     </Compile>
     <Compile Include="Messaging.cs" />
+    <Compile Include="ProjectVectorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ProjectVectorControl.Designer.cs">
+      <DependentUpon>ProjectVectorControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="ProjectVectorItem.cs">
     </Compile>
     <Compile Include="FrmMain.cs">
@@ -88,6 +94,10 @@
     <EmbeddedResource Include="FrmSortOptions.resx">
       <SubType>Designer</SubType>
       <DependentUpon>FrmSortOptions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProjectVectorControl.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ProjectVectorControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

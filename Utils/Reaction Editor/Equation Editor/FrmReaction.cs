@@ -1539,6 +1539,40 @@ namespace Reaction_Editor
             this.tabReactions.ResumeLayout();
         }
 
+        protected void DoAddReaction(object sender, EventArgs e)
+        {
+            SimpleReaction rxn = CreateReaction();
+            rxn.LVI.Selected = true;
+            txtReactants.Select();
+            UpdateReactionNumbers();
+            if (ReactionAdded != null)
+                ReactionAdded(this, rxn);
+        }
+
+        protected void DoAddHX(object sender, EventArgs e)
+        {
+            m_HX = new HXReaction();
+            SetupHX();
+            m_HX.LVI.Selected = true;
+            comboHXType.Select();
+        }
+
+        protected void DoAddSink(object sender, EventArgs e)
+        {
+            m_Sinks = new CompoundListReaction(CompoundListReaction.ListType.Sink);
+            SetupSinks();
+            m_Sinks.LVI.Selected = true;
+            txtSinks.Select();
+        }
+
+        protected void DoAddSource(object sender, EventArgs e)
+        {
+            m_Sources = new CompoundListReaction(CompoundListReaction.ListType.Source);
+            SetupSources();
+            m_Sources.LVI.Selected = true;
+            txtSources.Select();
+        }
+
         private void btnAdd_Click(object sender, EventArgs e)
         {
             m_AddSelector.radioHX.Enabled = m_HX == null;
@@ -1548,36 +1582,13 @@ namespace Reaction_Editor
             if (m_AddSelector.ShowDialog(this) == DialogResult.Cancel)
                 return;
             if (m_AddSelector.radioReaction.Checked)
-            {
-                SimpleReaction rxn = CreateReaction();
-                rxn.LVI.Selected = true;
-                txtReactants.Select();
-                UpdateReactionNumbers();
-                if (ReactionAdded != null)
-                    ReactionAdded(this, rxn);
-            }
+                DoAddReaction(sender, e);
             else if (m_AddSelector.radioHX.Checked)
-            {
-                m_HX = new HXReaction();
-                SetupHX();
-                m_HX.LVI.Selected = true;
-                comboHXType.Select();
-            }
+                DoAddHX(sender, e);
             else if (m_AddSelector.radioSink.Checked)
-            {
-                //TODO: Source and sink events.
-                m_Sinks = new CompoundListReaction(CompoundListReaction.ListType.Sink);
-                SetupSinks();
-                m_Sinks.LVI.Selected = true;
-                txtSinks.Select();
-            }
+                DoAddSink(sender, e);
             else if (m_AddSelector.radioSource.Checked)
-            {
-                m_Sources = new CompoundListReaction(CompoundListReaction.ListType.Source);
-                SetupSources();
-                m_Sources.LVI.Selected = true;
-                txtSources.Select();
-            }
+                DoAddSource(sender, e);
         }
 
         private void SetupSinks()
@@ -2713,6 +2724,13 @@ namespace Reaction_Editor
         private void txtHXComment_TextChanged(object sender, EventArgs e)
         {
             m_HX.Comment = txtHXComment.Text;
+        }
+
+        private void menuAddOther_DropDownOpening(object sender, EventArgs e)
+        {
+            menuAddHX.Enabled = m_HX != null;
+            menuAddSource.Enabled = m_Sources != null;
+            menuAddSink.Enabled = m_Sinks != null;
         }
     }
 }

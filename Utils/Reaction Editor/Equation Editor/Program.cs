@@ -128,6 +128,10 @@ namespace Reaction_Editor
                         interopMessenger.SendStrings(directory, Args);
                         return false;
                     }
+                    //Check if it is a session ended message: If it is, don't start the application:
+                    foreach (string s in Args)
+                        if (s.ToLower() == "/sessionended")
+                            return false;
                 }
                 catch (Exception ex) { Console.WriteLine(ex.ToString()); }
             }

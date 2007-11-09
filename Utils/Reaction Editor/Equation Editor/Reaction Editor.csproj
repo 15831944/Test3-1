@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Reaction_Editor</RootNamespace>
     <AssemblyName>SysCADReactionEditor</AssemblyName>
-    <ApplicationIcon>MAINFRAME.ico</ApplicationIcon>
+    <ApplicationIcon>Flask.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -84,7 +84,7 @@
     </Compile>
     <Compile Include="Data Structures.cs" />
     <Compile Include="FrmAutoComplete.cs">
-      <SubType>Form</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="FrmAutoComplete.designer.cs">
       <DependentUpon>FrmAutoComplete.cs</DependentUpon>
@@ -196,6 +196,8 @@
     <None Include="Images\Warning.bmp" />
     <None Include="Images\Critical.bmp" />
     <None Include="Images\Information.bmp" />
+    <None Include="Flask.png" />
+    <Content Include="Flask.ico" />
     <Content Include="KWA.ico" />
     <Content Include="MAINFRAME.ico" />
   </ItemGroup>

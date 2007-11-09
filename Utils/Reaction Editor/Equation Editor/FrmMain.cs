@@ -48,6 +48,19 @@ namespace Reaction_Editor
         /// </summary>
         public static bool CreateElems = true;
 
+        private OpenPossibilities CanOpen(string filename)
+        {
+            string dir = Directory.Exists(filename) ? filename : Path.GetDirectoryName(filename);
+            if (dir == m_sActiveDirectory)
+                return OpenPossibilities.This;
+            else if (Program.interopMessenger.AlreadyOpen(dir))
+                return OpenPossibilities.Existing;
+            else if (string.IsNullOrEmpty(m_sActiveDirectory))
+                return OpenPossibilities.This;
+            else
+                return OpenPossibilities.New;
+        }
+
         protected void OpenSpecieDB(string filename)
         {
             try
@@ -139,6 +152,7 @@ namespace Reaction_Editor
                 treeFiles.Nodes["SpecieDB"].Nodes.Add(newNode);
                 treeFiles.Nodes["SpecieDB"].Expand();
                 regKey.SetValue("Last Database", filename);
+                UpdateLastPath(Path.GetDirectoryName(filename));
             }
             catch (Exception ex)
             {
@@ -156,18 +170,19 @@ namespace Reaction_Editor
             Program.FrmAutobalanceExtraComps.UpdateAutocomplete();
         }
 
+        //Determines if the specie database relevant to a folder is loaded.
         protected bool CheckSpecieDB(string filename)
         {
-            bool bDBLoaded = false;
-            foreach (TreeNode n in treeFiles.Nodes["SpecieDB"].Nodes)
+            bool bDBLoaded = treeFiles.Nodes["SpecieDB"].Nodes.Count > 0;
+            /*foreach (TreeNode n in treeFiles.Nodes["SpecieDB"].Nodes)
                 if (Path.GetDirectoryName(n.Text) == Path.GetDirectoryName(filename))
                 {
                     bDBLoaded = true;
                     break;
-                }
+                }*/
             if (!bDBLoaded)
             {
-                switch (MessageBox.Show(this, "No specie database loaded from same folder as reaction. Open database from reaction folder?", "Open", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1))
+                /*switch (MessageBox.Show(this, "No specie database loaded from same folder as reaction. Open database from reaction folder?", "Open", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1))
                 {
                     case DialogResult.Yes:
                         if (!File.Exists(Path.GetDirectoryName(filename) + "\\SpecieData.ini") && !File.Exists(Path.GetDirectoryName(filename) + "\\Reactions\\SpecieData.ini"))
@@ -186,6 +201,23 @@ namespace Reaction_Editor
                         break;
                     case DialogResult.Cancel:
                         return false;
+                }*/
+                if (!string.IsNullOrEmpty(filename) && File.Exists(Path.Combine(Path.GetDirectoryName(filename), "speciedata.ini")))
+                    OpenSpecieDB(Path.Combine(Path.GetDirectoryName(filename), "speciedata.ini"));
+                else
+                {
+                    string oldTitle = dlgOpenDB.Title;
+                    dlgOpenDB.Title = "Please select a specie database to open.";
+                    if (dlgOpenDB.ShowDialog(this) == DialogResult.OK)
+                    {
+                        dlgOpenDB.Title = oldTitle;
+                        OpenSpecieDB(dlgOpenDB.FileName);
+                    }
+                    else
+                    {
+                        dlgOpenDB.Title = oldTitle;
+                        return false;
+                    }
                 }
             }
             return true;
@@ -204,6 +236,7 @@ namespace Reaction_Editor
                 FrmReaction frm = new FrmReaction(filename, Log);
                 RegisterForm(frm);
                 RegisterRecentFile(filename);
+                UpdateLastPath(Path.GetDirectoryName(filename));
                 return frm;
             }
             catch (Exception ex)
@@ -318,13 +351,12 @@ namespace Reaction_Editor
             try
             {
                 if (target.FileOpen)
-                {
                     dlgSaveRxn.FileName = target.Filename;
-                }
                 dlgSaveRxn.Title = "Save Reaction " + target.Title;
                 if (dlgSaveRxn.ShowDialog(this) == DialogResult.OK)
                     target.SaveAs(dlgSaveRxn.FileName);
                 RegisterRecentFile(target.Filename);
+                ((TreeNode)target.Tag).Text = target.Title;
             }
             catch (Exception ex)
             {
@@ -480,9 +512,7 @@ namespace Reaction_Editor
             if (this.InvokeRequired)
             {
                 //This seems to cause some issues with the interop.
-                Console.WriteLine("FrmMain::HandleArgs() about to invoke");
                 this.BeginInvoke(new StringHandler(HandleArgs), new object[] { dir, args });
-                Console.WriteLine("FrmMain::HandleArgs() about to return");
                 return;
             }
             Console.WriteLine("FrmMain::HandleArgs() passed InvokeRequired()");
@@ -492,12 +522,12 @@ namespace Reaction_Editor
                     dir.ToLowerInvariant() != this.m_sActiveDirectory.ToLowerInvariant())
                     return; //Ignore messages not intended for our application.
 
-                bool bEndNotification = false;
                 foreach (string s in args)
                     if (s.ToLowerInvariant() == "/sessionended")
-                        bEndNotification = true;
-                if (bEndNotification)
-                    MessageBox.Show("The SysCAD session associated with this instance of the reaction editor has ended.", "SysCAD Reaction Editor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    {
+                        MessageBox.Show("The SysCAD session associated with this instance of the reaction editor has ended.", "SysCAD Reaction Editor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return; //We ignore any other parameters if we get a sessionended notification.
+                    }
 
                 string regLastPath = "My Documents";
                 string lastPath = "";
@@ -555,6 +585,22 @@ namespace Reaction_Editor
                         }
                 }
 
+                if (!string.IsNullOrEmpty(dir) && !bDBOpen)
+                {
+                    string oldTitle = dlgOpenDB.Title;
+                    dlgOpenDB.Title = "Please select a specie database to open.";
+                    if (dlgOpenDB.ShowDialog(this) == DialogResult.OK)
+                    {
+                        dlgOpenDB.Title = oldTitle;
+                        OpenSpecieDB(dlgOpenDB.FileName);
+                    }
+                    else
+                    {
+                        dlgOpenDB.Title = oldTitle;
+                        return;
+                    }
+                }
+
                 //Load any folders specified:
                 foreach (string s in args)
                 {
@@ -605,16 +651,21 @@ namespace Reaction_Editor
             {
                 Console.WriteLine(ex.ToString());
             }
-            Console.WriteLine("FrmMain::HandleArgs() about to complete");
         }
 
         protected void UpdateLastPath(string lastPath)
         {
+            SetDirs(lastPath);
+
+            if (!string.IsNullOrEmpty(m_sActiveDirectory)  && m_sActiveDirectory.ToLower() == lastPath.ToLower())
+                return;
+
             Program.interopMessenger.UnRegisterDirectory(m_sActiveDirectory);
             m_sActiveDirectory = lastPath;
             Program.interopMessenger.RegisterDirectory(m_sActiveDirectory, StringShim.Create(new StringHandler(HandleArgs)));
             regKey.SetValue("Last Folder", lastPath);
-            SetDirs(lastPath);
+
+            Program.Log.Message("Active directory set to '" + lastPath + "'", MessageType.Note, null);
         }
 
         protected void SetDirs(string path)
@@ -723,26 +774,46 @@ namespace Reaction_Editor
 
         void recentFile_Click(object sender, EventArgs e)
         {
-            if (CheckSpecieDB((string)((ToolStripMenuItem)sender).Tag))
-                Open((string)((ToolStripMenuItem)sender).Tag);
+            switch (CanOpen((string)((ToolStripMenuItem)sender).Tag))
+            {
+                case OpenPossibilities.New:
+                    MessageBox.Show(this, "Selected file is not in the active directory. Please launch a new instance of the Reaction Editor to edit this file.", "Open", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    break;
+                case OpenPossibilities.Existing:
+                    MessageBox.Show(this, "Another running instance of the reaction editor is associated with the selected directory.", "Open", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    break;
+                default:
+                    if (CheckSpecieDB((string)((ToolStripMenuItem)sender).Tag))
+                        Open((string)((ToolStripMenuItem)sender).Tag);
+                    break;
+            }
         }
 
         private void menuOpen_Click(object sender, EventArgs e)
         {
             if (dlgOpenRxn.ShowDialog(this) != DialogResult.OK)
                 return;
-            
-            if (!string.IsNullOrEmpty(m_sActiveDirectory) && Path.GetDirectoryName(dlgOpenRxn.FileName) != m_sActiveDirectory)
-                MessageBox.Show(this, "Selected file is not in the active directory. Please launch a new instance of the Reaction Editor to edit this file.", "Open", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-            else if (CheckSpecieDB(dlgOpenRxn.FileName))
-                foreach (string file in dlgOpenRxn.FileNames)
-                    Open(file);
+
+            switch (CanOpen(dlgOpenRxn.FileName))
+            {
+                case OpenPossibilities.New:
+                    MessageBox.Show(this, "Selected file is not in the active directory. Please launch a new instance of the Reaction Editor to edit this file.", "Open", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    break;
+                case OpenPossibilities.Existing:
+                    MessageBox.Show(this, "Another running instance of the reaction editor is associated with the selected directory.", "Open", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    break;
+                case OpenPossibilities.This:
+                    if (CheckSpecieDB(dlgOpenRxn.FileName))
+                        foreach (string file in dlgOpenRxn.FileNames)
+                            Open(file);
+                    break;
+            }
         }
 
         Form AlreadyOpen(string filename)
         {
             foreach (Form f in this.MdiChildren)
-                if (f is FrmReaction && ((FrmReaction)f).Filename.ToLowerInvariant() == filename.ToLowerInvariant())
+                if (f is FrmReaction && ((FrmReaction)f).FileOpen &&((FrmReaction)f).Filename.ToLowerInvariant() == filename.ToLowerInvariant())
                     return f;
             return null;
         }
@@ -786,7 +857,7 @@ namespace Reaction_Editor
         }
 
 
-        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void menuSaveAs_Click(object sender, EventArgs e)
         {
             if (this.ActiveMdiChild.GetType() != typeof(FrmReaction))
                 return;
@@ -810,6 +881,7 @@ namespace Reaction_Editor
         private void menuOpenDB_Click(object sender, EventArgs e)
         {
             DialogResult res = DialogResult.No;
+            
             if (treeFiles.Nodes["SpecieDB"].Nodes.Count != 0 )
                 res = MessageBox.Show("Unload existing specie databases before loading new database?", "Load Database", MessageBoxButtons.YesNoCancel) ;
             if (res == DialogResult.Cancel)
@@ -820,14 +892,28 @@ namespace Reaction_Editor
 
             if (dlgOpenDB.ShowDialog(this) == DialogResult.OK)
             {
-                OpenSpecieDB(dlgOpenDB.FileName);                    
+                switch (CanOpen(dlgOpenDB.FileName))
+                {
+                    case OpenPossibilities.This:
+                        OpenSpecieDB(dlgOpenDB.FileName);
+                        break;
+                    case OpenPossibilities.New:
+                        OpenSpecieDB(dlgOpenDB.FileName);
+                        break; //We will allow them to open a specie DB from another folder if they're smart enough.
+                    case OpenPossibilities.Existing:
+                        MessageBox.Show("An existing instance of the reaction editor is already open in the selected directory.", "Open Database", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        break;
+                }
             }
         }
 
         private void menuNew_Click(object sender, EventArgs e)
         {
-            FrmReaction frm = new FrmReaction(m_nUntitledNo++, Log);
-            RegisterForm(frm);
+            if (CheckSpecieDB(""))
+            {
+                FrmReaction frm = new FrmReaction(m_nUntitledNo++, Log);
+                RegisterForm(frm);
+            }
         }
 
         private void treeFiles_DoubleClick(object sender, EventArgs e)
@@ -997,45 +1083,54 @@ namespace Reaction_Editor
             if (dlgOpenFolder.ShowDialog(this) != DialogResult.OK)
                 return;
 
-            if (!string.IsNullOrEmpty(m_sActiveDirectory) && m_sActiveDirectory.ToLower() != dlgOpenFolder.SelectedPath.ToLower())
+            switch (CanOpen(dlgOpenFolder.SelectedPath))
             {
-                if (MessageBox.Show(this, "Folder will be opened in a new instance of the Reaction Editor.", "Open Folder", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                case OpenPossibilities.New:
+                    if (MessageBox.Show(this, "Folder will be opened in a new instance of the Reaction Editor.", "Open Folder", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                        System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location, "/all \"" + dlgOpenFolder.SelectedPath + '"');
+                    break;
+                case OpenPossibilities.Existing:
+                    MessageBox.Show(this, "Existing instance of reaction editor has selected folder open.", "Open Folder", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location, "/all \"" + dlgOpenFolder.SelectedPath + '"');
-            }
-            else
-                try
-                {
-                    UpdateLastPath(dlgOpenFolder.SelectedPath);
-
-                    lstLog.BeginUpdate();
-                    treeFiles.BeginUpdate();
-                    if (File.Exists(dlgOpenFolder.SelectedPath + "\\SpecieData.ini"))
+                    break;
+                case OpenPossibilities.This:
+                    try
                     {
-                        bool dbOpen = false;
-                        foreach (TreeNode tn in treeFiles.Nodes["SpecieDB"].Nodes)
-                            if (tn.Text.ToLower() == dlgOpenFolder.SelectedPath.ToLower() + "\\speciedata.ini")
-                            {
-                                dbOpen = true;
-                                break;
-                            }
-                        if (!dbOpen)
-                        {
-                            if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show("Unload existing specie databases before loading new database?", "Open Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                                UnloadDatabase();
-                            OpenSpecieDB(dlgOpenFolder.SelectedPath + "\\SpecieData.ini");
-                        }
-                    }
-                    else
-                        MessageBox.Show(this, "Specie database not found in selected directory", "Open Directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        //UpdateLastPath(dlgOpenFolder.SelectedPath);
 
-                    foreach (string fn in Directory.GetFiles(dlgOpenFolder.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
-                        Open(fn);
-                }
-                finally
-                {
-                    lstLog.EndUpdate();
-                    treeFiles.EndUpdate();
-                }
+                        lstLog.BeginUpdate();
+                        treeFiles.BeginUpdate();
+                        /*if (File.Exists(dlgOpenFolder.SelectedPath + "\\SpecieData.ini"))
+                        {
+                            bool dbOpen = false;
+                            foreach (TreeNode tn in treeFiles.Nodes["SpecieDB"].Nodes)
+                                if (tn.Text.ToLower() == dlgOpenFolder.SelectedPath.ToLower() + "\\speciedata.ini")
+                                {
+                                    dbOpen = true;
+                                    break;
+                                }
+                            if (!dbOpen)
+                            {
+                                if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show("Unload existing specie databases before loading new database?", "Open Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                    UnloadDatabase();
+                                OpenSpecieDB(dlgOpenFolder.SelectedPath + "\\SpecieData.ini");
+                            }
+                        }*/
+                        if (CheckSpecieDB(Path.Combine(dlgOpenFolder.SelectedPath, "speciedata.ini")))
+                            foreach (string fn in Directory.GetFiles(dlgOpenFolder.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
+                                Open(fn);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Open Folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        lstLog.EndUpdate();
+                        treeFiles.EndUpdate();
+                    }
+                    break;
+            }
         }
 
         private void txtFilter_TextChanged(object sender, EventArgs e)
@@ -1074,7 +1169,7 @@ namespace Reaction_Editor
                 menuSaveAs.Enabled =
                 menuRevert.Enabled =
                 ActiveMdiChild is FrmReaction;
-            menuOpenDB.Enabled = treeFiles.Nodes["SpecieDB"].Nodes.Count == 0;
+            //menuOpenDB.Enabled = treeFiles.Nodes["SpecieDB"].Nodes.Count == 0;
 
             bool anyFilesOpen = false;
             foreach (Form f in MdiChildren)
@@ -1469,6 +1564,31 @@ namespace Reaction_Editor
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        enum OpenPossibilities { This, New, Existing }
+
+        private void menuCloseAll_Click(object sender, EventArgs e)
+        {
+            foreach (Form frm in this.MdiChildren)
+                if (frm is FrmReaction)
+                    frm.Close();
+            foreach (Form frm in this.MdiChildren)
+                if (frm is FrmReaction)
+                    return; //If they cancel, they cancel.
+
+            UnloadDatabase();
+            if (!string.IsNullOrEmpty(m_sActiveDirectory))
+            {
+                Program.interopMessenger.UnRegisterDirectory(m_sActiveDirectory);
+                m_sActiveDirectory = "";
+                Log.Message("Active directory undefined", MessageType.Note, null);
+            }
+        }
+
+        private void menuOlineHelp_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(Reaction_Editor.Properties.Resources.HelpURL);
         }
     }
 

@@ -89,6 +89,15 @@ namespace Reaction_Editor.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to http://help.syscad.net/index.php/Reaction_Editor.
+        /// </summary>
+        internal static string HelpURL {
+            get {
+                return ResourceManager.GetString("HelpURL", resourceCulture);
+            }
+        }
+        
         internal static System.Drawing.Bitmap Information {
             get {
                 object obj = ResourceManager.GetObject("Information", resourceCulture);
