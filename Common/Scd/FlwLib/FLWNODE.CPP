@@ -859,14 +859,17 @@ static inline bool TestEqual(dword Type, dword Mask)   {   return ((Type & Mask)
 
 #if NewTagFmt
 
+const char IOPartOpen = '<';
+const char IOPartClose = '>';
+const char NumSepChar = '/';
 static inline long ExtractIndexFromTag(int iStart, LPSTR Tag)
   {
   //int iLen=strlen(Tag);
-  LPCSTR pOpen= Tag[iStart] =='_' ? &Tag[iStart] : NULL;//strchr(Tag, '<');
+  LPCSTR pOpen= Tag[iStart] ==NumSepChar ? &Tag[iStart] : NULL;
   if (pOpen)
     {
     LPCSTR pClose=pOpen+1;
-    while (*(pClose+1)!=0 && (*pClose!='>') && isdigit(*pClose))
+    while (*(pClose+1)!=0 && (*pClose!=IOPartClose) && isdigit(*pClose))
       pClose++;
     if (*pClose=='>' && *(pClose+1)==0)
       return SafeAtoL((pOpen+1), 0);
@@ -932,7 +935,7 @@ void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR I
 #endif
 
 
-  m_sRefIOTg.Set("%s<%s_",p->FullObjTag(), DIOName ? DIOName : p==pNd ? IOName : IONameRmt);
+  m_sRefIOTg.Set("%s%c%s%c",p->FullObjTag(), IOPartOpen, DIOName ? DIOName : p==pNd ? IOName : IONameRmt, NumSepChar);
 
   long iNext=0;
   // Must use m_IOs - NoFlwIOs does not return the correct values until all connections are made
@@ -983,7 +986,7 @@ void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR I
     }
   iNext++;
 
-  m_sRefIOTg.Set("%s%i>",m_sRefIOTg(), iNext);
+  m_sRefIOTg.Set("%s%i%c",m_sRefIOTg(), iNext, IOPartClose);
 
   //if (DIOName)
   //  m_sRefIOTg.Set("%s_<%i>%s",p->FullObjTag(), iNext, DIOName);
