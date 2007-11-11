@@ -460,7 +460,7 @@ namespace Configuration_Editor
 
                 sfmt.Alignment = StringAlignment.Far;
                 sfmt.LineAlignment = StringAlignment.Center;
-
+                
                 if (selectedSeries.Logarithmic)
                 {
                     if (selectedSeries.Min == selectedSeries.Max)
@@ -476,7 +476,7 @@ namespace Configuration_Editor
                     {
                         float graphMin = selectedSeries.Min * selectedSeries.Max > 0 ? selectedSeries.Min : selectedSeries.Max * 1E-6f;
                         bool seriesNegative = graphMin < 0;
-                        int min = (int)Math.Log10(seriesNegative ? -selectedSeries.Max : graphMin);
+                        int min = (int)Math.Floor(Math.Log10(seriesNegative ? -selectedSeries.Max : graphMin));
                         int max = (int)Math.Log10(seriesNegative ? -graphMin : selectedSeries.Max);
                         for (int i = max; i > min; i--)
                         {

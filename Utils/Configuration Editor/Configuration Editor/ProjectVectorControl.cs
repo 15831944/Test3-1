@@ -6,6 +6,7 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace Configuration_Editor
 {
@@ -119,6 +120,45 @@ namespace Configuration_Editor
         #endregion Events
 
         #region Public Functions
+        public void Sort()
+        {
+            List<ProjectVectorItem> items = new List<ProjectVectorItem>();
+            foreach (ListViewItem lvi in lstProjectVector.Items)
+                items.Add((ProjectVectorItem)lvi.Tag);
+
+            items = m_Sorter.Sort(items);
+
+            lstProjectVector.BeginUpdate();
+            lstProjectVector.Items.Clear();
+            foreach (ProjectVectorItem i in items)
+                lstProjectVector.Items.Add(i.LVI);
+            lstProjectVector.EndUpdate();
+        }
+
+        public bool TransferSpecies()
+        {
+            DataRow[] values = new DataRow[lstDBSpecies.SelectedItems.Count];
+            int i = 0;
+            foreach (ListViewItem lvi in lstDBSpecies.SelectedItems)
+                values[i++] = (DataRow)lvi.Tag;
+
+            return AddSpecies(values, -1);
+        }
+
+        public void AddToCalculation(string s)
+        {
+            if (m_CurrentItem is ProjectCalculation)
+                txtCalculation.Text += s;
+        }
+
+        public void RemoveSpecies(DataRow r)
+        {
+            ArrayList projectItems = new ArrayList(lstProjectVector.Items);
+            foreach (ListViewItem projLVI in projectItems)
+                if (projLVI.Tag is ProjectSpecie && ((ProjectSpecie)projLVI.Tag).SpDataRow == r)
+                    lstProjectVector.Items.Remove(projLVI);
+        }
+        
         //Called after a symbol is changed in the database. If the selected compound is in the project specie list, updates that compound & rechecks calculations (Does not refactor calculations).
         public void UpdateProjectLVIs()
         {
@@ -161,6 +201,7 @@ namespace Configuration_Editor
             }
             AddSumItems();
             lstProjectVector.EndUpdate();
+            CheckCalculations();
         }
 
         public string SaveString()
@@ -433,16 +474,6 @@ namespace Configuration_Editor
                     if (((ProjectSpecie)lvi.Tag).SpDataRow == s)
                         return lvi;
             return null;
-        }
-
-        protected bool TransferSpecies()
-        {
-            DataRow[] values = new DataRow[lstDBSpecies.SelectedItems.Count];
-            int i = 0;
-            foreach (ListViewItem lvi in lstDBSpecies.SelectedItems)
-                values[i++] = (DataRow)lvi.Tag;
-
-            return AddSpecies(values, -1);
         }
         #endregion Protected Functions
 

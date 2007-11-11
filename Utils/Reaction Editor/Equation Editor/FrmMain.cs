@@ -1430,6 +1430,7 @@ namespace Reaction_Editor
             string fn = ((FrmReaction)ActiveMdiChild).Filename;
             if (MessageBox.Show("Are you sure you wish to revert to the saved version of \"" + fn + "\"?", "Revert", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                 return;
+            ((FrmReaction)ActiveMdiChild).SupressSaveMessages = true;
             ActiveMdiChild.Close();
             Open(fn);
         }
