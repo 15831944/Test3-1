@@ -26,13 +26,21 @@ static double Drw_Stats[] =
 
 //---------------------------------------------------------------------------
 
+#if defined(Control1)
 DEFINE_CONTROL_UNIT_EX(SingleVarStats, "SingleVarStats", MDLLIBNAME)
+#else
+DEFINE_CONTROL_UNIT(SingleVarStats, "TestSingleVarStats", DLL_GroupName)
+#endif
 
 void SingleVarStats_UnitDef::GetOptions()
 {
 	SetDefaultTag("SVH");
 	SetDrawing("Control", Drw_Stats);
+  #if defined(Control1)
 	SetTreeDescription("Statistics:Single Variable Histogram");
+  #else
+	SetTreeDescription("Demo:Single Variable Histogram");
+  #endif
 	SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_General);
   SetModelLicense(MLicense_Standard);

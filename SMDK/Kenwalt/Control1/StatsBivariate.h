@@ -5,7 +5,11 @@
 #ifndef  __STATSBIVARIATE_H
 #define  __STATSBIVARIATE_H
 
+#if defined(Control1)
 #include "ex_headers.h"
+#else
+#include "md_headers.h"
+#endif
 
 #include <list>
 

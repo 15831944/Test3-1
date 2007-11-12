@@ -16,21 +16,26 @@ static double Drw_Stats[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2., -2.,
 
 //---------------------------------------------------------------------------
 
-//Needs testing, exclude this file from project for now...
-#if 0
+#if defined(Control1)
 DEFINE_CONTROL_UNIT_EX(BivarStats, "BivariateStats", MDLLIBNAME)
+#else
+DEFINE_CONTROL_UNIT(BivarStats, "TestBivarStats", DLL_GroupName)
+#endif
 
 void BivarStats_UnitDef::GetOptions()
 {
 	SetDefaultTag("BS");
 	SetDrawing("Control", Drw_Stats);
+  #if defined(Control1)
 	SetTreeDescription("Statistics:Bivariate Statistics");
+  #else
+	SetTreeDescription("Demo:Bivariate Statistics");
+  #endif
 	SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_General);
   SetModelLicense(MLicense_Standard);
 };
 
-#endif
 //---------------------------------------------------------------------------
 
 BivarStats::BivarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),

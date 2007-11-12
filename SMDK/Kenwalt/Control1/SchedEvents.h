@@ -5,7 +5,11 @@
 #ifndef  __SCHEDEVENTS_H
 #define  __SCHEDEVENTS_H
 
+#if defined(Control1)
 #include "ex_headers.h"
+#else
+#include "md_headers.h"
+#endif
 
 #include <vector>
 

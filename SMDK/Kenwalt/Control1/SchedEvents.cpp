@@ -37,13 +37,21 @@ static double Drw_SchedEvents[] =
 
 //---------------------------------------------------------------------------
 
+#if defined(Control1)
 DEFINE_CONTROL_UNIT_EX(ScheduledEvents, "ScheduledEvents", MDLLIBNAME)
+#else
+DEFINE_CONTROL_UNIT(ScheduledEvents, "TestScheduledEvents", DLL_GroupName)
+#endif
 
 void ScheduledEvents_UnitDef::GetOptions()
 {
 	SetDefaultTag("SE");
 	SetDrawing("Control", Drw_SchedEvents);
+  #if defined(Control1)
 	SetTreeDescription("Control:Scheduled Events");
+  #else
+ 	SetTreeDescription("Demo:Scheduled Events");
+  #endif
 	SetModelSolveMode(MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_General);
   SetModelLicense(MLicense_Standard);

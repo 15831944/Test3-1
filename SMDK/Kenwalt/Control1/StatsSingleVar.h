@@ -5,7 +5,11 @@
 #ifndef  __STATSSINGLEVAR_H
 #define  __STATSSINGLEVAR_H
 
+#if defined(Control1)
 #include "ex_headers.h"
+#else
+#include "md_headers.h"
+#endif
 
 #include <list>
 #include <vector>
