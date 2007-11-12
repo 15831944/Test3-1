@@ -22,7 +22,7 @@
 #endif
 
 //#define MVS_KEEP_RECORD
-                                 
+
 //---------------------------------------------------------------------------
 
 using namespace std;
@@ -44,9 +44,9 @@ class BivarStats : public MBaseMethod
     virtual void    Init();
     virtual void    BuildDataFields();
     virtual bool    ExchangeDataFields();
-    virtual bool	ValidateDataFields();
+	virtual bool	ValidateDataFields();
 
-    virtual bool PreStartCheck();
+	virtual bool PreStartCheck();
 
     //virtual void    EvalProducts();
     virtual void    EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All); // each Start of Run
@@ -55,40 +55,43 @@ class BivarStats : public MBaseMethod
     //virtual void    EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All)           {}; // each End of Run
     //virtual void    EvalStatistics(eScdCtrlTasks Tasks=CO_All)              ; // each Iteration End to calculate Stats relevant to model
 
-    virtual void SetState(MStatesToSet SS);
-
-    virtual bool GetModelGraphic(CMdlGraphicArray &Grfs);
-    virtual bool OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &gfx);
+	virtual void SetState(MStatesToSet SS);
+	
+	virtual bool GetModelGraphic(CMdlGraphicArray &Grfs);
+	virtual bool OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &gfx);
 
   protected:
     bool bOn;
+	bool bAutoReset;
 
-    GraphType graphType;
+	GraphType graphType;
 
-    MTagIOSubscription tagSubs0, tagSubs1;
-    double dHistoMinX, dHistoMinY;
-    double dHistoMaxX, dHistoMaxY;
-    long lHistoCount;
+	MTagIOSubscription tagSubs0, tagSubs1;
+	MCnv tagCnv0, tagCnv1;
+	bool bTag0Initialised, bTag1Initialised;
+	double dHistoMinX, dHistoMinY;
+	double dHistoMaxX, dHistoMaxY;
+	long lHistoCount;
 
-    double dCorrelation;
-    double dValue[2];      /*CNM*/
-    double dAverage[2];
-    double dStdDev[2];
-    double dMin[2];
-    double dMax[2];
-    long* pHistoBucketCounts;
-    long lRecordCount;
+	double dCorrelation;
+	double dValue[2];      /*CNM*/
+	double dAverage[2];
+	double dStdDev[2];
+	double dMin[2];
+	double dMax[2];
+	long* pHistoBucketCounts;
+	long lRecordCount;
 
-    double dSumX[2];
-    double dSumX2[2];
-    double dSumXY;
-    #ifdef MVS_KEEP_RECORD
-    list<ValuePair> cRecord;
-    #endif
+	double dSumX[2];
+	double dSumX2[2];
+	double dSumXY;
+#ifdef MVS_KEEP_RECORD
+	list<ValuePair> cRecord;
+#endif
 
-    void Reset();
-    void RecalculateStats(double newEntry1, double newEntry2);
-    void RecalculateHistoBuckets();
+	void Reset();
+	void RecalculateStats(double newEntry1, double newEntry2);
+	void RecalculateHistoBuckets();
   };
 
 #endif

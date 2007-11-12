@@ -3,6 +3,7 @@
 //===========================================================================
 
 #include "stdafx.h"
+#define  __SCHEDEVENTS_CPP
 #include "SchedEvents.h"
 #include <math.h>
 //#pragma optimize("", off)
@@ -106,6 +107,7 @@ void ScheduledEvents::Reset()
 	{
 		tasks.at(i)->dBackedUpDowntime = 0.0;
 		tasks.at(i)->dNextShutdown = tasks.at(i)->dOffset;
+		tasks.at(i)->dNextAbsoluteShutdown = getTime() - dCurrentTime + tasks.at(i)->dNextShutdown;
 		tasks.at(i)->bRunning = true;
 		tasks.at(i)->dTotalDowntime = 0.0;
 	}
@@ -147,7 +149,7 @@ void ScheduledEvents::BuildDataFields()
 		DD.Double ("RequiredPeriod", "RqdPeriod", &tasks.at(i)->dDesiredPeriod, MF_PARAMETER, MC_Time("h"));
 		DD.Double ("", "Offset", &tasks.at(i)->dOffset, MF_PARAM_STOPPED, MC_Time("h"));
 		DD.Double ("", "RqdInactivePeriod", &tasks.at(i)->dDesiredDowntime, MF_PARAMETER, MC_Time("h"));
-    MCnv TagCnv = tasks.at(i)->tagSubs.IsActive ? tasks.at(i)->tagSubs.Cnv : MC_;
+		MCnv TagCnv = tasks.at(i)->tagSubs.IsActive ? tasks.at(i)->tagSubs.Cnv : MC_;
 		DD.Double ("ActiveValueToSet", "ActiveVal", &tasks.at(i)->dOnValue, MF_PARAMETER, TagCnv);
 		DD.Double ("InactiveValueToSet", "InactiveVal", &tasks.at(i)->dOffValue, MF_PARAMETER, TagCnv);
 		DD.String ("TagToSet", "TagToSet", idDX_Tag + i, MF_PARAMETER | MF_SET_ON_CHANGE);
@@ -162,6 +164,7 @@ void ScheduledEvents::BuildDataFields()
 		DD.Text("");
 		DD.Double("", "TtlInactiveTime", &tasks.at(i)->dTotalDowntime, MF_RESULT, MC_Time("h"));
 		DD.Double("", "TimeToNextInactivePeriod", &tasks.at(i)->dNextShutdown, MF_RESULT, MC_Time("h"));
+		DD.Double("", "NextEvent", &tasks.at(i)->dNextAbsoluteShutdown, MF_RESULT, MC_TimeStr);
 		DD.Text("");
 		DD.ArrayElementEnd();
 	}
@@ -273,6 +276,7 @@ void ScheduledEvents::EvalCtrlActions(eScdCtrlTasks Tasks)
 				{
 					tasks.at(i)->dBackedUpDowntime += tasks.at(i)->dDowntime;
 					tasks.at(i)->dNextShutdown += tasks.at(i)->dPeriod;
+					tasks.at(i)->dNextAbsoluteShutdown = getTime() - dCurrentTime + tasks.at(i)->dNextShutdown;
 				}
 				bool bNowRunning = tasks.at(i)->dBackedUpDowntime <= 0;
 				if (tasks.at(i)->tagSubs.IsActive)
@@ -393,4 +397,5 @@ MaintVariables::MaintVariables(MTagIO & TagIO) : tagSubs(TagIO)
 	dPeriod = dDesiredDowntime;
 	dNextShutdown = dOffset;
 	dBackedUpDowntime = 0.0;
+	dNextAbsoluteShutdown = 0.0;
 }

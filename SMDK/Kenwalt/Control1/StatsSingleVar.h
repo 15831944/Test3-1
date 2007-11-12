@@ -36,9 +36,9 @@ class SingleVarStats : public MBaseMethod
     virtual void    Init();
     virtual void    BuildDataFields();
     virtual bool    ExchangeDataFields();
-    virtual bool	ValidateDataFields();
+	virtual bool	ValidateDataFields();
 
-    virtual bool PreStartCheck();
+	virtual bool PreStartCheck();
 
     //virtual void    EvalProducts();
     virtual void    EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All); // each Start of Run
@@ -47,47 +47,50 @@ class SingleVarStats : public MBaseMethod
     //virtual void    EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All)           {}; // each End of Run
     //virtual void    EvalStatistics(eScdCtrlTasks Tasks=CO_All)              ; // each Iteration End to calculate Stats relevant to model
 
-    virtual void SetState(MStatesToSet SS);
-
-    virtual bool GetModelGraphic(CMdlGraphicArray &Grfs);
-    virtual bool OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &gfx);
+	virtual void SetState(MStatesToSet SS);
+	
+	virtual bool GetModelGraphic(CMdlGraphicArray &Grfs);
+	virtual bool OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &gfx);
 
   protected:
     bool bOn;
+	bool bAutoReset;
 
-    MTagIOSubscription tagSubs;
-    MCnv TagCnv;
-    MCnvFamily TagCnvFamily;
-    int nTagCnvUsed;
+	MTagIOSubscription tagSubs;
+	MCnv TagCnv;
+	MCnvFamily TagCnvFamily;
+	int nTagCnvUsed;
+	vector<MDDValueLst> TagCnvList;
 
-    CString sGraphUnit;
+	CString sGraphUnit;
 
-    double dHistoMin;
-    double dHistoMax;
-    long lHistoCount;
+	double dHistoMin;
+	double dHistoMax;
+	long lHistoCount;
 
-    double dAverage;
-    double dStdDev;
-    double dMin;
-    double dMax;
-    long* pHistoBucketCounts;
-    double* pHistoBucketBorders;
-    long lRecordCount;
+	double dAverage;
+	double dStdDev;
+	double dMin;
+	double dMax;
+	long* pHistoBucketCounts;
+	double* pHistoBucketBorders;
+	long lRecordCount;
 
-    double dSumX;
-    double dSumX2;
-    #ifdef SVS_KEEP_RECORD
-    list<double> cRecord;
-    #else
-    long lHiResHistoBuckets[HI_RES_HISTO];
-    long lUnderrange, lOverrange;
-    #endif
-    void SetTag(LPCSTR newTag);
-    vector<MDDValueLst> Cnvs;
+	double dSumX;
+	double dSumX2;
+#ifdef SVS_KEEP_RECORD
+	list<double> cRecord;
+#else
+	long lHiResHistoBuckets[HI_RES_HISTO];
+	long lUnderrange, lOverrange;
+	long lRecordsSinceHistoReset;
+#endif
+	void SetTag(LPCSTR newTag);
+	vector<MDDValueLst> Cnvs;
 
-    void Reset();
-    void RecalculateStats(double newEntry);
-    void RecalculateHistoBuckets();
+	void Reset();
+	void RecalculateStats(double newEntry);
+	void RecalculateHistoBuckets();
   };
 
 #endif

@@ -774,7 +774,7 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\MatrixLib.lib"
+			RelativePath="..\lib\MatrixLib.lib"
 			>
 		</File>
 	</Files>

@@ -23,7 +23,7 @@ static MInOutDefStruct s_IODefs[]=
   { "Feed",           "Feed",			idFeed,		1,	10,	0,	1.0f,	MIO_In |MIO_Material },
   { "Tailings",       "Tailings",		idTail,		1,	1,	0,	1.0f,	MIO_Out|MIO_Material },
   { "Concentrate",    "Concentrate",	idConc,		1,	1,	0,	1.0f,	MIO_Out|MIO_Material },
-  { "Air",			"Air",			idAir,		0,	10,	0,	1.0f,	MIO_In |MIO_Material },
+  { "Air",			"Air",			idAir,		0,	5,	0,	1.0f,	MIO_In |MIO_Material },
   { "Vent",			"Vent",			idVent,		0,	1,	0,	1.0f,	MIO_Out|MIO_Material },
   { NULL },
   };
@@ -63,12 +63,13 @@ FlotationCell::FlotationCell(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBas
 {
   //default values...
 	eSpecType = FTST_ByCompound;
-	vPrimaryIndices.resize(1, 0);
 	nPrimary1 = nPrimary2 = -1;
 	dPrimaryRecovery = dPrimaryGrade = 0.0;
 	dReqPrimaryRecovery = dReqPrimaryGrade = 0.0;
 
-	dWaterFrac = dReqWaterFrac = 0.0;
+	dReqWaterFrac = 0.0;
+	dSfConcentrate = dSfTailings = 0.0;
+
 	m_bOn = true;
 }
 
@@ -109,6 +110,7 @@ void FlotationCell::Init()
 		MDDValueLst term = {0};
 		gs_vSolidElements.push_back(term);
 	}
+	vPrimaryIndices.resize(1, gs_MVDefn.DDSolSpList()[0].m_lVal);
 }
 
 //---------------------------------------------------------------------------
@@ -120,9 +122,9 @@ enum {	idDX_PrimaryElement1 = 0,
 		idDX_SpecType,
 		idDX_PrimaryCompoundStr,
 		idDX_PrimariesFound,
-		idDX_Unspecified };
+		idDX_Unspecified,};
 
-const int idDX_SecondaryName = 10;
+const int idDX_SecondaryName = idDX_Unspecified + 1;
 const int idDX_SecondaryIndex = 10 + maxSecondaries;
 const int idDX_SecondaryReqRecovery = 10 + 2*maxSecondaries;
 const int idDX_SecondaryRecovery = 10 + 3*maxSecondaries;
@@ -136,25 +138,28 @@ void FlotationCell::BuildDataFields()
 
 	DD.CheckBox("On", "", &m_bOn, MF_PARAMETER);
 
-	DD.Text("Requirements...");
-	DD.Long("Specify_By", "", idDX_SpecType, MF_PARAM_STOPPED | MF_SET_ON_CHANGE, DDB1);
+	DD.Text("Requirements:");
+	DD.Text("Primary Compound:");
+	DD.Long("Method", "", idDX_SpecType, MF_PARAM_STOPPED | MF_SET_ON_CHANGE, DDB1);
 	switch (eSpecType)
 	{
 	case FTST_ByCompound:
-		DD.Long("Primary", "", idDX_PrimaryCompound, MF_PARAM_STOPPED | MF_NO_FILING | MF_SET_ON_CHANGE, gs_MVDefn.DDSolSpList());
+		DD.Long("Primary_Compound", "", idDX_PrimaryCompound, MF_PARAM_STOPPED | MF_NO_FILING | MF_SET_ON_CHANGE, gs_MVDefn.DDSolSpList());
 		DD.String("PrimaryStr", "", idDX_PrimaryCompoundStr, MF_PARAM_STOPPED | MF_NO_VIEW); //This allows filing, and automatic setting of this parameter.
 		break;
 	case FTST_ByElement:
-		DD.Long("Primary1", "", idDX_PrimaryElement1, MF_PARAM_STOPPED, &gs_vSolidElements.at(0));
-		DD.Long("Primary2", "", idDX_PrimaryElement2, MF_PARAM_STOPPED, &gs_vSolidElements.at(0));
+		DD.Long("Primary_Element", "", idDX_PrimaryElement1, MF_PARAM_STOPPED, &gs_vSolidElements.at(0));
+		DD.Long("Secondary_Element", "", idDX_PrimaryElement2, MF_PARAM_STOPPED, &gs_vSolidElements.at(0));
 	}
 	DD.Double("Primary_Recovery", "", &dReqPrimaryRecovery, MF_PARAMETER, MC_Frac("%"));
 	DD.Double("Primary_Grade", "", &dReqPrimaryGrade, MF_PARAMETER, MC_Frac("%"));
-	DD.Double("Water_To_Concentrate", "", &dReqWaterFrac, MF_PARAMETER, MC_Frac("%"));
-	DD.Long("Secondary_Count", "", idDX_SecondaryCount, MF_PARAM_STOPPED | MF_SET_ON_CHANGE);
+	DD.Text("Liquid Split:");
+	DD.Double("Liquid_to_Concentrate", "", &dReqWaterFrac, MF_PARAMETER, MC_Frac("%"));
+	DD.Text("Additional Compounds to Concentrate:");
+	DD.Long("Number_of_Compounds", "", idDX_SecondaryCount, MF_PARAM_STOPPED | MF_SET_ON_CHANGE);
 	if (vSecondaryIndices.size() > 0)
 	{
-		DD.ArrayBegin("Secondaries", "Secondaries", vSecondaryIndices.size());
+		DD.ArrayBegin("Additional_Compounds", "Additional_Compounds", vSecondaryIndices.size());
 		for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
 		{
 			DD.ArrayElementStart(i);
@@ -166,10 +171,21 @@ void FlotationCell::BuildDataFields()
 		DD.ArrayEnd();
 	}
 	DD.Text("");
-	DD.Text("Results...");
+	DD.Text("Results:");
 	DD.String("Primaries_Found", "", idDX_PrimariesFound, MF_RESULT | MF_NO_FILING);
-	DD.String("Unspecified_Compounds", "", idDX_Unspecified, MF_RESULT | MF_NO_FILING);
+	DD.Double("Actual_Recovery", "", &dPrimaryRecovery, MF_RESULT, MC_Frac);
 	DD.Double("Actual_Grade", "", &dPrimaryGrade, MF_RESULT, MC_Frac);
+	DD.Text("");
+	DD.String("Gangue_Compounds", "", idDX_Unspecified, MF_RESULT | MF_NO_FILING);
+	DD.Text("");
+	DD.Double("Sf_Concentrate", "", &dSfConcentrate, MF_RESULT, MC_Frac);
+	DD.Double("Sf_Tailings", "", &dSfTailings, MF_RESULT, MC_Frac);
+	if (m_sPrestartErrors.GetLength() > 0)
+	{
+		DD.Text("");
+		DD.Text("Prestart Errors:");
+		DD.Text(m_sPrestartErrors);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -185,7 +201,7 @@ bool FlotationCell::ExchangeDataFields()
 			switch (eSpecType)
 			{
 			case FTST_ByCompound:
-				vPrimaryIndices.resize(1, 0);
+				vPrimaryIndices.resize(1,gs_MVDefn.DDSolSpList()[0].m_lVal);
 				break;
 			case FTST_ByElement:
 				UpdatePrimaryIndices();
@@ -247,7 +263,8 @@ bool FlotationCell::ExchangeDataFields()
 		for (unsigned int i = 0; i < vOtherIndices.size(); i++)
 			sOthersFound += gs_MVDefn[vOtherIndices.at(i)].Symbol() + (CString) ",";
 		DX.String = sOthersFound;
-		return true;
+		return true; 
+			
 	}
 	if (idDX_SecondaryName <= DX.Handle && DX.Handle < idDX_SecondaryName + vSecondaryIndices.size())
 	{
@@ -302,19 +319,35 @@ bool FlotationCell::ExchangeDataFields()
 
 bool FlotationCell::PreStartCheck()
 {
+	bool ret = true;
+	m_sPrestartErrors = "";
 	if (!FlwIOs.getCount(idFeed) || !FlwIOs.getCount(idTail) || !FlwIOs.getCount(idConc))
-		return false;
+	{
+		m_sPrestartErrors.Append("Flows not connected; ");
+		ret = false;
+	}
 	if (vPrimaryIndices.size() == 0)
-		return false;
+	{
+		m_sPrestartErrors.Append("No primary compounds; ");
+		ret = false;
+	}
 	for (unsigned int i = 0; i < vPrimaryIndices.size(); i++)
 		for (unsigned int j = 0; j < vSecondaryIndices.size(); j++)
 			if (vPrimaryIndices.at(i) == vSecondaryIndices.at(j))
-				return false;
+			{
+				m_sPrestartErrors.Append("Additional specie is also primary specie; ");
+				ret = false;
+				break;
+			}
 	for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
 		for (unsigned int j = 0; j < vSecondaryIndices.size(); j++)
 			if (i != j && vSecondaryIndices.at(i) == vSecondaryIndices.at(j))
-				return false;
-	return true;
+			{
+				m_sPrestartErrors.Append("Additional specie listed twice; ");
+				ret = false;
+				break;
+			}
+	return ret;
 }
 
 //---------------------------------------------------------------------------
@@ -331,7 +364,7 @@ bool FlotationCell::ValidateDataFields()
 
 //---------------------------------------------------------------------------
 
-enum {LC_NoGrade, LC_Vent, LC_Other};
+enum {LC_BadInput, LC_BadAir, LC_LittleAir, LC_NoPrimaries, LC_NoGrade, LC_Vent};
 
 void FlotationCell::EvalProducts()
 {
@@ -339,7 +372,6 @@ void FlotationCell::EvalProducts()
 	{
 		dPrimaryRecovery = dReqPrimaryRecovery;
 		dPrimaryGrade = dReqPrimaryGrade;
-		dWaterFrac = dReqWaterFrac;
 		for (unsigned int i = 0; i < vSecondaryRecoveries.size(); i++)
 			vSecondaryRecoveries.at(i) = vReqSecondaryRecoveries.at(i);
 
@@ -364,20 +396,20 @@ void FlotationCell::EvalProducts()
 		{
 			QOT = QI;
 			QOV = QAir;
-			dPrimaryRecovery = dPrimaryGrade = dWaterFrac = 0;
+			dPrimaryRecovery = dPrimaryGrade = 0;
 			for (vector<double>::iterator it = vSecondaryRecoveries.begin(); it != vSecondaryRecoveries.end(); it++)
 				*it = 0.0;
 			return;
 		}
 		if (QI.Mass(MP_Sol) > QI.Mass(MP_Liq))
-			Log.SetCondition(true, LC_Other, MMsg_Warning, "Input stream contains more solid than liquid.");
+			Log.SetCondition(true, LC_BadInput, MMsg_Warning, "Input stream contains more solid than liquid.");
 
 		if (bAirOn && (QAir.Mass(MP_Sol) > UsableMass || QAir.Mass(MP_Liq) > UsableMass))
-			Log.SetCondition(true, LC_Vent, MMsg_Warning, "Air stream contains liquids or solids");
+			Log.SetCondition(true, LC_BadAir, MMsg_Warning, "Air stream contains liquids or solids");
 		if (bAirOn && QAir.Volume(MP_Gas) < 2 * QI.Volume(MP_Sol))
-			Log.SetCondition(true, LC_Vent, MMsg_Warning, "Air stream contains very little gas");
+			Log.SetCondition(true, LC_LittleAir, MMsg_Warning, "Air stream contains very little gas");
 
-		QI.AddM(QAir, MP_All, QAir.Mass(MP_All));
+		QI.AddF(QAir, MP_All, 1);
 
 		//do the work...
 		const int NumSpecies = gs_MVDefn.Count();
@@ -396,6 +428,12 @@ void FlotationCell::EvalProducts()
 
 			QOT.M[vPrimaryIndices.at(i)] = temp * (1 - dReqPrimaryRecovery);
 			QOC.M[vPrimaryIndices.at(i)] = temp * dReqPrimaryRecovery;
+		}
+
+		if (dPrimaryElementConc == 0)
+		{
+			dPrimaryRecovery = dNAN;
+			Log.SetCondition(true, LC_NoPrimaries, MMsg_Warning, "No primary compounds found in feed.");
 		}
 
 		//Secondaries:
@@ -465,10 +503,18 @@ void FlotationCell::EvalProducts()
 			QOV.AddM(QI, MP_Gas, QI.Mass(MP_Gas));
 		}
 		else
-			QOT.AddM(QI, MP_Gas, QI.Mass(MP_Gas));
+		{
+			QOC.AddM(QI, MP_Gas, QI.Mass(MP_Gas));
+			if (FlwIOs.Count[idAir] > 0)
+				Log.SetCondition(true, LC_Vent, MMsg_Warning, "Stream connected to air, but no stream connected to vent.");
+		}
 
-		dPrimaryGrade = dPrimaryElementConc / NZ(QOC.Mass(MP_Sol));
-		dWaterFrac = QOC.Mass(MP_Liq) / NZ(QOC.Mass(MP_All));
+		if (QOC.Mass(MP_Sol) > 0)
+			dPrimaryGrade = dPrimaryElementConc / NZ(QOC.Mass(MP_Sol));
+		else
+			dPrimaryGrade = dNAN;
+		dSfConcentrate = QOC.MassFrac(MP_Sol);
+		dSfTailings = QOT.MassFrac(MP_Sol);
   }
   catch (MMdlException &e)
     {
@@ -530,26 +576,39 @@ void FlotationCell::UpdatePrimaryIndices()
 //This is somewhat inefficent - the number of iterations is n^2 * c, where n is the secondary count and c is the element count.
 /*void FlotationCell::UpdateMDDLists()
 {
-	for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
-		for (unsigned int j = 0; j < vSecondaryMDDLists.at(i).size(); j++)
+	MDDValueLst Zero = {0};
+	int i = 0;
+	for (vector<vector<MDDValueLst>>::iterator lst = vSecondaryMDDLists.begin();
+		lst != vSecondaryMDDLists.end(); lst++)
+	{
+		lst->clear();
+		for (MDDValueLst* p = gs_MVDefn.DDSolSpList(); p->m_pStr != 0; p++)
+			lst->push_back(*p);
+		lst->push_back(Zero);
+
+		for (vector<MDDValueLst>::iterator it = lst->begin(); it->m_pStr != 0/; it++)
 		{
-			vSecondaryMDDLists.at(i).at(j).m_dwFlags = 0;
+			bool removed = false;
 			for (unsigned int k = 0; k < vPrimaryIndices.size(); k++) //Check against primaries.
-				if (vSecondaryMDDLists.at(i).at(j).m_lVal == vPrimaryIndices.at(k))
+				if (it->m_lVal == vPrimaryIndices.at(k))
 				{
-					vSecondaryMDDLists.at(i).at(j).m_dwFlags = MDD_NoSelect;
+					removed = true;
+					lst->erase(it);
 					break;
 				}
-			for (unsigned int k = 0; k < vSecondaryIndices.size(); k++) //Check against secondaries
-			{
-				if (i = k) continue; //Don't check it against itself...
-				if (vSecondaryMDDLists.at(i).at(j).m_lVal == vSecondaryIndices.at(k))
+			if (!removed)
+				for (unsigned int k = 0; k < vSecondaryIndices.size(); k++) //Check against secondaries
 				{
-					vSecondaryMDDLists.at(i).at(j).m_dwFlags = MDD_NoSelect;
-					break;
+					if (i = k) continue; //Don't check it against itself...
+					if (it->m_lVal == vSecondaryIndices.at(k))
+					{
+						lst->erase(it);
+						break;
+					}
 				}
-			}
 		}
+		i++;
+	}
 }*/
 
 //---------------------------------------------------------------------------

@@ -43,11 +43,14 @@ BivarStats::BivarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMetho
 {
 	//default values...
 	bOn = true;
+	bAutoReset = false;
 	dHistoMinX = dHistoMinY= 0;
 	dHistoMaxX = dHistoMaxY = 0;
 	lHistoCount = 20;
 	lRecordCount = 0;
 	graphType = GT_DENSITY;
+	tagCnv0 = tagCnv1 = MC_;
+	bTag0Initialised = bTag1Initialised = false;
 
 	//pHistoBucketBorders = NULL;
 	pHistoBucketCounts = NULL;
@@ -95,9 +98,30 @@ void BivarStats::BuildDataFields()
 	DD.String("StatTag1", "StatTag1", idDX_Tag, MF_PARAM_STOPPED);
 	DD.String("StatTag2", "StatTag2", idDX_Tag + 1, MF_PARAM_STOPPED);
 	DD.Button("Reset", "Reset", idDX_Reset);
+	DD.CheckBox("AutoReset", "", &bAutoReset, MF_PARAMETER);
 
 	MCnv Var1Cnv = tagSubs0.IsActive ? tagSubs0.Cnv : MC_;
 	MCnv Var2Cnv = tagSubs1.IsActive ? tagSubs1.Cnv : MC_;
+
+	if (!bTag0Initialised && tagSubs0.IsActive)
+	{
+		tagCnv0 = Var1Cnv;
+		bTag0Initialised = true;
+	}
+	if (!bTag1Initialised && tagSubs1.IsActive)
+	{
+		tagCnv1 = Var2Cnv;
+		bTag1Initialised = true;
+	}
+
+	// Reset min/max values if units have changed (I guess BuildDataFields isn't the best place for this,
+	// but we have to deal with the tag infrastructure, and we know it's safe to do here).
+	if (Var1Cnv.Index != tagCnv0.Index)
+		dHistoMaxX = dHistoMinX = 0;
+	if (Var2Cnv.Index != tagCnv1.Index)
+		dHistoMaxY = dHistoMinY = 0;
+	tagCnv0 = Var1Cnv;
+	tagCnv1 = Var2Cnv;
 
 	DD.Double("Graph x Minimum", "GraphMinx", idDX_HistoMinX, MF_PARAMETER, Var1Cnv);
 	DD.Double("Graph x Maximum", "GraphMaxx", idDX_HistoMaxX, MF_PARAMETER, Var1Cnv);
@@ -122,7 +146,7 @@ void BivarStats::BuildDataFields()
 	DD.Double("Maximum1", "Max1", dMax, MF_RESULT, Var1Cnv);                                         /*CNM*/
 	DD.Text("");
 	DD.Text("Variable 2");
-	DD.Double("Value2", "Val2", dValue + 1, MF_RESULT, Var1Cnv);                                     /*CNM*/
+	DD.Double("Value2", "Val2", dValue + 1, MF_RESULT, Var2Cnv);                                     /*CNM*/
 	DD.Double("Average2", "Avg2", dAverage + 1, MF_RESULT, Var2Cnv);                                 /*CNM*/
 	MCnv Var2DeltaCnv = Var2Cnv;
 	if (Var2Cnv.Index == MC_T.Index)
@@ -188,11 +212,17 @@ bool BivarStats::ExchangeDataFields()
 		const int var = DX.Handle - idDX_Tag;
 		if (DX.HasReqdValue)
 		{
+			MTagIOSubscription* relevantSubs;
 			switch (var)
 			{
-			case 0: tagSubs0.Tag = DX.String; break;
-			case 1: tagSubs1.Tag = DX.String; break;
+			case 0: 
+				relevantSubs = &tagSubs0;
+				break;
+			case 1:
+				relevantSubs = &tagSubs1; 
+				break;
 			}
+			relevantSubs->Tag = DX.String;
 			Reset();
 		}
 		switch (var)
@@ -361,8 +391,14 @@ void BivarStats::RecalculateStats(double newEntry1, double newEntry2)
 		dCorrelation = (dSumXY / lRecordCount - dAverage[0] * dAverage[1]) / (dStdDev[0] * dStdDev[1]);
 	
 	// Update histogram (Only if it is in range)
-	if (newEntry1 > dHistoMinX && newEntry1 < dHistoMaxX
-		&& newEntry2 > dHistoMinY && newEntry2 < dHistoMaxY)
+	// If it is equal to the max, decrease it so it shows up in the max bucket...
+	if (newEntry1 == dHistoMaxX)
+		newEntry1 = dHistoMaxX - (dHistoMaxX - dHistoMinX) / (2 * lHistoCount);
+	if (newEntry2 == dHistoMaxY)
+		newEntry2 = dHistoMaxY - (dHistoMaxY - dHistoMinY) / (2 * lHistoCount);
+
+	if (newEntry1 >= dHistoMinX && newEntry1 < dHistoMaxX
+		&& newEntry2 >= dHistoMinY && newEntry2 < dHistoMaxY)
 		pHistoBucketCounts[
 			(int)((newEntry2 - dHistoMinY) / (dHistoMaxY - dHistoMinY) * lHistoCount ) * lHistoCount
 			+ (int)((newEntry1 - dHistoMinX) / (dHistoMaxX - dHistoMinX) * lHistoCount)]++;
@@ -528,6 +564,6 @@ bool BivarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 void BivarStats::SetState(MStatesToSet SS)
 {
 	MBaseMethod::SetState(SS);
-	if (SS == MSS_DynStatsRunInit)
+	if (SS == MSS_DynStatsRunInit && bAutoReset)
 		Reset();
 }
