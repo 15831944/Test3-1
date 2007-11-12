@@ -137,7 +137,7 @@ class CSieveSeriesHelper
   {
   public:
     CSieveSeriesHelper() { pCnv=NULL; Precision=-1; m_SeriesDataType = e_Ratio; m_Data=sqrt(2.0); m_DataMin=0.1; m_DataMax=500.0; m_bQMidPt=1; };
-    CSieveSeriesHelper(char* pName, char* pUnits) { m_Name=pName; Units=pUnits; pCnv=NULL; Precision=-1; m_SeriesDataType = e_Q; m_Data=0.0; m_DataMin=0.5; m_DataMax=490.0; m_bQMidPt=1; };
+    CSieveSeriesHelper(char* pName, char* pUnits) { m_Name=pName; Units=pUnits; pCnv=NULL; Precision=-1; m_SeriesDataType = e_Sqrt; m_Data=1.0; m_DataMin=0.5; m_DataMax=490.0; m_bQMidPt=1; };
     void SortSizes();
     flag ChangeUnits(char* pNewCnvTxt);
     void CalcDisplayPrecision();
