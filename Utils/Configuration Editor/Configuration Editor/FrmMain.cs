@@ -58,7 +58,6 @@ namespace Configuration_Editor
 
         DataTable m_SpecieDataTable = new DataTable("Species");
         OleDbDataAdapter m_SpecieDataAdapter;
-        string m_CurrentGraphColumn = null;
 
         Dictionary<string, MultiEquationDataset> m_GraphSeries = new Dictionary<string, MultiEquationDataset>();
 
@@ -68,9 +67,8 @@ namespace Configuration_Editor
 
         RegistryKey regKey;
 
-        double m_dCurSpeciesMolWt = double.NaN;
-        Dictionary<string, double> AtomicWts = new Dictionary<string, double>();
-
+        string m_CurrentTempUnits = "°C";
+        Dictionary<string, Conversion> m_TempConversion = new Dictionary<string, Conversion>();
         #endregion Variables
         
         #region Constructors
@@ -79,10 +77,15 @@ namespace Configuration_Editor
             InitializeComponent();
             try
             {
+                tcMain.TabPages.Remove(tabModels);
                 regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Configuration Editor");
                 SetDirectory((string)regKey.GetValue("Initial Directory", "My Documents"));
+                m_CurrentTempUnits = (string)regKey.GetValue("Temperature Units", "°C");
             }
             catch { }
+            m_TempConversion["°C"] = new Conversion(275.16, 1);
+            m_TempConversion["K"] = new Conversion(0, 1);
+            m_TempConversion["°F"] = new Conversion(2298.35d / 9d, 5d / 9d);
 
             this.Load += new EventHandler(FrmMain_Load);
         }
@@ -92,6 +95,12 @@ namespace Configuration_Editor
             try
             {
                 m_DefaultIniDictionary = ReadIni(Configuration_Editor.Properties.Resources.DefaultInI, new Dictionary<string, Dictionary<string, string>>());
+
+                ConvertEventHandler TempParse = new ConvertEventHandler(ParseTemperature);
+                ConvertEventHandler TempFormat = new ConvertEventHandler(FormatTemperature);
+
+                specieDatabaseControl1.TemperatureFormat = TempFormat;
+                specieDatabaseControl1.TemperatureParse = TempParse;
 
                 SetupMisc();
                 SetupSpDbEditor();
@@ -119,9 +128,7 @@ namespace Configuration_Editor
             else
                 throw new Exception("DatabaseColumns.ini not found.");
 
-            LoadAtomicWts();
-
-            #region Database stuff:
+            #region Database stuff
             m_SpecieDataTable = new DataTable("Species");
             m_SpecieDataTable.Columns.Add("Name", typeof(String));
             m_SpecieDataTable.Columns.Add("Compound", typeof(String));
@@ -156,29 +163,10 @@ namespace Configuration_Editor
             errorProvider1.DataSource = m_SpecieDataTable;
             #endregion Database stuff
 
-            
-            
-            txtName.DataBindings.Add("Text", m_SpecieDataTable, "Name");
-            txtSymbol.DataBindings.Add("Text", m_SpecieDataTable, "Compound");
-            comboPhase.DataBindings.Add("Text", m_SpecieDataTable, "Phase");
-
-            txtElementalComposition.DataBindings.Add("Text", m_SpecieDataTable, "Definition");
-            comboOccurence.DataBindings.Add("Text", m_SpecieDataTable, "Occurence");
-            txtMinTemperature.DataBindings.Add("Text", m_SpecieDataTable, "Ts", true);
-            txtMaxTemperature.DataBindings.Add("Text", m_SpecieDataTable, "Te", true);
-            txtSource.DataBindings.Add("Text", m_SpecieDataTable, "Reference");
-            txtCheckedBy.DataBindings.Add("Text", m_SpecieDataTable, "Checked");
-            txtSolvent.DataBindings.Add("Text", m_SpecieDataTable, "Solvent");
-            txtCritPressure.DataBindings.Add("Text", m_SpecieDataTable, "Pc");
-            txtCritVol.DataBindings.Add("Text", m_SpecieDataTable, "Vc");
-            txtCritTemp.DataBindings.Add("Text", m_SpecieDataTable, "Tc");
-            txtAccentricity.DataBindings.Add("Text", m_SpecieDataTable, "Ac");
-            txtPhaseChange.DataBindings.Add("Text", m_SpecieDataTable, "PhaseChange");
-            txtDensityCorrection.DataBindings.Add("Text", m_SpecieDataTable, "DensityCorrection");
-
             specieDatabaseControl1.DataSource = m_SpecieDataTable;
 
             specieDatabaseControl1.UpdateLVIsRequired += new EventHandler(specieDatabaseControl1_UpdateLVIsRequired);
+
             return true;
         }
 
@@ -525,6 +513,28 @@ namespace Configuration_Editor
         #endregion File Operations
 
         #region Specie database stuff
+        protected void ParseTemperature(object sender, ConvertEventArgs e)
+        {
+            double d = m_TempConversion[m_CurrentTempUnits].Parse(System.Convert.ToDouble(e.Value));
+            if (e.DesiredType == typeof(double))
+                e.Value = d;
+            else if (e.DesiredType == typeof(float))
+                e.Value = (float)d;
+            else if (e.DesiredType == typeof(string))
+                e.Value = d.ToString();
+        }
+
+        protected void FormatTemperature(object sender, ConvertEventArgs e)
+        {
+            double d = m_TempConversion[m_CurrentTempUnits].Format(System.Convert.ToDouble(e.Value));
+            if (e.DesiredType == typeof(double))
+                e.Value = d;
+            else if (e.DesiredType == typeof(float))
+                e.Value = (float)d;
+            else if (e.DesiredType == typeof(string))
+                e.Value = d.ToString("F2");
+        }
+
         protected void SaveDatabase()
         {
             //Determine max lengths for each column:
@@ -747,26 +757,10 @@ namespace Configuration_Editor
 
         }
 
-        protected string m_sSelectedEquationColumn = "Density";
-        protected static Regex EquationSplitterRegex = new Regex(
-            @"^((""?(?<Equation>[^{}""]+)""?{(?<TMin>\d+(\.\d+)?|\.\d+),(?<TMax>\d+(\.\d+)?|\.\d+)})*|""?(?<GeneralEquation>[^{}""]+))""?$",
-            RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
-        protected void LoadEquationsIntoGraph()
-        {
-            try
-            {
-                foreach (string s in m_GraphSeries.Keys)
-                {
-                    LoadEquationsIntoGraph(s);
-                }
-            }
-            catch { }
-        }
-
         protected Dictionary<Pair<float>, string> SeperateVariousTemps(string s, out bool single)
         {
-            Match m = EquationSplitterRegex.Match(s);
-            Dictionary<Pair<float>, string> ret = new Dictionary<Pair<float>,string>();
+            Match m = SpecieDatabaseControl.EquationSplitterRegex.Match(s);
+            Dictionary<Pair<float>, string> ret = new Dictionary<Pair<float>, string>();
             if (m.Groups["GeneralEquation"].Success || !m.Success)
             {
                 single = true;
@@ -783,108 +777,6 @@ namespace Configuration_Editor
                 }
             }
             return ret;
-        }
-
-        protected void LoadEquationsIntoGraph(string col)
-        {
-            object o = m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][col];
-            MultiEquationDataset series = m_GraphSeries[col];
-            string s = "";
-            if ((o is string))
-                s = (string) o;
-            Match m = EquationSplitterRegex.Match(s);
-            series.ClearSeries();
-            if (m.Groups["GeneralEquation"].Success)
-                series.BackupSeries = new EquationGraphSeries(CreateEquationFrag(m.Groups["GeneralEquation"].Value, col), "T");
-
-            for (int i = 0; i < m.Groups["Equation"].Captures.Count; i++)
-            {
-                double TMin; double.TryParse(m.Groups["TMin"].Captures[i].Value, out TMin);
-                double TMax; double.TryParse(m.Groups["TMax"].Captures[i].Value, out TMax);
-
-                EquationGraphSeries EGS = new EquationGraphSeries(CreateEquationFrag(m.Groups["Equation"].Captures[i].Value, col), "T", TMin, TMax);
-                series.AddSeries(EGS);
-            }
-        }
-
-        protected EquationFragment CreateEquationFrag(string equation, string col)
-        {
-            Dictionary<string, FunctionValue> funcs = availableDBFuncs.ContainsKey(col.ToLower()) ? availableDBFuncs[col.ToLower()] : null;
-            EquationFragment frag = EquationFragment.Parse(equation, funcs);
-            frag.VariableValues.Add("T", 0);
-            frag.VariableValues.Add("MolWt", m_dCurSpeciesMolWt);
-            if (!frag.CanEvaluate())
-                frag = EquationFragment.Parse("0", null);
-            return frag;
-        }
-
-        protected void LoadEquationsIntoTextboxes()
-        {
-            if (!string.IsNullOrEmpty(m_CurrentGraphColumn))
-                LoadEquationsIntoTextboxes(m_CurrentGraphColumn);
-        }
-
-        protected void LoadEquationsIntoTextboxes(string column)
-        {
-            string s = "";
-            try
-            {
-                object o = m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][column];
-                if (o is string)
-                {
-                    s = (string)m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][column];
-                    Match m = EquationSplitterRegex.Match(s);
-                    int start = 0;
-                    if (m.Groups["GeneralEquation"].Success)
-                    {
-                        txtFormula0.Text = m.Groups["GeneralEquation"].Value; start++;
-                        txtMinTemp0.Text = txtMaxTemp0.Text = "*";
-                    }
-                    int end = m.Groups["Equation"].Captures.Count + start < 4 ? m.Groups["Equation"].Captures.Count + start : 4;
-                    for (int i = start; i < end; i++)
-                    {
-                        tlpEquations.Controls["txtFormula" + i].Text = m.Groups["Equation"].Captures[i - start].Value;
-                        tlpEquations.Controls["txtMinTemp" + i].Text = m.Groups["TMin"].Captures[i - start].Value;
-                        tlpEquations.Controls["txtMaxTemp" + i].Text = m.Groups["TMax"].Captures[i - start].Value;
-                    }
-                    for (int i = end; i < 4; i++)
-                    {
-
-                        tlpEquations.Controls["txtFormula" + i].Text = "";
-                        tlpEquations.Controls["txtMinTemp" + i].Text = "";
-                        tlpEquations.Controls["txtMaxTemp" + i].Text = "";
-                    }
-                }
-                else
-                    for (int i = 0; i < 4; i++)
-                    {
-                        tlpEquations.Controls["txtFormula" + i].Text = tlpEquations.Controls["txtMinTemp" + i].Text = tlpEquations.Controls["txtMaxTemp" + i].Text = "";
-                    }
-            }
-            catch 
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    tlpEquations.Controls["txtFormula" + i].Text = tlpEquations.Controls["txtMinTemp" + i].Text = tlpEquations.Controls["txtMaxTemp" + i].Text = "";
-                }
-            }
-        }
-
-        protected string CreateDBString()
-        {
-            StringBuilder ret = new StringBuilder();
-            
-            ret.Append(txtFormula0.Text );
-            double tmin, tmax;
-            if( double.TryParse(txtMinTemp0.Text, out tmin) && double.TryParse(txtMaxTemp0.Text, out tmax))
-            ret.Append( "{" + txtMinTemp0.Text + "," + txtMaxTemp0.Text + "}");
-            for (int i = 1; i < 3; i++)
-            {
-                if (!string.IsNullOrEmpty(tlpEquations.Controls["TxtFormula" + i].Text.Trim()))
-                    ret.Append(tlpEquations.Controls["TxtFormula" + i].Text.Trim() +
-                        "{" + tlpEquations.Controls["TxtMinTemp" + i].Text + "," + tlpEquations.Controls["TxtMaxTemp" + i].Text + "}");
-            }
-            return ret.ToString();
         }
 
         protected void MergeRows()
@@ -1015,78 +907,11 @@ namespace Configuration_Editor
         }
 
         //Load column details from an ini:
-        Dictionary<string, Dictionary<string, FunctionValue>> availableDBFuncs = new Dictionary<string, Dictionary<string, FunctionValue>>();
-        static Regex CSVRegex = new Regex(@"\s*(?<Quotes>"")?(?<Val>(?(Quotes)[^""]*|[^,]*))(?(Quotes)(?<-Quotes>""))
-            (\s*,\s*(?<Quotes>"")?(?<Val>(?(Quotes)[^""]*|[^,]*))(?(Quotes)(?<-Quotes>"")))*", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
         protected void LoadDBIni(string filename)
         {
-            tlpTempDependantRadios.RowCount = 0;
             string s = new StreamReader(new FileStream(filename, FileMode.Open)).ReadToEnd();
             Dictionary<string, Dictionary<string, string>> data = ReadIni(s, new Dictionary<string, Dictionary<string, string>>());
             specieDatabaseControl1.LoadDBIni(data);
-            foreach (KeyValuePair<string, Dictionary<string, string>> kvp1 in data)
-            {
-                if (!availableDBFuncs.ContainsKey(kvp1.Key))
-                    availableDBFuncs[kvp1.Key] = new Dictionary<string, FunctionValue>();
-
-                MultiEquationDataset equations = new MultiEquationDataset();
-                Color c;
-                try
-                {
-                    c = Color.FromName(kvp1.Value["colour"].Trim('"'));
-                }
-                catch
-                {
-                    try
-                    {
-                        c = Color.FromArgb(int.Parse(kvp1.Value["colour"].Trim('"'), NumberStyles.HexNumber));
-                    }
-                    catch { throw new Exception("Unable to parse colour associated with " + kvp1.Key); }
-                }
-
-                //Read in meta data
-                equations.DefaultColour = c;
-                equations.Logarithmic = kvp1.Value.ContainsKey("logarithmic") && kvp1.Value["logarithmic"] != "0";
-
-                m_GraphSeries.Add(kvp1.Key, equations);
-                graph1.AddDataset(equations);
-
-                RadioButton rb = new RadioButton();
-                rb.Text = kvp1.Value.ContainsKey("friendlyname") ? kvp1.Value["friendlyname"].Trim('"') : kvp1.Key;
-                rb.ForeColor = c;
-                rb.CheckedChanged += new EventHandler(radioEntropy_CheckedChanged);
-                rb.Tag = kvp1.Key;
-                //tlpTempDependantRadios.RowCount++;
-                //tlpTempDependantRadios.RowStyles[tlpTempDependantRadios.RowCount - 1].SizeType = SizeType.AutoSize;
-                tlpTempDependantRadios.Controls.Add(rb);
-                rb.Dock = DockStyle.Top;
-
-                //Read in available equations.
-                foreach (KeyValuePair<string, string> kvp2 in kvp1.Value)
-                    if (kvp2.Key.StartsWith("eqn"))
-                    {
-                        Match m = CSVRegex.Match(kvp2.Value);
-                        if (m.Groups["Val"].Captures.Count < 3)
-                            continue;
-                        List<double> defaults = new List<double>();
-                        double temp;
-                        for (int i = 3; i < m.Groups["Val"].Captures.Count; i++)
-                            if (double.TryParse(m.Groups["Val"].Captures[i].Value, out temp))
-                                defaults.Add(temp);
-
-                        FunctionValue val = new EquationFunctionValue(m.Groups["Val"].Captures[0].Value, m.Groups["Val"].Captures[2].Value, defaults.ToArray());
-                        availableDBFuncs[kvp1.Key].Add(val.Name, val);
-                    }
-            }
-        }
-
-        static Regex AtomicWtsRegex = new Regex(@"(?<Symb>[^,\r\n]*),(?<Val>[^,\r\n]*)");
-        protected void LoadAtomicWts()
-        {
-            for (Match m = AtomicWtsRegex.Match(Configuration_Editor.Properties.Resources.AtmoicWts); m.Success; m = m.NextMatch())
-            {
-                AtomicWts[m.Groups["Symb"].Value] = double.Parse(m.Groups["Val"].Value);
-            }
         }
 
         protected void UpdateDBLVIs()
@@ -1105,58 +930,9 @@ namespace Configuration_Editor
             catch { };
         }
 
-        protected void RecalculateMolWt()
-        {
-            try
-            {
-                Match m = s_DefinitionRegex.Match(txtElementalComposition.Text);
-                if (!m.Success)
-                {
-                    m_dCurSpeciesMolWt = double.NaN; return;
-                }
-                double temp = 0;
-                for (int i = 0; i < m.Groups["Symb"].Captures.Count; i++)
-                {
-                    if (!AtomicWts.ContainsKey(m.Groups["Symb"].Captures[i].Value))
-                    {
-                        m_dCurSpeciesMolWt = double.NaN; return;
-                    }
-                    double count = 1;
-                    if (m.Groups["Count"].Captures[i].Length > 0)
-                    {
-                        if (!double.TryParse(m.Groups["Count"].Captures[i].Value, out count))
-                            count = FracParse(m.Groups["Count"].Captures[i].Value);
-                    }
-                    temp += AtomicWts[m.Groups["Symb"].Captures[i].Value] * count;
-                }
-                for (int i = 0; i < m.Groups["Wt"].Captures.Count; i++)
-                    temp += double.Parse(m.Groups["Wt"].Captures[i].Value);
-                m_dCurSpeciesMolWt = temp;
-            }
-            catch { }
-            UpdateGraphValues();
-        }
 
-        protected double FracParse(string s)
-        {
-            string[] subs = s.Split('/');
-            return double.Parse(subs[0]) / double.Parse(subs[1]);
-        }
 
-        protected void UpdateGraphValues()
-        {
-            UpdateGraphValues(graph1.Series);
-        }
 
-        protected void UpdateGraphValues(ICollection<GraphSeries> series)
-        {
-            foreach (GraphSeries gs in series)
-                if (gs is MultiEquationDataset)
-                    UpdateGraphValues(((MultiEquationDataset)gs).SubSeries);
-                else if (gs is EquationGraphSeries)
-                    ((EquationGraphSeries)gs).SetVariable("MolWt", m_dCurSpeciesMolWt);
-            graph1.Invalidate();
-        }
 
         #endregion Specie DB stuff
 
@@ -1164,7 +940,7 @@ namespace Configuration_Editor
         {
             if (tcMain.SelectedTab == this.tabSpecies)
             {
-                if (tcSpecies.SelectedTab == this.tabProjectSpeciesTest)
+                if (tcSpecies.SelectedTab == this.tabProjectSpecies)
                 {
                     statusLabel.Text = projectVectorControl1.StatusMessage;
                     statusLabel.ForeColor = projectVectorControl1.StatusColour;
@@ -1267,116 +1043,6 @@ namespace Configuration_Editor
             DoDragDrop(drag, DragDropEffects.Link);
         }
 
-        #region Database Tab
-        private void txtMinTemperature_TextChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                graph1.MinXValue = double.Parse(txtMinTemperature.Text);
-            }
-            catch { }
-        }
-
-        private void txtMaxTemperature_TextChanged(object sender, EventArgs e)
-        {
-            try { graph1.MaxXValue = double.Parse(txtMaxTemperature.Text); }
-            catch { }
-        }
-        
-        private void radioEntropy_CheckedChanged(object sender, EventArgs e)
-        {
-            RadioButton rSender = sender as RadioButton;
-            m_CurrentGraphColumn = (string)rSender.Tag;
-            m_GraphSeries[m_CurrentGraphColumn].Selected = rSender.Checked;
-            if (rSender.Checked)
-                LoadEquationsIntoTextboxes(m_CurrentGraphColumn);
-            tlpEquations.Enabled = true;
-        }
-
-        private void txtFormula0_Leave(object sender, EventArgs e)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(m_CurrentGraphColumn))
-                {
-                    m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][m_CurrentGraphColumn] = CreateDBString();
-                    LoadEquationsIntoGraph(m_CurrentGraphColumn);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Formulae", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void txtName_Validating(object sender, CancelEventArgs e)
-        {
-            e.Cancel = !s_AcceptableNameRegex.Match(txtName.Text).Success;
-            if (e.Cancel)
-                errorProvider1.SetError(txtName, "Invalid Characters");
-            else
-                errorProvider1.SetError(txtName, "");
-        }
-
-        private void txtSymbol_Validating(object sender, CancelEventArgs e)
-        {
-            e.Cancel = !s_AcceptableSymbRegex.Match(txtSymbol.Text).Success;
-            if (e.Cancel)
-                errorProvider1.SetError(txtSymbol, "Invalid Characters");
-            else
-                errorProvider1.SetError(txtSymbol, "");
-        }
-
-        private void comboPhase_Validated(object sender, EventArgs e)
-        {
-            //Rebuild the dropdown list:
-            comboPhase.Items.Clear();
-            foreach (DataRow r in m_SpecieDataTable.Rows)
-                if (!comboPhase.Items.Contains(r["Phase"]))
-                    comboPhase.Items.Add(r["Phase"]);
-        }
-
-        private void txtSymbol_Validated(object sender, EventArgs e)
-        {
-            projectVectorControl1.UpdateProjectLVIs();
-            UpdateDBLVIs();
-        }
- 
-        private void txtName_Validated(object sender, EventArgs e)
-        {
-            UpdateDBLVIs();
-        }
-
-        private void txtElementalComposition_Validating(object sender, CancelEventArgs e)
-        {
-            Match m = s_DefinitionRegex.Match(txtElementalComposition.Text);
-            if (!m.Success)
-            {
-                e.Cancel = true;
-                errorProvider1.SetError(txtElementalComposition, "Unable To Parse Definition");
-            }
-            else
-            {
-                bool ok = true;
-                foreach (Capture c in m.Groups["Symb"].Captures)
-                    if (!AtomicWts.ContainsKey(c.Value))
-                    {
-                        errorProvider1.SetError(txtElementalComposition, "Unknown symbol " + c.Value);
-                        ok = false;
-                        break;
-                    }
-                if (ok)
-                    errorProvider1.SetError(txtElementalComposition, "");
-            }
-        }
-
-        private void txtElementalComposition_Validated(object sender, EventArgs e)
-        {
-            RecalculateMolWt();
-        }
-
-        #endregion Database Tab
-
         private void FireUpdateStatusBar(object sender, EventArgs e)
         {
             UpdateStatusBar();
@@ -1390,7 +1056,7 @@ namespace Configuration_Editor
 
         private void lstDBSpecies_ItemActivate(object sender, EventArgs e)
         {
-            if (tcSpecies.SelectedTab == tabProjectSpeciesTest)
+            if (tcSpecies.SelectedTab == tabProjectSpecies)
             {
                 DataRow r = (DataRow)(lstDBSpecies.SelectedItems[0].Tag);
                 projectVectorControl1.AddToCalculation("[" + r["Compound"] + "(" + r["Phase"] + ")]");
@@ -1426,9 +1092,6 @@ namespace Configuration_Editor
                 try
                 {
                     this.BindingContext[m_SpecieDataTable].Position = m_SpecieDataTable.Rows.IndexOf((DataRow)lstDBSpecies.SelectedItems[0].Tag);
-                    LoadEquationsIntoGraph();
-                    LoadEquationsIntoTextboxes();
-                    RecalculateMolWt();
                 }
                 catch (Exception ex)
                 {
@@ -1591,7 +1254,7 @@ namespace Configuration_Editor
                 lstDBSpecies.Items[0].Selected = true;
             else
             {
-                tcSpecies.SelectedTab = tabProjectSpeciesTest;
+                tcSpecies.SelectedTab = tabProjectSpecies;
                 tcSpecies.Enabled = false;
             }
         }
@@ -1764,6 +1427,24 @@ namespace Configuration_Editor
         public override int GetHashCode()
         {
             return unchecked( s1.GetHashCode() * s2.GetHashCode() );
+        }
+    }
+
+    public class Conversion
+    {
+        public Conversion(double offset, double factor) { this.offset = offset; this.factor = factor; }
+
+        public double offset;
+        public double factor;
+
+        public double Parse(double formattedVal)
+        {
+            return formattedVal / factor + offset;
+        }
+
+        public double Format(double SIVal)
+        {
+            return (SIVal - offset) * factor;
         }
     }
 }
