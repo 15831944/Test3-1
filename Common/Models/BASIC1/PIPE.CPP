@@ -310,7 +310,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   //DDB.Text   ("Results: Flow Conditions");
 
   DDB.CheckBoxBtn("Simplify", "", DC_, "", &m_bSimplify, this, isParmStopped|AffectsStruct);
-  if (m_bSimplify)
+  if (DDB.ForView() && m_bSimplify)// && NoIOs()>0)
     {
     if (m_pSimplifyNote)
       DDB.TagComment((LPSTR)m_pSimplifyNote);
