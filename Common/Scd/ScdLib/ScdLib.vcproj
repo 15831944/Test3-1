@@ -725,6 +725,9 @@
 			<File
 				RelativePath=".\VECTORS.CPP">
 			</File>
+			<File
+				RelativePath=".\ZipStuff.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -914,6 +917,9 @@
 			</File>
 			<File
 				RelativePath=".\VECTORS.H">
+			</File>
+			<File
+				RelativePath=".\ZipStuff.h">
 			</File>
 		</Filter>
 		<Filter

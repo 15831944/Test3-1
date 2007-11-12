@@ -726,9 +726,6 @@
 			<File
 				RelativePath=".\OLE\XL5OBJ32.CPP">
 			</File>
-			<File
-				RelativePath=".\ZipStuff.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1113,9 +1110,6 @@
 			</File>
 			<File
 				RelativePath=".\OLE\XL5OBJ32.H">
-			</File>
-			<File
-				RelativePath=".\ZipStuff.h">
 			</File>
 			<Filter
 				Name="Resource Files"
