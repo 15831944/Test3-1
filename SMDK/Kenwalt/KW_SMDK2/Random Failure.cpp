@@ -205,6 +205,7 @@ bool RandomFailure::ValidateDataFields()
 			}
 		TagIO.EndValidateDataFields();
 	}
+	CheckTags();
 	for (int i = 0; i < tasks.size(); i++)
 	{
 		if (tasks.at(i)->dAvgDowntime < 0)
@@ -394,9 +395,11 @@ bool RandomFailure::CheckTags()
 		{
 			CString warning;
 			warning.Format("Task %i does not have a valid tag", i);
-			Log.Message(MMsg_Warning, warning);
+			Log.SetCondition(i, MMsg_Warning, warning);
 			ret = false;
 		}
+		else
+			Log.ClearCondition(i);
 	}
 	return ret;
 }

@@ -66,10 +66,7 @@ void TailingsGraphic::Init()
 
 bool TailingsGraphic::PreStartCheck()
 {
-	RecalculateVolumes();
-	bool ret = RecalculateLevels();
-	Log.SetCondition(ret, 0, MMsg_Error, "Unable to retrieve critical tank information");
-	return ret;
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -252,6 +249,11 @@ bool TailingsGraphic::ValidateDataFields()
 		}
 		TagIO.EndValidateDataFields();
 	}
+	RecalculateVolumes();
+	bool ret = RecalculateLevels();
+	Log.SetCondition(!ret, 0, MMsg_Error, "Unable to retrieve critical tank information");
+	return ret;
+
 	return true;
 }
 
