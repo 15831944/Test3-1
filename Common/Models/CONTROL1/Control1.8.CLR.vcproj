@@ -584,7 +584,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SchedEvents.cpp"
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\SchedEvents.cpp"
 				>
 			</File>
 			<File
@@ -596,7 +596,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\StatsSingleVar.cpp"
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\StatsBivariate.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\StatsSingleVar.cpp"
 				>
 			</File>
 			<File
@@ -701,7 +705,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SchedEvents.h"
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\SchedEvents.h"
 				>
 			</File>
 			<File
@@ -713,7 +717,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\StatsSingleVar.h"
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\StatsBivariate.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\StatsSingleVar.h"
 				>
 			</File>
 			<File
