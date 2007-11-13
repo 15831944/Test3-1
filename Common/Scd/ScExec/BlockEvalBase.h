@@ -48,7 +48,7 @@ class DllImportExport CBlockEvalBase
     DDBValueLst     * GetOnOffValLst(/*bool WithState=false*/);
 
     bool              HasStateSemantics()          { return m_bHasStateSemantics; };
-    bool              StateSemanticsOn()     { return m_bHasStateSemantics && (BlkSeqNo()==BlkEval_State); };
+    bool              StateSemanticsOn()           { return m_bHasStateSemantics && (BlkSeqNo()==BlkEval_State); };
 
     void              Open(byte L);
     byte              OpenStatus(flag Enabled);

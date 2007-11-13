@@ -1748,7 +1748,7 @@ void CReactionBlock::OnAppActivate(BOOL bActive)
         bReloadReqd=true;
         if (bAutoReload)
           {
-          Load((), sRCTName(), true);
+          Load(LoadForDynamic(), sRCTName(), true);
           char* pTag = new char[strlen(BaseTag())+1];
           strcpy(pTag, BaseTag());
           ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCREFRESHSAVE, (LPARAM)pTag);
@@ -2985,7 +2985,11 @@ flag CReactionBase::DataXchg(DataChangeBlk & DCB)
       if (DCB.rB)
         {
         if (*DCB.rB)
+          {
+          if (PrjFileVerNo()<114 && *DCB.rB>=BlkEval_On && m_bHasStateSemantics)
+            *DCB.rB = BlkEval_State + (*DCB.rB-BlkEval_On);
           Open(*DCB.rB);
+          }
         else
           Close();
         }

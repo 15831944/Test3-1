@@ -79,6 +79,10 @@ Thickener::Thickener(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   UFSolidsFn("DataOnly", "UF_Solids", this, TOA_Embedded),
   OFSolidsFn("DataOnly", "OF_Solids", this, TOA_Embedded)
   {
+#if SURGEEB_RB_EHX
+  m_BlkEval.Attach(true, &m_RB, NULL, &m_EHX, NULL, NULL/*&m_Evap*/);
+#endif
+
   AttachIOAreas(ThickenerIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
@@ -155,8 +159,18 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   m_BlkEval.Add_OnOff(DDB);  
 
   DDB.Visibility();
-  m_RB.Add_OnOff(DDB);
+
+#if SURGEEB_RB_EHX
+  if (PrjFileVerNo()<112)
+    {
+    m_RB.Add_OnOff(DDB);
+    m_EHX.Add_OnOff(DDB);
+    }
+#else
+  RB.Add_OnOff(DDB);
   m_EHX.Add_OnOff(DDB);
+#endif
+
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (SolveInlineMethod())
     DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
@@ -193,10 +207,12 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnIOOpts(DDB);
 
   DDB.Visibility();
-  m_BlkEval.BuildDataDefn(DDB);
-
-  m_RB.BuildDataDefn(DDB);
+#if SURGEEB_RB_EHX 
+  m_BlkEval.BuildDataDefn(DDB);  
+#else 
+  m_RB.BuildDataDefn(DDB);    
   m_EHX.BuildDataDefn(DDB);
+#endif
 
   if (m_bShowQFeed)// && NetProbalMethod())
     DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
@@ -251,13 +267,14 @@ class CThickenerOFFnd : public MRootFinderBase
   protected:
     SpConduit* pVent;
     MN_Surge* pSurge;
+    CBlockEvaluator * pBlkEval;
 
     double POut;
     double RqdUFSolids;
     double iRqdOFMethod;
     static CToleranceBlock s_Tol;
   public:
-    CThickenerOFFnd(SpConduit &Sd_, SpConduit &Fd_, SpConduit &Co_, SpConduit &Cu_, SpConduit* pVent_, MN_Surge* pSurge_,
+    CThickenerOFFnd(SpConduit &Sd_, SpConduit &Fd_, SpConduit &Co_, SpConduit &Cu_, SpConduit* pVent_, MN_Surge* pSurge_, CBlockEvaluator * pBlkEval_,
       double POut_, double RqdUFSolids_, double iRqdOFMethod_);
     double Function(double x);
   };
@@ -266,13 +283,14 @@ CToleranceBlock CThickenerOFFnd::s_Tol(TBF_Both, "Thickener:Overflow", 0.0, 1.0e
 
 //--------------------------------------------------------------------------
     
-CThickenerOFFnd::CThickenerOFFnd(SpConduit &Wrk_, SpConduit &Fd_, SpConduit &Co_, SpConduit &Cu_, SpConduit* pVent_, MN_Surge* pSurge_, 
+CThickenerOFFnd::CThickenerOFFnd(SpConduit &Wrk_, SpConduit &Fd_, SpConduit &Co_, SpConduit &Cu_, SpConduit* pVent_, MN_Surge* pSurge_, CBlockEvaluator * pBlkEval_, 
       double POut_, double RqdUFSolids_, double iRqdOFMethod_) :
   MRootFinderBase("Thicken", s_Tol),//1.0e-8), 
   Wrk(Wrk_), Fd(Fd_), Co(Co_), Cu(Cu_)
   {
   pVent = pVent_;
   pSurge = pSurge_;
+  pBlkEval= pBlkEval_;
   POut = POut_;
   RqdUFSolids = RqdUFSolids_;
   iRqdOFMethod = iRqdOFMethod_;
@@ -289,8 +307,12 @@ double CThickenerOFFnd::Function(double x)
   
   Wrk.QCopy(Fd);
   
+#if SURGEEB_RB_EHX
+  pBlkEval->EvalProducts(0, Wrk, POut, NULL);
+#else
   pSurge->m_RB.EvalProducts(Wrk);
   pSurge->m_EHX.EvalProducts(Wrk);
+#endif
 
   //put all vapours (if any) to vent (if present)...
   const double Qg = Wrk.QMass(som_Gas);
@@ -427,7 +449,7 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
 
       //double POut = AtmosPress(); //force outlet to Atmos P
       double POut = Std_P; //force outlet to Std_P
-      CThickenerOFFnd Fnd(Wrk(), Fd(), Co, Cu, pVent, this, POut, m_RqdUFSolids, m_iRqdOFMethod);
+      CThickenerOFFnd Fnd(Wrk(), Fd(), Co, Cu, pVent, this, &m_BlkEval, POut, m_RqdUFSolids, m_iRqdOFMethod);
       m_IntOFSolidsUsed = Valid(m_IntOFSolidsUsed) ? m_IntOFSolidsUsed : m_RqdOFSolids;
       Fnd.SetEstimate(m_IntOFSolidsUsed, 1.0);
       if (m_iRqdOFMethod == OFM_OFSolFrac)
