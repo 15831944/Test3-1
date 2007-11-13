@@ -926,21 +926,21 @@ LRESULT CMainFrame::OnCmd(WPARAM wParam, LPARAM lParam)
 
     case SUB_CMD_ARCHIVEEXECUTE:
       {
-      gs_pArcMan->Execute(TimeCB());
+      gs_pArcMan->Execute(gs_TimeCB);
       //gs_pArcMan->SetEvent();
       break;
       }
 
     case SUB_CMD_ARCHIVESTEPDONE:
       {
-      gs_pArcMan->StepDone(TimeCB());
+      gs_pArcMan->StepDone(gs_TimeCB);
       gs_pArcMan->SetEvent();
       break;
       }
 
     case SUB_CMD_ARCHIVESTART:
       {
-      gs_pArcMan->Start(TimeCB());
+      gs_pArcMan->Start(gs_TimeCB);
       gs_pArcMan->SetEvent();
       break;
       }

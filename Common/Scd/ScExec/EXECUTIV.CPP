@@ -453,7 +453,7 @@ UINT EO_ExecThread(LPVOID pEO_)
           case EXM_EXEC :
             OInx=pEO->ObjExecIndex();
             gs_Exec.ThrdRet[OInx].Clear();
-            pEO->EO_Execute(gs_Exec.TimeCB(), gs_Exec.ThrdRet[OInx]);
+            pEO->EO_Execute(gs_Exec.m_TmCB, gs_Exec.ThrdRet[OInx]);
             gs_Exec.PostCmd(pEO, EXM_EXECDONE, (long)pEO);
 
             #if dbgThreadTimes
@@ -1304,8 +1304,9 @@ CExecutive::CExecutive() :
   XSW(this),
   XSWDsp(this),
   m_Seq(this),
-  DynTmCB(m_RestartPGMOnStart, m_RestartPrfOnStart),
-  PBTmCB(m_RestartPGMOnStart, m_RestartPrfOnStart)
+  //DynTmCB(m_RestartPGMOnStart, m_RestartPrfOnStart),
+  //PBTmCB(m_RestartPGMOnStart, m_RestartPrfOnStart)
+  m_TmCB(m_RestartPGMOnStart, m_RestartPrfOnStart)
   {
 
   Ids=0;
@@ -1321,63 +1322,11 @@ CExecutive::CExecutive() :
 
   m_dwLoopCount                  = 0;
 
-  DynTmCB.m_bRealTime            = false;
-  DynTmCB.m_bSyncWithClock       = false;
-  DynTmCB.m_bHoldAdv             = false;
-  DynTmCB.m_TheTime              = CTimeValue(0.0);
-  DynTmCB.m_TimeToStop           = dNAN;
-  DynTmCB.m_StepSize             = CTimeValue(1.0);
-  DynTmCB.m_StepSizeMax          = CTimeValue(1.0);
-  DynTmCB.m_StepSizeNxt          = TimeNAN;
-  DynTmCB.m_RealTimeMult         = 1.0;
-  DynTmCB.m_StepCount            = 0;
-  DynTmCB.m_StepCountMax         = -1;
-  DynTmCB.m_ScnTime              = CTimeValue(0.0);
-  DynTmCB.m_ScnTimeMax           = TimeNAN;
-
-  DynTmCB.m_ScnState             = Scn_Off;
-
-  DynTmCB.m_ManualScnReStart     = Scr_ReStart;
-  DynTmCB.m_ReStartIfScnBusy     = Scr_ReStart;
-  DynTmCB.m_ReStartIfScnComplete = Sbr_ReStart;
-
-  DynTmCB.m_ScnType              = ScnTyp_Manual;
-  DynTmCB.m_TermAction           = ScnTA_None;
-  DynTmCB.m_ScnDuration          = CTimeValue(600.0);
-  DynTmCB.m_ScnStopTime          = CTimeValue(3600.0);
-
-  DynTmCB.m_EqnCB.Cfg.InitDynamic();
-
-  PBTmCB.m_bRealTime             = false;
-  PBTmCB.m_bSyncWithClock        = false;
-  PBTmCB.m_bHoldAdv              = false;
-  PBTmCB.m_TheTime               = CTimeValue(0.0);
-  PBTmCB.m_TimeToStop            = dNAN;
-  PBTmCB.m_StepSize              = CTimeValue(1.0);
-  PBTmCB.m_StepSizeMax           = CTimeValue(1.0);
-  PBTmCB.m_StepSizeNxt           = TimeNAN;
-  PBTmCB.m_RealTimeMult          = 1.0;
-  PBTmCB.m_StepCount             = 0;
-  PBTmCB.m_StepCountMax          = -1;
-  PBTmCB.m_ScnTime               = CTimeValue(0.0);
-  PBTmCB.m_ScnTimeMax            = TimeNAN;
-                                 
-  PBTmCB.m_ScnState              = Scn_Off;
-                                 
-  PBTmCB.m_ManualScnReStart      = Scr_ReStart;
-  PBTmCB.m_ReStartIfScnBusy      = Scr_Continue;
-  PBTmCB.m_ReStartIfScnComplete  = Sbr_Block;
-                                 
-  PBTmCB.m_ScnType               = ScnTyp_Manual;
-  PBTmCB.m_TermAction            = ScnTA_None;
-  PBTmCB.m_ScnDuration           = CTimeValue(1.0);
-  PBTmCB.m_ScnStopTime           = CTimeValue(1.0);
-
-  PBTmCB.m_EqnCB.Cfg.InitProBal();
+  Initialise4Probal();
 
   dwState                        =  EXF_Stopped;
 
-  fDoingPB                       = false;
+  //fDoingPB                       = false;
 
   bActive                        = true;
   bStopReqd                      = false;
@@ -1514,6 +1463,74 @@ void CExecutive::Terminate()
   PostThreadMessage(ExecThreadId(), WMU_EXECCOMMAND, MAKEWPARAM(EXM_QUIT,0), 0);
   WaitForSingleObject(hThread,INFINITE);
   pExecThread=NULL;
+  }
+
+//---------------------------------------------------------------------------
+
+void CExecutive::Initialise4Probal()
+  {
+  m_fDoingPB=true;
+
+  m_TmCB.m_bRealTime             = false;
+  m_TmCB.m_bSyncWithClock        = false;
+  m_TmCB.m_bHoldAdv              = false;
+  m_TmCB.m_TheTime               = CTimeValue(0.0);
+  m_TmCB.m_TimeToStop            = dNAN;
+  m_TmCB.m_StepSize              = CTimeValue(1.0);
+  m_TmCB.m_StepSizeMax           = CTimeValue(1.0);
+  m_TmCB.m_StepSizeNxt           = TimeNAN;
+  m_TmCB.m_RealTimeMult          = 1.0;
+  m_TmCB.m_StepCount             = 0;
+  m_TmCB.m_StepCountMax          = -1;
+  m_TmCB.m_ScnTime               = CTimeValue(0.0);
+  m_TmCB.m_ScnTimeMax            = TimeNAN;
+                                 
+  m_TmCB.m_ScnState              = Scn_Off;
+                                 
+  m_TmCB.m_ManualScnReStart      = Scr_ReStart;
+  m_TmCB.m_ReStartIfScnBusy      = Scr_Continue;
+  m_TmCB.m_ReStartIfScnComplete  = Sbr_Block;
+                                 
+  m_TmCB.m_ScnType               = ScnTyp_Manual;
+  m_TmCB.m_TermAction            = ScnTA_None;
+  m_TmCB.m_ScnDuration           = CTimeValue(1.0);
+  m_TmCB.m_ScnStopTime           = CTimeValue(1.0);
+
+  m_TmCB.m_EqnCB.Cfg.InitProBal();
+  };
+
+//---------------------------------------------------------------------------
+
+void CExecutive::Initialise4Dynamic()
+  {
+  m_fDoingPB=false;
+
+  m_TmCB.m_bRealTime            = false;
+  m_TmCB.m_bSyncWithClock       = false;
+  m_TmCB.m_bHoldAdv             = false;
+  m_TmCB.m_TheTime              = CTimeValue(0.0);
+  m_TmCB.m_TimeToStop           = dNAN;
+  m_TmCB.m_StepSize             = CTimeValue(1.0);
+  m_TmCB.m_StepSizeMax          = CTimeValue(1.0);
+  m_TmCB.m_StepSizeNxt          = TimeNAN;
+  m_TmCB.m_RealTimeMult         = 1.0;
+  m_TmCB.m_StepCount            = 0;
+  m_TmCB.m_StepCountMax         = -1;
+  m_TmCB.m_ScnTime              = CTimeValue(0.0);
+  m_TmCB.m_ScnTimeMax           = TimeNAN;
+
+  m_TmCB.m_ScnState             = Scn_Off;
+
+  m_TmCB.m_ManualScnReStart     = Scr_ReStart;
+  m_TmCB.m_ReStartIfScnBusy     = Scr_ReStart;
+  m_TmCB.m_ReStartIfScnComplete = Sbr_ReStart;
+
+  m_TmCB.m_ScnType              = ScnTyp_Manual;
+  m_TmCB.m_TermAction           = ScnTA_None;
+  m_TmCB.m_ScnDuration          = CTimeValue(600.0);
+  m_TmCB.m_ScnStopTime          = CTimeValue(3600.0);
+
+  m_TmCB.m_EqnCB.Cfg.InitDynamic();
   }
 
 //---------------------------------------------------------------------------
@@ -2117,14 +2134,14 @@ void CExecutive::UpdateDisplays(byte Options)
   #endif
 
   if (AfxGetMainWnd())
-    ScdMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, (Options&UDO_OnlyStatusLine)?0x00000001:0x00000000, (long)&TimeCB());
+    ScdMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, (Options&UDO_OnlyStatusLine)?0x00000001:0x00000000, (long)&m_TmCB);
   if (Options & UDO_FlushMsgQ)
     XFlushAppMsgQ();
   if (!(Options&UDO_OnlyStatusLine))
     {
     for (int EInx=0; EInx<Objs_Reg.GetSize(); EInx++)
       if (Objs_Reg[EInx]->bExec & EODisplayUpdate)
-        Objs_Reg[EInx]->EO_DisplayUpdate(Options, TimeCB());
+        Objs_Reg[EInx]->EO_DisplayUpdate(Options, m_TmCB);
     }
   }
 
@@ -2136,7 +2153,7 @@ void CExecutive::DumpMsgHistory()
 //  #if dbgExecutive
 //  if (dbgExecSeq())
 //    dbgpln("Exec::                                    %s  %18.6f  App.%s",
-//           EXM_MSGS[XCMD(Cmd)], TimeCB().m_Time-3600.0*floor(gs_Exec.TimeCB().m_Time/3600.0), pEO ? pEO->Name() : "");
+//           EXM_MSGS[XCMD(Cmd)], m_TmCB.m_Time-3600.0*floor(gs_Exec.m_TmCB.m_Time/3600.0), pEO ? pEO->Name() : "");
 //  #endif
 //
 //  if (lMsgHistory<0)
@@ -2173,7 +2190,7 @@ void CExecutive::DumpMsgHistory()
 flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
   {
   //dwState|=EXF_Busy;
-  if (fDoingPB)
+  if (m_fDoingPB)
     dwState|=EXF_SolvingPB;
   else
     dwState&=(~EXF_SolvingPB);
@@ -2238,7 +2255,7 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
     LogNote("Executive", 0, "Performing Prestart");
     #endif
     for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
-      Objs_Reg[RInx]->EO_PreStart(TimeCB());
+      Objs_Reg[RInx]->EO_PreStart(m_TmCB);
     }
 
   CTimeValue OldTime(TheTime);
@@ -2257,7 +2274,7 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
     }
 
   for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
-    OKToGo = OKToGo && Objs_Reg[RInx]->EO_GotoRunStart(TimeCB());
+    OKToGo = OKToGo && Objs_Reg[RInx]->EO_GotoRunStart(m_TmCB);
 
   if (FullStartup)
     { 
@@ -2292,11 +2309,11 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
     }
 
   for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
-    OKToGo = OKToGo && Objs_Reg[RInx]->EO_GotoRunEnd(TimeCB(), OldTime!=TheTime);
+    OKToGo = OKToGo && Objs_Reg[RInx]->EO_GotoRunEnd(m_TmCB, OldTime!=TheTime);
 
   for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
     {
-    if (Objs_Reg[RInx]->EO_QueryStop(TimeCB(), true))
+    if (Objs_Reg[RInx]->EO_QueryStop(m_TmCB, true))
       {
       OKToGo=false;
       break;
@@ -2400,7 +2417,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         m_bSendStopEvent=true;
         bStopReqd=true;
         bPauseReqd=false;
-        if (TimeCB().m_bRealTime)
+        if (m_TmCB.m_bRealTime)
           {
           while (!PostThreadMessage(ExecThreadId(), WM_TIMER, gs_Exec.iTimerId, 0))
             Sleep(10);
@@ -2555,12 +2572,12 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       m_bStepExecuted=false;
       //m_SteadyStateRqd=false;
 
-      TimeCB().m_bHoldAdv = bHoldAdv;
-      //TimeCB().m_nStepCount = 0;
+      m_TmCB.m_bHoldAdv = bHoldAdv;
+      //m_TmCB.m_nStepCount = 0;
       gs_MsgLog.SetMsgIteration(0);
 
-      //if (!SolvingPB() && !TimeCB().m_bRealTime)
-      //  if (ValidTime(TimeCB().m_TimeToStop) && TimeCB().m_Time>=TimeCB().m_TimeToStop)
+      //if (!SolvingPB() && !m_TmCB.m_bRealTime)
+      //  if (ValidTime(m_TmCB.m_TimeToStop) && m_TmCB.m_Time>=m_TmCB.m_TimeToStop)
       //    {
       //    LogWarning("Executive", 0, "Stop Time <= Current Time");
       //    dwState&=~EXF_Busy;
@@ -2574,8 +2591,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       dwState|=EXF_Starting;
       dwState&=~EXF_Stopped;
 
-//      if (TimeCB().m_bRealTime)
-//        iTimerId=::SetTimer(NULL, 0, (DWORD)(TimeCB().m_StepSizeMaxMS()/TimeCB().m_dRealTimeMult), NULL);
+//      if (m_TmCB.m_bRealTime)
+//        iTimerId=::SetTimer(NULL, 0, (DWORD)(m_TmCB.m_StepSizeMaxMS()/m_TmCB.m_dRealTimeMult), NULL);
 //      else
 //        iTimerId=0;
 
@@ -2640,8 +2657,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           Objs_Exec[EInx]->bReadAllData=1;
         }
 
-//      if (TimeCB().m_bRealTime && iTimerId==0)
-//        iTimerId=::SetTimer(NULL, 0, (DWORD)(TimeCB().StepSizeMaxMS()/TimeCB().m_RealTimeMult), NULL);
+//      if (m_TmCB.m_bRealTime && iTimerId==0)
+//        iTimerId=::SetTimer(NULL, 0, (DWORD)(m_TmCB.StepSizeMaxMS()/m_TmCB.m_RealTimeMult), NULL);
 //      else
 //        iTimerId=0;
 
@@ -2777,9 +2794,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           // Start Timer if neccessary
 
         static DWORD sm_RealTmTimerTicks=0;
-        if (TimeCB().m_bRealTime)
+        if (m_TmCB.m_bRealTime)
           {
-          DWORD RqdRealTmTimerTicks=(DWORD)(TimeCB().StepSizeMaxMS()/TimeCB().m_RealTimeMult);
+          DWORD RqdRealTmTimerTicks=(DWORD)(m_TmCB.StepSizeMaxMS()/m_TmCB.m_RealTimeMult);
           if (iTimerId==0 || RqdRealTmTimerTicks!=sm_RealTmTimerTicks)
             {
             sm_RealTmTimerTicks=RqdRealTmTimerTicks;
@@ -2804,7 +2821,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         UpdateDisplays();
 
 
-    //    CXM_TimeControl & TCB=TimeCB();
+    //    CXM_TimeControl & TCB=m_TmCB;
     //    if (!TCB.m_bRealTime)
     //      {
 
@@ -2850,7 +2867,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       //XSW.Write.ReStart();
       for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
         {
-        Objs_Exec[EInx]->EO_StepDone(TimeCB(), m_bStepExecuted);
+        Objs_Exec[EInx]->EO_StepDone(m_TmCB, m_bStepExecuted);
         }
       ProcessReportRequests();
       m_bStepExecuted=false;
@@ -2934,7 +2951,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
               pSolveTool->BeginPause();
               }
             for (RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
-              Objs_Reg[RInx]->EO_BeginPause(TimeCB());
+              Objs_Reg[RInx]->EO_BeginPause(m_TmCB);
             if (m_bSendIdleEvent)
               {
               #if dbgExecutive
@@ -3041,7 +3058,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
               pSolveTool->EndPause();
               }
             for (RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
-              Objs_Reg[RInx]->EO_EndPause(TimeCB());
+              Objs_Reg[RInx]->EO_EndPause(m_TmCB);
             }
           XSW.m_swRun.Start();
           XSW.m_swStep.Start();
@@ -3083,34 +3100,34 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       SetStopTimeEtc(false);
      
-      if (!TimeCB().m_bRealTime)
+      if (!m_TmCB.m_bRealTime)
         {
-        if (ValidTime(TimeCB().m_StepSizeNxt))
-          TimeCB().m_StepSize = Min(TimeCB().m_StepSizeNxt, TimeCB().m_StepSizeMax);
+        if (ValidTime(m_TmCB.m_StepSizeNxt))
+          m_TmCB.m_StepSize = Min(m_TmCB.m_StepSizeNxt, m_TmCB.m_StepSizeMax);
         else
-          TimeCB().m_StepSize = TimeCB().m_StepSizeMax;
+          m_TmCB.m_StepSize = m_TmCB.m_StepSizeMax;
         if (ValidTime(TimeToStop))
-          TimeCB().m_StepSize=Min(TimeCB().m_StepSize, TimeCB().m_TimeToStop-TheTime);
-        TimeCB().m_StepSize=Max(1.0e-3, TimeCB().m_StepSize);
-        TimeCB().m_StepSizeNxt=TimeNAN;
+          m_TmCB.m_StepSize=Min(m_TmCB.m_StepSize, m_TmCB.m_TimeToStop-TheTime);
+        m_TmCB.m_StepSize=Max(1.0e-3, m_TmCB.m_StepSize);
+        m_TmCB.m_StepSizeNxt=TimeNAN;
         }
 
       m_Seq.PlayTheList(m_Seq.SequenceNo());
 
       if (SolvingPB())
         {
-        EqnSlv.BeginStep(EqnCB());
+        gs_EqnSlv.BeginStep(gs_EqnCB);
         pSolveTool->StepProblemBegin();
         }
       //else
-      //  TimeCB().m_nStepCount++;
+      //  m_TmCB.m_nStepCount++;
 
       StartThreads(EOExec_Thread, EXM_EXEC);
       for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
         if (Objs_Exec[EInx]->bExec & EOExec_Msg)
           {
           ThrdRet[EInx].Clear();
-          Objs_Exec[EInx]->EO_Execute(TimeCB(), ThrdRet[EInx]);
+          Objs_Exec[EInx]->EO_Execute(m_TmCB, ThrdRet[EInx]);
           }
       m_Seq.IncSequenceNo();
       gs_MsgLog.IncMsgIteration();
@@ -3130,7 +3147,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       gs_swFlwSolve.Stop();
       m_bStepExecuted=true;
 
-      //TimeCB().m_nStepCount++;
+      //m_TmCB.m_nStepCount++;
       //UpdateState(false, false);
 
       XSW.m_swExec.Stop();
@@ -3150,15 +3167,15 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       if (SolvingPB())
         {
-        EqnSlvCtrlBlk &ECB=EqnCB();
-        EqnSlv.EndStep(ECB);
-        pSolveTool->StepProblemEnd();//*this, TimeCB().m_EqnCB);
+        EqnSlvCtrlBlk &ECB=m_TmCB.m_EqnCB;
+        m_EqnSlv.EndStep(ECB);
+        pSolveTool->StepProblemEnd();//*this, m_TmCB.m_EqnCB);
         if (!ECB.ConfigOK())
           bStopReqd=true;
-        else if (ECB.Converged() && (ECB.NConvergedIters()>=ECB.Cfg.iRqdCnvrgdIters) ||
-                 (ECB.NIters()>=ECB.Cfg.iMaxIters))
+        else if (ECB.Converged() && (ECB.NConvergedIters()>=ECB.Cfg.m_iRqdCnvrgdIters) ||
+                 (ECB.NIters()>=ECB.Cfg.m_iMaxIters))
           {
-          if (EqnCB().Cfg.fIdleWhenDone)
+          if (gs_EqnCB.Cfg.m_bIdleWhenDone)
             bPauseReqd=true;
           else
             bStopReqd=true;
@@ -3199,7 +3216,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         }
 
       gs_swExecute.Stop();
-      if (TimeCB().m_bRealTime)
+      if (m_TmCB.m_bRealTime)
         {
         EnterCriticalSection(&csTimerLock);
         if (bTimerExpired)
@@ -3232,7 +3249,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
     case EXM_BUMPTIME:
       UpdateStateDisplay(0, EXF_Waiting);
       gs_swExecute.Start();
-      if (TimeCB().m_bRealTime)
+      if (m_TmCB.m_bRealTime)
         {
         int GotTheTime=0;
         for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
@@ -3248,12 +3265,12 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
               }
         StepCount += 1;
         ScnTime   += StepSize;
-        if (GotTheTime==0 && TimeCB().m_bSyncWithClock)
+        if (GotTheTime==0 && m_TmCB.m_bSyncWithClock)
           SetTheTime(GetCurrentTime_1970(), "SyncWithClock");
         else
           SetTheTime(TheTime+StepSize, "BumpTime");
         }
-      else //if (!TimeCB().m_bRealTime)
+      else //if (!m_TmCB.m_bRealTime)
         {
         StepCount += 1;
         ScnTime   += StepSize;
@@ -3283,7 +3300,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
             {
             double D=gs_TimeSW.Time()-PrevTm;
             double PT=GetProcessorTime()-PrevPt;
-            double RS=TimeCB().m_StepSize.Seconds/GTZ(D);
+            double RS=m_TmCB.m_StepSize.Seconds/GTZ(D);
             double PTF=PT/GTZ(D);
             RunSP=0.75*RunSP+0.25*RS;
             dbgpln("IterSpeed    ---- DT:%12.4f IRS:%12.4f%% ARS:%12.4f%% ProcT:%12.4f PTF:%12.4f%%", D, RS*100, RunSP*100, PT, PTF*100);
@@ -3292,7 +3309,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           PrevPt=GetProcessorTime();
           }
         #endif
-        //if (ValidTime(TimeCB().m_TimeToStop) && TimeCB().m_Time>=TimeCB().m_TimeToStop-1.0e-6)
+        //if (ValidTime(m_TmCB.m_TimeToStop) && m_TmCB.m_Time>=m_TmCB.m_TimeToStop-1.0e-6)
         //  GotoIdleMode();
         }
 
@@ -3302,9 +3319,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
         {
         Objs_Exec[EInx]->SetEOTime(TheTime);
-        if (Objs_Exec[EInx]->EO_QueryStop(TimeCB(), false))
+        if (Objs_Exec[EInx]->EO_QueryStop(m_TmCB, false))
           {
-          switch (TimeCB().m_TermAction)
+          switch (m_TmCB.m_TermAction)
             {
             case ScnTA_Edit:
               GotoEditMode();
@@ -3339,15 +3356,15 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       TaggedObject::SetRunning(false);
 
       for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
-        Objs_Exec[EInx]->EO_Stop(TimeCB());
+        Objs_Exec[EInx]->EO_Stop(m_TmCB);
 
-      //m_TimeStopped=TimeCB().m_Time;
+      //m_TimeStopped=m_TmCB.m_Time;
       UpdateState(UO_Stop, Scn_Off, Scn_Ignore);
 
       // Bump Time so that Next 'Read/Write' do not set data with the same time.
       //The "problem" with this is that when stopped gs_Exec.TheTime does not return the correct stop time, to "fix" use gs_Exec.TimeStopped()
-      //CNM if (!TimeCB().m_bRealTime)
-      //CNM   TimeCB().m_Time+=TimeCB().m_StepSize; //what would happen if we don't increment this?
+      //CNM if (!m_TmCB.m_bRealTime)
+      //CNM   m_TmCB.m_Time+=m_TmCB.m_StepSize; //what would happen if we don't increment this?
 
       bStopReqd=false;
       bStepReqd=false;
@@ -3432,7 +3449,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       for (RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
         Objs_Reg[RInx]->EO_Stopping(false);
-      //TimeCB().m_bStopping=0;
+      //m_TmCB.m_bStopping=0;
 
       UpdateDisplays();
 
@@ -3443,7 +3460,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         ScdMainWnd()->PostMessage(WMU_CMDSTATE, ComState_Stop, 0); //let script cmd mngr know cmd is complete
         }
 
-      //m_TimeStopped=TimeCB().m_Time;
+      //m_TimeStopped=m_TmCB.m_Time;
       //UpdateDisplays();
 
 //      LogSeparator("Stopped",0,"=======================================");
@@ -3519,9 +3536,9 @@ CTimeValue CExecutive::QueryCurrentTime()
   for (int EInx=0; EInx<Objs_Reg.GetSize(); EInx++)
     {
     CTimeValue TimeRqd=TimeNAN, dTimeRqd=TimeNAN;
-    if (Objs_Reg[EInx]->EO_QueryTime(TimeCB(), TimeRqd, dTimeRqd))
+    if (Objs_Reg[EInx]->EO_QueryTime(m_TmCB, TimeRqd, dTimeRqd))
       {
-      if (!TimeCB().m_bSyncWithClock)
+      if (!m_TmCB.m_bSyncWithClock)
         {
         if (ValidTime(TimeRqd))
           {
@@ -3588,9 +3605,9 @@ flag CExecutive::QueryStartExec()
   const int MaxBad=8;
   CExecObj *pBad[MaxBad];
   int nBad=0;
-  if (TimeCB().m_bRealTime)
+  if (m_TmCB.m_bRealTime)
     {
-    CXM_TimeControl & TCB=TimeCB();
+    CXM_TimeControl & TCB=m_TmCB;
     if (TCB.m_bSyncWithClock)
       SetTheTime(GetCurrentTime_1970(), "RealTime");
     lLastTickCount=GetTickCount();
@@ -3602,7 +3619,7 @@ flag CExecutive::QueryStartExec()
 
   flag OK=1;
   CTimeValue ATimeRqd=TimeNAN;
-  CTimeValue AdTimeRqd=SolvingPB() ? 1.0 : TimeCB().m_StepSize;//dNAN; // Use Last Step Size
+  CTimeValue AdTimeRqd=SolvingPB() ? 1.0 : m_TmCB.m_StepSize;//dNAN; // Use Last Step Size
   #if dbgExecutive
   if (dbgExecQueryTimes())
     {
@@ -3614,13 +3631,13 @@ flag CExecutive::QueryStartExec()
   for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
     {
     CTimeValue TimeRqd=TimeNAN, dTimeRqd=TimeNAN;
-    if (Objs_Exec[EInx]->EO_QueryTime(TimeCB(), TimeRqd, dTimeRqd))
+    if (Objs_Exec[EInx]->EO_QueryTime(m_TmCB, TimeRqd, dTimeRqd))
       {
       #if dbgExecutive
       if (dbgExecQueryTimes())
         dbgpln("QueryTimes   %20s %20s %s", TimeRqd.Format(TD_DaysJoined|TD_Time), dTimeRqd.Format(TD_DaysJoined|TD_Time), Objs_Exec[EInx]->Name());
       #endif
-      if (!TimeCB().m_bSyncWithClock)
+      if (!m_TmCB.m_bSyncWithClock)
         {
         if (ValidTime(TimeRqd))
           ATimeRqd=ValidTime(ATimeRqd) ? Max(ATimeRqd, TimeRqd) : TimeRqd;
@@ -3656,12 +3673,12 @@ flag CExecutive::QueryStartExec()
     return false;
     }
 
-  if (TimeCB().m_bRealTime)
+  if (m_TmCB.m_bRealTime)
     {
     //if (Valid(ATimeRqd))
-    //  TimeCB().m_Time=ATimeRqd;
+    //  m_TmCB.m_Time=ATimeRqd;
     //if (Valid(AdTimeRqd))
-    //  TimeCB().m_dTime=AdTimeRqd;
+    //  m_TmCB.m_dTime=AdTimeRqd;
     }
   else
     {
@@ -3680,7 +3697,7 @@ flag CExecutive::QueryStartExec()
 
   for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
     {
-    if (!Objs_Exec[EInx]->EO_Start(TimeCB()))
+    if (!Objs_Exec[EInx]->EO_Start(m_TmCB))
       {
       OK=0;
       if (nBad<MaxBad)
@@ -3706,7 +3723,7 @@ flag CExecutive::QueryStartExec()
 
   if (SolvingPB())
     {
-    EqnCB().Init();
+    gs_EqnCB.Init();
     pSolveTool->InitProblem();
     //RunSW.ReStart();
     }
@@ -3714,7 +3731,7 @@ flag CExecutive::QueryStartExec()
   if (OK)
     {
     //NB: After a project load m_StepSize is not correct so should NOT be used!!!
-    //TimeCB().m_StepSizeNxt=TimeCB().m_StepSize; // dTime is Taken from dTimeNxt
+    //m_TmCB.m_StepSizeNxt=m_TmCB.m_StepSize; // dTime is Taken from dTimeNxt
     }
 
   return OK;
@@ -3733,7 +3750,7 @@ void CExecutive::ClearDataLists()
 
 int CExecutive::CanClose(Strng_List & Problems)
   {
-  //int Ret=Running() || TimeCB().m_bSolvingPB ? EO_CanClose_No : EO_CanClose_Yes;
+  //int Ret=Running() || m_TmCB.m_bSolvingPB ? EO_CanClose_No : EO_CanClose_Yes;
   int Ret=Busy() ? EO_CanClose_No : EO_CanClose_Yes;
   for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
     Ret=Max(Ret, Objs_Reg[RInx]->EO_CanClose(Problems));
@@ -3961,12 +3978,12 @@ inline flag   CExecutive::Paused()                      { return (dwState & EXF_
 inline flag   CExecutive::BetweenSteps()                { return (dwState & EXF_BetweenSteps)!=0;};
 inline flag   CExecutive::AutomationBusy()              { return bAutomationBusy;};
 inline flag   CExecutive::Filing()                      { return (eFileWhat!=EF_Null);};
-inline double CExecutive::Time()                        { return TimeCB().m_Time;};
-inline double CExecutive::StepSizeMax()                 { return TimeCB().m_StepSizeMax;};
-inline flag   CExecutive::SyncWithClock()               { return TimeCB().m_bSyncWithClock;};
-inline flag   CExecutive::RealTime()                    { return TimeCB().m_bRealTime;};
-inline double CExecutive::RealTimeMult()                { return TimeCB().m_RealTimeMult;};
-inline long   CExecutive::MaxRunSteps()                 { return TimeCB().m_nMaxSteps;};
+inline double CExecutive::Time()                        { return m_TmCB.m_Time;};
+inline double CExecutive::StepSizeMax()                 { return m_TmCB.m_StepSizeMax;};
+inline flag   CExecutive::SyncWithClock()               { return m_TmCB.m_bSyncWithClock;};
+inline flag   CExecutive::RealTime()                    { return m_TmCB.m_bRealTime;};
+inline double CExecutive::RealTimeMult()                { return m_TmCB.m_RealTimeMult;};
+inline long   CExecutive::MaxRunSteps()                 { return m_TmCB.m_nMaxSteps;};
 inline DWORD  CExecutive::LoopCount()                   { return m_dwLoopCount; };
 
 inline flag   CExecutive::Stopped()                     { return (dwState & EXF_Busy)==0;}; //starting OR running OR stopping OR paused*/
@@ -4407,9 +4424,9 @@ void CExecutive::SetDefNetMode(long Mode)
   ::SetDefNetMode(Mode);  
 
   if (DefNetMode()==NM_Dynamic)
-    ReturnFromProBal();
+    Initialise4Dynamic();
   else
-    SwapToProBal();
+    Initialise4Probal();
 
   for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
     Objs_Reg[OInx]->EO_SetSolveMode();
@@ -4466,12 +4483,12 @@ flag CExecutive::TestRunning()
 
 void CExecutive::SetScnType(eScnTypes T, bool ResetState)
   {
-  if (TimeCB().m_ScnType!=T && ResetState) 
+  if (m_TmCB.m_ScnType!=T && ResetState) 
     {
     SetStopTimeEtc(true);
     //ScnState=Scn_Idle; 
     }
-  TimeCB().m_ScnType=T; 
+  m_TmCB.m_ScnType=T; 
   };
 
 //---------------------------------------------------------------------------
@@ -4624,7 +4641,7 @@ void CExecutive::UpdateState(UpdateOps Op, eScnState RqdManState, eScnState RqdS
     }
   double Elapsed = m_Clock.Secs();//-m_ClockStart;
   
-  CXM_TimeControl & CB=TimeCB();
+  CXM_TimeControl & CB=m_TmCB;
   switch (ScnType)
     {
     case ScnTyp_Manual:
@@ -4750,20 +4767,22 @@ void CExecutive::SetSolveTool(SolveToolBase * SolveTool)
 
 //---------------------------------------------------------------------------
 
-void CExecutive::SwapToProBal()
-  {
-  if(!fDoingPB)
-    PBTmCB.m_TheTime=DynTmCB.m_TheTime;
-  fDoingPB=true;
-  }
-
-void CExecutive::ReturnFromProBal()
-  {
-  //double T=CB.Time;
-  if (fDoingPB)
-    DynTmCB.m_TheTime=PBTmCB.m_TheTime;
-  fDoingPB=false;
-  }
+//void CExecutive::SwapToProBal()
+//  {
+//  Initialise4Probal();
+//  //if(!fDoingPB)
+//  //  PBTmCB.m_TheTime=DynTmCB.m_TheTime;
+//  fDoingPB=true;
+//  }
+//
+//void CExecutive::ReturnFromProBal()
+//  {
+//  Initialise4Dynamic();
+//  ////double T=CB.Time;
+//  //if (fDoingPB)
+//  //  DynTmCB.m_TheTime=PBTmCB.m_TheTime;
+//  fDoingPB=false;
+//  }
 
 //---------------------------------------------------------------------------
 
@@ -4789,18 +4808,18 @@ void CExecutive::EndBulkChange()
 
 void   CExecutive::SetSyncWithClock(flag SyncWithClock_)
   {
-  TimeCB().m_bSyncWithClock=SyncWithClock_;
+  m_TmCB.m_bSyncWithClock=SyncWithClock_;
   if (SyncWithClock_)
     {
     SetRealTime(true);
     SetRealTimeMult(1.0);
     };
   };
-void   CExecutive::SetRealTime(flag RealTime_)            { TimeCB().m_bRealTime=RealTime_;};
-void   CExecutive::SetRealTimeMult(double M)              { TimeCB().m_RealTimeMult=Range(0.001,M,50000.0);};
+void   CExecutive::SetRealTime(flag RealTime_)            { m_TmCB.m_bRealTime=RealTime_;};
+void   CExecutive::SetRealTimeMult(double M)              { m_TmCB.m_RealTimeMult=Range(0.001,M,50000.0);};
 //void   CExecutive::putTheTime(const CTimeValue Value)
 //  {
-//  TimeCB().m_TheTime=Value;
+//  m_TmCB.m_TheTime=Value;
 //  #if dbgExecutive
 //  if (dbgExecScenario())
 //    dbgpln("%20s %-20s", TheTime.Format(TD_DaysJoined|TD_Time), "putTheTime");
@@ -4814,8 +4833,8 @@ flag CExecutive::SetTheTime(CTimeValue Time_, LPCTSTR Where, bool Rewind)
     dbgpln("%20s %s:%s %-8.8s \n%20s", TheTime.Format(TD_DaysJoined|TD_Time), "SetTheTime", Where, Rewind?"Rewind":"", Time_.Format(TD_DaysJoined|TD_Time));
   #endif
 
-  PBTmCB.m_TheTime=Time_;
-  DynTmCB.m_TheTime=Time_;
+  m_TmCB.m_TheTime=Time_;
+  //DynTmCB.m_TheTime=Time_;
   for (int EInx=0; EInx<Objs_Reg.GetSize(); EInx++)
     {
     //dbgpln("  %s", Objs_Reg[EInx]->Name());
@@ -4828,9 +4847,9 @@ flag CExecutive::SetTheTime(CTimeValue Time_, LPCTSTR Where, bool Rewind)
   };
 //void CExecutive::SetTimeStarted(CTimeValue  T)      { m_TimeStarted=T; };
 //void CExecutive::SetTimeStopped(CTimeValue  T)      { m_TimeStopped=T; };
-//void CExecutive::SetStopTime(CTimeValue     T)      { TimeCB().m_TimeToStop=T; };
-//void CExecutive::SetStepSizeMax(CTimeValue  T)      { TimeCB().m_StepSizeMax=T; };
-//void CExecutive::SetMaxRunSteps(long MaxIters_)     { TimeCB().m_nMaxSteps=MaxIters_; };
+//void CExecutive::SetStopTime(CTimeValue     T)      { m_TmCB.m_TimeToStop=T; };
+//void CExecutive::SetStepSizeMax(CTimeValue  T)      { m_TmCB.m_StepSizeMax=T; };
+//void CExecutive::SetMaxRunSteps(long MaxIters_)     { m_TmCB.m_nMaxSteps=MaxIters_; };
 
 //---------------------------------------------------------------------------
 
@@ -8379,7 +8398,7 @@ void CXStopWatches::StepEnd()
   const double ProcTime=GetProcessorTime();
   const double ProcTimeDiff = (ProcTime-m_dProcTimePrv);
 
-  CXM_TimeControl & CB=TimeCB();
+  CXM_TimeControl & CB=gs_Exec.m_TmCB;
 
   int i=m_nMvAvgCnt%m_nMvAvgPts;
   m_dStepTimeI[i] = m_swStep.Secs();
@@ -8880,6 +8899,12 @@ CEventLog gs_EventLog;
 //===========================================================================
 
 CExecutive gs_Exec;
+
+CXM_TimeControl & gs_TimeCB  = gs_Exec.m_TmCB;
+EqnSlvCtrlBlk   & gs_EqnCB   = gs_Exec.m_TmCB.m_EqnCB;
+EqnSolverBlk    & gs_EqnSlv  = gs_Exec.m_EqnSlv;
+CtrlSequencer   & gs_CtrlSeq = gs_Exec.m_CtrlSeq;
+
 
 //===========================================================================
 //

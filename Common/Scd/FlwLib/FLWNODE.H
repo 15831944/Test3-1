@@ -1419,8 +1419,8 @@ DEFINE_TAGOBJDERIVED(FlangeTearVarBlk, TearVarBlkClassDef);
 class DllImportExport FlangeTearVarBlk : public TearVarBlk
   {
   protected:
-    CnvAttribute TCnv, PCnv, QCnv;
-    FmtAttribute TFmt, PFmt, QFmt;
+    CnvAttribute m_TCnv, m_DTCnv, m_PCnv, m_QCnv;
+    FmtAttribute m_TFmt, m_PFmt, m_QFmt;  // ToGo
 
   public:
     FlangeTearVarBlk(TagObjClass * pClass_, char * Tag_, TaggedObject * pAttach, TagObjAttachment eAttach);
@@ -1647,32 +1647,6 @@ XID xidFlangeTag             = MdlBsXID(5500);
 XID xidFlngSrcTag            = MdlBsXID(5501);
 XID xidFlngDstTag            = MdlBsXID(5502);
 
-XID xidGlblTearMeth           = MdlBsXID(5510);
-XID xidGlblTearMaxIters       = MdlBsXID(5511);
-XID xidGlblTearDampGroup      = MdlBsXID(5512);
-XID xidGlblTearDampReqd       = MdlBsXID(5513);
-XID xidGlblTearDampGrowth     = MdlBsXID(5514);
-XID xidGlblTearDampDecay      = MdlBsXID(5515);
-XID xidGlblTearWegDelay       = MdlBsXID(5516);
-XID xidGlblTearWegBound       = MdlBsXID(5517);
-XID xidGlblTearWegClamp       = MdlBsXID(5518);
-XID xidGlblTearTolStrat       = MdlBsXID(5519);
-XID xidGlblTearTolAbs         = MdlBsXID(5520);
-XID xidGlblTearTolRel         = MdlBsXID(5521);
-
-XID xidFlngTearMeth           = MdlBsXID(5530);
-XID xidFlngTearCnvIters       = MdlBsXID(5531);
-XID xidFlngTearNVar           = MdlBsXID(5532);
-XID xidFlngTearDampGrp        = MdlBsXID(5533);
-XID xidFlngTearDampReqd       = MdlBsXID(5534);
-XID xidFlngTearTolStrat       = MdlBsXID(5535);
-XID xidFlngTearTolAbs         = MdlBsXID(5536);
-XID xidFlngTearTolRel         = MdlBsXID(5537);
-XID xidFlngTearValues         = MdlBsXID(5550);
-XID xidFlngTearDamping        = MdlBsXID(5551);
-XID xidFlngTearBlock          = MdlBsXID(5552); // temporary
-XID xidFlngTearBlocks         = MdlBsXID(5553); // temporary
-
 const int MaxFlangeQs = 2;
 
 #if DOPB_FILT_RESULTS
@@ -1696,8 +1670,8 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     virtual void   BuildCommonSEDefn(DataDefnBlk &DDB) {}; // Hide 'Info Page' for flanges
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    void           BuildDataDefnTearError(DataDefnBlk & DDB);
-    void           BuildDataDefnTearDamp(DataDefnBlk & DDB);
+    void           BuildDataDefnTearValues(DataDefnBlk & DDB);
+    void           BuildDataDefnTearMethod(DataDefnBlk & DDB);
 
     virtual LPSTR  Tag();
     virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);

@@ -169,8 +169,8 @@ DEFINE_TAGOBJDERIVED(FlshTrnTearVarBlk, TearVarBlkClassDef);
 class DllImportExport FlshTrnTearVarBlk : public TearVarBlk
   {
   protected:
-    CnvAttribute PCnv;
-    FmtAttribute PFmt;
+    CnvAttribute m_PCnv;
+    FmtAttribute m_PFmt;
   public:
     FlshTrnTearVarBlk(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach);
     FlshTrnTearVarBlk(pchar Tag_, pTaggedObject pAttach);

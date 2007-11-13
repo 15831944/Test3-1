@@ -3252,11 +3252,11 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
           {
           double TRqd=Range(TPrev-MaxPBTChange, Fo.Temp(), TPrev+MaxPBTChange);
           Fo.SetTemp(TRqd);
-          if (PBEqnCB().NoteBadEqnLimit())
+          if (gs_EqnCB.NoteBadEqnLimit())
             {
             Strng Tg;
             Tg.Set("%s.TempChange", FullObjTag());
-            PBEqnCB().CollectBadEqnLimit(Fo.Temp(), Tg(), TTT_Unknown);//TTT_Link);
+            gs_EqnCB.CollectBadEqnLimit(Fo.Temp(), Tg(), TTT_Unknown);//TTT_Link);
             }
           }
         }

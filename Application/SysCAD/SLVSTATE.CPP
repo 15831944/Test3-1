@@ -117,7 +117,7 @@ void CSolveState::ToggleWindowWidth(flag RePaint)
   gs_pPrj->m_Solver.m_iStateX=WinRect.left;
   gs_pPrj->m_Solver.m_iStateY=WinRect.top;
   iExtraInfoStyle = (WndRightShift<0 ? 0 : 1);
-  PBEqnCB().SetCollectWorst(iExtraInfoStyle);
+  gs_EqnCB.SetCollectWorst(iExtraInfoStyle);
   }
 
 // --------------------------------------------------------------------------
@@ -145,14 +145,14 @@ void CSolveState::DoDataExchange(CDataExchange* pDX)
     CProgressCtrl * pProg2 = (CProgressCtrl*)GetDlgItem(IDC_PROGRESS2);
     if (1)
       {
-      const int nTears    = PBEqnCB().NUnknowns();
-      const int NBadError = PBEqnCB().NBadError();
-      const int NBadLimit = PBEqnCB().NBadLimit();
-      const int NIters    = PBEqnCB().NIters();
-      //const int Cnvrgd    = PBEqnCB().fConverged;
-      const int Decades = (int)(0.99+100.0*fabs(log10(Range(1.0e-9, PBEqnCB().Cfg.dEps_Rel, 0.1))));
-      const int ErrXfrm = (int)(0.99+100.0*fabs(log10(Range(1.0e-9, PBEqnCB().WorstErr(), 0.9))));
-      const int rel=(int)(0.99+fabs(log10(Range(1.0e-9, PBEqnCB().Cfg.dEps_Rel, 0.1))));
+      const int nTears    = gs_EqnCB.NUnknowns();
+      const int NBadError = gs_EqnCB.NBadError();
+      const int NBadLimit = gs_EqnCB.NBadLimit();
+      const int NIters    = gs_EqnCB.NIters();
+      //const int Cnvrgd    = gs_EqnCB.fConverged;
+      const int Decades = (int)(0.99+100.0*fabs(log10(Range(1.0e-9, gs_EqnCB.Cfg.m_EPS_Rel, 0.1))));
+      const int ErrXfrm = (int)(0.99+100.0*fabs(log10(Range(1.0e-9, gs_EqnCB.WorstErr(), 0.9))));
+      const int rel=(int)(0.99+fabs(log10(Range(1.0e-9, gs_EqnCB.Cfg.m_EPS_Rel, 0.1))));
       XSW().m_swRun.MinSecDesc(sBuff);
 
       if (NIters>0)
@@ -182,7 +182,7 @@ void CSolveState::DoDataExchange(CDataExchange* pDX)
       else if (NBadError>0)
         {
         if (NIters>0)
-          sprintf(Buff, "%*.*f %%", rel+2, rel-1, PBEqnCB().WorstErr()*100.0);
+          sprintf(Buff, "%*.*f %%", rel+2, rel-1, gs_EqnCB.WorstErr()*100.0);
         else
           Buff[0] = 0;
         }
@@ -224,12 +224,12 @@ void CSolveState::DoDataExchange(CDataExchange* pDX)
       
       //COLORREF BKCOLOR=0x00c0c0c0;
       //pErrLst->SetBkColor(BKCOLOR);
-      for (int i=0; i<Min(PBEqnCB().NBadError()+PBEqnCB().NBadLimit(), (long)MAX_EQNSLV_WORST); i++)
+      for (int i=0; i<Min(gs_EqnCB.NBadError()+gs_EqnCB.NBadLimit(), (long)MAX_EQNSLV_WORST); i++)
         {
         if (i>=pErrLst->GetItemCount())
           pErrLst->InsertItem(i, " ");
         char Buff[1024];
-        strcpy(Buff, PBEqnCB().Worst[i].cStr);
+        strcpy(Buff, gs_EqnCB.Worst[i].cStr);
         char *p=Buff;
         for (int j=0; j<MAXCOLUMNS; j++)
           {
@@ -246,7 +246,7 @@ void CSolveState::DoDataExchange(CDataExchange* pDX)
         for (int j=0; j<MAXCOLUMNS; j++)
           pErrLst->SetItemText(i, j, " ");
 
-      if (PBEqnCB().NBadError()+PBEqnCB().NBadLimit()==0)
+      if (gs_EqnCB.NBadError()+gs_EqnCB.NBadLimit()==0)
         {
         //pErrLst->SetItemText(0, 0, ".....solved.....");
         //pErrLst->SetItemText(0, 3, "Solved");
@@ -254,7 +254,7 @@ void CSolveState::DoDataExchange(CDataExchange* pDX)
         //pErrLst->SetItemText(2, 0, ".....");
         i=1;
         char Buff[1024];
-        strcpy(Buff, PBEqnCB().WorstOther.cStr);
+        strcpy(Buff, gs_EqnCB.WorstOther.cStr);
         char *p=Buff;
         for (int j=0; j<MAXCOLUMNS; j++)
           {

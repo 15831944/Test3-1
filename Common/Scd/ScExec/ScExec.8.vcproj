@@ -577,6 +577,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EqnSolve.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\EXECLIB.CPP"
 				>
 			</File>
@@ -711,6 +715,10 @@
 			</File>
 			<File
 				RelativePath=".\SFE_BASE.CPP"
+				>
+			</File>
+			<File
+				RelativePath=".\SigFlw.cpp"
 				>
 			</File>
 			<File
@@ -884,6 +892,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EqnSolve.h"
+				>
+			</File>
+			<File
 				RelativePath=".\EXECLIB.H"
 				>
 			</File>
@@ -965,6 +977,10 @@
 			</File>
 			<File
 				RelativePath=".\SFE_BASE.H"
+				>
+			</File>
+			<File
+				RelativePath=".\SigFlw.h"
 				>
 			</File>
 			<File

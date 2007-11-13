@@ -78,7 +78,6 @@ typedef DWORD DDEF_NElements;
 #define isDriverTag         DDEF_DRIVERTAG
 #define SetOnChange         DDEF_SETONCHANGE
 #define isArchiveTag        DDEF_ARCHIVETAG
-//#define NOPutShortcut       DDEF_NOPUTSHORTCUT     // Unused  
 //#define TopologyData        DDEF_TOPOLOGYDATA
 
 //--------------------------------------------------------------------------

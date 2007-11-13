@@ -1033,6 +1033,9 @@ class DllImportExport CExecutive : public ConditionBlk
     void           Terminate();
     bool           Initialised() { return pExecThread!=NULL; };
 
+    void           Initialise4Probal();
+    void           Initialise4Dynamic();
+
     flag           Register(CExecObj *pEO, flag FixingRegistrations=0);
     flag           DeRegister(CExecObj *pEO, flag FixingRegistrations=0);
     flag           FixRegistrations();
@@ -1138,51 +1141,51 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           getRestartPrfOnStart()                     { return m_RestartPrfOnStart; };
     void           putRestartPrfOnStart(flag O)               { m_RestartPrfOnStart=O; };
 
-    eScnState      getScnState()                              { return TimeCB().m_ScnState; };
-    void           putScnState(eScnState On)                  { TimeCB().m_ScnState=On; };
-    eScnContRest   getManualScnReStart()                      { return TimeCB().m_ManualScnReStart; };
-    void           putManualScnReStart(eScnContRest On)       { TimeCB().m_ManualScnReStart=On; };
-    eScnContRest   getReStartIfScnBusy()                      { return TimeCB().m_ReStartIfScnBusy; };
-    void           putReStartIfScnBusy(eScnContRest On)       { TimeCB().m_ReStartIfScnBusy=On; };
-    eScnBlkRest    getReStartIfScnComplete()                  { return TimeCB().m_ReStartIfScnComplete; };
-    void           putReStartIfScnComplete(eScnBlkRest On)    { TimeCB().m_ReStartIfScnComplete=On; };
+    eScnState      getScnState()                              { return m_TmCB.m_ScnState; };
+    void           putScnState(eScnState On)                  { m_TmCB.m_ScnState=On; };
+    eScnContRest   getManualScnReStart()                      { return m_TmCB.m_ManualScnReStart; };
+    void           putManualScnReStart(eScnContRest On)       { m_TmCB.m_ManualScnReStart=On; };
+    eScnContRest   getReStartIfScnBusy()                      { return m_TmCB.m_ReStartIfScnBusy; };
+    void           putReStartIfScnBusy(eScnContRest On)       { m_TmCB.m_ReStartIfScnBusy=On; };
+    eScnBlkRest    getReStartIfScnComplete()                  { return m_TmCB.m_ReStartIfScnComplete; };
+    void           putReStartIfScnComplete(eScnBlkRest On)    { m_TmCB.m_ReStartIfScnComplete=On; };
 
-    eScnTypes      getScnType()                               { return TimeCB().m_ScnType; };
+    eScnTypes      getScnType()                               { return m_TmCB.m_ScnType; };
     void           SetScnType(eScnTypes T, bool ResetState);
     eScnTypes      getScnTypeLast()                           { return m_ScnTypeLast; };
     void           putScnTypeLast(eScnTypes T)                { m_ScnTypeLast=T; };
-    eScnTermActions getScnTermAction()                        { return TimeCB().m_TermAction; };
-    void           putScnTermAction(eScnTermActions A)        { TimeCB().m_TermAction=A; };
+    eScnTermActions getScnTermAction()                        { return m_TmCB.m_TermAction; };
+    void           putScnTermAction(eScnTermActions A)        { m_TmCB.m_TermAction=A; };
 
-    CTimeValue     getTheTime()                               { return TimeCB().m_TheTime;};
+    CTimeValue     getTheTime()                               { return m_TmCB.m_TheTime;};
     //void           putTheTime(const CTimeValue Value);
-    CTimeValue     getTimeStarted()                           { return ValidTime(m_TimeStarted) ? m_TimeStarted : TimeCB().m_TheTime;};
+    CTimeValue     getTimeStarted()                           { return ValidTime(m_TimeStarted) ? m_TimeStarted : m_TmCB.m_TheTime;};
     void           putTimeStarted(const CTimeValue Value)     { m_TimeStarted = Value;} 
-    CTimeValue     getTimeStopped()                           { return ValidTime(m_TimeStopped) ? m_TimeStopped : TimeCB().m_TheTime;};
+    CTimeValue     getTimeStopped()                           { return ValidTime(m_TimeStopped) ? m_TimeStopped : m_TmCB.m_TheTime;};
     void           putTimeStopped(const CTimeValue Value)     { m_TimeStopped = Value;} 
-    CTimeValue     getStepSize()                              { return TimeCB().m_StepSize;};
-    void           putStepSize(const CTimeValue Value)        { TimeCB().m_StepSize=Value;}
-    CTimeValue     getStepSizeNxt()                           { return TimeCB().m_StepSizeNxt;};
-    void           putStepSizeNxt(const CTimeValue Value)     { TimeCB().m_StepSizeNxt=Value;}
-    CTimeValue     getStepSizeMax()                           { return TimeCB().m_StepSizeMax;};
-    void           putStepSizeMax(const CTimeValue Value)     { TimeCB().m_StepSizeMax=Value;}
+    CTimeValue     getStepSize()                              { return m_TmCB.m_StepSize;};
+    void           putStepSize(const CTimeValue Value)        { m_TmCB.m_StepSize=Value;}
+    CTimeValue     getStepSizeNxt()                           { return m_TmCB.m_StepSizeNxt;};
+    void           putStepSizeNxt(const CTimeValue Value)     { m_TmCB.m_StepSizeNxt=Value;}
+    CTimeValue     getStepSizeMax()                           { return m_TmCB.m_StepSizeMax;};
+    void           putStepSizeMax(const CTimeValue Value)     { m_TmCB.m_StepSizeMax=Value;}
     CTimeValue     getTimeAtStart()                           { return m_dTimeAtStart; };
     void           putTimeAtStart(CTimeValue TimeAtStart)     { m_dTimeAtStart=TimeAtStart; };
-    CTimeValue     getTimeToStop()                            { return TimeCB().m_TimeToStop; };
-    void           putTimeToStop(CTimeValue T)                { TimeCB().m_TimeToStop=T; };
-    CTimeValue     getScnDuration()                           { return TimeCB().m_ScnDuration; };
-    void           putScnDuration(CTimeValue Duration)        { TimeCB().m_ScnDuration=Duration; };
-    CTimeValue     getScnStopTime()                           { return TimeCB().m_ScnStopTime; };
-    void           putScnStopTime(CTimeValue StopTime)        { TimeCB().m_ScnStopTime=StopTime; };
+    CTimeValue     getTimeToStop()                            { return m_TmCB.m_TimeToStop; };
+    void           putTimeToStop(CTimeValue T)                { m_TmCB.m_TimeToStop=T; };
+    CTimeValue     getScnDuration()                           { return m_TmCB.m_ScnDuration; };
+    void           putScnDuration(CTimeValue Duration)        { m_TmCB.m_ScnDuration=Duration; };
+    CTimeValue     getScnStopTime()                           { return m_TmCB.m_ScnStopTime; };
+    void           putScnStopTime(CTimeValue StopTime)        { m_TmCB.m_ScnStopTime=StopTime; };
 
-    long           getStepCount()                             { return TimeCB().m_StepCount; };
-    void           putStepCount(long N)                       { TimeCB().m_StepCount=N; };
-    long           getStepCountMax()                          { return TimeCB().m_StepCountMax; };
-    void           putStepCountMax(long N)                    { TimeCB().m_StepCountMax=N; };
-    CTimeValue     getScnTime()                               { return TimeCB().m_ScnTime; };
-    void           putScnTime(CTimeValue T)                   { TimeCB().m_ScnTime=T; };
-    CTimeValue     getScnTimeMax()                            { return TimeCB().m_ScnTimeMax; };
-    void           putScnTimeMax(CTimeValue T)                { TimeCB().m_ScnTimeMax=T; };
+    long           getStepCount()                             { return m_TmCB.m_StepCount; };
+    void           putStepCount(long N)                       { m_TmCB.m_StepCount=N; };
+    long           getStepCountMax()                          { return m_TmCB.m_StepCountMax; };
+    void           putStepCountMax(long N)                    { m_TmCB.m_StepCountMax=N; };
+    CTimeValue     getScnTime()                               { return m_TmCB.m_ScnTime; };
+    void           putScnTime(CTimeValue T)                   { m_TmCB.m_ScnTime=T; };
+    CTimeValue     getScnTimeMax()                            { return m_TmCB.m_ScnTimeMax; };
+    void           putScnTimeMax(CTimeValue T)                { m_TmCB.m_ScnTimeMax=T; };
 
 
     double         getDynProgress()                           { return m_DynProgress; };
@@ -1242,8 +1245,8 @@ class DllImportExport CExecutive : public ConditionBlk
     void           GotoIdleMode();
     void           DoOneStep(CDoOneStepInfo Info);
     void           SetSolveTool(SolveToolBase * SolveTool);
-    void           SwapToProBal();
-    void           ReturnFromProBal();
+    //void           SwapToProBal();
+    //void           ReturnFromProBal();
     void           RequestReadWriteAll();
     void           BeginBulkChange();
     void           EndBulkChange();
@@ -1297,7 +1300,7 @@ class DllImportExport CExecutive : public ConditionBlk
     bool           KeepHistoryFile(char* pFilename);
     
     UINT           TimerId() { return iTimerId; };
-    flag           DoingPB() { return fDoingPB; };
+    flag           DoingPB() { return m_fDoingPB; };
     DWORD          State() { return dwState; };
     int            StateIndex();
     char*          StateDesc(int index);
@@ -1417,7 +1420,7 @@ class DllImportExport CExecutive : public ConditionBlk
     HANDLE         m_hAppIdleDone;
     HANDLE         m_hStopSleep;
     DWORD          m_dwLoopCount;
-    flag           fDoingPB;
+    flag           m_fDoingPB;
 
     bool           m_bDidPauseWork;
     long           m_lPauseUpdateCount;
@@ -1481,12 +1484,13 @@ class DllImportExport CExecutive : public ConditionBlk
 
   public:
 
-    CXM_TimeControl DynTmCB;
-    CXM_TimeControl PBTmCB;
-    CXM_TimeControl &TimeCB() { return fDoingPB ? PBTmCB : DynTmCB; };
+    CXM_TimeControl m_TmCB;
+    //CXM_TimeControl DynTmCB;
+    //CXM_TimeControl PBTmCB;
+    //CXM_TimeControl &gs_Exec.m_TmCB { return fDoingPB ? PBTmCB : DynTmCB; };
 
-    EqnSolverBlk   EqnSlv;
-    CtrlSequencer  CtrlSeq;
+    EqnSolverBlk   m_EqnSlv;
+    CtrlSequencer  m_CtrlSeq;
     CExecSequence  m_Seq;
 
     CXStopWatches  XSW, XSWDsp;
@@ -1510,10 +1514,10 @@ inline flag   CExecutive::Paused()                      { return (dwState & EXF_
 inline flag   CExecutive::BetweenSteps()                { return (dwState & EXF_BetweenSteps)!=0;};
 inline flag   CExecutive::AutomationBusy()              { return bAutomationBusy;};
 inline flag   CExecutive::Filing()                      { return (eFileWhat!=EF_Null);};
-inline flag   CExecutive::SyncWithClock()               { return TimeCB().m_bSyncWithClock;};
-inline flag   CExecutive::RealTime()                    { return TimeCB().m_bRealTime;};
-inline double CExecutive::RealTimeMult()                { return TimeCB().m_RealTimeMult;};
-//inline long   CExecutive::MaxRunSteps()                 { return TimeCB().m_nMaxSteps;};
+inline flag   CExecutive::SyncWithClock()               { return m_TmCB.m_bSyncWithClock;};
+inline flag   CExecutive::RealTime()                    { return m_TmCB.m_bRealTime;};
+inline double CExecutive::RealTimeMult()                { return m_TmCB.m_RealTimeMult;};
+//inline long   CExecutive::MaxRunSteps()                 { return gs_Exec.m_TmCB.m_nMaxSteps;};
 inline DWORD  CExecutive::LoopCount()                   { return m_dwLoopCount; };
 
 inline flag   CExecutive::Stopped()                     { return (dwState & EXF_Busy)==0;}; //starting OR running OR stopping OR paused
@@ -1522,16 +1526,26 @@ inline flag   CExecutive::Stopped()                     { return (dwState & EXF_
 
 extern DllImportExport CExecutive gs_Exec;
 
-inline CXM_TimeControl & PBTmCB()  { return gs_Exec.PBTmCB; };
-inline CXM_TimeControl & DynTmCB() { return gs_Exec.DynTmCB; };
-inline CXM_TimeControl & TimeCB()  { return gs_Exec.TimeCB(); };
+//inline CXM_TimeControl & PBTmCB()  { return gs_Exec.PBTmCB; };
+//inline CXM_TimeControl & DynTmCB() { return gs_Exec.DynTmCB; };
+//inline CXM_TimeControl & TimeCB()  { return gs_Exec.TimeCB(); };
 
-inline EqnSlvCtrlBlk & PBEqnCB()  { return gs_Exec.PBTmCB.m_EqnCB; };
-inline EqnSlvCtrlBlk & DynEqnCB() { return gs_Exec.DynTmCB.m_EqnCB; };
-inline EqnSlvCtrlBlk & EqnCB()    { return gs_Exec.TimeCB().m_EqnCB; };
+//inline EqnSlvCtrlBlk & PBEqnCB()  { return gs_Exec.m_TmCB.m_EqnCB; };
+//inline EqnSlvCtrlBlk & DynEqnCB() { return gs_Exec.DynTmCB.m_EqnCB; };
+//inline EqnSlvCtrlBlk & EqnCB()    { return gs_Exec.m_TmCB.m_EqnCB; };
 
-inline EqnSolverBlk &  EqnSlv()   { return gs_Exec.EqnSlv; };
-inline CtrlSequencer &  CtrlSeq() { return gs_Exec.CtrlSeq; };
+extern DllImportExport CXM_TimeControl & gs_TimeCB;
+extern DllImportExport EqnSlvCtrlBlk   & gs_EqnCB;
+extern DllImportExport EqnSolverBlk    & gs_EqnSlv;
+extern DllImportExport CtrlSequencer   & gs_CtrlSeq;
+
+//#define gs_TimeCB   gs_Exec.m_TmCB
+//#define gs_EqnCB    gs_Exec.m_TmCB.m_EqnCB
+//#define gs_EqnSlv   gs_Exec.m_EqnSlv
+//#define gs_CtrlSeq  gs_Exec.m_CtrlSeq
+
+//inline EqnSolverBlk &  EqnSlv()   { return gs_Exec.m_EqnSlv; };
+//inline CtrlSequencer &  CtrlSeq() { return gs_Exec.m_CtrlSeq; };
 #if ALLOWMASSSMOOTH
 inline flag MassSmoothing()       { return EqnCB().Cfg.fMassSmooth; };
 inline flag DoMassSmoothing()     { return MassSmoothing() && (EqnCB().NIters()>2); };

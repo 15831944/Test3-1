@@ -805,15 +805,15 @@ CSolveCfgPage::~CSolveCfgPage()
 
 BOOL CSolveCfgPage::OnInitDialog() 
   {
-  m_EPS_Rel = PBEqnCB().Cfg.dEps_Rel;
-  m_EPS_Abs = PBEqnCB().Cfg.dEps_Abs;
-  m_MaxIters = PBEqnCB().Cfg.iMaxIters;
-  m_RqdConvergedIters = PBEqnCB().Cfg.iRqdCnvrgdIters;
-  m_fDampAsGroup = (PBEqnCB().Cfg.m_iDampAsGroup==DAG_On);
-  m_Damping = PBEqnCB().Cfg.m_dDamping*100.0;
-  m_Method = PBEqnCB().Cfg.iConvergeMeth;
+  m_EPS_Rel = gs_EqnCB.Cfg.m_EPS_Rel;
+  m_EPS_Abs = gs_EqnCB.Cfg.m_EPS_Abs;
+  m_MaxIters = gs_EqnCB.Cfg.m_iMaxIters;
+  m_RqdConvergedIters = gs_EqnCB.Cfg.m_iRqdCnvrgdIters;
+  m_fDampAsGroup = (gs_EqnCB.Cfg.m_iDampAsGroup==DAG_On);
+  m_Damping = gs_EqnCB.Cfg.m_DampingRqd*100.0;
+  m_Method = gs_EqnCB.Cfg.m_iConvergeMeth;
   #if ALLOWMASSSMOOTH
-  m_fMassSmooth = PBEqnCB().Cfg.fMassSmooth;
+  m_fMassSmooth = gs_EqnCB.Cfg.fMassSmooth;
   #else
   m_fMassSmooth = false;
 	GetDlgItem(IDC_MASS_SMOOTH)->EnableWindow(false);
@@ -895,17 +895,17 @@ void CSolveCfgPage::OnOK()
     //gs_pPrj->lStatsRefreshCnt = m_RefreshCnt;
     CComboBox * pMethLst = (CComboBox *)GetDlgItem(IDC_SLV_METH);
     #if ALLOWMASSSMOOTH
-    PBEqnCB().Cfg.fMassSmooth = m_fMassSmooth;
+    gs_EqnCB.Cfg.fMassSmooth = m_fMassSmooth;
     #else
-    PBEqnCB().Cfg.fMassSmooth = false;
+    gs_EqnCB.Cfg.m_bMassSmooth = false;
     #endif
-    PBEqnCB().Cfg.iConvergeMeth = m_Method;
-    PBEqnCB().Cfg.dEps_Rel = m_EPS_Rel ;
-    PBEqnCB().Cfg.dEps_Abs = m_EPS_Abs ;
-    PBEqnCB().Cfg.m_iDampAsGroup = m_fDampAsGroup?DAG_On:DAG_Off;
-    PBEqnCB().Cfg.m_dDamping = m_Damping/100.0;
-    PBEqnCB().Cfg.iMaxIters = m_MaxIters;
-    PBEqnCB().Cfg.iRqdCnvrgdIters = m_RqdConvergedIters;
+    gs_EqnCB.Cfg.m_iConvergeMeth = m_Method;
+    gs_EqnCB.Cfg.m_EPS_Rel = m_EPS_Rel ;
+    gs_EqnCB.Cfg.m_EPS_Abs = m_EPS_Abs ;
+    gs_EqnCB.Cfg.m_iDampAsGroup = m_fDampAsGroup?DAG_On:DAG_Off;
+    gs_EqnCB.Cfg.m_DampingRqd = m_Damping/100.0;
+    gs_EqnCB.Cfg.m_iMaxIters = m_MaxIters;
+    gs_EqnCB.Cfg.m_iRqdCnvrgdIters = m_RqdConvergedIters;
     SetModified(FALSE);
 //    pSlvTool->bChanged=1;
     }
@@ -954,7 +954,7 @@ CSolveOptnPage::CSolveOptnPage() : CCustomPropertyPage(CSolveOptnPage::IDD)
 	//{{AFX_DATA_INIT(CSolveOptnPage)
 	m_Initialise=0;
 	m_StatePinned=gs_pPrj->m_Solver.m_fStatePinned;
-	m_IdleWhenDone=PBEqnCB().Cfg.fIdleWhenDone;
+	m_IdleWhenDone=gs_EqnCB.Cfg.m_bIdleWhenDone;
 	m_ResetHist = gs_Exec.RestartHstOnStart;
 	//}}AFX_DATA_INIT
   }
@@ -1019,7 +1019,7 @@ void CSolveOptnPage::OnOK()
     gs_Exec.putRestartHstOnStart(m_ResetHist!=0);
     //gs_pPrj->Solver.fStateWnd=m_StateWnd;
     gs_pPrj->m_Solver.m_fStatePinned=m_StatePinned;
-    PBEqnCB().Cfg.fIdleWhenDone=m_IdleWhenDone;
+    gs_EqnCB.Cfg.m_bIdleWhenDone=m_IdleWhenDone;
     SetModified(FALSE);
     }
   }
@@ -1855,19 +1855,19 @@ CRunTearPage::~CRunTearPage()
 
 BOOL CRunTearPage::OnInitDialog() 
   {
-  m_EPS_Rel = DynEqnCB().Cfg.dEps_Rel;
-  m_EPS_Abs = DynEqnCB().Cfg.dEps_Abs;
-  m_MaxIters = DynEqnCB().Cfg.iMaxIters;
-  m_Damping = DynEqnCB().Cfg.m_dDamping*100.0;
-  m_Method  = DynEqnCB().Cfg.iConvergeMeth;
+  m_EPS_Rel = gs_EqnCB.Cfg.m_EPS_Rel;
+  m_EPS_Abs = gs_EqnCB.Cfg.m_EPS_Abs;
+  m_MaxIters = gs_EqnCB.Cfg.m_iMaxIters;
+  m_Damping = gs_EqnCB.Cfg.m_DampingRqd*100.0;
+  m_Method  = gs_EqnCB.Cfg.m_iConvergeMeth;
   //InitDialog();//bDidInit = True;
   CCustomPropertyPage::OnInitDialog();
 
   //CComboBox * pMethLst=(CComboBox *)GetDlgItem(IDC_RUNTEAR_METH);
-  //m_EPS_Rel = DynEqnCB().Cfg.dEps_Rel;
-  //m_EPS_Abs = DynEqnCB().Cfg.dEps_Abs;
-  //m_MaxIters = DynEqnCB().Cfg.nMaxIters;
-  //m_Damping = DynEqnCB().Cfg.dDamping;
+  //m_EPS_Rel = gs_EqnCB.Cfg.dEps_Rel;
+  //m_EPS_Abs = gs_EqnCB.Cfg.dEps_Abs;
+  //m_MaxIters = gs_EqnCB.Cfg.nMaxIters;
+  //m_Damping = gs_EqnCB.Cfg.dDamping;
   
   return TRUE;  // return TRUE unless you set the focus to a control
                 // EXCEPTION: OCX Property Pages should return FALSE
@@ -1936,11 +1936,11 @@ void CRunTearPage::OnOK()
     {
     //gs_pPrj->lStatsRefreshCnt = m_RefreshCnt;
     CComboBox * pMethLst=(CComboBox *)GetDlgItem(IDC_RUNTEAR_METH);
-    DynEqnCB().Cfg.iConvergeMeth=m_Method;
-    DynEqnCB().Cfg.dEps_Rel = m_EPS_Rel ;
-    DynEqnCB().Cfg.dEps_Abs = m_EPS_Abs ;
-    DynEqnCB().Cfg.m_dDamping = m_Damping/100.0;
-    DynEqnCB().Cfg.iMaxIters = m_MaxIters;
+    gs_EqnCB.Cfg.m_iConvergeMeth=m_Method;
+    gs_EqnCB.Cfg.m_EPS_Rel = m_EPS_Rel ;
+    gs_EqnCB.Cfg.m_EPS_Abs = m_EPS_Abs ;
+    gs_EqnCB.Cfg.m_DampingRqd = m_Damping/100.0;
+    gs_EqnCB.Cfg.m_iMaxIters = m_MaxIters;
     SetModified(FALSE);
 //    pSlvTool->bChanged=1;
     }

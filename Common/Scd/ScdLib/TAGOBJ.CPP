@@ -6449,13 +6449,16 @@ void DataDefnBlk::ColumnHeader(LPSTR Text, int Width, int Gap, int Justification
         //  T.RPad(Width);      
         //  }
         }
-      T+="\t";
-      int L=T.GetLength()+Gap;
-      T.RPad(L);      // lengthen if neccessary
-      T.SetLength(L); // trunc if neccessary
-      T+="\t";
-      T+=Justification<0?"<":Justification>0?">":"";
-      T+="\t";
+      T+=",";
+      Strng X;
+      X.Set("%i", Gap);
+      T+=X();
+      //atof(
+      //int L=T.GetLength()+Gap;
+      //T.RPad(L);      // lengthen if neccessary
+      //T.SetLength(L); // trunc if neccessary
+      //T+=",";
+      T+=Justification<0?"<":Justification>0?">":".";
 
       m_pItem->AppendLayout(tt_ColHdr, T(), CurrentFlags());
       }

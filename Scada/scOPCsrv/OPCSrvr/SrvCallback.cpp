@@ -162,8 +162,8 @@ bool CScdOPCTag::CheckTag()
       {
       SYSTEMTIME ST;
       FILETIME FT;
-      //__time64_t t      = (__time64_t)TimeCB().m_Time;
-      __time64_t t      = (__time64_t)TimeCB().m_TheTime.Seconds;
+      //__time64_t t      = (__time64_t)gs_TimeCB.m_Time;
+      __time64_t t      = (__time64_t)gs_TimeCB.m_TheTime.Seconds;
       struct tm *pT     = _localtime64(&t);
       ST.wSecond        = pT->tm_sec;
       ST.wMinute        = pT->tm_min;
@@ -1364,8 +1364,8 @@ flag CScdOPCCallBack::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastB
   FILETIME FT;  // Local File Time based on SysCAD time
   FILETIME UTCFT; // File time @ UTC
 
-  //__time64_t t=(__time64_t)TimeCB().m_Time;
-  __time64_t t      = (__time64_t)TimeCB().m_TheTime.Seconds;
+  //__time64_t t=(__time64_t)gs_TimeCB.m_Time;
+  __time64_t t      = (__time64_t)gs_TimeCB.m_TheTime.Seconds;
   struct tm *pT=_localtime64(&t);
 
 

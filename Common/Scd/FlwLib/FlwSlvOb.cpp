@@ -2041,7 +2041,7 @@ void TearObjectEdt::Build()
   const int N=m_pSlctTVB->NVariables();
   int iNameWidth=Max(8, (int)strlen(m_pSlctTVB->Tag()));
   for (i=0; i<N; i++)
-    iNameWidth=Max(iNameWidth, (int)(strlen(GetDisplayTag(TV[i].Tag, TV[i].Sym))+1));
+    iNameWidth=Max(iNameWidth, (int)(strlen(GetDisplayTag(TV[i].m_Tag, TV[i].m_Sym))+1));
 
   flag TearAdvRqd = m_pSlctTVB->bUsedByBlk & TVU_AdvanceVars; // Page 0
   flag TearTstRqd = m_pSlctTVB->bUsedByBlk & TVU_TestVars; // Page 0
@@ -2057,7 +2057,7 @@ void TearObjectEdt::Build()
       {
       Strng sTM;
       if (m_pSlctTVB->m_iTearMethod==TCM_Default)
-        sTM.Set("  (%s)",  TearMethodStrings[EqnCB().Cfg.iConvergeMeth]);
+        sTM.Set("  (%s)",  TearMethodStrings[gs_EqnCB.Cfg.m_iConvergeMeth]);
       SetDParm(L, "Tear Method",    15, "", Id_TearDmpTearMeth,   10, 2, sTM());//" ");
       for (i=0; TearMethodStrings[i]!=NULL; i++)
         FldHasFixedStrValue(i, TearMethodStrings[i]);
@@ -2099,7 +2099,7 @@ void TearObjectEdt::Build()
 
     for (i=0; i<N; i++)
       {
-      SetDesc(L, GetDisplayTag(TV[i].Tag, TV[i].Sym),    -1, iNameWidth, 0, "");
+      SetDesc(L, GetDisplayTag(TV[i].m_Tag, TV[i].m_Sym),    -1, iNameWidth, 0, "");
       SetParm(L, "", Id_TearDmpGlblDamp,  8, 2, "");
       if (pGroupInfo)
         {
@@ -2119,7 +2119,7 @@ void TearObjectEdt::Build()
       Tag.Set("%s.V.[%s].%s", m_pSlctTVB->FullObjTag(), m_pSlctTVB->SymOrTag(i)(), "Y0"); 
       SetTag(Tag());
 
-      SetDesc(L, TV[i].AdvCnv->Text(),  -1, 8,  0, " ");
+      SetDesc(L, TV[i].m_pMeasCnv->Text(),  -1, 8,  0, " ");
       L++;
       }
     }
@@ -2153,7 +2153,7 @@ void TearObjectEdt::Build()
 
     for (i=0; i<N; i++)
       {
-      SetDesc(L, GetDisplayTag(TV[i].Tag, TV[i].Sym),    -1, iNameWidth, 0, "");
+      SetDesc(L, GetDisplayTag(TV[i].m_Tag, TV[i].m_Sym),    -1, iNameWidth, 0, "");
       SetParm(L, "", Id_TearTolGlblEPSRel,  8, 2, "");
       if (pGroupInfo)
         {
@@ -2181,7 +2181,7 @@ void TearObjectEdt::Build()
       Tag.Set("%s.V.[%s].%s", m_pSlctTVB->FullObjTag(), m_pSlctTVB->SymOrTag(i)(), "Meas"); 
       SetTag(Tag());
 
-      SetDesc(L, TV[i].MeasCnv->Text(),  -1, 8,  0, "");
+      SetDesc(L, TV[i].m_pMeasCnv->Text(),  -1, 8,  0, "");
       L++;
       }
     }
@@ -2201,40 +2201,40 @@ void TearObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
       switch (EI.FieldId)
         {
         case Id_TDfTearMethod:
-          Str=TearConvergeMethodStr(EqnCB().Cfg.iConvergeMeth);
+          Str=TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth);
           break;
         case Id_TDfCnvgdIters:
-          Str.Set("%i", EqnCB().Cfg.iRqdCnvrgdIters);
+          Str.Set("%i", gs_EqnCB.Cfg.m_iRqdCnvrgdIters);
           break;
         case Id_TDfMaxIters:
-          Str.Set("%i", EqnCB().Cfg.iMaxIters);
+          Str.Set("%i", gs_EqnCB.Cfg.m_iMaxIters);
           break;
         case Id_TDfDampAsGroup:
-          Str=DampAsGroupStr(EqnCB().Cfg.m_iDampAsGroup);
+          Str=DampAsGroupStr(gs_EqnCB.Cfg.m_iDampAsGroup);
           break;
         case Id_TDfDamping:
-          DFmt.FormatFloat(DCnv.Human(EqnCB().Cfg.m_dDamping), Str);
+          DFmt.FormatFloat(DCnv.Human(gs_EqnCB.Cfg.m_DampingRqd), Str);
           break;
         case Id_TDfDamping_Growth:
-          DFmt.FormatFloat(EqnCB().Cfg.dDampFctGrowth, Str);
+          DFmt.FormatFloat(gs_EqnCB.Cfg.m_DampFctGrowth, Str);
           break;
         case Id_TDfDamping_Decay:
-          DFmt.FormatFloat(EqnCB().Cfg.dDampFctDecay, Str);
+          DFmt.FormatFloat(gs_EqnCB.Cfg.m_DampFctDecay, Str);
           break;
         case Id_TDfWegstein_Delay:
-          Str.Set("%i", EqnCB().Cfg.iWA_Delay);
+          Str.Set("%i", gs_EqnCB.Cfg.m_iWA_Delay);
           break;
         case Id_TDfWegstein_Bound:
-          Str.Set("%.2f", EqnCB().Cfg.dWA_Bound);
+          Str.Set("%.2f", gs_EqnCB.Cfg.m_WA_Bound);
           break;
         case Id_TDfWegstein_Clamp:
-          Str.Set("%.2f", EqnCB().Cfg.dWA_Clamping);
+          Str.Set("%.2f", gs_EqnCB.Cfg.m_WA_Clamping);
           break;
         case Id_TDfRel:
-          TFmt.FormatFloat(TCnv.Human(EqnCB().Cfg.dEps_Rel), Str);
+          TFmt.FormatFloat(TCnv.Human(gs_EqnCB.Cfg.m_EPS_Rel), Str);
           break;
         case Id_TDfAbs:
-          TFmt.FormatFloat(TCnv.Human(EqnCB().Cfg.dEps_Abs), Str);
+          TFmt.FormatFloat(TCnv.Human(gs_EqnCB.Cfg.m_EPS_Abs), Str);
           break;
         }
       }
@@ -2279,7 +2279,7 @@ void TearObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
     {
     if (CurrentBlk(EI))
       {//damping page header
-      const flag IsAdaptSubs = (m_pSlctTVB->m_iTearMethod==TCM_AdaptSubs || (m_pSlctTVB->m_iTearMethod==TCM_Default && EqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs));
+      const flag IsAdaptSubs = (m_pSlctTVB->m_iTearMethod==TCM_AdaptSubs || (m_pSlctTVB->m_iTearMethod==TCM_Default && gs_EqnCB.Cfg.m_iConvergeMeth==TCM_AdaptSubs));
       switch (EI.FieldId)
         {
         case Id_TearDmpTearMeth:
@@ -2311,19 +2311,19 @@ void TearObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
             DFmt.FormatFloat(DCnv.Human(pGroupInfo->TV[i].m_DampingRqd), Str);
           else
             Str="?";
-          EI.Fld->fEditable=(m_pSlctTVB->m_iTearMethod==TCM_AdaptSubs || EqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs);
+          EI.Fld->fEditable=(m_pSlctTVB->m_iTearMethod==TCM_AdaptSubs || gs_EqnCB.Cfg.m_iConvergeMeth==TCM_AdaptSubs);
           }
           break;
         case Id_TearDmpRqdDamp:
           DFmt.FormatFloat(DCnv.Human(TVi.m_DampingRqd), Str);
-          EI.Fld->fEditable=(m_pSlctTVB->m_iTearMethod==TCM_AdaptSubs || (m_pSlctTVB->m_iTearMethod==TCM_Default && EqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs));
+          EI.Fld->fEditable=(m_pSlctTVB->m_iTearMethod==TCM_AdaptSubs || (m_pSlctTVB->m_iTearMethod==TCM_Default && gs_EqnCB.Cfg.m_iConvergeMeth==TCM_AdaptSubs));
           break;
         case Id_TearDmpCurDamp:
           DFmt.FormatFloat(DCnv.Human(TVi.m_DampFactor), Str);
           EI.Fld->fEditable=False;
           break;
         case Id_TearDmpInputs:
-          TVi.AdvFmt->FormatFloat(TVi.AdvCnv->Human(TVi.Y[0]), Str);
+          TVi.m_pMeasFmt->FormatFloat(TVi.m_pMeasCnv->Human(TVi.m_Y[0]), Str);
           EI.Fld->fEditable=False;
           break;
         }
@@ -2343,16 +2343,16 @@ void TearObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           m_pSlctTVB->GetGroupGlblTag(GrpTag);
           TearVarBlk * pGroupInfo=TearVarBlk::Find(GrpTag());
           if (pGroupInfo)
-            DFmt.FormatFloat(DCnv.Human(pGroupInfo->TV[i].EPS_Rel), Str);
+            DFmt.FormatFloat(DCnv.Human(pGroupInfo->TV[i].m_EPS_Rel), Str);
           else
             Str="?";
           }
           break;
         case Id_TearTolEPSRel:
-          TFmt.FormatFloat(TCnv.Human(TVi.EPS_Rel), Str);
+          TFmt.FormatFloat(TCnv.Human(TVi.m_EPS_Rel), Str);
           break;
         case Id_TearTolCurTol:
-          TFmt.FormatFloat(TCnv.Human(TVi.CurTol), Str);
+          TFmt.FormatFloat(TCnv.Human(TVi.m_CurTol), Str);
           EI.Fld->fEditable=False;
           break;
         case Id_TearTolDiff:
@@ -2365,7 +2365,7 @@ void TearObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           EI.Fld->fEditable=False;
           break;
         case Id_TearTolMeas:
-          TVi.MeasFmt->FormatFloat(TVi.MeasCnv->Human(TVi.m_Meas[0]), Str);
+          TVi.m_pMeasFmt->FormatFloat(TVi.m_pMeasCnv->Human(TVi.m_Meas[0]), Str);
           EI.Fld->fEditable=False;
           break;
         }
@@ -2421,45 +2421,45 @@ long TearObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
           {
           int j=FindTearConvergeMethod(Str());
           if (j>=0)
-            EqnCB().Cfg.iConvergeMeth=(byte)j;
+            gs_EqnCB.Cfg.m_iConvergeMeth=(byte)j;
           break;
           }
         case Id_TDfCnvgdIters:
-          EqnCB().Cfg.iRqdCnvrgdIters=(short)Range(1L, SafeAtoL(Str(), EqnCB().Cfg.iRqdCnvrgdIters), 9999L);
+          gs_EqnCB.Cfg.m_iRqdCnvrgdIters=(short)Range(1L, SafeAtoL(Str(), gs_EqnCB.Cfg.m_iRqdCnvrgdIters), 9999L);
           break;
         case Id_TDfMaxIters:
-          EqnCB().Cfg.iMaxIters=Range(3L, SafeAtoL(Str(), EqnCB().Cfg.iMaxIters), 20000L);
+          gs_EqnCB.Cfg.m_iMaxIters=Range(3L, SafeAtoL(Str(), gs_EqnCB.Cfg.m_iMaxIters), 20000L);
           break;
         case Id_TDfDampAsGroup:
           {
           int j=FindDampAsGroup(Str());
           if (j>=0)
-            EqnCB().Cfg.m_iDampAsGroup = byte(j);
+            gs_EqnCB.Cfg.m_iDampAsGroup = byte(j);
           break;
           }
         case Id_TDfDamping:
-          EqnCB().Cfg.m_dDamping=DCnv.Normal(SafeAtoF(Str(), EqnCB().Cfg.m_dDamping));
+          gs_EqnCB.Cfg.m_DampingRqd=DCnv.Normal(SafeAtoF(Str(), gs_EqnCB.Cfg.m_DampingRqd));
           break;
         case Id_TDfDamping_Growth:
-          EqnCB().Cfg.dDampFctGrowth=SafeAtoF(Str(), EqnCB().Cfg.dDampFctGrowth);
+          gs_EqnCB.Cfg.m_DampFctGrowth=SafeAtoF(Str(), gs_EqnCB.Cfg.m_DampFctGrowth);
           break;
         case Id_TDfDamping_Decay:
-          EqnCB().Cfg.dDampFctDecay=SafeAtoF(Str(), EqnCB().Cfg.dDampFctDecay);
+          gs_EqnCB.Cfg.m_DampFctDecay=SafeAtoF(Str(), gs_EqnCB.Cfg.m_DampFctDecay);
           break;
         case Id_TDfWegstein_Delay:
-          EqnCB().Cfg.iWA_Delay=(short)Max(0L, SafeAtoL(Str(), EqnCB().Cfg.iWA_Delay));
+          gs_EqnCB.Cfg.m_iWA_Delay=(short)Max(0L, SafeAtoL(Str(), gs_EqnCB.Cfg.m_iWA_Delay));
           break;
         case Id_TDfWegstein_Bound:
-          EqnCB().Cfg.dWA_Bound=SafeAtoF(Str(), EqnCB().Cfg.dWA_Bound);
+          gs_EqnCB.Cfg.m_WA_Bound=SafeAtoF(Str(), gs_EqnCB.Cfg.m_WA_Bound);
           break;
         case Id_TDfWegstein_Clamp:
-          EqnCB().Cfg.dWA_Bound=SafeAtoF(Str(), EqnCB().Cfg.dWA_Bound);
+          gs_EqnCB.Cfg.m_WA_Bound=SafeAtoF(Str(), gs_EqnCB.Cfg.m_WA_Bound);
           break;
         case Id_TDfRel:
-          EqnCB().Cfg.dEps_Rel=TCnv.Normal(SafeAtoF(Str(), EqnCB().Cfg.dEps_Rel));
+          gs_EqnCB.Cfg.m_EPS_Rel=TCnv.Normal(SafeAtoF(Str(), gs_EqnCB.Cfg.m_EPS_Rel));
           break;
         case Id_TDfAbs:
-          EqnCB().Cfg.dEps_Abs=TCnv.Normal(SafeAtoF(Str(), EqnCB().Cfg.dEps_Abs));
+          gs_EqnCB.Cfg.m_EPS_Abs=TCnv.Normal(SafeAtoF(Str(), gs_EqnCB.Cfg.m_EPS_Abs));
           break;
         }
       }
@@ -2550,10 +2550,10 @@ long TearObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
         {
         case Id_TearTolGlblEPSRel:
           if (pGroupInfo)
-            pGroupInfo->TV[i].EPS_Rel=TCnv.Normal(SafeAtoF(Str));
+            pGroupInfo->TV[i].m_EPS_Rel=TCnv.Normal(SafeAtoF(Str));
           break;
         case Id_TearTolEPSRel:
-          TVi.EPS_Rel=TCnv.Normal(SafeAtoF(Str, TVi.EPS_Rel));
+          TVi.m_EPS_Rel=TCnv.Normal(SafeAtoF(Str, TVi.m_EPS_Rel));
           break;
 /*        case Id_TearTolCurTol:
         case Id_TearTolDiff:
@@ -2750,7 +2750,7 @@ flag TearObjectEdt::DoRButtonUp(UINT nFlags, CPoint point)
               {
               const long i=(EI.BlkRowNo-EI.Index);
               TearVar &TVi = m_pSlctTVB->TV[i];
-              WrkIB.Set(EI.Fld->Tag, TVi.MeasCnv, TVi.MeasFmt);
+              WrkIB.Set(EI.Fld->Tag, TVi.m_pMeasCnv, TVi.m_pMeasFmt);
               break;
               }
             }
@@ -4238,11 +4238,11 @@ void CtrlObject::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Bool  ("SequencerActive", "", DC_, "", xidSequencerActive, this, isParm);
     DDB.Bool  ("HoldAll",         "", DC_, "", xidHoldAll, this, isParm);
     DDB.Bool  ("TuneWithHold",    "", DC_, "", xidTuneWithHold, this, isParm);
-    DDB.Long  ("MinSettleCount",  "", DC_, "", &CtrlSeq().m_MinSettleCount, this, isParm);
-    DDB.Long  ("MaxSettleCount",  "", DC_, "", &CtrlSeq().m_MaxSettleCount, this, isParm);
-    DDB.Double("MaxPBDerate",     "", DC_, "", &CtrlSeq().m_MaxPBDerate, this, isParm);
-    DDB.Double("RetuneOutDelta",  "", DC_, "", &CtrlSeq().m_RetuneOutDelta, this, isParm);
-    DDB.Double("TestDelta",       "", DC_, "", &CtrlSeq().m_TestDelta, this, isParm);
+    DDB.Long  ("MinSettleCount",  "", DC_, "", &gs_CtrlSeq.m_MinSettleCount, this, isParm);
+    DDB.Long  ("MaxSettleCount",  "", DC_, "", &gs_CtrlSeq.m_MaxSettleCount, this, isParm);
+    DDB.Double("MaxPBDerate",     "", DC_, "", &gs_CtrlSeq.m_MaxPBDerate, this, isParm);
+    DDB.Double("RetuneOutDelta",  "", DC_, "", &gs_CtrlSeq.m_RetuneOutDelta, this, isParm);
+    DDB.Double("TestDelta",       "", DC_, "", &gs_CtrlSeq.m_TestDelta, this, isParm);
 
     if (!DDB.ForFileSnpScn())
       {
@@ -4290,18 +4290,18 @@ flag CtrlObject::DataXchg(DataChangeBlk & DCB)
     {
     case xidSequencerActive:
       if (DCB.rB)
-        CtrlSeq().SetSequencerActive(*DCB.rB);
-      DCB.B=CtrlSeq().SequencerActive(); 
+        gs_CtrlSeq.SetSequencerActive(*DCB.rB);
+      DCB.B=gs_CtrlSeq.SequencerActive(); 
       return true;
     case xidHoldAll:
       if (DCB.rB)
-        CtrlSeq().SetHoldAll(*DCB.rB);
-      DCB.B=CtrlSeq().HoldAll(); 
+        gs_CtrlSeq.SetHoldAll(*DCB.rB);
+      DCB.B=gs_CtrlSeq.HoldAll(); 
       return true;
     case xidTuneWithHold:
       if (DCB.rB)
-        CtrlSeq().SetTuneWithHold(*DCB.rB);
-      DCB.B=CtrlSeq().TuneWithHold(); 
+        gs_CtrlSeq.SetTuneWithHold(*DCB.rB);
+      DCB.B=gs_CtrlSeq.TuneWithHold(); 
       return true;
     case xidSpt:
       if (DCB.rD)
@@ -4655,7 +4655,7 @@ void CtrlObjectEdt::Build()
   SetDesc(L,"",  -1, 10, 0, "");
   L++;
   SetDesc(L,"Auto Tune",  -1, 18, 0, "");
-  SetCheckBoxBtn(L, CtrlSeq().SequencerActive() ? "1" : "0", Id_AutoTune, 2, 2, "", true);
+  SetCheckBoxBtn(L, gs_CtrlSeq.SequencerActive() ? "1" : "0", Id_AutoTune, 2, 2, "", true);
 
   L++;
   SetDParm(L,"MinSettleCount",    18, "", Id_MinSettleCount   , 10, 2, " ");
@@ -4896,11 +4896,11 @@ void CtrlObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
             break;
           case Id_TuneRqst:
             Str=CtrlSequencer::CSBlk(i).TuneRqst() ? "1" : "0";
-            EI.Fld->fEditable=CtrlSeq().SequencerActive();
+            EI.Fld->fEditable=gs_CtrlSeq.SequencerActive();
             break;
 //          case Id_TuneBusy:
 //            Str=CtrlSequencer::CSBlk(i).TuneBusy() ? "1" : "0";
-//            EI.Fld->fEditable=false;//CtrlSeq().SequencerActive();
+//            EI.Fld->fEditable=false;//gs_CtrlSeq.SequencerActive();
 //            break;
 //          case Id_Active:
 //            Str=CtrlSequencer::CSBlk(i).CtrlActive() ? "1" : "0";
@@ -4967,25 +4967,25 @@ void CtrlObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
         switch (EI.FieldId)
           {
           case Id_AutoTune:
-            Str=(CtrlSeq().SequencerActive() ? "1" : "0");
+            Str=(gs_CtrlSeq.SequencerActive() ? "1" : "0");
             break;
           case Id_MinSettleCount:
-            Str.Set("%i", CtrlSeq().m_MinSettleCount);
+            Str.Set("%i", gs_CtrlSeq.m_MinSettleCount);
             break;
           case Id_MaxSettleCount:
-            Str.Set("%i", CtrlSeq().m_MaxSettleCount);
+            Str.Set("%i", gs_CtrlSeq.m_MaxSettleCount);
             break;
           case Id_TestDelta:
-            Str.Set("%10.3f", CtrlSeq().m_TestDelta);
+            Str.Set("%10.3f", gs_CtrlSeq.m_TestDelta);
             break;
           //case Id_PBMult:
-          //  Str.Set("%10.3f", CtrlSeq().m_PBMult);
+          //  Str.Set("%10.3f", gs_CtrlSeq.m_PBMult);
           //  break;
           case Id_MaxPBDerate:
-            Str.Set("%10.3f", CtrlSeq().m_MaxPBDerate);
+            Str.Set("%10.3f", gs_CtrlSeq.m_MaxPBDerate);
             break;
           case Id_RetuneOutDelta:
-            Str.Set("%10.3f", CtrlSeq().m_RetuneOutDelta);
+            Str.Set("%10.3f", gs_CtrlSeq.m_RetuneOutDelta);
             break;
           }
         };
@@ -5122,22 +5122,22 @@ long CtrlObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
         switch (EI.FieldId)
           {
           case Id_MinSettleCount:
-            CtrlSeq().m_MinSettleCount=SafeAtoL(Str, CtrlSeq().m_MinSettleCount);
+            gs_CtrlSeq.m_MinSettleCount=SafeAtoL(Str, gs_CtrlSeq.m_MinSettleCount);
             break;
           case Id_MaxSettleCount:
-            CtrlSeq().m_MaxSettleCount=SafeAtoL(Str, CtrlSeq().m_MaxSettleCount);
+            gs_CtrlSeq.m_MaxSettleCount=SafeAtoL(Str, gs_CtrlSeq.m_MaxSettleCount);
             break;
           case Id_TestDelta:
-            CtrlSeq().m_TestDelta=SafeAtoF(Str, CtrlSeq().m_TestDelta);
+            gs_CtrlSeq.m_TestDelta=SafeAtoF(Str, gs_CtrlSeq.m_TestDelta);
             break;
           //case Id_PBMult:
-          //  CtrlSeq().m_PBMult=SafeAtoF(Str, CtrlSeq().m_PBMult);
+          //  gs_CtrlSeq.m_PBMult=SafeAtoF(Str, gs_CtrlSeq.m_PBMult);
           //  break;
           case Id_MaxPBDerate:
-            CtrlSeq().m_MaxPBDerate=SafeAtoF(Str, CtrlSeq().m_MaxPBDerate);
+            gs_CtrlSeq.m_MaxPBDerate=SafeAtoF(Str, gs_CtrlSeq.m_MaxPBDerate);
             break;
           case Id_RetuneOutDelta:
-            CtrlSeq().m_RetuneOutDelta=SafeAtoF(Str, CtrlSeq().m_RetuneOutDelta);
+            gs_CtrlSeq.m_RetuneOutDelta=SafeAtoF(Str, gs_CtrlSeq.m_RetuneOutDelta);
             break;
           }
         }
@@ -5206,7 +5206,7 @@ long CtrlObjectEdt::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
           {
           case Id_AutoTune:
             Str.LTrim();
-            CtrlSeq().SetSequencerActive(Str() && (Str[0]=='1'));
+            gs_CtrlSeq.SetSequencerActive(Str() && (Str[0]=='1'));
             View().DoRebuild();
             break;
           }

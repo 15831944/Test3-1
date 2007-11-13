@@ -1222,12 +1222,13 @@ FlangeTearVarBlk::~FlangeTearVarBlk()
 
 void FlangeTearVarBlk::DoConstruct()
   {
-  PCnv.Set(DC_P, "kPa");
-  TCnv.Set(DC_T, "C");
-  QCnv.Set(DC_Qm, "kg/s");
-  PFmt.Set("", 0, 2, 'f');
-  TFmt.Set("", 0, 2, 'f');
-  QFmt.Set("", 0, 2, 'f');
+  m_PCnv.Set(DC_P, "kPa");
+  m_TCnv.Set(DC_T, "C");
+  m_DTCnv.Set(DC_dT, "C");
+  m_QCnv.Set(DC_Qm, "kg/s");
+  m_PFmt.Set("", 0, 2, 'f');
+  m_TFmt.Set("", 0, 2, 'f');
+  m_QFmt.Set("", 0, 2, 'f');
   iTearTagTyp=TTT_Tear;
   sGroupTag=DirectLinkGrp/*"Flange"*/;
   int NQ=0;
@@ -1241,39 +1242,39 @@ void FlangeTearVarBlk::DoConstruct()
   //CHECK Is all the tear code correct for attributes
   SetNVariables(SVSpcCount()+SVAttCount()+2+NQ, TVU_Inputs|TVU_Outputs|TVU_Meas|TVU_AdvanceVars|TVU_TestVars);//, TVT_Tear);
   int n=0;
-  TV[n].Tag.Set("Temp");
-  TV[n].Sym.Set("T");
-  TV[n].AdvCnv=&TCnv;
-  TV[n].AdvFmt=&TFmt;
-  TV[n].MeasCnv=&TCnv;
-  TV[n].MeasFmt=&TFmt;
+  TV[n].m_Tag.Set("Temp");
+  TV[n].m_Sym.Set("T");
+  TV[n].m_pDiffCnv=&m_DTCnv;
+  TV[n].m_pDiffFmt=&m_TFmt;
+  TV[n].m_pMeasCnv=&m_TCnv;
+  TV[n].m_pMeasFmt=&m_TFmt;
   n++;
-  TV[n].Tag.Set("Press");
-  TV[n].Sym.Set("P");
-  TV[n].AdvCnv=&PCnv;
-  TV[n].AdvFmt=&PFmt;
-  TV[n].MeasCnv=&PCnv;
-  TV[n].MeasFmt=&PFmt;
+  TV[n].m_Tag.Set("Press");
+  TV[n].m_Sym.Set("P");
+  TV[n].m_pDiffCnv=&m_PCnv;
+  TV[n].m_pDiffFmt=&m_PFmt;
+  TV[n].m_pMeasCnv=&m_PCnv;
+  TV[n].m_pMeasFmt=&m_PFmt;
   n++;
   for (int s=0; s<SVSpcCount(); s++)
     {
-    TV[n].Tag=SVImg(s).Tag();
-    TV[n].Sym=SVImg(s).SymOrTag();
-    TV[n].AdvCnv=&QCnv;
-    TV[n].AdvFmt=&QFmt;
-    TV[n].MeasCnv=&QCnv;
-    TV[n].MeasFmt=&QFmt;
+    TV[n].m_Tag=SVImg(s).Tag();
+    TV[n].m_Sym=SVImg(s).SymOrTag();
+    TV[n].m_pDiffCnv=&m_QCnv;
+    TV[n].m_pDiffFmt=&m_QFmt;
+    TV[n].m_pMeasCnv=&m_QCnv;
+    TV[n].m_pMeasFmt=&m_QFmt;
     n++;
     }
   for (  ; s<SVValueCount(); s++)
     {
-    TV[n].Tag=SVImg(s).Tag();
-    TV[n].Sym=SVImg(s).SymOrTag();
+    TV[n].m_Tag=SVImg(s).Tag();
+    TV[n].m_Sym=SVImg(s).SymOrTag();
     //TODO Fix this Attribute Cnvs
-    TV[n].AdvCnv=&QCnv;
-    TV[n].AdvFmt=&QFmt;
-    TV[n].MeasCnv=&QCnv;
-    TV[n].MeasFmt=&QFmt;
+    TV[n].m_pDiffCnv=&m_QCnv;
+    TV[n].m_pDiffFmt=&m_QFmt;
+    TV[n].m_pMeasCnv=&m_QCnv;
+    TV[n].m_pMeasFmt=&m_QFmt;
     n++;
     }
 
@@ -1290,9 +1291,9 @@ void FlangeTearVarBlk::OnEditConstruct()
   ObjectAttribute *pAttr=ObjAttributes.FindObject("FlangeTearEdt");
   if (pAttr)
     {
-    pAttr->FieldFmtCnvs("Temp",  TFmt, TCnv);
-    pAttr->FieldFmtCnvs("Press", PFmt, PCnv);
-    pAttr->FieldFmtCnvs("Qm",    QFmt, QCnv);
+    pAttr->FieldFmtCnvs("Temp",  m_TFmt, m_TCnv);
+    pAttr->FieldFmtCnvs("Press", m_PFmt, m_PCnv);
+    pAttr->FieldFmtCnvs("Qm",    m_QFmt, m_QCnv);
     }
   };
 
@@ -1303,12 +1304,12 @@ void FlangeTearVarBlk::OnEditDestroy()
   ObjectAttribute *pAttr=ObjAttributes.FindObject("FlangeTearEdt");
   if (pAttr)
     {
-    pAttr->SetFieldFmt("Press", PFmt);
-    pAttr->SetFieldCnvs("Press", PCnv);
-    pAttr->SetFieldFmt("Temp", TFmt);
-    pAttr->SetFieldCnvs("Temp", TCnv);
-    pAttr->SetFieldFmt("Qm", QFmt);
-    pAttr->SetFieldCnvs("Qm", QCnv);
+    pAttr->SetFieldFmt("Press", m_PFmt);
+    pAttr->SetFieldCnvs("Press", m_PCnv);
+    pAttr->SetFieldFmt("Temp", m_TFmt);
+    pAttr->SetFieldCnvs("Temp", m_TCnv);
+    pAttr->SetFieldFmt("Qm", m_QFmt);
+    pAttr->SetFieldCnvs("Qm", m_QCnv);
     }
   };
 
@@ -1418,6 +1419,54 @@ LPSTR CFlange::SetTag(LPSTR ReqdTag, bool AllowEmptyTag)
 
 // --------------------------------------------------------------------------
 
+XID xidGlblTearMeth           = MdlBsXID(5510);
+XID xidGlblTearMaxIters       = MdlBsXID(5511);
+XID xidGlblTearDampGroup      = MdlBsXID(5512);
+XID xidGlblTearDampReqd       = MdlBsXID(5513);
+XID xidGlblTearDampGrowth     = MdlBsXID(5514);
+XID xidGlblTearDampDecay      = MdlBsXID(5515);
+XID xidGlblTearWegDelay       = MdlBsXID(5516);
+XID xidGlblTearWegBound       = MdlBsXID(5517);
+XID xidGlblTearWegClamp       = MdlBsXID(5518);
+XID xidGlblTearTolStrat       = MdlBsXID(5519);
+XID xidGlblTearTolAbs         = MdlBsXID(5520);
+XID xidGlblTearTolRel         = MdlBsXID(5521);
+
+XID xidFlngTearMeth           = MdlBsXID(5530);
+XID xidFlngTearCnvIters       = MdlBsXID(5531);
+XID xidFlngTearNVar           = MdlBsXID(5532);
+XID xidFlngTearHold           = MdlBsXID(5533);
+XID xidFlngTearDampGroup      = MdlBsXID(5534);
+XID xidFlngTearDampReqd       = MdlBsXID(5535);
+XID xidFlngTearDampGrowth     = MdlBsXID(5536);
+XID xidFlngTearDampDecay      = MdlBsXID(5537);
+XID xidFlngTearWegDelay       = MdlBsXID(5538);
+XID xidFlngTearWegBound       = MdlBsXID(5539);
+XID xidFlngTearWegClamp       = MdlBsXID(5540);
+XID xidFlngTearTolStrat       = MdlBsXID(5541);
+XID xidFlngTearTolAbs         = MdlBsXID(5542);
+XID xidFlngTearTolRel         = MdlBsXID(5543);
+
+//XID xidFlngTearMeth           = MdlBsXID(5530);
+//XID xidFlngTearCnvIters       = MdlBsXID(5531);
+//XID xidFlngTearNVar           = MdlBsXID(5532);
+//XID xidFlngTearDampGrp        = MdlBsXID(5533);
+//XID xidFlngTearDampReqd       = MdlBsXID(5534);
+//xidFlngTearWegDelay,  
+//xidFlngTearWegBound,  
+//xidFlngTearWegClamp,  
+//
+//XID xidFlngTearTolStrat       = MdlBsXID(5535);
+//XID xidFlngTearTolAbs         = MdlBsXID(5536);
+//XID xidFlngTearTolRel         = MdlBsXID(5537);
+XID xidFlngTearValues         = MdlBsXID(5550);
+XID xidFlngTearMethod         = MdlBsXID(5551);
+
+XID xidFlngTearBlock          = MdlBsXID(5552); // temporary
+XID xidFlngTearBlocks         = MdlBsXID(5553); // temporary
+
+// --------------------------------------------------------------------------
+
 void CFlange::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
@@ -1438,7 +1487,7 @@ void CFlange::BuildDataDefn(DataDefnBlk & DDB)
       int N=m_pVarBlk->NVariables();
       m_iNameWidth=8;
       for (int i=0; i<N; i++)
-        m_iNameWidth=Max(m_iNameWidth, (int)(strlen(GetDisplayTag(m_pVarBlk->TV[i].Tag, m_pVarBlk->TV[i].Sym))+1));
+        m_iNameWidth=Max(m_iNameWidth, (int)(strlen(GetDisplayTag(m_pVarBlk->TV[i].m_Tag, m_pVarBlk->TV[i].m_Sym))+1));
       }
 
     DDB.Text(StdSepUnderbar);
@@ -1449,10 +1498,10 @@ void CFlange::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Text(StdSepUnderbar);
     DDB.Text("GLOBAL Tear Defaults");
     DDB.Text("Control:");
-    DDB.String  ("GlblTear.Method",         "",       DC_,      "",   xidGlblTearMeth,           this, isParm, DDBTearMethod);
+    DDB.String  ("GlblTear.Method",         "",       DC_,      "",   xidGlblTearMeth,           this, isParm|SetOnChange, DDBTearMethod);
     DDB.Long    ("GlblTear.MaxIters",       "",       DC_,      "",   xidGlblTearMaxIters,       this, isParm);
     DDB.Text("Damping:");
-    DDB.String  ("GlblTear.Damp.Group",     "",       DC_,      "",   xidGlblTearDampGroup,      this, isParm, DDBDampAsGroup);
+    DDB.String  ("GlblTear.Damp.Group",     "",       DC_,      "",   xidGlblTearDampGroup,      this, isParm|SetOnChange, DDBDampAsGroup);
     DDB.Double  ("GlblTear.Damp.Reqd",      "",       DC_Frac,  "%",  xidGlblTearDampReqd,       this, isParm);
     DDB.Double  ("GlblTear.Damp.Growth",    "",       DC_Frac,  "%",  xidGlblTearDampGrowth,     this, isParm);
     DDB.Double  ("GlblTear.Damp.Decay",     "",       DC_Frac,  "%",  xidGlblTearDampDecay,      this, isParm);
@@ -1461,26 +1510,34 @@ void CFlange::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double  ("GlblTear.Wegs.Bound",     "",       DC_,      "",   xidGlblTearWegBound,       this, isParm);
     DDB.Double  ("GlblTear.Wegs.Clamp",     "",       DC_,      "",   xidGlblTearWegClamp,       this, isParm);
     DDB.Text("Cnv Tolerance:");
-    //DDB.String  ("GlblTear.Tol.Strat",      "",       DC_,      "",   xidGlblTearTolStrat,       this, (m_pVarBlk?isParm:0));
+    DDB.String  ("GlblTear.Tol.Strat",      "",       DC_,      "",   xidGlblTearTolStrat,       this, (m_pVarBlk?isParm:0)|SetOnChange, DDBEPSStrategy);
     DDB.Double  ("GlblTear.Tol.Abs",        "",       DC_Frac,  "%",  xidGlblTearTolAbs,         this, isParm);
     DDB.Double  ("GlblTear.Tol.Rel",        "",       DC_Frac,  "%",  xidGlblTearTolRel,         this, isParm);
 
     DDB.Text(StdSepUnderbar);
     DDB.Text("Tear Defaults for THIS tear");
     DDB.Text("Control:");
-    DDB.String  ("Tear.Method",             "",       DC_,      "",   xidFlngTearMeth,        this, (m_pVarBlk?isParm:0), DDBTearMethodDef);
+    DDB.String  ("Tear.Method",             "",       DC_,      "",   xidFlngTearMeth,        this, (m_pVarBlk?isParm:0)|SetOnChange, DDBTearMethodDef);
+    DDB.String  ("Tear.Hold",               "",       DC_,      "",   xidFlngTearHold,        this, isParm, DDBHoldOutput);
     DDB.Long    ("Tear.CnvIters",           "",       DC_,      "",   xidFlngTearCnvIters,    this, 0);//isParm);
     DDB.Long    ("Tear.VarCount",           "",       DC_,      "",   xidFlngTearNVar,        this, 0);//isParm);
-    DDB.Text("Damping:");                                                                           
-    DDB.String  ("Tear.Damp.Group",         "",       DC_,      "",   xidFlngTearDampGrp,     this, (m_pVarBlk?isParm:0), DDBDampAsGroupDef);
-    DDB.Double  ("Tear.Damp.Reqd",          "",       DC_Frac,  "%",  xidFlngTearDampReqd,    this, (m_pVarBlk?isParm:0)|NAN_OK);
-    DDB.Text("Cnv Tolerance:");                                                                     
-    DDB.String  ("Tear.Tol.Strat",          "",       DC_,      "",   xidFlngTearTolStrat,    this, (m_pVarBlk?isParm:0));
-    DDB.Double  ("Tear.Tol.Abs",            "",       DC_Frac,  "%",  xidFlngTearTolAbs,      this, (m_pVarBlk?isParm:0)|NAN_OK);
-    DDB.Double  ("Tear.Tol.Rel",            "",       DC_Frac,  "%",  xidFlngTearTolRel,      this, (m_pVarBlk?isParm:0)|NAN_OK);
+    DDB.Text("Damping:");                                                                               
+    DDB.String  ("Tear.Damp.Group",         "",       DC_,      "",   xidFlngTearDampGroup,      this, isParm|SetOnChange, DDBDampAsGroupDef);
+    DDB.Double  ("Tear.Damp.Reqd",          "",       DC_Frac,  "%",  xidFlngTearDampReqd,       this, isParm);
+    //DDB.Double  ("Tear.Damp.Growth",        "",       DC_Frac,  "%",  xidFlngTearDampGrowth,     this, isParm);
+    //DDB.Double  ("Tear.Damp.Decay",         "",       DC_Frac,  "%",  xidFlngTearDampDecay,      this, isParm);
+    //DDB.Text("Wegstein:");
+    //DDB.Long    ("Tear.Wegs.Delay",         "",       DC_,      "",   xidFlngTearWegDelay,       this, isParm);
+    //DDB.Double  ("Tear.Wegs.Bound",         "",       DC_,      "",   xidFlngTearWegBound,       this, isParm);
+    //DDB.Double  ("Tear.Wegs.Clamp",         "",       DC_,      "",   xidFlngTearWegClamp,       this, isParm);
+    DDB.Text("Cnv Tolerance:");
+    DDB.String  ("Tear.Tol.Strat",          "",       DC_,      "",   xidFlngTearTolStrat,       this, (m_pVarBlk?isParm:0)|SetOnChange, DDBEPSStrategyDef);
+    DDB.Double  ("Tear.Tol.Abs",            "",       DC_Frac,  "%",  xidFlngTearTolAbs,         this, isParm);
+    DDB.Double  ("Tear.Tol.Rel",            "",       DC_Frac,  "%",  xidFlngTearTolRel,         this, isParm);
 
-    //BuildDataDefnTearError(DDB);
-    //BuildDataDefnTearDamp(DDB);
+    BuildDataDefnTearValues(DDB);
+    BuildDataDefnTearMethod(DDB);
+
     if (m_ShowFlws)
       DDB.Object(ConduitIn(), this, "Qi", NULL, DDB_RqdPage); 
     }
@@ -1494,7 +1551,17 @@ void CFlange::BuildDataDefn(DataDefnBlk & DDB)
 
 // --------------------------------------------------------------------------
 
-void CFlange::BuildDataDefnTearError(DataDefnBlk & DDB)
+const byte FTV_Input      = 0;
+const byte FTV_Output     = 1;
+const byte FTV_Error      = 2;
+const byte FTV_Hold       = 3;
+const byte FTV_Cvgd       = 4;
+const byte FTV_EPS_Abs    = 5;
+const byte FTV_EPS_Rel    = 6;
+const byte FTV_Method     = 7;    // max value 15 - 4 bits
+
+
+void CFlange::BuildDataDefnTearValues(DataDefnBlk & DDB)
   {
   if (m_pVarBlk)
     {
@@ -1502,30 +1569,39 @@ void CFlange::BuildDataDefnTearError(DataDefnBlk & DDB)
 
     if (N>0)
       {
-      DDB.Page("Convergence", DDB_RqdPage);
+      DDB.Page("Values", DDB_RqdPage);
       DDB.Text(" ");
-      DDB.BeginGrid("AB", 4, N, 9, 1);
+      DDB.BeginGrid("ABC", 5, N, 9, 1);
 
-      DDB.ColumnHeader("Variable", m_iNameWidth, 0, 0);
-      DDB.ColumnHeader("Global",  8, 0, 2);
-      DDB.ColumnHeader("Local",   8, 0, 2);
-      DDB.ColumnHeader("Current", 8, 1, 2);
-      DDB.ColumnHeader("Value",   9, 0, 2);
-      //DDB.ColumnHeader("Value",   9, 0, 2);
+      DDB.ColumnHeader("Variable",   m_iNameWidth, 0, 0);
+      DDB.ColumnHeader("Input",     10, 0, 2);
+      //DDB.ColumnHeader("Output",    10, 0, 2);
+      DDB.ColumnHeader("Error",     10, 1, 2);
+      //DDB.ColumnHeader("Hold",       4, 0, 1);
+      DDB.ColumnHeader("Cvgd",       5, 1, 2);
+      DDB.ColumnHeader("EPS_Abs",   10, 0, 2);
+      DDB.ColumnHeader("EPS_Rel",   10, 0, 2);
+      //DDB.ColumnHeader("Value",      9, 0, 2);
 
-      if (DDB.BeginArray(this, "TearValue", NULL, DDB_NoPage))
+      if (DDB.BeginArray(this, "Tear.Values", NULL, DDB_NoPage))
         {
         for (int i=0; i<N; i++)
           {
-          LPSTR Txt=m_pVarBlk->TV[i].Sym();
+          TearVar & V = m_pVarBlk->TV[i];
+          LPSTR Txt = V.m_Sym();
+          CnvAttribute * pCnv = V.m_pMeasCnv;
+          CnvAttribute * pDCnv = V.m_pDiffCnv;
+          //LPSTR Txt=m_pVarBlk->TV[i].m_Sym();
           DDB.RowHeader(Txt);
           DDB.RowStart();
 
           DDB.BeginElement(this, Txt);
-          DDB.Double("Global",  "", DC_, "", xidFlngTearValues, (i<<4) | 0 , this, isParm|NAN_OK);
-          DDB.Double("Local",   "", DC_, "", xidFlngTearValues, (i<<4) | 1 , this, isParm|NAN_OK);
-          DDB.Double("Current", "", DC_, "", xidFlngTearValues, (i<<4) | 2 , this, isParm|NAN_OK);
-          DDB.Double("Value",   "", DC_, "", xidFlngTearValues, (i<<4) | 3 , this, isParm|NAN_OK);
+          DDB.Double  ("Input",   "", pCnv->Index(),      pCnv->Text(),  xidFlngTearValues, (i<<4) | FTV_Input, this, 0);
+          DDB.Double  ("Error",   "", pDCnv->Index(),     pDCnv->Text(), xidFlngTearValues, (i<<4) | FTV_Error, this, 0);
+          //DDB.CheckBox("Hold",    "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Hold , this, isParm|SetOnChange);
+          DDB.Long    ("Cvgd",    "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Cvgd,    this, 0);
+          DDB.Double  ("EPS_Abs", "", pDCnv->Index(),     pDCnv->Text(), xidFlngTearValues, (i<<4) | FTV_EPS_Abs, this, isParm|NAN_OK);
+          DDB.Double  ("EPS_Rel", "", DC_Frac,            "%",           xidFlngTearValues, (i<<4) | FTV_EPS_Rel, this, isParm|NAN_OK);
           //DDB.RowEnd();
           }
         }
@@ -1538,7 +1614,7 @@ void CFlange::BuildDataDefnTearError(DataDefnBlk & DDB)
 
 // --------------------------------------------------------------------------
 
-void CFlange::BuildDataDefnTearDamp(DataDefnBlk & DDB)
+void CFlange::BuildDataDefnTearMethod(DataDefnBlk & DDB)
   {
   if (m_pVarBlk)
     {
@@ -1546,31 +1622,39 @@ void CFlange::BuildDataDefnTearDamp(DataDefnBlk & DDB)
 
     if (N>0)
       {
-      DDB.Page("Damping", DDB_RqdPage);
+      DDB.Page("Method", DDB_RqdPage);
       DDB.Text(" ");
-      DDB.BeginGrid("AB", 5, N, 9, 1);
+      DDB.BeginGrid("AB", 4, N, 9, 1);
 
-      DDB.ColumnHeader("Variable", m_iNameWidth, 0, 0);
-      DDB.ColumnHeader("Global",  8, 0, 2);
-      DDB.ColumnHeader("Local",   8, 0, 2);
-      DDB.ColumnHeader("Current", 8, 1, 2);
-      DDB.ColumnHeader("Value",   9, 0, 2);
-      DDB.ColumnHeader("Hold",    4, 0, 2);
+      DDB.ColumnHeader("Variable",   m_iNameWidth, 0, 0);
+      DDB.ColumnHeader("Input",     10, 0, 2);
+      DDB.ColumnHeader("Output",    10, 1, 2);
+      //DDB.ColumnHeader("Error",     10, 1, 2);
+      DDB.ColumnHeader("Hold",       4, 2, 2);
+      DDB.ColumnHeader("Method",    12, 2, 2);
+      //DDB.ColumnHeader("EPS_Abs",    8, 0, 2);
+      //DDB.ColumnHeader("EPS_Rel",    8, 0, 2);
+      //DDB.ColumnHeader("Value",      9, 0, 2);
 
-      if (DDB.BeginArray(this, "TearDamping", NULL, DDB_NoPage))
+      if (DDB.BeginArray(this, "Tear.Methods", NULL, DDB_NoPage))
         {
         for (int i=0; i<N; i++)
           {
-          LPSTR Txt=m_pVarBlk->TV[i].Sym();
+          TearVar & V = m_pVarBlk->TV[i];
+          LPSTR Txt = V.m_Sym();
+          CnvAttribute * pCnv = V.m_pMeasCnv;
+          //CnvAttribute * pDCnv = V.m_pDiffCnv;
+          //LPSTR Txt=m_pVarBlk->TV[i].m_Sym();
           DDB.RowHeader(Txt);
           DDB.RowStart();
 
           DDB.BeginElement(this, Txt);
-          DDB.Double("Global",  "", DC_, "", xidFlngTearDamping, (i<<4) | 0 , this, isParm|NAN_OK);
-          DDB.Double("Local",   "", DC_, "", xidFlngTearDamping, (i<<4) | 1 , this, isParm|NAN_OK);
-          DDB.Double("Current", "", DC_, "", xidFlngTearDamping, (i<<4) | 2 , this, isParm|NAN_OK);
-          DDB.Double("Value",   "", DC_, "", xidFlngTearDamping, (i<<4) | 3 , this, isParm|NAN_OK);
-          DDB.CheckBox("Hold",   "", DC_, "", xidFlngTearDamping, (i<<4) | 4 , this, isParm|NAN_OK);
+          DDB.Double  ("Input",   "", pCnv->Index(),      pCnv->Text(),  xidFlngTearValues, (i<<4) | FTV_Input,   this, 0);
+          DDB.Double  ("Output",  "", pCnv->Index(),      pCnv->Text(),  xidFlngTearValues, (i<<4) | FTV_Output,  this, V.HoldOutput()?isParm:0);
+          DDB.String  ("Hold",    "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Hold,    this, isParm/*|SetOnChange*/, DDBHoldOutputDef);
+          DDB.String  ("Method",  "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Method,  this, isParm, DDBTearMethodDef);
+          //DDB.Double  ("Method",  "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Method,  this, isParm);
+          //DDB.RowEnd();
           }
         }
       DDB.EndArray();
@@ -1596,40 +1680,40 @@ flag CFlange::DataXchg(DataChangeBlk & DCB)
       DCB.pC=m_pNdDst ? m_pNdDst->FullObjTag():""; 
       return 1;
 
-      //    Str=TearConvergeMethodStr(EqnCB().Cfg.iConvergeMeth);
+      //    Str=TearConvergeMethodStr(gs_EqnCB.Cfg.iConvergeMeth);
       //    break;
       //  case Id_TDfCnvgdIters:
-      //    Str.Set("%i", EqnCB().Cfg.iRqdCnvrgdIters);
+      //    Str.Set("%i", gs_EqnCB.Cfg.iRqdCnvrgdIters);
       //    break;
       //  case Id_TDfMaxIters:
-      //    Str.Set("%i", EqnCB().Cfg.iMaxIters);
+      //    Str.Set("%i", gs_EqnCB.Cfg.iMaxIters);
       //    break;
       //  case Id_TDfDampAsGroup:
-      //    Str=DampAsGroupStr(EqnCB().Cfg.m_iDampAsGroup);
+      //    Str=DampAsGroupStr(gs_EqnCB.Cfg.m_iDampAsGroup);
       //    break;
       //  case Id_TDfDamping:
-      //    DFmt.FormatFloat(DCnv.Human(EqnCB().Cfg.m_dDamping), Str);
+      //    DFmt.FormatFloat(DCnv.Human(gs_EqnCB.Cfg.m_DampingRqd), Str);
       //    break;
       //  case Id_TDfDamping_Growth:
-      //    DFmt.FormatFloat(EqnCB().Cfg.dDampFctGrowth, Str);
+      //    DFmt.FormatFloat(gs_EqnCB.Cfg.dDampFctGrowth, Str);
       //    break;
       //  case Id_TDfDamping_Decay:
-      //    DFmt.FormatFloat(EqnCB().Cfg.dDampFctDecay, Str);
+      //    DFmt.FormatFloat(gs_EqnCB.Cfg.dDampFctDecay, Str);
       //    break;
       //  case Id_TDfWegstein_Delay:
-      //    Str.Set("%i", EqnCB().Cfg.iWA_Delay);
+      //    Str.Set("%i", gs_EqnCB.Cfg.iWA_Delay);
       //    break;
       //  case Id_TDfWegstein_Bound:
-      //    Str.Set("%.2f", EqnCB().Cfg.dWA_Bound);
+      //    Str.Set("%.2f", gs_EqnCB.Cfg.dWA_Bound);
       //    break;
       //  case Id_TDfWegstein_Clamp:
-      //    Str.Set("%.2f", EqnCB().Cfg.dWA_Clamping);
+      //    Str.Set("%.2f", gs_EqnCB.Cfg.dWA_Clamping);
       //    break;
       //  case Id_TDfRel:
-      //    TFmt.FormatFloat(TCnv.Human(EqnCB().Cfg.dEps_Rel), Str);
+      //    TFmt.FormatFloat(TCnv.Human(gs_EqnCB.Cfg.dEps_Rel), Str);
       //    break;
       //  case Id_TDfAbs:
-      //    TFmt.FormatFloat(TCnv.Human(EqnCB().Cfg.dEps_Abs), Str);
+      //    TFmt.FormatFloat(TCnv.Human(gs_EqnCB.Cfg.dEps_Abs), Str);
       //    break;
       //  }
       //}
@@ -1664,49 +1748,166 @@ flag CFlange::DataXchg(DataChangeBlk & DCB)
         //  break;
 
     case xidGlblTearMeth:
-      DCB.pC = (LPSTR)TearConvergeMethodStr(EqnCB().Cfg.iConvergeMeth);;
+      if (DCB.rpC)
+        gs_EqnCB.Cfg.m_iConvergeMeth=FindTearConvergeMethod(DCB.rpC);
+      DCB.pC = (LPSTR)TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth);
       return 1;
     case xidGlblTearMaxIters:
-      DCB.L=EqnCB().Cfg.iMaxIters;
+      if (DCB.rL)
+        gs_EqnCB.Cfg.m_iMaxIters=*DCB.rL;
+      DCB.L=gs_EqnCB.Cfg.m_iMaxIters;
       return 1;
     case xidGlblTearDampGroup:
-      DCB.pC=(LPSTR)DampAsGroupStr(EqnCB().Cfg.m_iDampAsGroup);
+      if (DCB.rpC)
+        gs_EqnCB.Cfg.m_iDampAsGroup=FindDampAsGroup(DCB.rpC);
+      DCB.pC=(LPSTR)DampAsGroupStr(gs_EqnCB.Cfg.m_iDampAsGroup);
       return 1;
     case xidGlblTearDampReqd:
-      DCB.D=/*DFmt.FormatFloat(DCnv.Human(*/EqnCB().Cfg.m_dDamping/*), m_sTmp)*/;
+      if (DCB.rD)
+        gs_EqnCB.Cfg.m_DampingRqd = *DCB.rD;
+      DCB.D=gs_EqnCB.Cfg.m_DampingRqd;
       return 1;
     case xidGlblTearDampGrowth:
-      DCB.D=/*DFmt.FormatFloat(DCnv.Human(*/EqnCB().Cfg.dDampFctGrowth/*), m_sTmp)*/;
+      if (DCB.rD)
+        gs_EqnCB.Cfg.m_DampFctGrowth = *DCB.rD;
+      DCB.D=gs_EqnCB.Cfg.m_DampFctGrowth;
       return 1;
     case xidGlblTearDampDecay:
-      DCB.D=/*DFmt.FormatFloat(DCnv.Human(*/EqnCB().Cfg.dDampFctDecay/*), m_sTmp)*/;
+      if (DCB.rD)
+        gs_EqnCB.Cfg.m_DampFctDecay = *DCB.rD;
+      DCB.D=gs_EqnCB.Cfg.m_DampFctDecay;
       return 1;
     case xidGlblTearWegDelay:
-      DCB.L=EqnCB().Cfg.iWA_Delay;
+      if (DCB.rL)
+        gs_EqnCB.Cfg.m_iWA_Delay = (short)*DCB.rL;
+      DCB.L=gs_EqnCB.Cfg.m_iWA_Delay;
       return 1;
     case xidGlblTearWegBound:
-      DCB.D=EqnCB().Cfg.dWA_Bound;
+      if (DCB.rD)
+        gs_EqnCB.Cfg.m_WA_Bound = *DCB.rD;
+      DCB.D=gs_EqnCB.Cfg.m_WA_Bound;
       return 1;
     case xidGlblTearWegClamp:
-      DCB.D=EqnCB().Cfg.dWA_Clamping;
+      if (DCB.rD)
+        gs_EqnCB.Cfg.m_WA_Clamping = *DCB.rD;
+      DCB.D=gs_EqnCB.Cfg.m_WA_Clamping;
       return 1;
     case xidGlblTearTolStrat:
-      //if (m_pVarBlk)
-      //  {
-      //  if (DCB.rpC)
-      //    SetEPSStrategy(DCB.rpC);
-      //  DCB.pC = (LPSTR)m_pVarBlk->EPSStrategyStr();
-      //  }
-      //else
-      //  DCB.pC = "";
-
-      DCB.pC = "?";
+      if (DCB.rpC)
+        gs_EqnCB.Cfg.m_iEPSStrategy=FindEPSStrategy(DCB.rpC);
+      DCB.pC=(LPSTR)EPSStrategyStr(gs_EqnCB.Cfg.m_iEPSStrategy);
       return 1;
     case xidGlblTearTolAbs:
-      DCB.D=EqnCB().Cfg.dEps_Rel;
+      if (DCB.rD)
+        gs_EqnCB.Cfg.m_EPS_Abs = *DCB.rD;
+      DCB.D=gs_EqnCB.Cfg.m_EPS_Abs;
       return 1;
     case xidGlblTearTolRel:
-      DCB.D=EqnCB().Cfg.dEps_Rel;
+      if (DCB.rD)
+        gs_EqnCB.Cfg.m_EPS_Rel = *DCB.rD;
+      DCB.D=gs_EqnCB.Cfg.m_EPS_Rel;
+      return 1;
+
+    case xidFlngTearBlock:
+      DCB.pC=TearGetTag();
+      return 1;
+    case xidFlngTearBlocks:
+      DCB.pC="$Tear";
+      return 1;
+
+    case xidFlngTearMeth:
+      if (m_pVarBlk)
+        {
+        if (DCB.rpC)
+          m_pVarBlk->SetConvergeMethod(DCB.rpC);
+        DCB.pC = TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth, m_pVarBlk->ConvergeMethod());
+        }
+      else
+        DCB.pC = "";
+      return 1;
+    case xidFlngTearNVar:
+      DCB.L = m_pVarBlk ? m_pVarBlk->NVariables():0;
+      return 1;
+    case xidFlngTearHold:
+      if (m_pVarBlk)
+        {
+        if (DCB.rpC)
+          m_pVarBlk->m_iHoldOutput=FindHoldOutput(DCB.rpC);
+        DCB.pC = HoldOutputStr(m_pVarBlk->m_iHoldOutput);
+        }
+      else
+        DCB.pC="";
+      return 1;
+    case xidFlngTearCnvIters:
+      DCB.L = m_pVarBlk ? m_pVarBlk->m_lConvergeLoopCnt:0;
+      return 1;
+    case xidFlngTearDampGroup:
+      if (m_pVarBlk)
+        {
+        if (DCB.rpC)
+          m_pVarBlk->SetDampAsGroupCfg(DCB.rpC);
+        DCB.pC = DampAsGroupStr(gs_EqnCB.Cfg.m_iDampAsGroup, m_pVarBlk->DampAsGroupCfg());
+        }
+      else
+        DCB.pC = "";
+      return 1;
+    case xidFlngTearDampReqd:
+      if (m_pVarBlk)
+        {
+        if (DCB.rD)
+          m_pVarBlk->m_DampingRqd=*DCB.rD;
+        if (Valid(m_pVarBlk->m_DampingRqd))
+          DCB.D = m_pVarBlk->m_DampingRqd;
+        else
+          {
+          DCB.D = gs_EqnCB.Cfg.m_DampingRqd;
+          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+          }
+        }
+      else
+        DCB.D = dNAN;
+      return 1;
+    case xidFlngTearTolStrat:
+      if (m_pVarBlk)
+        {
+        if (DCB.rpC)
+          m_pVarBlk->SetEPSStrategy(DCB.rpC);
+        DCB.pC = EPSStrategyStr(gs_EqnCB.Cfg.m_iEPSStrategy, m_pVarBlk->m_iEPSStrategy);
+        }
+      else
+        DCB.pC = "";
+      return 1;
+    case xidFlngTearTolAbs:
+      if (m_pVarBlk)
+        {
+        if (DCB.rD)
+          m_pVarBlk->m_EPS_Abs=*DCB.rD;
+        if (Valid(m_pVarBlk->m_EPS_Abs))
+          DCB.D = m_pVarBlk->m_EPS_Abs;
+        else
+          {
+          DCB.D = gs_EqnCB.Cfg.m_EPS_Abs;
+          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+          }
+        }
+      else
+        DCB.D = dNAN;
+      return 1;
+    case xidFlngTearTolRel:
+      if (m_pVarBlk)
+        {
+        if (DCB.rD)
+          m_pVarBlk->m_EPS_Rel=*DCB.rD;
+        if (Valid(m_pVarBlk->m_EPS_Rel))
+          DCB.D = m_pVarBlk->m_EPS_Rel;
+        else
+          {
+          DCB.D = gs_EqnCB.Cfg.m_EPS_Rel;
+          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+          }
+        }
+      else
+        DCB.D = dNAN;
       return 1;
 
     case xidFlngTearValues:
@@ -1714,27 +1915,100 @@ flag CFlange::DataXchg(DataChangeBlk & DCB)
       int i=DCB.lHandle2 >> 4;
       switch (DCB.lHandle2 & 0xf)
         {
-        case 0:
-          DCB.D=0;
+        case FTV_Hold:
+          if (m_pVarBlk)
+            {
+            if (DCB.rpC)
+              m_pVarBlk->TV[i].m_iHoldOutput=FindHoldOutput(DCB.rpC);
+            DCB.pC=m_pVarBlk->TV[i].HoldOutputStr();
+            }
+          else
+            DCB.B=0;
           return 1;
-        case 1:
-          DCB.D=1;
+
+        case FTV_Input:      
+          if (m_pVarBlk)
+            DCB.D = m_pVarBlk->TV[i].m_Y[0];
+          else
+            DCB.D=dNAN;
           return 1;
-        case 2:
-          DCB.D=2;
+
+        case FTV_Output:
+          if (m_pVarBlk)
+            {
+            if (DCB.rD)
+              m_pVarBlk->TV[i].m_X[0]=*DCB.rD;
+            DCB.D = m_pVarBlk->TV[i].m_X[0];
+            }
+          else
+            DCB.D=dNAN;
           return 1;
-        case 3:
-          DCB.D=3;
+
+        case FTV_Error:
+          if (m_pVarBlk)
+            DCB.D = m_pVarBlk->TV[i].m_Error[0];
+          else
+            DCB.D=dNAN;
           return 1;
-        case 4:
-          DCB.B=1;
+
+        case FTV_Cvgd:
+          if (m_pVarBlk)
+            DCB.L = m_pVarBlk->TV[i].m_iConvergedCnt;
+          else
+            DCB.L=-1;
+          return 1;
+
+        case FTV_EPS_Abs:
+          if (m_pVarBlk)
+            {
+            if (DCB.rD)
+              m_pVarBlk->TV[i].m_EPS_Abs=*DCB.rD;
+            DCB.D = m_pVarBlk->TV[i].m_EPS_Abs;
+            if (!Valid(DCB.D))
+              {
+              DCB.D = m_pVarBlk->EPS_Abs(gs_EqnCB, i);
+              DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+              }
+            }
+          else
+            DCB.D=dNAN;
+          return 1;
+       
+        case FTV_EPS_Rel:
+          if (m_pVarBlk)
+            {
+            if (DCB.rD)
+              m_pVarBlk->TV[i].m_EPS_Rel=*DCB.rD;
+            DCB.D = m_pVarBlk->TV[i].m_EPS_Rel;
+            if (!Valid(DCB.D))
+              {
+              DCB.D = m_pVarBlk->EPS_Rel(gs_EqnCB, i);
+              DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+              }
+            }
+          else
+            DCB.D=dNAN;
+          return 1;
+
+        case FTV_Method:
+          if (m_pVarBlk)
+            {
+            if (DCB.rpC)
+              m_pVarBlk->TV[i].m_iTearMethod = FindTearConvergeMethod(DCB.rpC);
+            DCB.pC=TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth, m_pVarBlk->m_iTearMethod, m_pVarBlk->TV[i].m_iTearMethod);
+            }
+          else
+            {
+            DCB.pC=" ";
+            }
           return 1;
         default:
           DCB.D=dNAN;
           return 1;
         }
       }
-    case xidFlngTearDamping:
+
+    case xidFlngTearMethod:
       {
       int i=DCB.lHandle2 >> 4;
       switch (DCB.lHandle2 & 0xf)
@@ -1757,79 +2031,6 @@ flag CFlange::DataXchg(DataChangeBlk & DCB)
         }
       }
 
-    case xidFlngTearBlock:
-      DCB.pC=TearGetTag();
-      return 1;
-    case xidFlngTearBlocks:
-      DCB.pC="$Tear";
-      return 1;
-
-    case xidFlngTearMeth:
-      if (m_pVarBlk)
-        {
-        if (DCB.rpC)
-          m_pVarBlk->SetConvergeMethod(DCB.rpC);
-        DCB.pC = (LPSTR)m_pVarBlk->ConvergeMethodStr();
-        }
-      else
-        DCB.pC = "";
-      return 1;
-    case xidFlngTearNVar:
-      DCB.L = m_pVarBlk ? m_pVarBlk->NVariables():0;
-      return 1;
-    case xidFlngTearCnvIters:
-      DCB.L = m_pVarBlk ? m_pVarBlk->m_lConvergeLoopCnt:0;
-      return 1;
-    case xidFlngTearDampReqd:
-      if (m_pVarBlk)
-        {
-        if (DCB.rD)
-          m_pVarBlk->m_DampingRqd=*DCB.rD;
-        DCB.D = m_pVarBlk->m_DampingRqd;
-        }
-      else
-        DCB.D = dNAN;
-      return 1;
-    case xidFlngTearDampGrp:
-      if (m_pVarBlk)
-        {
-        if (DCB.rpC)
-          m_pVarBlk->SetDampAsGroupCfg(DCB.rpC);
-        DCB.pC = (LPSTR)DampAsGroupStrings[m_pVarBlk->DampAsGroupCfg()];
-        }
-      else
-        DCB.pC = "";
-      return 1;
-    case xidFlngTearTolStrat:
-      if (m_pVarBlk)
-        {
-        if (DCB.rpC)
-          m_pVarBlk->SetEPSStrategy(DCB.rpC);
-        DCB.pC = (LPSTR)m_pVarBlk->EPSStrategyStr();
-        }
-      else
-        DCB.pC = "";
-      return 1;
-    case xidFlngTearTolAbs:
-      if (m_pVarBlk)
-        {
-        if (DCB.rD)
-          m_pVarBlk->m_EPS_Abs = *DCB.rD;
-        DCB.D = m_pVarBlk->m_EPS_Abs;
-        }
-      else
-        DCB.D = dNAN;
-      return 1;
-    case xidFlngTearTolRel:
-      if (m_pVarBlk)
-        {
-        if (DCB.rD)
-          m_pVarBlk->m_EPS_Rel = *DCB.rD;
-        DCB.D = m_pVarBlk->m_EPS_Rel;
-        }
-      else
-        DCB.D = dNAN;
-      return 1;
     }
 
   if (ConduitIO()->DataXchg(DCB))
@@ -2199,12 +2400,12 @@ void CFlange::TearGetInputs(TearVarArray & TV)
     return;
 
   int n=0;
-  TV[n++].Y[0]=m_pQIn->Temp();
-  TV[n++].Y[0]=m_pNdSrc->IOP_Flng/*Self*/(m_iIOSrc);
+  TV[n++].m_Y[0]=m_pQIn->Temp();
+  TV[n++].m_Y[0]=m_pNdSrc->IOP_Flng/*Self*/(m_iIOSrc);
   for (int s=0; s<SVSpcCount(); s++)
-    TV[n++].Y[0]=m_pQIn->VMass[s];
+    TV[n++].m_Y[0]=m_pQIn->VMass[s];
   for (int s=0; s<SVAttCount(); s++)
-    TV[n++].Y[0]=m_pQIn->VAttr[s];
+    TV[n++].m_Y[0]=m_pQIn->VAttr[s];
 
 
   int iQ;
@@ -2224,7 +2425,7 @@ void CFlange::TearGetInputs(TearVarArray & TV)
       else
         {
         for (int i=0; i<N; i++)
-          TV[n+i].Y[0]=0.0;
+          TV[n+i].m_Y[0]=0.0;
         n+=N;
         }
       }
@@ -2239,12 +2440,13 @@ void CFlange::TearGetOutputs(TearVarArray & TV)
     return;
 
   int n=0;
-  TV[n++].X[0]=m_pQIO->Temp();
-  TV[n++].X[0]=m_pNdDst->IOP_Self(m_iIODst);
+
+  if (!TV[n++].HoldOutput()) TV[n-1].m_X[0]=m_pQIO->Temp();
+  if (!TV[n++].HoldOutput()) TV[n-1].m_X[0]=m_pNdDst->IOP_Self(m_iIODst);
   for (int s=0; s<SVSpcCount(); s++)
-    TV[n++].X[0]=m_pQIO->VMass[s];
-  for (int s=0; s<SVAttCount(); s++)
-    TV[n++].X[0]=m_pQIO->VAttr[s];
+    if (!TV[n++].HoldOutput()) TV[n-1].m_X[0]=m_pQIO->VMass[s];
+  for (int s=0; s<SVAttCount(); s++)    
+    if (!TV[n++].HoldOutput()) TV[n-1].m_X[0]=m_pQIO->VAttr[s];
 
   int iQ;
   TagObjClass *pQC;
@@ -2263,7 +2465,7 @@ void CFlange::TearGetOutputs(TearVarArray & TV)
       else
         {
         for (int i=0; i<N; i++)
-          TV[n+i].X[0]=0.0;
+          if (!TV[n+i].HoldOutput()) TV[n+i].m_X[0]=0.0;
         n+=N;
         }
       }
@@ -2283,13 +2485,13 @@ void CFlange::TearSetOutputs(TearVarArray & TV)
   m_pQIO->ChangeModel(m_pQIn);
 
   int n=0;
-  double T=TV[n++].X[0];
-  double P=TV[n++].X[0];
+  double T=TV[n++].m_X[0];
+  double P=TV[n++].m_X[0];
   //pQIO->SetTemp(T);
   for (int s=0; s<SVSpcCount(); s++)
-    m_pQIO->SetVValue(s, Max(0.0, TV[n++].X[0]));
+    m_pQIO->SetVValue(s, Max(0.0, TV[n++].m_X[0]));
   for (int s=0; s<SVAttCount(); s++)
-    m_pQIO->SetVAttr(s, TV[n++].X[0]);
+    m_pQIO->SetVAttr(s, TV[n++].m_X[0]);
   m_pQIO->Model()->ClrMStatesOK();
   m_pQIO->SetTempPress(T, P);
   m_pNdDst->Set_IOP_Self(m_iIODst, P);

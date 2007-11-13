@@ -4049,7 +4049,7 @@ void CArchiveManager::LogAMessage(CMsgLogItem & Msg)
   {
   //dbgpln("CArchiveManager::LogAMessage %08x %-20s %s", Msg.m_dwFlags, Msg.Source, Msg.Description);
   if (m_pMessageLog)
-    m_pMessageLog->AddMsgRecord(gs_Exec.TimeCB(), Msg);
+    m_pMessageLog->AddMsgRecord(gs_TimeCB, Msg);
   };
 
 //===========================================================================
@@ -4059,7 +4059,7 @@ void CArchiveManager::LogAnEvent(LPCTSTR Tag, LPCTSTR Msg)
   // WHAT ABOUT A LOCK/SEMA
   //dbgpln("CArchiveManager::LogAnEvent  %-20s %s", Tag, Msg);
   if (m_pEventLog)
-    m_pEventLog->AddEventRecord(gs_Exec.TimeCB(), Tag, Msg);
+    m_pEventLog->AddEventRecord(gs_TimeCB, Tag, Msg);
   };
 
 //===========================================================================

@@ -232,7 +232,7 @@ double CPID2::ExecIns()
   if (DoIt)
     {
     m_ExecCnt++; // Mark as Active
-    if (CtrlSeq().SequencerActive() && (m_Hold || m_InitHold))
+    if (gs_CtrlSeq.SequencerActive() && (m_Hold || m_InitHold))
       DoIt=false;
     //m_InitHold=false;
     }
@@ -314,7 +314,7 @@ double CPID2::ExecIns()
   SetCI(3, TrackMinMaxOut && (m_Out<=m_OutMn));
   SetCI(4, TrackMinMaxOut && (m_Out>=m_OutMx));
 
-  if (CtrlSeq().SequencerActive())
+  if (gs_CtrlSeq.SequencerActive())
     {
     double D0=0.1*fabs(m_OutMx-m_OutMn);
     m_Out=Range(OutEntry-D0, m_Out, OutEntry+D0);
@@ -752,7 +752,7 @@ double CPID3::ExecIns()
 
   double OutEntry=OutScaled;
   flag DoIt=m_AutoMan;
-  if (DoIt && CtrlSeq().SequencerActive())
+  if (DoIt && gs_CtrlSeq.SequencerActive())
     {
     m_ExecCnt++; // Mark as Active
     if (m_Hold || m_InitHold)
@@ -834,7 +834,7 @@ double CPID3::ExecIns()
   SetCI(3, TrackMinMaxOut && (OutScaled<=0.0));
   SetCI(4, TrackMinMaxOut && (OutScaled>=1.0));
 
-  if (CtrlSeq().SequencerActive())
+  if (gs_CtrlSeq.SequencerActive())
     {
     double D0=0.1;//*fabs(m_OutMx-m_OutMn);
     OutScaled=Range(OutEntry-D0, OutScaled, OutEntry+D0);
@@ -1298,7 +1298,7 @@ double CPID4::ExecIns()
 
   double OutEntry=OutScaled;
   flag DoIt=m_AutoMan;
-  if (DoIt && CtrlSeq().SequencerActive())
+  if (DoIt && gs_CtrlSeq.SequencerActive())
     {
     m_ExecCnt++; // Mark as Active
     if (m_Hold || m_InitHold)
@@ -1414,7 +1414,7 @@ double CPID4::ExecIns()
   SetCI(3, TrackMinMaxOut && (OutScaled<=0.0));
   SetCI(4, TrackMinMaxOut && (OutScaled>=1.0));
 
-  if (CtrlSeq().SequencerActive())
+  if (gs_CtrlSeq.SequencerActive())
     {
     double D0=0.1;//*fabs(m_OutMx-m_OutMn);
     OutScaled=Range(OutEntry-D0, OutScaled, OutEntry+D0);

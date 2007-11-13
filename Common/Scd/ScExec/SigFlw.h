@@ -21,7 +21,7 @@
 
 #if defined(__SIGFLW_CPP)
   #define DllImportExport DllExport
-#elif !defined(SCDLIB)
+#elif !defined(SCEXEC)
   #define DllImportExport DllImport
 #else
   #define DllImportExport

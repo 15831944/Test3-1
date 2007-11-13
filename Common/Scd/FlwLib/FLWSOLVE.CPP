@@ -4064,16 +4064,16 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
       FindTOSequenceStart(Which);
       BuildTOSequence(Which);
       SummariseTOSequence(Which);
-      InitTearConvergence(EqnCB());
+      InitTearConvergence(gs_EqnCB);
       m_fProcTOSeqValid=true;
-#else                                                                10001000  
+#else
       // Incorrect Version (Slow)
       m_fProcTOSeqValid=FindTOSequenceStart(Which);
       if (m_fProcTOSeqValid)
         {
         BuildTOSequence(Which);
         SummariseTOSequence(Which);
-        InitTearConvergence(EqnCB());
+        InitTearConvergence(gs_EqnCB);
         }
 #endif
       }
@@ -4209,38 +4209,38 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
 
 void FlwSlvBlk::InitTearConvergence(EqnSlvCtrlBlk & EqnCB)
   {
-  EqnSlv().DeActivateAllTears();
-  EqnSlv().ActivateAllReqdTears();
-  EqnSlv().InitialiseActiveTears(EqnCB);
-//  EqnSlv().RemoveInActiveTears();
+  gs_EqnSlv.DeActivateAllTears();
+  gs_EqnSlv.ActivateAllReqdTears();
+  gs_EqnSlv.InitialiseActiveTears(EqnCB);
+//  gs_EqnSlv.RemoveInActiveTears();
   }
 
 //--------------------------------------------------------------------------
 
 void FlwSlvBlk::InitialiseAllTears(EqnSlvCtrlBlk & EqnCB)
   {
-  EqnSlv().InitialiseActiveTears(EqnCB);
+  gs_EqnSlv.InitialiseActiveTears(EqnCB);
   }
 
 //--------------------------------------------------------------------------
 
 void FlwSlvBlk::RestartAllTears(EqnSlvCtrlBlk & EqnCB)
   {
-  EqnSlv().RestartAllActiveTears(EqnCB);
+  gs_EqnSlv.RestartAllActiveTears(EqnCB);
   }
 
 //--------------------------------------------------------------------------
 
 void FlwSlvBlk::TransferAllTears(EqnSlvCtrlBlk & EqnCB)
   {
-  EqnSlv().TransferAllTears(EqnCB);
+  gs_EqnSlv.TransferAllTears(EqnCB);
   }
 
 //--------------------------------------------------------------------------
 
 flag FlwSlvBlk::TestTearConvergence(long ConvergeLoopCnt, EqnSlvCtrlBlk & EqnCB, Strng_List &BadTearTags, Strng_List & BadTearInfo)
   {
-  return EqnSlv().TestTearConvergence(ConvergeLoopCnt, EqnCB, BadTearTags, BadTearInfo);
+  return gs_EqnSlv.TestTearConvergence(ConvergeLoopCnt, EqnCB, BadTearTags, BadTearInfo);
   }
 
 //===========================================================================
@@ -4332,10 +4332,10 @@ double FlwSlvBlk::TestBalance(const EqnSlvCtrlBlk & TCtrl, CNodeEvalIndexList &N
     flag DoRpt=0;
     switch (iSrcSnk)
       {
-      case -1: DoRpt = (Max(MaxErr, MaxSpErr)>EqnCB().ReportTol()) && (EqnCB().Report() & ESR_Srcs); break;
-      case  1: DoRpt = (Max(MaxErr, MaxSpErr)>EqnCB().ReportTol()) && (EqnCB().Report() & ESR_Snks); break;
-      case  0: DoRpt = (((Max(MaxErr, MaxSpErr)>EqnCB().ReportTol()) && (EqnCB().Report() & ESR_Species)) ||
-                        ((MaxErr>EqnCB().ReportTol()) && (EqnCB().Report() & ESR_Errors))); break;
+      case -1: DoRpt = (Max(MaxErr, MaxSpErr)>gs_EqnCB.ReportTol()) && (gs_EqnCB.Report() & ESR_Srcs); break;
+      case  1: DoRpt = (Max(MaxErr, MaxSpErr)>gs_EqnCB.ReportTol()) && (gs_EqnCB.Report() & ESR_Snks); break;
+      case  0: DoRpt = (((Max(MaxErr, MaxSpErr)>gs_EqnCB.ReportTol()) && (gs_EqnCB.Report() & ESR_Species)) ||
+                        ((MaxErr>gs_EqnCB.ReportTol()) && (gs_EqnCB.Report() & ESR_Errors))); break;
       }
 
     if (DoRpt)
@@ -4348,7 +4348,7 @@ double FlwSlvBlk::TestBalance(const EqnSlvCtrlBlk & TCtrl, CNodeEvalIndexList &N
         case  0: Why="Err"; break;
         }
       dbgpln("%-7.7s ----- In  ---------- Out  ---- Error", Why());
-      if (fabs(QtErr)>EqnCB().ReportTol())
+      if (fabs(QtErr)>gs_EqnCB.ReportTol())
         {
         dbgpln("  %14.6g  %14.6g  %9.4f%%  %s.%s",LQtI, LQtO, 100.0*Range(-1.0, QtErr, 1.0), p->FullObjTag(), "Qm Total");
         if (pTBReport)
@@ -4358,7 +4358,7 @@ double FlwSlvBlk::TestBalance(const EqnSlvCtrlBlk & TCtrl, CNodeEvalIndexList &N
           }
         }
 
-      if (fabs(HtErr)>EqnCB().ReportTol())
+      if (fabs(HtErr)>gs_EqnCB.ReportTol())
         {
         dbgpln(" %14.6g  %14.6g  %9.4f%%  %s.%s",LHtI, LHtO, 100.0*Range(-1.0, HtErr, 1.0), p->FullObjTag(), "totEnthalpy");
         if (pTBReport)
@@ -4369,7 +4369,7 @@ double FlwSlvBlk::TestBalance(const EqnSlvCtrlBlk & TCtrl, CNodeEvalIndexList &N
         }
 
       for (s=0; s < SDB.No(); s++)
-        if (fabs(SpErr[s])>EqnCB().ReportTol())
+        if (fabs(SpErr[s])>gs_EqnCB.ReportTol())
           {
           dbgpln(" %14.6g  %14.6g  %9.4f%%  %s.%s",LSpI[s], LSpO[s], 100.0*Range(-1.0, SpErr[s], 1.0), p->FullObjTag(), SDB[s].SymOrTag());
           if (pTBReport)
@@ -4392,12 +4392,12 @@ double FlwSlvBlk::TestBalance(const EqnSlvCtrlBlk & TCtrl, CNodeEvalIndexList &N
     MaxSpErr=Max(MaxSpErr, fabs(SpErr[s]));
     }
 
-  flag DoRpt = (((Max(MaxErr, MaxSpErr)>EqnCB().ReportTol()) && (EqnCB().Report() & ESR_Species)) ||
-                ((MaxErr>EqnCB().ReportTol()) && (EqnCB().Report() & ESR_Errors)));
+  flag DoRpt = (((Max(MaxErr, MaxSpErr)>gs_EqnCB.ReportTol()) && (gs_EqnCB.Report() & ESR_Species)) ||
+                ((MaxErr>gs_EqnCB.ReportTol()) && (gs_EqnCB.Report() & ESR_Errors)));
   if (DoRpt)
     {
     dbgpln("OverAll----- In  ---------- Out  ---- Error");
-    if (fabs(QtErr)>EqnCB().ReportTol())
+    if (fabs(QtErr)>gs_EqnCB.ReportTol())
       {
       dbgpln("  %14.6g  %14.6g  %9.4f%%  %s.%s",GQtI, GQtO, 100.0*Range(-1.0, QtErr, 1.0), FlwSlvNd.FullObjTag(), "Mass Flow");
       if (pTBReport)
@@ -4406,7 +4406,7 @@ double FlwSlvBlk::TestBalance(const EqnSlvCtrlBlk & TCtrl, CNodeEvalIndexList &N
         pTBReport->Append(RptLn());
         }
       }
-    if (fabs(HtErr)>EqnCB().ReportTol())
+    if (fabs(HtErr)>gs_EqnCB.ReportTol())
       {
       dbgpln(" %14.6g  %14.6g  %9.4f%%  %s.%s",GHtI, GHtO, 100.0*Range(-1.0, HtErr, 1.0), FlwSlvNd.FullObjTag(), "totEnthalpy");
       if (pTBReport)
@@ -4417,7 +4417,7 @@ double FlwSlvBlk::TestBalance(const EqnSlvCtrlBlk & TCtrl, CNodeEvalIndexList &N
       }
 
     for (s=0; s < SDB.No(); s++)
-      if (fabs(SpErr[s])>EqnCB().ReportTol())
+      if (fabs(SpErr[s])>gs_EqnCB.ReportTol())
         {
         dbgpln(" %14.6g  %14.6g  %9.4f%%  %s.%s",GSpI[s], GSpO[s], 100.0*Range(-1.0, SpErr[s], 1.0), FlwSlvNd.FullObjTag(), SDB[s].SymOrTag());
         if (pTBReport)
@@ -4847,26 +4847,26 @@ void FlwSlvPB::BuildDataDefn(DataDefnBlk & DDB)
       {0}};
     DDB.Text(" ");
     DDB.Text("Tolerance Defaults");
-    DDB.Double("EPS_Rel",           "", DC_Frac, "%",   &PBEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm );
-    DDB.Double("EPS_Abs",           "", DC_Frac, "%",   &PBEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm );
+    DDB.Double("EPS_Rel",           "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_EPS_Rel,       &FlwSlvNd, isParm );
+    DDB.Double("EPS_Abs",           "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_EPS_Abs,       &FlwSlvNd, isParm );
     DDB.Text("Convergence Defaults");
-    DDB.Long  ("MaxIters",          "", DC_    , "",    &PBEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm );
-    DDB.Short ("CnvgdIters",        "", DC_    , "",    &PBEqnCB().Cfg.iRqdCnvrgdIters,&FlwSlvNd, isParm );
-    DDB.Byte  ("TearMethod",  "Method", DC_    , "",    &PBEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
-    //DDB.Byte  ("TearMethod",  "Method", DC_    , "",    &PBEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */, DDB0);
-    DDB.Byte  ("DampTogether",      "", DC_,     "",    &PBEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
-    DDB.Double("Damping",           "", DC_Frac, "%",   &PBEqnCB().Cfg.m_dDamping,       &FlwSlvNd, isParm );
-    DDB.Double("DampingGrowth",     "", DC_,     "",    &PBEqnCB().Cfg.dDampFctGrowth, &FlwSlvNd, isParm );
-    DDB.Double("DampingDecay",      "", DC_,     "",    &PBEqnCB().Cfg.dDampFctDecay,  &FlwSlvNd, isParm );
-    DDB.Short ("WegsteinDelay",     "", DC_,     "",    &PBEqnCB().Cfg.iWA_Delay,      &FlwSlvNd, isParm );
-    DDB.Double("WegsteinBound",     "", DC_,     "",    &PBEqnCB().Cfg.dWA_Bound,      &FlwSlvNd, isParm );
-    DDB.Double("WegsteinClamp",     "", DC_,     "",    &PBEqnCB().Cfg.dWA_Clamping,   &FlwSlvNd, isParm );
+    DDB.Long  ("MaxIters",          "", DC_    , "",    &gs_EqnCB.Cfg.m_iMaxIters,      &FlwSlvNd, isParm );
+    DDB.Short ("CnvgdIters",        "", DC_    , "",    &gs_EqnCB.Cfg.m_iRqdCnvrgdIters,&FlwSlvNd, isParm );
+    DDB.Byte  ("TearMethod",  "Method", DC_    , "",    &gs_EqnCB.Cfg.m_iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
+    //DDB.Byte  ("TearMethod",  "Method", DC_    , "",    &gs_EqnCB.Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */, DDB0);
+    DDB.Byte  ("DampTogether",      "", DC_,     "",    &gs_EqnCB.Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
+    DDB.Double("Damping",           "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_DampingRqd,       &FlwSlvNd, isParm );
+    DDB.Double("DampingGrowth",     "", DC_,     "",    &gs_EqnCB.Cfg.m_DampFctGrowth, &FlwSlvNd, isParm );
+    DDB.Double("DampingDecay",      "", DC_,     "",    &gs_EqnCB.Cfg.m_DampFctDecay,  &FlwSlvNd, isParm );
+    DDB.Short ("WegsteinDelay",     "", DC_,     "",    &gs_EqnCB.Cfg.m_iWA_Delay,      &FlwSlvNd, isParm );
+    DDB.Double("WegsteinBound",     "", DC_,     "",    &gs_EqnCB.Cfg.m_WA_Bound,      &FlwSlvNd, isParm );
+    DDB.Double("WegsteinClamp",     "", DC_,     "",    &gs_EqnCB.Cfg.m_WA_Clamping,   &FlwSlvNd, isParm );
 
     DDB.Text(" ");
     #if ALLOWMASSSMOOTH
-    DDB.CheckBoxBtn("MassSmoothing","", DC_,     "",    &PBEqnCB().Cfg.fMassSmooth,    &FlwSlvNd, isParm);
+    DDB.CheckBoxBtn("MassSmoothing","", DC_,     "",    &gs_EqnCB.Cfg.fMassSmooth,    &FlwSlvNd, isParm);
     #else
-    DDB.CheckBoxBtn("MassSmoothing","", DC_,     "",    &PBEqnCB().Cfg.fMassSmooth,    &FlwSlvNd, 0 | InitHidden);
+    DDB.CheckBoxBtn("MassSmoothing","", DC_,     "",    &gs_EqnCB.Cfg.m_bMassSmooth,    &FlwSlvNd, 0 | InitHidden);
     #endif
     DDB.CheckBoxBtn("ResultsValid", "", DC_,     "",    xidResultsValid,               &FlwSlvNd, 0/*isParm */);
     DDB.Double("LowQmFracOther",    "", DC_Frac, "%",   &CRqdPressCtrl::m_dLowQmFracNC, &FlwSlvNd, isParm|SetOnChange);
@@ -4893,9 +4893,9 @@ void FlwSlvPB::BuildDataDefn(DataDefnBlk & DDB)
 
     if (dbgtestfileopen())
       {
-      DDB.Long("SlvSequence", "",  DC_ , "",    &CtrlSeq().m_iSequence, &FlwSlvNd, isResult|noFile|noSnap);
-      DDB.Long("SlvCount",    "",  DC_ , "",    &CtrlSeq().m_iCount, &FlwSlvNd, isResult|noFile|noSnap);
-      DDB.Long("SlvVar",      "",  DC_ , "",    &CtrlSeq().m_iVar, &FlwSlvNd, isResult|noFile|noSnap);
+      DDB.Long("SlvSequence", "",  DC_ , "",    &gs_CtrlSeq.m_iSequence, &FlwSlvNd, isResult|noFile|noSnap);
+      DDB.Long("SlvCount",    "",  DC_ , "",    &gs_CtrlSeq.m_iCount, &FlwSlvNd, isResult|noFile|noSnap);
+      DDB.Long("SlvVar",      "",  DC_ , "",    &gs_CtrlSeq.m_iVar, &FlwSlvNd, isResult|noFile|noSnap);
       }
 
     }
@@ -4911,14 +4911,14 @@ void FlwSlvPB::BuildDataDefnOld(DataDefnBlk & DDB)
   if (DDB.BeginStruct(&FlwSlvNd, "PB", NULL, DDB_RqdPage))
     {
     DDB.Text(" ");
-    DDB.Double("EPS_Rel",         "", DC_Frac, "%",   &PBEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm );
-    DDB.Double("EPS_Abs",         "", DC_Frac, "%",   &PBEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm );
-    DDB.Long  ("MaxIters",        "", DC_    , "",    &PBEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm );
-    DDB.Byte  ("DampTogether",    "", DC_    , "",    &PBEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
-    DDB.Double("Damping",         "", DC_Frac, "%",   &PBEqnCB().Cfg.m_dDamping,     &FlwSlvNd, isParm );
-    DDB.Byte  ("Method",          "", DC_    , "",    &PBEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
-    DDB.Bool  ("MassSmoothing",   "", DC_    , "",    &PBEqnCB().Cfg.fMassSmooth,    &FlwSlvNd, isParm);
-    DDB.Bool  ("ResultsValid",    "", DC_    , "",    xidResultsValid,               &FlwSlvNd, 0/*isParm */);
+    DDB.Double("EPS_Rel",         "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_EPS_Rel,        &FlwSlvNd, isParm );
+    DDB.Double("EPS_Abs",         "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_EPS_Abs,        &FlwSlvNd, isParm );
+    DDB.Long  ("MaxIters",        "", DC_    , "",    &gs_EqnCB.Cfg.m_iMaxIters,      &FlwSlvNd, isParm );
+    DDB.Byte  ("DampTogether",    "", DC_    , "",    &gs_EqnCB.Cfg.m_iDampAsGroup,   &FlwSlvNd, isParm, DDBDampAsGroup );
+    DDB.Double("Damping",         "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_DampingRqd,       &FlwSlvNd, isParm );
+    DDB.Byte  ("Method",          "", DC_    , "",    &gs_EqnCB.Cfg.m_iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
+    DDB.Bool  ("MassSmoothing",   "", DC_    , "",    &gs_EqnCB.Cfg.m_bMassSmooth,    &FlwSlvNd, isParm);
+    DDB.Bool  ("ResultsValid",    "", DC_    , "",    xidResultsValid,                &FlwSlvNd, 0/*isParm */);
 
     DDB.Text(" ");
     DDB.Text("Ave Statistics");
@@ -5634,7 +5634,7 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
   if (dbgIters())
     {
     dbgpln("=============================================================================");
-    dbgpln("============================== Iteration: %i ================================",EqnCB().nIters+1);
+    dbgpln("============================== Iteration: %i ================================",gs_EqnCB.nIters+1);
     dbgpln("=============================================================================");
     }
 #endif
@@ -5867,21 +5867,21 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
 
   // Test TearFlanges Converged
   Strng_List BadTearTags, BadTearInfo;
-  EqnCB().SetConverged(EqnCB().NBadLimit()==0);
-  TestTearConvergence(EQCtrl.NIters(), EqnCB(), BadTearTags, BadTearInfo);
-  CtrlSeq().TestConverged(EqnCB());
-  CtrlSeq().StepSequencer();
+  gs_EqnCB.SetConverged(gs_EqnCB.NBadLimit()==0);
+  TestTearConvergence(EQCtrl.NIters(), gs_EqnCB, BadTearTags, BadTearInfo);
+  gs_CtrlSeq.TestConverged(gs_EqnCB);
+  gs_CtrlSeq.StepSequencer();
 
 #if DoLapTime
   dbgpln("Lap TestTear-------------------------------- %10.3f", SW.Lap()*1000);
 #endif
 
-  flag Done=EqnCB().Converged();
+  flag Done=gs_EqnCB.Converged();
   gs_Exec.XGlblResultValidity(Done);
 
 #if DOPBSMOOTHING
   if (fDoMassSmoothing)
-    SolvePBSmoothingEvaluate(EqnCB());
+    SolvePBSmoothingEvaluate(gs_EqnCB);
 #endif
 
 #if DoLapTime
@@ -5889,7 +5889,7 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
 #endif
 
   #if (dbgFlwSolve)
-  if (dbgShowFlows() && EqnCB().NIters()==0)
+  if (dbgShowFlows() && gs_EqnCB.NIters()==0)
     ShowFlows(ProcTOSequence, "End Of Step");
   #endif
 
@@ -5982,7 +5982,7 @@ int FlwSlvPB::TermSolution(const EqnSlvCtrlBlk & EQCtrl)
 
 int FlwSlvPB::GetSolutionError(const EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)
   {
-  if (EqnCB().Report()!=0)
+  if (gs_EqnCB.Report()!=0)
     {
     if (ProcTOSequence.GetCount()>0)
       {
@@ -6888,14 +6888,14 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("KFactMult",         "", DC_Frac,  "",    &gs_PressDropKFactMult, &FlwSlvNd, isParm);
 
     DDB.Page  ("Tears", DDB_RqdPage);
-    //DDB.Double("Tear_EPS_Rel",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm);
-    //DDB.Double("Tear_EPS_Abs",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm);
+    //DDB.Double("Tear_EPS_Rel",      "", DC_Frac,  "%",   &gs_EqnCB.Cfg.dEps_Rel,       &FlwSlvNd, isParm);
+    //DDB.Double("Tear_EPS_Abs",      "", DC_Frac,  "%",   &gs_EqnCB.Cfg.dEps_Abs,       &FlwSlvNd, isParm);
     if (DDB.ForFiling() && DDB.DoingPutData())
       {
-      DDB.Long  ("Tear_MaxIters",     "", DC_,      "",    &DynEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm);
-      DDB.Double("Tear_Damping",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.m_dDamping,       &FlwSlvNd, isParm);
-      DDB.Byte  ("Tear_Method",       "", DC_,      "",    &DynEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
-      //DDB.Bool  ("Tear_DampAsGroup",  "", DC_Frac,  "%",   &DynEqnCB().Cfg.m_dDamping,       &FlwSlvNd, isParm);
+      DDB.Long  ("Tear_MaxIters",     "", DC_,      "",    &gs_EqnCB.Cfg.m_iMaxIters,      &FlwSlvNd, isParm);
+      DDB.Double("Tear_Damping",      "", DC_Frac,  "%",   &gs_EqnCB.Cfg.m_DampingRqd,       &FlwSlvNd, isParm);
+      DDB.Byte  ("Tear_Method",       "", DC_,      "",    &gs_EqnCB.Cfg.m_iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
+      //DDB.Bool  ("Tear_DampAsGroup",  "", DC_Frac,  "%",   &gs_EqnCB.Cfg.m_DampingRqd,       &FlwSlvNd, isParm);
       }
 
     static DDBValueLst DDBTM[] =
@@ -6909,20 +6909,20 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
 
     DDB.Text(" ");
     DDB.Text("Tolerance Defaults");
-    DDB.Double("Tear.EPS_Rel",           "", DC_Frac, "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm );
-    DDB.Double("Tear.EPS_Abs",           "", DC_Frac, "%",   &DynEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm );
+    DDB.Double("Tear.EPS_Rel",           "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_EPS_Rel,       &FlwSlvNd, isParm );
+    DDB.Double("Tear.EPS_Abs",           "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_EPS_Abs,       &FlwSlvNd, isParm );
     DDB.Text(" ");
     DDB.Text("Convergence Defaults");
-    DDB.Long  ("Tear.MaxIters",          "", DC_    , "",    &DynEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm );
-    //DDB.Short ("Tear.CnvgdIters",        "", DC_    , "",    &DynEqnCB().Cfg.iRqdCnvrgdIters,&FlwSlvNd, isParm );
-    DDB.Byte  ("Tear.Method",            "", DC_    , "",    &DynEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, isParm, DDBTM);
-    DDB.Byte  ("Tear.DampAsGroup",       "", DC_,     "",    &DynEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
-    DDB.Double("Tear.Damping",           "", DC_Frac, "%",   &DynEqnCB().Cfg.m_dDamping,     &FlwSlvNd, isParm );
-    DDB.Double("Tear.DampingGrowth",     "", DC_,     "",    &DynEqnCB().Cfg.dDampFctGrowth, &FlwSlvNd, isParm );
-    DDB.Double("Tear.DampingDecay",      "", DC_,     "",    &DynEqnCB().Cfg.dDampFctDecay,  &FlwSlvNd, isParm );
-    DDB.Short ("Tear.WegsteinDelay",     "", DC_,     "",    &DynEqnCB().Cfg.iWA_Delay,      &FlwSlvNd, isParm );
-    DDB.Double("Tear.WegsteinBound",     "", DC_,     "",    &DynEqnCB().Cfg.dWA_Bound,      &FlwSlvNd, isParm );
-    DDB.Double("Tear.WegsteinClamp",     "", DC_,     "",    &DynEqnCB().Cfg.dWA_Clamping,   &FlwSlvNd, isParm );
+    DDB.Long  ("Tear.MaxIters",          "", DC_    , "",    &gs_EqnCB.Cfg.m_iMaxIters,      &FlwSlvNd, isParm );
+    //DDB.Short ("Tear.CnvgdIters",        "", DC_    , "",    &gs_EqnCB.Cfg.iRqdCnvrgdIters,&FlwSlvNd, isParm );
+    DDB.Byte  ("Tear.Method",            "", DC_    , "",    &gs_EqnCB.Cfg.m_iConvergeMeth,  &FlwSlvNd, isParm, DDBTM);
+    DDB.Byte  ("Tear.DampAsGroup",       "", DC_,     "",    &gs_EqnCB.Cfg.m_iDampAsGroup,   &FlwSlvNd, isParm, DDBDampAsGroup );
+    DDB.Double("Tear.Damping",           "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_DampingRqd,       &FlwSlvNd, isParm );
+    DDB.Double("Tear.DampingGrowth",     "", DC_,     "",    &gs_EqnCB.Cfg.m_DampFctGrowth,  &FlwSlvNd, isParm );
+    DDB.Double("Tear.DampingDecay",      "", DC_,     "",    &gs_EqnCB.Cfg.m_DampFctDecay,   &FlwSlvNd, isParm );
+    DDB.Short ("Tear.WegsteinDelay",     "", DC_,     "",    &gs_EqnCB.Cfg.m_iWA_Delay,      &FlwSlvNd, isParm );
+    DDB.Double("Tear.WegsteinBound",     "", DC_,     "",    &gs_EqnCB.Cfg.m_WA_Bound,       &FlwSlvNd, isParm );
+    DDB.Double("Tear.WegsteinClamp",     "", DC_,     "",    &gs_EqnCB.Cfg.m_WA_Clamping,    &FlwSlvNd, isParm );
 
     DDB.Page  ("SS Monitor", DDB_RqdPage);
     static DDBValueLst DDBSSTests[]={
@@ -7044,12 +7044,12 @@ void FlwSlvDyn::BuildDataDefnOld(DataDefnBlk & DDB)
     DDB.Text  ("");
     DDB.Page("DTears", DDB_RqdPage);
     DDB.Text  ("Tears");
-    DDB.Double("Tear_EPS_Rel",      "", DC_Frac, "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm);
-    DDB.Double("Tear_EPS_Abs",      "", DC_Frac, "%",   &DynEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm);
-    DDB.Long  ("Tear_MaxIters",     "", DC_    , "",    &DynEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm);
-    DDB.Byte  ("Tear_DampAsGroup",  "", DC_    , "",    &DynEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup);
-    DDB.Double("Tear_Damping",      "", DC_Frac, "%",   &DynEqnCB().Cfg.m_dDamping,       &FlwSlvNd, isParm);
-    DDB.Byte  ("Tear_Method",       "", DC_    , "",    &DynEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
+    DDB.Double("Tear_EPS_Rel",      "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_EPS_Rel,       &FlwSlvNd, isParm);
+    DDB.Double("Tear_EPS_Abs",      "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_EPS_Abs,       &FlwSlvNd, isParm);
+    DDB.Long  ("Tear_MaxIters",     "", DC_    , "",    &gs_EqnCB.Cfg.m_iMaxIters,      &FlwSlvNd, isParm);
+    DDB.Byte  ("Tear_DampAsGroup",  "", DC_    , "",    &gs_EqnCB.Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup);
+    DDB.Double("Tear_Damping",      "", DC_Frac, "%",   &gs_EqnCB.Cfg.m_DampingRqd,       &FlwSlvNd, isParm);
+    DDB.Byte  ("Tear_Method",       "", DC_    , "",    &gs_EqnCB.Cfg.m_iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
 
 //    DDB.Page("Statistics", DDB_RqdPage);
 //    DDB.Text("Run Statistics");
@@ -7107,7 +7107,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
         CTimeValue TV;
         if (TV.Parse(DCB.rpC))
           {
-          double NSteps=Max(1.0, TimeCB().m_StepSizeMax.Seconds/GTZ(IntCB.GetTimeIncMxRqd()));
+          double NSteps=Max(1.0, gs_TimeCB.m_StepSizeMax.Seconds/GTZ(IntCB.GetTimeIncMxRqd()));
           gs_Exec.StepSizeMax=TV;
 
           IntCB.SetTimeIncMxRqd(gs_Exec.StepSizeMax/NSteps);
@@ -7119,7 +7119,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
     case xidStepSizeD:
       if (DCB.rD)
         {
-        double NSteps=Max(1.0, TimeCB().m_StepSizeMax.Seconds/GTZ(IntCB.GetTimeIncMxRqd()));
+        double NSteps=Max(1.0, gs_TimeCB.m_StepSizeMax.Seconds/GTZ(IntCB.GetTimeIncMxRqd()));
         gs_Exec.StepSizeMax=Max(0.001, *DCB.rD);
 
         IntCB.SetTimeIncMxRqd(gs_Exec.StepSizeMax/NSteps);
@@ -7143,20 +7143,20 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidStepSizeRqd:
       if (DCB.rD)
-        TimeCB().m_StepSizeMax=Max(0.001, *DCB.rD);
-      DCB.D=TimeCB().m_StepSizeMax;
+        gs_TimeCB.m_StepSizeMax=Max(0.001, *DCB.rD);
+      DCB.D=gs_TimeCB.m_StepSizeMax;
       return 1;
     case xidIterPerStep:
       if (DCB.rL)
         {
-        IntCB.SetTimeIncMxRqd(TimeCB().m_StepSizeMax.Seconds/Max(1L,*DCB.rL));
+        IntCB.SetTimeIncMxRqd(gs_TimeCB.m_StepSizeMax.Seconds/Max(1L,*DCB.rL));
         IntCB.SetTimeInc(IntCB.GetTimeIncMxRqd());
         }
-      DCB.L=(long)(TimeCB().m_StepSizeMax.Seconds/IntCB.GetTimeInc());
+      DCB.L=(long)(gs_TimeCB.m_StepSizeMax.Seconds/IntCB.GetTimeInc());
       return 1;
     case xidODETimeIncMxRqd:
       if (DCB.rD)
-        IntCB.SetTimeIncMxRqd(Min(Max(0.001, *DCB.rD), TimeCB().m_StepSizeMax.Seconds));
+        IntCB.SetTimeIncMxRqd(Min(Max(0.001, *DCB.rD), gs_TimeCB.m_StepSizeMax.Seconds));
       DCB.D=IntCB.GetTimeIncMxRqd();
       return 1;
     case xidODETimeIncMnRqd:
@@ -7215,7 +7215,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       DCB.D=ODE().GetBADShrink();
       return 1;
     case xidODESteps:
-      DCB.L=TimeCB().m_StepCount;//XSW().nStepCnt;
+      DCB.L=gs_TimeCB.m_StepCount;//XSW().nStepCnt;
       return 1;
     case xidODEGoodIters:
       DCB.L=ODE().GetGoodIters();
@@ -8189,10 +8189,10 @@ void FlwSlvDyn::ODEDerivs()
         ShowFlows(ProcTOSequence, "After FindTOSequence");
 #endif
 
-      RestartAllTears(EqnCB());
+      RestartAllTears(gs_EqnCB);
 
       Strng_List BadTearTags, BadTearInfo;
-      const int MaxTearLoop=EqnCB().Cfg.iMaxIters;
+      const int MaxTearLoop=gs_EqnCB.Cfg.m_iMaxIters;
       for (int TearLoop=0; ; )
         {
         #if (dbgFlwSolve)
@@ -8314,8 +8314,8 @@ void FlwSlvDyn::ODEDerivs()
           ShowFlows(ProcTOSequence, "After Eval Products");
         #endif
 
-        EqnCB().SetConverged(EqnCB().NBadLimit()==0);
-        flag TearsConverged=TestTearConvergence(TearLoop, EqnCB(), BadTearTags, BadTearInfo);
+        gs_EqnCB.SetConverged(gs_EqnCB.NBadLimit()==0);
+        flag TearsConverged=TestTearConvergence(TearLoop, gs_EqnCB, BadTearTags, BadTearInfo);
 
         // If they are then we are Done
         if (TearsConverged)
@@ -9238,7 +9238,7 @@ flag FlwSlvDyn::Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
       FlwNets.CheckForErrors();
       SHOWPROGRESS(1, "Execute 7");
       TIMINGLAP("Integrate");
-      TransferAllTears(EqnCB());
+      TransferAllTears(gs_EqnCB);
       SHOWPROGRESS(1, "Execute 8");
       TIMINGLAP("Tears");
       EvalAllDiscrete();
@@ -9250,7 +9250,7 @@ flag FlwSlvDyn::Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
       EvalAllElectrics(true);
       SHOWPROGRESS(1, "Execute C");
       TIMINGLAP("Discrete");
-      CtrlSeq().StepSequencer();
+      gs_CtrlSeq.StepSequencer();
       SHOWPROGRESS(1, "Execute D");
       }
     else
@@ -9262,7 +9262,7 @@ flag FlwSlvDyn::Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
       EvalAllPowerRequired();
       EvalAllElectrics(true);
       TIMINGLAP("Discrete");
-      CtrlSeq().StepSequencer();
+      gs_CtrlSeq.StepSequencer();
       IntCB.SetTimeInc(dTMem);
       }
 
@@ -9743,8 +9743,8 @@ CFlwSolver::~CFlwSolver()
   XDataClear();
 
   UnDoGlobalLinks();
-  EqnSlv().DisConnectAllTears();
-  EqnSlv().RemoveAllTears();
+  gs_EqnSlv.DisConnectAllTears();
+  gs_EqnSlv.RemoveAllTears();
 
   //TargetTags.Term();
   gs_PwrSupplies.Terminate();
@@ -10201,8 +10201,8 @@ flag CFlwSolver::Term()
   XDataClear();
 
   UnDoGlobalLinks();
-  EqnSlv().DisConnectAllTears();
-  EqnSlv().RemoveAllTears();
+  gs_EqnSlv.DisConnectAllTears();
+  gs_EqnSlv.RemoveAllTears();
 
   //TargetTags.Term();
   gs_PwrSupplies.Terminate();
@@ -11159,8 +11159,8 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
       };
       return 1;
 
-    case xidXSWSteps        : DCB.L=TimeCB().m_StepCount; return 1;//XSW().nStepCnt; return 1;
-    case xidSolveIters      : DCB.L=NetProbalMethod() ? PBEqnCB().NIters() : ODE().GetGoodIters(); return 1;
+    case xidXSWSteps        : DCB.L=gs_TimeCB.m_StepCount; return 1;//XSW().nStepCnt; return 1;
+    case xidSolveIters      : DCB.L=NetProbalMethod() ? gs_EqnCB.NIters() : ODE().GetGoodIters(); return 1;
     case xidSolveItersBad   : DCB.L=NetProbalMethod() ? 0 : ODE().GetBadIters(); return 1;
     case xidXSWSecsStart    : DCB.D=XSW().m_dStartingTime; return 1;
     case xidXSWSecs         : DCB.D=XSW().m_swRun.Secs(); return 1;
@@ -11211,11 +11211,11 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
     case xidSMTotalVirtual    :  {  MEMORYSTATUS MS;  MS.dwLength=sizeof(MS);  GlobalMemoryStatus(&MS); DCB.D=MS.dwTotalVirtual        ;  return 1; }
     case xidSMAvailVirtual    :  {  MEMORYSTATUS MS;  MS.dwLength=sizeof(MS);  GlobalMemoryStatus(&MS); DCB.D=MS.dwAvailVirtual        ;  return 1; }
 
-    case xidSolveUnknowns   : DCB.L=NetProbalMethod() ? PBEqnCB().NUnknowns() : 0; return 1;
-    case xidSolveBadError   : DCB.L=NetProbalMethod() ? PBEqnCB().NBadError() : 0; return 1;
-    case xidSolveBadLimit   : DCB.L=NetProbalMethod() ? PBEqnCB().NBadLimit() : 0; return 1;
-    case xidSolveWorstErr   : DCB.D=NetProbalMethod() ? PBEqnCB().TheWorstErr() : 0.0; return 1;
-    //case xidSolveWorstErr   : DCB.D=NetProbalMethod() ? Max(PBEqnCB().WorstOtherErr(), PBEqnCB().WorstErr()) : 0.0; return 1;//(PBEqnCB().Converged() ? PBEqnCB().WorstOtherErr() : PBEqnCB().WorstErr()) : 0.0; return 1;
+    case xidSolveUnknowns   : DCB.L=NetProbalMethod() ? gs_EqnCB.NUnknowns() : 0; return 1;
+    case xidSolveBadError   : DCB.L=NetProbalMethod() ? gs_EqnCB.NBadError() : 0; return 1;
+    case xidSolveBadLimit   : DCB.L=NetProbalMethod() ? gs_EqnCB.NBadLimit() : 0; return 1;
+    case xidSolveWorstErr   : DCB.D=NetProbalMethod() ? gs_EqnCB.TheWorstErr() : 0.0; return 1;
+    //case xidSolveWorstErr   : DCB.D=NetProbalMethod() ? Max(gs_EqnCB.WorstOtherErr(), gs_EqnCB.WorstErr()) : 0.0; return 1;//(gs_EqnCB.Converged() ? gs_EqnCB.WorstOtherErr() : gs_EqnCB.WorstErr()) : 0.0; return 1;
 
     case xidSolveNets       : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumNets():       0; return 1;
     case xidSolveSubNets    : DCB.L=NetDynamicMethod() ? Dyn.FlwNets.GetNumSubNets(-1):  0; return 1;
@@ -11631,8 +11631,8 @@ DeleteIt:
 
     SHOWPROGRESS(1, "DoGlobalLinks 3");
 
-    EqnSlv().ConnectAllTears(false);
-    EqnSlv().RemoveUnusedTears();
+    gs_EqnSlv.ConnectAllTears(false);
+    gs_EqnSlv.RemoveUnusedTears();
 
     SHOWPROGRESS(1, "DoGlobalLinks 4");
 
@@ -11763,7 +11763,7 @@ void CFlwSolver::UnDoGlobalLinks()
   STARTPROGRESS;
   SHOWPROGRESS(10, "UnDoGlobalLinks 1");
 
-  EqnSlv().DisConnectAllTears();
+  gs_EqnSlv.DisConnectAllTears();
 
   PB.DeleteMacroMdls();
 
@@ -13721,7 +13721,7 @@ flag CFlwSolver::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeVal
   if (gs_Exec.SolvingPB())
     {
     dTimeRqd=CTimeValue(1.0); // ProBal Mode always steps 1 Sec at a time.
-    TimeCB().m_StepSizeMax=CTimeValue(1.0);
+    gs_TimeCB.m_StepSizeMax=CTimeValue(1.0);
     }
   else
     {
@@ -13920,7 +13920,7 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
       {
       OK=(PB.InitSolution(CB.m_EqnCB, AllNds)==0);
       SHOWPROGRESS(1, "EO_GotoRunEnd 4.1p");
-      CtrlSeq().Initialise();
+      gs_CtrlSeq.Initialise();
       SHOWPROGRESS(1, "EO_GotoRunEnd 4.2p");
       DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
       SHOWPROGRESS(1, "EO_GotoRunEnd 4.3p");
@@ -13931,7 +13931,7 @@ flag CFlwSolver::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
       {
       OK=(Dyn.Start(CB, AllNds)==0);
       SHOWPROGRESS(1, "EO_GotoRunEnd 4.1d");
-      CtrlSeq().Initialise();
+      gs_CtrlSeq.Initialise();
       SHOWPROGRESS(1, "EO_GotoRunEnd 4.2d");
       DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
       SHOWPROGRESS(1, "EO_GotoRunEnd 4.3d");
@@ -14112,7 +14112,7 @@ flag CFlwSolver::EO_Start(CXM_TimeControl &CB)
       {
       OK=(PB.InitSolution(CB.m_EqnCB, AllNds)==0);
       SHOWPROGRESS(1, "EO_Start 4.1p");
-      CtrlSeq().Initialise();
+      gs_CtrlSeq.Initialise();
       SHOWPROGRESS(1, "EO_Start 4.2p");
       DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
       SHOWPROGRESS(1, "EO_Start 4.3p");
@@ -14123,7 +14123,7 @@ flag CFlwSolver::EO_Start(CXM_TimeControl &CB)
       {
       OK=(Dyn.Start(CB, AllNds)==0);
       SHOWPROGRESS(1, "EO_Start 4.1d");
-      CtrlSeq().Initialise();
+      gs_CtrlSeq.Initialise();
       SHOWPROGRESS(1, "EO_Start 4.2d");
       DoTraceChanges(TCO_DoInitialise | TCO_DoCalcs | TCO_DoCollect | TCO_DoSort);
       SHOWPROGRESS(1, "EO_Start 4.3d");
@@ -14743,7 +14743,7 @@ flag CFlwSolver::EO_EndPause(CXM_TimeControl &CB)
 
 flag CFlwSolver::EO_BeginSave(FilingControlBlock &FCB)
   {
-  EqnSlv().FindAllTearsInUse();
+  gs_EqnSlv.FindAllTearsInUse();
 
   UnDoGlobalLinks();
   if (fGlblLinksDone)
@@ -15106,7 +15106,7 @@ flag CFlwSolver::EO_BeginLoad(FilingControlBlock &FCB)
 
   m_bMustCreateObjsFromFile = (FCB.Type()==TOF_DBase) || !GlobalLinksBusy();
   if (m_bMustCreateObjsFromFile)
-    EqnSlv().RemoveAllTears();
+    gs_EqnSlv.RemoveAllTears();
   return true;
   };
 

@@ -617,10 +617,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\EQNSOLVE.CPP"
-				>
-			</File>
-			<File
 				RelativePath=".\ErrorLog.CPP"
 				>
 			</File>
@@ -718,10 +714,6 @@
 			</File>
 			<File
 				RelativePath=".\ScdTempl.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SIGFLW.CPP"
 				>
 			</File>
 			<File
@@ -866,10 +858,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\eqnsolve.h"
-				>
-			</File>
-			<File
 				RelativePath=".\ErrCodes.h"
 				>
 			</File>
@@ -999,10 +987,6 @@
 			</File>
 			<File
 				RelativePath=".\ScdVerLic.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SigFlw.h"
 				>
 			</File>
 			<File

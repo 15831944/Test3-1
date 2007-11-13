@@ -212,6 +212,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.Separ1", "Common\Models\
 	ProjectSection(ProjectDependencies) = postProject
 		{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6} = {8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}
 		{1E44FC34-651B-4C29-A53D-512FD627BCB2} = {1E44FC34-651B-4C29-A53D-512FD627BCB2}
+		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838} = {FAF21E45-D5A0-4812-8A6B-3373C1CFC838}
+		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.Separ2", "Common\Models\SEPAR2\Separ2.8.vcproj", "{65F62E39-B3CA-44AF-AF0E-F12CEC4DC7F7}"
@@ -220,6 +222,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.Separ2", "Common\Models\
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838} = {FAF21E45-D5A0-4812-8A6B-3373C1CFC838}
+		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
 		{1E44FC34-651B-4C29-A53D-512FD627BCB2} = {1E44FC34-651B-4C29-A53D-512FD627BCB2}
 		{8C5BFF90-6FED-4C82-9495-1FCF8802F52A} = {8C5BFF90-6FED-4C82-9495-1FCF8802F52A}
 		{975D5DE6-4EC0-4E5D-BA55-766F0C145811} = {975D5DE6-4EC0-4E5D-BA55-766F0C145811}
@@ -619,17 +623,29 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.TTechQAL", "SMDK\TransCr
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838} = {FAF21E45-D5A0-4812-8A6B-3373C1CFC838}
+		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.TTechCAR", "SMDK\TransCritical\TTechCAR\TTechCAR.8.vcproj", "{C649A10B-BAEA-4F22-A7B2-01F604D3D665}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838} = {FAF21E45-D5A0-4812-8A6B-3373C1CFC838}
+		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.TTechWOR", "SMDK\TransCritical\TTechWOR\TTechWor.8.vcproj", "{D81AC8C5-0B59-4F2B-8266-537A007B0343}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838} = {FAF21E45-D5A0-4812-8A6B-3373C1CFC838}
+		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
 	EndProjectSection
 EndProject
 Global
@@ -2467,7 +2483,6 @@ Global
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -2530,7 +2545,6 @@ Global
 		{F58B26A7-5D2C-4530-95F1-8832202158BC}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{F58B26A7-5D2C-4530-95F1-8832202158BC}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{F58B26A7-5D2C-4530-95F1-8832202158BC}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{F58B26A7-5D2C-4530-95F1-8832202158BC}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{F58B26A7-5D2C-4530-95F1-8832202158BC}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{F58B26A7-5D2C-4530-95F1-8832202158BC}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{F58B26A7-5D2C-4530-95F1-8832202158BC}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -2593,7 +2607,6 @@ Global
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4779,7 +4792,6 @@ Global
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4849,7 +4861,6 @@ Global
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4919,7 +4930,6 @@ Global
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32

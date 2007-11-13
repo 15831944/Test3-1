@@ -2320,12 +2320,12 @@ int SQSzDist1TagObjClass::DefineTearVariables(TearVarArray & TV, int n)
       int s=D.SzId(id,0);
       for (int i=0; i<D.NIntervals(); i++)
         {
-        TV[n].Tag.Set("D%i.I%i.%s", d, i, SDB[s].Tag());
-        TV[n].Sym.Set("D%i.I%i.%s", d, i, SDB[s].SymOrTag());
-        TV[n].AdvCnv=&FCnv;
-        TV[n].AdvFmt=&FFmt;
-        TV[n].MeasCnv=&FCnv;
-        TV[n].MeasFmt=&FFmt;
+        TV[n].m_Tag.Set("D%i.I%i.%s", d, i, SDB[s].Tag());
+        TV[n].m_Sym.Set("D%i.I%i.%s", d, i, SDB[s].SymOrTag());
+        TV[n].m_pDiffCnv=&FCnv;
+        TV[n].m_pDiffFmt=&FFmt;
+        TV[n].m_pMeasCnv=&FCnv;
+        TV[n].m_pMeasFmt=&FFmt;
         n++;
         N++;
         }
@@ -2355,10 +2355,10 @@ void SQSzDist1::TearGetInputs(TearVarArray & TV, int n)
         flag MFOK=MF>1.0e-8;
         for (int i=0; i<D.NIntervals(); i++)
           {
-          TV[n].Y[0]=D.PriSp[id]->FracPass[i];
+          TV[n].m_Y[0]=D.PriSp[id]->FracPass[i];
 //          DoBreak();
           TV[n].m_bTestIsValid=MFOK;
-          TV[n].m_bHoldOutput=false;//!MFOK;
+          //TV[n].m_bHoldOutput=false;//!MFOK;
           n++;
           }
         }
@@ -2375,7 +2375,7 @@ void SQSzDist1::TearGetOutputs(TearVarArray & TV, int n)
       CSD_Distribution &D=Dist(d);
       for (int id=0; id<D.NPriIds(); id++)
         for (int i=0; i<D.NIntervals(); i++)
-          TV[n++].X[0]=D.PriSp[id]->FracPass[i];
+          TV[n++].m_X[0]=D.PriSp[id]->FracPass[i];
       }
   };
 
@@ -2390,7 +2390,7 @@ void SQSzDist1::TearSetOutputs(TearVarArray & TV, int n)
       for (int id=0; id<D.NPriIds(); id++)
         {
         for (int i=0; i<D.NIntervals(); i++)
-          D.PriSp[id]->FracPass[i]=TV[n++].X[0];
+          D.PriSp[id]->FracPass[i]=TV[n++].m_X[0];
           //if (!TV[n].bHoldOutput)
           //  {
           //  D.PriSp[id]->FracPass[i]=TV[n].X[0];

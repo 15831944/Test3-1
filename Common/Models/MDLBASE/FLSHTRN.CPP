@@ -270,20 +270,20 @@ FlshTrnTearVarBlk::~FlshTrnTearVarBlk()
 
 void FlshTrnTearVarBlk::DoConstruct()
   {
-  PCnv.Set(DC_P, "kPa");
-  PFmt.Set("", 0, 2, 'f');
+  m_PCnv.Set(DC_P, "kPa");
+  m_PFmt.Set("", 0, 2, 'f');
   sGroupTag="FlashTrain";
   iTearTagTyp=TTT_FlashTrain;
 //  if (1) // (!MassSmoothing())
 //    {
   SetNVariables(1, TVU_Inputs|TVU_Outputs|TVU_Meas|TVU_AdvanceVars|TVU_TestVars);//, TVT_Tear);
   int n=0;
-  TV[n].Tag.Set("RequiredP");
-  TV[n].Sym.Set("RqdP");
-  TV[n].AdvCnv=&PCnv;
-  TV[n].AdvFmt=&PFmt;
-  TV[n].MeasCnv=&PCnv;
-  TV[n].MeasFmt=&PFmt;
+  TV[n].m_Tag.Set("RequiredP");
+  TV[n].m_Sym.Set("RqdP");
+  TV[n].m_pDiffCnv=&m_PCnv;
+  TV[n].m_pDiffFmt=&m_PFmt;
+  TV[n].m_pMeasCnv=&m_PCnv;
+  TV[n].m_pMeasFmt=&m_PFmt;
 //    }
 //  else
 //    SetNVariables(0, TVT_Tear);
@@ -296,7 +296,7 @@ void FlshTrnTearVarBlk::OnEditConstruct()
   ObjectAttribute *pAttr=ObjAttributes.FindObject("FlshTrnTearEdt");
   if (pAttr)
     {
-    pAttr->FieldFmtCnvs("RequiredP", PFmt, PCnv);
+    pAttr->FieldFmtCnvs("RequiredP", m_PFmt, m_PCnv);
     //pAttr->FieldRange("RequiredP", dXDispMin, dXDispMax);
     }
   };
@@ -308,8 +308,8 @@ void FlshTrnTearVarBlk::OnEditDestroy()
   ObjectAttribute *pAttr=ObjAttributes.FindObject("FlshTrnTearEdt");
   if (pAttr)
     {
-    pAttr->SetFieldFmt("RequiredP", PFmt);
-    pAttr->SetFieldCnvs("RequiredP", PCnv);
+    pAttr->SetFieldFmt("RequiredP", m_PFmt);
+    pAttr->SetFieldCnvs("RequiredP", m_PCnv);
     //pAttr->SetFieldMin("RequiredP", dXDispMin);
     //pAttr->SetFieldMax("RequiredP", dXDispMax);
     }
@@ -868,7 +868,7 @@ char * CMMFlashTrain::TearGetTag()
 void CMMFlashTrain::TearGetInputs(TearVarArray & TV) 
   { 
   if (!MassSmoothing())
-    TV[0].Y[0]=Flsh[0]->m_dPRqdCalc;
+    TV[0].m_Y[0]=Flsh[0]->m_dPRqdCalc;
   };
 
 //--------------------------------------------------------------------------
@@ -876,7 +876,7 @@ void CMMFlashTrain::TearGetInputs(TearVarArray & TV)
 void CMMFlashTrain::TearGetOutputs(TearVarArray & TV) 
   { 
   if (!MassSmoothing())
-    TV[0].X[0]=Flsh[0]->m_dPRqd;
+    TV[0].m_X[0]=Flsh[0]->m_dPRqd;
   };
 
 //--------------------------------------------------------------------------
@@ -885,7 +885,7 @@ void CMMFlashTrain::TearSetOutputs(TearVarArray & TV)
   { 
   if (!MassSmoothing())
     for (int i=0; i<Flsh.GetSize(); i++)
-      Flsh[i]->m_dPRqd=TV[0].X[0];
+      Flsh[i]->m_dPRqd=TV[0].m_X[0];
   };
 
 //==========================================================================

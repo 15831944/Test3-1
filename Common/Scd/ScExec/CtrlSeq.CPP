@@ -1293,8 +1293,8 @@ flag CtrlSequencer::TestConverged(EqnSlvCtrlBlk & EqnCB)
 
     EqnCB.BumpNUnknowns();
     double Err=0.0;
-    double RelTol=Valid(pT->EPSRel()) ? pT->EPSRel() : EqnCB.Cfg.dEps_Rel;
-    double AbsTol=Valid(pT->EPSAbs()) ? pT->EPSAbs() : EqnCB.Cfg.dEps_Abs;
+    double RelTol=Valid(pT->EPSRel()) ? pT->EPSRel() : EqnCB.Cfg.m_EPS_Rel;
+    double AbsTol=Valid(pT->EPSAbs()) ? pT->EPSAbs() : EqnCB.Cfg.m_EPS_Abs;
     //if (!ConvergedVV(pT->SetPoint(), pT->Measure(), AbsTol, RelTol, Err))
     if (!Finite(pT->SetPoint()) || !Finite(pT->Measure()) || !ConvergedVV(pT->SetPoint(), pT->Measure(), AbsTol, RelTol, Err))
       {

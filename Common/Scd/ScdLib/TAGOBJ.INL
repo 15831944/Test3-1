@@ -2546,7 +2546,7 @@ INLINE void DataDefnBlk::String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTx
     lHandle = 0;
     lHandle2 = 0;
     pThis   = This ? This : Nest[lCallLevel].pThis;
-    iFlags  = Flags;
+    //iFlags  = Flags;
     pValueLst    = ValueLst;
     pValueLstMem = NULL;
     CHKSTUFF1(this);
@@ -2580,7 +2580,7 @@ INLINE void DataDefnBlk::String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTx
     lHandle = 0;
     lHandle2 = 0;
     pThis   = This ? This : Nest[lCallLevel].pThis;
-    iFlags  = Flags;
+    //iFlags  = Flags;
     pValueLst    = ValueLstMem->List();
     pValueLstMem = ValueLstMem;
     CHKSTUFF1(this);
@@ -2614,7 +2614,7 @@ INLINE void DataDefnBlk::String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTx
     lHandle = Handle;
     lHandle2 = 0;
     pThis   = This ? This : Nest[lCallLevel].pThis;
-    iFlags  = Flags;
+    //iFlags  = Flags;
     pValueLst    = ValueLst;
     pValueLstMem = NULL;
     CHKSTUFF1(this);
@@ -2648,7 +2648,7 @@ INLINE void DataDefnBlk::String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTx
     lHandle = Handle;
     lHandle2 = 0;
     pThis   = This ? This : Nest[lCallLevel].pThis;
-    iFlags  = Flags;
+    //iFlags  = Flags;
     pValueLst    = ValueLstMem->List();
     pValueLstMem = ValueLstMem;
     CHKSTUFF1(this);
@@ -2682,7 +2682,7 @@ INLINE void DataDefnBlk::String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTx
     lHandle = Handle;
     lHandle2 = Handle2;
     pThis   = This ? This : Nest[lCallLevel].pThis;
-    iFlags  = Flags;
+    //iFlags  = Flags;
     pValueLst    = ValueLst;
     pValueLstMem = NULL;
     CHKSTUFF1(this);
@@ -2716,7 +2716,7 @@ INLINE void DataDefnBlk::String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTx
     lHandle = Handle;
     lHandle2 = Handle2;
     pThis   = This ? This : Nest[lCallLevel].pThis;
-    iFlags  = Flags;
+    //iFlags  = Flags;
     pValueLst    = ValueLstMem->List();
     pValueLstMem = ValueLstMem;
     CHKSTUFF1(this);

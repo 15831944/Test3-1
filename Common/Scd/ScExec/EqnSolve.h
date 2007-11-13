@@ -14,10 +14,11 @@
 #include "scdarray.h"
 #include "tagobj.h"
 #include "dataattr.h"
+//#include "executiv.h"
 
 #ifdef __EQNSOLVE_CPP
   #define DllImportExport DllExport
-#elif !defined(SCDLIB)
+#elif !defined(SCEXEC)
   #define DllImportExport DllImport
 #else
   #define DllImportExport
@@ -106,7 +107,9 @@ class DllImportExport TearVar
     TearVar();
 
     int            TearMethod();
+    LPSTR          TearMethodStr();
     bool           HoldOutput(); 
+    LPSTR          HoldOutputStr(); 
   public:
     // Common
     TearVarBlk   * m_pBlk;
@@ -167,7 +170,7 @@ class DllImportExport TearPosBlk //: public TaggedObject
     TearPosBlk(byte DefaultTearType);
     virtual        ~TearPosBlk();
 
-    virtual TearVarBlk* CreateVarBlk(char * Tag, pTaggedObject pAttach)=0;
+    virtual TearVarBlk* CreateVarBlk(LPSTR Tag, pTaggedObject pAttach)=0;
 
     void           ConnectTear(flag CreateIfReqd);
     void           DisConnectTear();
@@ -203,7 +206,7 @@ class DllImportExport TearPosBlk //: public TaggedObject
     virtual byte   TearVarType()                                  { return TVT_None; };
     virtual void   TearInitialiseOutputs(double EstimatePortion)  {};
     virtual void   TearInputs2Outputs()                           {};
-    virtual char * TearGetTag()                                   { m_sTearTag=""; return NULL; };
+    virtual LPSTR  TearGetTag()                                   { m_sTearTag=""; return NULL; };
     virtual int    TearGetConvergeInfo(TearVarArray & TV)         { return 0; };
     virtual void   TearGetErrors(TearVarArray & TV)               { };
     virtual void   TearGetInputs(TearVarArray & TV)               { };
@@ -319,9 +322,9 @@ class DllImportExport TearVarBlk : public TaggedObject
 
   public:
     static TearVarBlkList List;
-    static TearVarBlk *Find(char * Tag);
+    static TearVarBlk *Find(LPSTR Tag);
     static TearVarBlk *staticFindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
-    static TearVarBlk *Add(TearPosBlk *Pos, char *Tag);
+    static TearVarBlk *Add(TearPosBlk *Pos, LPSTR Tag);
     static TearVarBlk *Add(TearVarBlk *Blk);
     static void Delete(TearVarBlk *Var);
     static void CleanUp();
@@ -346,41 +349,41 @@ class DllImportExport TearVarBlk : public TaggedObject
     void           SetInUse(int InUse) { m_bInUse=InUse; };
     void           SetActive(int On);
 
-    //byte           ConvergeMethod()             { return m_iTearMethod; };
-    //LPCTSTR        ConvergeMethodStr()          { return ::TearConvergeMethodStr(m_iTearMethod); }
-    //void           SetConvergeMethod(byte i)    { m_iTearMethod=i; };
-    //bool           SetConvergeMethod(LPCTSTR Str)
-    //  {
-    //  int i=::FindTearConvergeMethod(Str);
-    //  if (i>=0)
-    //    {
-    //    m_iTearMethod=i;
-    //    return true;
-    //    }
-    //  return false;
-    //  };
-    //byte           EPSStrategy()                { return m_iEPSStrategy; };
-    //LPCTSTR        EPSStrategyStr()             { return ::EPSStrategyStr(m_iEPSStrategy); };
-    //void           SetEPSStrategy(byte i)       { m_iEPSStrategy=i; };
-    //bool           SetEPSStrategy(LPCTSTR Str)
-    //  {
-    //  int i=::FindEPSStrategy(Str);
-    //  if (i>=0)
-    //    {
-    //    m_iEPSStrategy=i;
-    //    return true;
-    //    }
-    //  return false;
-    //  //for (int i=0; i<TCM_Last; i++)
-    //  //  {
-    //  //  if (_stricmp(Str, EPSStrategyStrings[i])==0)
-    //  //    {
-    //  //    m_iEPSStrategy=i;
-    //  //    return true;
-    //  //    }
-    //  //  }
-    //  //return false;
-    //  };
+    byte           ConvergeMethod()             { return m_iTearMethod; };
+    LPCTSTR        ConvergeMethodStr()          { return ::TearConvergeMethodStr(m_iTearMethod); }
+    void           SetConvergeMethod(byte i)    { m_iTearMethod=i; };
+    bool           SetConvergeMethod(LPCTSTR Str)
+      {
+      int i=::FindTearConvergeMethod(Str);
+      if (i>=0)
+        {
+        m_iTearMethod=i;
+        return true;
+        }
+      return false;
+      };
+    byte           EPSStrategy()                { return m_iEPSStrategy; };
+    LPCTSTR        EPSStrategyStr()             { return ::EPSStrategyStr(m_iEPSStrategy); };
+    void           SetEPSStrategy(byte i)       { m_iEPSStrategy=i; };
+    bool           SetEPSStrategy(LPCTSTR Str)
+      {
+      int i=::FindEPSStrategy(Str);
+      if (i>=0)
+        {
+        m_iEPSStrategy=i;
+        return true;
+        }
+      return false;
+      //for (int i=0; i<TCM_Last; i++)
+      //  {
+      //  if (_stricmp(Str, EPSStrategyStrings[i])==0)
+      //    {
+      //    m_iEPSStrategy=i;
+      //    return true;
+      //    }
+      //  }
+      //return false;
+      };
 
     void           SetNVariables(int Variables, byte Used);
 
@@ -422,7 +425,7 @@ class DllImportExport TearVarBlk : public TaggedObject
 
     void           TearInitialiseOutputs(double EstimatePortion) { pPosBlk->TearInitialiseOutputs(EstimatePortion); };
     void           TearInputs2Outputs()       { pPosBlk->TearInputs2Outputs(); };
-    char *         TearGetTag()               { return pPosBlk->TearGetTag(); };
+    LPSTR         TearGetTag()               { return pPosBlk->TearGetTag(); };
     int            TearGetConvergeInfo()      { return pPosBlk->TearGetConvergeInfo(TV); };
     void           TearGetErrors()            { pPosBlk->TearGetErrors(TV); };
     void           TearGetInputs()            { pPosBlk->TearGetInputs(TV); };
@@ -675,11 +678,11 @@ class DllImportExport EqnSlvCtrlBlk
     void   EndStep();
 
     flag   NoteBadEqnError(double Err, double RelTol);
-    void   CollectBadEqnError(double Err, double Val, double AbsTol, double RelTol, double Damping, char * Tag, byte TearTagTyp);
+    void   CollectBadEqnError(double Err, double Val, double AbsTol, double RelTol, double Damping, LPSTR Tag, byte TearTagTyp);
     flag   NoteBadEqnLimit();
-    void   CollectBadEqnLimit(double Val, char * Tag, byte TearTagTyp);
+    void   CollectBadEqnLimit(double Val, LPSTR Tag, byte TearTagTyp);
     flag   NoteWorstError(double Err, double RelTol);
-    void   CollectWorstError(double Err, double Val, double AbsTol, double RelTol, double Damping, char * Tag, byte TearTagTyp);
+    void   CollectWorstError(double Err, double Val, double AbsTol, double RelTol, double Damping, LPSTR Tag, byte TearTagTyp);
     void   SetCollectWorst(byte C);
 
     long   NIters() const { return nIters; };
@@ -752,10 +755,6 @@ class DllImportExport EqnSolverBlk
   protected:
 
   };
-
-
-inline int     TearVar::TearMethod() { return ::TearConvergeMethod(gs_EqnCB.Cfg.m_iConvergeMethod, m_pBlk->m_iTearMethod, m_iTearMethod); }
-inline bool    TearVar::HoldOutput() { return ::HoldOutput(m_pBlk->m_iHoldOutput, m_iHoldOutput)==THO_On; }
 
 //=========================================================================
 //

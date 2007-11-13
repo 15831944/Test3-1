@@ -239,6 +239,11 @@ void AccNdData::Term()
 void AccNdData::FormatFloat()
   {
   Fmt.FormatFloat(dVal, sValue, fHasNANStr ? &ValLst:NULL);
+  if (iFlags & DDEF_SHOWASDEFAULT)
+    {
+    Strng S("<", sValue(), ">");
+    sValue=S;
+    }
   }
 
 //---------------------------------------------------------------------------
@@ -2337,11 +2342,11 @@ void AccNodeWnd::ConnectFields()
               d.AdjTextValue(NewCnvs.Text(), false);
               }
             }
-		  else if (IsFloatData(f.iType))
-		    {
+          else if (IsFloatData(f.iType))
+            {
             if (d.pObjAttr->FieldFmt(Tag(), d.Fmt))
               d.FormatFloat();
-		    }
+            }
           }
         }
       }
@@ -2613,15 +2618,14 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
       case tt_ColHdr:
         {
         Strng S(f.sTagText());
-        char * pW=S.XStrChr('\t');
-        char * pG=strchr(pW+1,'\t');
-        char * pJ=pG+1;
-        int Wide=pW-S();
-        int Gap=(pG>pW) ? pG-pW-1: 0;
+        char * pGap=S.XStrRChr(',');
+        char Just=S[S.Len()-1];//strrchr(pW+1,',');
+        int Wide=pGap-S();
+        int Gap=atoi(pGap+1);
         S.SetLength(Wide);
         ColHdrs[nColHdrs].m_Width=Wide;
         ColHdrs[nColHdrs].m_Gap=Gap;
-        ColHdrs[nColHdrs].m_Just=(*pJ=='<'?0:*pJ=='>'?2:0);
+        ColHdrs[nColHdrs].m_Just=(Just=='<'?0:Just=='>'?2:1);
         ColHdrs[nColHdrs].m_sTxt=S;
         nColHdrs++;
         break;
@@ -2976,9 +2980,9 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               Strng Sep;
               Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[d.m_iGridCol+1].m_Gap+Max(0, FldW-VWidth));
               if (d.fHasButton)
-                f.ValFld=SetCheckBoxBtn(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+                f.ValFld=SetCheckBoxBtn(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, Sep()?Sep():"", d.fIsParam);
               else
-                f.ValFld=SetCheckBox(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, "", d.fIsParam);
+                f.ValFld=SetCheckBox(LnNo, ValStr(),  Id_FldBtns+fi, VWidth, 0, Sep()?Sep():"", d.fIsParam);
               }
             else
               {
@@ -3038,8 +3042,10 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               }
 
             if (dbgBld)
-              dbgpln("                                              %3i %3i '%s' ", VW, WdtAdj, ValStr());
-
+              {
+              static int xxx=0;
+              dbgpln("                                              %3i %3i %3i '%s' %i", LnNo, VW, WdtAdj, ValStr(), xxx++);
+              }
             if (DoingGrid)
               {
               int FldW = ColHdrs[d.m_iGridCol+1].m_Width;
@@ -3165,7 +3171,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
           if (d.sFullTag())
             SetTag(d.sFullTag(), d.Cnv.Text());
-          if (!DoingGrid && !d.fHasButton || d.fHasCheck || (d.ValLst.Length()>0))
+          if (!DoingGrid && (!d.fHasButton || d.fHasCheck || (d.ValLst.Length()>0)))
             {
             NameBuff.Trim();
             FldDelta[PgNo]=Max(FldDelta[PgNo], (NameBuff.Length()+TagComLen+2)-NamW);
@@ -3421,7 +3427,8 @@ long AccNodeWnd::Parse(FxdEdtInfo &EI, Strng & Str)
       {
       AccNdFld & f=Flds[fi];
       AccNdData & d=f();
-      //char B[256];
+      d.iFlags &= ~DDEF_SHOWASDEFAULT;
+      //char B[256];        
       if (d.fIndexedStr)
         d.sValue=Str;
       else
