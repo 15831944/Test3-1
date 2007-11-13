@@ -10,18 +10,10 @@
   #include <afxtempl.h> // "xafxtempl.h"
 #endif
 
-#ifndef __SC_DEFS_H
-  #include "sc_defs.h"
-#endif
-#ifndef __SCDARRAY_H
-  #include "scdarray.h"
-#endif
-#ifndef __TAGOBJ_H
-  #include "tagobj.h"
-#endif
-#ifndef __DATAATTR_H
-  #include "dataattr.h"
-#endif
+#include "sc_defs.h"
+#include "scdarray.h"
+#include "tagobj.h"
+#include "dataattr.h"
 
 #ifdef __EQNSOLVE_CPP
   #define DllImportExport DllExport
@@ -78,9 +70,10 @@ const byte TIEU_None        = 0;
 const byte TIEU_FullEst     = 1;
 const byte TIEU_PartEst     = 2;
 
-const byte TVBTS_Maximum    = 0;
-const byte TVBTS_Minimum    = 1;
-const byte TVBTS_Priority   = 2;
+const byte TVBTS_Default    = 0;
+const byte TVBTS_Maximum    = 1;
+const byte TVBTS_Minimum    = 2;
+const byte TVBTS_Priority   = 3;
 
 const byte TVT_None         = 0x00;
 const byte TVT_Tear         = 0x01;
@@ -110,36 +103,45 @@ class DllImportExport TearVar
   friend class TearVarBlkEdt;
   friend class EqnSolverBlk;
   public:
+    TearVar();
+
+    int            TearMethod();
+    bool           HoldOutput(); 
+  public:
     // Common
-    Strng          Tag;
-    Strng          Sym;
-    Strng          Name;
+    TearVarBlk   * m_pBlk;
+
+    Strng          m_Tag;
+    Strng          m_Sym;
+    Strng          m_Name;
 
     // Tear advance
     flag           m_bTestIsValid;
-    flag           m_bHoldOutput;
     byte           m_iConvergedCnt;
     double         m_DampingRqd;
     double         m_DampFactor;
     double         m_EstDampFactor;
 
-    double         dYRat;
-    CDArray        X;
-    CDArray        Y;
-    FmtAttribute * AdvFmt;
-    CnvAttribute * AdvCnv;
+    byte           m_iHoldOutput;
+    byte           m_iTearMethod;
+    
+    double         m_YRat;
+    CDArray        m_X;
+    CDArray        m_Y;
 
     // Convergence
-    double         EPS_Abs;
-    double         EPS_Rel;
-    double         CurTol;
+    double         m_EPS_Abs;
+    double         m_EPS_Rel;
+    double         m_CurTol;
     CDArray        m_Error;
     CDArray        m_Meas;
 
-    FmtAttribute * MeasFmt;
-    CnvAttribute * MeasCnv;
+    CnvAttribute * m_pMeasCnv;
+    CnvAttribute * m_pDiffCnv;
 
-    TearVar();
+    FmtAttribute * m_pMeasFmt; //ToGo
+    FmtAttribute * m_pDiffFmt; //ToGo
+
 
   };
 
@@ -234,72 +236,59 @@ class DllImportExport TearPosBlk //: public TaggedObject
 //
 //=========================================================================
 
-const byte TCM_NULL         = 0;
+const byte TCM_Default      = 0;
 const byte TCM_DirectSubs   = 1;
 const byte TCM_AdaptSubs    = 2;
 const byte TCM_Wegstein     = 3;
 const byte TCM_Kalman       = 4;
 const byte TCM_Last         = 5;
-const byte TCM_Default      = TCM_NULL;
 
-const byte DAG_Off          = 0;
-const byte DAG_On           = 1;
-const byte DAG_Default      = 2;
-const byte DAG_Last = 3;
+const byte THO_Default      = 0;
+const byte THO_Off          = 1;
+const byte THO_On           = 2;
 
-extern DllImportExport char * TearMethodStrings[];
+const byte DAG_Default      = 0;
+const byte DAG_Off          = 1;
+const byte DAG_On           = 2;
+
+extern DllImportExport LPSTR TearMethodStrings[];
+extern DllImportExport LPSTR TearMethodDefStrings[];
 extern DllImportExport DDBValueLst DDBTearMethod[];
 extern DllImportExport DDBValueLst DDBTearMethodDef[];
-extern DllImportExport char * EPSStrategyStrings[];
+
+extern DllImportExport LPSTR EPSStrategyStrings[];
+extern DllImportExport LPSTR EPSStrategyDefStrings[];
 extern DllImportExport DDBValueLst DDBEPSStrategy[];
+extern DllImportExport DDBValueLst DDBEPSStrategyDef[];
 
-inline LPCTSTR TearConvergeMethodStr(int i)
-  {
-  return (i>=0 && i<TCM_Last) ? TearMethodStrings[i] : "";
-  };
-inline long FindTearConvergeMethod(LPCTSTR Str)
-  {
-  for (int i=0; i<TCM_Last; i++)
-    {
-    if (_stricmp(Str, TearMethodStrings[i])==0)
-      {
-      return i;
-      }
-    }
-  return -1;
-  };
+extern DllImportExport LPSTR HoldOutputStrings[];
+extern DllImportExport LPSTR HoldOutputDefStrings[];
+extern DllImportExport DDBValueLst DDBHoldOutput[];
+extern DllImportExport DDBValueLst DDBHoldOutputDef[];
 
-extern DllImportExport char * DampAsGroupStrings[];
-extern DllImportExport char * DampAsGroupStringsShort[];
+extern DllImportExport LPSTR DampAsGroupStrings[];
+extern DllImportExport LPSTR DampAsGroupDefStrings[];
+extern DllImportExport LPSTR DampAsGroupStringsShort[];
+extern DllImportExport LPSTR DampAsGroupDefStringsShort[];
 extern DllImportExport DDBValueLst DDBDampAsGroup[];
 extern DllImportExport DDBValueLst DDBDampAsGroupDef[];
 
-inline LPCTSTR DampAsGroupStr(int i)
-  {
-  return (i>=0 && i<TCM_Last) ? DampAsGroupStrings[i] : "";
-  };
-inline LPCTSTR DampAsGroupStrShort(int i)
-  {
-  return (i>=0 && i<TCM_Last) ? DampAsGroupStringsShort[i] : "";
-  };
-inline long FindDampAsGroup(LPCTSTR Str)
-  {
-  for (int i=0; i<DAG_Last; i++)
-    {
-    if (_stricmp(Str, DampAsGroupStrings[i])==0)
-      {
-      return i;
-      }
-    }
-  for (int i=0; i<DAG_Last; i++)
-    {
-    if (_stricmp(Str, DampAsGroupStringsShort[i])==0)
-      {
-      return i;
-      }
-    }
-  return -1;
-  };
+extern DllImportExport  int TearConvergeMethod(int i, int j=-1, int k=-1);
+extern DllImportExport  LPSTR TearConvergeMethodStr(int i, int j=-1, int k=-1);
+extern DllImportExport  int FindTearConvergeMethod(LPCSTR Str);
+
+extern DllImportExport  int HoldOutput(int i, int j=-1, int k=-1);
+extern DllImportExport  LPSTR HoldOutputStr(int i, int j=-1, int k=-1);
+extern DllImportExport  int FindHoldOutput(LPCSTR Str);
+
+extern DllImportExport  int DampAsGroup(int i, int j=-1, int k=-1);
+extern DllImportExport  LPSTR DampAsGroupStr(int i, int j=-1, int k=-1);
+extern DllImportExport  LPSTR DampAsGroupStrShort(int i, int j=-1, int k=-1);
+extern DllImportExport  int FindDampAsGroup(LPCSTR Str);
+
+extern DllImportExport  int EPSStrategy(int i, int j=-1, int k=-1);
+extern DllImportExport  LPSTR EPSStrategyStr(int i, int j=-1, int k=-1);
+extern DllImportExport  int FindEPSStrategy(LPCSTR Str);
 
 //=========================================================================
 //
@@ -324,42 +313,9 @@ class DllImportExport TearVarBlk : public TaggedObject
   friend class TearVarBlkEdt;
 #endif
   friend class EqnSolverBlk;
+  friend class TearVar;
   friend class TearObjectEdt;
   friend class CFlange;
-
-  protected:
-    POSITION ListPos;
-  public:
-
-  protected:
-    byte           bUsedByBlk;
-
-    byte           m_iTearMethod;
-    flag           fInUse;
-    byte           m_iEPSStrategy;
-    byte           m_iDampAsGroup;
-    flag           fGroupBlk;
-
-    TearPosBlk    *pPosBlk;
-    long           nVariables;
-    long           nHistory;
-    double         m_DampingRqd;
-    double         m_EPS_Abs;
-    double         m_EPS_Rel;
-    flag           m_bHoldDamping;
-
-    byte           iTearTagTyp;
-    Strng          sGroupTag;
-    TearVarBlk *   pGroupInfo;
-
-    double         GrpDampFactor;
-    long           m_lStageCnt;
-    //Strng          RootTag;
-
-    TearVarArray   TV;
-
-    long           m_lSeqConvergedCnt;
-    long           m_lConvergeLoopCnt;
 
   public:
     static TearVarBlkList List;
@@ -386,41 +342,45 @@ class DllImportExport TearVarBlk : public TaggedObject
     void           Connect(TearPosBlk *PosBlk);//, flag CreateIfReqd);
     void           DisConnect();
     int            Active() { return TaggedObject::GetActive() && (pPosBlk !=NULL); };
-    int            InUse() { return fInUse; };
-    void           SetInUse(int InUse) { fInUse=InUse; };
+    int            InUse() { return m_bInUse; };
+    void           SetInUse(int InUse) { m_bInUse=InUse; };
     void           SetActive(int On);
 
-    byte           ConvergeMethod() { return m_iTearMethod; };
-    LPCTSTR        ConvergeMethodStr()
-      {
-      return TearConvergeMethodStr(m_iTearMethod);
-      }
-    void           SetConvergeMethod(byte i) { m_iTearMethod=i; };
-    bool           SetConvergeMethod(LPCTSTR Str)
-      {
-      int i=FindTearConvergeMethod(Str);
-      if (i>=0)
-        {
-        m_iTearMethod=i;
-        return true;
-        }
-      return false;
-      };
-    byte           EPSStrategy() { return m_iEPSStrategy; };
-    LPCTSTR        EPSStrategyStr() { return (m_iEPSStrategy>=0 && m_iEPSStrategy<TCM_Last) ? EPSStrategyStrings[m_iEPSStrategy] : ""; };
-    void           SetEPSStrategy(byte i) { m_iEPSStrategy=i; };
-    bool           SetEPSStrategy(LPCTSTR Str)
-      {
-      for (int i=0; i<TCM_Last; i++)
-        {
-        if (_stricmp(Str, EPSStrategyStrings[i])==0)
-          {
-          m_iEPSStrategy=i;
-          return true;
-          }
-        }
-      return false;
-      };
+    //byte           ConvergeMethod()             { return m_iTearMethod; };
+    //LPCTSTR        ConvergeMethodStr()          { return ::TearConvergeMethodStr(m_iTearMethod); }
+    //void           SetConvergeMethod(byte i)    { m_iTearMethod=i; };
+    //bool           SetConvergeMethod(LPCTSTR Str)
+    //  {
+    //  int i=::FindTearConvergeMethod(Str);
+    //  if (i>=0)
+    //    {
+    //    m_iTearMethod=i;
+    //    return true;
+    //    }
+    //  return false;
+    //  };
+    //byte           EPSStrategy()                { return m_iEPSStrategy; };
+    //LPCTSTR        EPSStrategyStr()             { return ::EPSStrategyStr(m_iEPSStrategy); };
+    //void           SetEPSStrategy(byte i)       { m_iEPSStrategy=i; };
+    //bool           SetEPSStrategy(LPCTSTR Str)
+    //  {
+    //  int i=::FindEPSStrategy(Str);
+    //  if (i>=0)
+    //    {
+    //    m_iEPSStrategy=i;
+    //    return true;
+    //    }
+    //  return false;
+    //  //for (int i=0; i<TCM_Last; i++)
+    //  //  {
+    //  //  if (_stricmp(Str, EPSStrategyStrings[i])==0)
+    //  //    {
+    //  //    m_iEPSStrategy=i;
+    //  //    return true;
+    //  //    }
+    //  //  }
+    //  //return false;
+    //  };
 
     void           SetNVariables(int Variables, byte Used);
 
@@ -513,11 +473,58 @@ class DllImportExport TearVarBlk : public TaggedObject
     void           AdvAdaptDirect(EqnSlvCtrlBlk & TCB, double Damping);
     void           Advance(EqnSlvCtrlBlk & TCB);
 
-    Strng &        SymOrTag(int i) { return TV[i].Sym.Length()>0 ? TV[i].Sym : TV[i].Sym; };
+    Strng &        SymOrTag(int i) { return TV[i].m_Sym.Length()>0 ? TV[i].m_Sym : TV[i].m_Sym; };
 
     void           GetGroupGlblTag(Strng & Tag) { Tag.Set("%s_%s", sGroupTag(), "Tear"); };
 
+  protected:
+    POSITION ListPos;
   public:
+
+  protected:
+    byte           bUsedByBlk;
+
+    byte           m_iHoldOutput;
+    byte           m_iTearMethod;
+    flag           m_bInUse;
+    flag           fGroupBlk;
+
+    TearPosBlk    *pPosBlk;
+    long           nVariables;
+    long           nHistory;
+
+    byte           m_iDampAsGroup;
+    double         m_DampingRqd;
+    flag           m_bHoldDamping;
+    double         m_DampFctGrowth;
+    double         m_DampFctDecay;
+
+    byte           m_iEPSStrategy;
+    double         m_EPS_Abs;
+    double         m_EPS_Rel;
+
+    //byte           m_iDampAsGroup;
+    //double         m_DampingRqd;
+    //double         m_DampFctGrowth;
+    //double         m_DampFctDecay;
+
+    //short          m_iWA_Delay;
+    //double         m_WA_Bound;
+    //double         m_WA_Clamping;
+
+    byte           iTearTagTyp;
+    Strng          sGroupTag;
+    TearVarBlk *   pGroupInfo;
+
+    double         m_GrpDampFactor;
+    long           m_lStageCnt;
+    //Strng          RootTag;
+
+    TearVarArray   TV;
+
+    long           m_lSeqConvergedCnt;
+    long           m_lConvergeLoopCnt;
+
   };
 
 //=========================================================================
@@ -598,21 +605,25 @@ class DllImportExport WorstEqn
 class DllImportExport EqnSlvCfgBlk
   {
   public:
-    byte           iConvergeMeth;
-    flag           fMassSmooth;
-    flag           fForceConverged:1,
-                   fIdleWhenDone:1;
-    short          iRqdCnvrgdIters;
-    long           iMaxIters;
-    short          iWA_Delay;
-    double         dEps_Rel;
-    double         dEps_Abs;
-    double         m_dDamping;
-    double         dWA_Bound;
-    double         dWA_Clamping;
-    double         dDampFctGrowth;
-    double         dDampFctDecay;
+    byte           m_iConvergeMeth;
+    flag           m_bMassSmooth;
+    flag           m_bForceConverged:1,
+                   m_bIdleWhenDone:1;
+    short          m_iRqdCnvrgdIters;
+    long           m_iMaxIters;
+
+    byte           m_iEPSStrategy;
+    double         m_EPS_Rel;
+    double         m_EPS_Abs;
+
     byte           m_iDampAsGroup;
+    double         m_DampingRqd;
+    double         m_DampFctGrowth;
+    double         m_DampFctDecay;
+
+    short          m_iWA_Delay;
+    double         m_WA_Bound;
+    double         m_WA_Clamping;
 
     EqnSlvCfgBlk() { InitProBal(); };
 
@@ -741,6 +752,10 @@ class DllImportExport EqnSolverBlk
   protected:
 
   };
+
+
+inline int     TearVar::TearMethod() { return ::TearConvergeMethod(gs_EqnCB.Cfg.m_iConvergeMethod, m_pBlk->m_iTearMethod, m_iTearMethod); }
+inline bool    TearVar::HoldOutput() { return ::HoldOutput(m_pBlk->m_iHoldOutput, m_iHoldOutput)==THO_On; }
 
 //=========================================================================
 //

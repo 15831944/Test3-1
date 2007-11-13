@@ -36,19 +36,22 @@ TearVar::TearVar()
   m_DampingRqd=dNAN;
   m_DampFactor=0.0;
   m_EstDampFactor=0.0;
-  dYRat=0.0;
-  AdvFmt=NULL;
-  AdvCnv=NULL;
+  m_YRat=0.0;
 
-  EPS_Abs=dNAN;
-  EPS_Rel=dNAN;
-  CurTol=0.0;
-  MeasFmt=NULL;
-  MeasCnv=NULL;
+  m_iTearMethod=TCM_Default;
+  m_iHoldOutput=THO_Default;
+
+  m_EPS_Abs=dNAN;
+  m_EPS_Rel=dNAN;
+  m_CurTol=0.0;
 
   m_bTestIsValid=true;
-  m_bHoldOutput=false;
   m_iConvergedCnt=0;
+
+  m_pDiffFmt=NULL;
+  m_pDiffCnv=NULL;
+  m_pMeasFmt=NULL;
+  m_pMeasCnv=NULL;
   }
 
 // ------------------------------------------------------------------------
@@ -336,23 +339,24 @@ void TearVarBlk::CommonConstruct()
   {
   ListPos=NULL;
   m_DampingRqd=dNAN;
-  m_bHoldDamping=false;
-  m_iEPSStrategy=TVBTS_Maximum;
-  m_EPS_Rel=dNAN;
-  m_EPS_Abs=dNAN;
   m_iDampAsGroup=DAG_Default;
-  GrpDampFactor=0.0;
+  m_GrpDampFactor=0.0;
+  m_bHoldDamping=false;
   fGroupBlk=False;
   pGroupInfo=NULL;
   bUsedByBlk=0;
-  m_iTearMethod=TCM_NULL;
+  m_iTearMethod=TCM_Default;
   iTearTagTyp=TTT_Unknown;
+
+  m_iEPSStrategy=TVBTS_Default;
+  m_EPS_Rel=dNAN;
+  m_EPS_Abs=dNAN;
 
   pPosBlk=NULL;
   nVariables=0;
   nHistory=4;
   SetNVariables(0, 0);
-  fInUse=False;
+  m_bInUse=False;
   m_lStageCnt=-2;
   m_lSeqConvergedCnt=0;
   m_lConvergeLoopCnt=0;
@@ -376,11 +380,12 @@ TearVarBlk::~TearVarBlk()
 
 //--------------------------------------------------------------------------
 
-char * TearMethodStrings[]={"Default", "DirectSubs", "AdaptSubs", "Wegstein", /*"Kalman",*/ 0};
+LPSTR TearMethodStrings[]={"<Default>", "DirectSubs", "AdaptSubs", "Wegstein", /*"Kalman",*/ 0};
+LPSTR TearMethodDefStrings[]={"??Default??", "<DirectSubs>", "<AdaptSubs>", "<Wegstein>", /*"Kalman",*/ 0};
 
 DDBValueLst DDBTearMethod[]=
   {
-    //{TCM_NULL      ,  TearMethodStrings[TCM_NULL      ]},
+    //{TCM_Default        ,  TearMethodStrings[TCM_Default        ]},
     {TCM_DirectSubs,  TearMethodStrings[TCM_DirectSubs]},
     {TCM_AdaptSubs ,  TearMethodStrings[TCM_AdaptSubs ]},
     {TCM_Wegstein  ,  TearMethodStrings[TCM_Wegstein  ]},
@@ -389,7 +394,7 @@ DDBValueLst DDBTearMethod[]=
   };
 DDBValueLst DDBTearMethodDef[]=
   {
-    {TCM_NULL      ,  TearMethodStrings[TCM_NULL      ]},
+    {TCM_Default   ,  TearMethodStrings[TCM_Default]},
     {TCM_DirectSubs,  TearMethodStrings[TCM_DirectSubs]},
     {TCM_AdaptSubs ,  TearMethodStrings[TCM_AdaptSubs ]},
     {TCM_Wegstein  ,  TearMethodStrings[TCM_Wegstein  ]},
@@ -397,18 +402,13 @@ DDBValueLst DDBTearMethodDef[]=
     {0}
   };
 
-char * EPSStrategyStrings[]={"Maximum", "Minimum", "Priority", 0};
+//--------------------------------------------------------------------------
 
-DDBValueLst DDBEPSStrategy[]=
-  {
-    {TVBTS_Maximum,  EPSStrategyStrings[TVBTS_Maximum]},
-    {TVBTS_Minimum,  EPSStrategyStrings[TVBTS_Minimum]},
-    {TVBTS_Priority, EPSStrategyStrings[TVBTS_Priority]},
-    {0}
-  };
+LPSTR DampAsGroupStrings[]={"<?>", "-", "Yes", 0};
+LPSTR DampAsGroupDefStrings[]={"<?>", "<->", "<Yes>", 0};
 
-char * DampAsGroupStrings[]={"-", "Yes", "Default", 0};
-char * DampAsGroupStringsShort[]={"-", "Yes", "Def", 0};
+LPSTR DampAsGroupStringsShort[]={"<?>", "-", "Yes", 0};
+LPSTR DampAsGroupDefStringsShort[]={"<?>", "<->", "<Yes>", 0};
 
 DDBValueLst DDBDampAsGroup[]=
   {
@@ -423,6 +423,156 @@ DDBValueLst DDBDampAsGroupDef[]=
     {DAG_On,      DampAsGroupStrings[DAG_On]       },
     {0}
   };
+
+//--------------------------------------------------------------------------
+
+LPSTR TearHoldStrings[]={"<?>", "-", "Yes", 0};
+LPSTR TearHoldDefStrings[]={"<?>", "<->", "<Yes>", 0};
+
+LPSTR TearHoldStringsShort[]={"<?>", "-", "Yes", 0};
+LPSTR TearHoldDefStringsShort[]={"<?>", "<->", "<Yes>", 0};
+
+DDBValueLst DDBTearHold[]=
+  {
+    {DAG_Off,     TearHoldStrings[DAG_Off]      },
+    {DAG_On,      TearHoldStrings[DAG_On]       },
+    {0}
+  };
+DDBValueLst DDBTearHoldDef[]=
+  {
+    {DAG_Default, TearHoldStrings[DAG_Default]  },
+    {DAG_Off,     TearHoldStrings[DAG_Off]      },
+    {DAG_On,      TearHoldStrings[DAG_On]       },
+    {0}
+  };
+
+//--------------------------------------------------------------------------
+
+LPSTR EPSStrategyStrings[]    = {"Def", "Maximum", "Minimum", "Priority", 0};
+LPSTR EPSStrategyDefStrings[] = {"<Default>", "<Maximum>", "<Minimum>", "<Priority>", 0};
+
+DDBValueLst DDBEPSStrategy[]=
+  {
+    {TVBTS_Maximum,  EPSStrategyStrings[TVBTS_Maximum]},
+    {TVBTS_Minimum,  EPSStrategyStrings[TVBTS_Minimum]},
+    {TVBTS_Priority, EPSStrategyStrings[TVBTS_Priority]},
+    {0}
+  };
+
+DDBValueLst DDBEPSStrategyDef[]=
+  {
+    {TVBTS_Default,  EPSStrategyStrings[TVBTS_Default]},
+    {TVBTS_Maximum,  EPSStrategyStrings[TVBTS_Maximum]},
+    {TVBTS_Minimum,  EPSStrategyStrings[TVBTS_Minimum]},
+    {TVBTS_Priority, EPSStrategyStrings[TVBTS_Priority]},
+    {0}
+  };
+
+//--------------------------------------------------------------------------
+
+int TearConvergeMethod(int i, int j, int k)
+  {
+  if (k>TCM_Default) 
+    return k;
+  if (j>TCM_Default) 
+    return j;
+  return i;
+  };
+
+LPSTR TearConvergeMethodStr(int i, int j, int k)
+  {
+  if (k>TCM_Default) 
+    return TearMethodStrings[k];
+  if (j>TCM_Default) 
+    return k<0 ? TearMethodStrings[j] : TearMethodDefStrings[j];
+  return j<0 ? TearMethodStrings[i] : TearMethodDefStrings[i];
+  };
+
+int FindTearConvergeMethod(LPCSTR Str)
+  {
+  for (int i=0; TearMethodStrings[i]!=NULL; i++)
+    {
+    if (_stricmp(Str, TearMethodStrings[i])==0)
+      return i;
+    }
+  return -1;
+  };
+
+//--------------------------------------------------------------------------
+
+int DampAsGroup(int i, int j, int k)
+  {
+  if (k>DAG_Default) 
+    return k;
+  if (j>DAG_Default) 
+    return j;
+  return i;
+  }
+
+LPSTR DampAsGroupStr(int i, int j, int k)
+  {
+  if (k>DAG_Default) 
+    return TearMethodStrings[k];
+  if (j>DAG_Default) 
+    return k<0 ? DampAsGroupStrings[j] : DampAsGroupDefStrings[j];
+  return j<0 ? DampAsGroupStrings[i] : DampAsGroupDefStrings[i];
+  };
+LPSTR DampAsGroupStrShort(int i, int j, int k)
+  {
+  if (k>DAG_Default) 
+    return TearMethodStrings[k];
+  if (j>DAG_Default) 
+    return k<0 ? DampAsGroupStringsShort[j] : DampAsGroupDefStringsShort[j];
+  return j<0 ? DampAsGroupStringsShort[i] : DampAsGroupDefStringsShort[i];
+  };
+int FindDampAsGroup(LPCSTR Str)
+  {
+  for (int i=0; DampAsGroupStrings[i]!=NULL; i++)
+    {
+    if (_stricmp(Str, DampAsGroupStrings[i])==0)
+      return i;
+    }
+  //for (int i=0; i<DAG_Last; i++)
+  //  {
+  //  if (_stricmp(Str, DampAsGroupStringsShort[i])==0)
+  //    {
+  //    return i;
+  //    }
+  //  }
+  return -1;
+  };
+
+//--------------------------------------------------------------------------
+
+int EPSStrategy(int i, int j, int k)
+  {
+  if (k>TVBTS_Default) 
+    return k;
+  if (j>TVBTS_Default) 
+    return j;
+  return i;
+  };
+
+LPSTR EPSStrategyStr(int i, int j, int k)
+  {
+  if (k>TVBTS_Default) 
+    return EPSStrategyStrings[k];
+  if (j>TVBTS_Default) 
+    return k<0 ? EPSStrategyStrings[j] : EPSStrategyDefStrings[j];
+  return j<0 ? EPSStrategyStrings[i] : EPSStrategyDefStrings[i];
+  };
+
+int FindEPSStrategy(LPCSTR Str)
+  {
+  for (int i=0; EPSStrategyStrings[i]!=NULL; i++)
+    {
+    if (_stricmp(Str, EPSStrategyStrings[i])==0)
+      return i;
+    }
+  return -1;
+  };
+
+//--------------------------------------------------------------------------
 
 void TearVarBlk::BuildDataDefn(DataDefnBlk & DDB)
   {
@@ -448,44 +598,44 @@ void TearVarBlk::BuildDataDefn(DataDefnBlk & DDB)
         TearVar & Ti=TV[iVar];
         if (DDB.BeginElement(this, SymOrTag(iVar)()))
           {
-          DDB.String("Tag",             "",   DC_,         "",     &Ti.Tag,               this, noFileAtAll|InitHidden);
-          DDB.String("Sym",             "",   DC_,         "",     &Ti.Sym,               this, noFileAtAll|InitHidden);
-          DDB.String("Name",            "",   DC_,         "",     &Ti.Name,              this, InitHidden);
+          DDB.String("Tag",             "",   DC_,         "",     &Ti.m_Tag,               this, noFileAtAll|InitHidden);
+          DDB.String("Sym",             "",   DC_,         "",     &Ti.m_Sym,               this, noFileAtAll|InitHidden);
+          DDB.String("Name",            "",   DC_,         "",     &Ti.m_Name,              this, InitHidden);
           DDB.Double("DampingRqd",      "",   DC_Frac,     "%",    &Ti.m_DampingRqd,        this, isParm|NAN_OK);
-          DDB.Double("EPS_Abs",         "",   DC_Frac,     "%",    &Ti.EPS_Abs,           this, isParm|NAN_OK);
-          DDB.Double("EPS_Rel",         "",   DC_Frac,     "%",    &Ti.EPS_Rel,           this, isParm|NAN_OK);
+          DDB.Double("EPS_Abs",         "",   DC_Frac,     "%",    &Ti.m_EPS_Abs,           this, isParm|NAN_OK);
+          DDB.Double("EPS_Rel",         "",   DC_Frac,     "%",    &Ti.m_EPS_Rel,           this, isParm|NAN_OK);
           DDB.Double("DampFactor",      "",   DC_,         "",     &Ti.m_DampFactor,        this, isParmConstruct|DDEF_NOCOMPARE);
           DDB.Double("EstDampFactor",   "",   DC_,         "",     &Ti.m_EstDampFactor,     this, isParmConstruct|InitHidden|DDEF_NOCOMPARE);
-          DDB.Double("dYRat",           "",   DC_,         "",     &Ti.dYRat,             this, isParmConstruct|InitHidden|DDEF_NOCOMPARE);
+          DDB.Double("dYRat",           "",   DC_,         "",     &Ti.m_YRat,             this, isParmConstruct|InitHidden|DDEF_NOCOMPARE);
           DDB.Bool  ("TestIsValid",     "",   DC_,         "",     &Ti.m_bTestIsValid,      this, isParmConstruct|InitHidden);
-          DDB.Bool  ("HoldOutput",      "",   DC_,         "",     &Ti.m_bHoldOutput,       this, isParmConstruct|InitHidden);
+          //DDB.Bool  ("HoldOutput",      "",   DC_,         "",     &Ti.m_bHoldOutput,       this, isParmConstruct|InitHidden);
           DDB.Byte  ("ConvergedCnt",    "",   DC_,         "",     &Ti.m_iConvergedCnt,     this, isParmConstruct|InitHidden);
           //DDB.Byte  ("Cnt",             "",   DC_,         "",     &Ti.iCnt,              this, isParmConstruct|InitHidden);
 
           if (bUsedByBlk & TVU_Inputs)
             {
-            CnvAttribute &C=*Ti.AdvCnv;
-            FmtAttribute &F=*Ti.AdvFmt;
-            DDB.Double("Y0",             "",   C.Index(), C.Text(), &Ti.Y[0],       this, isParmConstruct|DDEF_NOCOMPARE);
-            DDB.Double("Y1",             "",   C.Index(), C.Text(), &Ti.Y[1],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
-            DDB.Double("Y2",             "",   C.Index(), C.Text(), &Ti.Y[2],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
-            DDB.Double("Y3",             "",   C.Index(), C.Text(), &Ti.Y[3],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
+            CnvAttribute &C=*Ti.m_pMeasCnv;
+            FmtAttribute &F=*Ti.m_pMeasFmt;
+            DDB.Double("Y0",             "",   C.Index(), C.Text(), &Ti.m_Y[0],       this, isParmConstruct|DDEF_NOCOMPARE);
+            DDB.Double("Y1",             "",   C.Index(), C.Text(), &Ti.m_Y[1],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
+            DDB.Double("Y2",             "",   C.Index(), C.Text(), &Ti.m_Y[2],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
+            DDB.Double("Y3",             "",   C.Index(), C.Text(), &Ti.m_Y[3],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
             }
           if (bUsedByBlk & TVU_Outputs)
             {
-            CnvAttribute &C=*Ti.AdvCnv;
-            FmtAttribute &F=*Ti.AdvFmt;
-            DDB.Double("X0",             "",   C.Index(), C.Text(), &Ti.X[0],       this, isParmConstruct|DDEF_NOCOMPARE);//isParmConstruct);
-            DDB.Double("X1",             "",   C.Index(), C.Text(), &Ti.X[1],       this, isParmConstruct/*isParmConstruct*/|InitHidden|NAN_OK|DDEF_NOCOMPARE);
-            DDB.Double("X2",             "",   C.Index(), C.Text(), &Ti.X[2],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
-            DDB.Double("X3",             "",   C.Index(), C.Text(), &Ti.X[3],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
+            CnvAttribute &C=*Ti.m_pMeasCnv;
+            FmtAttribute &F=*Ti.m_pMeasFmt;
+            DDB.Double("X0",             "",   C.Index(), C.Text(), &Ti.m_X[0],       this, isParmConstruct|DDEF_NOCOMPARE);//isParmConstruct);
+            DDB.Double("X1",             "",   C.Index(), C.Text(), &Ti.m_X[1],       this, isParmConstruct/*isParmConstruct*/|InitHidden|NAN_OK|DDEF_NOCOMPARE);
+            DDB.Double("X2",             "",   C.Index(), C.Text(), &Ti.m_X[2],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
+            DDB.Double("X3",             "",   C.Index(), C.Text(), &Ti.m_X[3],       this, isParmConstruct|InitHidden|NAN_OK|DDEF_NOCOMPARE);
             }
 
           if (bUsedByBlk & TVU_Meas)
             {
-            CnvAttribute &C=*Ti.MeasCnv;
-            FmtAttribute &F=*Ti.MeasFmt;
-            DDB.Double("CurTol",         "",   DC_Frac,     "%",    &Ti.CurTol,    this, isParmConstruct|InitHidden);
+            CnvAttribute &C=*Ti.m_pMeasCnv;
+            FmtAttribute &F=*Ti.m_pMeasFmt;
+            DDB.Double("CurTol",         "",   DC_Frac,     "%",    &Ti.m_CurTol,    this, isParmConstruct|InitHidden);
             for (int iH=0; iH<Ti.m_Error.GetSize(); iH++)
               {
               Strng Tg1;
@@ -555,14 +705,14 @@ flag TearVarBlk::ValidateData(ValidateDataBlk & VDB)
     for (int iVar=0; iVar<nVariables; iVar++)
       {
       if (Valid(TV[iVar].m_DampingRqd)) dbgp("%8.2f",  TV[iVar].m_DampingRqd); else dbgp("%8s",  "*");
-      if (Valid(TV[iVar].EPS_Abs))    dbgp(" %8.2f", TV[iVar].EPS_Abs);    else dbgp(" %8s", "*");
-      if (Valid(TV[iVar].EPS_Rel))    dbgp(" %8.2f", TV[iVar].EPS_Rel);    else dbgp(" %8s", "*");
+      if (Valid(TV[iVar].m_EPS_Abs))    dbgp(" %8.2f", TV[iVar].m_EPS_Abs);    else dbgp(" %8s", "*");
+      if (Valid(TV[iVar].m_EPS_Rel))    dbgp(" %8.2f", TV[iVar].m_EPS_Rel);    else dbgp(" %8s", "*");
       dbgp(" %8.2f", TV[iVar].m_DampFactor);
       dbgp(" %8.2f", TV[iVar].m_EstDampFactor);
       if (1)//fDoAdvance)
         {
-        dbgp(" %8.2f", TV[iVar].X[0]);
-        dbgp(" %8.2f", TV[iVar].Y[0]);
+        dbgp(" %8.2f", TV[iVar].m_X[0]);
+        dbgp(" %8.2f", TV[iVar].m_Y[0]);
         }
       dbgp(" %s", SymOrTag(iVar));
       dbgpln("");
@@ -642,26 +792,27 @@ void TearVarBlk::SetNVariables(int Variables, byte Used)
     TV.SetSize(nVariables);
     for (int i=0; i<nVariables; i++)
       {
+      TV[i].m_pBlk=this;
 
       TV[i].m_DampFactor=1.0;
       TV[i].m_EstDampFactor=0.0;
       TV[i].m_DampingRqd=dNAN;
-      TV[i].EPS_Rel=dNAN;
-      TV[i].EPS_Abs=dNAN;
+      TV[i].m_EPS_Rel=dNAN;
+      TV[i].m_EPS_Abs=dNAN;
 
       if (bUsedByBlk & (TVU_Inputs|TVU_Outputs))
         {
-        TV[i].X.SetSize(nHistory);
-        TV[i].Y.SetSize(nHistory);
+        TV[i].m_X.SetSize(nHistory);
+        TV[i].m_Y.SetSize(nHistory);
 
-        TV[i].X.SetAll(0.0);
-        TV[i].Y.SetAll(0.0);
-        TV[i].dYRat=0.0;
+        TV[i].m_X.SetAll(0.0);
+        TV[i].m_Y.SetAll(0.0);
+        TV[i].m_YRat=0.0;
         }
       else
         {
-        TV[i].X.SetSize(0);
-        TV[i].Y.SetSize(0);
+        TV[i].m_X.SetSize(0);
+        TV[i].m_Y.SetSize(0);
         }
 
       if (bUsedByBlk & (TVU_Meas))
@@ -679,7 +830,7 @@ void TearVarBlk::SetNVariables(int Variables, byte Used)
 
       }
 
-    GrpDampFactor=0.0;
+    m_GrpDampFactor=0.0;
     }
   };
 
@@ -696,22 +847,22 @@ void TearVarBlk::SetNHistory(int History)
 
       if (bUsedByBlk & (TVU_Inputs|TVU_Outputs))//TearAdvanceReqd())
         {
-        TV[i].X.SetSize(nHistory);
-        TV[i].Y.SetSize(nHistory);
+        TV[i].m_X.SetSize(nHistory);
+        TV[i].m_Y.SetSize(nHistory);
 
         if (Orig>0)
           {
           for (int j=Orig; j<nHistory; j++)
             {
-            TV[i].X[j]=TV[i].X[j-1];
-            TV[i].Y[j]=TV[i].Y[j-1];
+            TV[i].m_X[j]=TV[i].m_X[j-1];
+            TV[i].m_Y[j]=TV[i].m_Y[j-1];
             }
           }
         }
       else
         {
-        TV[i].X.SetSize(0);
-        TV[i].Y.SetSize(0);
+        TV[i].m_X.SetSize(0);
+        TV[i].m_Y.SetSize(0);
         }
 
       if (bUsedByBlk & (TVU_Meas))//TearConvergeReqd())
@@ -756,7 +907,7 @@ void TearVarBlk::Connect(pTearPosBlk PosBlk)
   pPosBlk=PosBlk;
   Initialise(false);
   for (int i=0; i<nVariables; i++)
-    TV[i].Name=GetDisplayTag(TV[i].Tag, TV[i].Sym);
+    TV[i].m_Name=GetDisplayTag(TV[i].m_Tag, TV[i].m_Sym);
 
   if (fGroupBlk)
     {
@@ -795,7 +946,7 @@ double TearVarBlk::DampingRqd(EqnSlvCtrlBlk & EqnCB, int iVar)
     R=Max(R, pGroupInfo->TV[iVar].m_DampingRqd);
   if (Valid(m_DampingRqd))
     R=Max(R, m_DampingRqd);
-  R=Max(R, EqnCB.Cfg.m_dDamping);
+  R=Max(R, EqnCB.Cfg.m_DampingRqd);
   return Range(0.0, R, 1.0);
   };
 
@@ -807,35 +958,35 @@ double TearVarBlk::EPS_Abs(EqnSlvCtrlBlk & EqnCB, int iVar)
   switch (m_iEPSStrategy)
     {
     case TVBTS_Priority:
-      if (Valid(TV[iVar].EPS_Abs))
-        R=TV[iVar].EPS_Abs;
-      else if (pGroupInfo && Valid(pGroupInfo->TV[iVar].EPS_Abs))
-        R=pGroupInfo->TV[iVar].EPS_Abs;
+      if (Valid(TV[iVar].m_EPS_Abs))
+        R=TV[iVar].m_EPS_Abs;
+      else if (pGroupInfo && Valid(pGroupInfo->TV[iVar].m_EPS_Abs))
+        R=pGroupInfo->TV[iVar].m_EPS_Abs;
       else if (Valid(m_EPS_Abs))
         R=m_EPS_Abs;
       else
-        R=EqnCB.Cfg.dEps_Abs;
+        R=EqnCB.Cfg.m_EPS_Abs;
       break;
     case TVBTS_Minimum:
       R=1.0;
-      if (Valid(TV[iVar].EPS_Abs))
-        R=Min(R, TV[iVar].EPS_Abs);
-      if (pGroupInfo && Valid(pGroupInfo->TV[iVar].EPS_Abs))
-        R=Min(R, pGroupInfo->TV[iVar].EPS_Abs);
+      if (Valid(TV[iVar].m_EPS_Abs))
+        R=Min(R, TV[iVar].m_EPS_Abs);
+      if (pGroupInfo && Valid(pGroupInfo->TV[iVar].m_EPS_Abs))
+        R=Min(R, pGroupInfo->TV[iVar].m_EPS_Abs);
       if (Valid(m_EPS_Abs))
         R=Min(R, m_EPS_Abs);
-      R=Min(R, EqnCB.Cfg.dEps_Abs);
+      R=Min(R, EqnCB.Cfg.m_EPS_Abs);
       break;
     case TVBTS_Maximum:
     default:
       R=0.0;
-      if (Valid(TV[iVar].EPS_Abs))
-        R=Max(R, TV[iVar].EPS_Abs);
-      if (pGroupInfo && Valid(pGroupInfo->TV[iVar].EPS_Abs))
-        R=Max(R, pGroupInfo->TV[iVar].EPS_Abs);
+      if (Valid(TV[iVar].m_EPS_Abs))
+        R=Max(R, TV[iVar].m_EPS_Abs);
+      if (pGroupInfo && Valid(pGroupInfo->TV[iVar].m_EPS_Abs))
+        R=Max(R, pGroupInfo->TV[iVar].m_EPS_Abs);
       if (Valid(m_EPS_Abs))
         R=Max(R, m_EPS_Abs);
-      R=Max(R, EqnCB.Cfg.dEps_Abs);
+      R=Max(R, EqnCB.Cfg.m_EPS_Abs);
       break;
     }
   return Range(0.0, R, 1.0);
@@ -849,35 +1000,35 @@ double TearVarBlk::EPS_Rel(EqnSlvCtrlBlk & EqnCB, int iVar)
   switch (m_iEPSStrategy)
     {
     case TVBTS_Priority:
-      if (Valid(TV[iVar].EPS_Rel))
-        R=TV[iVar].EPS_Rel;
-      else if (pGroupInfo && Valid(pGroupInfo->TV[iVar].EPS_Rel))
-        R=pGroupInfo->TV[iVar].EPS_Rel;
+      if (Valid(TV[iVar].m_EPS_Rel))
+        R=TV[iVar].m_EPS_Rel;
+      else if (pGroupInfo && Valid(pGroupInfo->TV[iVar].m_EPS_Rel))
+        R=pGroupInfo->TV[iVar].m_EPS_Rel;
       else if (Valid(m_EPS_Rel))
         R=m_EPS_Rel;
       else
-        R=EqnCB.Cfg.dEps_Rel;
+        R=EqnCB.Cfg.m_EPS_Rel;
       break;
     case TVBTS_Minimum:
       R=1.0;
-      if (Valid(TV[iVar].EPS_Rel))
-        R=Min(R, TV[iVar].EPS_Rel);
-      if (pGroupInfo && Valid(pGroupInfo->TV[iVar].EPS_Rel))
-        R=Min(R, pGroupInfo->TV[iVar].EPS_Rel);
+      if (Valid(TV[iVar].m_EPS_Rel))
+        R=Min(R, TV[iVar].m_EPS_Rel);
+      if (pGroupInfo && Valid(pGroupInfo->TV[iVar].m_EPS_Rel))
+        R=Min(R, pGroupInfo->TV[iVar].m_EPS_Rel);
       if (Valid(m_EPS_Rel))
         R=Min(R, m_EPS_Rel);
-      R=Min(R, EqnCB.Cfg.dEps_Rel);
+      R=Min(R, EqnCB.Cfg.m_EPS_Rel);
       break;
     case TVBTS_Maximum:
     default:
       R=0.0;
-      if (Valid(TV[iVar].EPS_Rel))
-        R=Max(R, TV[iVar].EPS_Rel);
-      if (pGroupInfo && Valid(pGroupInfo->TV[iVar].EPS_Rel))
-        R=Max(R, pGroupInfo->TV[iVar].EPS_Rel);
+      if (Valid(TV[iVar].m_EPS_Rel))
+        R=Max(R, TV[iVar].m_EPS_Rel);
+      if (pGroupInfo && Valid(pGroupInfo->TV[iVar].m_EPS_Rel))
+        R=Max(R, pGroupInfo->TV[iVar].m_EPS_Rel);
       if (Valid(m_EPS_Rel))
         R=Max(R, m_EPS_Rel);
-      R=Max(R, EqnCB.Cfg.dEps_Rel);
+      R=Max(R, EqnCB.Cfg.m_EPS_Rel);
       break;
     }
   return Range(0.0, R, 1.0);
@@ -913,8 +1064,8 @@ flag TearVarBlk::TestConverged(EqnSlvCtrlBlk & EqnCB, double &Error, Strng &ErrT
     case 0: // Errors Not supplied
       for (iVar=0; iVar<nVariables; iVar++)
         {
-        TV[iVar].m_Error[0] = (TV[iVar].Y[0]-TV[iVar].X[0]);
-        TV[iVar].m_Meas[0]  = TV[iVar].Y[0];
+        TV[iVar].m_Error[0] = (TV[iVar].m_Y[0]-TV[iVar].m_X[0]);
+        TV[iVar].m_Meas[0]  = TV[iVar].m_Y[0];
         }
       break;
     case 1: // Data Supplied
@@ -938,9 +1089,9 @@ flag TearVarBlk::TestConverged(EqnSlvCtrlBlk & EqnCB, double &Error, Strng &ErrT
       if (Err>Error)
         {
         Error=Err;
-        ErrTag=TVi.Sym;
+        ErrTag=TVi.m_Sym;
         if (ErrTag.GetLength()==0)
-          ErrTag=TVi.Tag;
+          ErrTag=TVi.m_Tag;
         }
       if (EqnCB.NoteBadEqnError(Err, RelTol))
         {
@@ -955,7 +1106,7 @@ flag TearVarBlk::TestConverged(EqnSlvCtrlBlk & EqnCB, double &Error, Strng &ErrT
       }
 
     TVi.m_Error[0]=Err;//*RelTol;
-    TVi.CurTol=RelTol;
+    TVi.m_CurTol=RelTol;
     }
 
   if (!TearConverged)
@@ -976,20 +1127,20 @@ void TearVarBlk::AdvDirect(EqnSlvCtrlBlk & EqnCB, double Damping)
     {
     TV[iVar].m_DampFactor=Max(Damping, DampingRqd(EqnCB, iVar));
     double d=m_bHoldDamping ? 0 : TV[iVar].m_DampFactor;
-    if (!TV[iVar].m_bHoldOutput)
-      TV[iVar].X[0]=(d)*TV[iVar].X[1]+(1.0-d)*TV[iVar].Y[0];
+    if (!HoldOutput(TV[iVar].m_iHoldOutput, m_iHoldOutput))
+      TV[iVar].m_X[0]=(d)*TV[iVar].m_X[1]+(1.0-d)*TV[iVar].m_Y[0];
 
     #if dbgEqnSolve
     double Err=0.0;
     if (dbgTearCnvgLoop())
-      if (dbgShowAll() || /*lCnt==0 ||*/ !ConvergedDV(TV[iVar].Y[0]-TV[iVar].X[1], TV[iVar].Y[0], EqnCB.Cfg.dEps_Abs, EqnCB.Cfg.dEps_Rel, Err))
+      if (dbgShowAll() || /*lCnt==0 ||*/ !ConvergedDV(TV[iVar].m_Y[0]-TV[iVar].m_X[1], TV[iVar].m_Y[0], EqnCB.Cfg.m_EPS_Abs, EqnCB.Cfg.m_EPS_Rel, Err))
         {
         Strng Tag;
         Tag.Set("%s.%s", FullObjTag(), SymOrTag(iVar));
         dbgpln("%s %3i %8.3f%% DirctSubs %6.2f%% I:%14.6g  O:%14.6g >> %14.6g : %s",
                iVar==0 ? "---" : "   ",
-               iVar, Range(-999.999, 100.0*(TV[iVar].X[0]-TV[iVar].X[1])/NZ(TV[iVar].X[1]), 999.999),
-		           TV[iVar].m_DampFactor*100.0,TV[iVar].Y[0], TV[iVar].X[1], TV[iVar].X[0], Tag());
+               iVar, Range(-999.999, 100.0*(TV[iVar].m_X[0]-TV[iVar].m_X[1])/NZ(TV[iVar].m_X[1]), 999.999),
+		           TV[iVar].m_DampFactor*100.0,TV[iVar].m_Y[0], TV[iVar].m_X[1], TV[iVar].m_X[0], Tag());
         }
     #endif
     }
@@ -1016,95 +1167,98 @@ void TearVarBlk::AdvAdaptDirect(EqnSlvCtrlBlk & EqnCB, double Damping)
     DoneHeader=false;
     }
 #endif
-  GrpDampFactor=0.0;
+  m_GrpDampFactor=0.0;
   bool DampGrp=((m_iDampAsGroup==DAG_Default) ? EqnCB.Cfg.m_iDampAsGroup : m_iDampAsGroup)==DAG_On;
   for (int iVar=0; iVar<nVariables; iVar++)
     {
+    TearVar & V = TV[iVar];
 #ifndef _RELEASE
-    if (DoTrack && _stricmp(TV[iVar].Tag(), TrackTag())==0)
+    if (DoTrack && _stricmp(V.m_Tag(), TrackTag())==0)
       {
       Strng ss;
       if (!DoneHeader)
         {
         DoneHeader=true;
-        ss.Set("TrackTag:%s   DampFctGrowth:%18.10g   DampFctDecay:%18.10g", TrackTag(), EqnCB.Cfg.dDampFctGrowth, EqnCB.Cfg.dDampFctDecay);
+        ss.Set("TrackTag:%s   DampFctGrowth:%18.10g   DampFctDecay:%18.10g", TrackTag(), EqnCB.Cfg.m_DampFctGrowth, EqnCB.Cfg.m_DampFctDecay);
         LogNote(TrackTag(), 0, ss());
         dbgpln(ss());
         ss="Iter,B/A,Y2,Y1,Y0,X2,X1,X0,YRat,EstDampFactor,DampFactor";
         LogNote(TrackTag(), 0, ss());
         dbgpln(ss());
         }
-      ss.Set("%d,Before,%g,%g,%g,%g,%g,%g,%g,%g,%g", m_lStageCnt, TV[iVar].Y[2], TV[iVar].Y[1], TV[iVar].Y[0],
-            TV[iVar].X[2], TV[iVar].X[1], TV[iVar].X[0], TV[iVar].dYRat, TV[iVar].m_EstDampFactor, TV[iVar].m_DampFactor);
+      ss.Set("%d,Before,%g,%g,%g,%g,%g,%g,%g,%g,%g", m_lStageCnt, V.m_Y[2], V.m_Y[1], V.m_Y[0],
+            V.m_X[2], V.m_X[1], V.m_X[0], V.m_YRat, V.m_EstDampFactor, V.m_DampFactor);
       LogNote(TrackTag(), 0, ss());
       dbgpln(ss());
       }
 #endif
-    if (TstNZ(TV[iVar].Y[1]-TV[iVar].Y[2]))
+    if (TstNZ(V.m_Y[1]-V.m_Y[2]))
       {
-      TV[iVar].dYRat=(TV[iVar].Y[0]-TV[iVar].Y[1])/NZ(TV[iVar].Y[1]-TV[iVar].Y[2]);
-      if (TV[iVar].dYRat<-0.3) // Oscillatory Damp More
-        TV[iVar].m_EstDampFactor=Min(0.99, TV[iVar].m_EstDampFactor+(1.0-TV[iVar].m_EstDampFactor)*EqnCB.Cfg.dDampFctGrowth);
-      else if (TV[iVar].dYRat>0.3)// Damp Less
-        TV[iVar].m_EstDampFactor=TV[iVar].m_EstDampFactor/(1.0+EqnCB.Cfg.dDampFctDecay);
+      V.m_YRat=(V.m_Y[0]-V.m_Y[1])/NZ(V.m_Y[1]-V.m_Y[2]);
+      if (V.m_YRat<-0.3) // Oscillatory Damp More
+        V.m_EstDampFactor=Min(0.99, V.m_EstDampFactor+(1.0-V.m_EstDampFactor)*EqnCB.Cfg.m_DampFctGrowth);
+      else if (V.m_YRat>0.3)// Damp Less
+        V.m_EstDampFactor=V.m_EstDampFactor/(1.0+EqnCB.Cfg.m_DampFctDecay);
       else // Dont Change Damping
         {};
       }
     else
       {
-      TV[iVar].dYRat=0.0;
-      TV[iVar].m_EstDampFactor=TV[iVar].m_EstDampFactor/(1.0+EqnCB.Cfg.dDampFctDecay);
+      V.m_YRat=0.0;
+      V.m_EstDampFactor=V.m_EstDampFactor/(1.0+EqnCB.Cfg.m_DampFctDecay);
       }
 
     double DFMin=Max(DampingRqd(EqnCB, iVar), Damping);
-    TV[iVar].m_EstDampFactor=Range(DFMin, TV[iVar].m_EstDampFactor, 1.0);
+    V.m_EstDampFactor=Range(DFMin, V.m_EstDampFactor, 1.0);
 
-    if (DampGrp && (fabs(TV[iVar].Y[0])>1.0e-10))
-      GrpDampFactor=Max(GrpDampFactor, TV[iVar].m_EstDampFactor);
+    if (DampGrp && (fabs(V.m_Y[0])>1.0e-10))
+      m_GrpDampFactor=Max(m_GrpDampFactor, V.m_EstDampFactor);
     }
 
   for (iVar=0; iVar<nVariables; iVar++)
     {
+    TearVar & V = TV[iVar];
     if (DampGrp)
-      TV[iVar].m_DampFactor=GrpDampFactor;
+      V.m_DampFactor=m_GrpDampFactor;
     else
-      TV[iVar].m_DampFactor=TV[iVar].m_EstDampFactor;
-    TV[iVar].m_DampFactor=Max(Damping, TV[iVar].m_DampFactor);
+      V.m_DampFactor=V.m_EstDampFactor;
+    V.m_DampFactor=Max(Damping, V.m_DampFactor);
 
-    double d=m_bHoldDamping ? 0 : TV[iVar].m_DampFactor;
-    if (!TV[iVar].m_bHoldOutput)
-      TV[iVar].X[0]=(d)*TV[iVar].X[1] + (1.0-d)*TV[iVar].Y[0];
+    double d=m_bHoldDamping ? 0 : V.m_DampFactor;
+    //if (!V.m_bHoldOutput)
+    if (!HoldOutput(V.m_iHoldOutput, m_iHoldOutput))
+      V.m_X[0]=(d)*V.m_X[1] + (1.0-d)*V.m_Y[0];
 
     #if dbgEqnSolve
     double Err=0.0;
     if (dbgTearCnvgLoop())
-      if (dbgShowAll() || !ConvergedDV(TV[iVar].Y[0]-TV[iVar].X[1], TV[iVar].Y[0], EqnCB.Cfg.dEps_Abs, EqnCB.Cfg.dEps_Rel, Err))
+      if (dbgShowAll() || !ConvergedDV(V.m_Y[0]-V.m_X[1], V.m_Y[0], EqnCB.Cfg.m_EPS_Abs, EqnCB.Cfg.m_EPS_Rel, Err))
         {
         Strng Tag;
         Tag.Set("%s.%s", FullObjTag(), SymOrTag(iVar));
         dbgpln("%s %3i %8.3f%% AdptDSubs e:%6.2f%% d:%6.2f%% dI2:%18.10g I:%18.10g  O:%18.10g >> %18.10g : %s",
           iVar==0 ? "---" : "   ",
-          iVar, Range(-999.999, 100.0*(TV[iVar].X[0]-TV[iVar].X[1])/NZ(TV[iVar].X[1]), 999.999),
-          TV[iVar].m_EstDampFactor*100.0,TV[iVar].m_DampFactor*100.0, TV[iVar].dYRat,TV[iVar].Y[0],
-          TV[iVar].X[1], TV[iVar].X[0], Tag());
+          iVar, Range(-999.999, 100.0*(V.m_X[0]-V.m_X[1])/NZ(V.m_X[1]), 999.999),
+          V.m_EstDampFactor*100.0,V.m_DampFactor*100.0, V.m_YRat,V.m_Y[0],
+          V.m_X[1], V.m_X[0], Tag());
         }
     #endif
 
 #ifndef _RELEASE
-    if (DoTrack && _stricmp(TV[iVar].Tag(), TrackTag())==0)
+    if (DoTrack && _stricmp(V.m_Tag(), TrackTag())==0)
       {
       Strng ss;
-      ss.Set("%d,After,%g,%g,%g,%g,%g,%g,%g,%g,%g", m_lStageCnt, TV[iVar].Y[2], TV[iVar].Y[1], TV[iVar].Y[0],
-            TV[iVar].X[2], TV[iVar].X[1], TV[iVar].X[0], TV[iVar].dYRat, TV[iVar].m_EstDampFactor, TV[iVar].m_DampFactor);
+      ss.Set("%d,After,%g,%g,%g,%g,%g,%g,%g,%g,%g", m_lStageCnt, V.m_Y[2], V.m_Y[1], V.m_Y[0],
+            V.m_X[2], V.m_X[1], V.m_X[0], V.m_YRat, V.m_EstDampFactor, V.m_DampFactor);
       LogNote(TrackTag(), 0, ss());
       dbgpln(ss());
       /*Strng Tag;
       Tag.Set("%s.%s", FullObjTag(), SymOrTag(iVar));
       Strng ss;
       ss.Set("%4i %8.3f%% AdptDSubs e:%6.2f%% d:%5.2f%% dI2:%18.10g I:%18.10g  O:%18.10g >> %18.10g : %s",
-        lCnt, Range(-999.999, 100.0*(TV[iVar].X[0]-TV[iVar].X[1])/NZ(TV[iVar].X[1]), 999.999),
-        TV[iVar].m_EstDampFactor*100.0, TV[iVar].m_DampFactor*100.0, TV[iVar].dYRat, TV[iVar].Y[0],
-        TV[iVar].X[1], TV[iVar].X[0], Tag());
+        lCnt, Range(-999.999, 100.0*(V.m_X[0]-V.m_X[1])/NZ(V.m_X[1]), 999.999),
+        V.m_EstDampFactor*100.0, V.m_DampFactor*100.0, V.dYRat, V.m_Y[0],
+        V.m_X[1], V.m_X[0], Tag());
       LogNote("Solver", 0, ss());
       dbgpln(ss());*/
       }
@@ -1121,32 +1275,32 @@ void TearVarBlk::AdvWegstein(EqnSlvCtrlBlk & EqnCB)
 
   for (int iVar=0; iVar<nVariables; iVar++)
     {
-    double S=(TV[iVar].X[1]-TV[iVar].X[2])/NZ(TV[iVar].X[2]-TV[iVar].X[3]);
-    //double NewQ=Range(Cfg.dWA_Bound, S/NZ(S-1), 0.9);
+    double S=(TV[iVar].m_X[1]-TV[iVar].m_X[2])/NZ(TV[iVar].m_X[2]-TV[iVar].m_X[3]);
+    //double NewQ=Range(Cfg.m_WA_Bound, S/NZ(S-1), 0.9);
     //if (Q[iVar] > 0.0) // Interpolation
     //  Q[iVar]=Max(0.0, Max(NewQ, Q[iVar])); // Keep As Interpolation
     //else
     //  Q[iVar]=NewQ;
-    double Q=Range(Cfg.dWA_Bound, S/NZ(S-1), 0.0);
+    double Q=Range(Cfg.m_WA_Bound, S/NZ(S-1), 0.0);
 
     TV[iVar].m_DampFactor=0.0;
     if (m_bHoldDamping)
       Q=0;
-    if (!TV[iVar].m_bHoldOutput)
-      TV[iVar].X[0]=Q*TV[iVar].X[1] + (1.0-Q)*TV[iVar].Y[0];
+    if (!HoldOutput(TV[iVar].m_iHoldOutput, m_iHoldOutput))
+      TV[iVar].m_X[0]=Q*TV[iVar].m_X[1] + (1.0-Q)*TV[iVar].m_Y[0];
 
     #if dbgEqnSolve
     double Err=0.0;
     if (dbgTearCnvgLoop())
       {
-      if (dbgShowAll() || m_lStageCnt==0 || !ConvergedDV(TV[iVar].Y[0]-TV[iVar].X[1], TV[iVar].Y[0], EqnCB.Cfg.dEps_Abs, EqnCB.Cfg.dEps_Rel, Err))
+      if (dbgShowAll() || m_lStageCnt==0 || !ConvergedDV(TV[iVar].m_Y[0]-TV[iVar].m_X[1], TV[iVar].m_Y[0], EqnCB.Cfg.m_EPS_Abs, EqnCB.Cfg.m_EPS_Rel, Err))
         {
         Strng Tag;
         Tag.Set("%s.%s", FullObjTag(), SymOrTag(iVar));
         dbgpln("%s %3i %8.3f%% Wegstein  %6.2f%% I:%14.6g  O:%14.6g >> %14.6g  S:%14.6g : %s",
              iVar==0 ? "---" : "   ",
-             iVar, Range(-999.999, 100.0*(TV[iVar].X[0]-TV[iVar].X[1])/NZ(TV[iVar].X[1]), 999.999),(1.0-Q)*100.0,TV[iVar].Y[0], TV[iVar].X[1], TV[iVar].X[0], S, Tag());
-        //if (fabs(TV[iVar].X[0]-TV[iVar].X[1]) > fabs(TV[iVar].X[0])*0.01)
+             iVar, Range(-999.999, 100.0*(TV[iVar].m_X[0]-TV[iVar].m_X[1])/NZ(TV[iVar].m_X[1]), 999.999),(1.0-Q)*100.0,TV[iVar].m_Y[0], TV[iVar].m_X[1], TV[iVar].m_X[0], S, Tag());
+        //if (fabs(TV[iVar].m_X[0]-TV[iVar].m_X[1]) > fabs(TV[iVar].m_X[0])*0.01)
         //  dbgpln("     BIGDELTA X3:%14.6g X2:%14.6g X1:%14.6g e1:%14.6g e0:%14.6g : %s",
         //         X3,X2,X1,e1,e0, Tags[iVar].Str());
         }
@@ -1163,7 +1317,7 @@ void TearVarBlk::RotateInputs()
   // Rotate Inputs
   for (int iVar=0; iVar<nVariables; iVar++)
     {
-    CDArray &Y=TV[iVar].Y;
+    CDArray &Y=TV[iVar].m_Y;
     double T=Y[nHistory-1];
     for (int i=nHistory-1; i>0; i--)
       Y[i]=Y[i-1];
@@ -1197,9 +1351,10 @@ void TearVarBlk::RotateOutputs()
   {
   // Rotate Outputs
   for (int iVar=0; iVar<nVariables; iVar++)
-    if (!TV[iVar].m_bHoldOutput)
+    if (!HoldOutput(TV[iVar].m_iHoldOutput, m_iHoldOutput))
+    //if (!TV[iVar].m_bHoldOutput)
       {
-      CDArray &X=TV[iVar].X;
+      CDArray &X=TV[iVar].m_X;
       double T=X[nHistory-1];
       for (int i=nHistory-1; i>0; i--)
         X[i]=X[i-1];
@@ -1220,8 +1375,8 @@ void TearVarBlk::Advance(EqnSlvCtrlBlk & EqnCB)
     m_lStageCnt=0;
     for (int iVar=0; iVar<nVariables; iVar++)
 	    {
-      CDArray &X=TV[iVar].X;
-      CDArray &Y=TV[iVar].Y;
+      CDArray &X=TV[iVar].m_X;
+      CDArray &Y=TV[iVar].m_Y;
       if (!Valid(X[1])) X[1]=X[0];
       if (!Valid(X[2])) X[2]=X[0];
       if (!Valid(X[3])) X[3]=X[0];
@@ -1230,24 +1385,24 @@ void TearVarBlk::Advance(EqnSlvCtrlBlk & EqnCB)
       if (!Valid(Y[3])) Y[3]=Y[0];
 	    }
     }
-  byte Meth=m_iTearMethod;
-  if (Meth==TCM_NULL)
-    Meth=Cfg.iConvergeMeth;
+  byte Meth=TearConvergeMethod(Cfg.m_iConvergeMeth, m_iTearMethod);
+  //if (Meth==TCM_Default)
+  //  Meth=Cfg.iConvergeMeth;
 
   switch (Meth)
     {
     case TCM_Wegstein:
-      if ((m_lStageCnt < Cfg.iWA_Delay) || (m_lStageCnt<2))
+      if ((m_lStageCnt < Cfg.m_iWA_Delay) || (m_lStageCnt<2))
         AdvDirect(EqnCB, 0.0);
       else
         AdvWegstein(EqnCB);
       break;
     case TCM_AdaptSubs:
-      AdvAdaptDirect(EqnCB, EqnCB.Cfg.m_dDamping);
+      AdvAdaptDirect(EqnCB, EqnCB.Cfg.m_DampingRqd);
       break;
     case TCM_DirectSubs:
     default:
-      AdvDirect(EqnCB, EqnCB.Cfg.m_dDamping);
+      AdvDirect(EqnCB, EqnCB.Cfg.m_DampingRqd);
       break;
     }
   m_bHoldDamping=false;
@@ -1398,7 +1553,7 @@ void TearVarBlkEdt::Build()
   int N=rTVB.NVariables();
   iNameWidth=8;
   for (int i=0; i<N; i++)
-    iNameWidth=Max(iNameWidth, (int)(strlen(GetDisplayTag(TV[i].Tag, TV[i].Sym))+1));
+    iNameWidth=Max(iNameWidth, (int)(strlen(GetDisplayTag(TV[i].m_Tag, TV[i].m_Sym))+1));
 
   flag TearAdvRqd = rTVB.bUsedByBlk & TVU_AdvanceVars; // Page 0
   flag TearTstRqd = rTVB.bUsedByBlk & TVU_TestVars; // Page 0
@@ -1450,7 +1605,7 @@ void TearVarBlkEdt::Build()
 
     for (i=0; i<N; i++)
       {
-      SetDesc(L, GetDisplayTag(TV[i].Tag, TV[i].Sym),    -1, iNameWidth, 0, "");
+      SetDesc(L, GetDisplayTag(TV[i].m_Tag, TV[i].m_Sym),    -1, iNameWidth, 0, "");
       SetParm(L, "", Id_GlblDamp,  8, 2, "");
       if (pGroupInfo)
         {
@@ -1470,7 +1625,7 @@ void TearVarBlkEdt::Build()
       Tag.Set("%s.V.[%s].%s", rTVB.FullObjTag(), rTVB.SymOrTag(i)(), "Y0");
       SetTag(Tag());
 
-      SetDesc(L, TV[i].AdvCnv->Text(),  -1, 8,  0, " ");
+      SetDesc(L, TV[i].m_pMeasCnv->Text(),  -1, 8,  0, " ");
       L++;
       }
     }
@@ -1526,7 +1681,7 @@ void TearVarBlkEdt::Build()
 
     for (i=0; i<N; i++)
       {
-      SetDesc(L, GetDisplayTag(TV[i].Tag, TV[i].Sym),    -1, iNameWidth, 0, "");
+      SetDesc(L, GetDisplayTag(TV[i].m_Tag, TV[i].m_Sym),    -1, iNameWidth, 0, "");
       SetParm(L, "", Id_GlblEPSRel,  8, 2, "");
       if (pGroupInfo)
         {
@@ -1554,7 +1709,7 @@ void TearVarBlkEdt::Build()
       Tag.Set("%s.V.[%s].%s", rTVB.FullObjTag(), rTVB.SymOrTag(i)(), "Meas");
       SetTag(Tag());
 
-      SetDesc(L, TV[i].MeasCnv->Text(),  -1, 8,  0, "");
+      SetDesc(L, TV[i].m_pMeasCnv->Text(),  -1, 8,  0, "");
       L++;
       }
     }
@@ -1571,7 +1726,7 @@ void TearVarBlkEdt::Load(FxdEdtInfo &EI, Strng & Str)
   Str="??";
   if (CurrentBlk(EI))
     {//header
-    const flag IsAdaptSubs = (rTVB.m_iTearMethod==TCM_AdaptSubs || (rTVB.m_iTearMethod==TCM_NULL/* && PBEqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs*/)); //todo: need access to global default iConvergeMeth !!
+    const flag IsAdaptSubs = (rTVB.m_iTearMethod==TCM_AdaptSubs || (rTVB.m_iTearMethod==TCM_Default  /* && PBEqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs*/)); //todo: need access to global default iConvergeMeth !!
     switch (EI.FieldId)
       {
       case Id_DampAsGroup:
@@ -1610,14 +1765,14 @@ void TearVarBlkEdt::Load(FxdEdtInfo &EI, Strng & Str)
         break;
       case Id_RqdDamp:
         DampFmt.FormatFloat(DampCnv.Human(TVi.m_DampingRqd), Str);
-        //EI.Fld->fEditable=(rTVB.m_iTearMethod==TCM_AdaptSubs || (rTVB.m_iTearMethod==TCM_NULL && PBEqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs));  //todo: need access to global default iConvergeMeth
-        EI.Fld->fEditable=(rTVB.m_iTearMethod==TCM_AdaptSubs || (rTVB.m_iTearMethod==TCM_NULL));// && PBEqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs));
+        //EI.Fld->fEditable=(rTVB.m_iTearMethod==TCM_AdaptSubs || (rTVB.m_iTearMethod==TCM_Default   && PBEqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs));  //todo: need access to global default iConvergeMeth
+        EI.Fld->fEditable=(rTVB.m_iTearMethod==TCM_AdaptSubs || (rTVB.m_iTearMethod==TCM_Default  ));// && PBEqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs));
         break;
       case Id_EPSRel:
-        EPSFmt.FormatFloat(EPSCnv.Human(TVi.EPS_Rel), Str);
+        EPSFmt.FormatFloat(EPSCnv.Human(TVi.m_EPS_Rel), Str);
         break;
       case Id_EPSAbs:
-        EPSFmt.FormatFloat(EPSCnv.Human(TVi.EPS_Abs), Str);
+        EPSFmt.FormatFloat(EPSCnv.Human(TVi.m_EPS_Abs), Str);
         break;
 
       case Id_GlblDamp:
@@ -1626,31 +1781,31 @@ void TearVarBlkEdt::Load(FxdEdtInfo &EI, Strng & Str)
         else
           Str="?";
         //EI.Fld->fEditable=(rTVB.m_iTearMethod==TCM_AdaptSubs || PBEqnCB().Cfg.iConvergeMeth==TCM_AdaptSubs);  //todo: need access to global default iConvergeMeth
-        EI.Fld->fEditable=(rTVB.m_iTearMethod==TCM_AdaptSubs || rTVB.m_iTearMethod==TCM_NULL);
+        EI.Fld->fEditable=(rTVB.m_iTearMethod==TCM_AdaptSubs || rTVB.m_iTearMethod==TCM_Default  );
         break;
       case Id_GlblEPSRel:
         if (pGroupInfo)
-          DampFmt.FormatFloat(DampCnv.Human(pGroupInfo->TV[i].EPS_Rel), Str);
+          DampFmt.FormatFloat(DampCnv.Human(pGroupInfo->TV[i].m_EPS_Rel), Str);
         else
           Str="?";
         break;
       case Id_GlblEPSAbs:
         if (pGroupInfo)
-          DampFmt.FormatFloat(DampCnv.Human(pGroupInfo->TV[i].EPS_Abs), Str);
+          DampFmt.FormatFloat(DampCnv.Human(pGroupInfo->TV[i].m_EPS_Abs), Str);
         else
           Str="?";
         break;
 
       case Id_Inputs:
-        TVi.AdvFmt->FormatFloat(TVi.AdvCnv->Human(TVi.Y[0]), Str);
+        TVi.m_pMeasFmt->FormatFloat(TVi.m_pMeasCnv->Human(TVi.m_Y[0]), Str);
         EI.Fld->fEditable=False;
         break;
       case Id_Outputs:
-        TVi.AdvFmt->FormatFloat(TVi.AdvCnv->Human(TVi.X[0]), Str);
+        TVi.m_pMeasFmt->FormatFloat(TVi.m_pMeasCnv->Human(TVi.m_X[0]), Str);
         EI.Fld->fEditable=False;
         break;
       case Id_CurTol:
-        EPSFmt.FormatFloat(EPSCnv.Human(TVi.CurTol), Str);
+        EPSFmt.FormatFloat(EPSCnv.Human(TVi.m_CurTol), Str);
         EI.Fld->fEditable=False;
         break;
       case Id_Diff:
@@ -1662,7 +1817,7 @@ void TearVarBlkEdt::Load(FxdEdtInfo &EI, Strng & Str)
         EI.Fld->fEditable=False;
         break;
       case Id_Meas:
-        TVi.MeasFmt->FormatFloat(TVi.MeasCnv->Human(TVi.m_Meas[0]), Str);
+        TVi.m_pMeasFmt->FormatFloat(TVi.m_pMeasCnv->Human(TVi.m_Meas[0]), Str);
         EI.Fld->fEditable=False;
         break;
       }
@@ -1713,7 +1868,7 @@ long TearVarBlkEdt::Parse(FxdEdtInfo &EI, Strng & Str)
         for (int i=0; TearMethodStrings[i]; i++)
           if (Str.XStrICmp(TearMethodStrings[i])==0)
             break;
-        rTVB.m_iTearMethod=(TearMethodStrings[i] ? i : TCM_NULL);
+        rTVB.m_iTearMethod=(TearMethodStrings[i] ? i : TCM_Default  );
         }
         break;
       }
@@ -1733,10 +1888,10 @@ long TearVarBlkEdt::Parse(FxdEdtInfo &EI, Strng & Str)
         TVi.m_DampingRqd=DampCnv.Normal(SafeAtoF(Str));
         break;
       case Id_EPSRel:
-        TVi.EPS_Rel=EPSCnv.Normal(SafeAtoF(Str));
+        TVi.m_EPS_Rel=EPSCnv.Normal(SafeAtoF(Str));
         break;
       case Id_EPSAbs:
-        TVi.EPS_Abs=EPSCnv.Normal(SafeAtoF(Str));
+        TVi.m_EPS_Abs=EPSCnv.Normal(SafeAtoF(Str));
         break;
 
       case Id_GlblDamp:
@@ -1745,11 +1900,11 @@ long TearVarBlkEdt::Parse(FxdEdtInfo &EI, Strng & Str)
         break;
       case Id_GlblEPSRel:
         if (pGroupInfo)
-          pGroupInfo->TV[i].EPS_Rel=EPSCnv.Normal(SafeAtoF(Str));
+          pGroupInfo->TV[i].m_EPS_Rel=EPSCnv.Normal(SafeAtoF(Str));
         break;
       case Id_GlblEPSAbs:
         if (pGroupInfo)
-          pGroupInfo->TV[i].EPS_Abs=EPSCnv.Normal(SafeAtoF(Str));
+          pGroupInfo->TV[i].m_EPS_Abs=EPSCnv.Normal(SafeAtoF(Str));
         break;
       }
     }
@@ -1862,13 +2017,13 @@ flag TearVarBlkEdt::DoRButtonUp(UINT nFlags, CPoint point)
             {
             int i=EI.BlkRowNo-EI.Index;
             TearVar &TVi = rTVB.TV[i];
-            WrkIB.Set(EI.Fld->Tag, TVi.AdvCnv, TVi.AdvFmt);
+            WrkIB.Set(EI.Fld->Tag, TVi.m_pMeasCnv, TVi.m_pMeasFmt);
             }
           else if (IsMeasValue)
             {
             int i=EI.BlkRowNo-EI.Index;
             TearVar &TVi = rTVB.TV[i];
-            WrkIB.Set(EI.Fld->Tag, TVi.MeasCnv, TVi.MeasFmt);
+            WrkIB.Set(EI.Fld->Tag, TVi.m_pMeasCnv, TVi.m_pMeasFmt);
             }
           else if (IsDiffValue)
             {
@@ -1996,44 +2151,50 @@ flag TearVarBlkEdt::DoAccRptTagLists()
 
 void EqnSlvCfgBlk::InitProBal()
   {
-  iConvergeMeth = TCM_AdaptSubs;//TCM_Wegstein;
-  fMassSmooth=0;
-  fForceConverged=0;
-  fIdleWhenDone=0;
-  dEps_Rel=1.0e-5;
-  dEps_Abs=1.0e-6;
-  m_dDamping=0.0;
-  iMaxIters=1000;
-  iRqdCnvrgdIters=3;
-  dWA_Bound=-3.0;
-  iWA_Delay=5;
-  dWA_Clamping=0.5;
-  m_iDampAsGroup=DAG_On;//DAG_Off; maybe change default to off?
+  m_iConvergeMeth     =  TCM_AdaptSubs;//TCM_Wegstein;
+  m_bMassSmooth       = 0;
+  m_bForceConverged   = 0;
+  m_bIdleWhenDone     = 0;
+  m_iMaxIters         = 1000;
+  m_iRqdCnvrgdIters   = 3;
 
-  dDampFctGrowth=0.25;
-  dDampFctDecay=0.05;
+  m_iEPSStrategy      = TVBTS_Maximum;
+  m_EPS_Rel           = 1.0e-5;
+  m_EPS_Abs           = 1.0e-6;
+
+  m_iDampAsGroup      = DAG_On;//DAG_Off; maybe change default to off?
+  m_DampingRqd        = 0.0;
+  m_DampFctGrowth     = 0.25;
+  m_DampFctDecay      = 0.05;
+
+  m_iWA_Delay         = 5;
+  m_WA_Bound          = -3.0;
+  m_WA_Clamping       = 0.5;
   }
 
 //--------------------------------------------------------------------------
 
 void EqnSlvCfgBlk::InitDynamic()
   {
-  iConvergeMeth = TCM_DirectSubs;
-  fMassSmooth=0;
-  fForceConverged=1;
-  fIdleWhenDone=0;
-  dEps_Rel=1.0e-3;
-  dEps_Abs=1.0e-4;
-  m_dDamping=0.0;
-  iMaxIters=25;
-  iRqdCnvrgdIters=3;
-  dWA_Bound=-5.0;
-  iWA_Delay=2;
-  dWA_Clamping=0.5;
-  m_iDampAsGroup=DAG_On;//DAG_Off; maybe change default to off?
+  m_iConvergeMeth     =  TCM_DirectSubs;
+  m_bMassSmooth       = 0;
+  m_bForceConverged   = 1;
+  m_bIdleWhenDone     = 0;
+  m_iMaxIters         = 25;
+  m_iRqdCnvrgdIters   = 3;
 
-  dDampFctGrowth=0.25;
-  dDampFctDecay=0.05;
+  m_iEPSStrategy      = TVBTS_Maximum;
+  m_EPS_Rel           = 1.0e-3;
+  m_EPS_Abs           = 1.0e-4;
+
+  m_iDampAsGroup      = DAG_On;//DAG_Off; maybe change default to off?
+  m_DampingRqd        = 0.0;
+  m_DampFctGrowth     = 0.25;
+  m_DampFctDecay      = 0.05;
+
+  m_iWA_Delay         = 2;
+  m_WA_Bound          = -5.0;
+  m_WA_Clamping       = 0.5;
   }
 
 //==========================================================================
@@ -2356,7 +2517,7 @@ void EqnSolverBlk::DisConnectAllTears()
 void EqnSolverBlk::InitialiseActiveTears(EqnSlvCtrlBlk & EqnCB)
   {
   EqnCB.SetNUnknowns(0);
-  EqnCB.Cfg.iRqdCnvrgdIters=Range((short)1, EqnCB.Cfg.iRqdCnvrgdIters, (short)9999);
+  EqnCB.Cfg.m_iRqdCnvrgdIters=Range((short)1, EqnCB.Cfg.m_iRqdCnvrgdIters, (short)9999);
 
   TearVarBlkIter TCBs(TearVarBlk::List);
   for (TearVarBlk* pT=TCBs.First(); pT; pT=TCBs.Next())
