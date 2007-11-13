@@ -525,10 +525,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\Bivariate Stats.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Downtime.cpp"
 				>
 			</File>
@@ -592,11 +588,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SchedEvents.cpp"
+				RelativePath="..\Control1\SchedEvents.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Stats.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Control1\StatsBivariate.cpp"
 				>
 			</File>
 			<File
@@ -672,10 +672,6 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath=".\Bivariate Stats.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Downtime.h"
 				>
 			</File>
@@ -700,11 +696,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SchedEvents.h"
+				RelativePath="..\Control1\SchedEvents.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Stats.h"
+				RelativePath="..\Control1\StatsBivariate.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Control1\StatsSingleVar.h"
 				>
 			</File>
 			<File
