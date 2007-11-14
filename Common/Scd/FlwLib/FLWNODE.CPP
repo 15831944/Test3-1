@@ -8488,32 +8488,37 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
       //dbgpln("PBReInit %s %s", IsLnk()?"IsLnk":"", m_sTag());
       return 0;
     case NFT_PBQueryRemove:
-      if (m_dwType & (nc_Process|nc_MSrcSnk))
+      {
+      long nIn=0;
+      long nOut=0;
+      for (int i=0; i<NoFlwIOs(); i++)
         {
-        long nIn=0;
-        for (int i=0; i<NoFlwIOs(); i++)
-          {
-          //dbgpln("  %3i %20s %20s", i, DbgFltString(IOQmEst_In(i)), DbgFltString(IOQm_In(i)));
-          if (IO_In(i))
-            nIn++;
-          }
-        long RemOK=(nIn>0) ? 0 : 1;
-        //dbgpln("PBQueryRemove Proc|SrcSnk  %3s i:%3i       %s", RemOK?"YES":"", nIn, m_sTag());
+        //dbgpln("  %3i %20s %20s", i, DbgFltString(IOQmEst_In(i)), DbgFltString(IOQm_In(i)));
+        if (IO_In(i))
+          nIn++;
+        else if (IO_Out(i))
+          nOut++;
+        }
+      if (m_dwType & nc_Process)
+        {
+        bool RemOK;
+        if (nIn==0)
+          RemOK=(nOut>0);
+        else // nIn>0
+          RemOK=(nOut==0); 
+        //dbgpln("PBQueryRemove Proc         %3s i:%3i o:%3i %s", RemOK?"YES":"", nIn, nOut, m_sTag());
+        return RemOK && ((m_dwType&nc_Audit)==0);
+        }
+      else if (m_dwType & nc_MSrcSnk)
+        {
+        bool RemOK;
+        RemOK = (nIn==0) && (nOut==0);
+        //dbgpln("PBQueryRemove SrcSnk       %3s i:%3i o:%3i %s", RemOK?"YES":"", nIn, nOut, m_sTag());
         return RemOK && ((m_dwType&nc_Audit)==0);
         }
       else if (m_dwType & (nc_MLnk|nc_MBst|nc_MXfer))
         {
-        long nIn=0;
-        long nOut=0;
-        for (int i=0; i<NoFlwIOs(); i++)
-          {
-          //dbgpln("  %3i %20s %20s", i, DbgFltString(IOQmEst_In(i)), DbgFltString(IOQm_In(i)));
-          if (IO_In(i))
-            nIn++;
-          else if (IO_Out(i))
-            nOut++;
-          }
-        long RemOK=(nIn==0 || nOut==0) ? 1 : 0;
+        bool RemOK=(nIn==0 || nOut==0);
         //dbgpln("PBQueryRemove Lnk|Bst|Xfer %3s i:%3i o:%3i %s", RemOK?"YES":"", nIn, nOut, m_sTag());
         return RemOK && ((m_dwType&nc_Audit)==0);
         }
@@ -8523,6 +8528,7 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
         return 0;
         }
       break;
+      }
     case NFT_PBRemove:
       SetState(MSA_Empty);
       if (IsLnk())

@@ -258,6 +258,8 @@ class FlwSlvPB : public FlwSlvBlk, public CTNode
 
     int            ClearSolutionBlks(flag ClearAll);
 
+    void           RemoveBadConnectNds();
+
     void           DoSolnInit(bool DoReInit);
     int            InitSolution(const EqnSlvCtrlBlk & EQCtrl, CFlwNodeList &AllNdsIn);
     int            StepSolution(const EqnSlvCtrlBlk & EQCtrl);

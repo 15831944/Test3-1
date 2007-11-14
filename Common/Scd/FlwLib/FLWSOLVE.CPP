@@ -5497,6 +5497,50 @@ void FlwSlvPB::EvalAllCtrlTerminate(eScdCtrlTasks Tasks)
 //    }
 //  }
 //
+
+//--------------------------------------------------------------------------
+
+void FlwSlvPB::RemoveBadConnectNds()
+  {
+  for (;;)
+    {
+    bool ExtractsDone=true;
+    CFlwNodeIterWithPos NP(m_AllNds);
+    for (FlwNode * p=NP.First(); (p); p=NP.Next())
+      {
+
+      if (p->NodeFlwTask(NFT_PBQueryRemove)>0)
+        {
+        p->SetActiveHoldAuto(true);
+        p->NodeFlwTask(NFT_PBRemove);
+        m_AllNds.RemoveAt(NP.Pos());
+        m_ExcNds.AddTail(p);
+        ExtractsDone=false;
+        CFlwNodeIterWithPos Proc(m_ProcessNds);
+        for (FlwNode * np=Proc.First(); (np); np=Proc.Next())
+          {
+          if (np==p)
+            {
+            m_ProcessNds.RemoveAt(Proc.Pos());
+            break;
+            }
+          }
+
+#if dbgFlwSolve
+        if (dbgEvalOrdFind())
+          dbgpln("Remove %s", p->FullObjTag());
+#endif
+        }
+      //if (p->GetActiveHold())
+      //  p->SetCI(25, p->GetActiveHoldIsAuto() ? "Hold Active (Auto)":"Hold Active");
+      //else
+      //  p->ClrCI(25);
+      }
+    if (ExtractsDone)
+      break;
+    }
+  }
+
 //--------------------------------------------------------------------------
 
 void FlwSlvPB::DoSolnInit(bool DoReInit)
@@ -5524,33 +5568,7 @@ void FlwSlvPB::DoSolnInit(bool DoReInit)
       }
     }
 
-  for (;;)
-    {
-    bool ExtractsDone=true;
-    CFlwNodeIterWithPos NP(m_AllNds);
-    for (p=NP.First(); (p); p=NP.Next())
-      {
-
-      if (p->NodeFlwTask(NFT_PBQueryRemove)>0)
-        {
-        p->SetActiveHoldAuto(true);
-        p->NodeFlwTask(NFT_PBRemove);
-        m_AllNds.RemoveAt(NP.Pos());
-        m_ExcNds.AddTail(p);
-        ExtractsDone=false;
-        #if dbgFlwSolve
-        if (dbgEvalOrdFind())
-          dbgpln("Remove %s", p->FullObjTag());
-        #endif
-        }
-      //if (p->GetActiveHold())
-      //  p->SetCI(25, p->GetActiveHoldIsAuto() ? "Hold Active (Auto)":"Hold Active");
-      //else
-      //  p->ClrCI(25);
-      }
-    if (ExtractsDone)
-      break;
-    }
+  RemoveBadConnectNds();
 
   ConfigureJoinsAll();
 
@@ -5590,6 +5608,8 @@ int FlwSlvPB::InitSolution(const EqnSlvCtrlBlk & EQCtrl, CFlwNodeList &AllNdsIn)
 #endif
     }
   FixAllNdsLists();
+
+  //RemoveBadConnectNds();
 
   if (!PreStartCheckAll())
     {
