@@ -495,7 +495,7 @@ bool Downtime::CheckTags()
 		{
 			CString warning;
 			warning.Format("Task %i contains an invalid tag.", i);
-			Log.SetCondition(true, i, MMsg_Warning, warning);
+			Log.SetCondition(bOn, i, MMsg_Warning, warning);
 			ret = false;
 		}
 		else

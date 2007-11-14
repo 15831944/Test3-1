@@ -79,6 +79,14 @@ class RandomFailure : public MBaseMethod
 	void FailItem(FailureVariables& task);
 	void RepairItem(FailureVariables& task);
 	double CalculateEvent(PDFType ePDF, double dAverage, double dStdDev);
+	
+	//--Lifted straight from Noise.CPP--
+	double RndGaus();
+	double dG_gset;
+    bool bG_iset;
+	//--Lifted straight from Noise.CPP--
+
+	inline double SystemRnd() { return (double)rand()/(double)RAND_MAX; };
   };
 
 #endif

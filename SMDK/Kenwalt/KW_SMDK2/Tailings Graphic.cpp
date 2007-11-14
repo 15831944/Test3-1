@@ -21,7 +21,7 @@ static double Drw_TailingsDam[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2.
 
 //---------------------------------------------------------------------------
 
-DEFINE_CONTROL_UNIT(TailingsGraphic, "Tailings Dam Graphic", DLL_GroupName)
+DEFINE_CONTROL_UNIT(TailingsGraphic, "Tailings_Dam_Graphic", DLL_GroupName)
 void TailingsGraphic_UnitDef::GetOptions()
 {
 	SetDefaultTag("TG");
@@ -252,6 +252,8 @@ bool TailingsGraphic::ValidateDataFields()
 	RecalculateVolumes();
 	bool ret = RecalculateLevels();
 	Log.SetCondition(!ret, 0, MMsg_Error, "Unable to retrieve critical tank information");
+
+	Log.SetCondition(sConcSpecies.Trim() != "" && !ConcSubs.IsActive, 1, MMsg_Warning, "Unable to information related to concentration specie");
 	return ret;
 
 	return true;

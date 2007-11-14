@@ -80,6 +80,7 @@ void RandomFailure::Reset()
 		tasks.at(i)->dRepairsDone = -1;
 		tasks.at(i)->lFailureCount = 0;
 	}
+	bG_iset = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -344,8 +345,10 @@ double RandomFailure::CalculateEvent(PDFType ePDF, double dAverage, double dStdD
 	case PDFType_Exponential:
 		ret = -log(rnd) * dAverage;	//TODO: Check that this is valid (Initial testing indicates that it is.)
 		break;
-	case PDFType_Normal:			//This is derived from the approximation found on Mathworld for 1/2 * Erf(x) = 0.1x(4.4-x). http://mathworld.wolfram.com/NormalDistributionFunction.html
-		double dev;
+	case PDFType_Normal:
+		//Old approximate method:
+		//This is derived from the approximation found on Mathworld for 1/2 * Erf(x) = 0.1x(4.4-x). http://mathworld.wolfram.com/NormalDistributionFunction.html
+		/*double dev;
 		if (rnd > 0.5)				//Effectively, we're normalising this so -0.5 <= rnd <= 0.5.
 			if (rnd <= 0.98)
 				dev = 2.2 - sqrt(4.84-10*(rnd-0.5));
@@ -355,16 +358,44 @@ double RandomFailure::CalculateEvent(PDFType ePDF, double dAverage, double dStdD
 			if (rnd <= 0.48)
 				dev = -2.2 + sqrt(4.84-10*rnd);
 			else
-				dev = -2.2 - 40 * (rnd - 0.98);
-		ret = dAverage + dStdDev * dev;
+				dev = -2.2 - 40 * (rnd - 0.98);*/
+
+		ret = dAverage + dStdDev * RndGaus();
 		break;
 	default:
 		ret = dAverage;				//If the PDFType is not supported.
 	}
+	SystemRnd();
 	return ret > 0 ? ret : 0;		//Simple failsafe for in case the function results in the event happening before the present.
 }
 
 //---------------------------------------------------------------------------
+ 
+// -- Lifted straight from Noise.CPP --
+double RandomFailure::RndGaus()
+  {//see Numerical Recipes for c (2nd Edition) - function: gasdev(long *idum)
+  double fac,rsq,v1,v2;
+
+  if (bG_iset == 0) 
+    {
+    do
+      {
+      v1 = 2.0*SystemRnd()-1.0;
+      v2 = 2.0*SystemRnd()-1.0;
+      rsq = v1*v1 + v2*v2;
+      } while (rsq >= 1.0 || rsq == 0.0);
+    fac = sqrt(-2.0 * log(rsq) / rsq);
+    dG_gset = v1*fac;
+    bG_iset = 1;
+    return v2*fac;
+    }
+  else 
+    {
+    bG_iset = 0;
+    return dG_gset;
+    }
+  }
+// -- Lifted straight from Noise.CPP --
 
 void RandomFailure::SetSize(long size)
 {
@@ -391,11 +422,11 @@ bool RandomFailure::CheckTags()
 	bool ret = true;
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		if (tasks.at(i)->TagSubs.Tag != "" && !tasks.at(i)->TagSubs.IsActive)
+		if (((CString)tasks.at(i)->TagSubs.Tag).Trim() != "" && !tasks.at(i)->TagSubs.IsActive)
 		{
 			CString warning;
 			warning.Format("Task %i does not have a valid tag", i);
-			Log.SetCondition(i, MMsg_Warning, warning);
+			Log.SetCondition(bOn, i, MMsg_Warning, warning);
 			ret = false;
 		}
 		else

@@ -592,11 +592,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Stats.cpp"
+				RelativePath="..\Control1\StatsBivariate.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Control1\StatsBivariate.cpp"
+				RelativePath="..\Control1\StatsSingleVar.cpp"
 				>
 			</File>
 			<File
@@ -709,10 +709,6 @@
 			</File>
 			<File
 				RelativePath="StdAfx.h"
-				>
-			</File>
-			<File
-				RelativePath=".\STHx.h"
 				>
 			</File>
 			<File

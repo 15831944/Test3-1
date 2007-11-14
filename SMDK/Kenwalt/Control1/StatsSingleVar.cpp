@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #define  __STATSSINGLEVAR_CPP
-#include "statssinglevar.h"
+#include "statsSingleVar.h"
 #include <math.h>
 #include <limits>
 //#pragma optimize("", off)
@@ -299,7 +299,7 @@ bool SingleVarStats::ValidateDataFields()
 
 
 //This should be EvalCtrlStatisics...
-void SingleVarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
+void SingleVarStats::EvalStatistics(eScdCtrlTasks Tasks)
 {
 	try
 	{
@@ -341,6 +341,7 @@ void SingleVarStats::Reset()
 #endif
 	dSumX = dSumX2 = 0;
 	RecalculateHistoBuckets();
+	lRecordsSinceHistoReset = 0;
 }
 
 void SingleVarStats::RecalculateStats(double newEntry)
@@ -553,7 +554,9 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 				if (lRecordsSinceHistoReset > 0)
 				{
-					CString percent; percent.Format("%i%%", (100 * pHistoBucketCounts[i] / lRecordsSinceHistoReset));
+					double d = 100.0 * pHistoBucketCounts[i] / lRecordsSinceHistoReset;
+					int perc = d - (int)d < 0.5 ? (int) d : (int) d + 1;
+					CString percent; percent.Format("%i%%", perc);
 					Wnd.m_pPaintDC->TextOut(nAxesLeft + (int)((i + 0.5)*blockWidth), nAxesBottom - (nAxesHeight * pHistoBucketCounts[i]) / FullScale - 1, percent);
 				}
 			}

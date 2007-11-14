@@ -45,6 +45,12 @@ protected:
 	void Repair();
 	void Fail();
 	double CalculateVariable(double Average, double Dev, PDFType PDF);
+
+	//--Lifted straight from Noise.CPP--
+	double RndGaus();
+	double dG_gset;
+    bool bG_iset;
+	//--Lifted straight from Noise.CPP--
 };
 
 struct ScheduledTiming

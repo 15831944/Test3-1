@@ -304,7 +304,7 @@ bool BivarStats::ValidateDataFields()
 	return true;
 }
 
-void BivarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
+void BivarStats::EvalStatistics(eScdCtrlTasks Tasks)
 {
 	try
 	{
