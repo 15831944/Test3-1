@@ -17,6 +17,18 @@ namespace Configuration_Editor
         protected double m_dMinX = double.NaN, m_dMaxX = double.NaN;
         protected int m_nScanResolution = 100;
         protected bool m_bLogarithmic = false;
+        protected string m_Units;
+        protected string m_sName;
+
+        public string Name
+        {
+            get { return m_sName; }
+            set
+            {
+                m_sName = value;
+                FireRedrawRequired(this, new EventArgs());
+            }
+        }
 
         public GraphSeries()
         {
@@ -31,6 +43,16 @@ namespace Configuration_Editor
             set
             {
                 m_bLogarithmic = value;
+                FireRedrawRequired(this, new EventArgs());
+            }
+        }
+
+        public string Units
+        {
+            get { return m_Units; }
+            set
+            {
+                m_Units = value;
                 FireRedrawRequired(this, new EventArgs());
             }
         }
@@ -147,9 +169,22 @@ namespace Configuration_Editor
         protected bool m_bDrawYLabel = false;
         protected string m_sYLabel;
         protected Color m_YLabelColour;
+        protected string m_sXUnits;
+
+        protected Dictionary<string, FormatterParserProvider> m_Formatters;
         #endregion Variables
 
         #region Properties
+        public Dictionary<string, FormatterParserProvider> Formatters
+        {
+            get { return m_Formatters; }
+            set
+            {
+                m_Formatters = value;
+                this.Invalidate();
+            }
+        }
+
         public System.Collections.ObjectModel.ReadOnlyCollection<GraphSeries> Series
         {
             get { return m_Datasets.AsReadOnly(); }
@@ -228,22 +263,12 @@ namespace Configuration_Editor
             }
         }
 
-        public string YLabel
+        public string XUnits
         {
-            get { return m_sYLabel; }
+            get { return m_sXUnits; }
             set
             {
-                m_sYLabel = value;
-                this.Invalidate();
-            }
-        }
-
-        public Color YLabelColour
-        {
-            get { return m_YLabelColour; }
-            set
-            {
-                m_YLabelColour = value;
+                m_sXUnits = value;
                 this.Invalidate();
             }
         }
@@ -334,7 +359,6 @@ namespace Configuration_Editor
                 return;
             }
 
-            
             gfx.SetClip(plotRect);
 
             double pixelGranularity = Range / plotRect.Width;
@@ -410,8 +434,15 @@ namespace Configuration_Editor
 
             #region X-axis
             {
+                FormatterParserProvider prov = null;
+                if (!string.IsNullOrEmpty(m_sXUnits) && m_Formatters != null && m_Formatters.ContainsKey(m_sXUnits))
+                    prov = m_Formatters[m_sXUnits];
+
                 //Determine if we can fit (MaxChecks) into the graph:
-                string s = m_dMaxXValue.ToString("0");
+                ConvertEventArgs ceaMaxX = new ConvertEventArgs(m_dMaxXValue, typeof(double));
+                if (prov != null) prov.Formatter(this, ceaMaxX);
+                string s = ((double)ceaMaxX.Value).ToString("0");
+
                 float sWidth = gfx.MeasureString(s, this.Font).Width;
                 int maxPossibleChecks = (int)(plotRect.Width / sWidth) + 1;
                 int numChecks = maxPossibleChecks > m_nMaxChecks ? m_nMaxChecks : maxPossibleChecks;
@@ -429,7 +460,10 @@ namespace Configuration_Editor
                     gfx.DrawLine(axisPen, checkTop, checkBottom);
                     if (labelChecks)
                     {
-                        string label = (m_dMinXValue + XFact2 * i).ToString("0");
+                        ConvertEventArgs val = new ConvertEventArgs(m_dMinXValue + XFact2 * i, typeof(double));
+                        if (prov != null)
+                            prov.Formatter(this, val);
+                        string label = ((double)val.Value).ToString("0");
                         PointF textTop = new PointF(checkBottom.X, checkBottom.Y + m_nSpacer);
                         gfx.DrawString(label, Font, textBrush, textTop, sfmt);
                     }
@@ -439,7 +473,8 @@ namespace Configuration_Editor
                 {
                     PointF textTop = new PointF((plotRect.Left + plotRect.Right) / 2,
                         plotRect.Bottom + m_nCheckSize + 2 * m_nSpacer + gfx.MeasureString("fg", Font).Height);
-                    gfx.DrawString(m_sXLabel, Font, textBrush, textTop, sfmt);
+                    string units = prov != null ? " (" + prov.CurrentCnv + ")" : "";
+                    gfx.DrawString(m_sXLabel + units, Font, textBrush, textTop, sfmt);
                 }
             }
             #endregion X-Axis
@@ -455,47 +490,71 @@ namespace Configuration_Editor
             if (m_bDrawYLabel && selectedSeries != null && !float.IsNaN(selectedSeries.Min) && !float.IsNaN(selectedSeries.Max)
                 &&!float.IsInfinity(selectedSeries.Min) && !float.IsInfinity(selectedSeries.Max))
             {
+                FormatterParserProvider prov = null;
+                if (!string.IsNullOrEmpty(selectedSeries.Units))
+                    prov = m_Formatters[selectedSeries.Units];
+
                 Brush textBrush2 = new SolidBrush(selectedSeries.DefaultColour);
                 Pen yAxisPen = new Pen(textBrush2);
 
                 sfmt.Alignment = StringAlignment.Far;
                 sfmt.LineAlignment = StringAlignment.Center;
-                
+                float maxTextWidth = 0;
+
                 if (selectedSeries.Logarithmic)
+                #region Logarithmic
                 {
                     if (selectedSeries.Min == selectedSeries.Max)
                     {
                         PointF checkRight = new PointF(plotRect.Left, (plotRect.Bottom + plotRect.Top) / 2);
                         PointF checkLeft = new PointF(checkRight.X - m_nCheckSize, checkRight.Y);
                         gfx.DrawLine(yAxisPen, checkRight, checkLeft);
-                        string label = (selectedSeries.Min).ToString("G2");
+                        ConvertEventArgsEx val = new ConvertEventArgsEx(selectedSeries.Min, typeof(float), false);
+                        if (prov != null) prov.Formatter(this, val);
+                        string label = ((float)val.Value).ToString("G2");
                         PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
+                        maxTextWidth = gfx.MeasureString(label, Font).Width;
                         gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
-                    }
+                    } //Single Check
                     else
                     {
                         float graphMin = selectedSeries.Min * selectedSeries.Max > 0 ? selectedSeries.Min : selectedSeries.Max * 1E-6f;
+                        ConvertEventArgsEx ceaGraphMin = new ConvertEventArgsEx(graphMin, typeof(double), false);
+                        if (prov != null) prov.Formatter(this, ceaGraphMin);
+                    
                         bool seriesNegative = graphMin < 0;
-                        int min = (int)Math.Floor(Math.Log10(seriesNegative ? -selectedSeries.Max : graphMin));
-                        int max = (int)Math.Log10(seriesNegative ? -graphMin : selectedSeries.Max);
+
+                        ConvertEventArgs ceaMin = new ConvertEventArgsEx(seriesNegative ? -selectedSeries.Max : graphMin, typeof(double), false);
+                        if (prov != null) prov.Formatter(this, ceaMin);
+                        int min = (int)Math.Floor(Math.Log10((double)ceaMin.Value));
+
+                        ConvertEventArgs ceaMax = new ConvertEventArgsEx(seriesNegative ? -graphMin : selectedSeries.Max, typeof(double), false);
+                        if (prov != null) prov.Formatter(this, ceaMax);
+                        int max = (int)Math.Floor(Math.Log10((double)ceaMax.Value));
+
                         for (int i = max; i > min; i--)
                         {
-                            if (!seriesNegative && Math.Pow(10, i) < graphMin)
+                            if (!seriesNegative && Math.Pow(10, i) < (double)ceaGraphMin.Value)
                                 continue;
-                            else if (seriesNegative && -Math.Pow(10, i) < graphMin)
+                            else if (seriesNegative && -Math.Pow(10, i) < (double)ceaGraphMin.Value)
                                 continue;
 
-                            float y = plotRect.Bottom - plotRect.Height * (float) ((i - Math.Log10((seriesNegative ? -1 : 1) * graphMin)) / Math.Log10(selectedSeries.Max / graphMin));
+                            float y = plotRect.Bottom - plotRect.Height * (float)((i - Math.Log10((seriesNegative ? -1 : 1) * (double)ceaGraphMin.Value)) / Math.Log10((double)ceaMax.Value / (double)ceaGraphMin.Value));
                             PointF checkRight = new PointF(plotRect.Left, y);
                             PointF checkLeft = new PointF(checkRight.X - m_nCheckSize, checkRight.Y);
                             gfx.DrawLine(yAxisPen, checkRight, checkLeft);
                             string label = (seriesNegative ? "-" : "") + "10^" + i;
                             PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
                             gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
+                            float f = gfx.MeasureString(label, Font).Width;
+                            if (f > maxTextWidth)
+                                maxTextWidth = f;
                         }
                     }
                 }
+                #endregion Logarithmic
                 else
+                #region Linear
                 {
                     double SeriesRange = selectedSeries.Max - selectedSeries.Min;
 
@@ -521,8 +580,10 @@ namespace Configuration_Editor
                             gfx.DrawLine(yAxisPen, checkRight, checkLeft);
                             if (labelChecks)
                             {
-                                //G2 seems to love to show 100 as 1E2, which looks like shit.
-                                double val = selectedSeries.Min + YFact2 * i;
+                                //G2 seems to love to show 100 as 1E2...
+                                ConvertEventArgs ceaVal = new ConvertEventArgs(selectedSeries.Min + YFact2 * i, typeof(double));
+                                if (prov != null) prov.Formatter(this, ceaVal);
+                                double val = (double)ceaVal.Value;
                                 string label;
                                 if (Math.Abs(val) < 10000 && Math.Abs(val) > 10)
                                     label = val.ToString("F0");
@@ -530,6 +591,9 @@ namespace Configuration_Editor
                                     label = val.ToString("G2");
                                 PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
                                 gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
+                                float f = gfx.MeasureString(label, Font).Width;
+                                if (f > maxTextWidth)
+                                    maxTextWidth = f;
                             }
                         }
                     }
@@ -538,14 +602,38 @@ namespace Configuration_Editor
                         PointF checkRight = new PointF(plotRect.Left, (plotRect.Bottom + plotRect.Top) / 2);
                         PointF checkLeft = new PointF(checkRight.X - m_nCheckSize, checkRight.Y);
                         gfx.DrawLine(yAxisPen, checkRight, checkLeft);
-                        string label = (selectedSeries.Min).ToString("G2");
+
+                        ConvertEventArgs ceaVal = new ConvertEventArgs(selectedSeries.Min, typeof(double));
+                        if (prov != null) prov.Formatter(this, ceaVal);
+                        double val = (double)ceaVal.Value;
+                        string label;
+                        if (Math.Abs(val) < 10000 && Math.Abs(val) > 10)
+                            label = val.ToString("F0");
+                        else
+                            label = val.ToString("G2");
+
                         PointF textRight = new PointF(checkLeft.X - m_nSpacer, checkLeft.Y);
                         gfx.DrawString(label, Font, textBrush2, textRight, sfmt);
+                        maxTextWidth = gfx.MeasureString(label, Font).Width;
                     }
+                }
+                #endregion Linear
 
-                    /*gfx.TranslateTransform(plotRect.Left, plotRect.Bottom);
-                    gfx.RotateTransform(-90);
-                    gfx.DrawString("I'm a happy treestump", Font, textBrush, 0, 0);*/
+                if (m_bDrawYLabel)
+                {
+                    StringFormat ylblFmt = new StringFormat();
+                    ylblFmt.Alignment = StringAlignment.Center;
+                    ylblFmt.LineAlignment = StringAlignment.Far;
+
+                    float left = plotRect.Left - m_nCheckSize - 2 * m_nSpacer - maxTextWidth;
+                    if (left - gfx.MeasureString("0", Font).Height > 0)
+                    {
+                        gfx.TranslateTransform(left, (plotRect.Bottom + plotRect.Top) / 2);
+                        gfx.RotateTransform(-90);
+                        string units = prov != null ? " (" + prov.CurrentCnv + ")" : "";
+                        gfx.DrawString(selectedSeries.Name + units, Font, textBrush2, 0, 0, ylblFmt);
+                        gfx.ResetTransform();
+                    }
                 }
             }
             #endregion Y-Axis

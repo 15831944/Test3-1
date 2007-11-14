@@ -66,9 +66,38 @@ namespace Configuration_Editor
         Color m_StatusColour;
 
         protected PVIOrderer m_Sorter = new PVIOrderer();
+
+        protected Dictionary<string, BindingSource> m_UnitBindingSource;
+
+        protected ConvertEventHandler m_TempFormatter;
+        protected ConvertEventHandler m_TempParser;
         #endregion Variables
 
         #region Propreties
+        public ConvertEventHandler TempParser
+        {
+            get { return m_TempParser; }
+            set
+            {
+                m_TempParser = value;
+                foreach (ListViewItem lvi in lstProjectVector.Items)
+                    if (lvi.Tag is ProjectSpecie)
+                        ((ProjectSpecie)lvi.Tag).TempParser = value;
+            }
+        }
+
+        public ConvertEventHandler TempFormatter
+        {
+            get { return m_TempFormatter; }
+            set
+            {
+                m_TempFormatter = value;
+                foreach (ListViewItem lvi in lstProjectVector.Items)
+                    if (lvi.Tag is ProjectSpecie)
+                        ((ProjectSpecie)lvi.Tag).TempFormatter = value;
+            }
+        }
+
         public PVIOrderer Sorter
         {
             get { return m_Sorter; }
@@ -112,6 +141,34 @@ namespace Configuration_Editor
                 if (StatusMessageChanged != null)
                     StatusMessageChanged(this, new EventArgs());
             }
+        }
+
+        public Dictionary<string, BindingSource> UnitBindingSource
+        {
+            get { return m_UnitBindingSource; }
+            set
+            {
+                if (value == null)
+                    return;
+                m_UnitBindingSource = value;
+                Binding grpTempRangeBinding = new Binding("Text", value["temperature"], "Name", true, DataSourceUpdateMode.Never);
+                grpTempRangeBinding.Format += new ConvertEventHandler(grpTempRangeBinding_Format);
+                grpTempRange.DataBindings.Add(grpTempRangeBinding);
+                m_UnitBindingSource["temperature"].CurrentChanged += new EventHandler(m_TempBindingSource_CurrentChanged);
+            }
+        }
+
+        void m_TempBindingSource_CurrentChanged(object sender, EventArgs e)
+        {
+            UpdateProjectLVIs();
+            if (m_CurrentItem is ProjectSpecie)
+                LoadItem(m_CurrentItem);
+        }
+
+        void grpTempRangeBinding_Format(object sender, ConvertEventArgs e)
+        {
+            if (e.DesiredType == typeof(string))
+                e.Value = "Temperature Range (" + e.Value + ")";
         }
         #endregion Properties
 
@@ -183,20 +240,22 @@ namespace Configuration_Editor
         public void LoadSpecies(Dictionary<string, string> RelevantContents, List<string> Errors)
         {
             lstProjectVector.BeginUpdate();
-            lstProjectVector.Items.Clear(); 
-            foreach (KeyValuePair<string, string> s in RelevantContents)
+            lstProjectVector.Items.Clear();
+            List<string> OrderedKeys = new List<string>(RelevantContents.Keys);
+            OrderedKeys.Sort();
+            foreach (string s in OrderedKeys)
             {
-                if (!SpecieRegex.Match(s.Key).Success)
+                if (!SpecieRegex.Match(s).Success)
                     continue;
                 try
                 {
-                    ProjectVectorItem item = ProjectVectorItem.Parse(s.Value, m_SpecieDataTable, Errors);
+                    ProjectVectorItem item = ProjectVectorItem.Parse(RelevantContents[s], m_SpecieDataTable, Errors);
                     item.Changed += new EventHandler(item_Changed);
                     lstProjectVector.Items.Add(item.LVI);
                 }
                 catch
                 {
-                    Errors.Add("Unalbe to Parse: '" + s + "'");
+                    Errors.Add("Unalbe to Parse: '" + s + " = " + RelevantContents[s] + "'");
                 }
             }
             AddSumItems();
@@ -343,15 +402,12 @@ namespace Configuration_Editor
 
         protected void UpdateTemps()
         {
-            DataRow r = ((ProjectSpecie)m_CurrentItem).SpDataRow;
-            if (r == null) return;
-            float Ts = (float)r["Ts"], Te = (float)r["Te"];
-            txtDefinedMinTemp.Text = Ts.ToString();
-            txtDefinedMaxTemp.Text = Te.ToString();
+            txtDefinedMinTemp.Text = ((ProjectSpecie)m_CurrentItem).MinDefinedTemp.ToString("0.00");
+            txtDefinedMaxTemp.Text = ((ProjectSpecie)m_CurrentItem).MaxDefinedTemp.ToString("0.00");
             numGreaterTempTolerance.Value = (decimal)((ProjectSpecie)m_CurrentItem).ExtraAboveT;
             numLowerTempTolerance.Value = (decimal)((ProjectSpecie)m_CurrentItem).ExtraBelowT;
-            txtAllowedMinTemp.Text = ((ProjectSpecie)m_CurrentItem).MinAllowedTemp.ToString();
-            txtAllowedMaxTemp.Text = ((ProjectSpecie)m_CurrentItem).MaxAllowedTemp.ToString();
+            txtAllowedMinTemp.Text = ((ProjectSpecie)m_CurrentItem).MinAllowedTemp.ToString("0.00");
+            txtAllowedMaxTemp.Text = ((ProjectSpecie)m_CurrentItem).MaxAllowedTemp.ToString("0.00");
         }
 
         List<string> GetAvailableVariables()
@@ -444,6 +500,8 @@ namespace Configuration_Editor
                 {
                     ProjectSpecie specie = new ProjectSpecie(r);
                     specie.Changed += new EventHandler(item_Changed);
+                    specie.TempFormatter = m_TempFormatter;
+                    specie.TempParser = m_TempParser;
 
                     lvisToSelect.Add(specie.LVI);
 
@@ -474,6 +532,42 @@ namespace Configuration_Editor
                     if (((ProjectSpecie)lvi.Tag).SpDataRow == s)
                         return lvi;
             return null;
+        }
+
+        protected void DoAddInterface()
+        {
+            if (m_AddSelector.ShowDialog() == DialogResult.Cancel) return;
+
+            lstProjectVector.SelectedItems.Clear(); //Say what?
+            ProjectVectorItem item = null;
+            if (m_AddSelector.radioAttribute.Checked)
+            {
+                item = new ProjectAttribute();
+                item.Name = GetNextName("Att"); item.Valid = false;
+            }
+            else if (m_AddSelector.radioCalculation.Checked)
+            {
+                item = new ProjectCalculation();
+                item.Name = GetNextName("Calc"); item.Valid = false;
+            }
+            else if (m_AddSelector.radioLabel.Checked)
+            {
+                item = new ProjectText();
+                item.Name = GetNextName("Label");
+            }
+            else if (m_AddSelector.radioPageBreak.Checked)
+            {
+                item = new ProjectPage();
+                item.Name = GetNextName("Page");
+            }
+
+            if (lstProjectVector.SelectedItems.Count == 0)
+                lstProjectVector.Items.Add(item.LVI);
+            else
+                lstProjectVector.Items.Insert(lstProjectVector.SelectedIndices[0], item.LVI);
+
+            item.Changed += new EventHandler(item_Changed);
+            item.LVI.Selected = true;
         }
         #endregion Protected Functions
 
@@ -582,37 +676,8 @@ namespace Configuration_Editor
         {
             if (lstDBSpecies.Focused && TransferSpecies())
                 return;
-            if (m_AddSelector.ShowDialog() == DialogResult.Cancel) return;
-            lstProjectVector.SelectedItems.Clear();
-            ProjectVectorItem item = null;
-            if (m_AddSelector.radioAttribute.Checked)
-            {
-                item = new ProjectAttribute();
-                item.Name = GetNextName("Att"); item.Valid = false;
-            }
-            else if (m_AddSelector.radioCalculation.Checked)
-            {
-                item = new ProjectCalculation();
-                item.Name = GetNextName("Calc"); item.Valid = false;
-            }
-            else if (m_AddSelector.radioLabel.Checked)
-            {
-                item = new ProjectText();
-                item.Name = GetNextName("Label");
-            }
-            else if (m_AddSelector.radioPageBreak.Checked)
-            {
-                item = new ProjectPage();
-                item.Name = GetNextName("Page");
-            }
 
-            if (lstProjectVector.SelectedItems.Count == 0)
-                lstProjectVector.Items.Add(item.LVI);
-            else
-                lstProjectVector.Items.Insert(lstProjectVector.SelectedIndices[0], item.LVI);
-
-            item.Changed += new EventHandler(item_Changed);
-            item.LVI.Selected = true;
+            DoAddInterface();
         }
 
         void item_Changed(object sender, EventArgs e)
@@ -817,6 +882,22 @@ namespace Configuration_Editor
                 ((ProjectAttribute)m_CurrentItem).Cnv = txtAttDimension.Text;
         }
 
-        #endregion Project Species Tab
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+            menuRemove.Enabled = lstProjectVector.SelectedItems.Count > 0;
+        }
+
+        private void menuAdd_Click(object sender, EventArgs e)
+        {
+            DoAddInterface();
+        }
+
+        private void sortToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Sort();
+        }
+        #endregion Event Handling
+
+
     }
 }

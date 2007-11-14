@@ -28,6 +28,7 @@ namespace Configuration_Editor
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProjectVectorControl));
             this.grpProjectList = new System.Windows.Forms.GroupBox();
             this.pnlActiveList = new System.Windows.Forms.Panel();
@@ -44,7 +45,7 @@ namespace Configuration_Editor
             this.tcIDE = new System.Windows.Forms.TabControl();
             this.tabIDESpecie = new System.Windows.Forms.TabPage();
             this.grpSpecie = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.grpTempRange = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.numLowerTempTolerance = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
@@ -81,6 +82,11 @@ namespace Configuration_Editor
             this.label8 = new System.Windows.Forms.Label();
             this.txtAttributeName = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.sortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.grpProjectList.SuspendLayout();
             this.pnlActiveList.SuspendLayout();
             this.pnlListButtons.SuspendLayout();
@@ -88,7 +94,7 @@ namespace Configuration_Editor
             this.tcIDE.SuspendLayout();
             this.tabIDESpecie.SuspendLayout();
             this.grpSpecie.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.grpTempRange.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numLowerTempTolerance)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numGreaterTempTolerance)).BeginInit();
@@ -99,6 +105,7 @@ namespace Configuration_Editor
             this.tabIDEBlank.SuspendLayout();
             this.tabIDEAttribute.SuspendLayout();
             this.grpAttribute.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpProjectList
@@ -260,7 +267,7 @@ namespace Configuration_Editor
             // 
             // grpSpecie
             // 
-            this.grpSpecie.Controls.Add(this.groupBox1);
+            this.grpSpecie.Controls.Add(this.grpTempRange);
             this.grpSpecie.Controls.Add(this.chkIdeal);
             this.grpSpecie.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpSpecie.Location = new System.Drawing.Point(3, 3);
@@ -270,15 +277,15 @@ namespace Configuration_Editor
             this.grpSpecie.TabStop = false;
             this.grpSpecie.Text = "grpSpecie";
             // 
-            // groupBox1
+            // grpTempRange
             // 
-            this.groupBox1.Controls.Add(this.tableLayoutPanel1);
-            this.groupBox1.Location = new System.Drawing.Point(104, 19);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(334, 100);
-            this.groupBox1.TabIndex = 1;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Temperature Range (°C)";
+            this.grpTempRange.Controls.Add(this.tableLayoutPanel1);
+            this.grpTempRange.Location = new System.Drawing.Point(104, 19);
+            this.grpTempRange.Name = "grpTempRange";
+            this.grpTempRange.Size = new System.Drawing.Size(334, 100);
+            this.grpTempRange.TabIndex = 1;
+            this.grpTempRange.TabStop = false;
+            this.grpTempRange.Text = "Temperature Range (°C)";
             // 
             // tableLayoutPanel1
             // 
@@ -685,6 +692,43 @@ namespace Configuration_Editor
             this.label7.TabIndex = 0;
             this.label7.Text = "Name";
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuAdd,
+            this.menuRemove,
+            this.toolStripMenuItem1,
+            this.sortToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 76);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // menuAdd
+            // 
+            this.menuAdd.Name = "menuAdd";
+            this.menuAdd.Size = new System.Drawing.Size(124, 22);
+            this.menuAdd.Text = "&Add...";
+            this.menuAdd.Click += new System.EventHandler(this.menuAdd_Click);
+            // 
+            // menuRemove
+            // 
+            this.menuRemove.Name = "menuRemove";
+            this.menuRemove.Size = new System.Drawing.Size(124, 22);
+            this.menuRemove.Text = "&Remove";
+            this.menuRemove.Click += new System.EventHandler(this.btnRemove_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(121, 6);
+            // 
+            // sortToolStripMenuItem
+            // 
+            this.sortToolStripMenuItem.Name = "sortToolStripMenuItem";
+            this.sortToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.sortToolStripMenuItem.Text = "&Sort";
+            this.sortToolStripMenuItem.Click += new System.EventHandler(this.sortToolStripMenuItem_Click);
+            // 
             // ProjectVectorControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -699,7 +743,7 @@ namespace Configuration_Editor
             this.tcIDE.ResumeLayout(false);
             this.tabIDESpecie.ResumeLayout(false);
             this.grpSpecie.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
+            this.grpTempRange.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numLowerTempTolerance)).EndInit();
@@ -714,6 +758,7 @@ namespace Configuration_Editor
             this.tabIDEAttribute.ResumeLayout(false);
             this.grpAttribute.ResumeLayout(false);
             this.grpAttribute.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -735,7 +780,7 @@ namespace Configuration_Editor
         private System.Windows.Forms.TabControl tcIDE;
         private System.Windows.Forms.TabPage tabIDESpecie;
         private System.Windows.Forms.GroupBox grpSpecie;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox grpTempRange;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.NumericUpDown numLowerTempTolerance;
         private System.Windows.Forms.Label label6;
@@ -772,5 +817,10 @@ namespace Configuration_Editor
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox txtAttributeName;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem menuAdd;
+        private System.Windows.Forms.ToolStripMenuItem menuRemove;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem sortToolStripMenuItem;
     }
 }

@@ -160,6 +160,26 @@ namespace Configuration_Editor
         protected DataRow m_DataRow;
         protected double m_dExtrapBelowT, m_dExtrapAboveT;
         protected bool m_bIdeal;
+
+        public ConvertEventHandler TempFormatter;
+        public ConvertEventHandler TempParser;
+
+        protected double FormatT(double d, bool IncludeOffset)
+        {
+            ConvertEventArgsEx e = new ConvertEventArgsEx(d, typeof(double), IncludeOffset);
+            if (TempFormatter != null)
+                TempFormatter(this, e);
+            return (double)e.Value;
+        }
+
+        protected double ParseT(double d, bool IncludeOffset)
+        {
+            ConvertEventArgsEx e = new ConvertEventArgsEx(d, typeof(double), IncludeOffset);
+            if (TempParser != null)
+                TempParser(this, e);
+            return (double)e.Value;
+        }
+
         public static Regex CompoundSeperator = new Regex(@"^(?<Compound>.*)\((?<Phase>[^()]+)\)$", RegexOptions.Compiled);
 
         //public static DataTable sSpecieDataTable;
@@ -232,8 +252,8 @@ namespace Configuration_Editor
             if (m_DataRow != null)
             {
                 m_LVI.SubItems[0].Text = Symbol;
-                m_LVI.SubItems[1].Text = ((float)m_DataRow["Ts"] - m_dExtrapBelowT).ToString();
-                m_LVI.SubItems[2].Text = ((float)m_DataRow["Te"] + m_dExtrapAboveT).ToString();
+                m_LVI.SubItems[1].Text = MinAllowedTemp.ToString("0.##");//((float)m_DataRow["Ts"] - m_dExtrapBelowT).ToString();
+                m_LVI.SubItems[2].Text = MaxAllowedTemp.ToString("0.##");//((float)m_DataRow["Te"] + m_dExtrapAboveT).ToString();
                 m_LVI.ForeColor = SystemColors.WindowText;
             }
             else
@@ -261,9 +281,10 @@ namespace Configuration_Editor
 
         public double ExtraBelowT
         {
-            get { return m_dExtrapBelowT; }
+            get { return FormatT(m_dExtrapBelowT, false); }
             set
             {
+                value = ParseT(value, false);
                 if (m_dExtrapBelowT == value) return;
                 m_dExtrapBelowT = value;
                 UpdateLVI();
@@ -273,9 +294,10 @@ namespace Configuration_Editor
 
         public double ExtraAboveT
         {
-            get { return m_dExtrapAboveT; }
+            get { return FormatT(m_dExtrapAboveT, false); }
             set
             {
+                value = ParseT(value, false);
                 if (m_dExtrapAboveT == value) return;
                 m_dExtrapAboveT = value;
                 UpdateLVI();
@@ -290,8 +312,19 @@ namespace Configuration_Editor
                 if (m_DataRow != null)
                 {
                     float minDefined = (float)m_DataRow["Ts"];
-                    return (minDefined - m_dExtrapBelowT < Program.ZeroK) ? Program.ZeroK : minDefined - m_dExtrapBelowT;
+                    return FormatT((minDefined - m_dExtrapBelowT < Program.ZeroK) ? Program.ZeroK : minDefined - m_dExtrapBelowT, true);
                 }
+                else
+                    return -1;
+            }
+        }
+
+        public double MinDefinedTemp
+        {
+            get
+            {
+                if (m_DataRow != null)
+                    return FormatT((float)m_DataRow["Ts"], true);
                 else
                     return -1;
             }
@@ -304,12 +337,24 @@ namespace Configuration_Editor
                 if (m_DataRow != null)
                 {
                     float maxDefined = (float)m_DataRow["Te"];
-                    return maxDefined + m_dExtrapAboveT;
+                    return FormatT(maxDefined + m_dExtrapAboveT, true);
                 }
                 else
                     return -1;
             }
         }
+
+        public double MaxDefinedTemp
+        {
+            get
+            {
+                if (m_DataRow != null)
+                    return FormatT((float)m_DataRow["Te"], true);
+                else
+                    return -1;
+            }
+        }
+
 
         public bool Ideal
         {
@@ -352,7 +397,7 @@ namespace Configuration_Editor
         public override string ToSaveString()
         {
             //      Type,  Parent,Tag,Symbol,SDB Tag,Cnv,OccBasis,PhBasis,Spare,Info
-            return "Specie,,," + Symbol + "," + Symbol + ",*,,,," + ExtraBelowT + "," + ExtraAboveT + "," + (Ideal ? "1" : "0"); //No name? Oh well...
+            return "Specie,,," + Symbol + "," + Symbol + ",*,,,," + m_dExtrapBelowT + "," + m_dExtrapAboveT + "," + (Ideal ? "1" : "0"); //No name? Oh well...
         }
 
         public static ProjectSpecie Parse(Match m, DataTable t, List<string> ErrorList)

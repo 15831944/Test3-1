@@ -51,6 +51,9 @@ namespace Configuration_Editor
         protected static Regex s_DefinitionRegex = new Regex(@"^
              (((?<Symb>[A-Za-z]+)(?<Count>[0-9]+(/[0-9]+|\.[0-9]+)?)) |
              ((?<CustomSymb>[A-Za-z]+)\((?<Wt>[0-9]+(\.[0-9]+)?)\)))+$", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+
+        protected static Regex s_ConversionRegex = new Regex(
+            @"(?<Name>[^,\r\n]+)\s*,\s*(?<Offset>[^,]*)\s*,\s*(?<Factor>[^,]*)", RegexOptions.Compiled);
         #endregion Regexs
 
         #region Variables
@@ -67,25 +70,26 @@ namespace Configuration_Editor
 
         RegistryKey regKey;
 
-        string m_CurrentTempUnits = "°C";
-        Dictionary<string, Conversion> m_TempConversion = new Dictionary<string, Conversion>();
+        Dictionary<string, BindingSource> m_UnitBindings = new Dictionary<string, BindingSource>();
+        Dictionary<string, FormatterParserProvider> m_Formatters = new Dictionary<string, FormatterParserProvider>();
+        FrmUnitSelection m_FrmUnitSelection = new FrmUnitSelection();
         #endregion Variables
         
         #region Constructors
         public FrmMain()
         {
             InitializeComponent();
+
+
             try
             {
                 tcMain.TabPages.Remove(tabModels);
                 regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Configuration Editor");
                 SetDirectory((string)regKey.GetValue("Initial Directory", "My Documents"));
-                m_CurrentTempUnits = (string)regKey.GetValue("Temperature Units", "°C");
+                //int loc = m_TempBindings.Find("Name", regKey.GetValue("Temperature Units", "°C"));
+                //m_TempBindings.Position = loc > 0 ? loc : 0;
             }
             catch { }
-            m_TempConversion["°C"] = new Conversion(275.16, 1);
-            m_TempConversion["K"] = new Conversion(0, 1);
-            m_TempConversion["°F"] = new Conversion(2298.35d / 9d, 5d / 9d);
 
             this.Load += new EventHandler(FrmMain_Load);
         }
@@ -96,11 +100,14 @@ namespace Configuration_Editor
             {
                 m_DefaultIniDictionary = ReadIni(Configuration_Editor.Properties.Resources.DefaultInI, new Dictionary<string, Dictionary<string, string>>());
 
-                ConvertEventHandler TempParse = new ConvertEventHandler(ParseTemperature);
-                ConvertEventHandler TempFormat = new ConvertEventHandler(FormatTemperature);
+                ReadConversions();
 
-                specieDatabaseControl1.TemperatureFormat = TempFormat;
-                specieDatabaseControl1.TemperatureParse = TempParse;
+                specieDatabaseControl1.Formatters = m_Formatters;
+                projectVectorControl1.TempFormatter = m_Formatters["temperature"].Formatter;
+                projectVectorControl1.TempParser = m_Formatters["temperature"].Parser;
+
+                projectVectorControl1.UnitBindingSource = m_UnitBindings;
+                specieDatabaseControl1.UnitBindingSource = m_UnitBindings;
 
                 SetupMisc();
                 SetupSpDbEditor();
@@ -168,12 +175,6 @@ namespace Configuration_Editor
             specieDatabaseControl1.UpdateLVIsRequired += new EventHandler(specieDatabaseControl1_UpdateLVIsRequired);
 
             return true;
-        }
-
-        void specieDatabaseControl1_UpdateLVIsRequired(object sender, EventArgs e)
-        {
-            UpdateDBLVIs();
-            projectVectorControl1.UpdateProjectLVIs();
         }
 
         private void SetupMisc()
@@ -473,7 +474,7 @@ namespace Configuration_Editor
         }
 
         protected static Regex CommentStripper = new Regex(@"^[^;\r\n]*", RegexOptions.Compiled | RegexOptions.Multiline);
-        protected static Regex iniRegex1 = new Regex(@"(^\[(?<Title>\w*)\](?<Values>.*?))*\Z", 
+        protected static Regex iniRegex1 = new Regex(@"(^\[(?<Title>[\w ]+)\](?<Values>.*?))*\Z", 
             RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.Multiline); //This'll be kinda slow with that .*?
         protected static Regex iniRegex2 = new Regex(@"^(?<Variable>[^\s=]*)=(?<Value>.*)",
             RegexOptions.Multiline | RegexOptions.Compiled);
@@ -512,29 +513,7 @@ namespace Configuration_Editor
         }
         #endregion File Operations
 
-        #region Specie database stuff
-        protected void ParseTemperature(object sender, ConvertEventArgs e)
-        {
-            double d = m_TempConversion[m_CurrentTempUnits].Parse(System.Convert.ToDouble(e.Value));
-            if (e.DesiredType == typeof(double))
-                e.Value = d;
-            else if (e.DesiredType == typeof(float))
-                e.Value = (float)d;
-            else if (e.DesiredType == typeof(string))
-                e.Value = d.ToString();
-        }
-
-        protected void FormatTemperature(object sender, ConvertEventArgs e)
-        {
-            double d = m_TempConversion[m_CurrentTempUnits].Format(System.Convert.ToDouble(e.Value));
-            if (e.DesiredType == typeof(double))
-                e.Value = d;
-            else if (e.DesiredType == typeof(float))
-                e.Value = (float)d;
-            else if (e.DesiredType == typeof(string))
-                e.Value = d.ToString("F2");
-        }
-
+        #region Specie database stuff  
         protected void SaveDatabase()
         {
             //Determine max lengths for each column:
@@ -936,6 +915,46 @@ namespace Configuration_Editor
 
         #endregion Specie DB stuff
 
+        protected void ReadConversions()
+        {
+            string file;
+            if (File.Exists("UnitConversions.ini"))
+                file = File.ReadAllText("UnitConversions.ini", Encoding.UTF7);
+            else if (File.Exists("..\\..\\UnitConversions.ini"))
+                file = File.ReadAllText("..\\..\\UnitConversions.ini", Encoding.UTF7); //Allow the database.ini to sit in the same folder as the source files
+            else
+                throw new Exception("UnitConversions.ini not found.");
+            Dictionary<string, Dictionary<string, string>> Units = ReadIni(file, new Dictionary<string, Dictionary<string, string>>());
+
+            foreach (KeyValuePair<string, Dictionary<string, string>> kvp in Units)
+            {
+                BindingSource current = new BindingSource();
+                current.DataSource = typeof(Conversion);
+                
+                List<string> OrderedKeys = new List<string>(kvp.Value.Keys);
+                OrderedKeys.Sort();
+                foreach (string s in OrderedKeys)
+                    try
+                    {
+                        if (s.StartsWith("cnv"))
+                        {
+                            Match m = s_ConversionRegex.Match(kvp.Value[s]);
+                            if (m.Success)
+                                current.Add(new Conversion(
+                                    double.Parse(m.Groups["Offset"].Value),
+                                    double.Parse(m.Groups["Factor"].Value),
+                                    m.Groups["Name"].Value));
+                        }
+                    }
+                    catch {}
+                
+                current.CurrentChanged += new EventHandler(ForceFormatting);
+                m_UnitBindings[kvp.Key] = current;
+                m_Formatters[kvp.Key] = new FormatterParserProvider(current);
+            }
+            m_FrmUnitSelection.UnitBindings = m_UnitBindings;
+        }
+
         protected void UpdateStatusBar()
         {
             if (tcMain.SelectedTab == this.tabSpecies)
@@ -1011,6 +1030,12 @@ namespace Configuration_Editor
                 return ((string)r1["Compound"] + "(" + r1["Phase"] + ")").CompareTo((string)r2["Compound"] + "(" + r2["Phase"] + ")");
             else
                 return 0;
+        }
+        
+        void specieDatabaseControl1_UpdateLVIsRequired(object sender, EventArgs e)
+        {
+            UpdateDBLVIs();
+            projectVectorControl1.UpdateProjectLVIs();
         }
 
         private void menuOpenDatabase_Click(object sender, EventArgs e)
@@ -1103,11 +1128,6 @@ namespace Configuration_Editor
                 //We need to disable the speciedatabase panel.
             }
         }
-
-        /*private void FireCheckCalculations(object sender, EventArgs e)
-        {
-            projectVectorControl1.CheckCalculations();
-        }*/
 
         private void menuOpen_Click(object sender, EventArgs e)
         {
@@ -1284,6 +1304,21 @@ namespace Configuration_Editor
         {
             CreateSpecies();
         }
+
+        private void menuUnits_Click(object sender, EventArgs e)
+        {
+            Dictionary<string, int> oldPos = new Dictionary<string, int>();
+            foreach (KeyValuePair<string, BindingSource> kvp in m_UnitBindings)
+                oldPos[kvp.Key] = kvp.Value.Position;
+            if (m_FrmUnitSelection.ShowDialog() == DialogResult.Cancel)
+                foreach (KeyValuePair<string, int> kvp in oldPos)
+                    m_UnitBindings[kvp.Key].Position = kvp.Value;
+        }
+
+        private void ForceFormatting(object sender, EventArgs e)
+        {
+            ((CurrencyManager)this.BindingContext[m_SpecieDataTable]).Refresh();
+        }
     }
 
     public class PVIOrderer
@@ -1430,21 +1465,101 @@ namespace Configuration_Editor
         }
     }
 
+    public class ConvertEventArgsEx : ConvertEventArgs
+    {
+        public ConvertEventArgsEx(object value, Type desiredType, bool includeOffset)
+            : base(value, desiredType)
+        {
+            m_IncludeOffset = includeOffset;
+        }
+        protected bool m_IncludeOffset;
+        public bool IncludeOffset
+        {
+            get { return m_IncludeOffset; }
+            set { m_IncludeOffset = value; }
+        }
+    }
+
+    /// <summary>
+    /// I guess you could call it "Unit", since it's effectively an engineering unit.
+    /// </summary>
     public class Conversion
     {
-        public Conversion(double offset, double factor) { this.offset = offset; this.factor = factor; }
+        public Conversion(double offset, double factor, string name)
+        { 
+            this.offset = offset;
+            this.factor = factor;
+            this.name = name;
+        }
 
         public double offset;
         public double factor;
+        public string name;
 
-        public double Parse(double formattedVal)
+        public string Name { get { return name; } set { name = value; } }
+
+        public double Parse(double formattedVal, bool includeOfset)
         {
-            return formattedVal / factor + offset;
+            return formattedVal / factor + (includeOfset ? offset : 0);
         }
 
-        public double Format(double SIVal)
+        public double Format(double SIVal, bool includeOfset)
         {
-            return (SIVal - offset) * factor;
+            return (SIVal - (includeOfset ? offset : 0)) * factor;
         }
+    }
+
+    /// <summary>
+    /// Provides a formatter and a parser for whatever the currently selected unit on the BindingSource is
+    /// </summary>
+    public class FormatterParserProvider
+    {
+        protected BindingSource m_ConversionBindings;
+
+        protected void Parse(object sender, ConvertEventArgs e)
+        {
+            try
+            {
+                bool IncludeOffset = !(e is ConvertEventArgsEx) || ((ConvertEventArgsEx)e).IncludeOffset;
+                double d = ((Conversion)m_ConversionBindings.Current).Parse(System.Convert.ToDouble(e.Value), IncludeOffset);
+                if (e.DesiredType == typeof(double))
+                    e.Value = d;
+                else if (e.DesiredType == typeof(float))
+                    e.Value = (float)d;
+                else if (e.DesiredType == typeof(string))
+                    e.Value = d.ToString();
+            }
+            catch { };
+        }
+
+        protected void Format(object sender, ConvertEventArgs e)
+        {
+            try
+            {
+                bool IncludeOffset = !(e is ConvertEventArgsEx) || ((ConvertEventArgsEx)e).IncludeOffset;
+                double d = ((Conversion)m_ConversionBindings.Current).Format(System.Convert.ToDouble(e.Value), IncludeOffset);
+                if (e.DesiredType == typeof(double))
+                    e.Value = d;
+                else if (e.DesiredType == typeof(float))
+                    e.Value = (float)d;
+                else if (e.DesiredType == typeof(string))
+                    e.Value = d.ToString("F2");
+            }
+            catch { };
+        }
+
+        public FormatterParserProvider(BindingSource ConversionBindings)
+        {
+            if (ConversionBindings.DataSource != typeof(Conversion))
+                throw new Exception("ConversionBindings must contain a list of Conversions");
+            m_ConversionBindings = ConversionBindings;
+            Parser = new ConvertEventHandler(Parse);
+            Formatter = new ConvertEventHandler(Format);
+        }
+
+        public ConvertEventHandler Parser;
+        public ConvertEventHandler Formatter;
+
+        public string CurrentCnv { get { return ((Conversion)m_ConversionBindings.Current).Name; } }
     }
 }
