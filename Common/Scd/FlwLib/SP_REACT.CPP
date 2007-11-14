@@ -2986,7 +2986,7 @@ flag CReactionBase::DataXchg(DataChangeBlk & DCB)
         {
         if (*DCB.rB)
           {
-          if (PrjFileVerNo()<114 && *DCB.rB>=BlkEval_On && m_bHasStateSemantics)
+          if (PrjFileVerNo()<115 && *DCB.rB>=BlkEval_On && m_bHasStateSemantics)
             *DCB.rB = BlkEval_State + (*DCB.rB-BlkEval_On);
           Open(*DCB.rB);
           }

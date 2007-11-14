@@ -203,7 +203,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 112; //CNM  02/08/2007 M_Surge extend m_BlkEval
 //const int LatestPrjFileVer = 113; //CNM  13/08/2007 DevLibEx Class Name Changes
 //const int LatestPrjFileVer = 114; //CNM  18/10/2007 Makeup Block changes
-const int LatestPrjFileVer = 115; //CNM  07/11/2007 Link Simplfy
+const int LatestPrjFileVer = 115; //CNM  14/11/2007 A FIx for recovering RB's in Content
+const int LatestPrjFileVer = 116; //CNM  07/11/2007 Link Simplfy
 
 //===========================================================================
 //
