@@ -900,4 +900,113 @@ namespace Configuration_Editor
 
 
     }
+
+    public class PVIOrderer
+    {
+        public bool m_bByPhase;
+        public bool m_bPreservePageAndLabelLocations;
+        public bool m_bPreserveCalculationLocations;
+        public bool m_bAscending;
+        public List<Phase> m_PhaseOrder = new List<Phase>();
+        static List<Type> SpecieOrder = new List<Type>(new Type[] {
+            typeof(ProjectSum),
+            typeof(ProjectCalculation),
+            typeof(ProjectAttribute),
+            typeof(ProjectText),
+            typeof(ProjectSpecie),
+            typeof(ProjectPage)});
+
+        public PVIOrderer()
+        {
+        }
+
+        /* Logic: We are going to look through the source list, and break it into sub lists.
+         * We will start with a list of preserved items. And the reordered items will be the item
+         * which exactly follows the corresponding list 
+         * */
+        public List<ProjectVectorItem> Sort(List<ProjectVectorItem> Source)
+        {
+            //New Code:
+            ProjectSpecie.CachePhase = true;
+            List<ProjectVectorItem> PreservedItems = new List<ProjectVectorItem>();
+            List<List<ProjectVectorItem>> ReOrderedItems = new List<List<ProjectVectorItem>>();
+
+            List<ProjectVectorItem> currentReorder = new List<ProjectVectorItem>();
+            ReOrderedItems.Add(currentReorder);
+            foreach (ProjectVectorItem pvi in Source)
+            {
+                if (m_bByPhase && !IsPhaseLabel(pvi.Value) && pvi is ProjectText)
+                    continue;
+                else if ((m_bPreservePageAndLabelLocations &&
+                    (pvi is ProjectText || pvi is ProjectPage)) ||
+                    (m_bPreserveCalculationLocations &&
+                    (pvi is ProjectCalculation)))
+                {
+                    PreservedItems.Add(pvi);
+                    ReOrderedItems.Add(currentReorder = new List<ProjectVectorItem>());
+                }
+                else
+                    currentReorder.Add(pvi);
+            }
+            ProjectSpecie.SortByPhase = m_bByPhase;
+            foreach (List<ProjectVectorItem> lst in ReOrderedItems)
+                lst.Sort(new Comparison<ProjectVectorItem>(SimpleComparison));
+
+            List<ProjectVectorItem> intermediate = new List<ProjectVectorItem>(Source.Count);
+            for (int i = 0; i < PreservedItems.Count; i++)
+            {
+                intermediate.AddRange(ReOrderedItems[i]);
+                intermediate.Add(PreservedItems[i]);
+            }
+            intermediate.AddRange(ReOrderedItems[ReOrderedItems.Count - 1]);
+
+            List<ProjectVectorItem> ret = new List<ProjectVectorItem>();
+
+            Phase lastPhase = (Phase)(-1);
+            foreach (ProjectVectorItem pvi in intermediate)
+            {
+                if (m_bByPhase && pvi is ProjectText &&
+                    IsPhaseLabel(pvi.Value))
+                    continue; //Don't add these labels.
+                if (m_bByPhase && pvi is ProjectSpecie && ((ProjectSpecie)pvi).Phase != lastPhase)
+                {
+                    lastPhase = ((ProjectSpecie)pvi).Phase;
+                    ProjectText txt = new ProjectText();
+                    txt.Value = lastPhase.ToString();
+                    ret.Add(txt);
+                }
+                if (m_bPreservePageAndLabelLocations || !(pvi is ProjectPage))
+                    ret.Add(pvi);
+            }
+
+            ProjectSpecie.CachePhase = false;
+
+            return ret;
+        }
+
+        private bool IsPhaseLabel(string s)
+        {
+            return (s.ToLower() == "solid" || s.ToLower() == "solids" ||
+                    s.ToLower() == "liquid" || s.ToLower() == "liquids" ||
+                    s.ToLower() == "gas" || s.ToLower() == "gasses" ||
+                    s.ToLower() == "vapour" || s.ToLower() == "vapours" ||
+                    s.ToLower() == "vapor" || s.ToLower() == "vapors");
+        }
+
+        private int SimpleComparison(ProjectVectorItem i1, ProjectVectorItem i2)
+        {
+            if (i1.GetType() == i2.GetType())
+                return i1.CompareTo(i2);
+
+            return SpecieOrder.IndexOf(i1.GetType()).CompareTo(SpecieOrder.IndexOf(i2.GetType()));
+        }
+
+        public PVIOrderer Clone()
+        {
+            PVIOrderer ret = (PVIOrderer)this.MemberwiseClone();
+            ret.m_PhaseOrder = new List<Phase>(this.m_PhaseOrder);
+            return ret;
+        }
+    }
+
 }

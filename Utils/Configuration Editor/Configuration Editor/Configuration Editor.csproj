@@ -70,6 +70,7 @@
       <DependentUpon>FrmSortOptions.cs</DependentUpon>
     </Compile>
     <Compile Include="Messaging.cs" />
+    <Compile Include="MiscClasses.cs" />
     <Compile Include="ProjectVectorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
