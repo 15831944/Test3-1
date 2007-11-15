@@ -29,7 +29,7 @@ class FlwCmdBlk : public GrfComCmdBlk
     
     //Strng          EngineName;
     //SFEFlwLib     *pFE;
-    EqnSlvCtrlBlk  EQCtrl;
+    //EqnSlvCtrlBlk  EQCtrl;
 
   public:
     FlwCmdBlk(int ExtraCmds, int ExtraCIS);

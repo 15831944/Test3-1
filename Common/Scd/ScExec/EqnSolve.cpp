@@ -2235,7 +2235,7 @@ void EqnSlvCfgBlk::InitDynamic()
   m_bMassSmooth       = 0;
   m_bForceConverged   = 1;
   m_bIdleWhenDone     = 0;
-  m_iMaxIters         = 25;
+  m_iMaxIters         = 26;
   m_iRqdCnvrgdIters   = 3;
 
   m_iConvergeMeth     = TCM_DirectSubs;

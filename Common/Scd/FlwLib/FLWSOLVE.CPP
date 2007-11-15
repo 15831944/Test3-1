@@ -10882,8 +10882,10 @@ void CFlwSolver::BuildDataDefnOld(DataDefnBlk & DDB)
     DDB.Page("Atmosphere", DDB_RqdPage);
     gs_Environment.BuildDataDefn(this, "Atmos", DDB);
 
-    PB.BuildDataDefnOld(DDB);
-    Dyn.BuildDataDefnOld(DDB);
+    if (NetProbalMethod())
+      PB.BuildDataDefnOld(DDB);
+    else
+      Dyn.BuildDataDefnOld(DDB);
 
     Strng Commnt, Nm;
     int i=0,iPg=0;
@@ -14859,7 +14861,6 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
         {
         Tag=pSaveNode->Tag();
         pSaveNode->GetDefinedData(Tag(), pData->List, Opts, NULL);
-        //pData->SetSize();
         XM.PackMsg(pData);
         pSaveNode->ClearDDBLists();
         return true;
@@ -14867,25 +14868,32 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       iSaveWhat++;
     case SW_1:
       iSaveWhat++;
-      Tag=PB.Tag();
-      PB.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
-      XM.PackMsg(pData);
-      PB.ClearDDBLists();
+      if (NetProbalMethod())
+        {
+        Tag=PB.Tag();
+        PB.GetDefinedData(Tag(), pData->List, Opts, NULL);
+        XM.PackMsg(pData);
+        PB.ClearDDBLists();
+        }
+      else
+        XM.Clear();
       return true;
     case SW_2:
       iSaveWhat++;
-      Tag=Dyn.Tag();
-      Dyn.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
-      XM.PackMsg(pData);
-      Dyn.ClearDDBLists();
+      if (NetDynamicMethod())
+        {
+        Tag=Dyn.Tag();
+        Dyn.GetDefinedData(Tag(), pData->List, Opts, NULL);
+        XM.PackMsg(pData);
+        Dyn.ClearDDBLists();
+        }
+      else
+        XM.Clear();
       return true;
     case SW_3:
       iSaveWhat++;
       Tag=SDBObj.Tag();
       SDBObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
       XM.PackMsg(pData);
       SDBObj.ClearDDBLists();
       return true;
@@ -14894,7 +14902,6 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       iSaveWhat++;
       Tag=TearObj.Tag();
       TearObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
       XM.PackMsg(pData);
       TearObj.ClearDDBLists();
       return true;
@@ -14904,7 +14911,6 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       iSaveWhat++;
       Tag=ChgObj.Tag();
       ChgObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
       XM.PackMsg(pData);
       ChgObj.ClearDDBLists();
       return true;
@@ -14913,7 +14919,6 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       iSaveWhat++;
       Tag=TolObj.Tag();
       TolObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
       XM.PackMsg(pData);
       TolObj.ClearDDBLists();
       return true;
@@ -14925,7 +14930,6 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
           {
           Tag=pT->FullObjTag();
           pT->GetDefinedData(Tag(), pData->List, Opts, NULL);
-          //pData->SetSize();
           XM.PackMsg(pData);
           pT->ClearDDBLists();
           return true;
@@ -14941,7 +14945,6 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       iSaveWhat++;
       Tag=CtrlObj.Tag();
       CtrlObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
       XM.PackMsg(pData);
       CtrlObj.ClearDDBLists();
       return true;
@@ -14951,7 +14954,6 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       iSaveWhat++;
       Tag=OrderObj.Tag();
       OrderObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
       XM.PackMsg(pData);
       OrderObj.ClearDDBLists();
       return true;
@@ -14960,7 +14962,6 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       iSaveWhat++;
       Tag=PwrObj.Tag();
       PwrObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
       XM.PackMsg(pData);
       PwrObj.ClearDDBLists();
       return true;
@@ -14969,7 +14970,6 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       iSaveWhat++;
       Tag=IOObj.Tag();
       IOObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
-      //pData->SetSize();
       XM.PackMsg(pData);
       IOObj.ClearDDBLists();
       return true;
@@ -15202,6 +15202,8 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
       else
         {
         pObj=FindObjTag(pItem->SymOrTag(), false, ObjTagLen, 0);
+        bool IsPBClass=(pObj && _stricmp(pObj->ClassId(), FlwSlvPBClass.ClassId())==0);
+        bool IsDynClass=(pObj && _stricmp(pObj->ClassId(), FlwSlvDynClass.ClassId())==0);
         if ((pObj==NULL) && (FCB.Type()==TOF_DBase))
           {
           // Prevent any other FlwSolvers Etc being created
@@ -15241,7 +15243,11 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
 Done:;
           }
 
-        if (pObj)
+        if (IsPBClass && !NetProbalMethod())
+          { } // Ignore it 
+        else if (IsDynClass && !NetDynamicMethod())
+          { } // Ignore it 
+        else if (pObj)
           {
           if (FCB.Type()==TOF_DBase || !pObj->bSkipSnapLoad)
             {
