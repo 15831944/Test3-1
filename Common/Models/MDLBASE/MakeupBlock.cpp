@@ -2322,7 +2322,7 @@ flag CXBlk_MUBase::CIStrng(int No, pchar & pS)
     case  11: pS="N\tLow Feed - Makeup Stopped"; return 1;
     case  12: pS="W\tMakeup appears poorly configured"; return 1;
     default:
-      return CXBlk_MUBase::CIStrng(No, pS);
+      return CMakeupBlock::CIStrng(No, pS);
     }
   }
 
