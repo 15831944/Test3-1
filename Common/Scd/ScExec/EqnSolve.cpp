@@ -346,8 +346,9 @@ void TearVarBlk::CommonConstruct()
   fGroupBlk=False;
   pGroupInfo=NULL;
   bUsedByBlk=0;
-  m_iHoldOutput=THO_Off;
+
   m_iTearMethod=TCM_Default;
+  m_iHoldOutput=THO_Default;
   iTearTagTyp=TTT_Unknown;
 
   m_iEPSStrategy=TVBTS_Default;
@@ -406,11 +407,11 @@ DDBValueLst DDBTearMethodDef[]=
 
 //--------------------------------------------------------------------------
 
-LPSTR DampAsGroupStrings[]={"<?>", ".", "Yes", 0};
-LPSTR DampAsGroupDefStrings[]={"<?>", "<.>", "<Yes>", 0};
+LPSTR DampAsGroupStrings[]={"<Def>", "no", "Yes", 0};
+LPSTR DampAsGroupDefStrings[]={"<Def>", "<no>", "<Yes>", 0};
 
-LPSTR DampAsGroupStringsShort[]={"<?>", ".", "Yes", 0};
-LPSTR DampAsGroupDefStringsShort[]={"<?>", "<.>", "<Yes>", 0};
+LPSTR DampAsGroupStringsShort[]={"<Def>", "no", "Yes", 0};
+LPSTR DampAsGroupDefStringsShort[]={"<Def>", "<no>", "<Yes>", 0};
 
 DDBValueLst DDBDampAsGroup[]=
   {
@@ -428,11 +429,11 @@ DDBValueLst DDBDampAsGroupDef[]=
 
 //--------------------------------------------------------------------------
 
-LPSTR HoldOutputStrings[]={"<?>", ".", "On", 0};
-LPSTR HoldOutputDefStrings[]={"<?>", "<.>", "<On>", 0};
+LPSTR HoldOutputStrings[]={"<Def>", "no", "Yes", 0};
+LPSTR HoldOutputDefStrings[]={"<Def>", "<no>", "<Yes>", 0};
 
-LPSTR HoldOutputStringsShort[]={"<?>", ".", "On", 0};
-LPSTR HoldOutputDefStringsShort[]={"<?>", "<.>", "<On>", 0};
+LPSTR HoldOutputStringsShort[]={"<Def>", "no", "Yes", 0};
+LPSTR HoldOutputDefStringsShort[]={"<Def>", "<no>", "<Yes>", 0};
 
 DDBValueLst DDBHoldOutput[]=
   {
@@ -450,7 +451,7 @@ DDBValueLst DDBHoldOutputDef[]=
 
 //--------------------------------------------------------------------------
 
-LPSTR EPSStrategyStrings[]    = {"Def", "Maximum", "Minimum", "Priority", 0};
+LPSTR EPSStrategyStrings[]    = {"<Default>", "Maximum", "Minimum", "Priority", 0};
 LPSTR EPSStrategyDefStrings[] = {"<Default>", "<Maximum>", "<Minimum>", "<Priority>", 0};
 
 DDBValueLst DDBEPSStrategy[]=
@@ -472,6 +473,20 @@ DDBValueLst DDBEPSStrategyDef[]=
 
 //--------------------------------------------------------------------------
 
+LPSTR GetStrFlags(int j, int k, LPSTR *Strings, LPSTR *DefStrings, DDEF_Flags * Flags)  
+  {
+  if (k<0)
+    return Strings[j];
+  if (Flags)
+    {
+    *Flags |= DDEF_SHOWASDEFAULT;
+    return Strings[j];
+    }
+  return DefStrings[j];
+  };
+
+//--------------------------------------------------------------------------
+
 int TearConvergeMethod(int i, int j, int k)
   {
   if (k>TCM_Default) 
@@ -481,13 +496,13 @@ int TearConvergeMethod(int i, int j, int k)
   return i;
   };
 
-LPSTR TearConvergeMethodStr(int i, int j, int k)
+LPSTR TearConvergeMethodStr(int i, int j, int k, DDEF_Flags * Flags)
   {
   if (k>TCM_Default) 
     return TearMethodStrings[k];
   if (j>TCM_Default) 
-    return k<0 ? TearMethodStrings[j] : TearMethodDefStrings[j];
-  return j<0 ? TearMethodStrings[i] : TearMethodDefStrings[i];
+    return GetStrFlags(j, k, TearMethodStrings, TearMethodDefStrings, Flags);
+  return GetStrFlags(i, j, TearMethodStrings, TearMethodDefStrings, Flags);
   };
 
 int FindTearConvergeMethod(LPCSTR Str)
@@ -511,13 +526,13 @@ int HoldOutput(int i, int j, int k)
   return i;
   }
 
-LPSTR HoldOutputStr(int i, int j, int k)
+LPSTR HoldOutputStr(int i, int j, int k, DDEF_Flags * Flags)
   {
   if (k>THO_Default) 
     return HoldOutputStrings[k];
   if (j>THO_Default) 
-    return k<0 ? HoldOutputStrings[j] : HoldOutputDefStrings[j];
-  return j<0 ? HoldOutputStrings[i] : HoldOutputDefStrings[i];
+    return GetStrFlags(j, k, HoldOutputStrings, HoldOutputDefStrings, Flags);
+  return GetStrFlags(i, j, HoldOutputStrings, HoldOutputDefStrings, Flags);
   };
 
 int FindHoldOutput(LPCSTR Str)
@@ -541,13 +556,13 @@ int DampAsGroup(int i, int j, int k)
   return i;
   }
 
-LPSTR DampAsGroupStr(int i, int j, int k)
+LPSTR DampAsGroupStr(int i, int j, int k, DDEF_Flags * Flags)
   {
   if (k>DAG_Default) 
     return TearMethodStrings[k];
   if (j>DAG_Default) 
-    return k<0 ? DampAsGroupStrings[j] : DampAsGroupDefStrings[j];
-  return j<0 ? DampAsGroupStrings[i] : DampAsGroupDefStrings[i];
+    return GetStrFlags(j, k, DampAsGroupStrings, DampAsGroupDefStrings, Flags);
+  return GetStrFlags(i, j, DampAsGroupStrings, DampAsGroupDefStrings, Flags);
   };
 LPSTR DampAsGroupStrShort(int i, int j, int k)
   {
@@ -585,13 +600,13 @@ int EPSStrategy(int i, int j, int k)
   return i;
   };
 
-LPSTR EPSStrategyStr(int i, int j, int k)
+LPSTR EPSStrategyStr(int i, int j, int k, DDEF_Flags * Flags)
   {
   if (k>TVBTS_Default) 
     return EPSStrategyStrings[k];
   if (j>TVBTS_Default) 
-    return k<0 ? EPSStrategyStrings[j] : EPSStrategyDefStrings[j];
-  return j<0 ? EPSStrategyStrings[i] : EPSStrategyDefStrings[i];
+    return GetStrFlags(j, k, EPSStrategyStrings, EPSStrategyDefStrings, Flags);
+  return GetStrFlags(i, j, EPSStrategyStrings, EPSStrategyDefStrings, Flags);
   };
 
 int FindEPSStrategy(LPCSTR Str)
@@ -610,18 +625,21 @@ void TearVarBlk::BuildDataDefn(DataDefnBlk & DDB)
   {
   if (DDB.BeginStruct(this))
     {
-    DDB.String("GroupTag",    "",    DC_,     "",     &sGroupTag,                 this, 0);//isParmConstruct);//0isParm);
-    DDB.Long  ("NVars",       "",    DC_,     "",     xidNTearVars,               this, 0);//isParmConstruct);//0isParm);
-    DDB.Byte  ("TearMethod",  "",    DC_,     "",     &m_iTearMethod,             this, isParm, DDBTearMethodDef);
-    DDB.Long  ("NHistory",    "",    DC_,     "",     xidNTearHistory,            this, isParmStopped);
-    DDB.Byte  ("DampTogether","",    DC_,     "",     &m_iDampAsGroup,            this, isParm, DDBDampAsGroupDef);
-    DDB.Double("DampingRqd",  "",    DC_Frac, "%",    &m_DampingRqd,              this, isParm|NAN_OK);
-    DDB.Byte  ("EPS_Strategy","",    DC_,     "",     &m_iEPSStrategy,            this, isParm, DDBEPSStrategy);
-    DDB.Double("EPS_Abs",     "",    DC_Frac, "%",    &m_EPS_Abs,                 this, isParm|NAN_OK);
-    DDB.Double("EPS_Rel",     "",    DC_Frac, "%",    &m_EPS_Rel,                 this, isParm|NAN_OK);
-    DDB.Long  ("ConvergedCnt","",    DC_,     "",     &m_lSeqConvergedCnt,        this, isParmConstruct|InitHidden);//noFileAtAll);
-    DDB.Long  ("ConvergeLoopCnt","", DC_,     "",     &m_lConvergeLoopCnt,        this, 0);//noFileAtAll);
-    DDB.Long  ("Cnt",         "",    DC_,     "",     &m_lStageCnt,               this, isParmConstruct|InitHidden);//noFileAtAll);
+    DDB.String("GroupTag",        "",    DC_,     "",     &sGroupTag,                 this, 0);//isParmConstruct);//0isParm);
+    DDB.Long  ("NVars",           "",    DC_,     "",     xidNTearVars,               this, 0);//isParmConstruct);//0isParm);
+    DDB.Long  ("NHistory",        "",    DC_,     "",     xidNTearHistory,            this, isParmStopped);
+    DDB.Byte  ("TearMethod",      "",    DC_,     "",     &m_iTearMethod,             this, isParm, DDBTearMethodDef);
+    DDB.Byte  ("Hold",            "",    DC_,     "",     &m_iHoldOutput,             this, isParm, DDBHoldOutputDef);
+    DDB.Byte  ("DampTogether",    "",    DC_,     "",     &m_iDampAsGroup,            this, isParm, DDBDampAsGroupDef);
+    DDB.Double("DampingRqd",      "",    DC_Frac, "%",    &m_DampingRqd,              this, isParm|NAN_OK);
+    DDB.Double("DampFctDecay",    "",    DC_Frac, "%",    &m_DampFctDecay,            this, isParm|NAN_OK);
+    DDB.Double("DampFctGrowth",   "",    DC_Frac, "%",    &m_DampFctGrowth,           this, isParm|NAN_OK);
+    DDB.Byte  ("EPS_Strategy",    "",    DC_,     "",     &m_iEPSStrategy,            this, isParm, DDBEPSStrategy);
+    DDB.Double("EPS_Abs",         "",    DC_Frac, "%",    &m_EPS_Abs,                 this, isParm|NAN_OK);
+    DDB.Double("EPS_Rel",         "",    DC_Frac, "%",    &m_EPS_Rel,                 this, isParm|NAN_OK);
+    DDB.Long  ("ConvergedCnt",    "",    DC_,     "",     &m_lSeqConvergedCnt,        this, isParmConstruct|InitHidden);//noFileAtAll);
+    DDB.Long  ("ConvergeLoopCnt", "",    DC_,     "",     &m_lConvergeLoopCnt,        this, 0);//noFileAtAll);
+    DDB.Long  ("Cnt",             "",    DC_,     "",     &m_lStageCnt,               this, isParmConstruct|InitHidden);//noFileAtAll);
 
     if (DDB.BeginArray(this, "V", "TearVars", nVariables))
       {
@@ -633,13 +651,15 @@ void TearVarBlk::BuildDataDefn(DataDefnBlk & DDB)
           DDB.String("Tag",             "",   DC_,         "",     &Ti.m_Tag,               this, noFileAtAll|InitHidden);
           DDB.String("Sym",             "",   DC_,         "",     &Ti.m_Sym,               this, noFileAtAll|InitHidden);
           DDB.String("Name",            "",   DC_,         "",     &Ti.m_Name,              this, InitHidden);
+          DDB.Byte  ("TearMethod",      "",   DC_,         "",     &Ti.m_iTearMethod,       this, isParm, DDBTearMethodDef);
+          DDB.Byte  ("Hold",            "",   DC_,         "",     &Ti.m_iHoldOutput,       this, isParm, DDBHoldOutputDef);
           DDB.Double("DampingRqd",      "",   DC_Frac,     "%",    &Ti.m_DampingRqd,        this, isParm|NAN_OK);
-          DDB.Double("EPS_Abs",         "",   DC_Frac,     "%",    &Ti.m_EPS_Abs,           this, isParm|NAN_OK);
-          DDB.Double("EPS_Rel",         "",   DC_Frac,     "%",    &Ti.m_EPS_Rel,           this, isParm|NAN_OK);
           DDB.Double("DampFactor",      "",   DC_,         "",     &Ti.m_DampFactor,        this, isParmConstruct|DDEF_NOCOMPARE);
           DDB.Double("EstDampFactor",   "",   DC_,         "",     &Ti.m_EstDampFactor,     this, isParmConstruct|InitHidden|DDEF_NOCOMPARE);
           DDB.Double("dYRat",           "",   DC_,         "",     &Ti.m_YRat,             this, isParmConstruct|InitHidden|DDEF_NOCOMPARE);
           DDB.Bool  ("TestIsValid",     "",   DC_,         "",     &Ti.m_bTestIsValid,      this, isParmConstruct|InitHidden);
+          DDB.Double("EPS_Abs",         "",   DC_Frac,     "%",    &Ti.m_EPS_Abs,           this, isParm|NAN_OK);
+          DDB.Double("EPS_Rel",         "",   DC_Frac,     "%",    &Ti.m_EPS_Rel,           this, isParm|NAN_OK);
           //DDB.Bool  ("HoldOutput",      "",   DC_,         "",     &Ti.m_bHoldOutput,       this, isParmConstruct|InitHidden);
           DDB.Byte  ("ConvergedCnt",    "",   DC_,         "",     &Ti.m_iConvergedCnt,     this, isParmConstruct|InitHidden);
           //DDB.Byte  ("Cnt",             "",   DC_,         "",     &Ti.iCnt,              this, isParmConstruct|InitHidden);
@@ -937,7 +957,7 @@ void TearVarBlk::Initialise(bool ForceIt)
 void TearVarBlk::Connect(pTearPosBlk PosBlk)
   {
   pPosBlk=PosBlk;
-  Initialise(false);
+  Initialise(true);//false);
   for (int i=0; i<nVariables; i++)
     TV[i].m_Name=GetDisplayTag(TV[i].m_Tag, TV[i].m_Sym);
 
@@ -2185,12 +2205,14 @@ flag TearVarBlkEdt::DoAccRptTagLists()
 
 void EqnSlvCfgBlk::InitProBal()
   {
-  m_iConvergeMeth     =  TCM_AdaptSubs;//TCM_Wegstein;
   m_bMassSmooth       = 0;
   m_bForceConverged   = 0;
   m_bIdleWhenDone     = 0;
   m_iMaxIters         = 1000;
   m_iRqdCnvrgdIters   = 3;
+
+  m_iConvergeMeth     = TCM_AdaptSubs;//TCM_Wegstein;
+  m_iHoldOutput       = THO_Off;
 
   m_iEPSStrategy      = TVBTS_Maximum;
   m_EPS_Rel           = 1.0e-5;
@@ -2210,12 +2232,14 @@ void EqnSlvCfgBlk::InitProBal()
 
 void EqnSlvCfgBlk::InitDynamic()
   {
-  m_iConvergeMeth     =  TCM_DirectSubs;
   m_bMassSmooth       = 0;
   m_bForceConverged   = 1;
   m_bIdleWhenDone     = 0;
   m_iMaxIters         = 25;
   m_iRqdCnvrgdIters   = 3;
+
+  m_iConvergeMeth     = TCM_DirectSubs;
+  m_iHoldOutput       = THO_Off;
 
   m_iEPSStrategy      = TVBTS_Maximum;
   m_EPS_Rel           = 1.0e-3;
@@ -2719,10 +2743,10 @@ SetIt:
 
 
 int   TearVar::TearMethod() { return ::TearConvergeMethod(gs_EqnCB.Cfg.m_iConvergeMeth, m_pBlk->m_iTearMethod, m_iTearMethod); }
-LPSTR TearVar::TearMethodStr() { return ::TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth, m_pBlk->m_iTearMethod, m_iTearMethod); }
+LPSTR TearVar::TearMethodStr(DDEF_Flags * Flags) { return ::TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth, m_pBlk->m_iTearMethod, m_iTearMethod, Flags); }
 
-bool  TearVar::HoldOutput() { return ::HoldOutput(m_pBlk->m_iHoldOutput, m_iHoldOutput)==THO_On; }
-LPSTR TearVar::HoldOutputStr() { return ::HoldOutputStr(m_pBlk->m_iHoldOutput, m_iHoldOutput); }
+bool  TearVar::HoldOutput() { return ::HoldOutput(gs_EqnCB.Cfg.m_iHoldOutput, m_pBlk->m_iHoldOutput, m_iHoldOutput)==THO_On; }
+LPSTR TearVar::HoldOutputStr(DDEF_Flags * Flags) { return ::HoldOutputStr(gs_EqnCB.Cfg.m_iHoldOutput, m_pBlk->m_iHoldOutput, m_iHoldOutput, Flags); }
 
 
 //===========================================================================

@@ -1784,7 +1784,7 @@
 #define ID_FILE_DUMMYDELETE             30166
 #define ID_FILE_DUMMYMODIFY             30167
 #define ID_FILE_DUMMYINSERT             30168
-#define ID_FILE_DUMMY                   30169
+#define ID_MENU_CLEANUP_REQD                   30169
 #define ID_HELP_MODELS                  30170
 #define ID_HELP_PGMLANGUAGE             30171
 #define ID_HELP_SYSCAD                  30172

@@ -66,6 +66,12 @@
 #define WITHANALYSE           0
 #define WITHDRVMAN            0
 
+#define KeepOldTearObject        (0)
+#define KeepOldTearObjectEdit    (KeepOldTearObject && 0)
+#define KeepOldTearVarBlkEdit    (0)
+
+
+
 //#include "..\..\..\SMDK\include\md_share1.h"
 
 // ========================================================================

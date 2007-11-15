@@ -102,6 +102,7 @@ FxdEdtFld::FxdEdtFld(pFxdEdtView pView_, FxdEdtRow* pRow_, int BlkId_, int Field
   fItalic=0;
   fInError=0;
   fIsResult=0;
+  fIsDefault=0;
   fDisabled=0;
   fSelected=0;
   fSelectable=1;
@@ -300,30 +301,43 @@ void FxdEdtFld::Write(rGDIBlk GB, flag WithEdge, flag FullDraw)
         DrawMark(GB, iM, (m_Marks & FFM_HasInactive)!=0);
     }
 
-  CRect Txt  (x+EdgeW, y+EdgeW, xr+1, yb);
   CFont * OldFont=NULL;
-  if (fItalic)
-    OldFont=dc.SelectObject(GB.pItlFont[0]); // Italic
   COLORREF TC;
+  bool DoItalic = fItalic;
   if (fInError)
     TC=gbc.crTextError[TxtInv];
   else if (Changed || fEditing)
     TC=gbc.crTextChg[TxtInv];
+  else if (fIsDefault)
+    {
+    TC=gbc.crTextDef[TxtInv];
+    DoItalic=true;
+    }
   else if (fIsResult &&
            !TaggedObject::GlblResultsValid() &&
            !TaggedObject::GlblResultsAlwaysValid())
     TC=gbc.crTextInvalid[TxtInv];
   else
     TC=gbc.crText[TxtInv];
-  int OldTextColor=dc.SetTextColor(TC);
 
+
+  if (DoItalic)
+    OldFont=dc.SelectObject(GB.pItlFont[0]); // Italic
+  int OldTextColor=dc.SetTextColor(TC);
   int OldBkMode=dc.SetBkMode(TRANSPARENT);
+
   const int JustFlags[] = {DT_LEFT, DT_CENTER, DT_RIGHT, 0};
   int JustFlag=JustFlags[Just];
+
+  CRect Txt  (x+EdgeW, y+EdgeW, xr+1+(DoItalic&&(JustFlag==DT_RIGHT)?-1:0), yb);
+  //CRect Txt  (x+EdgeW, y+EdgeW, xr+1, yb);
+  //if (DoItalic&&(JustFlag==DT_RIGHT))
+  //  Str+=" ";
   dc.DrawText(Str(), Str.Length(), Txt, DT_END_ELLIPSIS|DT_SINGLELINE|DT_BOTTOM|DT_NOPREFIX|JustFlag);
+
   dc.SetBkMode(OldBkMode);
   dc.SetTextColor(OldTextColor);
-  if (fItalic)
+  if (DoItalic)
     dc.SelectObject(OldFont);
   }
 

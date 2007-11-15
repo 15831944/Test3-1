@@ -185,7 +185,7 @@ void AccNdData::Init()
   iLvl            = -1;
   dVal            = 0.0;
   //Fmt.Set("f2", 0, DefaultFltFormat, 'f');
-  Fmt             = AccNodeWnd::GlblFmt;
+  m_Fmt           = AccNodeWnd::sm_FixedFmt;
   // Cnv
   iObjNo          = -1;
   fIsStrng        = false;
@@ -238,12 +238,12 @@ void AccNdData::Term()
 
 void AccNdData::FormatFloat()
   {
-  Fmt.FormatFloat(dVal, sValue, fHasNANStr ? &ValLst:NULL);
-  if (iFlags & DDEF_SHOWASDEFAULT)
-    {
-    Strng S("<", sValue(), ">");
-    sValue=S;
-    }
+  m_Fmt.FormatFloat(dVal, sValue, fHasNANStr ? &ValLst:NULL);
+  //if (iFlags & DDEF_SHOWASDEFAULT)
+  //  {
+  //  Strng S("<", sValue(), ">");
+  //  sValue=S;
+  //  }
   }
 
 //---------------------------------------------------------------------------
@@ -252,42 +252,42 @@ void AccNdData::AdjTextValue(char * NewCnv, bool SaveOld)
   {
   if (IsFloatData(iType))
     {
-    if ((Cnv.Index())>0)
+    if ((m_Cnv.Index())>0)
       {   
-      CDataCnv & C=*Cnvs[Cnv.Index()];
+      CDataCnv & C=*Cnvs[m_Cnv.Index()];
       if (Valid(dVal))
-        dVal=C.Normal(dVal, Cnv.Text());
+        dVal=C.Normal(dVal, m_Cnv.Text());
       if (NewCnv)
         sIndividualCnv=NewCnv;
       if (C.OverTxt())
         {
         if (SaveOld)
-          sIndividualCnv=Cnv.Text();
-        Cnv.SetText(C.OverTxt());
+          sIndividualCnv=m_Cnv.Text();
+        m_Cnv.SetText(C.OverTxt());
         }
       else
-        Cnv.SetText(sIndividualCnv());
+        m_Cnv.SetText(sIndividualCnv());
       if (Valid(dVal))
-        dVal=C.Human(dVal, Cnv.Text());
+        dVal=C.Human(dVal, m_Cnv.Text());
       }
     //if (Valid(dVal))
     FormatFloat();
     }
-  else if (IsStrng(iType) && IsTimeCnv(Cnv.Index()))
+  else if (IsStrng(iType) && IsTimeCnv(m_Cnv.Index()))
     {
-    CDataCnv & C=*Cnvs[Cnv.Index()];
+    CDataCnv & C=*Cnvs[m_Cnv.Index()];
     CTimeValue V((LPCTSTR)sValue());
     if (NewCnv)
       sIndividualCnv=NewCnv;
     if (C.OverTxt())
       {
       if (SaveOld)
-        sIndividualCnv=Cnv.Text();
-      Cnv.SetText(C.OverTxt());
+        sIndividualCnv=m_Cnv.Text();
+      m_Cnv.SetText(C.OverTxt());
       }
     else
-      Cnv.SetText(sIndividualCnv());
-    sValue=V.Format(Cnv.Text());
+      m_Cnv.SetText(sIndividualCnv());
+    sValue=V.Format(m_Cnv.Text());
     }
   }
 
@@ -324,7 +324,8 @@ void AccNdFld::Term()
 
 const int MaxTagCmds=200; // NBNB See separ in resource.h
 
-FmtAttribute AccNodeWnd::GlblFmt;
+FmtAttribute AccNodeWnd::sm_FixedFmt;
+FmtAttribute AccNodeWnd::sm_FloatFmt;
 
 IMPLEMENT_DYNCREATE(AccNodeWnd, FxdEdtView)
 
@@ -352,7 +353,8 @@ AccNodeWnd::AccNodeWnd()
   HiddenBitmap.LoadBitmap(IDB_HIDDENVAR);
 
   //GlblFmt.Set("f5", 0, 5, 'f');
-  GlblFmt.Set("f2", 0, 2, 'f');
+  sm_FixedFmt.Set("f2", 0, 2, 'f');
+  sm_FloatFmt.Set("e2", 0, 2, 'e');
 
   m_hTTWnd=NULL;                 // handle to the ToolTip control
   m_bTTVisible=false;
@@ -821,6 +823,9 @@ flag AccNodeWnd::LoadAccessData()
         d.m_IsLastDataCol   = 0;
         d.m_iGridCol        = -1;
 
+        if (d.iFlags & DDEF_FLOATFMT)
+          d.m_Fmt = sm_FloatFmt;
+
         if (d.m_fIsGridRowStart)
           {
           iGridCol=0;
@@ -848,27 +853,27 @@ flag AccNodeWnd::LoadAccessData()
           }
 
         CCnvIndex iCnv = pPItem->CnvIndex();
-        d.Cnv.SetIndex(iCnv);
+        d.m_Cnv.SetIndex(iCnv);
         //// Set to primary Text if sec text supplied is BAD
         //if ((iCnv)>0 && Cnvs[iCnv]->Find(pPItem->CnvTxt())==NULL)
         //  {
-        //  d.Cnv.SetText(Cnvs[iCnv]->Txt()); // Set to Primary Value
+        //  d.m_Cnv.SetText(Cnvs[iCnv]->Txt()); // Set to Primary Value
         //  if (pPItem->CnvTxt())
         //    LogWarning(d.sSymOrTag(), 0, "Unknown Conversion '%s' Set to '%s' for %s", pPItem->CnvTxt(), Cnvs[iCnv]->Txt(), d.sClsTag());
         //  }
         //else
-        d.Cnv.SetText(pPItem->CnvTxt());
-        d.sIndividualCnv = d.Cnv.Text();
+        d.m_Cnv.SetText(pPItem->CnvTxt());
+        d.sIndividualCnv = d.m_Cnv.Text();
  
         if (IsFloatData(d.iType))
           {
           //int Width    = (int)DDEF_WIDTH(d.iFlags);
           //int Precision= (int)DDEF_PRECISION(d.iFlags);
-          d.dVal = pPItem->Value()->GetDouble(d.Cnv.Index(), d.Cnv.Text());
+          d.dVal = pPItem->Value()->GetDouble(d.m_Cnv.Index(), d.m_Cnv.Text());
           }
         else
           {
-          d.sValue = pPItem->Value()->GetString("%i", "%g", d.Cnv.Index(), d.Cnv.Text());
+          d.sValue = pPItem->Value()->GetString("%i", "%g", d.m_Cnv.Index(), d.m_Cnv.Text());
           if (d.iType==tt_RqdPage || d.iType==tt_OptPage)
             {
             d.fKeepFldName=FirstPage;
@@ -1121,13 +1126,13 @@ flag AccNodeWnd::LoadAccessData()
 
       // Test Cnvs;
       // Set to primary Text if sec text supplied is BAD
-      if ((d.Cnv.Index())>0 && Cnvs[d.Cnv.Index()]->Find(d.Cnv.Text())==NULL)
+      if ((d.m_Cnv.Index())>0 && Cnvs[d.m_Cnv.Index()]->Find(d.m_Cnv.Text())==NULL)
         {
-        if (d.Cnv.Text())
-          LogWarning(d.sSymOrTag(), 0, "Unknown Conversion '%s' Set to '%s' for %s", d.Cnv.Text(), Cnvs[d.Cnv.Index()]->Txt(), d.sFullTag());
-        d.Cnv.SetText(Cnvs[d.Cnv.Index()]->Txt()); // Set to Primary Value
+        if (d.m_Cnv.Text())
+          LogWarning(d.sSymOrTag(), 0, "Unknown Conversion '%s' Set to '%s' for %s", d.m_Cnv.Text(), Cnvs[d.m_Cnv.Index()]->Txt(), d.sFullTag());
+        d.m_Cnv.SetText(Cnvs[d.m_Cnv.Index()]->Txt()); // Set to Primary Value
         }
-      d.sIndividualCnv = d.Cnv.Text();
+      d.sIndividualCnv = d.m_Cnv.Text();
 
       for (int iMVS=0; iMVS<nTagItems; iMVS++)
         if (d.sRefTag.XStrICmp(TagItems[iMVS].m_sTag)==0)
@@ -1256,7 +1261,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
                   char Buff[256];
                   sprintf(Buff, "%i", pS->Index());
                   PkDataUnion PData;
-                  PData.SetTypeString(f.iType, Buff, f.Cnv.Index(), f.Cnv.Text());
+                  PData.SetTypeString(f.iType, Buff, f.m_Cnv.Index(), f.m_Cnv.Text());
                   ObjData.List.SetDataValue(/*pPItem,*/ /*f.iType,*/ f.sSymOrTag(), PData);
                   break;
                   }
@@ -1266,9 +1271,9 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
               {
               PkDataUnion PData;
               if (f.iType==tt_Double)
-                PData.SetTypeDouble(f.iType, f.dVal, f.Cnv.Index(), f.Cnv.Text());
+                PData.SetTypeDouble(f.iType, f.dVal, f.m_Cnv.Index(), f.m_Cnv.Text());
               else
-                PData.SetTypeString(f.iType, f.sValue() ? f.sValue() : "", f.Cnv.Index(), f.Cnv.Text());
+                PData.SetTypeString(f.iType, f.sValue() ? f.sValue() : "", f.m_Cnv.Index(), f.m_Cnv.Text());
               ObjData.List.SetDataValue(/*pPItem,*/ /*f.iType,*/ f.sSymOrTag(), PData);
               }
             }
@@ -1629,13 +1634,13 @@ void AccNodeWnd::SaveNdHist(int iNo)
 //ss            break;
 //ss          case tt_Text:
 //ss            fprintf(hw, "%s\t%s\t%s\t%s\t%c\t%i\t%s\n", "T", "v-", d.sSymOrTag() ? d.sSymOrTag() : "",
-//ss                    "", d.Fmt.Type(), d.Fmt.Prec(), d.Cnv.Text() ? d.Cnv.Text() : "");
+//ss                    "", d.m_Fmt.Type(), d.m_Fmt.Prec(), d.m_Cnv.Text() ? d.m_Cnv.Text() : "");
 //ss            break;
 //ss          default:
 //ss            if (!IsStructure(d.iType))
 //ss              fprintf(hw, "%s\t%s\t%s\t%s\t%c\t%i\t%s\n", "D", "v", d.sSymOrTag(),
-//ss                      d.sRefTag() ? d.sRefTag() : "", d.Fmt.Type(),
-//ss                      d.Fmt.Prec(), d.Cnv.Text() ? d.Cnv.Text() : "");
+//ss                      d.sRefTag() ? d.sRefTag() : "", d.m_Fmt.Type(),
+//ss                      d.m_Fmt.Prec(), d.m_Cnv.Text() ? d.m_Cnv.Text() : "");
 //ss          }
 //ss        }
 //ss      if (hr)
@@ -2026,8 +2031,8 @@ void AccNodeWnd::SaveNdHist(int iNo)
 //ss            }
 //ss          }
 //ss
-//ss        d.Fmt.SetType((C[4] ? *(C[4]) : (char)'f'));
-//ss        d.Fmt.SetPrec((byte)atol(C[5] ? C[5] : "2"));
+//ss        d.m_Fmt.SetType((C[4] ? *(C[4]) : (char)'f'));
+//ss        d.m_Fmt.SetPrec((byte)atol(C[5] ? C[5] : "2"));
 //ss        d.AdjTextValue(C[6], false);
 //ss
 //ss        NFlds++;
@@ -2279,13 +2284,13 @@ void AccNodeWnd::SaveNdHist(int iNo)
 //ss          break;
 //ss        case tt_Text:
 //ss          fprintf(h, "%s\t%s\t%s\t%s\t%c\t%i\t%s\n", "T", "v-", d.sSymOrTag() ? d.sSymOrTag() : "",
-//ss                  "", d.Fmt.Type(), d.Fmt.Prec(), d.Cnv.Text() ? d.Cnv.Text() : "");
+//ss                  "", d.m_Fmt.Type(), d.m_Fmt.Prec(), d.m_Cnv.Text() ? d.m_Cnv.Text() : "");
 //ss          break;
 //ss        default:
 //ss          if (!IsStructure(d.iType))
 //ss            fprintf(h, "%s\t%s\t%s\t%s\t%c\t%i\t%s\n", "D", "v", d.sSymOrTag(),
-//ss                    d.sRefTag() ? d.sRefTag() : "", d.Fmt.Type(),
-//ss                    d.Fmt.Prec(), d.Cnv.Text() ? d.Cnv.Text() : "");
+//ss                    d.sRefTag() ? d.sRefTag() : "", d.m_Fmt.Type(),
+//ss                    d.m_Fmt.Prec(), d.m_Cnv.Text() ? d.m_Cnv.Text() : "");
 //ss        }
 //ss      }
 //ss    fclose(h);
@@ -2329,13 +2334,13 @@ void AccNodeWnd::ConnectFields()
             d.pObjAttr->SetFieldVisible(Tag(), d.iFlags, false);
           f.fIsTreeVis = d.pObjAttr->FieldVisible(Tag(), d.iFlags, f.fIsTreeVis);
 
-          CCnvIndex iCnv=d.Cnv.Index();
+          CCnvIndex iCnv=d.m_Cnv.Index();
           if (iCnv>0)
             {
             //if (iCnv>0 && !d.pObjAttr->ValidateCnv(Tag(), iCnv))
             //  LogWarning(d.sSymOrTag(), 0, "Unknown Conversion changed to '%s'", Cnvs[iCnv]->Txt());
             NewCnvs.SetText("");
-            if (d.pObjAttr->FieldFmtCnvs(Tag(), d.Fmt, NewCnvs))
+            if (d.pObjAttr->FieldFmtCnvs(Tag(), d.m_Fmt, NewCnvs))
               {
               if (iCnv>0 && NewCnvs.TextLength()>0 && Cnvs[iCnv]->Find(NewCnvs.Text())==NULL)
                 NewCnvs.SetText(""); //don't adjust
@@ -2344,7 +2349,7 @@ void AccNodeWnd::ConnectFields()
             }
           else if (IsFloatData(f.iType))
             {
-            if (d.pObjAttr->FieldFmt(Tag(), d.Fmt))
+            if (d.pObjAttr->FieldFmt(Tag(), d.m_Fmt))
               d.FormatFloat();
             }
           }
@@ -2405,7 +2410,7 @@ void AccNodeWnd::MeasureFields()//, flag FullNames)
           NW=f.sTagText.Length()+d.m_iChildLvl;
           if (f.fUseComment && !d.fHasCheck)
             NW+=2+Data[f.iUseComment].sTagComment.Length();
-          CW=d.Cnv.TextLength()+2;
+          CW=d.m_Cnv.TextLength()+2;
           VW=d.sValue.Length();
           if (d.fIsStrng && d.fIsParam)
             VW=Max(VW, 20);
@@ -3036,7 +3041,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               //pFld->m_fRmtChgd = (d.m_ValStatus&CTOSelectData::VS_Changed)!=0;
 #endif
               if (d.sFullTag())
-                SetTag(d.sFullTag(), d.Cnv.Text());
+                SetTag(d.sFullTag(), d.m_Cnv.Text());
 
               SetMarkerFlags(d.m_Markers);
               }
@@ -3051,11 +3056,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               int FldW = ColHdrs[d.m_iGridCol+1].m_Width;
               Strng Sep;
               Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[d.m_iGridCol+1].m_Gap);
-              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, Sep()?Sep():"");
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.m_Cnv.Index()))?0:2, Sep()?Sep():"");
               }
             else
               {
-              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, "  ");
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.m_Cnv.Index()))?0:2, "  ");
               }
 
             if (d.iFlags & DDEF_FUNCTPARM)
@@ -3109,7 +3114,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
             SetMarkerFlags(d.m_Markers);
 
-            f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, "  ", false);
+            f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.m_Cnv.Index()))?0:2, "  ", false);
             if (d.ValLst.Length()>0)
               for (pStrng p=d.ValLst.First(); p; p=p->Next())
                 FldHasFixedStrValue(p->Index(), p->Str());
@@ -3132,7 +3137,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               //pFld->m_fRmtChgd = (d.m_ValStatus&CTOSelectData::VS_Changed)!=0;
 #endif
               if (d.sFullTag())
-                SetTag(d.sFullTag(), d.Cnv.Text());
+                SetTag(d.sFullTag(), d.m_Cnv.Text());
 
               SetMarkerFlags(d.m_Markers);
               }
@@ -3143,11 +3148,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               int FldW = ColHdrs[d.m_iGridCol+1].m_Width;
               Strng Sep;
               Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[d.m_iGridCol+1].m_Gap);
-              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, Sep()?Sep():"", false);
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.m_Cnv.Index()))?0:2, Sep()?Sep():"", false);
               }
             else
               {
-              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, "  ", false);
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.m_Cnv.Index()))?0:2, "  ", false);
               }
             
             if (HasTag)
@@ -3170,7 +3175,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             }
 
           if (d.sFullTag())
-            SetTag(d.sFullTag(), d.Cnv.Text());
+            SetTag(d.sFullTag(), d.m_Cnv.Text());
           if (!DoingGrid && (!d.fHasButton || d.fHasCheck || (d.ValLst.Length()>0)))
             {
             NameBuff.Trim();
@@ -3332,6 +3337,7 @@ void AccNodeWnd::Load(FxdEdtInfo &EI, Strng & Str)
         Str="Go To ...";
         EI.Fld->fEditable=false;
         EI.Fld->fIsResult=false;
+        EI.Fld->fIsDefault=false;
         break;
       default: 
         break;
@@ -3354,6 +3360,7 @@ void AccNodeWnd::Load(FxdEdtInfo &EI, Strng & Str)
         //Str= pc ? pc : "";
         EI.Fld->fInError=((Flds[f]().iFlags & DDEF_INERROR)!=0);
         EI.Fld->fIsResult=((Flds[f]().iFlags & DDEF_RESULT)!=0);
+        EI.Fld->fIsDefault=((Flds[f]().iFlags & DDEF_SHOWASDEFAULT)!=0);
         EI.Fld->SetMarks(Flds[f]().m_Markers);
         }
       else
@@ -3369,13 +3376,13 @@ void AccNodeWnd::Load(FxdEdtInfo &EI, Strng & Str)
         if (f>=0 && Flds[f].HasData())
           {
           AccNdData & d=Flds[f]();
-          if (IsFloatData(d.iType) || (IsStrng(d.iType) && IsTimeCnv(d.Cnv.Index())))// && Valid(d.dVal))
+          if (IsFloatData(d.iType) || (IsStrng(d.iType) && IsTimeCnv(d.m_Cnv.Index())))// && Valid(d.dVal))
             {
-            CDataCnv & C=*Cnvs[d.Cnv.Index()];
+            CDataCnv & C=*Cnvs[d.m_Cnv.Index()];
             if (C.OverTxt())
               Str+=C.OverTxt();
-            else if (d.Cnv.Text())
-              Str+=d.Cnv.Text();
+            else if (d.m_Cnv.Text())
+              Str+=d.m_Cnv.Text();
             }
           }
         else
@@ -3427,7 +3434,7 @@ long AccNodeWnd::Parse(FxdEdtInfo &EI, Strng & Str)
       {
       AccNdFld & f=Flds[fi];
       AccNdData & d=f();
-      d.iFlags &= ~DDEF_SHOWASDEFAULT;
+      //d.iFlags &= ~DDEF_SHOWASDEFAULT;
       //char B[256];        
       if (d.fIndexedStr)
         d.sValue=Str;
@@ -3465,14 +3472,14 @@ long AccNodeWnd::Parse(FxdEdtInfo &EI, Strng & Str)
               if (!GotIt)
                 {
                 PkDataUnion DU;
-                DU.SetTypeString(d.iType, Str(), d.Cnv.Index(), d.Cnv.Text());
+                DU.SetTypeString(d.iType, Str(), d.m_Cnv.Index(), d.m_Cnv.Text());
                 if (IsFloatData(d.iType))
                   {
-                  d.dVal=DU.GetDouble(d.Cnv.Index(), d.Cnv.Text());
+                  d.dVal=DU.GetDouble(d.m_Cnv.Index(), d.m_Cnv.Text());
                   d.FormatFloat();//f.dVal);
                   }
                 else
-                  d.sValue = DU.GetString("%i", "%g", d.Cnv.Index(), d.Cnv.Text());
+                  d.sValue = DU.GetString("%i", "%g", d.m_Cnv.Index(), d.m_Cnv.Text());
                 }
               }
             break;
@@ -3676,7 +3683,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         fGlobalFmtMenu=1;
         CMenu FormatMenu2;
         FormatMenu2.CreatePopupMenu();
-        GlblFmt.AddToMenu(FormatMenu2);
+        sm_FixedFmt.AddToMenu(FormatMenu2);
         Menu.AppendMenu(MF_POPUP, (unsigned int)FormatMenu2.m_hMenu, "Global Default Format");
         Menu.AppendMenu(MF_SEPARATOR);
 #if WITHSPECSHEETS
@@ -4065,7 +4072,8 @@ void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred, bool UpdateHist
     ObjectAttribute *pAttr=ObjAttributes.FindObject("AccNodeWnd");
     if (pAttr)
       {
-      pAttr->FieldFmt("GlblFmt",   GlblFmt);
+      pAttr->FieldFmt("FixedFmt",   sm_FixedFmt);
+      pAttr->FieldFmt("FloatFmt",   sm_FloatFmt);
       }
 
     m_NdTag.Set(RqdNdTag());
@@ -4240,7 +4248,7 @@ void AccNodeWnd::OnAccCnv(UINT Id)
     if (f.HasData())
       {
       AccNdData &d=f();
-      CCnvIndex CnvInx=f().Cnv.Index();
+      CCnvIndex CnvInx=f().m_Cnv.Index();
       pCDataCnv pC=Cnvs[CnvInx];
       for (int i=Id-IDM_ACC_CNV1; i>0; i--)
         pC=pC->Next();
@@ -4251,7 +4259,7 @@ void AccNodeWnd::OnAccCnv(UINT Id)
         if (C.OverTxt())
           C.SetOverTxt("");
         else
-          C.SetOverTxt(d.Cnv.Text());
+          C.SetOverTxt(d.m_Cnv.Text());
         gs_CnvsMngr.Save();
         for (int i = 0; i < NFlds; i++)
           {
@@ -4280,7 +4288,7 @@ void AccNodeWnd::OnAccCnv(UINT Id)
           d.AdjTextValue(pC->Txt(), false);
           Strng Tag;
           if (FullFldName(Tag, Data, f.iData))
-            d.pObjAttr->SetFieldCnvs(Tag(), d.Cnv);
+            d.pObjAttr->SetFieldCnvs(Tag(), d.m_Cnv);
           f.ValFld->Invalidate(ScrGB);        
 
           for (pFxdEdtFld pFld=FirstSlctFld(); pFld; pFld=NextSlctFld())
@@ -4290,13 +4298,13 @@ void AccNodeWnd::OnAccCnv(UINT Id)
             if (pFld->FieldId!=0 && fi<MaxAccNdFlds)
               {
               rAccNdFld f=Flds[fi];
-              if (f.HasData() && (f().Cnv.Index()==CnvInx))
+              if (f.HasData() && (f().m_Cnv.Index()==CnvInx))
                 {
                 AccNdData &d=f();
                 d.AdjTextValue(pC->Txt(), false);
                 f.ValFld->Invalidate(ScrGB);
                 if (FullFldName(Tag, Data, f.iData))
-                  d.pObjAttr->SetFieldCnvs(Tag(), d.Cnv);
+                  d.pObjAttr->SetFieldCnvs(Tag(), d.m_Cnv);
                 }
               }
             }
@@ -4321,10 +4329,13 @@ void AccNodeWnd::OnAccFmt(UINT Id)
     {
     if (i<(UINT)DefinedFmts.GetSize())
       {
-      GlblFmt=DefinedFmts[i];
+      sm_FixedFmt=DefinedFmts[i];
       ObjectAttribute *pAttr=ObjAttributes.FindObject("AccNodeWnd");
       if (pAttr)
-        pAttr->SetFieldFmt  ("GlblFmt", GlblFmt);
+        {
+        pAttr->SetFieldFmt  ("FixedFmt", sm_FixedFmt);
+        pAttr->SetFieldFmt  ("FloatFmt", sm_FloatFmt);
+        }
       }
     //todo: force update of all fields???
     RBActiveFld=-1;
@@ -4354,7 +4365,7 @@ void AccNodeWnd::OnAccFmt(UINT Id)
             if (f.HasData())
               {
               AccNdData &d=f();
-              d.Fmt=DefinedFmts[i];
+              d.m_Fmt=DefinedFmts[i];
               if (IsFloatData(f.iType))
                 d.FormatFloat();
               Strng Tag;
@@ -4434,55 +4445,55 @@ void AccNodeWnd::OnAccView(UINT Id)
             }
           case IDM_ACC_VIEW0:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
             ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
             break;
             }
           case IDM_ACC_ARCHIVE0:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ADDTOARCHIVE, (long)(IB));
             break;
             }
           case IDM_ACC_CUSTOM0:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
             ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ON:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_HISTORYON, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_OFF:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_HISTORYOFF, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLON:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLHISTORYON, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLOFF:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLHISTORYOFF, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLMDLON:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLMDLHISTORYON, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLMDLOFF:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLMDLHISTORYOFF, (long)(IB));
             break;
             }
@@ -4924,10 +4935,10 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
         fGlobalFmtMenu=0;
         CMenu FormatMenu;
         FormatMenu.CreatePopupMenu();
-        d.Fmt.AddToMenu(FormatMenu);
+        d.m_Fmt.AddToMenu(FormatMenu);
         CMenu CnvMenu;
         CnvMenu.CreatePopupMenu();
-        d.Cnv.AddToMenu(CnvMenu, true);
+        d.m_Cnv.AddToMenu(CnvMenu, true);
         
         Strng ClassNV(GetClassIdNoVersion(ObjClassId()));
 
@@ -4945,7 +4956,7 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
         RecMenu.AppendMenu(MF_STRING, IDM_ACC_HISTORY_ALLOFF, "All Off");
 
         Menu.AppendMenu(MF_POPUP, (unsigned int)CnvMenu.m_hMenu, "&Conversions");
-        if (d.Cnv.Index()<=0 || !(IsFloatData(d.iType)||(IsStrng(d.iType)&& IsTimeCnv(d.Cnv.Index()))))
+        if (d.m_Cnv.Index()<=0 || !(IsFloatData(d.iType)||(IsStrng(d.iType)&& IsTimeCnv(d.m_Cnv.Index()))))
           Menu.EnableMenuItem(0, MF_BYPOSITION|MF_GRAYED);
 
         Menu.AppendMenu(MF_POPUP, (unsigned int)FormatMenu.m_hMenu, "&Format");
@@ -5389,7 +5400,7 @@ flag AccNodeWnd::DoKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
                 {
                 case VK_F6:
                   {
-                  TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+                  TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.m_Cnv, &d.m_Fmt);
                   ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
                   break;
                   }
@@ -5429,7 +5440,7 @@ flag AccNodeWnd::DoCutVal(pFxdEdtFld pFld, char *buff, int buffsize)
       int di=Flds[fi].iData;
       strncpy(buff, Data[di].sFullTag(), buffsize);
       XStrTrim(buff);
-      AppendCnvText(buff, Data[di].Cnv.Text());
+      AppendCnvText(buff, Data[di].m_Cnv.Text());
       //strcat(buff, " (");
       //strcat(buff, Data[di].Cnv.Text());
       //strcat(buff, ")");
@@ -5453,7 +5464,7 @@ flag AccNodeWnd::DoCopyVal(pFxdEdtFld pFld, char *buff, int buffsize)
       const int di=Flds[fi].iData;
       strncpy(buff, Data[di].sFullTag(), buffsize);
       XStrTrim(buff);
-      AppendCnvText(buff, Data[di].Cnv.Text());
+      AppendCnvText(buff, Data[di].m_Cnv.Text());
 
 //      strcat(buff, " (");
 //      strcat(buff, Data[di].Cnv.Text());

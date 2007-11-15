@@ -9654,7 +9654,9 @@ CFlwSolver::CFlwSolver(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   Dyn(this),
   PB(this),
   SDBObj(&SDBObjectClass,     "$SDB", this, TOA_Embedded),//NULL, TOA_Free),
+#if WithTearObject
   TearObj(&TearObjectClass,   "$Tear", NULL, TOA_Free),
+#endif
 #if WITHCTRLOBJ
   CtrlObj(&CtrlObjectClass,   "$Ctrl", NULL, TOA_Free),
 #endif
@@ -10310,9 +10312,11 @@ TaggedObject * CFlwSolver::FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagL
   if (pObj)
     return pObj;
 
+#if WithTearObject
   pObj=TearObj.FindObjTag(pSrchTag, SrchAll, ObjTagLen, MinTagLen);
   if (pObj)
     return pObj;
+#endif
 
 #if WITHCTRLOBJ
   pObj=CtrlObj.FindObjTag(pSrchTag, SrchAll, ObjTagLen, MinTagLen);
@@ -14809,7 +14813,9 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
     SW_1,
     SW_2,
     SW_3,
+#if WithTearObject
     SW_4,
+#endif
 #if WITHCHANGEOBJ
     SW_5,
 #endif
@@ -14883,6 +14889,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       SDBObj.ClearDDBLists();
       return true;
+#if WithTearObject
     case SW_4:
       iSaveWhat++;
       Tag=TearObj.Tag();
@@ -14891,6 +14898,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       TearObj.ClearDDBLists();
       return true;
+#endif
 #if WITHCHANGEOBJ
     case SW_5:
       iSaveWhat++;
@@ -15205,8 +15213,10 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
             goto Done;
           if (_stricmp(pItem->Class(), SDBObjectClass.ClassId())==0)
             goto Done;
+#if WithTearObject
           if (_stricmp(pItem->Class(), TearObjectClass.ClassId())==0)
             goto Done;
+#endif
 #if WITHCTRLOBJ
           if (_stricmp(pItem->Class(), CtrlObjectClass.ClassId())==0)
             goto Done;
@@ -15249,6 +15259,12 @@ Done:;
           {
           LogNote(pItem->SymOrTag(), 0, "Object %s Removed", pItem->Class());
           }
+#if !WithTearObject
+        else if (_stricmp(pItem->Class(), "FS_Tears")==0)
+          {
+          LogNote(pItem->SymOrTag(), 0, "Object %s Removed", pItem->Class());
+          }
+#endif
 #if !WITHCTRLOBJ
         else if (_stricmp(pItem->Class(), "FS_Ctrl")==0)
           {

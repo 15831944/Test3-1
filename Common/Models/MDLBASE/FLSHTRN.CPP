@@ -241,7 +241,7 @@ IMPLEMENT_TAGOBJEDTDERIVED(FlshTrnTearVarBlk, "FlshTrnTearVarBlk", "TbFlshTrn", 
                            "Flash Train TearVarBlk", "Flash Train Tear Variable Calculation Blk",
                            TearVarBlkClassDef);
 #else
-IMPLEMENT_TAGOBJDERIVED(FlshTrnTearVarBlk, "FlshTrnTearVarBlk", "TbFlshTrn", "", "TBFT", TOC_SYSTEM, 
+IMPLEMENT_TAGOBJDERIVED(FlshTrnTearVarBlk, "FlshTrnTearVarBlk", "TbFlshTrn", "", "TBFT", "XX", TOC_SYSTEM, 
                            "Flash Train TearVarBlk", "Flash Train Tear Variable Calculation Blk",
                            TearVarBlkClassDef);
 #endif

@@ -398,6 +398,7 @@ IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "CleanupReqd",                       ID_MENU_CLEANUP_REQD
         MENUITEM "Load",                        ID_FILE_Load
         MENUITEM "Save",                        30164
         POPUP "New"
@@ -531,6 +532,7 @@ IDR_VISIOGRF MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "CleanupReqd",                       ID_MENU_CLEANUP_REQD
         MENUITEM "Load",                        ID_FILE_Load
         MENUITEM "Save",                        30164
         POPUP "&New"
@@ -721,6 +723,7 @@ IDR_VISIOGRF_CNTR_IP MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "CleanupReqd",                       ID_MENU_CLEANUP_REQD
         MENUITEM "Load",                        ID_FILE_Load
         MENUITEM "Save",                        30164
         POPUP "&New"
@@ -797,6 +800,7 @@ IDR_TRENDVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "CleanupReqd",                       ID_MENU_CLEANUP_REQD
         MENUITEM "Load",                        ID_FILE_Load
         MENUITEM "Save",                        30164
         POPUP "&New"
@@ -1014,6 +1018,7 @@ IDR_CTRENDVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "CleanupReqd",                       ID_MENU_CLEANUP_REQD
         MENUITEM "Load",                        ID_FILE_Load
         MENUITEM "Save",                        30164
         POPUP "&New"
@@ -1231,6 +1236,7 @@ IDR_GRFVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "CleanupReqd",                       ID_MENU_CLEANUP_REQD
         MENUITEM "Load",                        ID_FILE_Load
         MENUITEM "Save",                        30164
         POPUP "&New"
@@ -1294,6 +1300,7 @@ BEGIN
     END
     POPUP "&Edit"
     BEGIN
+        MENUITEM "Dummy",                        ID_MENU_CLEANUP_REQD
         MENUITEM "Project &Settings...",        ID_PROJECT_EDIT_SETTINGS
         MENUITEM "Project &Configuration ...",  ID_PROJECT_EDIT_CFG
         MENUITEM "Specie Data&Base ...",        ID_PROJECT_EDIT_SDB
@@ -1496,6 +1503,7 @@ IDR_PRJVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "CleanupReqd",                       ID_MENU_CLEANUP_REQD
         MENUITEM "Load",                        ID_FILE_Load
         MENUITEM "Save",                        30164
         POPUP "&New"
@@ -1681,6 +1689,7 @@ IDR_MDICLIENT_MENU MENU
 BEGIN
     POPUP "Stopped"
     BEGIN
+        MENUITEM "CleanupReqd",                       ID_MENU_CLEANUP_REQD
         MENUITEM "&New ...",                    ID_FILE_NEW
         MENUITEM "Save La&yout",                ID_FILE_SAVELAYOUT
         MENUITEM "Project &Save all",           ID_PROJECT_SAVEALL
@@ -1715,6 +1724,7 @@ IDR_WNDLIST_TMPL MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "CleanupReqd",                       ID_MENU_CLEANUP_REQD
         MENUITEM "Load",                        ID_FILE_Load
         MENUITEM "Save",                        30164
         POPUP "&New"

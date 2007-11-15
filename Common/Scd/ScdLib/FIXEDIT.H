@@ -179,7 +179,7 @@ class DllImportExport FxdEdtFld
     UCHAR           IsIndexTab:1, ButtonDown:1, IsFxdStrings:1, HasNANStrings:1,
                     HasDDLst:1, HasEdtBox:1,
                     fItalic:1, fInError:1, fFixedPos:1, 
-                    fDisabled:1, fIsResult:1;
+                    fDisabled:1, fIsResult:1, fIsDefault:1;
     UCHAR           fSelected:1, fSelectable:1, fProtected:1, m_fUnderLine:1, m_fRmtData:1, m_fRmtChgd:1;
     UCHAR           m_Marks, m_MarksChgd;
     short           Len, Col1, ColN;

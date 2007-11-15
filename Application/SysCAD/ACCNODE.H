@@ -88,8 +88,8 @@ class AccNdData
     Strng          sIndividualCnv;
 
 
-    CnvAttribute    Cnv;
-    FmtAttribute    Fmt;
+    CnvAttribute    m_Cnv;
+    FmtAttribute    m_Fmt;
     int             iViewIndex;
     
     signed char     iObjNo;
@@ -358,7 +358,8 @@ class AccNodeWnd : public FxdEdtView, public CExecObj
     void HideTT();      
 
   public:
-    static FmtAttribute GlblFmt;
+    static FmtAttribute sm_FixedFmt;
+    static FmtAttribute sm_FloatFmt;
   // Attributes
   protected:
     Strng          m_NdTag;

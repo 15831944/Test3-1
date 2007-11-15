@@ -137,8 +137,14 @@ class DllImportExport SDBObjectEdt : public FxdEdtBookRef
 //
 // ==========================================================================
 
+#if KeepOldTearObject    
+
+#if KeepOldTearObjectEdit 
 DEFINE_TAGOBJEDT(TearObject)
-//DEFINE_TAGOBJ(TearObject)
+#else
+DEFINE_TAGOBJ(TearObject)
+#endif
+
 class TearObject : public CTNode
   {
   public:
@@ -152,6 +158,9 @@ class TearObject : public CTNode
   };
 
 // ===========================================================================
+
+
+#if KeepOldTearObjectEdit 
 
 _FWDDEF(TearObjectEdt);
 class DllImportExport TearObjectEdt : public FxdEdtBookRef
@@ -195,6 +204,8 @@ class DllImportExport TearObjectEdt : public FxdEdtBookRef
     virtual flag DoAccFmt(UINT Id);
     virtual flag DoAccRptTagLists();
   };
+#endif
+#endif
 
 // ==========================================================================
 //

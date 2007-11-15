@@ -75,6 +75,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_WM_CREATE()
   ON_WM_CLOSE()
   ON_WM_ACTIVATE()
+  ON_WM_INITMENU()
+
   ON_COMMAND(ID_PROJECT_OPTIONS, OnProjectOptions)
   ON_COMMAND(ID_OPTIONS_BROWSETAGS, OnOptionsBrowsetags)
   ON_COMMAND(ID_OPTIONS_HISTORIANQUERY, OnOptionsHistorianQuery)
@@ -130,7 +132,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_COMMAND(ID_OPTIONS_CMDSCRIPTS, OnOptionsCmdscripts)
   ON_COMMAND(ID_OPTIONS_COMPARE, OnOptionsCompare)
   ON_UPDATE_COMMAND_UI(ID_OPTIONS_COMPARE, OnUpdateOptionsCompare)
-  ON_WM_INITMENU()
+  //ON_WM_INITMENU()
   ON_UPDATE_COMMAND_UI(ID_OPTIONS_CMDSCRIPTS, OnUpdateOptionsCmdscripts)
   ON_COMMAND(ID_PROJECT_MERGE, OnProjectMerge)
   ON_UPDATE_COMMAND_UI(ID_PROJECT_MERGE, OnUpdateProjectMerge)
@@ -1151,25 +1153,33 @@ void CMainFrame::OnEXECDumpMsgQueue()
 
 bool CMainFrame::DeleteMenuItem(UINT ItemID)
   {
+  bool DoneOne=false;
   CMenu* pMenu = GetMenu();
   if (pMenu)
     {
+LookforNext:
     int TopLevel = 0;
     while (TopLevel<(int)(pMenu->GetMenuItemCount()))
       {
       if (pMenu->DeleteMenu(ItemID, MF_BYCOMMAND))
-        return true;
+        {
+        DoneOne=true;
+        goto LookforNext; 
+        }
       if (pMenu->GetMenuItemID(TopLevel)==-1)
         {
         CMenu* pSub = pMenu->GetSubMenu(TopLevel);
         ASSERT(pSub);
         if (pSub->DeleteMenu(ItemID, MF_BYCOMMAND))
-          return true;
+          {
+          DoneOne=true;
+          goto LookforNext; 
+          }
         }
       TopLevel++;
       }
     }
-  return false;
+  return DoneOne;
   }
 
 //---------------------------------------------------------------------------
@@ -1277,83 +1287,87 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
       {
       //if (!gs_pPrj->bChangedRuntimeMenu)
       CMenu* pSub = (pMenu->GetMenuItemID(0)==-1) ? pMenu->GetSubMenu(0) : NULL;
-      if (pSub && pSub->GetMenuItemID(0)==ID_FILE_DUMMY)
+      if (pSub && pSub->GetMenuItemID(0)==ID_MENU_CLEANUP_REQD)
         {
         /*if (gs_License.IsRunTime())
-          {
-          const UINT DelList[] = {
-            ID_PROJECT_EDIT_CFG,
-            ID_GRF_Insert,
-            ID_GRF_ChangeUnit,
-            ID_GRF_Connect,
-            ID_GRF_ConstructUnit,
-            ID_GRF_ConstructLink,
-            ID_GRF_ConstructTie,
-            ID_GRF_ConstructSymbol,
-            ID_GRF_MoveEntity,
-            ID_GRF_AlterEntity,
-            ID_GRF_MoveLink,
-            ID_GRF_ExplodeUnit,
-            ID_GRF_DeleteUnit,
-            ID_GRF_CreateFill,
-            ID_GRF_CreateDynamic,
-            ID_GRF_CreateAnnotation,
-            ID_GRF_CreateToggle,
-            ID_GRF_UpdateFill,
-            ID_GRF_UpdateDynamic,
-            ID_GRF_UpdateAnnotation,
-            ID_GRF_UpdateToggle,
-            ID_GRF_LoadDrawing,
-            ID_GRF_ImportPDSFile,
-            ID_GRF_ConfigLayers,
-            ID_GRF_DeleteSymbol,
-            ID_GRF_ExplodeSymbol,
-            ID_GRF_SaveSymbols,
-            ID_GRF_CreateGroup,
-            ID_GRF_InsertGroup,
-            0 };
-          for (int i=0; DelList[i]!=0; i++)
-            DeleteMenuItem(DelList[i]);
-          }*/
+        {
+        const UINT DelList[] = {
+        ID_PROJECT_EDIT_CFG,
+        ID_GRF_Insert,
+        ID_GRF_ChangeUnit,
+        ID_GRF_Connect,
+        ID_GRF_ConstructUnit,
+        ID_GRF_ConstructLink,
+        ID_GRF_ConstructTie,
+        ID_GRF_ConstructSymbol,
+        ID_GRF_MoveEntity,
+        ID_GRF_AlterEntity,
+        ID_GRF_MoveLink,
+        ID_GRF_ExplodeUnit,
+        ID_GRF_DeleteUnit,
+        ID_GRF_CreateFill,
+        ID_GRF_CreateDynamic,
+        ID_GRF_CreateAnnotation,
+        ID_GRF_CreateToggle,
+        ID_GRF_UpdateFill,
+        ID_GRF_UpdateDynamic,
+        ID_GRF_UpdateAnnotation,
+        ID_GRF_UpdateToggle,
+        ID_GRF_LoadDrawing,
+        ID_GRF_ImportPDSFile,
+        ID_GRF_ConfigLayers,
+        ID_GRF_DeleteSymbol,
+        ID_GRF_ExplodeSymbol,
+        ID_GRF_SaveSymbols,
+        ID_GRF_CreateGroup,
+        ID_GRF_InsertGroup,
+        0 };
+        for (int i=0; DelList[i]!=0; i++)
+        DeleteMenuItem(DelList[i]);
+        }*/
         if (!ScdApp()->m_CLH.bAllowLocalCopy)
           {
-          while (DeleteMenuItem(ID_PROJECT_OPENLOCAL))
-            {//repeat as item appears many times in different menus
-            }
+          //while (DeleteMenuItem(ID_PROJECT_OPENLOCAL)) { /* repeat as item appears many times in different menus */}
+          DeleteMenuItem(ID_PROJECT_OPENLOCAL);
           }
 
-        #if (!WITHGRFGROUP)
+#if !KeepOldTearObject
+        DeleteMenuItem(ID_VIEW_TEARBLOCKS);
+#endif
+
+#if (!WITHGRFGROUP)
         DeleteMenuItem(ID_GRF_CreateGroup);
         DeleteMenuItem(ID_GRF_InsertGroup);
-        #endif
-        #if (!WITHCTRLOBJ)
+#endif
+#if (!WITHCTRLOBJ)
         DeleteMenuItem(ID_VIEW_CONTROLS);
-        #endif
-        #if (!WITHORDEROBJ)
+#endif
+#if (!WITHORDEROBJ)
         DeleteMenuItem(ID_VIEW_EVALORDER);
-        #endif
-        #if (!WITHIOOBJ)
+#endif
+#if (!WITHIOOBJ)
         DeleteMenuItem(ID_VIEW_IOPOINTS);
-        #endif
-        #if (!WITHSCRCYCLES)
+#endif
+#if (!WITHSCRCYCLES)
         DeleteMenuItem(ID_VIEW_SCREENSAVER);
-        #endif
-        #if (!WITHIMPORTPDS)
+#endif
+#if (!WITHIMPORTPDS)
         DeleteMenuItem(ID_GRF_ImportPDSFile);
-        #endif
-        #if (!WITHANALYSE)
+#endif
+#if (!WITHANALYSE)
         DeleteMenuItem(ID_ACTIONS_Analyse);
-        #endif
-        #if (!SYSCAD10)
+#endif
+#if (!SYSCAD10)
         DeleteMenuItem(ID_FILE_Save);
         DeleteMenuItem(ID_FILE_Load);
         DeleteMenuItem(ID_SCD10_EXPORT);
-        #endif
+#endif
         //DeleteMenuItem(ID_GRF_ZoomIso);
-        DeleteMenuItem(ID_FILE_DUMMY);
+        DeleteMenuItem(ID_MENU_CLEANUP_REQD);
         //gs_pPrj->bChangedRuntimeMenu=1;
         DrawMenuBar();
         }
+       
       }
     }
 

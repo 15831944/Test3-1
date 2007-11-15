@@ -107,9 +107,9 @@ class DllImportExport TearVar
     TearVar();
 
     int            TearMethod();
-    LPSTR          TearMethodStr();
+    LPSTR          TearMethodStr(DDEF_Flags * Flags);
     bool           HoldOutput(); 
-    LPSTR          HoldOutputStr(); 
+    LPSTR          HoldOutputStr(DDEF_Flags * Flags); 
   public:
     // Common
     TearVarBlk   * m_pBlk;
@@ -277,20 +277,20 @@ extern DllImportExport DDBValueLst DDBDampAsGroup[];
 extern DllImportExport DDBValueLst DDBDampAsGroupDef[];
 
 extern DllImportExport  int TearConvergeMethod(int i, int j=-1, int k=-1);
-extern DllImportExport  LPSTR TearConvergeMethodStr(int i, int j=-1, int k=-1);
+extern DllImportExport  LPSTR TearConvergeMethodStr(int i, int j=-1, int k=-1, DDEF_Flags * Flags=NULL);
 extern DllImportExport  int FindTearConvergeMethod(LPCSTR Str);
 
 extern DllImportExport  int HoldOutput(int i, int j=-1, int k=-1);
-extern DllImportExport  LPSTR HoldOutputStr(int i, int j=-1, int k=-1);
+extern DllImportExport  LPSTR HoldOutputStr(int i, int j=-1, int k=-1, DDEF_Flags * Flags=NULL);
 extern DllImportExport  int FindHoldOutput(LPCSTR Str);
 
 extern DllImportExport  int DampAsGroup(int i, int j=-1, int k=-1);
-extern DllImportExport  LPSTR DampAsGroupStr(int i, int j=-1, int k=-1);
+extern DllImportExport  LPSTR DampAsGroupStr(int i, int j=-1, int k=-1, DDEF_Flags * Flags=NULL);
 extern DllImportExport  LPSTR DampAsGroupStrShort(int i, int j=-1, int k=-1);
 extern DllImportExport  int FindDampAsGroup(LPCSTR Str);
 
 extern DllImportExport  int EPSStrategy(int i, int j=-1, int k=-1);
-extern DllImportExport  LPSTR EPSStrategyStr(int i, int j=-1, int k=-1);
+extern DllImportExport  LPSTR EPSStrategyStr(int i, int j=-1, int k=-1, DDEF_Flags * Flags=NULL);
 extern DllImportExport  int FindEPSStrategy(LPCSTR Str);
 
 //=========================================================================
@@ -298,8 +298,6 @@ extern DllImportExport  int FindEPSStrategy(LPCSTR Str);
 //
 //
 //=========================================================================
-
-#define KeepOldTearVarBlkEdit 1
 
 #if KeepOldTearVarBlkEdit
 DEFINE_TAGOBJEDT(TearVarBlk);
@@ -614,6 +612,8 @@ class DllImportExport EqnSlvCfgBlk
                    m_bIdleWhenDone:1;
     short          m_iRqdCnvrgdIters;
     long           m_iMaxIters;
+
+    byte           m_iHoldOutput;
 
     byte           m_iEPSStrategy;
     double         m_EPS_Rel;

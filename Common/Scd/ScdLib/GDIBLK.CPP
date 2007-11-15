@@ -27,6 +27,8 @@ GDIBlkCfg::GDIBlkCfg(pchar pName_)
   crText[1]         = RGB(0xff, 0xff, 0xff);
   crTextChg[0]      = RGB(0x00, 0x00, 0xff);
   crTextChg[1]      = RGB(0xff, 0xff, 0xff);
+  crTextDef[0]      = RGB(   0,  140,  140);
+  crTextDef[1]      = RGB(0xff, 0xff, 0xff);
 //  crTextChg[1]      = RGB(0x00, 0x00, 0xff);
 //  crTextInvalid   = RGB(0x80, 0x80, 0x80);
   crTextInvalid[0]  = RGB(0x60, 0x60, 0x60);
@@ -162,6 +164,8 @@ GDIBlkCfg& GDIBlkCfg::operator=(const GDIBlkCfg &S)
   crText[1]         = S.crText[1];
   crTextChg[0]      = S.crTextChg[0];
   crTextChg[1]      = S.crTextChg[1];
+  crTextDef[0]      = S.crTextDef[0];
+  crTextDef[1]      = S.crTextDef[1];
   crTextInvalid[0]  = S.crTextInvalid[0];
   crTextInvalid[1]  = S.crTextInvalid[1];
   crTextError[0]    = S.crTextError[0];
@@ -388,6 +392,8 @@ flag GDIBlk::Create(pGDIBlkCfg pGBC_, /*pFxdEdtView pView_,*/ CWnd* pWnd_, CDC* 
   crText[1]          = /*MakeColor(*/pGBC->crText[1]/*, fForPrinter)*/;  
   crTextChg[0]       = /*MakeColor(*/pGBC->crTextChg[0]/*, fForPrinter)*/;  
   crTextChg[1]       = /*MakeColor(*/pGBC->crTextChg[1]/*, fForPrinter)*/;  
+  crTextDef[0]       = /*MakeColor(*/pGBC->crTextDef[0]/*, fForPrinter)*/;  
+  crTextDef[1]       = /*MakeColor(*/pGBC->crTextDef[1]/*, fForPrinter)*/;  
   crTextInvalid[0]   = /*MakeColor(*/pGBC->crTextInvalid[0]/*, fForPrinter)*/;  
   crTextInvalid[1]   = /*MakeColor(*/pGBC->crTextInvalid[1]/*, fForPrinter)*/;  
   crTextError[0]     = /*MakeColor(*/pGBC->crTextError[0];

@@ -1645,10 +1645,13 @@ flag SDBObjectEdt::DoAccRptTagLists()
 //
 //===========================================================================
 
-IMPLEMENT_TAGOBJEDT(TearObject, "FS_Tears", "FS_Tears", "", "$Tears", TOC_SYSTEM, 
-                    TearObjectEdt, "The Tears", "The Tears");
-//IMPLEMENT_TAGOBJ(TearObject, "FS_Tears", "FS_Tears", "", "$Tears", TOC_SYSTEM, 
-//                    "The Tears", "The Tears");
+
+#if KeepOldTearObject
+#if KeepOldTearObjectEdit
+IMPLEMENT_TAGOBJEDT(TearObject, "FS_Tears", "FS_Tears", "", "$Tears", TOC_SYSTEM,  TearObjectEdt, "The Tears", "The Tears");
+#else
+IMPLEMENT_TAGOBJ(TearObject, "FS_Tears", "FS_Tears", "", "$Tears", "TB", TOC_SYSTEM,  "The Tears", "The Tears");
+#endif
 
 TearObject::TearObject(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   CTNode(pClass_, TagIn, pAttach, eAttach)
@@ -1721,7 +1724,8 @@ flag TearObject::ValidateData(ValidateDataBlk & VDB)
 //
 //===========================================================================
 
-
+#if KeepOldTearObjectEdit
+        
 const int Id_TDfTearMethod        = 1;
 const int Id_TDfCnvgdIters        = 2;
 const int Id_TDfMaxIters          = 3;
@@ -2848,6 +2852,12 @@ flag TearObjectEdt::DoAccRptTagLists()
   {
   return FxdEdtBookRef::DoAccRptTagLists();
   };
+
+#endif   /*TearObjectEdit*/
+
+//---------------------------------------------------------------------------
+
+#endif  /*TearObject*/
 
 //===========================================================================
 //

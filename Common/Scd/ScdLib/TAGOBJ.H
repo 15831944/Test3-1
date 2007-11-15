@@ -2374,7 +2374,7 @@ Obj##ClassDef Obj##Class;
   IMPLEMENT_TAGOBJSLCTDERIVED(Obj, #Obj, Grp, ClassId, SubClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
 
 #define IMPLEMENT_TAGOBJDERIVED(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, Base) \
-  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, Base)
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, #Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, Base)
 
 #define IMPLEMENT_TAGOBJSLCT(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask) \
   IMPLEMENT_TAGOBJSLCTDERIVED(Obj, #Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask, TagObjClass)

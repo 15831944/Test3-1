@@ -31,6 +31,7 @@ class DllImportExport GDIBlkCfg
 
     COLORREF       crText[2];
     COLORREF       crTextChg[2];
+    COLORREF       crTextDef[2];
     COLORREF       crTextInvalid[2];
     COLORREF       crTextError[2];
     COLORREF       crTxtBackError;
@@ -103,6 +104,7 @@ class DllImportExport GDIBlk
 
     COLORREF       crText[2];
     COLORREF       crTextChg[2];
+    COLORREF       crTextDef[2];
     COLORREF       crTextInvalid[2];
     COLORREF       crTextError[2];
     COLORREF       crTxtBackError;

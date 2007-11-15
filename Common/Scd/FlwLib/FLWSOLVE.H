@@ -721,7 +721,9 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
 
   public:
     SDBObject      SDBObj;
+#if KeepOldTearObject
     TearObject     TearObj;
+#endif
 #if WITHCTRLOBJ
     CtrlObject     CtrlObj;
 #endif
