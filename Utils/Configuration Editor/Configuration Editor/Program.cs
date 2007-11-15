@@ -10,8 +10,10 @@ namespace Configuration_Editor
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            Args = args;
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -20,6 +22,7 @@ namespace Configuration_Editor
             Application.Run(new FrmMain());
         }
 
+        public static string[] Args;
 
         public static Random rnd = new Random();
         //public static Database SpecieDatabase;

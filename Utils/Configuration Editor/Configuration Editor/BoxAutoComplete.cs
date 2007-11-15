@@ -13,8 +13,10 @@ namespace Auto_Complete
 {
     internal partial class FrmAutoComplete : Form
     {
-        public static Regex s_AutoCompleteRegex = new Regex(@"(\s|\+|^|,)\d*(\.\d+)?(?<Last>[A-Za-z0-9()\[\]]+?(?<Back>[\b]?)$)", RegexOptions.ExplicitCapture | RegexOptions.Compiled);
-        public static Regex s_AutoCompleteOpeningRegex = new Regex(@"(\s|\+|^|,)\d*(\.\d+)?(?<Last>[A-Za-z0-9()\[\]]$)", RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        public static Regex s_AutoCompleteRegex = new Regex(
+            @"(\s|\+|^|,|\(|\*|-)(?<Last>(\[[A-Za-z0-9()\[\]]+?|[A-Za-z0-9\[\]]+?)(?<Back>[\b]?)$)", 
+            RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        public static Regex s_AutoCompleteOpeningRegex = new Regex(@"(\s|\+|^|,|\(|\*|-)(?<Last>[A-Za-z0-9()\[\]]$)", RegexOptions.ExplicitCapture | RegexOptions.Compiled);
 
         protected int m_nLastSelect;
         protected BoxAutoComplete m_OwnerBox;
@@ -247,6 +249,8 @@ namespace Auto_Complete
         protected int m_nStartChar = -1;
         protected bool m_bCompSelected = false;
         protected bool m_bCompSelection;
+        protected int m_SquareBracketCount = 0;
+        protected char m_OpeningChar;
         #endregion Variables
 
         #region Constructors
@@ -325,12 +329,18 @@ namespace Auto_Complete
         {
             if (!m_AutoForm.Visible)
             {
-                if (char.IsLetter(e.KeyChar) || e.KeyChar == '[' || e.KeyChar == '(')
+                if (char.IsLetter(e.KeyChar) || e.KeyChar == '[')
                 {
                     string s = this.Text.Substring(0, this.SelectionStart) + e.KeyChar;
                     Match m = FrmAutoComplete.s_AutoCompleteOpeningRegex.Match(s);
                     if (m.Success)
                     {
+                        m_OpeningChar = e.KeyChar;
+                        if (e.KeyChar == '[')
+                            m_SquareBracketCount = 1;
+                        else
+                            m_SquareBracketCount = 0;
+
                         //m_AutoForm.AssociatedControl = this;
                         m_AutoForm.LastSelect = -1;
                         m_AutoForm.SetFilter(m.Groups["Last"].Value);
@@ -351,8 +361,28 @@ namespace Auto_Complete
             {
                 string s = this.Text.Substring(0, this.SelectionStart) + e.KeyChar;
                 Match m = FrmAutoComplete.s_AutoCompleteRegex.Match(s);
+
+                if (e.KeyChar == '[') m_SquareBracketCount++; //Although this would be possible to include in the regex, it's a bit tough.
+                else if (e.KeyChar == ']') m_SquareBracketCount--;
+
                 if (m.Success)
-                    m_AutoForm.SetFilter(m.Groups["Last"].Value);
+                {
+                    if (m_OpeningChar != '[' && e.KeyChar == '(')
+                    {
+                        if (m_AutoForm.HotSelected)
+                            m_AutoForm.InsertText();
+                        m_AutoForm.Hide();
+                    }
+                    else if (m_OpeningChar == '[' && m_SquareBracketCount == 0)
+                    {
+                        if (m_AutoForm.HotSelected)
+                            m_AutoForm.InsertText();
+                        m_AutoForm.Hide();
+                        e.Handled = true; //The user can automatically insert a variable by typing ']'.
+                    }
+                    else
+                        m_AutoForm.SetFilter(m.Groups["Last"].Value);
+                }
                 else
                 {
                     if (e.KeyChar == ' ')

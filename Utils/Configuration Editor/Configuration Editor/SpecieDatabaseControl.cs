@@ -136,7 +136,7 @@ namespace Configuration_Editor
                 graph1.DataBindings.Add("MaxXValue", m_SpecieDataTable, "Te");
                 graph1.Formatters = Formatters;
 
-                this.BindingContext[m_SpecieDataTable].PositionChanged += new EventHandler(SpecieDatabaseControl_PositionChanged);
+                this.BindingContext[m_SpecieDataTable].CurrentChanged += new EventHandler(SpecieDatabaseControl_PositionChanged);
             }
         }
 
@@ -257,6 +257,7 @@ namespace Configuration_Editor
         {
             try
             {
+                bool errors = false;
                 object o = m_SpecieDataTable.Rows[this.BindingContext[m_SpecieDataTable].Position][col];
                 MultiEquationDataset series = m_GraphSeries[col];
                 string s = "";
@@ -265,17 +266,34 @@ namespace Configuration_Editor
                 Match m = EquationSplitterRegex.Match(s);
                 series.ClearSeries();
                 if (m.Groups["GeneralEquation"].Success)
-                    series.BackupSeries = new EquationGraphSeries(CreateEquationFrag(m.Groups["GeneralEquation"].Value, col), "T");
+                {
+                    EquationFragment frag = CreateEquationFrag(m.Groups["GeneralEquation"].Value, col);
+                    series.BackupSeries = new EquationGraphSeries(frag, "T");
+                    if (!frag.SingleFunc)
+                    {
+                        errorProvider1.SetError(tlpTempDependantRadios.Controls[col], "Over Complex Function used");
+                        errorProvider1.SetIconPadding(tlpTempDependantRadios.Controls[col], -errorProvider1.Icon.Width);
+                        errors = true;
+                    }
+                }
 
                 for (int i = 0; i < m.Groups["Equation"].Captures.Count; i++)
                 {
                     double TMin; double.TryParse(m.Groups["TMin"].Captures[i].Value, out TMin);
                     double TMax; double.TryParse(m.Groups["TMax"].Captures[i].Value, out TMax);
 
-                    EquationGraphSeries EGS = new EquationGraphSeries(CreateEquationFrag(m.Groups["Equation"].Captures[i].Value, col), "T", TMin, TMax);
+                    EquationFragment frag = CreateEquationFrag(m.Groups["Equation"].Captures[i].Value, col);
+                    EquationGraphSeries EGS = new EquationGraphSeries(frag, "T", TMin, TMax);
+                    if (!frag.SingleFunc)
+                    {
+                        errorProvider1.SetError(tlpTempDependantRadios.Controls[col], "Over Complex Function used");
+                        errorProvider1.SetIconPadding(tlpTempDependantRadios.Controls[col], -errorProvider1.Icon.Width);
+                        errors = true;
+                    }
                     series.AddSeries(EGS);
                 }
-                errorProvider1.SetError(tlpTempDependantRadios.Controls[col], "");
+                if (!errors)
+                    errorProvider1.SetError(tlpTempDependantRadios.Controls[col], "");
             }
             catch (Exception ex)
             {

@@ -36,6 +36,11 @@ namespace Configuration_Editor
             this.chProjSymbol = new System.Windows.Forms.ColumnHeader();
             this.chProjMinTemp = new System.Windows.Forms.ColumnHeader();
             this.chProjMaxTemp = new System.Windows.Forms.ColumnHeader();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuSort = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlListButtons = new System.Windows.Forms.Panel();
             this.btnAdd = new System.Windows.Forms.Button();
             this.btnRemove = new System.Windows.Forms.Button();
@@ -82,13 +87,9 @@ namespace Configuration_Editor
             this.label8 = new System.Windows.Forms.Label();
             this.txtAttributeName = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.menuAdd = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuRemove = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.sortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.grpProjectList.SuspendLayout();
             this.pnlActiveList.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.pnlListButtons.SuspendLayout();
             this.pnlActive.SuspendLayout();
             this.tcIDE.SuspendLayout();
@@ -105,7 +106,6 @@ namespace Configuration_Editor
             this.tabIDEBlank.SuspendLayout();
             this.tabIDEAttribute.SuspendLayout();
             this.grpAttribute.SuspendLayout();
-            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpProjectList
@@ -138,6 +138,7 @@ namespace Configuration_Editor
             this.chProjSymbol,
             this.chProjMinTemp,
             this.chProjMaxTemp});
+            this.lstProjectVector.ContextMenuStrip = this.contextMenuStrip1;
             this.lstProjectVector.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstProjectVector.FullRowSelect = true;
             this.lstProjectVector.HideSelection = false;
@@ -168,6 +169,43 @@ namespace Configuration_Editor
             // 
             this.chProjMaxTemp.Text = "Maximum Temperature";
             this.chProjMaxTemp.Width = 123;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuAdd,
+            this.menuRemove,
+            this.toolStripMenuItem1,
+            this.menuSort});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 76);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // menuAdd
+            // 
+            this.menuAdd.Name = "menuAdd";
+            this.menuAdd.Size = new System.Drawing.Size(124, 22);
+            this.menuAdd.Text = "&Add...";
+            this.menuAdd.Click += new System.EventHandler(this.menuAdd_Click);
+            // 
+            // menuRemove
+            // 
+            this.menuRemove.Name = "menuRemove";
+            this.menuRemove.Size = new System.Drawing.Size(124, 22);
+            this.menuRemove.Text = "&Remove";
+            this.menuRemove.Click += new System.EventHandler(this.btnRemove_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(121, 6);
+            // 
+            // menuSort
+            // 
+            this.menuSort.Name = "menuSort";
+            this.menuSort.Size = new System.Drawing.Size(124, 22);
+            this.menuSort.Text = "&Sort";
+            this.menuSort.Click += new System.EventHandler(this.sortToolStripMenuItem_Click);
             // 
             // pnlListButtons
             // 
@@ -692,43 +730,6 @@ namespace Configuration_Editor
             this.label7.TabIndex = 0;
             this.label7.Text = "Name";
             // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuAdd,
-            this.menuRemove,
-            this.toolStripMenuItem1,
-            this.sortToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 76);
-            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
-            // 
-            // menuAdd
-            // 
-            this.menuAdd.Name = "menuAdd";
-            this.menuAdd.Size = new System.Drawing.Size(124, 22);
-            this.menuAdd.Text = "&Add...";
-            this.menuAdd.Click += new System.EventHandler(this.menuAdd_Click);
-            // 
-            // menuRemove
-            // 
-            this.menuRemove.Name = "menuRemove";
-            this.menuRemove.Size = new System.Drawing.Size(124, 22);
-            this.menuRemove.Text = "&Remove";
-            this.menuRemove.Click += new System.EventHandler(this.btnRemove_Click);
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(121, 6);
-            // 
-            // sortToolStripMenuItem
-            // 
-            this.sortToolStripMenuItem.Name = "sortToolStripMenuItem";
-            this.sortToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
-            this.sortToolStripMenuItem.Text = "&Sort";
-            this.sortToolStripMenuItem.Click += new System.EventHandler(this.sortToolStripMenuItem_Click);
-            // 
             // ProjectVectorControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -738,6 +739,7 @@ namespace Configuration_Editor
             this.Size = new System.Drawing.Size(467, 454);
             this.grpProjectList.ResumeLayout(false);
             this.pnlActiveList.ResumeLayout(false);
+            this.contextMenuStrip1.ResumeLayout(false);
             this.pnlListButtons.ResumeLayout(false);
             this.pnlActive.ResumeLayout(false);
             this.tcIDE.ResumeLayout(false);
@@ -758,7 +760,6 @@ namespace Configuration_Editor
             this.tabIDEAttribute.ResumeLayout(false);
             this.grpAttribute.ResumeLayout(false);
             this.grpAttribute.PerformLayout();
-            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -821,6 +822,6 @@ namespace Configuration_Editor
         private System.Windows.Forms.ToolStripMenuItem menuAdd;
         private System.Windows.Forms.ToolStripMenuItem menuRemove;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem sortToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menuSort;
     }
 }

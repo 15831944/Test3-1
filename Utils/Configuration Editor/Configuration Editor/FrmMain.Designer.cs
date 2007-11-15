@@ -45,7 +45,7 @@ namespace Configuration_Editor
             this.menuOpenDatabase = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.menuExit = new System.Windows.Forms.ToolStripMenuItem();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuSort = new System.Windows.Forms.ToolStripMenuItem();
             this.menuAdvancedSort = new System.Windows.Forms.ToolStripMenuItem();
             this.menuView = new System.Windows.Forms.ToolStripMenuItem();
@@ -191,7 +191,7 @@ namespace Configuration_Editor
             // 
             this.menuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.editToolStripMenuItem,
+            this.menuEdit,
             this.menuView,
             this.helpToolStripMenuItem});
             this.menuMain.Location = new System.Drawing.Point(0, 0);
@@ -282,14 +282,15 @@ namespace Configuration_Editor
             this.menuExit.Text = "E&xit";
             this.menuExit.Click += new System.EventHandler(this.menuExit_Click);
             // 
-            // editToolStripMenuItem
+            // menuEdit
             // 
-            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuSort,
             this.menuAdvancedSort});
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.editToolStripMenuItem.Text = "&Edit";
+            this.menuEdit.Name = "menuEdit";
+            this.menuEdit.Size = new System.Drawing.Size(37, 20);
+            this.menuEdit.Text = "&Edit";
+            this.menuEdit.DropDownOpening += new System.EventHandler(this.menuEdit_DropDownOpening);
             // 
             // MenuSort
             // 
@@ -316,7 +317,7 @@ namespace Configuration_Editor
             // menuUnits
             // 
             this.menuUnits.Name = "menuUnits";
-            this.menuUnits.Size = new System.Drawing.Size(152, 22);
+            this.menuUnits.Size = new System.Drawing.Size(121, 22);
             this.menuUnits.Text = "&Units...";
             this.menuUnits.Click += new System.EventHandler(this.menuUnits_Click);
             // 
@@ -396,6 +397,7 @@ namespace Configuration_Editor
             this.chName});
             this.lstDBSpecies.ContextMenuStrip = this.menuSpDBContext;
             this.lstDBSpecies.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstDBSpecies.FullRowSelect = true;
             this.lstDBSpecies.HideSelection = false;
             this.lstDBSpecies.Location = new System.Drawing.Point(3, 16);
             this.lstDBSpecies.Name = "lstDBSpecies";
@@ -405,6 +407,7 @@ namespace Configuration_Editor
             this.lstDBSpecies.View = System.Windows.Forms.View.Details;
             this.lstDBSpecies.ItemActivate += new System.EventHandler(this.lstDBSpecies_ItemActivate);
             this.lstDBSpecies.SelectedIndexChanged += new System.EventHandler(this.lstDBSpecies_SelectedIndexChanged);
+            this.lstDBSpecies.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstDBSpecies_KeyDown);
             this.lstDBSpecies.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.lstDBSpecies_ItemDrag);
             // 
             // chSymbol
@@ -546,6 +549,8 @@ namespace Configuration_Editor
             this.projectVectorControl1.StatusColour = System.Drawing.Color.Empty;
             this.projectVectorControl1.StatusMessage = null;
             this.projectVectorControl1.TabIndex = 0;
+            this.projectVectorControl1.TempFormatter = null;
+            this.projectVectorControl1.TempParser = null;
             this.projectVectorControl1.UnitBindingSource = null;
             // 
             // tabDatabase
@@ -1343,7 +1348,7 @@ namespace Configuration_Editor
         private System.Windows.Forms.OpenFileDialog dlgOpenDB;
         private System.Windows.Forms.ColumnHeader chSymbol;
         private System.Windows.Forms.ColumnHeader chName;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menuEdit;
         private System.Windows.Forms.ToolStripMenuItem MenuSort;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.GroupBox grpDefaults;

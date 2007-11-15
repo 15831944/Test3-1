@@ -31,6 +31,7 @@ namespace Configuration_Editor
             this.components = new System.ComponentModel.Container();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.graph1 = new Configuration_Editor.Graph();
             this.tlpEquations = new System.Windows.Forms.TableLayoutPanel();
             this.txtMaxTemp3 = new System.Windows.Forms.TextBox();
             this.txtMinTemp3 = new System.Windows.Forms.TextBox();
@@ -96,7 +97,6 @@ namespace Configuration_Editor
             this.label31 = new System.Windows.Forms.Label();
             this.label32 = new System.Windows.Forms.Label();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.graph1 = new Configuration_Editor.Graph();
             this.groupBox6.SuspendLayout();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -139,6 +139,26 @@ namespace Configuration_Editor
             this.splitContainer2.SplitterDistance = 188;
             this.splitContainer2.TabIndex = 10;
             this.splitContainer2.TabStop = false;
+            // 
+            // graph1
+            // 
+            this.graph1.BackColor = System.Drawing.Color.LightGray;
+            this.graph1.Border = 5;
+            this.graph1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.graph1.CheckSize = 5;
+            this.graph1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.graph1.DrawYLabel = true;
+            this.graph1.Formatters = null;
+            this.graph1.Location = new System.Drawing.Point(0, 0);
+            this.graph1.MaxChecks = 6;
+            this.graph1.MaxXValue = 0;
+            this.graph1.MinXValue = 0;
+            this.graph1.Name = "graph1";
+            this.graph1.Size = new System.Drawing.Size(188, 185);
+            this.graph1.TabIndex = 6;
+            this.graph1.UnselectedTransparency = 64;
+            this.graph1.XLabel = "Temperature";
+            this.graph1.XUnits = "temperature";
             // 
             // tlpEquations
             // 
@@ -811,26 +831,6 @@ namespace Configuration_Editor
             // errorProvider1
             // 
             this.errorProvider1.ContainerControl = this;
-            // 
-            // graph1
-            // 
-            this.graph1.BackColor = System.Drawing.Color.LightGray;
-            this.graph1.Border = 5;
-            this.graph1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.graph1.CheckSize = 5;
-            this.graph1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.graph1.DrawYLabel = true;
-            this.graph1.Formatters = null;
-            this.graph1.Location = new System.Drawing.Point(0, 0);
-            this.graph1.MaxChecks = 6;
-            this.graph1.MaxXValue = 0;
-            this.graph1.MinXValue = 0;
-            this.graph1.Name = "graph1";
-            this.graph1.Size = new System.Drawing.Size(188, 185);
-            this.graph1.TabIndex = 6;
-            this.graph1.UnselectedTransparency = 64;
-            this.graph1.XLabel = "Temperature";
-            this.graph1.XUnits = "temperature";
             // 
             // SpecieDatabaseControl
             // 

@@ -497,6 +497,16 @@ namespace Configuration_Editor
     public class EmptyEquationFragmentException : Exception
     { }
 
+    public class ParameterMismatchException : Exception
+    { 
+        public ParameterMismatchException(string message)
+            : base(message)
+        { }
+        public ParameterMismatchException(string message, Exception innerException)
+            : base(message, innerException)
+        { }
+    }
+
     public class Function : EquationFragment
     {
         #region variables
@@ -523,7 +533,7 @@ namespace Configuration_Editor
                 m_FunctionValue = EquationFragment.GlobalFunctions[m_sFunctionName];
 
             if (m_FunctionValue != null && m_FunctionValue.ParamCount != 0 && parameters is EmptyEquationFragment)
-                throw new EmptyEquationFragmentException();
+                throw new ParameterMismatchException("Function '" + name + "' does not take zero parameters");
         }
 
         public override string ToString()

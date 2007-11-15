@@ -158,38 +158,77 @@ namespace Configuration_Editor
             }
         }
 
-        void m_TempBindingSource_CurrentChanged(object sender, EventArgs e)
-        {
-            UpdateProjectLVIs();
-            if (m_CurrentItem is ProjectSpecie)
-                LoadItem(m_CurrentItem);
-        }
+        public int SelectionSize { get { return lstProjectVector.SelectedItems.Count; } }
 
-        void grpTempRangeBinding_Format(object sender, ConvertEventArgs e)
+        public List<DataRow> UsedSpecies
         {
-            if (e.DesiredType == typeof(string))
-                e.Value = "Temperature Range (" + e.Value + ")";
+            get
+            {
+                List<DataRow> ret = new List<DataRow>();
+                foreach (ListViewItem lvi in lstProjectVector.Items)
+                    if (lvi.Tag is ProjectSpecie)
+                        ret.Add(((ProjectSpecie)lvi.Tag).SpDataRow);
+                return ret;
+            }
         }
         #endregion Properties
 
         #region Events
         public event EventHandler StatusMessageChanged;
+
+        public event EventHandler UsedSpeciesChanged;
         #endregion Events
 
         #region Public Functions
+        public bool CanInsert(DataRow[] values)
+        {
+            foreach (DataRow r in values)
+                if (AlreadyContained(r) == null)
+                    return true;
+            return false;
+        }
+
         public void Sort()
         {
             List<ProjectVectorItem> items = new List<ProjectVectorItem>();
-            foreach (ListViewItem lvi in lstProjectVector.Items)
-                items.Add((ProjectVectorItem)lvi.Tag);
 
-            items = m_Sorter.Sort(items);
+            List<ProjectVectorItem> selectedItems = new List<ProjectVectorItem>();
+            ArrayList selectedLVIs = new ArrayList(lstProjectVector.SelectedItems);
 
+            bool entireSort = lstProjectVector.SelectedItems.Count < 2;
+            int insertionIndex = int.MaxValue;
+
+            foreach (ListViewItem lvi in lstProjectVector.SelectedItems)
+                selectedItems.Add((ProjectVectorItem)lvi.Tag);
             lstProjectVector.BeginUpdate();
-            lstProjectVector.Items.Clear();
-            foreach (ProjectVectorItem i in items)
-                lstProjectVector.Items.Add(i.LVI);
+            if (entireSort)
+            {
+                foreach (ListViewItem lvi in lstProjectVector.Items)
+                    items.Add((ProjectVectorItem)lvi.Tag);
+                items = m_Sorter.Sort(items);
+
+                lstProjectVector.Items.Clear();
+                foreach (ProjectVectorItem i in items)
+                    lstProjectVector.Items.Add(i.LVI);
+            }
+            else
+            {    
+                foreach (ListViewItem lvi in lstProjectVector.SelectedItems)
+                if (lvi.Index < insertionIndex)
+                    insertionIndex = lvi.Index;
+                selectedItems = m_Sorter.Sort(selectedItems);
+
+                foreach (ListViewItem lvi in selectedLVIs)
+                    lstProjectVector.Items.Remove(lvi);
+                foreach (ProjectVectorItem i in selectedItems)
+                    lstProjectVector.Items.Insert(insertionIndex++, i.LVI);
+            }
+            foreach (ListViewItem lvi in selectedLVIs)
+                lvi.Selected = true;
+            CheckCalculations();
             lstProjectVector.EndUpdate();
+            if (selectedLVIs.Count > 0)
+                ((ListViewItem)selectedLVIs[0]).EnsureVisible();
         }
 
         public bool TransferSpecies()
@@ -199,6 +238,7 @@ namespace Configuration_Editor
             foreach (ListViewItem lvi in lstDBSpecies.SelectedItems)
                 values[i++] = (DataRow)lvi.Tag;
 
+            lstProjectVector.Select();
             return AddSpecies(values, -1);
         }
 
@@ -261,6 +301,8 @@ namespace Configuration_Editor
             AddSumItems();
             lstProjectVector.EndUpdate();
             CheckCalculations();
+            if (UsedSpeciesChanged != null)
+                UsedSpeciesChanged(this, new EventArgs());
         }
 
         public string SaveString()
@@ -419,7 +461,7 @@ namespace Configuration_Editor
                 else if (lvi.Tag is ProjectAttribute)
                     availableVariables.Add("[" + ((ProjectAttribute)lvi.Tag).Name + "]");
                 else if (lvi.Tag is ProjectCalculation)
-                    availableVariables.Add("[" + ((ProjectCalculation)lvi.Tag).Desc + "]");
+                    availableVariables.Add("[" + ((ProjectCalculation)lvi.Tag).Name + "]");
             return availableVariables;
         }
         
@@ -484,7 +526,7 @@ namespace Configuration_Editor
                 if (lvi.Tag is ProjectSpecie)
                     ret.Add(((ProjectSpecie)lvi.Tag).Symbol);
                 else if (lvi.Tag is ProjectCalculation)
-                    ret.Add(((ProjectCalculation)lvi.Tag).Desc);
+                    ret.Add(((ProjectCalculation)lvi.Tag).Name);
             return ret;
         }
 
@@ -514,6 +556,7 @@ namespace Configuration_Editor
                 else
                     lvisToSelect.Add(alreadyItem);
             }
+            
             if (ret == true)
             {
                 lstProjectVector.SelectedItems.Clear();
@@ -522,6 +565,11 @@ namespace Configuration_Editor
                 CheckCalculations();
             }
             lstProjectVector.EndUpdate();
+            if (ret && lstProjectVector.SelectedItems.Count > 0)
+                lstProjectVector.SelectedItems[0].EnsureVisible();
+
+            if (ret && this.UsedSpeciesChanged != null)
+                UsedSpeciesChanged(this, new EventArgs());
             return ret;
         }
 
@@ -538,7 +586,6 @@ namespace Configuration_Editor
         {
             if (m_AddSelector.ShowDialog() == DialogResult.Cancel) return;
 
-            lstProjectVector.SelectedItems.Clear(); //Say what?
             ProjectVectorItem item = null;
             if (m_AddSelector.radioAttribute.Checked)
             {
@@ -566,12 +613,26 @@ namespace Configuration_Editor
             else
                 lstProjectVector.Items.Insert(lstProjectVector.SelectedIndices[0], item.LVI);
 
+            lstProjectVector.SelectedItems.Clear();
             item.Changed += new EventHandler(item_Changed);
             item.LVI.Selected = true;
         }
         #endregion Protected Functions
 
         #region Event Handling
+        void m_TempBindingSource_CurrentChanged(object sender, EventArgs e)
+        {
+            UpdateProjectLVIs();
+            if (m_CurrentItem is ProjectSpecie)
+                LoadItem(m_CurrentItem);
+        }
+
+        void grpTempRangeBinding_Format(object sender, ConvertEventArgs e)
+        {
+            if (e.DesiredType == typeof(string))
+                e.Value = "Temperature Range (" + e.Value + ")";
+        }
+
         protected void PreventCommas(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == ',')
@@ -817,6 +878,8 @@ namespace Configuration_Editor
                     lstProjectVector.Items.Remove(lvi);
             CheckCalculations();
             lstProjectVector.EndUpdate();
+            if (UsedSpeciesChanged != null)
+                UsedSpeciesChanged(this, new EventArgs());
         }
 
         private void btnMoveUp_Click(object sender, EventArgs e)
@@ -824,22 +887,41 @@ namespace Configuration_Editor
             //Rather than move everything up, we're going to move one down.
             if (lstProjectVector.SelectedItems.Count == 0 || lstProjectVector.SelectedItems[0].Index == 0)
                 return;
-            ListViewItem lvi = lstProjectVector.Items[lstProjectVector.SelectedItems[0].Index - 1];
-            int moveTo = lstProjectVector.SelectedItems[lstProjectVector.SelectedItems.Count - 1].Index;
-            lvi.Remove();
-            lstProjectVector.Items.Insert(moveTo, lvi);
+
+            lstProjectVector.BeginUpdate();
+            int insertionIndex = lstProjectVector.SelectedItems[0].Index - 1;
+            ArrayList selectedItems = new ArrayList(lstProjectVector.SelectedItems);
+            foreach (ListViewItem lvi in selectedItems)
+            {
+                lstProjectVector.Items.Remove(lvi);
+            }
+            foreach (ListViewItem lvi in selectedItems)
+            {
+                lstProjectVector.Items.Insert(insertionIndex++, lvi);
+            }
+            lstProjectVector.EndUpdate();
+
             SetBtnEnables();
         }
 
         private void btnMoveDown_Click(object sender, EventArgs e)
         {
-            //Rather than move everything down, we're going to move one up.
             if (lstProjectVector.SelectedItems.Count == 0 || lstProjectVector.SelectedItems[lstProjectVector.SelectedItems.Count - 1].Index == lstProjectVector.Items.Count)
                 return;
-            ListViewItem lvi = lstProjectVector.Items[lstProjectVector.SelectedItems[lstProjectVector.SelectedItems.Count - 1].Index + 1];
-            lvi.Remove();
-            int moveTo = lstProjectVector.SelectedItems[0].Index;
-            lstProjectVector.Items.Insert(moveTo, lvi);
+
+            lstProjectVector.BeginUpdate();
+            int insertionIndex = lstProjectVector.SelectedItems[lstProjectVector.SelectedItems.Count - 1].Index + 2;
+            ArrayList selectedItems = new ArrayList(lstProjectVector.SelectedItems);
+            insertionIndex -= selectedItems.Count;
+            foreach (ListViewItem lvi in selectedItems)
+            {
+                lstProjectVector.Items.Remove(lvi);
+            }
+            foreach (ListViewItem lvi in selectedItems)
+            {
+                lstProjectVector.Items.Insert(insertionIndex++, lvi);
+            }
+            lstProjectVector.EndUpdate();
             SetBtnEnables();
         }
 
@@ -853,6 +935,9 @@ namespace Configuration_Editor
         {
             if (e.KeyCode == Keys.Delete)
                 btnRemove_Click(sender, e);
+            if (e.Control && e.KeyCode == Keys.A)
+                foreach (ListViewItem lvi in lstProjectVector.Items)
+                    lvi.Selected = true;
         }
 
         private void txtCalcSymbol_TextChanged(object sender, EventArgs e)
@@ -885,6 +970,8 @@ namespace Configuration_Editor
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
             menuRemove.Enabled = lstProjectVector.SelectedItems.Count > 0;
+            menuSort.Text = lstProjectVector.SelectedItems.Count > 1 ?
+                "&Sort Selection" : "&Sort";
         }
 
         private void menuAdd_Click(object sender, EventArgs e)
@@ -897,16 +984,14 @@ namespace Configuration_Editor
             Sort();
         }
         #endregion Event Handling
-
-
     }
 
     public class PVIOrderer
     {
-        public bool m_bByPhase;
-        public bool m_bPreservePageAndLabelLocations;
+        public bool m_bByPhase = true;
+        public bool m_bPreservePageAndLabelLocations = true;
         public bool m_bPreserveCalculationLocations;
-        public bool m_bAscending;
+        public bool m_bAscending = true;
         public List<Phase> m_PhaseOrder = new List<Phase>();
         static List<Type> SpecieOrder = new List<Type>(new Type[] {
             typeof(ProjectSum),
@@ -935,7 +1020,7 @@ namespace Configuration_Editor
             ReOrderedItems.Add(currentReorder);
             foreach (ProjectVectorItem pvi in Source)
             {
-                if (m_bByPhase && !IsPhaseLabel(pvi.Value) && pvi is ProjectText)
+                if (m_bByPhase && IsPhaseLabel(pvi.Value) && pvi is ProjectText)
                     continue;
                 else if ((m_bPreservePageAndLabelLocations &&
                     (pvi is ProjectText || pvi is ProjectPage)) ||
@@ -949,6 +1034,7 @@ namespace Configuration_Editor
                     currentReorder.Add(pvi);
             }
             ProjectSpecie.SortByPhase = m_bByPhase;
+            ProjectSpecie.PhaseOrder = m_PhaseOrder;
             foreach (List<ProjectVectorItem> lst in ReOrderedItems)
                 lst.Sort(new Comparison<ProjectVectorItem>(SimpleComparison));
 
@@ -984,13 +1070,12 @@ namespace Configuration_Editor
             return ret;
         }
 
+        private static Regex PhaseLabelRegex = new Regex(
+            @"^[\s\*\-+~=]*(solids?|liquids?|gas(ses)?|vapou?rs?)[\s\*\-+~=]*$",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private bool IsPhaseLabel(string s)
         {
-            return (s.ToLower() == "solid" || s.ToLower() == "solids" ||
-                    s.ToLower() == "liquid" || s.ToLower() == "liquids" ||
-                    s.ToLower() == "gas" || s.ToLower() == "gasses" ||
-                    s.ToLower() == "vapour" || s.ToLower() == "vapours" ||
-                    s.ToLower() == "vapor" || s.ToLower() == "vapors");
+            return PhaseLabelRegex.Match(s).Success;
         }
 
         private int SimpleComparison(ProjectVectorItem i1, ProjectVectorItem i2)

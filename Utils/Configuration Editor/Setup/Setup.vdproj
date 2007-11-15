@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_911CD3B2B3234CE194B4F7F10F0A8B9B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_94D1E3B6DD6F47E3A1A100692096B0D0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -136,6 +142,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_911CD3B2B3234CE194B4F7F10F0A8B9B"
+            {
+            "SourcePath" = "8:..\\Configuration Editor\\UnitConversions.ini"
+            "TargetName" = "8:UnitConversions.ini"
+            "Tag" = "8:"
+            "Folder" = "8:_E7FB5ED90924422F93FBFBA29D84BCC1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -202,14 +228,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SysCAD Configuration Editor"
-        "ProductCode" = "8:{6B9C8D6C-A6BD-40DA-BA01-3076EB239C4B}"
-        "PackageCode" = "8:{B17E632F-41B9-46A7-BA21-A7F9BB80FEBB}"
+        "ProductCode" = "8:{D881D4A2-DD48-405C-B7E4-6344A4B4EA21}"
+        "PackageCode" = "8:{D51DF029-0EF3-427B-AB3A-42FFC80D2AC7}"
         "UpgradeCode" = "8:{E316FA17-5517-472C-BF4A-4EBC33349084}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.0.2"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -328,12 +354,12 @@
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
+            "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
             "Target" = "8:_94D1E3B6DD6F47E3A1A100692096B0D0"
             "Folder" = "8:_3BDEE93DD7EC4477AEEBA4757F860945"
             "WorkingFolder" = "8:_E7FB5ED90924422F93FBFBA29D84BCC1"
-            "Icon" = "8:"
+            "Icon" = "8:_94D1E3B6DD6F47E3A1A100692096B0D0"
             "Feature" = "8:"
             }
         }

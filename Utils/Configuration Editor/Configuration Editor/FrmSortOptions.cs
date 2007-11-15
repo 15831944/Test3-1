@@ -19,6 +19,8 @@ namespace Configuration_Editor
             lstPhaseOrder.Items.Add(Phase.Solid);
             lstPhaseOrder.Items.Add(Phase.Liquid);
             lstPhaseOrder.Items.Add(Phase.Gas);
+
+            Sorter = new PVIOrderer();
         }
 
         public PVIOrderer Sorter
@@ -95,9 +97,9 @@ namespace Configuration_Editor
 
         private void lstPhaseOrder_MouseMove(object sender, MouseEventArgs e)
         {
-            lstPhaseOrder.BeginUpdate();
             if (m_PhaseSelectedItem != null && e.Button == MouseButtons.Left)
             {
+                lstPhaseOrder.BeginUpdate();
                 Rectangle oldRect = lstPhaseOrder.GetItemRectangle(lstPhaseOrder.Items.IndexOf(m_PhaseSelectedItem));
                 if (oldRect.Top > e.Y || e.Y > oldRect.Bottom)
                 {
@@ -122,13 +124,14 @@ namespace Configuration_Editor
                     lstPhaseOrder.Items.Insert(newIndex, m_PhaseSelectedItem);
                     lstPhaseOrder.SelectedIndex = newIndex;
                 }
+                lstPhaseOrder.EndUpdate();
             }
-            lstPhaseOrder.EndUpdate();
         }
 
         private void lstPhaseOrder_MouseUp(object sender, MouseEventArgs e)
         {
             m_PhaseSelectedItem = null;
+            ChangeSorter();
         }
     }
 }

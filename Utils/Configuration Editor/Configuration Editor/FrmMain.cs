@@ -73,23 +73,13 @@ namespace Configuration_Editor
         Dictionary<string, BindingSource> m_UnitBindings = new Dictionary<string, BindingSource>();
         Dictionary<string, FormatterParserProvider> m_Formatters = new Dictionary<string, FormatterParserProvider>();
         FrmUnitSelection m_FrmUnitSelection = new FrmUnitSelection();
+        int m_UpdateCalls = 0;
         #endregion Variables
         
         #region Constructors
         public FrmMain()
         {
             InitializeComponent();
-
-
-            try
-            {
-                tcMain.TabPages.Remove(tabModels);
-                regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Configuration Editor");
-                SetDirectory((string)regKey.GetValue("Initial Directory", "My Documents"));
-                //int loc = m_TempBindings.Find("Name", regKey.GetValue("Temperature Units", "°C"));
-                //m_TempBindings.Position = loc > 0 ? loc : 0;
-            }
-            catch { }
 
             this.Load += new EventHandler(FrmMain_Load);
         }
@@ -98,32 +88,91 @@ namespace Configuration_Editor
         {
             try
             {
+                try
+                {
+                    tcMain.TabPages.Remove(tabModels);
+                    regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Configuration Editor");
+                    SetDirectory((string)regKey.GetValue("Initial Directory", "My Documents"));
+                }
+                catch { }
+
                 m_DefaultIniDictionary = ReadIni(Configuration_Editor.Properties.Resources.DefaultInI, new Dictionary<string, Dictionary<string, string>>());
 
-                ReadConversions();
-
-                specieDatabaseControl1.Formatters = m_Formatters;
-                projectVectorControl1.TempFormatter = m_Formatters["temperature"].Formatter;
-                projectVectorControl1.TempParser = m_Formatters["temperature"].Parser;
-
-                projectVectorControl1.UnitBindingSource = m_UnitBindings;
-                specieDatabaseControl1.UnitBindingSource = m_UnitBindings;
-
+                SetupConversions();
                 SetupMisc();
                 SetupSpDbEditor();
                 SetupSpecies();
 
-                if (dlgOpenDB.ShowDialog() == DialogResult.Cancel)
-                    this.Close();
-                else
-                    OpenDatabase(dlgOpenDB.FileName);
+                HandleArgs(Program.Args);
+
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Initialisation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
+        }
 
+        private void HandleArgs(string[] args)
+        {
+            int DatabaseLoc = -1;
+            for (int i = 0; i < args.Length - 1; i++)
+                if (args[i].ToLower() == "-d")
+                {
+                    DatabaseLoc = i + 1;
+                    break;
+                }
+
+            if (DatabaseLoc != -1)
+            {
+                if (File.Exists(args[DatabaseLoc]))
+                    OpenDatabase(args[DatabaseLoc]);
+                else
+                {
+                    MessageBox.Show("Specified database does not exist.", "Command Line Parameters", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    DatabaseLoc = -1;
+                }
+            }
+
+            if (DatabaseLoc == -1)
+            {
+                if (dlgOpenDB.ShowDialog() == DialogResult.Cancel)
+                {
+                    this.Close();
+                    return;
+                }
+                else
+                    OpenDatabase(dlgOpenDB.FileName);
+            }
+
+            int ConfigLoc = -1;
+            for (int i = 0; i < args.Length - 1; i++)
+                if (args[i].ToLower() == "-c")
+                {
+                    ConfigLoc = i + 1;
+                    break;
+                }
+
+            if (ConfigLoc != -1)
+            {
+                if (File.Exists(args[ConfigLoc]))
+                    LoadFile(args[ConfigLoc]);
+                else
+                    MessageBox.Show("Specified configuration file does not exist.", "Command Line Parameters", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SetupConversions()
+        {
+            ReadConversions();
+
+            specieDatabaseControl1.Formatters = m_Formatters;
+            specieDatabaseControl1.UnitBindingSource = m_UnitBindings;
+
+            projectVectorControl1.TempFormatter = m_Formatters["temperature"].Formatter;
+            projectVectorControl1.TempParser = m_Formatters["temperature"].Parser;
+            projectVectorControl1.UnitBindingSource = m_UnitBindings;
         }
 
         private bool SetupSpDbEditor()
@@ -213,8 +262,10 @@ namespace Configuration_Editor
 
         private void SetupSpecies()
         {
+            projectVectorControl1.UsedSpeciesChanged += new EventHandler(projectVectorControl1_UsedSpeciesChanged);
             projectVectorControl1.ListDBSpecies = lstDBSpecies;
             projectVectorControl1.SpecieDataTable = m_SpecieDataTable;
+            projectVectorControl1.Sorter = m_SortOptions.Sorter;
 
             projectVectorControl1.SetupSpecies();
 
@@ -693,6 +744,14 @@ namespace Configuration_Editor
 
             UpdateFilter();
             conn.Close();
+
+            //Create a dummy row to prevent any sort of errors...
+            if (m_SpecieDataTable.Rows.Count == 0)
+            {
+                CreateSpecies();
+                tcSpecies.SelectedTab = tabDatabase;
+            }
+
             specieDatabaseControl1.DatabaseChanged();
         }
 
@@ -973,8 +1032,9 @@ namespace Configuration_Editor
 
         protected void UpdateFilter()
         {
-            lstDBSpecies.BeginUpdate();
+            lstDBSpecies.BeginUpdate(); m_UpdateCalls++;
             lstDBSpecies.Items.Clear();
+            List<DataRow> usedRows = projectVectorControl1.UsedSpecies;
             if (m_SpecieDataTable != null)
             {
                 string[] filterTokens = txtFilter.Text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -998,10 +1058,12 @@ namespace Configuration_Editor
                     string symb = (string)r["Compound"] + "(" + (string)r["Phase"] + ")";
                     ListViewItem lvi = new ListViewItem(new string[] { symb, (string)r["Name"] });
                     lvi.Tag = r;
+                    if (usedRows.Contains(r))
+                        lvi.Font = new Font(lvi.Font, FontStyle.Bold);
                     lstDBSpecies.Items.Add(lvi);
                 }
             }
-            lstDBSpecies.EndUpdate();
+            lstDBSpecies.EndUpdate(); m_UpdateCalls--;;
         }
 
         protected void PreventCommas(object sender, KeyPressEventArgs e)
@@ -1032,6 +1094,16 @@ namespace Configuration_Editor
                 return 0;
         }
         
+        void projectVectorControl1_UsedSpeciesChanged(object sender, EventArgs e)
+        {
+            List<DataRow> usedRows = projectVectorControl1.UsedSpecies;
+            foreach (ListViewItem lvi in lstDBSpecies.Items)
+                if (usedRows.Contains((DataRow)lvi.Tag))
+                    lvi.Font = new Font(lvi.Font, FontStyle.Bold);
+                else
+                    lvi.Font = new Font(lvi.Font, FontStyle.Regular);
+        }
+
         void specieDatabaseControl1_UpdateLVIsRequired(object sender, EventArgs e)
         {
             UpdateDBLVIs();
@@ -1076,7 +1148,13 @@ namespace Configuration_Editor
         private void menuSpDBContext_Opening(object sender, CancelEventArgs e)
         {
             menuDelete.Enabled = lstDBSpecies.SelectedItems.Count > 0;
-            menuSpDBAddToProject.Enabled = lstDBSpecies.SelectedItems.Count > 0;
+
+            DataRow[] values = new DataRow[lstDBSpecies.SelectedItems.Count];
+            int i = 0;
+            foreach (ListViewItem lvi in lstDBSpecies.SelectedItems)
+                values[i++] = (DataRow)lvi.Tag;
+            menuSpDBAddToProject.Enabled = lstDBSpecies.SelectedItems.Count > 0
+                && projectVectorControl1.CanInsert(values);
         }
 
         private void lstDBSpecies_ItemActivate(object sender, EventArgs e)
@@ -1112,7 +1190,7 @@ namespace Configuration_Editor
 
         private void lstDBSpecies_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (lstDBSpecies.SelectedItems.Count > 0)
+            if (lstDBSpecies.SelectedItems.Count > 0 && m_UpdateCalls < 1)
             {
                 try
                 {
@@ -1178,6 +1256,7 @@ namespace Configuration_Editor
         private void menuSpDBAddToProject_Click(object sender, EventArgs e)
         {
             projectVectorControl1.TransferSpecies();
+            projectVectorControl1.Select();
         }
 
         private void menuNew_Click(object sender, EventArgs e)
@@ -1254,7 +1333,7 @@ namespace Configuration_Editor
 
         private void menuDelete_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are you sure you wish to delete the selected species from the Specie Database and Project Vector?", "SysCAD Configuration Editor", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show("Are you sure you wish to delete the selected species from the Specie Database and Project Vector?", "SysCAD Configuration Editor", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                 DeleteSelectedSpecies();
         }
 
@@ -1262,6 +1341,7 @@ namespace Configuration_Editor
         {
             ArrayList selectedItems = new ArrayList(lstDBSpecies.SelectedItems);
 
+            lstDBSpecies.BeginUpdate(); m_UpdateCalls++;
             foreach (ListViewItem lvi in selectedItems)
             {
                 lstDBSpecies.Items.Remove(lvi);
@@ -1273,10 +1353,11 @@ namespace Configuration_Editor
             if (lstDBSpecies.Items.Count > 0)
                 lstDBSpecies.Items[0].Selected = true;
             else
-            {
-                tcSpecies.SelectedTab = tabProjectSpecies;
-                tcSpecies.Enabled = false;
-            }
+                CreateSpecies();
+            lstDBSpecies.EndUpdate(); m_UpdateCalls--;
+            SaveDatabase();
+            lstDBSpecies_SelectedIndexChanged(this, new EventArgs());
+            ((CurrencyManager)this.BindingContext[m_SpecieDataTable]).Refresh();
         }
 
         protected void CreateSpecies()
@@ -1298,6 +1379,7 @@ namespace Configuration_Editor
                     lvi.EnsureVisible();
                     lvi.Selected = true;
                 }
+            tcSpecies.SelectedTab = tabDatabase;
         }
 
         private void menuNewSpecies_Click(object sender, EventArgs e)
@@ -1318,6 +1400,22 @@ namespace Configuration_Editor
         private void ForceFormatting(object sender, EventArgs e)
         {
             ((CurrencyManager)this.BindingContext[m_SpecieDataTable]).Refresh();
+        }
+
+        private void menuEdit_DropDownOpening(object sender, EventArgs e)
+        {
+            menuAdvancedSort.Visible = MenuSort.Visible = tcMain.SelectedTab == tabSpecies &&
+                tcSpecies.SelectedTab == tabProjectSpecies;
+
+            MenuSort.Text = projectVectorControl1.SelectionSize > 1 ?
+                "&Quick Sort Selection" : "&Quick Sort";
+        }
+
+        private void lstDBSpecies_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.A)
+                foreach (ListViewItem lvi in lstDBSpecies.Items)
+                    lvi.Selected = true;
         }
     }
 }
