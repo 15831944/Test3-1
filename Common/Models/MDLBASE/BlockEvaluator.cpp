@@ -30,7 +30,7 @@ CBlockEvaluator::CBlockEvaluator(FlwNode * pNd,
                                  CEvapBase * pEvap)
   {
   m_pNd             = pNd;
-  m_bAllowStateSemantics = AllowStateSemantics;
+  m_bAllowStateSemantics = AllowStateSemantics && pNd->NetDynamicMethod();
   
   Attach(AllowStateSemantics, pRB, pHX, pEHX, pVLE, pEvap);
   };
@@ -67,7 +67,7 @@ void CBlockEvaluator::Attach(bool AllowStateSemantics,
                              CEvapBase * pEvap)
   {
   m_nBlocks   = 0;
-  m_bAllowStateSemantics = AllowStateSemantics;
+  m_bAllowStateSemantics = AllowStateSemantics && m_pNd->NetDynamicMethod();
 
   m_pRB   = pRB;
   m_pHX   = pHX;
@@ -127,8 +127,9 @@ void CBlockEvaluator::AddBlk(CBlockEvalBase *p, int DefSeqNo)
     {
     if (0)
       dbgpln("AddBlk %3i %s", m_nBlocks, m_pNd->FullObjTag());
-    p->SetOnOffValLst(p->HasStateSemantics() && m_bAllowStateSemantics ? &m_OnOffStateValLst : &m_OnOffValLst);
+    p->SetOnOffValLst(p->m_bDefinesStateSemantics && m_bAllowStateSemantics ? &m_OnOffStateValLst : &m_OnOffValLst);
     p->SetDefBlkSeqNo(DefSeqNo);
+    p->m_bAllowStateSemantics=m_bAllowStateSemantics;
     m_Blks[m_nBlocks++]=p;
     }
   };

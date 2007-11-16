@@ -345,7 +345,8 @@ class DllImportExport CReactionBlock : public TaggedObject
     // SetUp
     void           FileLoadAllowed(flag b) { fFileLoadAllowed=b; StructureChanged(this); };
     flag           LoadForDynamic();
-    flag           Load(flag bAllowStateSemantics, pchar pRCTName, flag KeepState);
+    flag           UsingStateSemantics();
+    flag           Load(flag bUsingStateSemantics, pchar pRCTName, flag KeepState);
     flag           SetRCTName(pchar pRCTName);
     CReaction     *AddReaction(TagObjClass *pEqnClass);
     CReaction     *AddReaction(CReaction *pRct);
@@ -371,7 +372,7 @@ class DllImportExport CReactionBlock : public TaggedObject
     flag           InEvalDerivs()     { return m_InWhat==eEvalDerivs; };
     flag           InConvergeStates() { return m_InWhat==eConvergeStates; };
     flag           InDiscrete()       { return m_InWhat==eDiscrete; };
-    flag           HasStateSemantics();
+    flag           StateSemanticsOn();
     FlwNode      * Nd();
 
     flag           CpsOK();
@@ -604,10 +605,13 @@ class DllImportExport CReactionBase : public CBlockEvalBase
 
     CReactionBlock * operator() () { return bOn ? pRB : NULL; };
 
+
+
     flag           Open();
     flag           Open(byte OnOffSeq) { CBlockEvalBase::Open(OnOffSeq); return Open(); }
     byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
-    flag           Load(flag HasStateSemantics, char * pRCTFn) { return Open() ? pRB->Load(HasStateSemantics, pRCTFn, false) : False; };
+    flag           Load(flag UsingStateSemantics, char * pRCTFn) { return Open() ? pRB->Load(UsingStateSemantics, pRCTFn, false) : False; };
+    
     char          *RBTag()   { return Name(); }//m_sRBTag(); };
     flag           SetRCTName(char * pRCTFn) { return Open() ? pRB->SetRCTName(pRCTFn) : False; };
     char          *RCTName() { return Open() ? pRB->RCTName() : NULL; };
@@ -683,7 +687,7 @@ class DllImportExport CReactionBase : public CBlockEvalBase
 //===========================================================================
 
 inline long CReaction::Fidelity()                 { return RB.OwnModel->Fidelity(); };
-inline flag CReactionBlock::HasStateSemantics()   { return m_RctBase->HasStateSemantics(); };
+inline flag CReactionBlock::StateSemanticsOn()    { return m_RctBase->StateSemanticsOn(); };
 inline flag CReactionBlock::LoadForDynamic()      { return m_RctBase->BlkSeqNo()>=BlkEval_State && Nd()->SolveBufferedMethod(); };
 inline FlwNode * CReactionBlock::Nd()             { return m_RctBase->Nd(); };
 

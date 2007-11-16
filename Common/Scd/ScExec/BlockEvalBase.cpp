@@ -4,15 +4,16 @@
 #define __BLOCKEVALBASE_CPP
 #include "BlockEvalBase.h"
 
-CBlockEvalBase::CBlockEvalBase(byte BEId, int Index, LPTSTR Name, bool HasStateSemantics) : \
+CBlockEvalBase::CBlockEvalBase(byte BEId, int Index, LPTSTR Name, bool DefinesStateSemantics) : \
   m_sName(Name) 
   {
-  m_BEId=BEId;
-  m_Index=Index;
-  m_iBlkSeqNo=0;
-  m_iDefBlkSeqNo=255;      
-  m_bHasStateSemantics=HasStateSemantics;
-  m_pOnOffValLst=NULL;
+  m_BEId                    = BEId;
+  m_Index                   = Index;
+  m_iBlkSeqNo               = 0;
+  m_iDefBlkSeqNo            = 255;      
+  m_bDefinesStateSemantics  = DefinesStateSemantics;
+  m_bAllowStateSemantics    = false;
+  m_pOnOffValLst            = NULL;
   }
 
 CBlockEvalBase::~CBlockEvalBase(void)

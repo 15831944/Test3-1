@@ -731,11 +731,11 @@ void CEC_FracExt::SetUp()
       {
       CReactionBlock::Error(&RB, 'B', -1, "Extent:Fraction with 'Rate' not allowed in Direct (no surge) solver mode");
       }
-    else if (m_bDoRate && !RB./*m_RctBase->*/HasStateSemantics())
+    else if (m_bDoRate && !RB.UsingStateSemantics())
       {
       CReactionBlock::Error(&RB, 'B', -1, "'Rate' only allowed in surge unit");
       }
-    else if (!m_bDoRate && RB.Nd()->NetDynamicMethod() && RB./*m_RctBase->*/HasStateSemantics())
+    else if (!m_bDoRate && RB.Nd()->NetDynamicMethod() && RB.UsingStateSemantics())
       {
       CReactionBlock::Error(&RB, 'B', -1, "Extent:Fraction requires 'Rate' term in surge unit in dynamic mode");
       }

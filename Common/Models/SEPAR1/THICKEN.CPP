@@ -161,7 +161,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
 
 #if SURGEEB_RB_EHX
-  if (PrjFileVerNo()<112)
+  if (PrjFileVerNo()<115)
     {
     m_RB.Add_OnOff(DDB);
     m_EHX.Add_OnOff(DDB);

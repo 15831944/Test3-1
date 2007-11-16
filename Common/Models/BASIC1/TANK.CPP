@@ -473,7 +473,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
   m_HX.Add_OnOff(DDB);
 #if SURGEEB_RB_EHX
-  if (PrjFileVerNo()<112)
+  if (PrjFileVerNo()<115)
     {
     m_RB.Add_OnOff(DDB);
     m_EHX.Add_OnOff(DDB);
@@ -535,7 +535,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
   m_HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
 #if SURGEEB_RB_EHX
-  if (PrjFileVerNo()<112)
+  if (PrjFileVerNo()<115)
     {
     m_RB.BuildDataDefn(DDB);
     m_EHX.BuildDataDefn(DDB);

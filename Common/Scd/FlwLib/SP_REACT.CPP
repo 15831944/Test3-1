@@ -1628,6 +1628,8 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
 
 //---------------------------------------------------------------------------
 
+flag CReactionBlock::UsingStateSemantics() { return m_RctBase->m_bUsingStateSemantics!=0; };
+
 //static int LoadAttempted=0;
 
 flag CReactionBlock::ValidateData(ValidateDataBlk & VDB)
@@ -1635,7 +1637,7 @@ flag CReactionBlock::ValidateData(ValidateDataBlk & VDB)
   flag RetOK=true;
   if (fOn)
     {
-    if (LoadForDynamic() != /*m_RctBase->*/HasStateSemantics())
+    if (LoadForDynamic() != UsingStateSemantics())
       {
       Load(LoadForDynamic(), sRCTName(), true);
       }
@@ -1788,13 +1790,14 @@ flag CReactionBlock::SetRCTName(pchar pRCTName)
 
 //---------------------------------------------------------------------------
 
-flag CReactionBlock::Load(flag HasStateSemantics, pchar pRCTName, flag KeepState)
+flag CReactionBlock::Load(flag UsingStateSemantics, pchar pRCTName, flag KeepState)
   {
   //if (LoadAttempted)
   //  return False;
   //LoadAttempted=true;
   
-  m_RctBase->m_bHasStateSemantics=HasStateSemantics!=0;
+  m_RctBase->m_bUsingStateSemantics=UsingStateSemantics!=0;
+  //m_RctBase->m_bHasStateSemantics=UsingStateSemantics!=0;
   //m_bIs//m_RctBase->m_bCanBeSurge=bIsSurgeType;
 
   // Save the current values
@@ -2986,7 +2989,7 @@ flag CReactionBase::DataXchg(DataChangeBlk & DCB)
         {
         if (*DCB.rB)
           {
-          if (PrjFileVerNo()<115 && *DCB.rB>=BlkEval_On && m_bHasStateSemantics)
+          if (PrjFileVerNo()<115 && *DCB.rB>=BlkEval_On && m_bDefinesStateSemantics && m_bAllowStateSemantics)
             *DCB.rB = BlkEval_State + (*DCB.rB-BlkEval_On);
           Open(*DCB.rB);
           }

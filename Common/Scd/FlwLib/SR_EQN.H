@@ -88,7 +88,7 @@ class DllImportExport CR_EqnControl
     double         MolarKRatio(double dProdMoles);
 
     //bool           DynamicRate() { return RB.Nd() && RB.Nd()->NetDynamicMethod() && RB.m_RctBase->IsSurgeType(); }
-    bool           DynamicRate() { return RB.Nd() && RB.Nd()->SolveSurgeMethod() && RB./*.m_RctBase->*/HasStateSemantics(); }
+    bool           DynamicRate() { return RB.Nd() && RB.Nd()->SolveSurgeMethod() && RB.StateSemanticsOn(); }
 
     // Methods Required by "Default ReactingMoles())"
     virtual double LimitingReactant();

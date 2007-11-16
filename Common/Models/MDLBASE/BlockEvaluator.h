@@ -17,8 +17,9 @@
 
 class DllImportExport CBlockEvaluator
   {
-  public:
+  friend class CBlockEvalBase;
 
+  public:
     //                                     RB, HX, EHX, VLE
     static const int MaxBEBlocks           =   1  +1   +1   +1   +MaxNdMakeups+MaxNdBleeds;
 
