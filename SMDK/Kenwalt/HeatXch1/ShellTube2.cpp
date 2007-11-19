@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2006-11-13 11:09:09 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-10-25 12:19:16 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   Variation of the original CAR Specific Tube Digestor
 // $Nokeywords: $
@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include "shelltube2.h"
 
-#define dbgModels 1
+#define dbgModels 0
 
 //====================================================================================
 static MInitialiseTest InitTest("Digest");
@@ -127,12 +127,12 @@ static MDDValueLst DDOpMode[]=
 
 static MInOutDefStruct s_IODefs[]=
   {
-  //  Desc,        Name,         PortId,  Rqd, Max, CnId, FracHgt,  Options
+  //  Desc,        Name,         PortId,  Rqd, Max, CnId, FracHgt,  Options,               Alternative Names
     { "Tube In",   "TubeI",      idTubeI,   1,  10,    0,    1.0f,  MIO_In |MIO_Material , {"TubesIn"} },
     { "Tube Out",  "TubeO",      idTubeO,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material , {"TubesOut"} }, 
     { "Shell In",  "ShellI",     idShellI,  1,  10,    1,    1.0f,  MIO_In |MIO_Material , {"ShellIn"} },  
     { "Shell Out", "ShellO",     idShellO,  1,   1,    1,    1.0f,  MIO_Out|MIO_Material , {"ShellOut"} }, 
-    { "Vent",      "VentO",      idVentO,   1,   1,    1,    1.0f,  MIO_Out|MIO_Material , {"ShellVent"} },
+    { "Vent",      "VentO",      idVentO,   0,   1,    1,    1.0f,  MIO_Out|MIO_Material , {"ShellVent"} },
     { NULL },
   };
 
@@ -157,7 +157,7 @@ void CShellTube2_UnitDef::GetOptions()
   {
   SetDefaultTag("ST");
   SetDrawing("HeatExchange", Drw_CShellTube2);
-#if defined(HEATXCH1)
+#if defined(HeatXch1)
   SetTreeDescription("Heat Transfer:Shell & Tube(2)");
 #else
   SetTreeDescription("Demo:Test Shell & Tube(2)");
@@ -666,8 +666,11 @@ void CShellTube2::DoCondensingHeater(MStream & ShellI, MStream & TubeI,
     // Now Solve
     switch (Fn.FindRoot(0, 0, MaxVapFlow))//MnTbOutT, MxTbOutT))
       {
-      case RF_OK:      m_FTC.VapourFlowReqd = Fn.Result()+m_dQmVentRqd;
-	m_dCondFlow = m_FTC.VapourFlowReqd - m_dQmVentRqd;
+      case RF_OK:      
+	m_FTC.VapourFlowReqd = Fn.Result()+(m_bVentAttached ? m_dQmVentRqd : 0.);
+	m_dCondFlow = m_FTC.VapourFlowReqd - (m_bVentAttached ? m_dQmVentRqd : 0.);
+	if (!m_bVentAttached && m_dQmVentRqd > 0.0) 
+	  Log.Message(MMsg_Warning, "No Vent Attached... No venting");
 	break;
       case RF_LoLimit: m_FTC.VapourFlowReqd = MaxVapFlow*1e-6;   break;
       case RF_HiLimit: m_FTC.VapourFlowReqd = MaxVapFlow;        break;
@@ -805,25 +808,35 @@ void CShellTube2::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStream &
   m_dUA=m_dHTArea*m_dHTC;
   double FTemp=ShellI.SaturationT();
   if (TubeI.MassFlow()>0 && ShellI.MassFlow()>0 && ShellI.T > TubeI.T) {
-    ShellO.SetM(ShellI, MP_All, 0);
-
     MVDouble Vapor (ShellO, spWaterVapor);
     MVDouble Cond (ShellO, spWater);
     double SteamIn    = ShellI.MassVector[spWaterVapor];
     double WaterIn =  ShellI.MassVector[spWater];
-    Vapor = 0.0;
-    Cond = SteamIn+WaterIn;  // Was ShellI.MassFlow();
+
     //Log.Message(MMsg_Warning, "Live Steam Heater %f", Cond);
-    if (m_dQmVentRqd < SteamIn)  { // Enough Vapor to satisfy vent?
-	    Cond -= m_dQmVentRqd;
-	    MVDouble Vapor1 (VentO, spWaterVapor);
-	    VentO.SetF(ShellI, MP_Gas, 1.0);
-	    Vapor1 = m_dQmVentRqd;
-    } else 
-      Log.Message(MMsg_Error, "Excess Vent Flow called for");
-		  
+    if (m_bVentAttached) {
+      ShellO.SetM(ShellI, MP_All, 0);   // Only put condensate to drain
+      Vapor = 0.0;
+      Cond = SteamIn+WaterIn;  // Was ShellI.MassFlow();
+      if (m_dQmVentRqd < SteamIn)  { // Enough Vapor to satisfy vent?
+	Cond -= m_dQmVentRqd;
+	MVDouble Vapor1 (VentO, spWaterVapor);
+	VentO.SetF(ShellI, MP_Gas, 1.0);
+	Vapor1 = m_dQmVentRqd;
+      } else 
+	Log.Message(MMsg_Error, "Excess Vent Flow called for");
+    }
+    
+    else {  // No vent, all to condy drain...
+      if (m_dQmVentRqd > 0) 
+	Log.Message(MMsg_Warning, "No Vent Attached");
+      ShellO.SetF(ShellI, MP_All, 1.0);  // Sent everything to drain
+      Vapor = 0.0;                      // And condense all the water
+      Cond = SteamIn+WaterIn;  // Was ShellI.MassFlow();
+    }
+
     ShellO.T = FTemp;
-    double duty = ShellI.totHz()-ShellO.totHz() - VentO.totHz();
+    double duty = ShellI.totHz()-ShellO.totHz() - (m_bVentAttached ? VentO.totHz() :0);
     m_dTotDuty = duty;         // This is the total duty incl env loss for Amount
     if (m_bEnvironHX && m_lEnvHxMode) duty -= m_dEnvHeatLoss;
     m_dDuty = duty;           // This is Hx duty: tot - env
@@ -857,11 +870,17 @@ void CShellTube2::EvalProducts()
 
       FlwIOs.AddMixtureIn_Id(TubeI, idTubeI);
       FlwIOs.AddMixtureIn_Id(ShellI, idShellI);
+      m_bVentAttached = VentO.Attached;
+      
+
 
       TubeO = TubeI;
       ShellO = ShellI;
-      VentO = ShellI;
-      VentO.SetM(ShellI, MP_All, 0);   // Set default values in case of error
+      if (m_bVentAttached) {
+	VentO = ShellI;
+	VentO.SetM(ShellI, MP_All, 0);   // Set default values in case of error
+      }
+      
       if (bOnline) {
       
 	if (m_lHxMode) { 
@@ -889,14 +908,21 @@ void CShellTube2::EvalProducts()
 	case OM_Condensing: 
     {
 	  DoCondensingHeater(ShellI, TubeI, ShellO, TubeO);
-	  MVDouble Condy (ShellO, spWater);  // We want to keep this
-	  double totCondensate = Condy;     // how much condensate
-	  ShellO.ZeroMass();     // Get rid of *everything*
-	  Condy = totCondensate;  // Then just add in the condensate already found
 
-	  MVDouble Vapor (VentO, spWaterVapor); // Vent Vapor
-	  VentO.SetF(ShellI, MP_Gas, 1.0);      // Add *all the vapor in inlet
-	  Vapor = m_dQmVentRqd;    // and set the required flow
+
+	  if (m_bVentAttached) {
+	    MVDouble Condy (ShellO, spWater);  // We want to keep this
+	    double totCondensate = Condy;     // how much condensate
+	    ShellO.ZeroMass();     // Get rid of *everything*
+	    Condy = totCondensate;  // Then just add in the condensate already found
+	    MVDouble Vapor (VentO, spWaterVapor); // Vent Vapor
+	    VentO.SetF(ShellI, MP_Gas, 1.0);      // Add *all the vapor in inlet
+	    Vapor = m_dQmVentRqd;    // and set the required flow
+	  } else {   // No vent, so *everything goes out the condenate drain
+	    // Do we need to do anything?
+	  }
+	  
+	  
 	  break;
     }
 	case OM_LiveSteam:    
@@ -922,9 +948,12 @@ void CShellTube2::EvalProducts()
 
 	m_dQmTS = TubeO.Mass();
 	m_dQmSS = ShellO.Mass();
-
-  m_dQmVS = VentO.Mass();
-  m_dQmVNCS = VentO.Mass() - VentO.M[spWaterVapor];
+	
+	if (m_bVentAttached) {
+	  m_dQmVS = VentO.Mass();
+	  m_dQmVNCS = VentO.Mass() - VentO.M[spWaterVapor];
+	}
+	
     
 	m_dActualDuty = m_lEnvHxMode ? m_dEnvHeatLoss : 0;
       }

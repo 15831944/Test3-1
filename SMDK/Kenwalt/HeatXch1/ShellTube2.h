@@ -65,6 +65,8 @@ class CShellTube2 : public MBaseMethod, CSTHx
     bool bOnline;     // If online
     bool m_bMTDCalcMode;     // if true use RMTD formulation
     bool m_bEnvironHX; // Environmental HX
+    bool m_bVentAttached;
+    
 
     long m_lOpMode;    // Operating Mode (not implemented, always uses condensing)
     long m_lHxMode;    // Heat Transfer calc mode - 0 lumped, 1 detailed
