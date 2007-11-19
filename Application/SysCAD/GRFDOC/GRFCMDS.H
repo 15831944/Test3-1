@@ -113,6 +113,8 @@ class CLineDrawHelper
     Pt_3f      &    TagScale() { return m_TagScale; };
     void            SetShowTag(bool ShowTag) { m_bShowTag = ShowTag; };
     void            SetTagProps(double Scale, double Rot) { m_TagScale.X = Scale; m_TagScale.Y = Scale; m_TagScale.Z = Scale; m_TagRotation = Rot; };
+    void            SetAssocTag(LPCTSTR AssocTag) { m_sAssocTag = AssocTag; }; 
+    LPCTSTR         AssocTag() { return m_sAssocTag(); };
 
     Pt_3f           VertWorld(int i) { return m_Verts[i].World; };
 
@@ -128,6 +130,7 @@ class CLineDrawHelper
     Grf3D_Display   * m_pDsp;
     DXF_Drawing     * m_pDrw;
     Strng             m_sTag;
+    Strng             m_sAssocTag;
     bool              m_bShowTag;
     double            m_TagRotation;
   public:
@@ -367,7 +370,7 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     bool           DoInsertLink(CConnectBlk* CB);
     bool           DoChangeNodeGuid(pchar Tag, pchar Guid);
     flag           GetConnsForUnit(char* Tag, flag Inputs, dword RqdClass, Strng &IOTag, CSArray &IONames, CSArray &IODescs, CIOClassArray &IOClass, CSArray &IODefaultTSs, Pt_3f *pDigOff, Pt_3f *pDrwScl);
-    CEntInView*    GetClosest(Pt_SLW CurrentPt, flag FindLink, Strng& Tag);
+    CEntInView*    GetClosest(Pt_SLW CurrentPt, flag FindNode, flag FindLink, flag FindDirectLink, Strng& Tag);
     CEntInView*    GetClosest(Pt_SLW CurrentPt, flag FindInsert);
     CEntInView*    GetClosest(Pt_SLW CurrentPt, BOOL& AlreadySelected, flag FindInsert);
     CEntInView*    GetClosestText(Pt_SLW CurrentPt);

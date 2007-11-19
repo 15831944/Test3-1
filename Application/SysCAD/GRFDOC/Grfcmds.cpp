@@ -893,6 +893,8 @@ int GrfCmdBlk::CheckEntity(char* pTag)
                      _stricmp(ElecLinkGrp, pTagObjC->Group())==0 ||
                      _stricmp(AirLinkGrp, pTagObjC->Group())==0))
       return 2; //link
+    if (pTagObjC && (_stricmp(DirectLinkGrp, pTagObjC->Group())==0))
+      return 3; //DirectLinkGrp
     return 1; //unit/node
     }
   return 0; //error
@@ -2786,6 +2788,7 @@ void CLineDrawHelper::Init(Grf3D_Display* pDsp, DXF_Drawing *pDrw)
   m_TagScale.Y  = 1.0;
   m_TagScale.Z  = 1.0;
   m_TagRotation = 0.0;
+  m_sAssocTag="";
   }
 
 void CLineDrawHelper::InitPoints()
@@ -3696,7 +3699,7 @@ flag GrfCmdBlk::GetConnsForUnit(char *Tag, flag Inputs, dword RqdClass, Strng &I
 
 //---------------------------------------------------------------------------
 
-CEntInView* GrfCmdBlk::GetClosest(Pt_SLW CurrentPt, flag FindLink, Strng& Tag)
+CEntInView* GrfCmdBlk::GetClosest(Pt_SLW CurrentPt, flag FindNode, flag FindLink, flag FindDirectLink, Strng& Tag)
   {
   const int MaxCnt = 8;
   CEntInView* EntList[MaxCnt];
@@ -3713,10 +3716,19 @@ CEntInView* GrfCmdBlk::GetClosest(Pt_SLW CurrentPt, flag FindLink, Strng& Tag)
       if (Tag())
         {
         int RetCode = CheckEntity(Tag());
+        const flag IsNode = (RetCode==1);
         const flag IsLink = (RetCode==2);
-        if ( (RetCode!=0) && ((FindLink && IsLink) || (!FindLink && !IsLink)) )
+        const flag IsDirect = (RetCode==3);
+        if (RetCode!=0)
+          {
+          if (FindNode && IsNode)
+            return p;
+          if (FindLink && IsLink)
+            return p;
+          if (FindDirectLink && IsDirect)
           return p;
         }
+      }
       }
     Cnt++;
     }
@@ -3995,7 +4007,7 @@ void GrfCmdBlk::DoConnect()
           pDsp->Vp1->ClearAllEntity();
           pDsp->Vp1->ClrSelectionAllList();
           Strng TmpTag;
-          CEntInView* p = GetClosest(pDsp->CurrentPt, false, TmpTag);
+          CEntInView* p = GetClosest(pDsp->CurrentPt, true, false, false, TmpTag);
           if (p)
             {
             pDsp->Vp1->SelectEntity(p);
@@ -4321,7 +4333,7 @@ void GrfCmdBlk::DoMoveLink()
         CWaitCursor Wait;
         pDsp->Vp1->ClearAllEntity();
         pDsp->Vp1->ClrSelectionAllList();
-        CEntInView* p = GetClosest(pDsp->CurrentPt, true, LnkTag);
+        CEntInView* p = GetClosest(pDsp->CurrentPt, false , true, true, LnkTag);
         if (p && p->EntityPtr())
           {
           ActivateGWnd();
@@ -4391,9 +4403,12 @@ void GrfCmdBlk::DoMoveLink()
           else
 #endif
             {
+          Strng AssocTag;
+
             if (OldEntity)
               {//delete previous...
               //char * pTag = Attr_Value(Find_Attr(OldEntity, TagAttribStr));
+            AssocTag = Find_Attr_Value(OldEntity, AssocTagAttribStr);
               pDsp->Draw(OldEntity, GrfHelper.GR_BACKGROUND);
               pDrw->Delete(OldEntity);
               }
@@ -4411,6 +4426,7 @@ void GrfCmdBlk::DoMoveLink()
             TheLDH.SetShowTag(!bFlag1);
             TheLDH.SetArrowScale(ArrowScale);
             TheLDH.SetTag(LnkTag());
+          TheLDH.SetAssocTag(AssocTag());
             DXF_ENTITY e = AddLinkDrawing(TheLDH);
             pDsp->Draw(e, GR_WHITE);
             pWnd->Invalidate();
@@ -5293,7 +5309,7 @@ void GrfCmdBlk::DoConstructLink()
           pDsp->Vp1->ClearAllEntity();
           pDsp->Vp1->ClrSelectionAllList();
           Strng TmpTag;
-          CEntInView* p = GetClosest(pDsp->CurrentPt, false, TmpTag);
+          CEntInView* p = GetClosest(pDsp->CurrentPt, true, false, false, TmpTag);
           flag ConnOK = False;
           if (p)
             {
@@ -11364,9 +11380,10 @@ DXF_ENTITY GrfCmdBlk::AddLinkDrawing(CLineDrawHelper & LDH)
   Attr_Settings SetMem=Tag_Attr_Set;
   Tag_Attr_Set.Size*=LDH.m_TagScale.X;
   Tag_Attr_Set.Rot=LDH.TagRotation();
-  DXF_ENTITY newinsert = pDrw->Create_Insert(nm, LDH.m_InsertPt, GR_WHITE/*GR_LIGHTCYAN*/, sc, LDH.TagRotation(), (LPTSTR)LDH.Tag(), NULL, ptt, Tag_Attr_Set);
+  DXF_ENTITY newinsert = pDrw->Create_Insert(nm, LDH.m_InsertPt, GR_WHITE/*GR_LIGHTCYAN*/, sc, LDH.TagRotation(), (LPTSTR)LDH.Tag(), (LPTSTR)LDH.AssocTag(), ptt, Tag_Attr_Set);
   DXF_ENTITY_THICKNESS(newinsert) = LDH.LineWidth();
   Tag_Attr_Set=SetMem;
+  LDH.SetAssocTag("");
   return newinsert;
   }
 
