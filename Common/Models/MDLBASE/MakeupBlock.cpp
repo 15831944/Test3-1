@@ -66,22 +66,22 @@ void CMakeupBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, d
 //============================================================================
 
 CMakeupBase::CMakeupBase(TaggedObject * pAttach, int Index, LPTSTR Name) : CBlockEvalBase(BEId_Makeup, Index, Name, false),
-m_SrcIO(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, false, 
+m_SrcIO(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, false,
         Name, IOId_Makeup2Area+Index, IOId_AreaMakeupO, "MakeupSrc", "MakeupSrc_1")
-  { 
-  m_pMakeupB        = NULL; 
-  m_pNd             = dynamic_cast<FlwNode*>(pAttach); 
+  {
+  m_pMakeupB        = NULL;
+  m_pNd             = dynamic_cast<FlwNode*>(pAttach);
   m_fEnabled        = false;
-  m_fFixed          = false; 
+  m_fFixed          = false;
   m_SrcIO.UsrEnable = true;//false;
   m_ConfigChecked   = PrjFileVerNo()>=114;
   m_On              = true;
-  //m_Index           = Index; 
+  //m_Index           = Index;
   }
 
-CMakeupBase::~CMakeupBase()  
-  { 
-  delete m_pMakeupB; 
+CMakeupBase::~CMakeupBase()
+  {
+  delete m_pMakeupB;
   };
 
 flag CMakeupBase::Open(TagObjClass * pMakeupClass, flag Fixed)
@@ -295,7 +295,7 @@ XID xidMkElemId  = AdjustXID(1060);
 
 const int MaxMUItems = 10;
 
-class CDDBItemList    
+class CDDBItemList
   {
   public:
     CDDBItemList (CIArray & List) : \
@@ -385,8 +385,8 @@ enum eSource
   };
 
 enum eType
-  { 
-  //Type_None, 
+  {
+  //Type_None,
   Type_Mass,
   Type_Volume,
   Type_NVolume,
@@ -474,7 +474,7 @@ class DllImportExport CMeasInfo
 
     eType           m_eType;
     eSelect         m_eSelect;
-    PhMask          m_Phases; 
+    PhMask          m_Phases;
 
     CIArray         m_Species;
     CIArray         m_Comps;
@@ -573,7 +573,7 @@ class DllImportExport CXBlk_MUBase: public CMakeupBlock
     double          m_TempMkUp;
     double          m_TempProd;
     double          m_HeatFlow;
-    
+
     bool            m_ValidateOK;
     Strng/*_List*/      m_sDesc;
     Strng_List      m_ErrorLst;
@@ -601,7 +601,7 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUBase &Blk)//, LPTSTR Tag
       DDB.Text(m_Header());
 
     static DDBValueLst DDBSelect[] =
-      {                         
+      {
         {Slct_All,            "All"             },
         {Slct_Occur,          "Phase"           },
         {Slct_IndPhase,       "IndividualPhase" },
@@ -671,7 +671,7 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUBase &Blk)//, LPTSTR Tag
           DDB.EndArray();
           break;
           }
-        }  
+        }
       }
     else
       {
@@ -731,7 +731,7 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUBase &Blk)//, LPTSTR Tag
             }
           break;
           }
-        }  
+        }
       }
     }
   DDB.EndStruct();
@@ -746,11 +746,11 @@ flag CMeasInfo::DataXchg(DataChangeBlk & DCB, CXBlk_MUBase &Blk)
     {
     case xidMkSelect:
       if (DCB.rL && (m_eSelect!=(eSelect)*DCB.rL))
-        {          
+        {
         m_eSelect   = (eSelect)*DCB.rL;
         Blk.ClrMeasEtc();
         }
-      DCB.L = m_eSelect; 
+      DCB.L = m_eSelect;
       return 1;
     case xidMkAll:
       if (DCB.rB)
@@ -758,7 +758,7 @@ flag CMeasInfo::DataXchg(DataChangeBlk & DCB, CXBlk_MUBase &Blk)
         m_Phases = *DCB.rB ? som_ALL:0;
         Blk.ClrMeasEtc();
         }
-      DCB.B = (m_Phases==som_ALL) ? 1 : (m_Phases==0) ? 0 : 2; 
+      DCB.B = (m_Phases==som_ALL) ? 1 : (m_Phases==0) ? 0 : 2;
       return 1;
     case xidMkSolids:
       if (DCB.rB)
@@ -766,7 +766,7 @@ flag CMeasInfo::DataXchg(DataChangeBlk & DCB, CXBlk_MUBase &Blk)
         m_Phases = (m_Phases&~som_Sol) | (*DCB.rB ? som_Sol:0);
         Blk.ClrMeasEtc();
         }
-      DCB.B = ((m_Phases&som_Sol)==som_Sol)? 1 : ((m_Phases&som_Sol)==0) ? 0 : 2; 
+      DCB.B = ((m_Phases&som_Sol)==som_Sol)? 1 : ((m_Phases&som_Sol)==0) ? 0 : 2;
       return 1;
     case xidMkLiquids:
       if (DCB.rB)
@@ -774,7 +774,7 @@ flag CMeasInfo::DataXchg(DataChangeBlk & DCB, CXBlk_MUBase &Blk)
         m_Phases = (m_Phases&~som_Liq) | (*DCB.rB ? som_Liq:0);
         Blk.ClrMeasEtc();
         }
-      DCB.B = ((m_Phases&som_Liq)==som_Liq)? 1 : ((m_Phases&som_Liq)==0) ? 0 : 2; 
+      DCB.B = ((m_Phases&som_Liq)==som_Liq)? 1 : ((m_Phases&som_Liq)==0) ? 0 : 2;
       return 1;
     case xidMkGasses:
       if (DCB.rB)
@@ -782,7 +782,7 @@ flag CMeasInfo::DataXchg(DataChangeBlk & DCB, CXBlk_MUBase &Blk)
         m_Phases = (m_Phases&~som_Gas) | (*DCB.rB ? som_Gas:0);
         Blk.ClrMeasEtc();
         }
-      DCB.B = ((m_Phases&som_Gas)==som_Gas)? 1 : ((m_Phases&som_Gas)==0) ? 0 : 2; 
+      DCB.B = ((m_Phases&som_Gas)==som_Gas)? 1 : ((m_Phases&som_Gas)==0) ? 0 : 2;
       return 1;
 
     case xidMkSpcCnt:
@@ -817,36 +817,36 @@ flag CMeasInfo::DataXchg(DataChangeBlk & DCB, CXBlk_MUBase &Blk)
     default:
       if (DCB.lHandle>=xidMkSpcId && DCB.lHandle<xidMkSpcId+MaxMUItems)
         {
-        int i= DCB.lHandle-xidMkSpcId; 
+        int i= DCB.lHandle-xidMkSpcId;
         if (DCB.rL)
           {
           m_Species.SetAtGrow(i, *DCB.rL);
           m_DDBSpcs.m_OK=false;
           //SetUpDDBSpcs(true);
           }
-        DCB.L=i<m_Species.GetCount() ? m_Species[i]:-1; 
+        DCB.L=i<m_Species.GetCount() ? m_Species[i]:-1;
         return 1;
         }
       else if (DCB.lHandle>=xidMkCmpId && DCB.lHandle<xidMkCmpId+MaxMUItems)
         {
-        int i= DCB.lHandle-xidMkCmpId; 
+        int i= DCB.lHandle-xidMkCmpId;
         if (DCB.rL)
           {
           m_Comps.SetAtGrow(i, *DCB.rL);
           m_DDBCmps.m_OK=false;
           }
-        DCB.L=i<m_Comps.GetCount() ? m_Comps[i]:-1; 
+        DCB.L=i<m_Comps.GetCount() ? m_Comps[i]:-1;
         return 1;
         }
       else if (DCB.lHandle>=xidMkElemId && DCB.lHandle<xidMkElemId+MaxMUItems)
         {
-        int i= DCB.lHandle-xidMkElemId; 
+        int i= DCB.lHandle-xidMkElemId;
         if (DCB.rL)
           {
           m_Elements.SetAtGrow(i, *DCB.rL);
           m_DDBElems.m_OK=false;
           }
-        DCB.L=i<m_Elements.GetCount() ? m_Elements[i]:-1; 
+        DCB.L=i<m_Elements.GetCount() ? m_Elements[i]:-1;
         return 1;
         }
       else if (DCB.lHandle>=xidMkPhase && DCB.lHandle<xidMkPhase+CDB.PhaseCount())
@@ -858,7 +858,7 @@ flag CMeasInfo::DataXchg(DataChangeBlk & DCB, CXBlk_MUBase &Blk)
           m_Phases = (m_Phases&~P.m_PhMsk) | (*DCB.rB ? P.m_PhMsk:0);
           Blk.ClrMeasEtc();
           }
-        DCB.B = (m_Phases&P.m_PhMsk) ? 1 : 0; 
+        DCB.B = (m_Phases&P.m_PhMsk) ? 1 : 0;
         return 1;
         }
     }
@@ -921,14 +921,14 @@ LPSTR CMeasInfo::Description(bool Hdr)
       }
     }
   else
-    m_sDesc = ""; 
+    m_sDesc = "";
 
   switch (m_eSelect)
     {
     case Slct_All:
       if (m_sDesc())
-        m_sDesc += ":"; 
-      m_sDesc += "All"; 
+        m_sDesc += ":";
+      m_sDesc += "All";
       break;
     case Slct_Occur:
       {
@@ -1008,7 +1008,7 @@ class DllImportExport CXBlk_MUFixed : public CXBlk_MUBase
   {
   public:
     CXBlk_MUFixed(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
-      CXBlk_MUBase(Op_MUFixed, pClass_, Tag_, pAttach, eAttach)  
+      CXBlk_MUBase(Op_MUFixed, pClass_, Tag_, pAttach, eAttach)
       {
       m_Meas1.Initialise("MkUp", 1, "MakeUp Measurement");
       };
@@ -1019,7 +1019,7 @@ class DllImportExport CXBlk_MURatio : public CXBlk_MUBase
   {
   public:
     CXBlk_MURatio(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
-      CXBlk_MUBase(Op_MURatio, pClass_, Tag_, pAttach, eAttach)  
+      CXBlk_MUBase(Op_MURatio, pClass_, Tag_, pAttach, eAttach)
       {
       m_Meas1.Initialise("Feed", 1, "Feed Measurement");
       m_Meas2.Initialise("MkUp", 2, "MakeUp Measurement");
@@ -1032,7 +1032,7 @@ class DllImportExport CXBlk_PrdFlow: public CXBlk_MUBase
   {
   public:
     CXBlk_PrdFlow(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
-      CXBlk_MUBase(Op_PrdFlow, pClass_, Tag_, pAttach, eAttach)  
+      CXBlk_MUBase(Op_PrdFlow, pClass_, Tag_, pAttach, eAttach)
       {
       m_Meas1.Initialise("Product", 1, "Product Measurement");
       };
@@ -1054,7 +1054,7 @@ class DllImportExport CXBlk_PrdConc: public CXBlk_MUBase
   {
   public:
     CXBlk_PrdConc(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
-      CXBlk_MUBase(Op_PrdConc, pClass_, Tag_, pAttach, eAttach) 
+      CXBlk_MUBase(Op_PrdConc, pClass_, Tag_, pAttach, eAttach)
       {
       m_Meas1.Initialise("ProductMass", 1, "Product Mass Measurement", Type_Mass, Slct_Specie);
       m_Meas2.Initialise("ProductVolume", 2, "Product Volume Measurement", Type_Volume, Slct_Occur, som_Liq);
@@ -1066,7 +1066,7 @@ class DllImportExport CXBlk_PrdTemp: public CXBlk_MUBase
   {
   public:
     CXBlk_PrdTemp(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
-      CXBlk_MUBase(Op_PrdTemp, pClass_, Tag_, pAttach, eAttach) 
+      CXBlk_MUBase(Op_PrdTemp, pClass_, Tag_, pAttach, eAttach)
       {
       m_RqdSetPoint = StdT;
       m_MeasFeed = StdT;
@@ -1080,7 +1080,7 @@ class DllImportExport CXBlk_PrdTChg: public CXBlk_MUBase
   {
   public:
     CXBlk_PrdTChg(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) : \
-      CXBlk_MUBase(Op_PrdTChg, pClass_, Tag_, pAttach, eAttach) 
+      CXBlk_MUBase(Op_PrdTChg, pClass_, Tag_, pAttach, eAttach)
       {
       m_RqdSetPoint = 0;
       m_MeasFeed = StdT;
@@ -1117,7 +1117,7 @@ IMPLEMENT_MAKEUPBLOCK(CXBlk_PrdTChg, "MB_PrdTChg", "", TOC_ALL|TOC_GRP_GENERAL|T
 CXBlk_MUBase::CXBlk_MUBase(eOps Op, pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
 CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   {
-  m_Op        = Op; 
+  m_Op        = Op;
   m_eSource   = Src_Remote;
 
   m_MUQmMin   = 0.0;
@@ -1150,7 +1150,7 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
 
   m_TempFeed   = C2K(25);
   m_TempMkUp   = C2K(25);
-  m_TempProd   = C2K(25); 
+  m_TempProd   = C2K(25);
   m_HeatFlow    = 0;
 
   m_ValidateOK  = true;
@@ -1169,7 +1169,7 @@ CXBlk_MUBase::~CXBlk_MUBase()
 void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
   {
   static DDBValueLst DDBCtrl[] =
-    {                         
+    {
       {Type_Mass,           "Mass"          },
       {Type_Volume,         "Volume"        },
       {Type_NVolume,        "NVolume"       },
@@ -1178,7 +1178,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
     };
 
   static DDBValueLst DDBCtrlFlw[] =
-    {                         
+    {
       {Type_Mass,           "MassFlow"          },
       {Type_Volume,         "VolumeFlow"        },
       {Type_NVolume,        "NVolumeFlow"       },
@@ -1187,7 +1187,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
     };
 
   static DDBValueLst DDBCtrlRatio[] =
-    {                         
+    {
       {Type_Mass,           "MassRatio"          },
       {Type_Volume,         "VolumeRatio"        },
       {Type_NVolume,        "NVolumeRatio"       },
@@ -1196,14 +1196,14 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
     };
 
   static DDBValueLst DDBSource[] =
-    {                         
+    {
       {Src_Self,            "Self"            },
       {Src_Remote,          "Remote"          },
       {}
     };
 
   static DDBValueLst DDBLoFeed[] =
-    {                         
+    {
       {LF_AlwaysOn,         "AlwaysOn"            },
       {LF_StopBelow,        "StopBelowQmLimit"    },
       //{LF_HoldMeasure,      "HoldAtLo"          },
@@ -1252,7 +1252,7 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
       m_Meas1.BuildDataDefn(DDB, *this);
       break;
     }
-  
+
   switch (m_Op)
     {
     case Op_MURatio:
@@ -1269,48 +1269,48 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
       {
       switch (m_Meas1.m_eType)
         {
-        case Type_Mass:    
+        case Type_Mass:
           {
           Strng S("Required Mass flow ", m_Meas1.Description(false));
           DDB.Text(S());
           DDB.Double("", "Rqd.MakeUp.Qm",     DC_Qm,     "kg/s",   &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.Qm",    DC_Qm,     "kg/s",   &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.Qm",  DC_Qm,     "kg/s",   &m_MeasMkUp,     this, isResult);  
-          //DDB.Double("", "Meas.Prod.Qm",    DC_Qm,     "kg/s",   &m_MeasProd,     this, isResult|InitHidden);  
+          //DDB.Double("", "Meas.Feed.Qm",    DC_Qm,     "kg/s",   &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.Qm",  DC_Qm,     "kg/s",   &m_MeasMkUp,     this, isResult);
+          //DDB.Double("", "Meas.Prod.Qm",    DC_Qm,     "kg/s",   &m_MeasProd,     this, isResult|InitHidden);
           break;
           }
-        case Type_Mole:    
+        case Type_Mole:
           {
           Strng S("Required Molar flow ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.MakeUp.QMl",    DC_QKgMl,  "kmol/s", &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Rqd.MakeUp.QMl",    DC_QKgMl,  "kmol/s", &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.QMl",   DC_QKgMl,  "kmol/s", &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s", &m_MeasMkUp,     this, isResult);  
-          //DDB.Double("", "Meas.Prod.QMl",   DC_QKgMl,  "kmol/s", &m_MeasProd,     this, isResult|InitHidden);  
+          //DDB.Double("", "Meas.Feed.QMl",   DC_QKgMl,  "kmol/s", &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s", &m_MeasMkUp,     this, isResult);
+          //DDB.Double("", "Meas.Prod.QMl",   DC_QKgMl,  "kmol/s", &m_MeasProd,     this, isResult|InitHidden);
           break;
           }
-        case Type_Volume:  
+        case Type_Volume:
           {
           Strng S("Required Volume flow ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.MakeUp.Qv",     DC_Qv,     "L/s",    &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Rqd.MakeUp.Qv",     DC_Qv,     "L/s",    &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.Qv",    DC_Qv,     "L/s",    &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.Qv",  DC_Qv,     "L/s",    &m_MeasMkUp,     this, isResult);  
-          //DDB.Double("", "Meas.Prod.Qv",    DC_Qv,     "L/s",    &m_MeasProd,     this, isResult|InitHidden);  
+          //DDB.Double("", "Meas.Feed.Qv",    DC_Qv,     "L/s",    &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.Qv",  DC_Qv,     "L/s",    &m_MeasMkUp,     this, isResult);
+          //DDB.Double("", "Meas.Prod.Qv",    DC_Qv,     "L/s",    &m_MeasProd,     this, isResult|InitHidden);
           break;
           }
-        case Type_NVolume: 
+        case Type_NVolume:
           {
           Strng S("Required NVolume flow ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.MakeUp.NQv",    DC_NQv,    "NL/s",   &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Rqd.MakeUp.NQv",    DC_NQv,    "NL/s",   &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.NQv",   DC_NQv,    "NL/s",   &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",   &m_MeasMkUp,     this, isResult);  
-          //DDB.Double("", "Meas.Prod.NQv",   DC_NQv,    "NL/s",   &m_MeasProd,     this, isResult|InitHidden);  
+          //DDB.Double("", "Meas.Feed.NQv",   DC_NQv,    "NL/s",   &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",   &m_MeasMkUp,     this, isResult);
+          //DDB.Double("", "Meas.Prod.NQv",   DC_NQv,    "NL/s",   &m_MeasProd,     this, isResult|InitHidden);
           break;
           }
         }
@@ -1320,51 +1320,51 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
       {
       switch (m_Meas1.m_eType)
         {
-        case Type_Mass:     
+        case Type_Mass:
           {
           Strng S("Required Mass ratio");
           DDB.Text(S());
-          DDB.Double("", "Rqd.QmRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isParm); 
-          //DDB.Double("", "Meas.QmRatio",   DC_Frac,   "",         &m_Measured,       this, isResult); 
-          //DDB.Double("", "Meas.Feed.Qm",   DC_Qm,     "kg/s",     &m_MeasFeed,       this, isResult|InitHidden); 
+          DDB.Double("", "Rqd.QmRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isParm);
+          //DDB.Double("", "Meas.QmRatio",   DC_Frac,   "",         &m_Measured,       this, isResult);
+          //DDB.Double("", "Meas.Feed.Qm",   DC_Qm,     "kg/s",     &m_MeasFeed,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.MakeUp.Qm", DC_Qm,     "kg/s",     &m_MeasMkUp,       this, isResult|InitHidden); 
+          //DDB.Double("", "Meas.MakeUp.Qm", DC_Qm,     "kg/s",     &m_MeasMkUp,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas2.Description(false));
           break;
           }
-        case Type_Mole:     
+        case Type_Mole:
           {
           Strng S("Required Molar ratio");
           DDB.Text(S());
-          DDB.Double("", "Rqd.QMlRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isParm); 
-          //DDB.Double("", "Meas.QMlRatio",  DC_Frac,   "",         &m_Measured,       this, isResult); 
-          //DDB.Double("", "Meas.Feed.QMl",  DC_QKgMl,  "kmol/s",   &m_MeasFeed,       this, isResult|InitHidden); 
+          DDB.Double("", "Rqd.QMlRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isParm);
+          //DDB.Double("", "Meas.QMlRatio",  DC_Frac,   "",         &m_Measured,       this, isResult);
+          //DDB.Double("", "Meas.Feed.QMl",  DC_QKgMl,  "kmol/s",   &m_MeasFeed,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s",   &m_MeasMkUp,       this, isResult|InitHidden); 
+          //DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s",   &m_MeasMkUp,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas2.Description(false));
           break;
           }
-        case Type_Volume:   
+        case Type_Volume:
           {
           Strng S("Required Volume ratio");
           DDB.Text(S());
-          DDB.Double("", "Rqd.QvRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isParm); 
-          //DDB.Double("", "Meas.QvRatio",   DC_Frac,   "",         &m_Measured,       this, isResult); 
-          //DDB.Double("", "Meas.Feed.Qv",   DC_Qv,     "L/s",      &m_MeasFeed,       this, isResult|InitHidden); 
-          //DDB.TagComment(m_Meas1.Description(false));          
-          //DDB.Double("", "Meas.MakeUp.Qv", DC_Qv,     "L/s",      &m_MeasMkUp,       this, isResult|InitHidden); 
+          DDB.Double("", "Rqd.QvRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isParm);
+          //DDB.Double("", "Meas.QvRatio",   DC_Frac,   "",         &m_Measured,       this, isResult);
+          //DDB.Double("", "Meas.Feed.Qv",   DC_Qv,     "L/s",      &m_MeasFeed,       this, isResult|InitHidden);
+          //DDB.TagComment(m_Meas1.Description(false));
+          //DDB.Double("", "Meas.MakeUp.Qv", DC_Qv,     "L/s",      &m_MeasMkUp,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas2.Description(false));
           break;
           }
-        case Type_NVolume:  
+        case Type_NVolume:
           {
           Strng S("Required NVolume ratio");
           DDB.Text(S());
-          DDB.Double("", "Rqd.NQvRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isParm); 
-          //DDB.Double("", "Meas.NQvRatio",  DC_Frac,   "",         &m_Measured,       this, isResult); 
-          //DDB.Double("", "Meas.Feed.NQv",  DC_NQv,    "NL/s",     &m_MeasFeed,       this, isResult|InitHidden); 
+          DDB.Double("", "Rqd.NQvRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isParm);
+          //DDB.Double("", "Meas.NQvRatio",  DC_Frac,   "",         &m_Measured,       this, isResult);
+          //DDB.Double("", "Meas.Feed.NQv",  DC_NQv,    "NL/s",     &m_MeasFeed,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",     &m_MeasMkUp,       this, isResult|InitHidden); 
+          //DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",     &m_MeasMkUp,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas2.Description(false));
           break;
           }
@@ -1375,48 +1375,48 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
       {
       switch (m_Meas1.m_eType)
         {
-        case Type_Mass:    
+        case Type_Mass:
           {
           Strng S("Required Mass flow ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.Prod.Qm",     DC_Qm,     "kg/s",   &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Rqd.Prod.Qm",     DC_Qm,     "kg/s",   &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.Qm",    DC_Qm,     "kg/s",   &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.Qm",  DC_Qm,     "kg/s",   &m_MeasMkUp,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.Prod.Qm",    DC_Qm,     "kg/s",   &m_MeasProd,     this, isResult);  
+          //DDB.Double("", "Meas.Feed.Qm",    DC_Qm,     "kg/s",   &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.Qm",  DC_Qm,     "kg/s",   &m_MeasMkUp,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.Prod.Qm",    DC_Qm,     "kg/s",   &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_Mole:    
+        case Type_Mole:
           {
           Strng S("Required Molar flow ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.Prod.QMl",    DC_QKgMl,  "kmol/s", &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Rqd.Prod.QMl",    DC_QKgMl,  "kmol/s", &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.QMl",   DC_QKgMl,  "kmol/s", &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s", &m_MeasMkUp,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.Prod.QMl",   DC_QKgMl,  "kmol/s", &m_MeasProd,     this, isResult);  
+          //DDB.Double("", "Meas.Feed.QMl",   DC_QKgMl,  "kmol/s", &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s", &m_MeasMkUp,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.Prod.QMl",   DC_QKgMl,  "kmol/s", &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_Volume:  
+        case Type_Volume:
           {
           Strng S("Required Volume flow ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.Prod.Qv",     DC_Qv,     "L/s",   &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Rqd.Prod.Qv",     DC_Qv,     "L/s",   &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.Qv",    DC_Qv,     "L/s",   &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.Qv",  DC_Qv,     "L/s",   &m_MeasMkUp,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.Prod.Qv",    DC_Qv,     "L/s",   &m_MeasProd,     this, isResult);  
+          //DDB.Double("", "Meas.Feed.Qv",    DC_Qv,     "L/s",   &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.Qv",  DC_Qv,     "L/s",   &m_MeasMkUp,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.Prod.Qv",    DC_Qv,     "L/s",   &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_NVolume: 
+        case Type_NVolume:
           {
           Strng S("Required NVolume flow ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.Prod.NQv",    DC_NQv,    "NL/s",  &m_RqdSetPoint,  this, isParm);  
+          DDB.Double("", "Rqd.Prod.NQv",    DC_NQv,    "NL/s",  &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.NQv",   DC_NQv,    "NL/s",  &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.Prod.NQv",   DC_NQv,    "NL/s",  &m_MeasProd,     this, isResult);  
+          //DDB.Double("", "Meas.Feed.NQv",   DC_NQv,    "NL/s",  &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",  &m_MeasMkUp,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.Prod.NQv",   DC_NQv,    "NL/s",  &m_MeasProd,     this, isResult);
           break;
           }
         }
@@ -1426,48 +1426,48 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
       {
       switch (m_Meas1.m_eType)
         {
-        case Type_Mass:     
+        case Type_Mass:
           {
           Strng S("Required Mass fraction ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.Prod.QmFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Rqd.Prod.QmFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.QmFrac",    DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.QmFrac",  DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.Prod.QmFrac",    DC_Frac, "%",  &m_MeasProd,     this, isResult); 
+          //DDB.Double("", "Meas.Feed.QmFrac",    DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.QmFrac",  DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.Prod.QmFrac",    DC_Frac, "%",  &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_Mole:     
+        case Type_Mole:
           {
           Strng S("Required Molar fraction ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.Prod.QMlFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Rqd.Prod.QMlFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.QMlFrac",   DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.QMlFrac", DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.Prod.QMlFrac",   DC_Frac, "%",  &m_MeasProd,     this, isResult); 
+          //DDB.Double("", "Meas.Feed.QMlFrac",   DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.QMlFrac", DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.Prod.QMlFrac",   DC_Frac, "%",  &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_Volume:   
+        case Type_Volume:
           {
           Strng S("Required Volume fraction ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.Prod.QvFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Rqd.Prod.QvFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.QvFrac",    DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.QvFrac",  DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.Prod.QvFrac",    DC_Frac, "%",  &m_MeasProd,     this, isResult); 
+          //DDB.Double("", "Meas.Feed.QvFrac",    DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.QvFrac",  DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.Prod.QvFrac",    DC_Frac, "%",  &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_NVolume:  
+        case Type_NVolume:
           {
           Strng S("Required NVolume fraction ", m_Meas1.Description(false));
           DDB.Text(S());
-          DDB.Double("", "Rqd.Prod.NQvFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isParm); 
+          DDB.Double("", "Rqd.Prod.NQvFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isParm);
           //DDB.TagComment(m_Meas1.Description(false));
-          //DDB.Double("", "Meas.Feed.NQvFrac",   DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.MakeUp.NQvFrac", DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          //DDB.Double("", "Meas.Prod.NQvFrac",   DC_Frac, "%",  &m_MeasProd,     this, isResult); 
+          //DDB.Double("", "Meas.Feed.NQvFrac",   DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.MakeUp.NQvFrac", DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);
+          //DDB.Double("", "Meas.Prod.NQvFrac",   DC_Frac, "%",  &m_MeasProd,     this, isResult);
           break;
           }
         }
@@ -1480,31 +1480,31 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
       //DDB.Text(S());
       Strng S("Required Concentration ", m_Meas1.Description(false));
       DDB.Text(S());
-      DDB.Double("", "Rqd.Prod.Conc",     DC_Conc, "g/L",  &m_RqdSetPoint,     this, isParm); 
-      //DDB.Double("", "Meas.Feed.Conc",    DC_Conc, "g/L",  &m_MeasFeed,        this, isResult|InitHidden); 
-      //DDB.Double("", "Meas.MakeUp.Conc",  DC_Conc, "g/L",  &m_MeasMkUp,        this, isResult|InitHidden); 
-      //DDB.Double("", "Meas.Prod.Conc",    DC_Conc, "g/L",  &m_MeasProd,        this, isResult); 
+      DDB.Double("", "Rqd.Prod.Conc",     DC_Conc, "g/L",  &m_RqdSetPoint,     this, isParm);
+      //DDB.Double("", "Meas.Feed.Conc",    DC_Conc, "g/L",  &m_MeasFeed,        this, isResult|InitHidden);
+      //DDB.Double("", "Meas.MakeUp.Conc",  DC_Conc, "g/L",  &m_MeasMkUp,        this, isResult|InitHidden);
+      //DDB.Double("", "Meas.Prod.Conc",    DC_Conc, "g/L",  &m_MeasProd,        this, isResult);
       break;
       }
     case Op_PrdTemp:
       {
       Strng S("Required Temperature");
       DDB.Text(S());
-      DDB.Double("", "Rqd.Prod.Temp",     DC_T, "C",  &m_RqdSetPoint,     this, isParm); 
-      //DDB.Double("", "Meas.Feed.Temp",    DC_T, "C",  &m_MeasFeed,        this, isResult|InitHidden); 
-      //DDB.Double("", "Meas.MakeUp.Temp",  DC_T, "C",  &m_MeasMkUp,        this, isResult|InitHidden); 
-      //DDB.Double("", "Meas.Prod.Temp",    DC_T, "C",  &m_MeasProd,        this, isResult); 
+      DDB.Double("", "Rqd.Prod.Temp",     DC_T, "C",  &m_RqdSetPoint,     this, isParm);
+      //DDB.Double("", "Meas.Feed.Temp",    DC_T, "C",  &m_MeasFeed,        this, isResult|InitHidden);
+      //DDB.Double("", "Meas.MakeUp.Temp",  DC_T, "C",  &m_MeasMkUp,        this, isResult|InitHidden);
+      //DDB.Double("", "Meas.Prod.Temp",    DC_T, "C",  &m_MeasProd,        this, isResult);
       break;
       }
     case Op_PrdTChg:
       {
       Strng S("Required Temperature change");
       DDB.Text(S());
-      DDB.Double("", "Rqd.Prod.TChg",     DC_dT, "C",  &m_RqdSetPoint,     this, isParm); 
-      //DDB.Double("", "Meas.Prod.TChg",    DC_dT, "C",  &m_Measured,        this, isResult); 
-      //DDB.Double("", "Meas.Feed.Temp",    DC_T, "C",   &m_MeasFeed,        this, isResult|InitHidden); 
-      //DDB.Double("", "Meas.MakeUp.Temp",  DC_T, "C",   &m_MeasMkUp,        this, isResult|InitHidden); 
-      //DDB.Double("", "Meas.Prod.Temp",    DC_T, "C",   &m_MeasProd,        this, isResult); 
+      DDB.Double("", "Rqd.Prod.TChg",     DC_dT, "C",  &m_RqdSetPoint,     this, isParm);
+      //DDB.Double("", "Meas.Prod.TChg",    DC_dT, "C",  &m_Measured,        this, isResult);
+      //DDB.Double("", "Meas.Feed.Temp",    DC_T, "C",   &m_MeasFeed,        this, isResult|InitHidden);
+      //DDB.Double("", "Meas.MakeUp.Temp",  DC_T, "C",   &m_MeasMkUp,        this, isResult|InitHidden);
+      //DDB.Double("", "Meas.Prod.Temp",    DC_T, "C",   &m_MeasProd,        this, isResult);
       break;
       }
     default:;
@@ -1533,13 +1533,13 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
         break;
       default:
         {
-        static DDBValueLst DDBTemp[] = 
+        static DDBValueLst DDBTemp[] =
           {
             {Temp_Inlet,   "InletTemp"},
             {Temp_Source,  "SourceTemp"},
             {Temp_Std,     "StdTemp"},
             {Temp_Const,   "Const"},
-            {Temp_Mixture, "Mixture"},  
+            {Temp_Mixture, "Mixture"},
             {0}
           };
         DDB.Text(" ");
@@ -1572,45 +1572,45 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
           //DDB.Text(m_Meas1.Description(false));
           DDB.Double("", "Rqd.MakeUp.Qm",   DC_Qm,     "kg/s",   &m_RqdSetPoint,  this, isResult);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.Qm",    DC_Qm,     "kg/s",   &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.Qm",  DC_Qm,     "kg/s",   &m_MeasMkUp,     this, isResult);  
-          DDB.Double("", "Meas.Prod.Qm",    DC_Qm,     "kg/s",   &m_MeasProd,     this, isResult|InitHidden);  
+          DDB.Double("", "Meas.Feed.Qm",    DC_Qm,     "kg/s",   &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.Qm",  DC_Qm,     "kg/s",   &m_MeasMkUp,     this, isResult);
+          DDB.Double("", "Meas.Prod.Qm",    DC_Qm,     "kg/s",   &m_MeasProd,     this, isResult|InitHidden);
           break;
           }
-        case Type_Mole:    
+        case Type_Mole:
           {
           Strng S("Molar flow ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Rqd.MakeUp.QMl",  DC_QKgMl,  "kmol/s", &m_RqdSetPoint,  this, isResult);  
+          DDB.Double("", "Rqd.MakeUp.QMl",  DC_QKgMl,  "kmol/s", &m_RqdSetPoint,  this, isResult);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.QMl",   DC_QKgMl,  "kmol/s", &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s", &m_MeasMkUp,     this, isResult);  
-          DDB.Double("", "Meas.Prod.QMl",   DC_QKgMl,  "kmol/s", &m_MeasProd,     this, isResult|InitHidden);  
+          DDB.Double("", "Meas.Feed.QMl",   DC_QKgMl,  "kmol/s", &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s", &m_MeasMkUp,     this, isResult);
+          DDB.Double("", "Meas.Prod.QMl",   DC_QKgMl,  "kmol/s", &m_MeasProd,     this, isResult|InitHidden);
           break;
           }
-        case Type_Volume:  
+        case Type_Volume:
           {
           Strng S("Volume flow ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Rqd.MakeUp.Qv",   DC_Qv,     "L/s",    &m_RqdSetPoint,  this, isResult);  
+          DDB.Double("", "Rqd.MakeUp.Qv",   DC_Qv,     "L/s",    &m_RqdSetPoint,  this, isResult);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.Qv",    DC_Qv,     "L/s",    &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.Qv",  DC_Qv,     "L/s",    &m_MeasMkUp,     this, isResult);  
-          DDB.Double("", "Meas.Prod.Qv",    DC_Qv,     "L/s",    &m_MeasProd,     this, isResult|InitHidden);  
+          DDB.Double("", "Meas.Feed.Qv",    DC_Qv,     "L/s",    &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.Qv",  DC_Qv,     "L/s",    &m_MeasMkUp,     this, isResult);
+          DDB.Double("", "Meas.Prod.Qv",    DC_Qv,     "L/s",    &m_MeasProd,     this, isResult|InitHidden);
           break;
           }
-        case Type_NVolume: 
+        case Type_NVolume:
           {
           Strng S("NVolume flow ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Rqd.MakeUp.NQv",  DC_NQv,    "NL/s",   &m_RqdSetPoint,  this, isResult);  
+          DDB.Double("", "Rqd.MakeUp.NQv",  DC_NQv,    "NL/s",   &m_RqdSetPoint,  this, isResult);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.NQv",   DC_NQv,    "NL/s",   &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",   &m_MeasMkUp,     this, isResult);  
-          DDB.Double("", "Meas.Prod.NQv",   DC_NQv,    "NL/s",   &m_MeasProd,     this, isResult|InitHidden);  
+          DDB.Double("", "Meas.Feed.NQv",   DC_NQv,    "NL/s",   &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",   &m_MeasMkUp,     this, isResult);
+          DDB.Double("", "Meas.Prod.NQv",   DC_NQv,    "NL/s",   &m_MeasProd,     this, isResult|InitHidden);
           break;
           }
         }
@@ -1622,61 +1622,61 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
         {
         case Type_Mass:
           {
-          /*CNM */ DDB.Double("", "Rqd.QmRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isResult|DupHandlesOk); 
-          DDB.Double("", "Meas.QmRatio",   DC_Frac,   "",         &m_Measured,       this, isResult); 
+          /*CNM */ DDB.Double("", "Rqd.QmRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isResult|DupHandlesOk);
+          DDB.Double("", "Meas.QmRatio",   DC_Frac,   "",         &m_Measured,       this, isResult);
           Strng S;
           S.Set("Mass flow ratio of MakeUp%s to Feed%s", m_Meas1.Description(false), m_Meas2.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.Qm",   DC_Qm,     "kg/s",     &m_MeasFeed,       this, isResult|InitHidden); 
+          DDB.Double("", "Meas.Feed.Qm",   DC_Qm,     "kg/s",     &m_MeasFeed,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas1.Description(false));
           //DDB.Text(m_Meas2.Description(false));
-          DDB.Double("", "Meas.MakeUp.Qm", DC_Qm,     "kg/s",     &m_MeasMkUp,       this, isResult|InitHidden); 
+          DDB.Double("", "Meas.MakeUp.Qm", DC_Qm,     "kg/s",     &m_MeasMkUp,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas2.Description(false));
           break;
           }
-        case Type_Mole:     
+        case Type_Mole:
           {
-          /*CNM */ DDB.Double("", "Rqd.QMlRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isResult|DupHandlesOk); 
-          DDB.Double("", "Meas.QMlRatio",  DC_Frac,   "",         &m_Measured,       this, isResult); 
+          /*CNM */ DDB.Double("", "Rqd.QMlRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isResult|DupHandlesOk);
+          DDB.Double("", "Meas.QMlRatio",  DC_Frac,   "",         &m_Measured,       this, isResult);
           Strng S;
           S.Set("Molar flow ratio of MakeUp%s to Feed%s", m_Meas1.Description(false), m_Meas2.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.QMl",  DC_QKgMl,  "kmol/s",   &m_MeasFeed,       this, isResult|InitHidden); 
+          DDB.Double("", "Meas.Feed.QMl",  DC_QKgMl,  "kmol/s",   &m_MeasFeed,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas1.Description(false));
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s",   &m_MeasMkUp,       this, isResult|InitHidden); 
+          DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s",   &m_MeasMkUp,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas2.Description(false));
           break;
           }
-        case Type_Volume:   
+        case Type_Volume:
           {
-          /*CNM */ DDB.Double("", "Rqd.QvRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isResult|DupHandlesOk); 
-          DDB.Double("", "Meas.QvRatio",   DC_Frac,   "",         &m_Measured,       this, isResult); 
+          /*CNM */ DDB.Double("", "Rqd.QvRatio",    DC_Frac,   "",         &m_RqdSetPoint,    this, isResult|DupHandlesOk);
+          DDB.Double("", "Meas.QvRatio",   DC_Frac,   "",         &m_Measured,       this, isResult);
           Strng S;
           S.Set("Volume flow ratio of MakeUp%s to Feed%s", m_Meas1.Description(false), m_Meas2.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.Qv",   DC_Qv,     "L/s",      &m_MeasFeed,       this, isResult|InitHidden); 
-          //DDB.TagComment(m_Meas1.Description(false));          
+          DDB.Double("", "Meas.Feed.Qv",   DC_Qv,     "L/s",      &m_MeasFeed,       this, isResult|InitHidden);
+          //DDB.TagComment(m_Meas1.Description(false));
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Meas.MakeUp.Qv", DC_Qv,     "L/s",      &m_MeasMkUp,       this, isResult|InitHidden); 
+          DDB.Double("", "Meas.MakeUp.Qv", DC_Qv,     "L/s",      &m_MeasMkUp,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas2.Description(false));
           break;
           }
-        case Type_NVolume:  
+        case Type_NVolume:
           {
-          /*CNM */ DDB.Double("", "Rqd.NQvRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isResult|DupHandlesOk); 
-          DDB.Double("", "Meas.NQvRatio",  DC_Frac,   "",         &m_Measured,       this, isResult); 
+          /*CNM */ DDB.Double("", "Rqd.NQvRatio",   DC_Frac,   "",         &m_RqdSetPoint,    this, isResult|DupHandlesOk);
+          DDB.Double("", "Meas.NQvRatio",  DC_Frac,   "",         &m_Measured,       this, isResult);
           Strng S;
           S.Set("NVolume flow ratio of MakeUp%s to Feed%s", m_Meas1.Description(false), m_Meas2.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.NQv",  DC_NQv,    "NL/s",     &m_MeasFeed,       this, isResult|InitHidden); 
+          DDB.Double("", "Meas.Feed.NQv",  DC_NQv,    "NL/s",     &m_MeasFeed,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas1.Description(false));
           //DDB.Text(m_Meas1.Description(false));
-          DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",     &m_MeasMkUp,       this, isResult|InitHidden); 
+          DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",     &m_MeasMkUp,       this, isResult|InitHidden);
           //DDB.TagComment(m_Meas2.Description(false));
           break;
           }
@@ -1687,52 +1687,52 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
       {
       switch (m_Meas1.m_eType)
         {
-        case Type_Mass:    
+        case Type_Mass:
           {
           Strng S("Mass flow ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          /*CNM */ DDB.Double("", "Rqd.Prod.Qm",     DC_Qm,     "kg/s",   &m_RqdSetPoint,  this, isResult|DupHandlesOk);  
+          /*CNM */ DDB.Double("", "Rqd.Prod.Qm",     DC_Qm,     "kg/s",   &m_RqdSetPoint,  this, isResult|DupHandlesOk);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.Qm",    DC_Qm,     "kg/s",   &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.Qm",  DC_Qm,     "kg/s",   &m_MeasMkUp,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.Prod.Qm",    DC_Qm,     "kg/s",   &m_MeasProd,     this, isResult);  
+          DDB.Double("", "Meas.Feed.Qm",    DC_Qm,     "kg/s",   &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.Qm",  DC_Qm,     "kg/s",   &m_MeasMkUp,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.Prod.Qm",    DC_Qm,     "kg/s",   &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_Mole:    
+        case Type_Mole:
           {
           Strng S("Molar flow ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          /*CNM */ DDB.Double("", "Rqd.Prod.QMl",    DC_QKgMl,  "kmol/s", &m_RqdSetPoint,  this, isResult|DupHandlesOk);  
+          /*CNM */ DDB.Double("", "Rqd.Prod.QMl",    DC_QKgMl,  "kmol/s", &m_RqdSetPoint,  this, isResult|DupHandlesOk);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.QMl",   DC_QKgMl,  "kmol/s", &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s", &m_MeasMkUp,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.Prod.QMl",   DC_QKgMl,  "kmol/s", &m_MeasProd,     this, isResult);  
+          DDB.Double("", "Meas.Feed.QMl",   DC_QKgMl,  "kmol/s", &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.QMl", DC_QKgMl,  "kmol/s", &m_MeasMkUp,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.Prod.QMl",   DC_QKgMl,  "kmol/s", &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_Volume:  
+        case Type_Volume:
           {
           Strng S("Volume flow ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          /*CNM */ DDB.Double("", "Rqd.Prod.Qv",     DC_Qv,     "L/s",   &m_RqdSetPoint,  this, isResult|DupHandlesOk);  
+          /*CNM */ DDB.Double("", "Rqd.Prod.Qv",     DC_Qv,     "L/s",   &m_RqdSetPoint,  this, isResult|DupHandlesOk);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.Qv",    DC_Qv,     "L/s",   &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.Qv",  DC_Qv,     "L/s",   &m_MeasMkUp,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.Prod.Qv",    DC_Qv,     "L/s",   &m_MeasProd,     this, isResult);  
+          DDB.Double("", "Meas.Feed.Qv",    DC_Qv,     "L/s",   &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.Qv",  DC_Qv,     "L/s",   &m_MeasMkUp,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.Prod.Qv",    DC_Qv,     "L/s",   &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_NVolume: 
+        case Type_NVolume:
           {
           Strng S("NVolume flow ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          /*CNM */ DDB.Double("", "Rqd.Prod.NQv",    DC_NQv,    "NL/s",  &m_RqdSetPoint,  this, isResult|DupHandlesOk);  
+          /*CNM */ DDB.Double("", "Rqd.Prod.NQv",    DC_NQv,    "NL/s",  &m_RqdSetPoint,  this, isResult|DupHandlesOk);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.NQv",   DC_NQv,    "NL/s",  &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.Prod.NQv",   DC_NQv,    "NL/s",  &m_MeasProd,     this, isResult);  
+          DDB.Double("", "Meas.Feed.NQv",   DC_NQv,    "NL/s",  &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.NQv", DC_NQv,    "NL/s",  &m_MeasMkUp,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.Prod.NQv",   DC_NQv,    "NL/s",  &m_MeasProd,     this, isResult);
           break;
           }
         }
@@ -1742,52 +1742,52 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
       {
       switch (m_Meas1.m_eType)
         {
-        case Type_Mass:     
+        case Type_Mass:
           {
           Strng S("Mass fraction ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          /*CNM */ DDB.Double("", "Rqd.Prod.QmFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isResult|DupHandlesOk); 
+          /*CNM */ DDB.Double("", "Rqd.Prod.QmFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isResult|DupHandlesOk);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.QmFrac",    DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.QmFrac",  DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.Prod.QmFrac",    DC_Frac, "%",  &m_MeasProd,     this, isResult); 
+          DDB.Double("", "Meas.Feed.QmFrac",    DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.QmFrac",  DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.Prod.QmFrac",    DC_Frac, "%",  &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_Mole:     
+        case Type_Mole:
           {
           Strng S("Molar fraction ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          /*CNM */ DDB.Double("", "Rqd.Prod.QMlFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isResult|DupHandlesOk); 
+          /*CNM */ DDB.Double("", "Rqd.Prod.QMlFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isResult|DupHandlesOk);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.QMlFrac",   DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.QMlFrac", DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.Prod.QMlFrac",   DC_Frac, "%",  &m_MeasProd,     this, isResult); 
+          DDB.Double("", "Meas.Feed.QMlFrac",   DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.QMlFrac", DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.Prod.QMlFrac",   DC_Frac, "%",  &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_Volume:   
+        case Type_Volume:
           {
           Strng S("Volume fraction ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          /*CNM */ DDB.Double("", "Rqd.Prod.QvFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isResult|DupHandlesOk); 
+          /*CNM */ DDB.Double("", "Rqd.Prod.QvFrac",     DC_Frac, "%",  &m_RqdSetPoint,  this, isResult|DupHandlesOk);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.QvFrac",    DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.QvFrac",  DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.Prod.QvFrac",    DC_Frac, "%",  &m_MeasProd,     this, isResult); 
+          DDB.Double("", "Meas.Feed.QvFrac",    DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.QvFrac",  DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.Prod.QvFrac",    DC_Frac, "%",  &m_MeasProd,     this, isResult);
           break;
           }
-        case Type_NVolume:  
+        case Type_NVolume:
           {
           Strng S("NVolume fraction ", m_Meas1.Description(false));
           DDB.Text(S());
           //DDB.Text(m_Meas1.Description(false));
-          /*CNM */ DDB.Double("", "Rqd.Prod.NQvFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isResult|DupHandlesOk); 
+          /*CNM */ DDB.Double("", "Rqd.Prod.NQvFrac",    DC_Frac, "%",  &m_RqdSetPoint,  this, isResult|DupHandlesOk);
           //DDB.TagComment(m_Meas1.Description(false));
-          DDB.Double("", "Meas.Feed.NQvFrac",   DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.MakeUp.NQvFrac", DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);  
-          DDB.Double("", "Meas.Prod.NQvFrac",   DC_Frac, "%",  &m_MeasProd,     this, isResult); 
+          DDB.Double("", "Meas.Feed.NQvFrac",   DC_Frac, "%",  &m_MeasFeed,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.MakeUp.NQvFrac", DC_Frac, "%",  &m_MeasMkUp,     this, isResult|InitHidden);
+          DDB.Double("", "Meas.Prod.NQvFrac",   DC_Frac, "%",  &m_MeasProd,     this, isResult);
           break;
           }
         }
@@ -1798,27 +1798,27 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
       Strng S("Concentration:", m_Meas1.Description(true), "/");
       S+=m_Meas2.Description(true);
       DDB.Text(S());
-      /*CNM */ DDB.Double("", "Rqd.Prod.Conc",     DC_Conc, "g/L",  &m_RqdSetPoint,     this, isResult|DupHandlesOk); 
-      DDB.Double("", "Meas.Feed.Conc",    DC_Conc, "g/L",  &m_MeasFeed,        this, isResult|InitHidden); 
-      DDB.Double("", "Meas.MakeUp.Conc",  DC_Conc, "g/L",  &m_MeasMkUp,        this, isResult|InitHidden); 
-      DDB.Double("", "Meas.Prod.Conc",    DC_Conc, "g/L",  &m_MeasProd,        this, isResult); 
+      /*CNM */ DDB.Double("", "Rqd.Prod.Conc",     DC_Conc, "g/L",  &m_RqdSetPoint,     this, isResult|DupHandlesOk);
+      DDB.Double("", "Meas.Feed.Conc",    DC_Conc, "g/L",  &m_MeasFeed,        this, isResult|InitHidden);
+      DDB.Double("", "Meas.MakeUp.Conc",  DC_Conc, "g/L",  &m_MeasMkUp,        this, isResult|InitHidden);
+      DDB.Double("", "Meas.Prod.Conc",    DC_Conc, "g/L",  &m_MeasProd,        this, isResult);
       break;
       }
     case Op_PrdTemp:
       {
-      /*CNM */ DDB.Double("", "Rqd.Prod.Temp",     DC_T, "C",  &m_RqdSetPoint,     this, isResult|DupHandlesOk); 
-      DDB.Double("", "Meas.Feed.Temp",    DC_T, "C",  &m_MeasFeed,        this, isResult|InitHidden); 
-      DDB.Double("", "Meas.MakeUp.Temp",  DC_T, "C",  &m_MeasMkUp,        this, isResult|InitHidden); 
-      DDB.Double("", "Meas.Prod.Temp",    DC_T, "C",  &m_MeasProd,        this, isResult); 
+      /*CNM */ DDB.Double("", "Rqd.Prod.Temp",     DC_T, "C",  &m_RqdSetPoint,     this, isResult|DupHandlesOk);
+      DDB.Double("", "Meas.Feed.Temp",    DC_T, "C",  &m_MeasFeed,        this, isResult|InitHidden);
+      DDB.Double("", "Meas.MakeUp.Temp",  DC_T, "C",  &m_MeasMkUp,        this, isResult|InitHidden);
+      DDB.Double("", "Meas.Prod.Temp",    DC_T, "C",  &m_MeasProd,        this, isResult);
       break;
       }
     case Op_PrdTChg:
       {
-      /*CNM */ DDB.Double("", "Rqd.Prod.TChg",     DC_dT, "C",  &m_RqdSetPoint,     this, isResult|DupHandlesOk); 
-      DDB.Double("", "Meas.Prod.TChg",    DC_dT, "C",  &m_Measured,        this, isResult); 
-      DDB.Double("", "Meas.Feed.Temp",    DC_T, "C",   &m_MeasFeed,        this, isResult|InitHidden); 
-      DDB.Double("", "Meas.MakeUp.Temp",  DC_T, "C",   &m_MeasMkUp,        this, isResult|InitHidden); 
-      DDB.Double("", "Meas.Prod.Temp",    DC_T, "C",   &m_MeasProd,        this, isResult); 
+      /*CNM */ DDB.Double("", "Rqd.Prod.TChg",     DC_dT, "C",  &m_RqdSetPoint,     this, isResult|DupHandlesOk);
+      DDB.Double("", "Meas.Prod.TChg",    DC_dT, "C",  &m_Measured,        this, isResult);
+      DDB.Double("", "Meas.Feed.Temp",    DC_T, "C",   &m_MeasFeed,        this, isResult|InitHidden);
+      DDB.Double("", "Meas.MakeUp.Temp",  DC_T, "C",   &m_MeasMkUp,        this, isResult|InitHidden);
+      DDB.Double("", "Meas.Prod.Temp",    DC_T, "C",   &m_MeasProd,        this, isResult);
       break;
       }
     default:;
@@ -1829,13 +1829,13 @@ void CXBlk_MUBase::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Double ("Qm.Feed",            "", DC_Qm,    "kg/s",     &m_QmFeed,   this, isResult);
   DDB.Double ("Qm.MakeUp",            "", DC_Qm,    "kg/s",     &m_QmMkUp,   this, isResult);
   DDB.Double ("Qm.Prod",            "", DC_Qm,    "kg/s",     &m_QmProd,   this, isResult);
-  
+
   DDB.Text(" ");
   DDB.Text("Total volume flow:");
   DDB.Double ("Qv.Feed",            "", DC_Qv,    "L/s",    &m_QvFeed,     this, isResult|InitHidden);
   DDB.Double ("Qv.MakeUp",            "", DC_Qv,    "L/s",    &m_QvMkUp,     this, isResult);
   DDB.Double ("Qv.Prod",            "", DC_Qv,    "L/s",    &m_QvProd,     this, isResult|InitHidden);
-  
+
   if (!HeatSkipMethod())
     {
     DDB.Text(" ");
@@ -1870,17 +1870,17 @@ flag CXBlk_MUBase::DataXchg(DataChangeBlk & DCB)
     {
     case xidMkType:
       if (DCB.rL && (m_Meas1.m_eType!=(eType)*DCB.rL))
-        {          
+        {
         m_Meas1.m_eType     = (eType)*DCB.rL;
         m_Meas2.m_eType     = (eType)*DCB.rL;
         ClrMeasEtc();
         }
-      DCB.L = m_Meas1.m_eType; 
+      DCB.L = m_Meas1.m_eType;
       return 1;
     case xidMkQmMin:
       if (DCB.rD)
         m_MUQmMin = Max(0.0, *DCB.rD);
-      DCB.D = m_MUQmMin; 
+      DCB.D = m_MUQmMin;
       return 1;
     case xidMkDesc:
       {
@@ -1969,7 +1969,7 @@ flag CXBlk_MUBase::ValidateData(ValidateDataBlk & VDB)
     CIsOn[7]=(m_Meas1.m_Elements.GetCount()==0);
   else if (m_Meas1.m_eSelect>=Slct_Specie)
     CIsOn[6]=(m_Meas1.m_Species.GetCount()==0);
-  else 
+  else
     CIsOn[5]=(m_Meas1.m_Phases==0);
 
   switch (m_Op)
@@ -1980,7 +1980,7 @@ flag CXBlk_MUBase::ValidateData(ValidateDataBlk & VDB)
         CIsOn[10]=(m_Meas2.m_Elements.GetCount()==0);
       else if (m_Meas2.m_eSelect>=Slct_Specie)
         CIsOn[9]=(m_Meas2.m_Species.GetCount()==0);
-      else 
+      else
         CIsOn[8]=(m_Meas2.m_Phases==0);
       break;
     }
@@ -1993,7 +1993,7 @@ flag CXBlk_MUBase::ValidateData(ValidateDataBlk & VDB)
       m_ValidateOK=false;
     }
 
-  return CMakeupBlock::ValidateData(VDB); 
+  return CMakeupBlock::ValidateData(VDB);
   }
 
 //--------------------------------------------------------------------------
@@ -2008,7 +2008,7 @@ double CXBlk_MUBase::GetSetPoint()
 double CXBlk_MUBase::GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd/*=0*/)
   {
   switch (MI.m_eType)
-    {                         
+    {
     case Type_Mass:
       if (MI.m_eSelect==Slct_Element)
         return Q.QElementMass(MI.m_Elements, MI.m_Phases);
@@ -2072,10 +2072,10 @@ class CFeedMkUpFnd : public MRootFinder
   public:
     CFeedMkUpFnd(CXBlk_MUBase * pMU, LPCTSTR pTag, SpConduit * pIn, SpConduit * pSrc, SpConduit * pSrcWrk, SpConduit * pPrd, double TRqd, double PRqd, CToleranceBlock & Tol) : \
       m_pMU(pMU), m_pTag(pTag), m_MeasInfo(*pIn), m_Src(*pSrc), m_SrcWrk(*pSrcWrk), m_Prd(*pPrd), m_TRqd(TRqd), m_PRqd(PRqd), MRootFinder("MkUpFnd", Tol)
-      { 
+      {
       if (dbgMakeup)
         {
-        dbgpln(" FeedSetPt:%20.6f %-25s ========================================================================", 
+        dbgpln(" FeedSetPt:%20.6f %-25s ========================================================================",
           m_pMU->GetSetPoint(), m_pTag);
         }
       };
@@ -2094,7 +2094,7 @@ class CFeedMkUpFnd : public MRootFinder
 
       if (dbgMakeup)
         {
-        dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6e %s", 
+        dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6e %s",
           m_Measured, Qm, m_MeasInfo.QMass(), m_Src.QMass(), m_pTag);
         }
 
@@ -2126,10 +2126,10 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
 
   switch (m_Op)
     {
-    case Op_PrdComp:   
+    case Op_PrdComp:
       m_MeasFeed = GetFlowValue(m_Meas1, QProd)/GTZ(GetFlowValue(m_Meas1, QProd, som_ALL));
       break;
-    case Op_PrdConc:   
+    case Op_PrdConc:
       m_MeasFeed = GetFlowValue(m_Meas1, QProd)/GTZ(GetFlowValue(m_Meas2, QProd));
       break;
     case Op_PrdTemp:
@@ -2150,7 +2150,7 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
   QIn().QCopy(QProd);
 
   m_bHasFlow = (m_QmFeed>SmallPosFlow);
-  m_bStopMakeUp = m_pMakeupBase->On() && (m_eLoFeedOpt>LF_AlwaysOn) && (m_QmFeed<m_LoFeedQm); 
+  m_bStopMakeUp = m_pMakeupBase->On() && (m_eLoFeedOpt>LF_AlwaysOn) && (m_QmFeed<m_LoFeedQm);
 
   StkSpConduit QMkUp("QMkUp", "SrcWrk", pNd);
   SpConduit &QSrc=SrcIO.Cd;
@@ -2160,11 +2160,11 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
   bool CI12Set=false;
   switch (m_Op)
     {
-    case Op_PrdComp:   
+    case Op_PrdComp:
       m_MeasMkUp = GetFlowValue(m_Meas1, QSrc)/GTZ(GetFlowValue(m_Meas1, QSrc, som_ALL));
       CI12Set = m_MeasMkUp<1e-6 && m_MeasFeed<1e-6;
       break;
-    case Op_PrdConc:   
+    case Op_PrdConc:
       m_MeasMkUp = GetFlowValue(m_Meas1, QSrc)/GTZ(GetFlowValue(m_Meas2, QSrc));
       CI12Set = m_MeasMkUp<1e-6 && m_MeasFeed<1e-6;
       break;
@@ -2206,26 +2206,26 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
     int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_MUQmMin, m_MUQmMax, Estimate, 0.0, true);
     switch (iRet)
       {
-      case RF_OK:         
+      case RF_OK:
         m_QmMkUp = MkUpFnd.Result();
         break;
-      case RF_LoLimit:    
-      case RF_EstimateLoLimit:    
+      case RF_LoLimit:
+      case RF_EstimateLoLimit:
         m_QmMkUp = MkUpFnd.Result();
         CIsOn[2]=true;
         break;
-      case RF_HiLimit:    
-      case RF_EstimateHiLimit:    
-        m_QmMkUp = MkUpFnd.Result();   
+      case RF_HiLimit:
+      case RF_EstimateHiLimit:
+        m_QmMkUp = MkUpFnd.Result();
         CIsOn[3]=true;
         break;
       case RF_Independant:
-        MkUpFnd.Function(0);   
-        m_QmMkUp = MkUpFnd.Result();   
+        MkUpFnd.Function(0);
+        m_QmMkUp = MkUpFnd.Result();
         CIsOn[4]=true;
         break;
 
-      default: 
+      default:
         //CIsOn[1]=true;
         //SetCI(1, "E\tConverge Error [%i]", iRet);
         LogError(Tag(), 0, "Converge Error [%i]", iRet);
@@ -2266,25 +2266,26 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
 
   switch (m_Op)
     {
-    case Op_MUFixed:   
+    case Op_MUFixed:
       m_MeasMkUp = GetFlowValue(m_Meas1, QMkUp());
       m_MeasProd = GetFlowValue(m_Meas1, QProd);
       break;
-    case Op_MURatio:   
+    case Op_MURatio:
       m_MeasMkUp = GetFlowValue(m_Meas2, QMkUp());
       m_MeasProd = GetFlowValue(m_Meas1, QProd);
       break;
-    case Op_PrdFlow:   
+    case Op_PrdFlow:
       m_MeasMkUp = GetFlowValue(m_Meas1, QMkUp());
       m_MeasProd = GetFlowValue(m_Meas1, QProd);
       break;
-    case Op_PrdComp:   
+    case Op_PrdComp:
       m_MeasMkUp = GetFlowValue(m_Meas1, QMkUp())/GTZ(GetFlowValue(m_Meas1, QMkUp(), som_ALL));
       m_MeasProd = GetFlowValue(m_Meas1, QProd)/GTZ(GetFlowValue(m_Meas1, QProd, som_ALL));
       break;
-    case Op_PrdConc:   
+    case Op_PrdConc:
       m_MeasMkUp = GetFlowValue(m_Meas1, QMkUp())/GTZ(GetFlowValue(m_Meas2, QMkUp()));
       m_MeasProd = GetFlowValue(m_Meas1, QProd)/GTZ(GetFlowValue(m_Meas2, QProd));
+      break;
     case Op_PrdTemp:
     case Op_PrdTChg:
       m_MeasMkUp = QMkUp().Temp();
@@ -2313,11 +2314,11 @@ flag CXBlk_MUBase::CIStrng(int No, pchar & pS)
     case   2: pS="W\tRequirement not Achieved - Low Limit"; return 1;
     case   3: pS="W\tRequirement not Achieved - High Limit"; return 1;
     case   4: pS="E\tMakeup has No Effect"; return 1;
-    case   5: 
-    case   6: 
+    case   5:
+    case   6:
     case   7: pS = m_Meas1.CIStr(i-5); return 1;
-    case   8: 
-    case   9: 
+    case   8:
+    case   9:
     case  10: pS = m_Meas2.CIStr(i-8); return 1;
     case  11: pS="N\tLow Feed - Makeup Stopped"; return 1;
     case  12: pS="W\tMakeup appears poorly configured"; return 1;
