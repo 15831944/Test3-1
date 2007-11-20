@@ -190,23 +190,25 @@ void FilterPress::EvalProducts()
 		int idPressNote = 0, idWashNote = 1;
 		MStreamI QFeed;
 		FlwIOs.AddMixtureIn_Id(QFeed, idFeed);
-		MStreamI QWashWater;
-		bool bWashWaterConnected;
-		if (bWashWaterConnected = (FlwIOs.getCount(idWash) > 0))
+		const double dFeedSolidMass = QFeed.Mass(MP_Sol);
+		const double dFeedLiquidMass = QFeed.Mass(MP_Liq);
+
+    MStreamI QWashWater;
+		const bool bWashWaterConnected = (FlwIOs.getCount(idWash) > 0);
+		if (bWashWaterConnected)
 			FlwIOs.AddMixtureIn_Id(QWashWater, idWash);
 
-		MStream QUnwashedCake = QFeed;
+		//MStream QUnwashedCake = QFeed; BAD idea, QUnwashedCake becomes a reference to QFeed!!!!
+		MStreamI QUnwashedCake;
+    QUnwashedCake = QFeed;
 		QUnwashedCake.ZeroMass();
 
-		MStream&	QFiltrate	= FlwIOs[FlwIOs.First[idFiltrate]].Stream;
-					QFiltrate	= QFeed;
-		MStream&	QCake		= FlwIOs[FlwIOs.First[idCake]].Stream;
-					QCake		= QFeed;
+    MStream&	QFiltrate	= FlwIOs[FlwIOs.First[idFiltrate]].Stream;
+    QFiltrate	= QFeed;
+    MStream&	QCake		= FlwIOs[FlwIOs.First[idCake]].Stream;
+    QCake		= QFeed;
 
-		double dFeedSolidMass = QFeed.Mass(MP_Sol);
-		double dFeedLiquidMass = QFeed.Mass(MP_Liq);
-
-		bool bWashingsConnected = FlwIOs.Count[idWashings] > 0;
+		const bool bWashingsConnected = (FlwIOs.Count[idWashings] > 0);
 
 		//First off: The filtrate & UnwashedCake:
 
