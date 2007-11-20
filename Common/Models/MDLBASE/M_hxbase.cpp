@@ -309,7 +309,8 @@ void CEHX_ProductT::EvalProductsInline(SpConduit & Qf, double Len, double Diam, 
 //
 //============================================================================
 
-IMPLEMENT_EHX(CEHX_TDrop, "EHXTempD", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "TempDrop",  " ", /*EHXF_Node|*/EHXF_Inline);
+//IMPLEMENT_EHX(CEHX_TDrop, "EHXTempD", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "TempDrop",  " ", /*EHXF_Node|*/EHXF_Inline); //why was EHXF_Node excluded???
+IMPLEMENT_EHX(CEHX_TDrop, "EHXTempD", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "TempDrop",  " ", EHXF_Node|EHXF_Inline);
 
 CEHX_TDrop::CEHX_TDrop(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
   CEnvironHX(pClass_, Tag_, pAttach, eAttach)
