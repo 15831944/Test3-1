@@ -2254,25 +2254,32 @@ void CNewPrjDlg::DoNewCfg(char* pSrcCfgFile)
         if (pSrcCfgFile)
           {//try copy original specie mdb database
           CProfINIFile OldCfg(pSrcCfgFile);
-          Strng OldCfgFiles = OldCfg.RdStr("General", "CfgFiles", "");
-          long OldCfgFilePrjFileVerNo=OldCfg.RdLong("General", "PrjFileVersion", -1);
-
-          if (OldCfgFiles())
+          Strng SrcCfgDB;
+          if (0)
             {
-            Strng OldCfgFullPath;
-            OldCfgFullPath.FnDrivePath(pSrcCfgFile);
-            ::FnExpandPath(OldCfgFiles, NULL, OldCfgFullPath(), "$CfgFilePath\\");
+            Strng OldCfgFiles = OldCfg.RdStr("General", "CfgFiles", "");
+            long OldCfgFilePrjFileVerNo=OldCfg.RdLong("General", "PrjFileVersion", -1);
+
+            if (OldCfgFiles())
+              {
+              Strng OldCfgFullPath;
+              OldCfgFullPath.FnDrivePath(pSrcCfgFile);
+              ::FnExpandPath(OldCfgFiles, NULL, OldCfgFullPath(), "$CfgFilePath\\");
+              }
+            else
+              {
+              OldCfgFiles.FnDrivePath(pSrcCfgFile);
+              OldCfgFiles.FnCheckEndBSlash();
+              OldCfgFiles+=DefCfgFolderName();
+              OldCfgFiles+="\\";
+              }
+            SrcCfgDB = OldCfgFiles;
             }
           else
             {
-            OldCfgFiles.FnDrivePath(pSrcCfgFile);
-            OldCfgFiles.FnCheckEndBSlash();
-            OldCfgFiles+=DefCfgFolderName();
-            OldCfgFiles+="\\";
+            SrcCfgDB = pSrcCfgFile;
+            SrcCfgDB = SrcCfgDB.FnDrivePath();
             }
-
-          Strng SrcCfgDB;
-          SrcCfgDB = OldCfgFiles;
           SrcCfgDB += CfgDBFileName();
           if (FileExists(SrcCfgDB()))
             {
