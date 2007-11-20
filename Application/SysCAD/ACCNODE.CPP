@@ -5634,27 +5634,31 @@ int AccNodeWnd::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
-int AccNodeWnd::EO_DeleteTag(pchar pDelTag)
+int AccNodeWnd::EO_DeleteTags(Strng_List & Tags) 
   {
-  const int len = strlen(pDelTag);
-  for (int i=0; i<m_NdHistList.GetSize(); i++)
+  for (Strng * pTag = Tags.First(); pTag; pTag=pTag->Next())
     {
-    if (m_NdHistList[i].Len()==len && _strnicmp(m_NdHistList[i](), pDelTag, len)==0)
-      m_NdHistList.RemoveAt(i);
-    }
-  m_iNdHistPos=Range(0, m_iNdHistPos, m_NdHistList.GetSize()-1);
+    LPSTR pDelTag=pTag->Str();
+    const int len = strlen(pDelTag);
+    for (int i=0; i<m_NdHistList.GetSize(); i++)
+      {
+      if (m_NdHistList[i].Len()==len && _strnicmp(m_NdHistList[i](), pDelTag, len)==0)
+        m_NdHistList.RemoveAt(i);
+      }
+    m_iNdHistPos=Range(0, m_iNdHistPos, m_NdHistList.GetSize()-1);
 
-  if (m_NdTag.Len()==len && _strnicmp(m_NdTag(), pDelTag, len)==0)
-    {
-    /*gs_pAccWnd->*/CloseAccessData(false, true, true);
-    /*gs_pAccWnd->*/CloseWnd();
+    if (m_NdTag.Len()==len && _strnicmp(m_NdTag(), pDelTag, len)==0)
+      {
+      CloseAccessData(false, true, true);
+      CloseWnd();
+      }
     }
   return EODT_DONE;
   }
 
 //---------------------------------------------------------------------------
 
-int AccNodeWnd::EO_DeleteTagDone(pchar pDelTag)
+int AccNodeWnd::EO_DeleteTagsDone(Strng_List & Tags) 
   {
   return EODT_DONE;
   }

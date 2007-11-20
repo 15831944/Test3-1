@@ -604,9 +604,9 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     int            EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     int            EO_ChangeTag(pchar pOldTag, pchar pNewTag);
     int            EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
-    int            EO_QueryDeleteTag(pchar pDelTag);
-    int            EO_DeleteTag(pchar pDelTag);
-    int            EO_DeleteTagDone(pchar pDelTag);
+    int            EO_QueryDeleteTags(Strng_List & Tags);
+    int            EO_DeleteTags(Strng_List & Tags);
+    int            EO_DeleteTagsDone(Strng_List & Tags);
     int            EO_CanClose(Strng_List & Problems);
 
     int            EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,

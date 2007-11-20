@@ -3570,7 +3570,7 @@ int CDriverManager::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
-int CDriverManager::EO_QueryDeleteTag(pchar pDelTag)
+int CDriverManager::EO_QueryDeleteTags(Strng_List & Tags) 
   {//will I allow the tag to be deleted...
   /*int SlotNo = FindChanForTag(pOldTag);
   if (SlotNo>=0)
@@ -3580,7 +3580,7 @@ int CDriverManager::EO_QueryDeleteTag(pchar pDelTag)
 
 //---------------------------------------------------------------------------
 
-int CDriverManager::EO_DeleteTag(pchar pDelTag)
+int CDriverManager::EO_DeleteTags(Strng_List & Tags) 
   {//a tag has been deleted, ...
   return EODT_NOTFOUND;
   }

@@ -1368,9 +1368,9 @@ class DllImportExport CSfeSrvrBase
     virtual int          EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)                       { return 0; };
     virtual int          EO_ChangeTag(pchar pOldTag, pchar pNewTag)                            { return 0; };
     virtual int          EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)                        { return 0; };
-    virtual int          EO_QueryDeleteTag(pchar pDelTag)                                      { return 0; };
-    virtual int          EO_DeleteTag(pchar pDelTag)                                           { return 0; };
-    virtual int          EO_DeleteTagDone(pchar pDelTag)                                       { return 0; };
+    virtual int          EO_QueryDeleteTags(Strng_List & Tags)                                 { return 0; };
+    virtual int          EO_DeleteTags(Strng_List & Tags)                                      { return 0; };
+    virtual int          EO_DeleteTagsDone(Strng_List & Tags)                                  { return 0; };
     virtual int          EO_CanClose(Strng_List & Problems)                                    { return 0; };
 
     virtual int          EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,

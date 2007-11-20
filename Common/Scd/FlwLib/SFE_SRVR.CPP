@@ -510,19 +510,19 @@ int CSfeSrvr::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
   return SfeFS->EO_ChangeTagDone(pOldTag, pNewTag); 
   };
 
-int CSfeSrvr::EO_QueryDeleteTag(pchar pDelTag)
+int CSfeSrvr::EO_QueryDeleteTags(Strng_List & Tags) 
   {
-  return SfeFS->EO_QueryDeleteTag(pDelTag); 
+  return SfeFS->EO_QueryDeleteTags(Tags); 
   };
 
-int CSfeSrvr::EO_DeleteTag(pchar pDelTag)
+int CSfeSrvr::EO_DeleteTags(Strng_List & Tags) 
   {
-  return SfeFS->EO_DeleteTag(pDelTag); 
+  return SfeFS->EO_DeleteTags(Tags); 
   };
 
-int CSfeSrvr::EO_DeleteTagDone(pchar pDelTag)
+int CSfeSrvr::EO_DeleteTagsDone(Strng_List & Tags) 
   {
-  return SfeFS->EO_DeleteTagDone(pDelTag); 
+  return SfeFS->EO_DeleteTagsDone(Tags); 
   };
 int CSfeSrvr::EO_CanClose(Strng_List & Problems)
   {

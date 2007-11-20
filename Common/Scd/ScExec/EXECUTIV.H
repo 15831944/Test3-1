@@ -459,9 +459,9 @@ class DllImportExport CExecObj
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)      { return EOCT_NOTFOUND; };
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag)           { return EOCT_NOTFOUND; };
     virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)       { return EOCT_DONE;     };
-    virtual int    EO_QueryDeleteTag(pchar pDelTag)                     { return EODT_NOTFOUND; };
-    virtual int    EO_DeleteTag(pchar pDelTag)                          { return EODT_NOTFOUND; };
-    virtual int    EO_DeleteTagDone(pchar pDelTag)                      { return EODT_NOTFOUND; };
+    virtual int    EO_QueryDeleteTags(Strng_List & Tags)                { return 0; };
+    virtual int    EO_DeleteTags(Strng_List & Tags)                     { return 0; };
+    virtual int    EO_DeleteTagsDone(Strng_List & Tags)                 { return 0; };
     virtual int    EO_CanClose(Strng_List & Problems)                   { return EO_CanClose_Yes; };
 
 
@@ -571,7 +571,7 @@ class DllImportExport CExecObj
     //virtual flag   EO_SendMessage(CXMsgLst &XM, CXM_Route &Route)         {return False;};
 
     virtual int    XChangeTag(pchar pOldTag, pchar pNewTag);
-    virtual int    XDeleteTag(pchar pDelTag);
+    virtual int    XDeleteTags(Strng_List & Tags);
 
     flag           XFindObject(char* pName, CXM_Route &Route, flag AllowSelf=false);
     flag           XFindObject(const char* pName, CXM_Route &Route, flag AllowSelf=false);
@@ -1057,7 +1057,7 @@ class DllImportExport CExecutive : public ConditionBlk
     flag           FixRegistrations();
 
     int            ChangeTag(pchar pOldTag, pchar pNewTag);
-    int            DeleteTag(pchar pDelTag);
+    int            DeleteTags(Strng_List & Tags);
 #if WithNumericTags
     int            CheckAllTags(flag NewNumTagsBad, flag NewNumStartingBad, flag Prompt=1);
 #else

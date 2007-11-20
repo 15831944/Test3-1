@@ -583,7 +583,7 @@ void CPrjForm::OnMenu(UINT id)
             {
             HTREEITEM h = MdlTree.GetChildItem(hParent);
             CString Tag = MdlTree.GetItemText(h);
-            int RetCode = gs_Exec.DeleteTag((char*)(const char*)Tag);
+            int RetCode = gs_Exec.DeleteTags(Strng_List(Tag));
             if (RetCode!=EODT_DONE)
               {
               LogError((const char*)Tag, 0, "Model not deleted");
@@ -601,7 +601,7 @@ void CPrjForm::OnMenu(UINT id)
           }
         else
           {
-          int RetCode = gs_Exec.DeleteTag(sCurrentSeln());
+          int RetCode = gs_Exec.DeleteTags(Strng_List(sCurrentSeln()));
           if (RetCode!=EODT_DONE)
             {
             LogError(sCurrentSeln(), LF_Exclamation, "Model not deleted");

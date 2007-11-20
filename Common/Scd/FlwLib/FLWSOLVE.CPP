@@ -13480,46 +13480,75 @@ int CFlwSolver::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_QueryDeleteTag(pchar pDelTag)
+int CFlwSolver::EO_QueryDeleteTags(Strng_List & Tags) 
   {
-  FlwNode * p = (FlwNode *)FindObj(pDelTag);
-  if (p==NULL)
-    return EODT_NOTFOUND;
-  if (TaggedObject::TestIfReservedTag(pDelTag))
-    return EODT_RESERVED;
-  return (_stricmp("FlwSolve", p->ClassId())==0) ? EODT_NOTALLOWED : EODT_FOUND;
+  int Ret=EODT_NOTFOUND;
+  for (Strng * pTag=Tags.First(); pTag; pTag=pTag->Next())
+    {
+    FlwNode * p = (FlwNode *)FindObj(pTag->Str());
+    if (!p)
+      pTag->SetIndex(EODT_NOTFOUND);
+    else if (TaggedObject::TestIfReservedTag(pTag->Str()))
+      {
+      Ret=EODT_RESERVED;
+      pTag->SetIndex(EODT_RESERVED);
+      }
+    else if (_stricmp("FlwSolve", p->ClassId())==0) 
+      {
+      Ret=EODT_NOTALLOWED;
+      pTag->SetIndex(EODT_NOTALLOWED);
+      }
+    else
+      {
+      if (Ret==EODT_NOTFOUND)
+        Ret=EODT_FOUND;
+      pTag->SetIndex(EODT_FOUND);
+      }
+    }
+  return Ret;
   }
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_DeleteTag(pchar pDelTag)
+int CFlwSolver::EO_DeleteTags(Strng_List & Tags) 
   {
+  int Ret=EODT_DONE;
   UnDoGlobalLinks();
-  FlwNode * p = (FlwNode *)FindObj(pDelTag);
-  if (p)
+  for (Strng * pTag=Tags.First(); pTag; pTag=pTag->Next())
     {
-    dbgpln("DELETE %s %s ", pDelTag, p->FullObjTag());
-    p->DisConnectAll();
-    delete p;
-
-    //ask all models if they want to do anything internally for the delete tag...
-    pSaveNode = NULL;
-    while (GetObj_All(pSaveNode))
+    if (pTag->Index()==EODT_FOUND)
       {
-      if (!pSaveNode->Internal)
+      FlwNode * p = (FlwNode *)FindObj(pTag->Str());
+      if (p)
         {
-        pSaveNode->DeleteTag(pDelTag);
+        dbgpln("DELETE %s %s ", pTag->Str(), p->FullObjTag());
+        p->DisConnectAll();
+        delete p;
+
+        //ask all models if they want to do anything internally for the delete tag...
+        pSaveNode = NULL;
+        while (GetObj_All(pSaveNode))
+          {
+          if (!pSaveNode->Internal)
+            {
+            pSaveNode->DeleteTag(pTag->Str());
+            }
+          }                         
+        pTag->SetIndex(EODT_DONE);
+        }
+      else
+        {
+        Ret=EODT_FAILED;
+        pTag->SetIndex(EODT_FAILED);
         }
       }
-
-    return EODT_DONE;
     }
-  return EODT_FAILED;
+  return Ret;
   }
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_DeleteTagDone(pchar pDelTag)
+int CFlwSolver::EO_DeleteTagsDone(Strng_List & Tags) 
   {
   TryDoGlobalLinks();
   return EODT_DONE;

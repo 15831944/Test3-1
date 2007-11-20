@@ -3231,14 +3231,14 @@ int CTagVwDoc::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
-int CTagVwDoc::EO_QueryDeleteTag(pchar pDelTag)
+int CTagVwDoc::EO_QueryDeleteTags(Strng_List & Tags) 
   {//will I allow the tag to be deleted...
   return EODT_NOTFOUND; 
   }
 
 //---------------------------------------------------------------------------
 
-int CTagVwDoc::EO_DeleteTag(pchar pDelTag)
+int CTagVwDoc::EO_DeleteTags(Strng_List & Tags) 
   {//a tag has been deleted, ...
   int RetCode = EODT_NOTFOUND;
 
@@ -3270,7 +3270,7 @@ int CTagVwDoc::EO_DeleteTag(pchar pDelTag)
 
 //---------------------------------------------------------------------------
 
-int CTagVwDoc::EO_DeleteTagDone(pchar pDelTag)
+int CTagVwDoc::EO_DeleteTagsDone(Strng_List & Tags) 
   {//a tag has been deleted, ...
   return EODT_DONE;
   }

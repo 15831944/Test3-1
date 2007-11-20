@@ -695,24 +695,30 @@ int CGrfDoc::DeleteTags(bool WithPrompts)
       return -1;
     if (Ret==IDYES)
       {
+      Strng_List DelTags;
       int nMdlDeletes=0;
       int nDeletesFailedCnt=0;
       for (Strng *pTag=MyTags.First(); pTag; pTag=MyTags.Next())
         {
         if (pTag->Index()==0)
           {
-          int RetCode = gs_Exec.DeleteTag(pTag->Str());
-          if (RetCode!=EODT_DONE)
-            {
-            //dbgpln("Mdl Not Deleted %s", pTag->Str());
-            LogError(pTag->Str(), 0, "Model not deleted");
-            nDeletesFailedCnt++;
-            }
-          else
-            {
-            //dbgpln("Mdl     Deleted %s", pTag->Str());
-            nMdlDeletes++;
-            }
+          DelTags.Append(pTag->Str());
+          }
+        }
+
+      int RetCode = gs_Exec.DeleteTags(DelTags);
+      for (Strng *pTag=DelTags.First(); pTag; pTag=MyTags.Next())
+        {
+        if (pTag->Index()!=EODT_DONE)
+          {
+          //dbgpln("Mdl Not Deleted %s", pTag->Str());
+          LogError(pTag->Str(), 0, "Model not deleted");
+          nDeletesFailedCnt++;
+          }
+        else
+          {
+          //dbgpln("Mdl     Deleted %s", pTag->Str());
+          nMdlDeletes++;
           }
         }
       if (nDeletesFailedCnt)

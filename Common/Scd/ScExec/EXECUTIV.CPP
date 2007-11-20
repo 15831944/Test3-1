@@ -1124,7 +1124,7 @@ flag CExecObj::XReadASyncDataItem(long Index, CXM_ObjectData &ObjData)
 //---------------------------------------------------------------------------
 
 int CExecObj::XChangeTag(pchar pOldTag, pchar pNewTag) { return gs_Exec.ChangeTag(pOldTag, pNewTag); };
-int CExecObj::XDeleteTag(pchar pDelTag) { return gs_Exec.DeleteTag(pDelTag); };
+int CExecObj::XDeleteTags(Strng_List & Tags) { return gs_Exec.DeleteTags(Tags); };
 
 flag CExecObj::XFindObject(char* pName, CXM_Route &Route, flag AllowSelf) { return gs_Exec.XFindObject(this, pName, Route, AllowSelf);};
 flag CExecObj::XFindObject(const char* pName, CXM_Route &Route, flag AllowSelf) { return gs_Exec.XFindObject(this, (char*)pName, Route, AllowSelf);};
@@ -1782,52 +1782,72 @@ int CExecutive::ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
-int CExecutive::DeleteTag(pchar pDelTag)
+int CExecutive::DeleteTags(Strng_List & Tags)
   {
-  dbgpln("------------------------------------------- Delete Tag %s", pDelTag);
-  
-  if (pDelTag==NULL || pDelTag[0]==0)
+  if (Tags.Length()==0)
     return EODT_NULLTAG;
-  if (TaggedObject::TestValidTagDot(pDelTag)>0)
-    return EODT_INVALIDTAG;
-  if (TaggedObject::TestIfReservedTag(pDelTag))
-    return EODT_RESERVED;
 
-  flag OK = 0;
+  if (1)
+    {
+    dbgp("------------------------------------------- Delete Tags:");
+    for (Strng *pTag=Tags.First(); pTag; pTag=pTag->Next())
+      dbgp("%s,", pTag->Str());
+    dbgpln("");
+    }
+
+  for (Strng *pTag=Tags.First(); pTag; pTag=pTag->Next())
+    {
+    if (TaggedObject::TestValidTagDot(pTag->Str())>0)
+      return EODT_INVALIDTAG;
+    if (TaggedObject::TestIfReservedTag(pTag->Str()))
+      return EODT_RESERVED;
+    }
+
+  int Ret=EODT_NOTFOUND;
+  flag OK = 1;
   const int Size = Objs_Reg.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int Err = Objs_Reg[OInx]->EO_QueryDeleteTag(pDelTag);
-    ASSERT(Err!=EODT_DONE);
-    if (Err==EODT_FOUND)
-      OK = 1;
-    else if (Err==EODT_NOTALLOWED)
-      return Err;
-    }
-
-  if (!OK)
-    return EODT_NOTFOUND;
-
-  int Err = EODT_DONE;
-  for (OInx=0; OInx<Size; OInx++)
-    {
-    int e=Objs_Reg[OInx]->EO_DeleteTag(pDelTag);
-    if ((e!=EODT_DONE) && (e!=EODT_NOTFOUND))
+    if (Objs_Reg[OInx]->EO_QueryDeleteTags(Tags)!=EODT_NOTFOUND)
       {
-      LogError(pDelTag, 0, "Tag delete failure in %s", Objs_Reg[OInx]->Name());
-      Err = EODT_FAILED;
+      for (Strng * pTag=Tags.First(); pTag; pTag=pTag->Next())
+        {
+        switch (pTag->Index())
+          {
+          case EODT_FOUND:        Ret=EODT_FOUND;          break;
+          case EODT_NOTALLOWED:   return pTag->Index();
+          case EODT_NOTFOUND:                              break;
+        //else if (pTag->Index()==EODT_RESERVED)
+        //  return pTag->Index();
+          }
+        }
       }
     }
 
-  if (Err == EODT_DONE)
+  if (Ret==EODT_NOTFOUND)
+    return Ret;
+
+  int NDel=0;
+  Ret = EODT_FAILED;
+  for (OInx=0; OInx<Size; OInx++)
+    {
+    Ret=Objs_Reg[OInx]->EO_DeleteTags(Tags);
+    for (Strng * pTag=Tags.First(); pTag; pTag=pTag->Next())
+      {
+      if (pTag->Index()==EODT_FAILED)
+        LogError(pTag->Str(), 0, "Tag delete failure in %s", Objs_Reg[OInx]->Name());
+      }
+    }
+
+  if (1)// This must be done incase ant deletes succeeded // Ret== EODT_DONE)
     {
     for (OInx=0; OInx<Size; OInx++)
-      Objs_Reg[OInx]->EO_DeleteTagDone(pDelTag);
+      Objs_Reg[OInx]->EO_DeleteTagsDone(Tags);
     }
 
   dbgpln("------------------------------------------- Delete Tag Done");
 
-  return Err;
+  return Ret;
   }
 
 //---------------------------------------------------------------------------

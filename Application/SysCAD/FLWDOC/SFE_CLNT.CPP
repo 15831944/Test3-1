@@ -596,21 +596,21 @@ int  SFEFlwLib::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
   IENTER(false) pSfe->EO_ChangeTagDone(pOldTag, pNewTag);
   ILEAVE
   };
-int  SFEFlwLib::EO_QueryDeleteTag(pchar pDelTag)
-  { IENTER(false) pSfe->EO_QueryDeleteTag(pDelTag); ILEAVE };
-int  SFEFlwLib::EO_DeleteTag(pchar pDelTag)
+int  SFEFlwLib::EO_QueryDeleteTags(Strng_List & Tags) 
+  { IENTER(false) pSfe->EO_QueryDeleteTags(Tags); ILEAVE };
+int  SFEFlwLib::EO_DeleteTags(Strng_List & Tags) 
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_DeleteTag(pDelTag);
+  IENTER(false) pSfe->EO_DeleteTags(Tags);
   //CExploreScd::RefreshIt(false);
   ILEAVE
   };
-int  SFEFlwLib::EO_DeleteTagDone(pchar pDelTag)
+int  SFEFlwLib::EO_DeleteTagsDone(Strng_List & Tags) 
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_DeleteTagDone(pDelTag);
+  IENTER(false) pSfe->EO_DeleteTagsDone(Tags);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };

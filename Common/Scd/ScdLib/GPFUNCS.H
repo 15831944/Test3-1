@@ -781,6 +781,8 @@ class DllImportExport Strng_List
     Strng_List();
     ~Strng_List();
     Strng_List(Strng_List & L);
+    Strng_List(const char* s);
+    Strng_List(char* s);
     Strng_List &operator=(Strng_List & L);
 
     Strng*        Insert(Strng & S);

@@ -367,26 +367,29 @@ int CGrfWnd::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
-int CGrfWnd::EO_DeleteTag(pchar pDelTag)
+int CGrfWnd::EO_DeleteTags(Strng_List & Tags) 
   {//a tag has been deleted, ...
   int RetCode = EODT_NOTFOUND;
 #if SYSCAD10         
   if (gs_pPrj->SvcActive)
     {
-    DXF_ENTITY eInsert, eAttrib;
-    if (Dsp.FindTag(pDelTag, eInsert, eAttrib))
+    for (Strng * pDelTag=Tags.First(); pDelTag; pDelTag=Tags.Next())
       {
-      Dsp.Open();
-
-      if (eInsert)
+      DXF_ENTITY eInsert, eAttrib;
+      if (Dsp.FindTag(pDelTag->Str(), eInsert, eAttrib))
         {
-        GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+        Dsp.Open();
 
-        Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
-        GCB.pDrw->Delete(eInsert);
+        if (eInsert)
+          {
+          GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+
+          Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+          GCB.pDrw->Delete(eInsert);
+          }
+
+        Dsp.Close();
         }
-
-      Dsp.Close();
       }
     }
 #endif

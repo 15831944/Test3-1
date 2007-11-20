@@ -556,9 +556,9 @@ class CTagVwDoc : public DocRoot, public CExecObj, CNodeXRefMngr
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
-    virtual int    EO_QueryDeleteTag(pchar pDelTag);
-    virtual int    EO_DeleteTag(pchar pDelTag);
-    virtual int    EO_DeleteTagDone(pchar pDelTag);
+    virtual int    EO_QueryDeleteTags(Strng_List & Tags);
+    virtual int    EO_DeleteTags(Strng_List & Tags);
+    virtual int    EO_DeleteTagsDone(Strng_List & Tags);
     virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
     virtual flag   EO_Start(CXM_TimeControl &CB);
     virtual void   EO_QuerySubsReqd(CXMsgLst &XM);

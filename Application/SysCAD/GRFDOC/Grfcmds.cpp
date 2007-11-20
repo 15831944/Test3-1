@@ -2227,7 +2227,7 @@ void GrfCmdBlk::DoInsert()
         if (CB->MdlInsertErr==0 && pMdl!=NULL)
           {
           CMdlValueSet::Clear();
-          int RetCode = gs_Exec.DeleteTag(CB->ATag());
+          int RetCode = gs_Exec.DeleteTags(Strng_List(CB->ATag()));
           if (RetCode!=EODT_DONE)
             LogError(CB->ATag(), LF_DoAfxMsgBox|LF_Exclamation, "Model not deleted");
           else
@@ -2340,7 +2340,7 @@ void GrfCmdBlk::DoChangeUnit()
                   if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
                     {
                     CMdlValueSet::Clear();
-                    int RetCode = gs_Exec.DeleteTag(pTag);
+                    int RetCode = gs_Exec.DeleteTags(Strng_List(pTag));
                     if (RetCode!=EODT_DONE)
                       {
                       LogError(pTag, 0, "Model not deleted");
@@ -2655,7 +2655,7 @@ void GrfCmdBlk::DoChangeUnit()
                   if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
                     {
                     CMdlValueSet::Clear();
-                    int RetCode = gs_Exec.DeleteTag(pTag);
+                    int RetCode = gs_Exec.DeleteTags(Strng_List(pTag));
                     if (RetCode!=EODT_DONE)
                       {
                       LogError(pTag, 0, "Model not deleted");
@@ -7198,7 +7198,7 @@ void GrfCmdBlk::DoExplode()
                 LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Model not deleted[%i]\n%s", err, DB[i].Tag);
               else*/
               CMdlValueSet::Clear();
-              int RetCode = (DoMdl ? gs_Exec.DeleteTag(DB[i].Tag) : EODT_DONE);
+              int RetCode = (DoMdl ? gs_Exec.DeleteTags(Strng_List(DB[i].Tag)) : EODT_DONE);
               if (RetCode!=EODT_DONE)
                 LogError(DB[i].Tag, LF_DoAfxMsgBox|LF_Exclamation, "Model not deleted");
               else
@@ -7783,6 +7783,7 @@ void GrfCmdBlk::DoDelete()
       int DeletesFailedCnt = 0;
       int MdlDeletes = 0;
 
+      Strng_List DelTags;
       CEntInView* pEnt = pDsp->Vp1->FirstSelectedEntity();
       while (pEnt)
         {
@@ -7827,29 +7828,16 @@ void GrfCmdBlk::DoDelete()
 
                 if (Find_Attr_Value(e, AssocTagAttribStr)==NULL) // is not an AssocTag
                   {
-                  int RetCode = gs_Exec.DeleteTag(pTag);
-                  if (RetCode!=EODT_DONE)
-                    {
-                    LogError(pTag, 0, "Model not deleted");
-                    DeletesFailedCnt++;
-                    }
-                  else
-                    MdlDeletes++;
+                  DelTags.Append(pTag);
+                  //int RetCode = gs_Exec.DeleteTag(pTag);
+                  //if (RetCode!=EODT_DONE)
+                  //  {
+                  //  LogError(pTag, 0, "Model not deleted");
+                  //  DeletesFailedCnt++;
+                  //  }
+                  //else
+                  //  MdlDeletes++;
                   }
-
-                /*int err = gs_pPrj->DeleteNodeModel(pTag);
-                if (err)
-                {
-                if (DeletesFailedCnt==1)
-                LogError("GrfCmds", 0, sLogMsg());
-                sLogMsg.Set("Model '%s' not deleted[%i]", pTag, err);
-                if (DeletesFailedCnt)
-                LogError("GrfCmds", 0, sLogMsg());
-                DeletesFailedCnt++;
-                }
-                else
-                MdlDeletes++;
-                */
                 }
               }
             if (DelSym)
@@ -7860,6 +7848,17 @@ void GrfCmdBlk::DoDelete()
             }
           }
         pEnt = pDsp->Vp1->NextSelectedEntity();
+        }
+      if (DelTags.Length()>0)
+        {
+        int RetCode = gs_Exec.DeleteTags(DelTags);
+        //if (RetCode!=EODT_DONE)
+        //  {
+        //  LogError(pTag, 0, "Model not deleted");
+        //  DeletesFailedCnt++;
+        //  }
+        //else
+        //  MdlDeletes++;
         }
       if (DeletesFailedCnt)
         {
@@ -8202,7 +8201,7 @@ void GrfCmdBlk::DoInsertGroup()
         if (CB->MdlInsertErr==0 && pMdl!=NULL)
           {
           CMdlValueSet::Clear();
-          int RetCode = gs_Exec.DeleteTag(CB->ATag());
+          int RetCode = gs_Exec.DeleteTags(Strng_List(CB->ATag()));
           if (RetCode!=EODT_DONE)
             LogError(CB->ATag(), LF_DoAfxMsgBox|LF_Exclamation, "Model not deleted");
           else

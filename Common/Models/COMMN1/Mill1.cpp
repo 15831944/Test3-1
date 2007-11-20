@@ -312,6 +312,7 @@ void Mill1::EvalProducts(CNodeEvalIndex & NEI)
       Qp.QZero();
       SigmaQInPMin(Qp, som_ALL, Id_2_Mask(ioidFeed)); //set product = feed
       }
+    }
   }
 
 //--------------------------------------------------------------------------

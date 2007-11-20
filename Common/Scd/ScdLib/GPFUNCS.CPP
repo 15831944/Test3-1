@@ -2356,6 +2356,8 @@ Strng_List::~Strng_List()
 // Copy Constructor
 Strng_List::Strng_List(Strng_List & L)// Strng List to be appended.
   {
+  Head = Tail = Posn = NULL;
+  len = 0;
   pStrng p = L.Head;
   while (p)
     {
@@ -2364,6 +2366,24 @@ Strng_List::Strng_List(Strng_List & L)// Strng List to be appended.
     p = p->pNxt;
     }
   }
+
+//---------------------------------------------------------------------------
+
+Strng_List::Strng_List(const char* s)
+  { 
+  Head = Tail = Posn = NULL;
+  len = 0;
+  Insert(new Strng(s));
+  };
+
+//---------------------------------------------------------------------------
+
+Strng_List::Strng_List(char* s)
+  { 
+  Head = Tail = Posn = NULL;
+  len = 0;
+  Insert(new Strng(s));
+  };
 
 //---------------------------------------------------------------------------
 // Assingment
