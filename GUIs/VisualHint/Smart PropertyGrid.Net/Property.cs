@@ -259,7 +259,7 @@ namespace VisualHint.SmartPropertyGrid
         /// Sets of gets the Feel instance that is used to display an inplace control when the property is selected.
         /// </summary>
         /// <remarks>
-        /// This property is a shortcut to <see cref=""PropertyValue.Feel/>. More explanations are given there.
+        /// This property is a shortcut to <see cref="PropertyValue.Feel"/>. More explanations are given there.
         /// </remarks>
         public PropertyFeel Feel
         {
@@ -282,7 +282,7 @@ namespace VisualHint.SmartPropertyGrid
         /// Sets of gets the Look instance that is used to paint the property when no inplace control is shown.
         /// </summary>
         /// <remarks>
-        /// This property is a shortcut to <see cref=""PropertyValue.Look/>. More explanations are given there.
+        /// This property is a shortcut to <see cref="PropertyValue.Look"/>. More explanations are given there.
         /// </remarks>
         public PropertyLook Look
         {

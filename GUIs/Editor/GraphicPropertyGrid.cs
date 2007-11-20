@@ -14,7 +14,7 @@ namespace SysCAD.Editor
   internal class GraphicPropertyGrid : PropertyGrid
   {
 
-    GraphicItem graphicItem = null;
+    GraphicNode graphicNode = null;
     GraphicLink graphicLink = null;
     int id = 0;
 
@@ -36,62 +36,68 @@ namespace SysCAD.Editor
 
     PropertyEnumerator itemModel;
     PropertyEnumerator itemModelGuid;
-    PropertyEnumerator itemModelModel;
+    PropertyEnumerator itemModelClass;
     PropertyEnumerator itemModelTag;
 
+    PropertyEnumerator linkGraphic;
+    PropertyEnumerator linkGraphicGuid;
+    PropertyEnumerator linkGraphicOrigin;
+    PropertyEnumerator linkGraphicDestination;
+    PropertyEnumerator linkGraphicOriginPortID;
+    PropertyEnumerator linkGraphicDestinationPortID;
+    PropertyEnumerator linkGraphicTag;
+
     PropertyEnumerator linkModel;
-    PropertyEnumerator linkModelClassID;
-    PropertyEnumerator linkModelDestination;
-    PropertyEnumerator linkModelDestinationPort;
-    PropertyEnumerator linkModelGuid;
+    PropertyEnumerator linkModelClass;
     PropertyEnumerator linkModelOrigin;
+    PropertyEnumerator linkModelDestination;
     PropertyEnumerator linkModelOriginPort;
-    PropertyEnumerator linkModelTag;
-    Int64 requestId;
+    PropertyEnumerator linkModelDestinationPort;
+
     State state = null;
 
     protected override void OnPropertyButtonClicked(PropertyButtonClickedEventArgs e)
     {
-      if (graphicItem != null)
+      if (graphicNode != null)
       {
-      Property a = e.PropertyEnum.Property;
+        Property a = e.PropertyEnum.Property;
 
-      if (a.Name == "Shape")
-      {
-        GraphicStencilChangeForm gscf = new GraphicStencilChangeForm(state.GraphicUnselectedThumbnails, state.GraphicSelectedThumbnails, state.ModelStencils, state.GraphicStencils, a.Value.DisplayString);
-        if (gscf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        if (a.Name == "Shape")
         {
-          state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, 
-            graphicItem.Path, graphicItem.Model, gscf.Value, graphicItem.BoundingRect, 
-            graphicItem.Angle, graphicItem.TextArea, graphicItem.TextAngle, graphicItem.FillColor, 
-            graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+          GraphicStencilChangeForm gscf = new GraphicStencilChangeForm(state.GraphicUnselectedThumbnails, state.GraphicSelectedThumbnails, state.ModelStencils, state.GraphicStencils, a.Value.DisplayString);
+          if (gscf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+          {
+            //state.ModifyGraphicItem(out requestId, graphicNode.Guid, graphicNode.Tag, 
+            //  graphicNode.Path, graphicNode.Model, gscf.Value, graphicNode.BoundingRect, 
+            //  graphicNode.Angle, graphicNode.TagArea, graphicNode.TagAngle, graphicNode.FillColor, 
+            //  graphicNode.FillMode, graphicNode.MirrorX, graphicNode.MirrorY);
+          }
         }
-      }
       }
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
 
-      if (graphicItem != null)
+      if (graphicNode != null)
       {
-        state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path,
-          graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea,
-          graphicItem.TextAngle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+        //state.ModifyGraphicItem(out requestId, graphicNode.Guid, graphicNode.Tag, graphicNode.Path,
+        //  graphicNode.Model, graphicNode.Shape, graphicNode.BoundingRect, graphicNode.Angle, graphicNode.TagArea,
+        //  graphicNode.TagAngle, graphicNode.FillColor, graphicNode.FillMode, graphicNode.MirrorX, graphicNode.MirrorY);
       }
 
       if (graphicLink != null)
       {
-        state.ModifyGraphicLink(out requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID,
-          graphicLink.Origin, graphicLink.Destination,
-          graphicLink.OriginPort, graphicLink.OriginPortID, graphicLink.DestinationPort, graphicLink.DestinationPortID,
-          graphicLink.ControlPoints, graphicLink.TextArea, graphicLink.TextAngle);
+        //state.ModifyGraphicLink(out requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID,
+        //  graphicLink.Origin, graphicLink.Destination,
+        //  graphicLink.OriginPort, graphicLink.OriginPortID, graphicLink.DestinationPort, graphicLink.DestinationPortID,
+        //  graphicLink.ControlPoints, graphicLink.TagArea, graphicLink.TagAngle);
       }
     }
 
     new internal void Clear()
     {
-      graphicItem = null;
+      graphicNode = null;
       graphicLink = null;
       state = null;
 
@@ -110,47 +116,47 @@ namespace SysCAD.Editor
       Margin = new System.Windows.Forms.Padding(2);
     }
 
-    internal void SetSelectedObject(GraphicItem graphicItem, State state)
+    internal void SetSelectedObject(GraphicNode graphicNode, ModelNode modelNode, State state)
     {
       Clear();
 
-      this.graphicItem = graphicItem;
+      this.graphicNode = graphicNode;
       this.state = state;
 
       id = 0;
       itemGraphic = AppendRootCategory(id++, "Graphic");
-      itemGraphicPath = AppendProperty(itemGraphic, id++, "Path", graphicItem, "Path", "", new System.ComponentModel.ReadOnlyAttribute(true));
-      itemGraphicBoungingRect = AppendProperty(itemGraphic, id++, "Bounding Rectangle", graphicItem, "BoundingRect", "");
-      itemGraphicBoungingRectLeft = AppendProperty(itemGraphicBoungingRect, id++, "Left", graphicItem, "X", "");
-      itemGraphicBoungingRectTop = AppendProperty(itemGraphicBoungingRect, id++, "Top", graphicItem, "Y", "");
-      itemGraphicBoungingRectWidth = AppendProperty(itemGraphicBoungingRect, id++, "Width", graphicItem, "Width", "");
-      itemGraphicBoungingRectHeight = AppendProperty(itemGraphicBoungingRect, id++, "Height", graphicItem, "Height", "");
+      itemGraphicPath = AppendProperty(itemGraphic, id++, "Path", graphicNode, "Path", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      itemGraphicBoungingRect = AppendProperty(itemGraphic, id++, "Bounding Rectangle", graphicNode, "BoundingRect", "");
+      itemGraphicBoungingRectLeft = AppendProperty(itemGraphicBoungingRect, id++, "Left", graphicNode, "X", "");
+      itemGraphicBoungingRectTop = AppendProperty(itemGraphicBoungingRect, id++, "Top", graphicNode, "Y", "");
+      itemGraphicBoungingRectWidth = AppendProperty(itemGraphicBoungingRect, id++, "Width", graphicNode, "Width", "");
+      itemGraphicBoungingRectHeight = AppendProperty(itemGraphicBoungingRect, id++, "Height", graphicNode, "Height", "");
       ExpandProperty(itemGraphicBoungingRect, false);
-      itemGraphicAngle = AppendProperty(itemGraphic, id++, "Angle", graphicItem, "Angle", "");
-      
-      itemGraphicShape = AppendProperty(itemGraphic, id++, "Shape", graphicItem, "Shape", "");
+      itemGraphicAngle = AppendProperty(itemGraphic, id++, "Angle", graphicNode, "Angle", "");
+
+      itemGraphicShape = AppendProperty(itemGraphic, id++, "Shape", graphicNode, "Shape", "");
       itemGraphicShape.Property.Feel = GetRegisteredFeel(PropertyGrid.FeelButton);
 
       itemGraphicFill = AppendSubCategory(itemGraphic, id++, "Fill");
-      itemGraphicFillColor = AppendProperty(itemGraphicFill, id++, "Color", graphicItem, "FillColor", "");
-      itemGraphicFillMode = AppendProperty(itemGraphicFill, id++, "Mode", graphicItem, "FillMode", "");
+      itemGraphicFillColor = AppendProperty(itemGraphicFill, id++, "Color", graphicNode, "FillColor", "");
+      itemGraphicFillMode = AppendProperty(itemGraphicFill, id++, "Mode", graphicNode, "FillMode", "");
       ExpandProperty(itemGraphicFill, false);
       itemGraphicMirror = AppendSubCategory(itemGraphic, id++, "Mirroring");
-      itemGraphicMirrorX = AppendProperty(itemGraphicMirror, id++, "X", graphicItem, "MirrorX", "");
+      itemGraphicMirrorX = AppendProperty(itemGraphicMirror, id++, "X", graphicNode, "MirrorX", "");
       itemGraphicMirrorX.Property.Feel = GetRegisteredFeel(FeelCheckbox);
       itemGraphicMirrorX.Property.Value.Look = new PropertyCheckboxLook();
-      itemGraphicMirrorY = AppendProperty(itemGraphicMirror, id++, "Y", graphicItem, "MirrorY", "");
+      itemGraphicMirrorY = AppendProperty(itemGraphicMirror, id++, "Y", graphicNode, "MirrorY", "");
       itemGraphicMirrorY.Property.Feel = GetRegisteredFeel(FeelCheckbox);
       itemGraphicMirrorY.Property.Value.Look = new PropertyCheckboxLook();
       ExpandProperty(itemGraphicMirror, false);
 
       itemModel = AppendRootCategory(id++, "Model");
-      itemModelGuid = AppendProperty(itemModel, id++, "Guid", graphicItem, "Guid", "", new System.ComponentModel.ReadOnlyAttribute(true));
-      itemModelModel = AppendProperty(itemModel, id++, "Model", graphicItem, "Model", "", new System.ComponentModel.ReadOnlyAttribute(true));
-      itemModelTag = AppendProperty(itemModel, id++, "Tag", graphicItem, "Tag", "");
+      itemModelGuid = AppendProperty(itemModel, id++, "Guid", modelNode, "Guid", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      itemModelClass = AppendProperty(itemModel, id++, "Class", modelNode, "NodeClass", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      itemModelTag = AppendProperty(itemModel, id++, "Tag", modelNode, "Tag", "");
     }
 
-    internal void SetSelectedObject(GraphicLink graphicLink, State state)
+    internal void SetSelectedObject(GraphicLink graphicLink, ModelLink modelLink, State state)
     {
       Clear();
 
@@ -158,14 +164,20 @@ namespace SysCAD.Editor
       this.state = state;
 
       id = 0;
+      linkGraphic = AppendRootCategory(id++, "Graphic");
+      linkGraphicGuid = AppendProperty(linkGraphic, id++, "Guid", graphicLink, "Guid", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      linkGraphicOrigin = AppendProperty(linkGraphic, id++, "Origin", graphicLink, "Origin", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      linkGraphicDestination = AppendProperty(linkGraphic, id++, "Destination", graphicLink, "Destination", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      linkGraphicOriginPortID = AppendProperty(linkGraphic, id++, "Origin Port ID", graphicLink, "OriginPortID", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      linkGraphicDestinationPortID = AppendProperty(linkGraphic, id++, "Destination Port ID", graphicLink, "DestinationPortID", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      linkGraphicTag = AppendProperty(linkGraphic, id++, "Tag", graphicLink, "Tag", "");
+
       linkModel = AppendRootCategory(id++, "Model");
-      linkModelGuid = AppendProperty(linkModel, id++, "Guid", graphicLink, "Guid", "", new System.ComponentModel.ReadOnlyAttribute(true));
-      linkModelClassID = AppendProperty(linkModel, id++, "ClassID", graphicLink, "ClassID", "", new System.ComponentModel.ReadOnlyAttribute(true));
-      linkModelOrigin = AppendProperty(linkModel, id++, "Origin", graphicLink, "Origin", "", new System.ComponentModel.ReadOnlyAttribute(true));
-      linkModelDestination = AppendProperty(linkModel, id++, "Destination", graphicLink, "Destination", "", new System.ComponentModel.ReadOnlyAttribute(true));
-      linkModelOriginPort = AppendProperty(linkModel, id++, "OriginPort", graphicLink, "OriginPort", "", new System.ComponentModel.ReadOnlyAttribute(true));
-      linkModelDestinationPort = AppendProperty(linkModel, id++, "DestinationPort", graphicLink, "DestinationPort", "", new System.ComponentModel.ReadOnlyAttribute(true));
-      linkModelTag = AppendProperty(linkModel, id++, "Tag", graphicLink, "Tag", "");
+      linkModelClass = AppendProperty(linkModel, id++, "Class", modelLink, "LinkClass", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      linkModelOrigin = AppendProperty(linkModel, id++, "Origin", modelLink, "Origin", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      linkModelDestination = AppendProperty(linkModel, id++, "Destination", modelLink, "Destination", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      linkModelOriginPort = AppendProperty(linkModel, id++, "Origin Port", modelLink, "OriginPort", "", new System.ComponentModel.ReadOnlyAttribute(true));
+      linkModelDestinationPort = AppendProperty(linkModel, id++, "Destination Port", modelLink, "DestinationPort", "", new System.ComponentModel.ReadOnlyAttribute(true));
     }
   }
 }

@@ -221,6 +221,11 @@ namespace SysCAD.Protocol
       return false;
     }
 
+    public override int GetHashCode()
+    {
+      return base.GetHashCode() * width.GetHashCode() * height.GetHashCode();
+    }
+
     //
     // Summary:
     //     Subtracts the width and height of one SysCAD.Protocol.Size structure from

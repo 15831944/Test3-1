@@ -33,45 +33,77 @@ static bool dbgConnect() { return 1; }
 #if WITHDBGLINES
 
 #define DO_ENTRY_GT(Method, Guid, Tag)                                                                             \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgpln("%-30s  >>> %7s %7s %s %s", Method, "", "", Guid, Tag);                                                   \
   dbgindent(2);                                                                                                    \
   }
 
 #define DO_ENTRY_GTP(Method, Guid, Tag, Path)                                                                      \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgpln("%-30s  >>> %7s %7s %s  %-20s  %s", Method, "", "", Guid, Tag, Path);                                     \
   dbgindent(2);                                                                                                    \
   }
+
+#define DO_ENTRY_TP(Method, Tag, Path)                                                                             \
+  if (dbgConnect())                                                                                                  \
+  {                                                                                                                \
+  dbgpln("%-30s  >>> %7s %7s %-20s  %s", Method, "", "", Tag, Path);                                               \
+  dbgindent(2);                                                                                                    \
+  }
+
 #define DO_ENTRY_GTPSM(Method, Guid, Tag, Path, Shape, Model)                                                      \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgpln("%-30s  >>> %7s %7s %s  %-20s  %s  %s  %s", Method, "", "", Guid, Tag, Path, Shape, Model);               \
   dbgindent(2);                                                                                                    \
   }
 
 #define DO_EXIT(Method)                                                                                            \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgindent(-2);                                                                                                   \
   dbgpln("%-30s  <<< %7s %7I64i", Method, "", m_lRequestIdRet);                                                    \
   };
 
+#define DO_EXIT_T(Method, Tag)                                                                                     \
+  if (dbgConnect())                                                                                                  \
+  {                                                                                                                \
+  dbgindent(-2);                                                                                                   \
+  dbgpln("%-30s  <<< %7s %7I64i %s", Method, "", m_lRequestIdRet, Tag);                                            \
+  };
+
 #define DO_EXIT_G(Method, Guid)                                                                                    \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgindent(-2);                                                                                                   \
   dbgpln("%-30s  <<< %7s %7I64i %s", Method, "", m_lRequestIdRet, Guid);                                           \
   };
 
+#define DO_EXIT_GT(Method, Guid, Tag)                                                                              \
+  if (dbgConnect())                                                                                                  \
+  {                                                                                                                \
+  dbgindent(-2);                                                                                                   \
+  dbgpln("%-30s  <<< %7s %7I64i %s %s", Method, "", m_lRequestIdRet, Guid, Tag);                                   \
+  };
+
+#define DO_EXIT_GG(Method, Guid1, Guid2)                                                                           \
+  if (dbgConnect())                                                                                                  \
+  {                                                                                                                \
+  dbgindent(-2);                                                                                                   \
+  dbgpln("%-30s  <<< %7s %7I64i %s %s", Method, "", m_lRequestIdRet, Guid1, Guid2);                                \
+  };
+
 #else
 
 #define DO_ENTRY_GT(Method, Guid, Tag)             /* Do Nothing */
+#define DO_ENTRY_TP(Method, Tag, Path)             /* Do Nothing */
 #define DO_ENTRY_GTP(Method, Guid, Tag, Path)      /* Do Nothing */
 #define DO_EXIT(Method)                            /* Do Nothing */
+#define DO_EXIT_T(Method, Guid)                    /* Do Nothing */
 #define DO_EXIT_G(Method, Guid)                    /* Do Nothing */
+#define DO_EXIT_GG(Method, Guid1, Guid2)           /* Do Nothing */
 
 #endif
 
@@ -80,35 +112,42 @@ if (dbgConnect())                                                               
 #if WITHDBGLINES
 
 #define ON_ENTRY_GT(Method, Guid, Tag)                                                                             \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgpln("%-30s  >>> %7I64i %7I64i %s %s", Method, eventId, requestId, Guid, Tag);                                 \
   dbgindent(4);                                                                                                    \
   }
 
 #define ON_ENTRY_GTP(Method, Guid, Tag, Path)                                                                      \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgpln("%-30s  >>> %7I64i %7I64i %s  %-20s  %s", Method, eventId, requestId, Guid, Tag, Path);                   \
   dbgindent(4);                                                                                                    \
   }
 
+#define ON_ENTRY_GTM(Method, Guid, Tag, Model)                                                                      \
+  if (dbgConnect())                                                                                                  \
+  {                                                                                                                \
+  dbgpln("%-30s  >>> %7I64i %7I64i %s  %-20s %s", Method, eventId, requestId, Guid, Tag, Model);                   \
+  dbgindent(4);                                                                                                    \
+  }
+
 #define ON_ENTRY_GTPSM(Method, Guid, Tag, Path, Shape, Model)                                                      \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgpln("%-30s  >>> %7I64i %7I64i %s  %-20s  %s  %s  %s", Method, eventId, requestId, Guid, Tag, Path, Shape, Model); \
   dbgindent(4);                                                                                                    \
   }
 
 #define ON_EXIT(Method)                                                                                            \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgindent(-4);                                                                                                   \
   dbgpln("%-30s  <<< %7I64i %7I64i", Method, eventId, m_lRequestIdRet);                                            \
   };
 
 #define ON_EXIT_G(Method, Guid)                                                                                    \
-if (dbgConnect())                                                                                                  \
+  if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgindent(-4);                                                                                                   \
   dbgpln("%-30s  <<< %7I64i %7I64i %s", Method, eventId, m_lRequestIdRet, Guid);                                   \
@@ -245,32 +284,32 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
     CString GrpGuid = TaggedObject::CreateGuidStr(); // where should this come from
 
-    DO_ENTRY_GTP("DoCreateGroupE", GrpGuid , Grp.m_sTitle, MakePath(projectPath));
+    DO_ENTRY_GTP("DoCreateGroupE", GrpGuid, Grp.m_sTitle, MakePath(projectPath));
 
-    m_pCLR->DoCreateGroup(m_lRequestIdRet, GrpGuid, Grp.m_sTitle, MakePath(projectPath), 
+    m_pCLR->AddCreateGroup(m_lRequestIdRet, GrpGuid, Grp.m_sTitle, MakePath(projectPath), 
       CRectangleF(Grp.m_PageRct.Left()+Grp.m_XOff,Grp.m_PageRct.Bottom()+Grp.m_YOff, Grp.m_PageRct.Width(), Grp.m_PageRct.Height()));
 
-    DO_EXIT_G("DoCreateGroupE", GrpGuid);
-    
+    DO_EXIT_GT("DoCreateGroupE", GrpGuid, Grp.m_sTitle);
+
     }
   //    static __int64 RqID=0;
 
   Pos=GI.m_Items.GetHeadPosition();
   while (Pos)
-    {
+	{
     CGetExistingItems::CItem & I = *GI.m_Items.GetNext(Pos);
     if (I.m_sTag.CompareNoCase("PlantArea")==0)
       continue;
 
     CNodeListItem & N = *I.m_pNLItem;
-    
+
     CGetExistingItems::CGroupIndex Inx;
     if (!GI.m_TagMap.Lookup(I.m_sTag, Inx))
       {
       LogError("Export2Scd10", 0, "Tag Not in Graphics %s", I.m_sTag);
       continue;
       };
-    
+
     CGetExistingItems::CGroup & Grp = *Inx.m_pGrp;
     CGrfTagInfo               & GTI =Grp.m_GTIA[Inx.m_iGTIA];
 
@@ -286,35 +325,39 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
     if (!N.m_bIsLnk)
       {
-      CString ItemGuid;
+      CString GraphicGuid = GTI.m_sGuid();
       CString Shape    = ExtractShape(Symbol);
       CString Model    = N.m_sClass;
 
-      DO_ENTRY_GTPSM("DoCreateItemE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
+      FlwNode * pNode = gs_pSfeSrvr->FE_FindNode(I.m_sTag, NULL);
 
-      float boxW = int(GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X);
-      float boxH = int(GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y);
-      float boxX = int(GTI.m_LoBnd.m_X + Grp.m_XOff) + 0.5; // needs to be x.5mm to meet grid in 10.
-      float boxY = int(Grp.m_PageRct.Height() - GTI.m_HiBnd.m_Y + Grp.m_YOff) + 0.5; // needs to be x.5mm to meet grid in 10.
+      CString ModelGuid = pNode->Guid();
 
-      float textBoxW = int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength());
-      float textBoxH = int(GTI.m_Tag.m_YScale * 5.0);
-      float textBoxX = int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5; // needs to be x.5mm to meet grid in 10.
-      float textBoxY = int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5; // needs to be x.5mm to meet grid in 10.
+      DO_ENTRY_GTPSM("DoCreateNodeE", ModelGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
 
-      m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag,
+      float boxW = float(int(GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X));
+      float boxH = float(int(GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y));
+      float boxX = float(int(GTI.m_LoBnd.m_X + Grp.m_XOff) + 0.5); // needs to be x.5mm to meet grid in 10.
+      float boxY = float(int(Grp.m_PageRct.Height() - GTI.m_HiBnd.m_Y + Grp.m_YOff) + 0.5); // needs to be x.5mm to meet grid in 10.
+
+      float textBoxW = float(int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength()));
+      float textBoxH = float(int(GTI.m_Tag.m_YScale * 5.0));
+      float textBoxX = float(int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5); // needs to be x.5mm to meet grid in 10.
+      float textBoxY = float(int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5); // needs to be x.5mm to meet grid in 10.
+
+      m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, I.m_sTag,
         MakePath(projectPath, Grp.m_sTitle), Model, Shape,
         CRectangleF(boxX, boxY, boxW, boxH),
         0.0, 
-				CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
-				-GTI.m_Tag.m_Rotation,
+        CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
+        -GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible,
         0, false, false);
 
-      DO_EXIT_G("DoCreateItemE", ItemGuid);
+      DO_EXIT_GG("DoCreateNodeE", ModelGuid, GraphicGuid);
       }
     else
       {
-      CString ItemGuid;
+      CString GraphicGuid = GTI.m_sGuid();
       CString Shape    = ExtractShape(Symbol);
       CString Model    = N.m_sClass;
 
@@ -327,39 +370,58 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
       FlwNode * pNode = gs_pSfeSrvr->FE_FindNode(I.m_sTag, NULL);
 
-      CString SrcGuid = pNode->Nd_Rmt(0)->Guid();
-      CString SrcPort = pNode->IODesc_Rmt(0)->IOName();
-      CString DstGuid = pNode->Nd_Rmt(1)->Guid();
-      CString DstPort = pNode->IODesc_Rmt(1)->IOName();
+      CString ModelGuid  = pNode->Guid();
+      CString SrcMdlGuid = pNode->Nd_Rmt(0)->Guid();
+      CString SrcGrfGuid = "Grf GUID Fetch Failed";
+      CString SrcPort    = pNode->IODesc_Rmt(0)->IOName();
+      CString DstMdlGuid = pNode->Nd_Rmt(1)->Guid();
+      CString DstGrfGuid = "Grf GUID Fetch Failed";
+      CString DstPort    = pNode->IODesc_Rmt(1)->IOName();
+
+      CGetExistingItems::CGroupIndex SInx;
+      if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(0)->Tag(), SInx))
+        SrcGrfGuid = Grp.m_GTIA[SInx.m_iGTIA].m_sGuid();
+      else
+        LogError("Export2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(0)->Tag());
+
+      CGetExistingItems::CGroupIndex DInx;
+      if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(1)->Tag(), DInx))
+        DstGrfGuid = Grp.m_GTIA[DInx.m_iGTIA].m_sGuid();
+      else
+        LogError("Export2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(1)->Tag());
+
       if (dbgConnect())                                                              
         {                                                                            
-        dbgpln("%-30s   Src %s.%s", "", SrcGuid, SrcPort);
-        dbgpln("%-30s   Dst %s.%s", "", DstGuid, DstPort);
+        dbgpln("%-30s   Src Mdl:%s Grf:%s %s", "", SrcMdlGuid, SrcGrfGuid, SrcPort);
+        dbgpln("%-30s   Dst Mdl:%s Grf:%s %s", "", DstMdlGuid, DstGrfGuid, DstPort);
         }
 
 
       CPointFList CtrlPts;
       for (int i=0; i<LPA.GetCount(); i++)
-      {
-        float PtX = int(LPA[i].x+Grp.m_XOff) + 0.5; // needs to be x.5mm to meet grid in 10.
-        float PtY = int(Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff) + 0.5; // needs to be x.5mm to meet grid in 10.
+        {
+        float PtX = float(int(LPA[i].x+Grp.m_XOff) + 0.5); // needs to be x.5mm to meet grid in 10.
+        float PtY = float(int(Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff) + 0.5); // needs to be x.5mm to meet grid in 10.
         CtrlPts.AddTail(CPointF(PtX, PtY));
-      }
+        }
 
-      float textBoxW = int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength());
-      float textBoxH = int(GTI.m_Tag.m_YScale * 5.0);
-      float textBoxX = int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5; // needs to be x.5mm to meet grid in 10.
-      float textBoxY = int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5; // needs to be x.5mm to meet grid in 10.
+      float textBoxW = float(int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength()));
+      float textBoxH = float(int(GTI.m_Tag.m_YScale * 5.0));
+      float textBoxX = float(int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5); // needs to be x.5mm to meet grid in 10.
+      float textBoxY = float(int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5); // needs to be x.5mm to meet grid in 10.
 
-      m_pCLR->DoCreateLink(m_lRequestIdRet, ItemGuid, I.m_sTag, 
-      MakePath(projectPath, Grp.m_sSymbol), 
-      Model, 
-      SrcGuid, DstGuid, SrcPort, DstPort, CtrlPts,
-      CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
-		  -GTI.m_Tag.m_Rotation);
+      m_pCLR->AddCreateLink(m_lRequestIdRet, ModelGuid, GraphicGuid, I.m_sTag, 
+        MakePath(projectPath, Grp.m_sSymbol), 
+        Model, 
+        SrcMdlGuid, DstMdlGuid, 
+        SrcGrfGuid, DstGrfGuid, 
+        SrcPort, DstPort, 
+        CtrlPts,
+        CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), true,
+        -GTI.m_Tag.m_Rotation);
 
 
-      DO_EXIT_G("DoCreateLinkE", ItemGuid);
+      DO_EXIT_G("DoCreateLinkE", ModelGuid);
       }
 
     // Remove Original Symbol
@@ -376,6 +438,11 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
       dbgpln("");
       }
 #endif
+    }
+
+  if (!m_pCLR->ProcessChangeLists(m_lRequestIdRet))
+    {
+    _asm int 3;  // Some Error occurred
     }
 
   m_Ctrl.m_bExportBusy = false;
@@ -524,7 +591,7 @@ CString CSvcConnect::ExtractShape(LPCSTR Symbol)
 //
 //========================================================================
 
-void CSvcConnect::GCBCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle)
+void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle)
   {
   double Width=20;
   double Height=20;
@@ -535,27 +602,31 @@ void CSvcConnect::GCBCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
   //CString Shape = ExtractShape(ClassId);//Symbol);
   CString Shape = ExtractShape(Symbol);
 
-  DO_ENTRY_GTP("GCBCreateItem", "NULL-Guid", Tag, MakePath(Prj, Page));
+  DO_ENTRY_GTP("GCBCreateNode", "NULL-Guid", Tag, MakePath(Prj, Page));
 
-  CString GuidRet;
+  CString ModelGuid = TaggedObject::CreateGuidStr();
+  CString GraphicGuid = TaggedObject::CreateGuidStr();
 
-  m_pCLR->DoCreateItem(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CRectangleF(0.0, 0.0, 0.0, 0.0), 0.0, 0, false, false); // !!! textArea not used.
+  m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CRectangleF(0.0, 0.0, 0.0, 0.0), 0.0, true, 0, false, false); // !!! tagArea not used.
 
-  DO_EXIT_G("GCBCreateItem", GuidRet);
+  DO_EXIT_GG("GCBCreateNode", ModelGuid, GraphicGuid);
   };
 
 //------------------------------------------------------------------------
 
+//void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, List<Guid> created, )
+//  {
+//  }
 
-void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, LPCSTR path, 
-                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect,
-                               float angle, const CRectangleF & textArea, float textAngle, COLORREF FillColor, 
-                               bool mirrorX, bool mirrorY)
+void CSvcConnect::OnCreateNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, LPCSTR path, 
+                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect,
+                                float angle, const CRectangleF & tagArea, float tagAngle, COLORREF FillColor, 
+                                bool mirrorX, bool mirrorY)
   {
 
-// !!! textArea not handled as yet.
+  // !!! tagArea not handled as yet.
 
-  ON_ENTRY_GTPSM("OnCreateItem", Guid, tag, path, shape, model);
+  ON_ENTRY_GTPSM("OnCreateNodeG", Guid, tag, path, shape, model);
 
   try
     {
@@ -565,41 +636,116 @@ void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, 
     //CGrfWnd * pWnd=FindGrfWnd(PageName);
     //PageRct = GetPageRect(PageName);
 
-    m_Ctrl.SetXObjArray(gs_pTheSFELib);
-    m_Ctrl.AddXObjArray(FindGrfWnd(PageName));
+    //m_Ctrl.SetXObjArray(gs_pTheSFELib);
+    //m_Ctrl.AddXObjArray(FindGrfWnd(PageName));
 
-    int RetCode = gs_Exec.SCInsertItem(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, textArea, textAngle, FillColor, mirrorX, mirrorY);
+    m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
+
+    int RetCode = gs_Exec.SCInsertNodeG(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, tagArea, tagAngle, FillColor, mirrorX, mirrorY);
 
 
     if (RetCode!=EOSC_DONE)
       {
-      LogError(NETSERVERNAME, 0, "CreateUnit '%s' failed!", tag);
+      LogError(NETSERVERNAME, 0, "CreateNode '%s' failed!", tag);
       //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
       }
     }
   catch(...)
     {
-    LogError(NETSERVERNAME, 0, "Exception in CreateUnit '%s'", tag);
+    LogError(NETSERVERNAME, 0, "Exception in CreateNode '%s'", tag);
     }
 
-  ON_EXIT_G("OnCreateItem", Guid);
+  ON_EXIT_G("OnCreateNodeG", Guid);
+  }
+
+//------------------------------------------------------------------------
+
+//void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, List<Guid> created, )
+//  {
+//  }
+
+void CSvcConnect::OnCreateNodeM(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, LPCSTR model)
+  {
+
+  // !!! tagArea not handled as yet.
+
+  ON_ENTRY_GTM("OnCreateNodeM", Guid, tag, model);
+
+  try
+    {
+
+    //CString PageName=CSvcConnect::ExtractPageName(path);
+
+    //CGrfWnd * pWnd=FindGrfWnd(PageName);
+    //PageRct = GetPageRect(PageName);
+
+    m_Ctrl.SetXObjArray(gs_pTheSFELib);
+    //m_Ctrl.AddXObjArray(FindGrfWnd(PageName));
+
+    int RetCode = gs_Exec.SCInsertNodeM(m_Ctrl, tag, Guid, model);
+
+
+    if (RetCode!=EOSC_DONE)
+      {
+      LogError(NETSERVERNAME, 0, "CreateNode '%s' failed!", tag);
+      //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
+      }
+    }
+  catch(...)
+    {
+    LogError(NETSERVERNAME, 0, "Exception in CreateNode '%s'", tag);
+    }
+
+  ON_EXIT_G("OnCreateNodeM", Guid);
+  }
+
+void CSvcConnect::OnDeleteNodeM(__int64 eventId, __int64 requestId, LPCSTR Guid)
+  {
+  Strng Tag;
+  flag IsLink;
+  if (gs_pPrj->FindNodeInfoFromGuid((LPSTR)Guid, Tag, IsLink))
+    {
+
+    ON_ENTRY_GT("OnDeleteNodeM", Guid, Tag());
+
+    try
+      {
+      m_Ctrl.SetXObjArray(gs_pTheSFELib);
+
+      int RetCode = gs_Exec.SCDeleteNodeM(m_Ctrl, Tag(), Guid);
+
+
+      if (RetCode!=EOSC_DONE)
+        {
+        LogError(NETSERVERNAME, 0, "DeleteNode '%s' failed!", Tag());
+        //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
+        }
+      }
+    catch(...)
+      {
+      LogError(NETSERVERNAME, 0, "Exception in CreateNode '%s'", Tag());
+      }
+
+    ON_EXIT_G("OnDeleteNodeM", Guid);
+    }
   }
 
 //------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBDeleteItem(DXF_ENTITY eEntity, LPCSTR Tag)
+void CSvcConnect::GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR Tag)
   {
 
-  Strng Guid;
-  if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
+  Strng ModelGuid, GraphicGuid;
+  if (gs_pPrj->GetNodeGuid((LPSTR)Tag, ModelGuid))
     {
-    DO_ENTRY_GT("GCBDeleteItem", Guid(), Tag);
+    DO_ENTRY_GT("GCBDeleteNode", ModelGuid(), Tag);
 
-    m_pCLR->DoDeleteItem(m_lRequestIdRet, Guid());
+    __asm int 3; // what about GraphicGuid ???
+    m_pCLR->DoDeleteNode(m_lRequestIdRet, ModelGuid(), GraphicGuid());
 
-    DO_EXIT("GCBDeleteItem");
+    DO_EXIT("GCBDeleteNode");
     }
   else
     {
@@ -608,7 +754,7 @@ void CSvcConnect::GCBDeleteItem(DXF_ENTITY eEntity, LPCSTR Tag)
 
 //------------------------------------------------------------------------
 
-void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR Guid)
+void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid)
   {
   ON_ENTRY_GT("OnDeleteItem", Guid, "");
 
@@ -620,8 +766,8 @@ void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR Guid)
     if (!IsLink)
       {
       m_Ctrl.ClrXObjArray();
- 
-      int RetCode = gs_Exec.SCDeleteItem(m_Ctrl, Tag(), Guid, "???");
+
+      int RetCode = gs_Exec.SCDeleteNodeG(m_Ctrl, Tag(), Guid, "???");
       if (RetCode!=EOSC_DONE)
         {
         LogError(Tag(), 0, "Model not deleted");
@@ -646,7 +792,7 @@ void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR Guid)
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBModifyItemPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta)
+void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta)
   {
   //LPSTR Tag="?Tag?";
 
@@ -660,7 +806,7 @@ void CSvcConnect::GCBModifyItemPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCST
     bool MirrorY=false;
     Delta.Y=-Delta.Y; // Y is inverted
 
-    m_pCLR->DoModifyItemPosition(m_lRequestIdRet, Guid(), Delta);
+    //m_pCLR->DoModifyItemPosition(m_lRequestIdRet, Guid(), Delta);
 
     DO_EXIT("GCBModifyItem");
     }
@@ -671,17 +817,17 @@ void CSvcConnect::GCBModifyItemPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCST
 
 //------------------------------------------------------------------------
 
-void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR ItemGuid, LPCSTR tag, LPCSTR path, 
-                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
-                               bool mirrorX, bool mirrorY)
+void CSvcConnect::OnModifyNodeG(__int64 eventId, __int64 requestId, LPCSTR ItemGuid, LPCSTR tag, LPCSTR path, 
+                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                                bool mirrorX, bool mirrorY)
   {
-  ON_ENTRY_GT("OnModifyItem", ItemGuid, tag);
+  ON_ENTRY_GT("OnModifyNodeG", ItemGuid, tag);
 
   CString PageName=CSvcConnect::ExtractPageName(path);
   m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
 
-  int RetCode = gs_Exec.SCModifyItem(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
+  int RetCode = gs_Exec.SCModifyNodeG(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, Colour, mirrorX, mirrorY);
   if (RetCode!=EOSC_DONE)
     {
     LogError(tag, 0, "Model not modified");
@@ -691,7 +837,26 @@ void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
     {
     }
 
-  ON_EXIT("OnModifyItem");
+  ON_EXIT("OnModifyNodeG");
+  };
+
+//------------------------------------------------------------------------
+
+void CSvcConnect::OnModifyNodeM(__int64 eventId, __int64 requestId, LPCSTR ItemGuid, LPCSTR tag, LPCSTR model)
+  {
+  ON_ENTRY_GT("OnModifyNodeM", ItemGuid, tag);
+
+  int RetCode = gs_Exec.SCModifyNodeM(m_Ctrl, tag, ItemGuid, model);
+  if (RetCode!=EOSC_DONE)
+    {
+    LogError(tag, 0, "Model not modified");
+    //DeletesFailedCnt++;
+    }
+  else
+    {
+    }
+
+  ON_EXIT("OnModifyNodeM");
   };
 
 //========================================================================
@@ -701,8 +866,8 @@ void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
 //========================================================================
 
 void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR ClassId, 
-                      LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort, 
-                      CPointFList & ControlPoints)//, const CRectangleF & textArea)
+                                LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort, 
+                                CPointFList & ControlPoints)//, const CRectangleF & tagArea)
   {
   double Width=20;
   double Height=20;
@@ -736,26 +901,26 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
   float textBoxY = 0.0;
 
 
-  m_pCLR->DoCreateLink(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, 
-    pSrc?pSrc->Guid():"?", pDst?pDst->Guid():"?", SrcPort, DstPort, ControlPoints,
-    CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
-		0.0);
+  //m_pCLR->DoCreateLink(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, 
+  //  pSrc?pSrc->Guid():"?", pDst?pDst->Guid():"?", SrcPort, DstPort, ControlPoints,
+  //  CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
+  //0.0);
 
   DO_EXIT_G("GCBCreateLink", GuidRet);
   };
 
 //------------------------------------------------------------------------
 
-void CSvcConnect::OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, /*LPCSTR path,*/ 
+void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, /*LPCSTR path,*/ 
                                 LPCSTR ClassId, 
                                 LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                 LPCSTR OriginPort, LPCSTR DestinationPort, 
                                 CPointFList & ControlPoints,
-                                const CRectangleF & textArea, float textAngle)
+                                const CRectangleF & tagArea, float tagAngle)
   {
-// !!! textArea not handled as yet.
+  // !!! tagArea not handled as yet.
 
-  ON_ENTRY_GT("OnCreateLink", Guid, tag);
+  ON_ENTRY_GT("OnCreateLinkG", Guid, tag);
 
   try
     {
@@ -774,32 +939,72 @@ void CSvcConnect::OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR Guid, 
 
     CsGrfGroup * pGrp=CSvcConnect::GetContainingGroup(boundingRect);
 
-    m_Ctrl.SetXObjArray(gs_pTheSFELib);
+    m_Ctrl.ClrXObjArray();
     if (pGrp)
       {
       CString GroupName=pGrp->m_Name;
-      m_Ctrl.AddXObjArray(FindGrfWnd(GroupName));
+      m_Ctrl.SetXObjArray(FindGrfWnd(GroupName));
       }
 
-    int RetCode = gs_Exec.SCInsertLink(m_Ctrl, tag, Guid, /*path,*/ ClassId, 
-                    OriginGuid, DestinationGuid, 
-                    pSrc?pSrc->Tag():"", pDst?pDst->Tag():"",
-                    OriginPort, DestinationPort, 
-                    ControlPoints, textArea, textAngle);
+    int RetCode = gs_Exec.SCInsertLinkG(m_Ctrl, tag, Guid, /*path,*/ ClassId, 
+      OriginGuid, DestinationGuid, 
+      pSrc?pSrc->Tag():"", pDst?pDst->Tag():"",
+      OriginPort, DestinationPort, 
+      ControlPoints, tagArea, tagAngle);
 
     if (RetCode!=EOSC_DONE)
       {
       LogError(NETSERVERNAME, 0, "CreateLink '%s' failed!", tag);
       //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
       }
-   
+
     }
   catch(...)
     {
     LogError(NETSERVERNAME, 0, "Exception in CreateUnit '%s'", tag);
     }
 
-  ON_EXIT_G("OnCreateLink", Guid);
+  ON_EXIT_G("OnCreateLinkG", Guid);
+  };
+
+//------------------------------------------------------------------------
+
+void CSvcConnect::OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, /*LPCSTR path,*/ 
+                                LPCSTR ClassId, 
+                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                LPCSTR OriginPort, LPCSTR DestinationPort)
+  {
+  // !!! tagArea not handled as yet.
+
+  ON_ENTRY_GT("OnCreateLinkM", Guid, tag);
+
+  try
+    {
+
+    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
+    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+
+
+    m_Ctrl.SetXObjArray(gs_pTheSFELib);
+
+    int RetCode = gs_Exec.SCInsertLinkM(m_Ctrl, tag, Guid, /*path,*/ ClassId, 
+      OriginGuid, DestinationGuid, 
+      pSrc?pSrc->Tag():"", pDst?pDst->Tag():"",
+      OriginPort, DestinationPort);
+
+    if (RetCode!=EOSC_DONE)
+      {
+      LogError(NETSERVERNAME, 0, "CreateLink '%s' failed!", tag);
+      //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
+      }
+
+    }
+  catch(...)
+    {
+    LogError(NETSERVERNAME, 0, "Exception in CreateUnit '%s'", tag);
+    }
+
+  ON_EXIT_G("OnCreateLinkM", Guid);
   };
 
 //------------------------------------------------------------------------
@@ -814,7 +1019,7 @@ void CSvcConnect::GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR Tag)
     {
     DO_ENTRY_GT("GCBDeleteLink", Guid(), Tag);
 
-    m_pCLR->DoDeleteLink(m_lRequestIdRet, Guid());
+    //m_pCLR->DoDeleteLink(m_lRequestIdRet, Guid());
 
     DO_EXIT("GCBDeleteLink");
     }
@@ -825,7 +1030,7 @@ void CSvcConnect::GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR Tag)
 
 //------------------------------------------------------------------------
 
-void CSvcConnect::OnDeleteLink(__int64 eventId, __int64 requestId, LPCSTR Guid)
+void CSvcConnect::OnDeleteLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid)
   {
   ON_ENTRY_GT("OnDeleteLink", Guid, "");
 
@@ -837,8 +1042,44 @@ void CSvcConnect::OnDeleteLink(__int64 eventId, __int64 requestId, LPCSTR Guid)
     if (IsLink)
       {
       m_Ctrl.ClrXObjArray();
- 
-      int RetCode = gs_Exec.SCDeleteLink(m_Ctrl, Tag(), Guid);
+
+      int RetCode = gs_Exec.SCDeleteLinkM(m_Ctrl, Tag(), Guid);
+      if (RetCode!=EOSC_DONE)
+        {
+        LogError(Tag(), 0, "Link not deleted");
+        //DeletesFailedCnt++;
+        }
+
+      }
+    else
+      {
+      // Links should be deleted by OnDeleteLink
+      }
+    }
+  else
+    {
+    // ... Error
+    }
+
+  ON_EXIT("OnDeleteLink");
+  };
+
+//------------------------------------------------------------------------
+
+void CSvcConnect::OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid)
+  {
+  ON_ENTRY_GT("OnDeleteLink", Guid, "");
+
+  Strng Tag;
+  flag IsLink;
+  Strng_List Pages;
+  if (gs_pPrj->FindNodeInfoFromGuid((LPSTR)Guid, Tag, IsLink))
+    {
+    if (IsLink)
+      {
+      m_Ctrl.ClrXObjArray();
+
+      int RetCode = gs_Exec.SCDeleteLinkG(m_Ctrl, Tag(), Guid);
       if (RetCode!=EOSC_DONE)
         {
         LogError(Tag(), 0, "Link not deleted");
@@ -865,8 +1106,8 @@ void CSvcConnect::OnDeleteLink(__int64 eventId, __int64 requestId, LPCSTR Guid)
 //------------------------------------------------------------------------
 
 void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, /*LPCSTR ClassId, 
-                                LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort,*/ 
-                                CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
+                                                                                       LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort,*/ 
+                                                                                       CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
   {
 
   Strng Guid;
@@ -890,7 +1131,8 @@ void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCST
       CPointF &Pt=ControlPoints.GetNext(Pos);
       Pt.Set(PageRct.Left()+Pt.X(),PageRct.Top()-Pt.Y());
       }
-    m_pCLR->DoModifyLink(m_lRequestIdRet, Guid(), Tag, "?Path?", pClass, pSrcNd->Guid(), pDstNd->Guid(), pSrcIO, pDstIO, ControlPoints, textArea, textAngle);
+
+    //m_pCLR->DoModifyLink(m_lRequestIdRet, Guid(), Tag, "?Path?", pClass, pSrcNd->Guid(), pDstNd->Guid(), pSrcIO, pDstIO, ControlPoints, tagArea, tagAngle);
 
     DO_EXIT("GCBModifyLinkPts");
     }
@@ -901,13 +1143,13 @@ void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCST
 
 //------------------------------------------------------------------------
 
-void CSvcConnect::OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
-                              LPCSTR ClassId, 
-                              LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                              LPCSTR OriginPort, LPCSTR DestinationPort, 
-                              CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
+void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
+                                LPCSTR ClassId, 
+                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
   {
-  ON_ENTRY_GT("OnModifyLink", LinkGuid, Tag);
+  ON_ENTRY_GT("OnModifyLinkG", LinkGuid, Tag);
 
 
   FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
@@ -924,17 +1166,15 @@ void CSvcConnect::OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR LinkGu
 
   CsGrfGroup * pGrp=CSvcConnect::GetContainingGroup(boundingRect);
 
-  m_Ctrl.SetXObjArray(gs_pTheSFELib);
+  m_Ctrl.ClrXObjArray();
+  //m_Ctrl.SetXObjArray(gs_pTheSFELib);
   if (pGrp)
     {
     CString GroupName=pGrp->m_Name;
-    m_Ctrl.AddXObjArray(FindGrfWnd(GroupName));
+    m_Ctrl.SetXObjArray(FindGrfWnd(GroupName));
     }
 
-  //CString PageName=CSvcConnect::ExtractPageName(path);
-  //m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
-
-  int RetCode = gs_Exec.SCModifyLink(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), OriginPort, DestinationPort, ControlPoints, textArea, textAngle);
+  int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), OriginPort, DestinationPort, ControlPoints, tagArea, tagAngle);
   if (RetCode!=EOSC_DONE)
     {
     LogError(Tag, 0, "Link not modified");
@@ -944,7 +1184,36 @@ void CSvcConnect::OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR LinkGu
     {
     }
 
-  ON_EXIT("OnModifyLink");
+  ON_EXIT("OnModifyLinkG");
+  };
+
+//------------------------------------------------------------------------
+
+void CSvcConnect::OnModifyLinkM(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
+                                LPCSTR ClassId, 
+                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                LPCSTR OriginPort, LPCSTR DestinationPort)
+  {
+  ON_ENTRY_GT("OnModifyLinkM", LinkGuid, Tag);
+
+
+  FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
+  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+
+
+  m_Ctrl.SetXObjArray(gs_pTheSFELib);
+
+  int RetCode = gs_Exec.SCModifyLinkM(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), OriginPort, DestinationPort);
+  if (RetCode!=EOSC_DONE)
+    {
+    LogError(Tag, 0, "Link not modified");
+    //DeletesFailedCnt++;
+    }
+  else
+    {
+    }
+
+  ON_EXIT("OnModifyLinkM");
   };
 
 //========================================================================
@@ -1020,8 +1289,8 @@ CGetExistingItems::CGetExistingItems()
       }
 
     Grp.m_PageRct.Set(PageX, PageY, PageW, PageH);
-    MaxPageW=Max(MaxPageW, PageW);
-    MaxPageH=Max(MaxPageH, PageH);
+    MaxPageW=float(Max(MaxPageW, PageW));
+    MaxPageH=float(Max(MaxPageH, PageH));
     }
 
   Pos=m_Groups.GetHeadPosition();
@@ -1059,7 +1328,7 @@ CGetExistingItems::CGetExistingItems()
     {
     CNodeListItem &I=m_Nodes.GetNext(Pos);
     m_Items.AddTail(new CItem(I.m_sTag, &I));
-        
+
     dbgpln("Item %s", I.m_sTag);
 
     }

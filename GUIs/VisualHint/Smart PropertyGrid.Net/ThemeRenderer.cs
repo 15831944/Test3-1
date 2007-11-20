@@ -726,7 +726,7 @@ namespace Skybound.Windows.Forms
 		/// Inflates or deflates a rectangle based on the margins for the current part.
 		/// </summary>
 		/// <param name="state">The theme state constant for which the margins are defined.</param>
-		/// <param name="rect">The rectangle to adjust.</param>
+		/// <param name="bounds">The rectangle to adjust.</param>
 		/// <param name="margin">One of the <see cref="ThemeMargin"/> constants, which determines the margins to use.</param>
 		/// <returns></returns>
 		public Rectangle AdjustRectangle(int state, Rectangle bounds, ThemeMargin margin)
@@ -2296,7 +2296,7 @@ namespace Skybound.Windows.Forms
 		/// <summary>Does not add padding to the bounding rectangle.</summary>
 		NoPadding = 0x10000000,
 		/// <summary>
-		/// Turns off processing of prefix characters. Typically, the ampersand (&) mnemonic-prefix character is interpreted as a directive to underscore the
+		/// Turns off processing of prefix characters. Typically, the ampersand (&&) mnemonic-prefix character is interpreted as a directive to underscore the
 		/// character that follows, and the double-ampersand (&&) mnemonic-prefix characters as a directive to print a single ampersand. By specifying NoPrefix,
 		/// this processing is turned off.
 		/// </summary>
@@ -2304,7 +2304,7 @@ namespace Skybound.Windows.Forms
 		/// <summary>Removes the center of trimmed lines and replaces it with an ellipsis.</summary>
 		PathEllipsis = 0x4000,
 		/// <summary>
-		/// Applies to Windows 2000 or Windows XP only: Draws only an underline at the position of the character following the ampersand (&) prefix character. Does
+		/// Applies to Windows 2000 or Windows XP only: Draws only an underline at the position of the character following the ampersand (&&) prefix character. Does
 		/// not draw any other characters in the string.
 		/// </summary>
 		PrefixOnly = 0x200000,

@@ -6682,6 +6682,7 @@ void CProject::Export2Scd10()
         //m_pSvc->Save();
         }
       m_pSvc->Export2Scd10(PrjName(), CfgFiles());
+      m_pSvc->Save();
       }
 
 

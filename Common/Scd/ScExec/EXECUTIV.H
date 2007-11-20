@@ -465,29 +465,45 @@ class DllImportExport CExecObj
     virtual int    EO_CanClose(Strng_List & Problems)                   { return EO_CanClose_Yes; };
 
 
-    virtual int    EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+    virtual int    EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                                  float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY)           { return EOSC_NOTFOUND; };
-    virtual int    EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path) { return EOSC_NOTFOUND; };
-    virtual int    EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+    virtual int    EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path) { return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect,                                           
+                                  float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY)           { return EOSC_NOTFOUND; };
 
-    virtual int    EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+    virtual int    EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)      { return EOSC_NOTFOUND; };
+    virtual int    EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)                    { return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)      { return EOSC_NOTFOUND; };
+
+    virtual int    EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                    LPCSTR model, 
                                    LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                    LPCSTR OriginTag, LPCSTR DestinationTag, 
                                    LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                   CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) { return EOSC_NOTFOUND; };
-    virtual int    EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/){ return EOSC_NOTFOUND; };
-    virtual int    EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) { return EOSC_NOTFOUND; };               
+    virtual int    EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/){ return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                    LPCSTR model, 
                                    LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                    LPCSTR OriginTag, LPCSTR DestinationTag, 
                                    LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                   CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) { return EOSC_NOTFOUND; };
+                                   CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) { return EOSC_NOTFOUND; };
+
+    virtual int    EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   LPCSTR model, 
+                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                   LPCSTR OriginPort, LPCSTR DestinationPort) { return EOSC_NOTFOUND; };               
+    virtual int    EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/){ return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   LPCSTR model, 
+                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                   LPCSTR OriginPort, LPCSTR DestinationPort) { return EOSC_NOTFOUND; };
 
     virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route)           { return False; };
 
@@ -1047,29 +1063,44 @@ class DllImportExport CExecutive : public ConditionBlk
 #else
     int            CheckAllTags(flag NewNumStartingBad, flag Prompt=1, flag ForceTest=0);
 #endif
-    int            SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+    int            SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                               float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                                bool mirrorX, bool mirrorY);
-    int            SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
-    int            SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+    int            SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
+    int            SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                               float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                                bool mirrorX, bool mirrorY);
+    int            SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model);
+    int            SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid);
+    int            SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model);
 
-    int            SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+
+    int            SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                 LPCSTR model, 
                                 LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                 LPCSTR OriginTag, LPCSTR DestinationTag, 
                                 LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle);
-    int            SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
-    int            SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle);
+    int            SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
+    int            SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                 LPCSTR model, 
                                 LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                 LPCSTR OriginTag, LPCSTR DestinationTag, 
                                 LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle);
+                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle);
+    int            SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                LPCSTR model, 
+                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                LPCSTR OriginPort, LPCSTR DestinationPort);
+    int            SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
+    int            SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                LPCSTR model, 
+                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                LPCSTR OriginPort, LPCSTR DestinationPort);
 
     void           ClearThread() { LockExec();  pExecThread=NULL; UnlockExec(); };
     DWORD          ExecThreadId() { return pExecThread->m_nThreadID; };

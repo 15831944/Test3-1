@@ -68,6 +68,7 @@ const LPTSTR TagAttribStr         = "Tag";
 const LPTSTR AssocTagAttribStr    = "AssocTag";
 const LPTSTR HideInsertAttribStr  = "HideInsert";
 const LPTSTR ValuesAttribStr      = "Values";
+const LPTSTR GuidAttribStr        = "Guid";
 
 extern bool EntityIsHidden(DXF_ENTITY e);
 
@@ -402,6 +403,7 @@ class CGrfTagInfo
     Strng m_sSymbol;
     Strng m_sClass;
     Strng m_sDrwGroup;
+    Strng m_sGuid;
     flag m_bValid;
     flag m_bHasTag;
     struct CSymbol{

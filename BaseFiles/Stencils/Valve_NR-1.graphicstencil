@@ -4,12 +4,12 @@
 <tag xsi:null="1"/>
 <elements href="#ref-4"/>
 <decorations href="#ref-5"/>
-<textArea>
+<tagArea>
 <x>0</x>
 <y>8</y>
 <width>10</width>
 <height>3</height>
-</textArea>
+</tagArea>
 <fillMode>Alternate</fillMode>
 <defaultSize>
 <width>10</width>

@@ -2166,7 +2166,7 @@ void GrfCmdBlk::DoInsert()
             if (gs_pPrj->SvcActive)
               {
               SCD10ENTER;
-              gs_pPrj->Svc.GCBCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
+              gs_pPrj->Svc.GCBCreateNode((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
               SCD10LEAVE;
               }
             else
@@ -6019,7 +6019,7 @@ void GrfCmdBlk::DoMoveEntity()
                   if (pTag)
                     {
                     SCD10ENTER;
-                    gs_pPrj->Svc.GCBModifyItemPosition((CGrfDoc*)pDoc, Like, pTag, Delta);
+                    gs_pPrj->Svc.GCBModifyNodePosition((CGrfDoc*)pDoc, Like, pTag, Delta);
                     SCD10LEAVE;
                     }
                   }
@@ -7810,7 +7810,7 @@ void GrfCmdBlk::DoDelete()
                 if (InsName && strstr(InsName, "LNKBLK"))
                   gs_pPrj->Svc.GCBDeleteLink(e, pTag);
                 else
-                  gs_pPrj->Svc.GCBDeleteItem(e, pTag);
+                  gs_pPrj->Svc.GCBDeleteNode(e, pTag);
                 SCD10LEAVE;
                 }
               }

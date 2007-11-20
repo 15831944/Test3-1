@@ -10,12 +10,12 @@
 <decorations href="#ref-5"/>
 <elements href="#ref-6"/>
 <tag xsi:null="1"/>
-<textArea>
+<tagArea>
 <x>0</x>
 <y>9.5</y>
 <width>6</width>
 <height>3</height>
-</textArea>
+</tagArea>
 </a1:GraphicStencil>
 <a4:ArrayList id="ref-5" xmlns:a4="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-7"/>

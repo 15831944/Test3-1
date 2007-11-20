@@ -96,28 +96,6 @@ namespace SysCAD.Editor
       this.tagLabel.TabIndex = 0;
       this.tagLabel.Text = "Linked Item:";
       // 
-      // tagListBox
-      // 
-      this.tagListBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tagListBox.FormattingEnabled = true;
-      this.tagListBox.Location = new System.Drawing.Point(75, 3);
-      this.tagListBox.Name = "tagListBox";
-      this.tagListBox.Size = new System.Drawing.Size(287, 199);
-      this.tagListBox.Sorted = true;
-      this.tagListBox.TabIndex = 1;
-      this.tagListBox.SelectedIndexChanged += new System.EventHandler(this.tagListBox_SelectedIndexChanged);
-      // 
-      // annotationListBox
-      // 
-      this.annotationListBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.annotationListBox.Enabled = false;
-      this.annotationListBox.FormattingEnabled = true;
-      this.annotationListBox.Location = new System.Drawing.Point(75, 208);
-      this.annotationListBox.Name = "annotationListBox";
-      this.annotationListBox.Size = new System.Drawing.Size(287, 199);
-      this.annotationListBox.TabIndex = 3;
-      this.annotationListBox.SelectedIndexChanged += new System.EventHandler(this.annotationListBox_SelectedIndexChanged);
-      // 
       // tableLayoutPanel2
       // 
       this.tableLayoutPanel2.ColumnCount = 2;

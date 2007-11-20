@@ -78,7 +78,7 @@
     <Compile Include="GraphicStencilChangeForm.Designer.cs">
       <DependentUpon>GraphicStencilChangeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Group.cs" />
+    <Compile Include="EditorGroup.cs" />
     <Compile Include="InsertAnnotationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,8 +90,8 @@
     </Compile>
     <Compile Include="PropertyGraphicStencilFeel.cs" />
     <Compile Include="Thing.cs" />
-    <Compile Include="Item.cs" />
-    <Compile Include="Link.cs" />
+    <Compile Include="EditorNode.cs" />
+    <Compile Include="EditorLink.cs" />
     <Compile Include="State.cs" />
     <Compile Include="FlowChart.cs">
       <SubType>Form</SubType>
@@ -104,12 +104,6 @@
     </Compile>
     <Compile Include="EditorForm.Designer.cs">
       <DependentUpon>EditorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="OpenProjectForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="OpenProjectForm.designer.cs">
-      <DependentUpon>OpenProjectForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -128,10 +122,6 @@
     <EmbeddedResource Include="InsertAnnotationDialog.resx">
       <SubType>Designer</SubType>
       <DependentUpon>InsertAnnotationDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OpenProjectForm.resx">
-      <DependentUpon>OpenProjectForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\licenses.licx" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -160,13 +150,25 @@
     <Content Include="Logo32.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\AttachProject\AttachProject.csproj">
+      <Project>{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}</Project>
+      <Name>AttachProject</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Common\LogView\71.Log.csproj">
       <Project>{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}</Project>
       <Name>71.Log</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Common\Start\Start.csproj">
+      <Project>{41259FBA-4939-495B-BDF8-7B75F3B7DB98}</Project>
+      <Name>Start</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Protocol\70.Protocol.csproj">
       <Project>{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}</Project>
       <Name>70.Protocol</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Service\72.Service.csproj">
+      <Project>{317F8980-564D-423D-945F-D7A9F4A8043D}</Project>
+      <Name>72.Service</Name>
     </ProjectReference>
     <ProjectReference Include="..\FlowChart.NET\FlowChart.NET.csproj">
       <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
@@ -189,10 +191,6 @@
     <ProjectReference Include="..\VisualHint\Smart PropertyGrid.Net\SmartPropertyGrid.csproj">
       <Project>{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}</Project>
       <Name>SmartPropertyGrid</Name>
-    </ProjectReference>
-    <ProjectReference Include="Start\Start.csproj">
-      <Project>{41259FBA-4939-495B-BDF8-7B75F3B7DB98}</Project>
-      <Name>Start</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

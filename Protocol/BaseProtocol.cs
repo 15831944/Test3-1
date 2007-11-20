@@ -21,11 +21,8 @@ namespace SysCAD.Protocol
   [Serializable]
   abstract public class BaseProtocol : MarshalByRefObject
   {
-    public Dictionary<Guid, GraphicGroup> graphicGroups;
-
-    public Dictionary<Guid, GraphicItem> graphicItems;
-    public Dictionary<Guid, GraphicLink> graphicLinks;
-    public Dictionary<Guid, GraphicThing> graphicThings;
+    public Graphic graphic;
+    public Model model;
 
     private String name;
 

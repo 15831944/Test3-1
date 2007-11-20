@@ -395,9 +395,9 @@ int CGrfWnd::EO_DeleteTag(pchar pDelTag)
 
 //---------------------------------------------------------------------------
 
-int CGrfWnd::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                            float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY) 
   {
 #if SYSCAD10         
@@ -443,7 +443,7 @@ int CGrfWnd::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   return EOSC_DONE;
   };
 
-int CGrfWnd::EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
+int CGrfWnd::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
   {
   int RetCode = EOSC_NOTFOUND;
 
@@ -471,9 +471,9 @@ int CGrfWnd::EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   return RetCode;
   };
 
-int CGrfWnd::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int CGrfWnd::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                            float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   { 
 #if SYSCAD10         
@@ -573,12 +573,12 @@ int CGrfWnd::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
 
 //---------------------------------------------------------------------------
 
-int CGrfWnd::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
-                               CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
+                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
   {
 #if SYSCAD10         
   if (gs_pPrj->SvcActive)
@@ -622,7 +622,7 @@ int CGrfWnd::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
   return EOSC_DONE;
   };
 
-int CGrfWnd::EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
+int CGrfWnd::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
   {
   int RetCode = EOSC_NOTFOUND;
 
@@ -650,12 +650,12 @@ int CGrfWnd::EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
   return RetCode;
   };
 
-int CGrfWnd::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+int CGrfWnd::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
-                               CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
+                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
   {
 #if SYSCAD10         
   if (gs_pPrj->SvcActive)

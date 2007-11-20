@@ -57,7 +57,7 @@ namespace SysCAD.Editor
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewZoomToVisibleBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ZoomToVisible", "Zoom To Visible", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand viewZoomToSelectedBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("View", "ZoomToSelected", "Zoom To Selected", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand fileNewBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "New", "&New...", -1);
-      ActiproSoftware.UIStudio.Bar.BarButtonCommand fileOpenBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "Open", "&Open...", -1);
+      ActiproSoftware.UIStudio.Bar.BarButtonCommand fileOpenBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "Open", "Attach...", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand fileCloseBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "Close", "&Close", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand fileSaveBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "Save", "&Save", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand fileSaveAsBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("File", "SaveAs", "Save &As...", -1);

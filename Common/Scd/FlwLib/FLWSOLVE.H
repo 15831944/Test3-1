@@ -609,29 +609,43 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     int            EO_DeleteTagDone(pchar pDelTag);
     int            EO_CanClose(Strng_List & Problems);
 
-    int            EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+    int            EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                                  float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY);
-    int            EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
-    int            EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+    int            EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
+    int            EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                                  float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY);
+    int            EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model);
+    int            EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid);
+    int            EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model);
 
-    int            EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+    int            EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                    LPCSTR model, 
                                    LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                    LPCSTR OriginTag, LPCSTR DestinationTag, 
                                    LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                   CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) ;
-    int            EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
-    int            EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) ;
+    int            EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
+    int            EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                    LPCSTR model, 
                                    LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                    LPCSTR OriginTag, LPCSTR DestinationTag, 
                                    LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                   CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) ;
+                                   CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) ;
+    int            EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   LPCSTR model, 
+                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                   LPCSTR OriginPort, LPCSTR DestinationPort) ;
+    int            EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
+    int            EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   LPCSTR model, 
+                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                   LPCSTR OriginPort, LPCSTR DestinationPort) ;
 
     int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
 

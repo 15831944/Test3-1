@@ -22,7 +22,6 @@ namespace SysCAD.Protocol
 
     private SizeF defaultSize = new SizeF(10.0F, 10.0F);
 
-    private Model model;
     private String tag;
 
     private String xaml;
@@ -39,12 +38,6 @@ namespace SysCAD.Protocol
     public SizeF DefaultSize
     {
       get { return defaultSize; }
-    }
-
-    public Model Model
-    {
-      get { return model; }
-      set { model = value; }
     }
 
     public String Tag

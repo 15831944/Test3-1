@@ -5,7 +5,6 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Xml.Serialization;
 
-//using MindFusion.FlowChartX;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
@@ -20,11 +19,8 @@ namespace SysCAD.Protocol
   public class ThingStencil
   {
 
-    private SizeF defaultSize = new SizeF(10.0F, 10.0F);
-
-    private Model model;
     private String tag;
-
+    private Size defaultSize = new Size(10.0, 10.0);
     private String xaml;
 
     public ThingStencil()
@@ -36,15 +32,9 @@ namespace SysCAD.Protocol
       return tag;
     }
 
-    public SizeF DefaultSize
+    public Size DefaultSize
     {
       get { return defaultSize; }
-    }
-
-    public Model Model
-    {
-      get { return model; }
-      set { model = value; }
     }
 
     public String Tag
@@ -58,6 +48,5 @@ namespace SysCAD.Protocol
       get { return xaml; }
       set { xaml = value; }
     }
-
   }
 }

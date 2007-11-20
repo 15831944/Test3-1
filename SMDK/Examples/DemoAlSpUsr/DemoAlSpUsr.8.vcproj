@@ -337,6 +337,7 @@
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
 				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
+				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration

@@ -96,24 +96,14 @@ namespace SysCAD.Protocol
       BinaryFormatter bf = new BinaryFormatter();
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, serviceGraphic.graphicGroups);
+      bf.Serialize(memoryStream, serviceGraphic.graphic);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      graphicGroups = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicGroup>;
+      graphic = bf.Deserialize(memoryStream) as Graphic;
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, serviceGraphic.graphicLinks);
+      bf.Serialize(memoryStream, serviceGraphic.model);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      graphicLinks = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicLink>;
-
-      memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, serviceGraphic.graphicItems);
-      memoryStream.Seek(0, SeekOrigin.Begin);
-      graphicItems = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicItem>;
-
-      memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, serviceGraphic.graphicThings);
-      memoryStream.Seek(0, SeekOrigin.Begin);
-      graphicThings = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicThing>;
+      model = bf.Deserialize(memoryStream) as Model;
     }
 
     public bool TestUrl(Uri url)

@@ -37,17 +37,14 @@ namespace SysCAD.Protocol
     private RenounceHandler renounceHandler;
 
     public EngineServiceProtocol(String name,
-      Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
+      Graphic graphic, Model model,
       LogMessageHandler logMessageHandler, StateChangedHandler stateChangedHandler, RequestPortInfoHandler requestPortInfoHandler,
       AnnounceHandler announceHandler, RenounceHandler renounceHandler)
     {
       this.Name = name;
 
-      this.graphicGroups = graphicGroups;
-
-      this.graphicLinks = graphicLinks;
-      this.graphicItems = graphicItems;
-      this.graphicThings = graphicThings;
+      this.graphic = graphic;
+      this.model = model;
 
       this.logMessageHandler = logMessageHandler;
       this.stateChangedHandler = stateChangedHandler;

@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "70.Protocol", "Protocol\70.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowChart.NET", "GUIs\FlowChart.NET\FlowChart.NET.csproj", "{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddProject", "Common\AddProject\AddProject.csproj", "{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Start", "Common\Start\Start.csproj", "{41259FBA-4939-495B-BDF8-7B75F3B7DB98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +80,34 @@ Global
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Trial Release|Any CPU.Build.0 = Trial Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Vertigo|Any CPU.ActiveCfg = Vertigo|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Vertigo|Any CPU.Build.0 = Vertigo|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Distribution|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Distribution|Any CPU.Build.0 = Debug|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Release Marshal|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Release Marshal|Any CPU.Build.0 = Release|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Standard|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Standard|Any CPU.Build.0 = Release|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Trial Release|Any CPU.Build.0 = Release|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Vertigo|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}.Vertigo|Any CPU.Build.0 = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Distribution|Any CPU.ActiveCfg = Debug|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Distribution|Any CPU.Build.0 = Debug|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Release Marshal|Any CPU.ActiveCfg = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Release Marshal|Any CPU.Build.0 = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Standard|Any CPU.ActiveCfg = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Standard|Any CPU.Build.0 = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Trial Release|Any CPU.Build.0 = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Vertigo|Any CPU.ActiveCfg = Release|Any CPU
+		{41259FBA-4939-495B-BDF8-7B75F3B7DB98}.Vertigo|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -190,6 +190,11 @@ namespace SysCAD.Protocol
       return false;
     }
 
+    public override int GetHashCode()
+    {
+      return base.GetHashCode() * x.GetHashCode() * y.GetHashCode();
+    }
+
     //
     // Summary:
     //     Translates a SysCAD.Protocol.Point by the negative of a specified size.

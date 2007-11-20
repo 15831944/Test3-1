@@ -847,7 +847,7 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrf
 
 //----------------------------------------------------------------------------
 
-void PopulateTagInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag, CGrfTagInfo & GTI, DML_LIST &style)
+void PopulateTagInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag, DXF_ENTITY guid, CGrfTagInfo & GTI, DML_LIST &style)
   {
   GTI.m_sSymbol = DXF_INSERT_BLOCK_GET(insert);
   GTI.m_Node.m_X = DXF_INSERT_PT(insert)[0];
@@ -917,6 +917,11 @@ void PopulateTagInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag, 
     GTI.m_Tag.m_Rotation = DXF_ATTRIB_ROT_ANG(tag);
     GTI.m_Tag.m_Visible = (DXF_ATTRIB_AFLAGS(tag)&DXF_ATTRIB_INVIS)==0;
     }
+
+  if (guid)
+    {
+    GTI.m_sGuid = DXF_ATTRIB_VALUE_GET(guid);
+    }
   }
 
 //----------------------------------------------------------------------------
@@ -930,10 +935,17 @@ void CGrfLayer::CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagI
     char* pv = Find_Attr_Value(e, TagAttribStr);
     if (pv || AllInserts)
       {
+      char* pg = Find_Attr_Value(e, GuidAttribStr);
+      if (!pg)
+        {
+        Attr_Settings AGuid(50,DXF_ATTRIB_INVIS,1.0,1.0,0.0,GR_DARKGRAY,Text_Left ,Text_Baseline,"STANDARD");
+        PT3 Xyz={0,0,0};
+        pDrawing->Add_Insert_Attrib(e, GuidAttribStr, (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), Xyz, AGuid);
+        }
       CGrfTagInfo GTI;
       GTI.m_sTag = pv ? pv:"NULL";
       GTI.m_bHasTag = pv!=NULL;
-      PopulateTagInfo(pDrawing, e, Find_Attr(e, TagAttribStr), GTI, Drawing->StyleLst);
+      PopulateTagInfo(pDrawing, e, Find_Attr(e, TagAttribStr), Find_Attr(e, GuidAttribStr), GTI, Drawing->StyleLst);
       GTIA.Add(GTI);
       }
     }
@@ -3084,11 +3096,14 @@ DXF_ENTITY LayerCollection::Create_Insert(pchar Typ, Pt_3f Pt_,int Color, Pt_3f 
       if( TagValue)
         {
         DXF_ENTITY t = Add_Insert_Attrib(Insert, TagAttribStr, TagValue, Ptt, Set);
+        Attr_Settings AGuid(50,DXF_ATTRIB_INVIS,1.0,1.0,0.0,GR_DARKGRAY,Text_Left ,Text_Baseline,"STANDARD");
+        Add_Insert_Attrib(Insert, GuidAttribStr, (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), Ptt, AGuid);
         }
       if( AssocTagValue)
         {
         DXF_ENTITY a = Add_Insert_Attrib(Insert, AssocTagAttribStr, AssocTagValue, Ptt, Set);
         }
+
       //      20, 1.5, ptt, 0.0,
       //                                       (Show ? 0 : Attrib_InVisible), ColorTag, Text_Cntrd);
       dml_append_data(l->InsertLst, Insert);
@@ -8952,6 +8967,9 @@ DXF_ENTITY DXF_Drawing::Add_Unit(pViewport vp, Pt_3f &CTagPt, flag CTagPtOK, pch
     CTagPt=bpos;
 
   Add_Insert_Attrib(ins,TagAttribStr,       Tag          ,CTagPt.p(), AttrVis);
+
+  Attr_Settings AGuid(50,DXF_ATTRIB_INVIS,1.0,1.0,0.0,GR_DARKGRAY,Text_Left ,Text_Baseline,"STANDARD");
+  Add_Insert_Attrib(ins, GuidAttribStr, (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), CTagPt.p(), AGuid);
   //bpos.Set(CTagPt.x(),CTagPt.y()-4.0,CTagPt.z());
   //Add_Insert_Attrib(ins,"EQUIP_ID",  equip_name   ,CTagPt.p(), AttrInVis);
   //CTagPt.Set(CTagPt.x(),CTagPt.y()-4.0,CTagPt.z());
@@ -9216,6 +9234,8 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount,
     Add_Insert_Attrib(InsSym,TagAttribStr,        (LPSTR)TagStr,        AssTagPos.p(), Atag);
     Add_Insert_Attrib(InsSym,AssocTagAttribStr,  (LPSTR)NdTagStr,      AssTagPos.p(), Atag);
 
+    Attr_Settings AGuid(50,DXF_ATTRIB_INVIS,1.0,1.0,0.0,GR_DARKGRAY,Text_Left ,Text_Baseline,"STANDARD");
+    Add_Insert_Attrib(InsSym, GuidAttribStr, (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), AssTagPos.p(), AGuid);
     
     }
   return InsSym;

@@ -16,9 +16,9 @@ namespace SysCAD.Editor
   internal partial class InsertAnnotationDialog : Form
   {
 
-    private float defaultHeight;
+    private double defaultHeight;
 
-    private float defaultWidth;
+    private double defaultWidth;
 
     private State state;
 
@@ -31,7 +31,7 @@ namespace SysCAD.Editor
 
       InitializeComponent();
 
-      foreach (Item item in state.Items)
+      foreach (EditorNode item in state.Items)
       {
         tagListBox.Items.Add(item);
       }
@@ -41,7 +41,7 @@ namespace SysCAD.Editor
     {
       ThingStencil thingStencil = annotationListBox.SelectedItem as ThingStencil;
       thingXaml = thingStencil.Xaml;
-      thingXaml = Regex.Replace(thingXaml, @"\[\[TAG\]\]", (tagListBox.SelectedItem as Item).Tag);
+      thingXaml = Regex.Replace(thingXaml, @"\[\[TAG\]\]", (tagListBox.SelectedItem as EditorNode).Tag);
 
       defaultWidth = thingStencil.DefaultSize.Width;
       defaultHeight = thingStencil.DefaultSize.Height;
@@ -49,32 +49,13 @@ namespace SysCAD.Editor
       okButton.Enabled = true;
     }
 
-    private void tagListBox_SelectedIndexChanged(object sender, EventArgs e)
-    {
-      okButton.Enabled = false;
-
-      String model = (tagListBox.SelectedItem as Item).GraphicItem.Model;
-
-      annotationListBox.Items.Clear();
-
-      foreach (ThingStencil thingStencil in state.Config.ThingStencils.Values)
-      {
-
-        if (thingStencil.Model == model)
-        {
-          annotationListBox.Items.Add(thingStencil);
-          annotationListBox.Enabled = true;
-        }
-      }
-    }
-
-    public float DefaultHeight
+    public double DefaultHeight
     {
       get { return defaultHeight; }
       set { defaultHeight = value; }
     }
 
-    public float DefaultWidth
+    public double DefaultWidth
     {
       get { return defaultWidth; }
       set { defaultWidth = value; }

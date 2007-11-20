@@ -18,6 +18,7 @@ namespace MindFusion.FlowChartX
         public override License GetLicense(LicenseContext context, 
             Type type, object instance, bool allowExceptions)
 		{
+      return new RegLicense(this, type);
             if (context.UsageMode == LicenseUsageMode.Designtime)
 			{
 				RegistryKey licenseKey = Registry.LocalMachine.

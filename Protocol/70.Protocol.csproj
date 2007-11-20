@@ -73,23 +73,27 @@
     <Compile Include="ClientServiceProtocol.cs" />
     <Compile Include="EngineProtocol.cs" />
     <Compile Include="EngineServiceProtocol.cs" />
+    <Compile Include="Graphic.cs" />
     <Compile Include="GraphicGroup.cs" />
-    <Compile Include="GraphicStencil1.cs" />
+    <Compile Include="GraphicItem.cs" />
     <Compile Include="GraphicThing.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="GraphicItem.cs" />
+    <Compile Include="GraphicNode.cs" />
     <Compile Include="GraphicStencil.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Item.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="GraphicLink.cs" />
+    <Compile Include="LinkClass.cs" />
     <Compile Include="Model.cs" />
+    <Compile Include="NodeClass.cs" />
     <Compile Include="ModelItem.cs" />
     <Compile Include="ModelLink.cs" />
+    <Compile Include="ModelNode.cs" />
     <Compile Include="ModelStencil.cs" />
     <Compile Include="Rectangle.cs" />
-    <Compile Include="ModelStencil1.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="PortStatus.cs" />
     <Compile Include="ModelProperty.cs" />

@@ -7,8 +7,8 @@
     <ProjectGuid>{317F8980-564D-423D-945F-D7A9F4A8043D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Service</RootNamespace>
-    <AssemblyName>Service</AssemblyName>
+    <RootNamespace>SysCAD.Service</RootNamespace>
+    <AssemblyName>SysCAD.Service</AssemblyName>
     <TargetZone>LocalIntranet</TargetZone>
     <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
@@ -40,6 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Project.cs">
+    </Compile>
+    <Compile Include="Properties\Service.Designer.cs">
+      <DependentUpon>Service.settings</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
     <Compile Include="ServiceTemporaryWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -48,6 +55,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Properties\licenses.licx" />
     <EmbeddedResource Include="ServiceTemporaryWindow.resx">
       <SubType>Designer</SubType>
       <DependentUpon>ServiceTemporaryWindow.cs</DependentUpon>
@@ -62,21 +70,24 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <BaseApplicationManifest Include="Properties\app.manifest" />
-    <None Include="Properties\Settings.settings">
+    <None Include="app.config" />
+    <None Include="Properties\Service.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <LastGenOutput>Service.Designer.cs</LastGenOutput>
     </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\AddProject\AddProject.csproj">
+      <Project>{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}</Project>
+      <Name>AddProject</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common\LogView\71.Log.csproj">
       <Project>{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}</Project>
       <Name>71.Log</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Start\Start.csproj">
+      <Project>{41259FBA-4939-495B-BDF8-7B75F3B7DB98}</Project>
+      <Name>Start</Name>
     </ProjectReference>
     <ProjectReference Include="..\GUIs\FlowChart.NET\FlowChart.NET.csproj">
       <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>

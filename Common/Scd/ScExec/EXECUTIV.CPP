@@ -1832,9 +1832,9 @@ int CExecutive::DeleteTag(pchar pDelTag)
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int CExecutive::SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                            float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   {
   int Ret = EOSC_DONE;
@@ -1844,7 +1844,7 @@ int CExecutive::SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCInsertItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
+    int e=O[OInx]->EO_SCInsertNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, Colour, mirrorX, mirrorY);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCItem insert failure in %s", O[OInx]->Name());
@@ -1856,7 +1856,7 @@ int CExecutive::SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)     
+int CExecutive::SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)     
   {
   int Ret = EOSC_DONE;
 
@@ -1865,7 +1865,7 @@ int CExecutive::SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e = O[OInx]->EO_SCDeleteItem(Ctrl, pTag, ItemGuid, path);
+    int e = O[OInx]->EO_SCDeleteNodeG(Ctrl, pTag, ItemGuid, path);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCItem delete failure in %s", O[OInx]->Name());
@@ -1877,9 +1877,9 @@ int CExecutive::SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int CExecutive::SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                            float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   {
   int Ret = EOSC_DONE;
@@ -1889,7 +1889,7 @@ int CExecutive::SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCModifyItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
+    int e=O[OInx]->EO_SCModifyNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, Colour, mirrorX, mirrorY);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCItem modify failure in %s", O[OInx]->Name());
@@ -1901,12 +1901,7 @@ int CExecutive::SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
-                             LPCSTR model, 
-                             LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                             LPCSTR OriginTag, LPCSTR DestinationTag, 
-                             LPCSTR OriginPort, LPCSTR DestinationPort, 
-                             CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
+int CExecutive::SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)     
   {
   int Ret = EOSC_DONE;
 
@@ -1915,7 +1910,75 @@ int CExecutive::SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCInsertLink(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort, ControlPoints, textArea, textAngle);
+    int e=O[OInx]->EO_SCInsertNodeM(Ctrl, pTag, ItemGuid, model);
+    if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
+      {
+      LogError(pTag, 0, "SCItem insert failure in %s", O[OInx]->Name());
+      Ret = EOSC_FAILED;
+      }
+    }
+  return Ret; 
+  };
+
+//---------------------------------------------------------------------------
+
+int CExecutive::SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)     
+  {
+  int Ret = EOSC_DONE;
+
+  CExecObjArray & O = Ctrl.m_Objs.GetCount()>0 ? Ctrl.m_Objs : Objs_Reg;
+
+  const int Size = O.GetSize();
+  for (int OInx=0; OInx<Size; OInx++)
+    {
+    int e = O[OInx]->EO_SCDeleteNodeM(Ctrl, pTag, ItemGuid);
+    if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
+      {
+      LogError(pTag, 0, "SCItem delete failure in %s", O[OInx]->Name());
+      Ret = EOSC_FAILED;
+      }
+    }
+  return Ret; 
+  };
+
+//---------------------------------------------------------------------------
+
+int CExecutive::SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)     
+  {
+  int Ret = EOSC_DONE;
+
+  CExecObjArray & O = Ctrl.m_Objs.GetCount()>0 ? Ctrl.m_Objs : Objs_Reg;
+
+  const int Size = O.GetSize();
+  for (int OInx=0; OInx<Size; OInx++)
+    {
+    int e=O[OInx]->EO_SCModifyNodeM(Ctrl, pTag, ItemGuid, model);
+    if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
+      {
+      LogError(pTag, 0, "SCItem modify failure in %s", O[OInx]->Name());
+      Ret = EOSC_FAILED;
+      }
+    }
+  return Ret; 
+  };
+
+//---------------------------------------------------------------------------
+
+int CExecutive::SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                             LPCSTR model, 
+                             LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                             LPCSTR OriginTag, LPCSTR DestinationTag, 
+                             LPCSTR OriginPort, LPCSTR DestinationPort, 
+                             CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
+  {
+  int Ret = EOSC_DONE;
+
+  CExecObjArray & O = Ctrl.m_Objs.GetCount()>0 ? Ctrl.m_Objs : Objs_Reg;
+
+  const int Size = O.GetSize();
+  for (int OInx=0; OInx<Size; OInx++)
+    {
+    int e=O[OInx]->EO_SCInsertLinkG(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort, ControlPoints, tagArea, tagAngle);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCLink insert failure in %s", O[OInx]->Name());
@@ -1927,7 +1990,7 @@ int CExecutive::SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid/*, LPCSTR path*/)     
+int CExecutive::SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid/*, LPCSTR path*/)     
   {
   int Ret = EOSC_DONE;
 
@@ -1936,7 +1999,7 @@ int CExecutive::SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid/*
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e = O[OInx]->EO_SCDeleteLink(Ctrl, pTag, LinkGuid/*, path*/);
+    int e = O[OInx]->EO_SCDeleteLinkG(Ctrl, pTag, LinkGuid/*, path*/);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCLink delete failure in %s", O[OInx]->Name());
@@ -1948,12 +2011,12 @@ int CExecutive::SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid/*
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+int CExecutive::SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                              LPCSTR model, 
                              LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                              LPCSTR OriginTag, LPCSTR DestinationTag, 
                              LPCSTR OriginPort, LPCSTR DestinationPort, 
-                             CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
+                             CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
   {
   int Ret = EOSC_DONE;
 
@@ -1962,7 +2025,79 @@ int CExecutive::SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCModifyLink(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort, ControlPoints, textArea, textAngle);
+    int e=O[OInx]->EO_SCModifyLinkG(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort, ControlPoints, tagArea, tagAngle);
+    if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
+      {
+      LogError(pTag, 0, "SCLink modify failure in %s", O[OInx]->Name());
+      Ret = EOSC_FAILED;
+      }
+    }
+  return Ret; 
+  };
+
+
+//---------------------------------------------------------------------------
+
+int CExecutive::SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                             LPCSTR model, 
+                             LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                             LPCSTR OriginTag, LPCSTR DestinationTag, 
+                             LPCSTR OriginPort, LPCSTR DestinationPort)
+  {
+  int Ret = EOSC_DONE;
+
+  CExecObjArray & O = Ctrl.m_Objs.GetCount()>0 ? Ctrl.m_Objs : Objs_Reg;
+
+  const int Size = O.GetSize();
+  for (int OInx=0; OInx<Size; OInx++)
+    {
+    int e=O[OInx]->EO_SCInsertLinkM(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort);
+    if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
+      {
+      LogError(pTag, 0, "SCLink insert failure in %s", O[OInx]->Name());
+      Ret = EOSC_FAILED;
+      }
+    }
+  return Ret; 
+  };
+
+//---------------------------------------------------------------------------
+
+int CExecutive::SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid/*, LPCSTR path*/)     
+  {
+  int Ret = EOSC_DONE;
+
+  CExecObjArray & O = Ctrl.m_Objs.GetCount()>0 ? Ctrl.m_Objs : Objs_Reg;
+
+  const int Size = O.GetSize();
+  for (int OInx=0; OInx<Size; OInx++)
+    {
+    int e = O[OInx]->EO_SCDeleteLinkM(Ctrl, pTag, LinkGuid/*, path*/);
+    if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
+      {
+      LogError(pTag, 0, "SCLink delete failure in %s", O[OInx]->Name());
+      Ret = EOSC_FAILED;
+      }
+    }
+  return Ret; 
+  };
+
+//---------------------------------------------------------------------------
+
+int CExecutive::SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                             LPCSTR model, 
+                             LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                             LPCSTR OriginTag, LPCSTR DestinationTag, 
+                             LPCSTR OriginPort, LPCSTR DestinationPort)
+  {
+  int Ret = EOSC_DONE;
+
+  CExecObjArray & O = Ctrl.m_Objs.GetCount()>0 ? Ctrl.m_Objs : Objs_Reg;
+
+  const int Size = O.GetSize();
+  for (int OInx=0; OInx<Size; OInx++)
+    {
+    int e=O[OInx]->EO_SCModifyLinkM(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCLink modify failure in %s", O[OInx]->Name());

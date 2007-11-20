@@ -11,33 +11,45 @@ using SysCAD.Protocol;
 
 //using System.Security.Permissions;
 
-namespace SysCAD.Editor
+namespace SysCAD
 {
 
-  internal partial class OpenProjectForm : Form
+  public partial class AttachProjectForm : Form
   {
 
     private ClientProtocol clientProtocol = new ClientProtocol();
 
     private Config config = new Config();
 
-    public OpenProjectForm()
+    public AttachProjectForm()
     {
       InitializeComponent();
 
       if (config.TestUrl(new System.Uri(repositoryURLTextBox.Text + "Global")))
       {
-        config.GetProjectList();
-        projectListBox.Items.Clear();
+        RefreshProjectList();
+      }
+    }
 
-        foreach (String projectString in config.ProjectList)
-        {
-          projectListBox.Items.Add(projectString);
-        }
+    private void RefreshProjectList()
+    {
+      addButton.Enabled = true;
+      config.Syncxxx();
+      config.GetProjectList();
+      projectListBox.Items.Clear();
 
-        projectListBox.Enabled = true;
+      foreach (String projectString in config.ProjectList)
+      {
+        projectListBox.Items.Add(projectString);
+      }
+
+      projectListBox.Enabled = true;
+      if (projectListBox.Items.Count > 0)
+      {
         projectListBox.SelectedIndex = 0;
       }
+
+      projectListBox.Enabled = true;
     }
 
     private void listProjectsButton_Click(object sender, EventArgs e)
@@ -45,27 +57,19 @@ namespace SysCAD.Editor
 
       if (config.TestUrl(new System.Uri(repositoryURLTextBox.Text + "Global")))
       {
-        config.GetProjectList();
-        projectListBox.Items.Clear();
-
-        foreach (String projectString in config.ProjectList)
-        {
-          projectListBox.Items.Add(projectString);
-        }
-
-        projectListBox.Enabled = true;
+        RefreshProjectList();
       }
-
       else
       {
         projectListBox.Items.Clear();
+        projectListBox.Enabled = false;
       }
       errorProvider1.SetError(projectListBox, config.connectionError);
     }
 
     private void projectListBox_DoubleClick(object sender, EventArgs e)
     {
-      openButton.PerformClick();
+      attachButton.PerformClick();
     }
 
     private void projectListBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -73,7 +77,7 @@ namespace SysCAD.Editor
 
       if (e.KeyChar == '\r')
       {
-        openButton.PerformClick();
+        attachButton.PerformClick();
       }
       e.Handled = true;
     }
@@ -86,7 +90,7 @@ namespace SysCAD.Editor
 
         if (clientProtocol.TestUrl(new System.Uri(repositoryURLTextBox.Text + "Client/" + projectListBox.SelectedItem.ToString())))
         {
-          openButton.Enabled = true;
+          attachButton.Enabled = true;
         }
 
         errorProvider1.SetError(projectListBox, clientProtocol.connectionError);
@@ -100,7 +104,7 @@ namespace SysCAD.Editor
       {
         listProjectsButton.PerformClick();
         e.Handled = true;
-      }
+      } 
     }
 
     public ClientProtocol ClientProtocol
@@ -111,6 +115,17 @@ namespace SysCAD.Editor
     public Config Config
     {
       get { return config; }
+    }
+
+    private void addButton_Click(object sender, EventArgs e)
+    {
+      AddProjectForm addProjectForm = new AddProjectForm();
+      if (addProjectForm.ShowDialog(this) == DialogResult.OK)
+      {
+        config.Syncxxx();
+        config.AddProject(addProjectForm.projectName, addProjectForm.projectPath);
+        RefreshProjectList();
+      }
     }
   }
 }

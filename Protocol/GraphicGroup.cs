@@ -12,27 +12,22 @@ namespace SysCAD.Protocol
 {
 
   [Serializable]
-  public class GraphicGroup
+  public class GraphicGroup : GraphicItem
   {
     private Rectangle boundingRect;
 
-    private Guid guid;
-    private String tag;
     private String path;
-
-    [NonSerialized]
-    public Object other = null;
 
     public GraphicGroup(Guid guid, String tag)
     {
-      this.guid = guid;
-      this.tag = tag;
+      this.Guid = guid;
+      this.Tag = tag;
     }
 
     public GraphicGroup(String tag)
     {
-      this.guid = Guid.NewGuid();
-      this.tag = tag;
+      this.Guid = Guid.NewGuid();
+      this.Tag = tag;
     }
 
     public Rectangle BoundingRect
@@ -41,22 +36,10 @@ namespace SysCAD.Protocol
       set { boundingRect = value; }
     }
 
-    public Guid Guid
-    {
-      get { return guid; }
-      set { guid = value; }
-    }
-
     public Double Height
     {
       get { return boundingRect.Height; }
       set { boundingRect.Height = value; }
-    }
-
-    public String Tag
-    {
-      get { return tag; }
-      set { tag = value; }
     }
 
     public String Path

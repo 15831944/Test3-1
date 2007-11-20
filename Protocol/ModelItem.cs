@@ -1,4 +1,3 @@
-
 using System;
 using System.Data;
 using System.Data.OleDb;
@@ -10,28 +9,9 @@ using System.Collections.Generic;
 
 namespace SysCAD.Protocol
 {
-
   [Serializable]
   [ComVisible(true)]
-  public class ModelItem
+  public abstract class ModelItem : Item
   {
-
-    private Guid guid;
-
-    public ModelItem()
-    {
-      this.guid = Guid.NewGuid();
-    }
-
-    public ModelItem(Guid guid)
-    {
-      this.guid = guid;
-    }
-
-    public Guid Guid
-    {
-      get { return guid; }
-      set { guid = value; }
-    }
   }
 }

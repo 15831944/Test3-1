@@ -16,1406 +16,181 @@ using System.Runtime.Remoting;
 using SysCAD.Log;
 using System.Runtime.Serialization.Formatters.Binary;
 using MindFusion.FlowChartX;
+using System.Reflection;
 
-namespace Service
+namespace SysCAD.Service
 {
   public partial class ServiceTemporaryWindow : Form, ILog
   {
     public ConfigData configData;
+    public Dictionary<string, Project> projects = new Dictionary<string,Project>();
 
-    public Dictionary<Guid, GraphicGroup> graphicGroups;
-
-    public Dictionary<Guid, GraphicItem> graphicItems;
-    public Dictionary<Guid, GraphicLink> graphicLinks;
-    public Dictionary<Guid, GraphicThing> graphicThings;
-
-    public Dictionary<String, Box> clientBoxes;
-    public Dictionary<String, Box> engineBoxes;
-
-    public Dictionary<String, Arrow> clientArrows;
-    public Dictionary<String, Arrow> engineArrows;
-
-    public Box serviceBox;
-
-    ClientServiceProtocol clientClientServiceProtocol;
-    EngineServiceProtocol engineClientServiceProtocol;
-
-    private String projectName;
-
-    private String projectPath;
-    private String configPath;
-    private String stencilPath;
-
-    private Int64 requestId;
-    private Int64 eventId;
-
-    
-    public ServiceTemporaryWindow(String projectPath, String configPath, String stencilPath)
+    public ServiceTemporaryWindow(string stencilPath, Dictionary<string, Project> projects)
     {
       InitializeComponent();
 
-      System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
-      serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+      this.Text = "SysCAD.Service (" + Assembly.Load("SysCAD.Service").GetName().Version + ") -- SVN Revision: " + SysCAD.SVNVersion.SVNVersion.version;
 
-      BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+      Config config = new Config();
+      if (!ServiceConnectCheck(config)) // If service not already there.
+      {
+        System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+        serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
 
-      Hashtable ipcProps = new Hashtable();
-      ipcProps["portName"] = "SysCAD.Service";
-      //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
-      IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
-      ChannelServices.RegisterChannel(ipcChannel, false);
+        BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
 
-      projectName = System.IO.Path.GetFileNameWithoutExtension(System.IO.Path.GetDirectoryName(projectPath));
+        Hashtable ipcProps = new Hashtable();
+        ipcProps["portName"] = "SysCAD.Service";
+        //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
+        IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
+        ChannelServices.RegisterChannel(ipcChannel, false);
 
-      this.projectPath = projectPath;
-      this.configPath = configPath;
-      this.stencilPath = stencilPath;
+        logView.LogFile = System.IO.Path.GetTempPath() + "test.log";
 
-      logView.LogFile = projectPath + "test.log";
+        Config.AddProjectHandler addProject = new Config.AddProjectHandler(AddProject);
+        Config.AddProjectAnywayHandler addProjectAnyway = new Config.AddProjectAnywayHandler(AddProjectAnyway);
+        configData = new ConfigData();
+        configData.Setup(stencilPath, addProject, addProjectAnyway);
 
-      configData = new ConfigData();
-      GetStencils(configData);
-      configData.ProjectList.Add(projectName);
-      RemotingServices.Marshal(configData, "Global");
+        RemotingServices.Marshal(configData, "Global");
 
-      graphicGroups = new Dictionary<Guid, GraphicGroup>();
-
-      graphicItems = new Dictionary<Guid, GraphicItem>();
-      graphicLinks = new Dictionary<Guid, GraphicLink>();
-      graphicThings = new Dictionary<Guid, GraphicThing>();
-
-      clientBoxes = new Dictionary<String, Box>();
-      engineBoxes = new Dictionary<String, Box>();
-
-      clientArrows = new Dictionary<String, Arrow>();
-      engineArrows = new Dictionary<String, Arrow>();
-
-      serviceBox = flowChart.CreateBox(-20.0F, -10.0F, 40.0F, 20.0F);
-      serviceBox.Selected = false;
-      serviceBox.Text = "Service";
-      serviceBox.Shape = ShapeTemplate.Decision;
-      flowChart.DocExtents = new RectangleF(-30.0F, -15.0F, 60.0F, 30.0F);
-      flowChart.ZoomToFit();
-
-      LoadGraphics();
-
-      ClientServiceProtocol.LoadHandler clientLoad = new ClientServiceProtocol.LoadHandler(LoadGraphics);
-      ClientServiceProtocol.SaveHandler clientSave = new ClientServiceProtocol.SaveHandler(SaveGraphics);
-
-      ClientServiceProtocol.ChangePermissionsHandler clientChangePermissions = new ClientServiceProtocol.ChangePermissionsHandler(ChangePermissions);
-
-      ClientServiceProtocol.GetPropertyValuesHandler clientGetPropertyValues = new ClientServiceProtocol.GetPropertyValuesHandler(GetPropertyValues);
-      ClientServiceProtocol.GetSubTagsHandler clientGetSubTags = new ClientServiceProtocol.GetSubTagsHandler(GetSubTags);
-
-      ClientServiceProtocol.CreateGroupHandler clientCreateGroup = new ClientServiceProtocol.CreateGroupHandler(CreateGroup);
-      ClientServiceProtocol.ModifyGroupHandler clientModifyGroup = new ClientServiceProtocol.ModifyGroupHandler(ModifyGroup);
-      ClientServiceProtocol.DeleteGroupHandler clientDeleteGroup = new ClientServiceProtocol.DeleteGroupHandler(DeleteGroup);
-
-      ClientServiceProtocol.CreateItemHandler clientCreateItem = new ClientServiceProtocol.CreateItemHandler(CreateItem);
-      ClientServiceProtocol.RequestPortInfoHandler clientRequestPortInfo = new ClientServiceProtocol.RequestPortInfoHandler(ClientRequestPortInfo);
-      ClientServiceProtocol.ModifyItemHandler clientModifyItem = new ClientServiceProtocol.ModifyItemHandler(ModifyItem);
-      ClientServiceProtocol.ModifyItemPathHandler clientModifyItemPath = new ClientServiceProtocol.ModifyItemPathHandler(ModifyItemPath);
-      ClientServiceProtocol.ModifyItemBoundingRectHandler clientModifyItemBoundingRect = new ClientServiceProtocol.ModifyItemBoundingRectHandler(ModifyItemBoundingRect);
-      ClientServiceProtocol.DeleteItemHandler clientDeleteItem = new ClientServiceProtocol.DeleteItemHandler(DeleteItem);
-
-      ClientServiceProtocol.CreateLinkHandler clientCreateLink = new ClientServiceProtocol.CreateLinkHandler(CreateLink);
-      ClientServiceProtocol.ModifyLinkHandler clientModifyLink = new ClientServiceProtocol.ModifyLinkHandler(ModifyLink);
-      ClientServiceProtocol.DeleteLinkHandler clientDeleteLink = new ClientServiceProtocol.DeleteLinkHandler(DeleteLink);
-
-      ClientServiceProtocol.CreateThingHandler clientCreateThing = new ClientServiceProtocol.CreateThingHandler(CreateThing);
-      ClientServiceProtocol.ModifyThingHandler clientModifyThing = new ClientServiceProtocol.ModifyThingHandler(ModifyThing);
-      ClientServiceProtocol.ModifyThingPathHandler clientModifyThingPath = new ClientServiceProtocol.ModifyThingPathHandler(ModifyThingPath);
-      ClientServiceProtocol.DeleteThingHandler clientDeleteThing = new ClientServiceProtocol.DeleteThingHandler(DeleteThing);
-
-      ClientServiceProtocol.PropertyListHandler clientPropertyListCheck = new ClientServiceProtocol.PropertyListHandler(PropertyListCheck);
-
-      ClientServiceProtocol.LogMessageHandler clientLogMessage = new ClientServiceProtocol.LogMessageHandler(LogMessage);
-
-      ClientServiceProtocol.AnnounceHandler clientAnnounce = new ClientServiceProtocol.AnnounceHandler(ClientAnnounce);
-      ClientServiceProtocol.RenounceHandler clientRenounce = new ClientServiceProtocol.RenounceHandler(ClientRenounce);
-
-      clientClientServiceProtocol = new ClientServiceProtocol(projectName,
-                                                              clientLoad, clientSave,
-                                                              graphicGroups, graphicLinks, graphicItems, graphicThings,
-                                                              clientChangePermissions, clientGetPropertyValues, clientGetSubTags,
-                                                              clientCreateGroup, clientModifyGroup, clientDeleteGroup,
-                                                              clientCreateItem, clientRequestPortInfo, 
-                                                              clientModifyItem, clientModifyItemPath, clientModifyItemBoundingRect, 
-                                                              clientDeleteItem,
-                                                              clientCreateLink, clientModifyLink, clientDeleteLink,
-                                                              clientCreateThing, clientModifyThing, clientModifyThingPath,
-                                                              clientDeleteThing, clientPropertyListCheck, clientLogMessage,
-                                                              clientAnnounce, clientRenounce);
-
-
-      RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + projectName);
-
-      EngineServiceProtocol.LogMessageHandler engineLogMessage = new EngineServiceProtocol.LogMessageHandler(LogMessage);
-      EngineServiceProtocol.StateChangedHandler engineStateChanged = new EngineServiceProtocol.StateChangedHandler(StateChanged);
-      EngineServiceProtocol.RequestPortInfoHandler engineRequestPortInfo = new EngineServiceProtocol.RequestPortInfoHandler(EngineRequestPortInfo);
-
-      EngineServiceProtocol.AnnounceHandler engineAnnounce = new EngineServiceProtocol.AnnounceHandler(EngineAnnounce);
-      EngineServiceProtocol.RenounceHandler engineRenounce = new EngineServiceProtocol.RenounceHandler(EngineRenounce);
-
-      engineClientServiceProtocol = new EngineServiceProtocol(projectName,
-                                                              graphicGroups, graphicLinks, graphicItems, graphicThings, 
-                                                              engineLogMessage, engineStateChanged, engineRequestPortInfo,
-                                                              engineAnnounce, engineRenounce);
-
-      RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + projectName);
-    }
-
-    bool ChangePermissions(out Int64 requestId, ClientBaseProtocol.Permissions permissions)
-    {
-      if (true) // Decide whether to allow runstate change
-      { // We're going to do it.
-        // Change the runstate.
-
-        this.requestId++;
-        requestId = this.requestId;
-        throw new NotImplementedException("The method or operation is not implemented.");
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoPermissionsChanged(eventId, requestId, permissions);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
-    {
-      // Need to check for runstate here, and decide if we'll fire DoGroupCreated.
-      // This is required in case a rogue client tries to create an Group even when not supposed to.
-      // This applies to all three create*, and all three delete* events.
-      if (true)
-      { // We're going to do it.
-        // Create the Group.
-        this.requestId++;
-        requestId = this.requestId;
-        guid = Guid.NewGuid();
-
-        GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
-        graphicGroup.Path = path;
-        graphicGroup.BoundingRect = boundingRect;
-
-        graphicGroups.Add(guid, graphicGroup);
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    public delegate void DoItemCreatedDelegate(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY);
-
-    bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
-    {
-      // Need to check for runstate here, and decide if we'll fire DoItemCreated.
-      // This is required in case a rogue client tries to create an item even when not supposed to.
-      // This applies to all three create*, and all three delete* events.
-      if (true)
-      { // We're going to do it.
-        // Create the item.
-        this.requestId++;
-        requestId = this.requestId;
-        guid = Guid.NewGuid();
-
-        GraphicItem graphicItem = new GraphicItem(guid, tag);
-        graphicItem.Path = path;
-        graphicItem.Model = model;
-        graphicItem.Shape = stencil;
-        graphicItem.BoundingRect = boundingRect;
-        graphicItem.Angle = angle;
-        graphicItem.TextArea = textArea;
-        graphicItem.TextAngle = textAngle;
-        graphicItem.FillColor = fillColor;
-        graphicItem.FillMode = fillMode;
-        graphicItem.MirrorX = mirrorX;
-        graphicItem.MirrorY = mirrorY;
-
-        graphicItems.Add(guid, graphicItem);
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classID, Guid origin, 
-      Guid destination, String originPort, Int16 originPortID,
-      String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, 
-      SysCAD.Protocol.Rectangle textArea, Double textAngle)
-    {
-      GraphicItem originGraphicItem;
-      GraphicItem destinationGraphicItem;
-
-      graphicItems.TryGetValue(origin, out originGraphicItem);
-      graphicItems.TryGetValue(destination, out destinationGraphicItem);
-
-      this.requestId++;
-      requestId = this.requestId;
-
-      if ((originGraphicItem != null) && (destinationGraphicItem != null)) // Decide whether to create a link.
-      { // We're going to do it.
-        // Create the item.
-
-
-        // Calculate the closest anchorpointid for unknown (-1) id's.
-        // The following is close, but I need to convert the link controlpoint to a relative position to the item
-        // before comparing to the anchor location...
-
-        //// Instead, for now:
-        //if (originPortID == -1) // unknown anchor id...
-        //  originPortID = 0;
-
-        //if (destinationPortID == -1) // unknown anchor id...
-        //  destinationPortID = 0;
-
-        if (originPortID == -1) // unknown anchor id...
-        {
-          Double minDistance = Double.MaxValue;
-          Int16 minID = 0;
-          ModelStencil modelStencil;
-          configData.ModelStencils.TryGetValue(originGraphicItem.Model, out modelStencil);
-          if (modelStencil != null)
-          {
-            foreach (Anchor anchor in modelStencil.Anchors)
-            {
-              if (anchor.Tag == originPort)
-              {
-                Double distance = 0.0;
-                Int16 ID = 0;
-                foreach (SysCAD.Protocol.Point position in anchor.Positions)
-                {
-                  SysCAD.Protocol.Point anchorPoint =
-                    new SysCAD.Protocol.Point(originGraphicItem.BoundingRect.X + originGraphicItem.BoundingRect.Width * position.X / 100.0,
-                                              originGraphicItem.BoundingRect.Y + originGraphicItem.BoundingRect.Height * position.Y / 100.0);
-                  SysCAD.Protocol.Point originPoint = controlPoints[0];
-                  distance = Math.Sqrt((originPoint.X - anchorPoint.X) * (originPoint.X - anchorPoint.X) + (originPoint.Y - anchorPoint.Y) * (originPoint.Y - anchorPoint.Y));
-                  if (distance < minDistance)
-                  {
-                    minDistance = distance;
-                    minID = ID;
-                  }
-                  ID++;
-                }
-              }
-            }
-          }
-          originPortID = minID;
-        }
-
-
-        if (destinationPortID == -1) // unknown anchor id...
-        {
-          Double minDistance = Double.MaxValue;
-          Int16 minID = 0;
-          ModelStencil modelStencil;
-          configData.ModelStencils.TryGetValue(destinationGraphicItem.Model, out modelStencil);
-          if (modelStencil != null)
-          {
-            foreach (Anchor anchor in modelStencil.Anchors)
-            {
-              if (anchor.Tag == destinationPort)
-              {
-                Double distance = 0.0;
-                Int16 ID = 0;
-                foreach (SysCAD.Protocol.Point position in anchor.Positions)
-                {
-                  SysCAD.Protocol.Point anchorPoint =
-                    new SysCAD.Protocol.Point(destinationGraphicItem.BoundingRect.X + destinationGraphicItem.BoundingRect.Width * position.X / 100.0,
-                                              destinationGraphicItem.BoundingRect.Y + destinationGraphicItem.BoundingRect.Height * position.Y / 100.0);
-                  SysCAD.Protocol.Point destinationPoint = controlPoints[controlPoints.Count - 1];
-                  distance = Math.Sqrt((destinationPoint.X - anchorPoint.X) * (destinationPoint.X - anchorPoint.X) + (destinationPoint.Y - anchorPoint.Y) * (destinationPoint.Y - anchorPoint.Y));
-                  if (distance < minDistance)
-                  {
-                    minDistance = distance;
-                    minID = ID;
-                  }
-                  ID++;
-                }
-              }
-            }
-          }
-          destinationPortID = minID;
-        }
-
-
-        guid = Guid.NewGuid();
-
-        GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, originPortID, destination, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
-        graphicLinks.Add(guid, graphicLink);
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        if (originGraphicItem == null)
-          logView.Message("Failed to create link " + tag + ".  Origin: " + origin.ToString() + " missing.", MessageType.Warning);
-
-        if (destinationGraphicItem == null)
-          logView.Message("Failed to create link " + tag + ".  Destination: " + destination.ToString() + " missing.", MessageType.Warning);
-
-        guid = Guid.Empty;
-
-        return false;
-      }
-    }
-
-    bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    {
-      if (true) // Decide whether to create an Thing.
-      { // We're going to do it.
-        // Create the Thing.
-
-        this.requestId++;
-        requestId = this.requestId;
-        guid = Guid.NewGuid();
-
-        GraphicThing graphicThing = new GraphicThing(guid, tag);
-        graphicThing.Path = path;
-        graphicThing.BoundingRect = boundingRect;
-        graphicThing.Xaml = xaml;
-        graphicThing.Angle = angle;
-        graphicThing.MirrorX = mirrorX;
-        graphicThing.MirrorY = mirrorY;
-
-        graphicThings.Add(guid, graphicThing);
+        Dictionary<string, Project> tempProjects = projects;
         
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool DeleteGroup(out Int64 requestId, Guid guid)
-    {
-      throw new NotImplementedException("The method or operation is not implemented.");
-    }
-
-    bool DeleteItem(out Int64 requestId, Guid guid)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicItems.ContainsKey(guid))
-      { // We're going to do it.
-
-        // Delete the item.
-        graphicItems.Remove(guid);
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoItemDeleted(eventId, requestId, guid);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool DeleteLink(out Int64 requestId, Guid guid)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicLinks.ContainsKey(guid))
-      { // We're going to do it.
-        // Delete the item.
-
-        graphicLinks.Remove(guid);
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoLinkDeleted(eventId, requestId, guid);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool DeleteThing(out Int64 requestId, Guid guid)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicThings.ContainsKey(guid))
-      { // We're going to do it.
-        // Delete the Thing.
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoThingDeleted(eventId, requestId, guid);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    void GetPropertyValues(out Int64 requestId, ref ArrayList propertyList)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-      throw new NotImplementedException("The method or operation is not implemented.");
-      // Return modified ArrayList with tag details included.
-    }
-
-    void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      propertyList = new ArrayList();
-      Random random = new Random();
-
-      // Return ArrayList with tag details included.
-      for (int i = 0; i < 10; i++)
-      {
-        StringBuilder builder = new StringBuilder();
-        System.Char ch;
-        int n = random.Next(5, 10);
-        for (int j = 0; j < n; j++)
+        foreach (Project project in tempProjects.Values)
         {
-          ch = Convert.ToChar(random.Next(33, 126));
-          builder.Append(ch);
+          AddProject(project);
         }
-        switch (random.Next(0, 3))
+
+        this.projects = projects;
+      }
+    }
+
+    private delegate bool TestProjectDelegate(Project project);
+
+    public bool TestProject(Project project)
+    {
+      if (InvokeRequired)
+      {
+        return (bool)Invoke(new TestProjectDelegate(TestProject), new object[] { project });
+      }
+      else
+      {
+        Int64 requestId;
+        return project.LoadGraphics(out requestId);
+      }
+    }
+
+    public bool AddProject(string name, string path)
+    {
+      return AddProject(new Project(name, path));
+    }
+
+    private delegate bool AddProjectDelegate(Project project);
+
+    public bool AddProject(Project project)
+    {
+      if (InvokeRequired)
+      {
+        return (bool)Invoke(new AddProjectDelegate(AddProject), new object[] { project });
+      }
+      else
+      {
+        if (TestProject(project))
         {
-          case 0:
-            propertyList.Add(new ModelProperty(builder.ToString(), random.Next()));
-            break;
-          case 1:
-            propertyList.Add(new ModelProperty(builder.ToString(), random.NextDouble()));
-            break;
-          case 2:
-            propertyList.Add(new ModelProperty(builder.ToString(), builder.ToString()));
-            break;
-          case 3:
-            propertyList.Add(new ModelProperty(builder.ToString(), Color.FromArgb(random.Next())));
-            break;
+          AddProjectAnyway(project);
+          return true;
+        }
+        else
+        {
+          return false;
         }
       }
     }
 
-    bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
+    public void AddProjectAnyway(string name, string path)
     {
-      throw new NotImplementedException("The method or operation is not implemented.");
+      AddProjectAnyway(new Project(name, path));
     }
 
-    public delegate void DoPortInfoRequestedDelegate(Int64 eventId, Int64 requestId, Guid guid, String tag);
+    private delegate void AddProjectAnywayDelegate(Project project);
 
-    bool ClientRequestPortInfo(out Int64 requestId, Guid guid, String tag)
+    // Add project even though there aren't any 10 files -- for use in syscad9's export.
+    // Should really be re-thought once we've sorted how 9 does it's thing.
+    public void AddProjectAnyway(Project project)
     {
-
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicItems.ContainsKey(guid))
+      if (InvokeRequired)
       {
-        // Raise event(s).
-        eventId++;
-        DoPortInfoRequestedDelegate doPortInfoRequestedDelegate = new DoPortInfoRequestedDelegate(engineClientServiceProtocol.DoPortInfoRequested);
-        doPortInfoRequestedDelegate.BeginInvoke(eventId, requestId, guid, tag, null, null);
-
-        return true;
+        Invoke(new AddProjectAnywayDelegate(AddProjectAnyway), new object[] { project });
       }
       else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineRequestPortInfo(out Int64 requestId, Guid guid, String tag, PortInfo portInfo)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicItems.ContainsKey(guid))
       {
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoPortInfoRequested(eventId, requestId, guid, tag, portInfo);
+        configData.ProjectList.Add(project.Name);
+        ListViewItem listItem = new ListViewItem(project.Name);
+        listItem.ToolTipText = project.Name;
+        listItem.SubItems.Add(project.Path);
+        projectListView.Items.Add(listItem);
+        projects.Add(project.Path, project);
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
+        project.FlowChart = flowChart;
+        project.LogView = logView;
 
-    bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+        project.ConfigData = configData;
 
-      if (graphicItems.ContainsKey(guid))
-      { // We're going to do it.
-
-        // Need to get hold of a valid pDoc pointer... *********
-
-        //Individual changes would go something like this: *********
-        //int length = tag.Length;
-        //wchar_t * tagwc = (wchar_t*)(void*)Marshal.StringToHGlobalUni(tag);
-
-        //char * tagc = (char *)malloc(length+1);
-        //tagc[length] = 0;
-        //for (int i=0; i<length; i++)
-        //  tagc[i] = (char)tagwc[i];
-
-        //pDoc.GCB.DoModify(tagc, 
-        //                    angle,
-        //                    boundingRect, 
-        //                    fillColor,
-        //                    fillMode,
-        //                    mirrorX,
-        //                    mirrorY);
-
-        // Modify the item.
-        GraphicItem graphicItem = graphicItems[guid];
-
-        graphicItem.Tag = tag;
-        graphicItem.Path = path;
-        graphicItem.Model = model;
-        graphicItem.Shape = stencil;
-        graphicItem.BoundingRect = boundingRect;
-        graphicItem.Angle = angle;
-        graphicItem.TextArea = textArea;
-        graphicItem.TextAngle = textAngle;
-        graphicItem.FillColor = fillColor;
-        graphicItem.FillMode = fillMode;
-        graphicItem.MirrorX = mirrorX;
-        graphicItem.MirrorY = mirrorY;
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
+        project.ConnectClientServiceProtocol();
       }
     }
 
-    bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
+    private bool ServiceConnectCheck(Config config)
     {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicItems.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the item.
-
-        GraphicItem graphicItem = graphicItems[guid];
-
-        graphicItem.Path = path;
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.TextAngle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
+      return (config.TestUrl(new Uri("ipc://SysCAD.Service/Global")));
     }
 
-    bool ModifyItemBoundingRect(out Int64 requestId, Guid guid, SysCAD.Protocol.Rectangle boundingRect)
+    //public ServiceTemporaryWindow(String projectPath, String configPath, String stencilPath)
+    //{
+    //  Project project = new Project(projectPath, System.IO.Path.GetFileNameWithoutExtension(System.IO.Path.GetDirectoryName(projectPath)));
+
+    //  InitializeComponent();
+
+    //  System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+    //  serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+
+    //  BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+
+    //  Hashtable ipcProps = new Hashtable();
+    //  ipcProps["portName"] = "SysCAD.Service";
+    //  //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
+    //  IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
+    //  ChannelServices.RegisterChannel(ipcChannel, false);
+
+    //  logView.LogFile = projectPath + "test.log";
+
+    //  configData = new Config();
+    //  configData.GetStencils(stencilPath);
+    //  configData.ProjectList.Add(project.Name);
+    //  RemotingServices.Marshal(configData, "Global");
+
+    //  project.Graphic = new Graphic();
+    //  project.Model = new Model();
+
+
+    //  Int64 requestId;
+    //  project.LoadGraphics(out requestId);
+
+    //  project.ConnectClientServiceProtocol();
+    //}
+
+
+
+
+    public void LogMessage(String message, MessageType messageType)
     {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicItems.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the item.
-
-        GraphicItem graphicItem = graphicItems[guid];
-
-        graphicItem.BoundingRect = boundingRect;
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, boundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.TextAngle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classID, Guid origin, Guid destination,
-      String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicLinks.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the item.
-
-        GraphicLink graphicLink = graphicLinks[guid];
-
-        graphicLink.Tag = tag;
-        graphicLink.ClassID = classID;
-        graphicLink.Origin = origin;
-        graphicLink.Destination = destination;
-        graphicLink.OriginPort = originPort;
-        graphicLink.OriginPortID = originPortID;
-        graphicLink.DestinationPort = destinationPort;
-        graphicLink.DestinationPortID = destinationPortID;
-
-        graphicLink.ControlPoints.Clear();
-
-        foreach (SysCAD.Protocol.Point controlPoint in controlPoints)
-          graphicLink.ControlPoints.Add(controlPoint);
-
-        graphicLink.TextArea = textArea;
-        graphicLink.TextAngle = textAngle;
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicThings.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the Thing.
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      if (graphicThings.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the item.
-
-        GraphicThing graphicThing = graphicThings[guid];
-
-        graphicThing.Path = path;
-
-        // Raise event(s).
-        eventId++;
-        clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, graphicThing.Tag, path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    ArrayList PropertyListCheck(out Int64 requestId, Guid guid, String tag, String path)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      //char* dest = new char[tag.Length+1];
-      //strcpy(dest, static_cast<LPCTSTR>(const_cast<void*>(static_cast<const void*>(System.Runtime.InteropServices.Marshal.StringToHGlobalAnsi(tag)))));
-      //ScdMainWnd().PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)dest);
-
-      ArrayList list = new ArrayList();
-      // Generate list of properties at this level in properties tree.
-      return list;
-    }
-
-    void LogMessage(out Int64 requestId, String message, MessageType messageType)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
       logView.Message(message, messageType);
     }
 
-    private delegate String ClientAnnounceDelegate(String clientName);
-
-    private String ClientAnnounce(String clientName)
+    private void LogNote(string message)
     {
-      if (InvokeRequired)
-      {
-        return Invoke(new ClientAnnounceDelegate(ClientAnnounce), new object[] { clientName }).ToString();
-      }
-      else
-      {
-        Box testBox;
-        int i = 0;
-        String fullName = clientName + i.ToString();
-        while (clientBoxes.TryGetValue(fullName, out testBox))
-        {
-          i++;
-          fullName = clientName + i.ToString();
-        }
-
-        Box box = flowChart.CreateBox(0.0F, 0.0F, 0.0F, 0.0F);
-        box.Selected = false;
-        box.Shape = ShapeTemplate.Decision;
-        box.Text = fullName;
-        clientBoxes.Add(fullName, box);
-
-        Arrow arrow = flowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(1.0F, 1.0F));
-        arrow.Selected = false;
-        clientArrows.Add(fullName, arrow);
-        
-        RedrawAll();
-
-        return fullName;
-      }
-    }
-
-    private delegate void ClientRenounceDelegate(String clientName);
-
-    private void ClientRenounce(String clientName)
-    {
-      if (InvokeRequired)
-      {
-        BeginInvoke(new ClientRenounceDelegate(ClientRenounce), new object[] { clientName });
-      }
-      else
-      {
-        Box testBox;
-        if (clientBoxes.TryGetValue(clientName, out testBox))
-        {
-          Box clientBox = clientBoxes[clientName];
-          Arrow clientArrow = clientArrows[clientName];
-
-          flowChart.DeleteObject(clientArrow);
-          flowChart.DeleteObject(clientBox);
-
-          clientBoxes.Remove(clientName);
-          clientArrows.Remove(clientName);
-        }
-
-        RedrawAll();
-      }
-    }
-
-    private delegate void EngineRenounceDelegate(String engineName);
-
-    private void EngineRenounce(String engineName)
-    {
-      if (InvokeRequired)
-      {
-        BeginInvoke(new EngineRenounceDelegate(EngineRenounce), new object[] { engineName });
-      }
-      else
-      {
-        Box testBox;
-        if (engineBoxes.TryGetValue(engineName, out testBox))
-        {
-          Box engineBox = engineBoxes[engineName];
-          Arrow engineArrow = engineArrows[engineName];
-
-          flowChart.DeleteObject(engineArrow);
-          flowChart.DeleteObject(engineBox);
-
-          engineBoxes.Remove(engineName);
-          engineArrows.Remove(engineName);
-        }
-
-        RedrawAll();
-      }
-    }
-
-    private void RedrawAll()
-    {
-      double xMin = -20.0F;
-      double xMax = 20.0F;
-      double yMin = -10.0F;
-      double yMax = 10.0F;
-      {
-        double dAngle = 180.0 / (clientBoxes.Count + 1);
-        double angle = 0.0;
-        foreach (String key in clientBoxes.Keys)
-        {
-          Box clientBox = clientBoxes[key];
-          Arrow clientArrow = clientArrows[key];
-
-          angle += dAngle;
-          double x = 80.0 * Math.Sin(angle / 180.0 * Math.PI);
-          double y = 80.0 * Math.Cos(angle / 180.0 * Math.PI);
-          clientBox.BoundingRect = new RectangleF((float)x - 20.0F, (float)y - 10.0F, 40.0F, 20.0F);
-          clientBox.Selected = false;
-          clientBox.ZTop();
-
-          clientArrow.Origin = serviceBox;
-          clientArrow.Destination = clientBox;
-          clientArrow.ZBottom();
-          clientArrow.Selected = false;
-
-          if ((x - 20.0F) < xMin) xMin = x - 20.0F;
-          if ((x + 20.0F) > xMax) xMax = x + 20.0F;
-          if ((y - 20.0F) < yMin) yMin = y - 20.0F;
-          if ((y + 20.0F) > yMax) yMax = y + 20.0F;
-        }
-      }
-
-      {
-        double dAngle = 180.0 / (engineBoxes.Count + 1);
-        double angle = 180.0;
-        foreach (String key in engineBoxes.Keys)
-        {
-          Box engineBox = engineBoxes[key];
-          Arrow engineArrow = engineArrows[key];
-
-          angle += dAngle;
-          double x = 80.0 * Math.Sin(angle / 180.0 * Math.PI);
-          double y = 80.0 * Math.Cos(angle / 180.0 * Math.PI);
-          engineBox.BoundingRect = new RectangleF((float)x - 20.0F, (float)y - 10.0F, 40.0F, 20.0F);
-          engineBox.Selected = false;
-          engineBox.ZTop();
-
-          engineArrow.Origin = serviceBox;
-          engineArrow.Destination = engineBox;
-          engineArrow.ZBottom();
-          engineArrow.Selected = false;
-
-          if ((x - 20.0F) < xMin) xMin = x - 20.0F;
-          if ((x + 20.0F) > xMax) xMax = x + 20.0F;
-          if ((y - 20.0F) < yMin) yMin = y - 20.0F;
-          if ((y + 20.0F) > yMax) yMax = y + 20.0F;
-        }
-      }
-
-
-      flowChart.DocExtents = new RectangleF((float)xMin - 10.0F, (float)yMin - 10.0F, (float)(xMax - xMin) + 20.0F, (float)(yMax - yMin) + 20.0F);
-      flowChart.ZoomToFit();
-    }
-
-    private delegate string EngineAnnounceDelegate(String engineName);
-
-    private string EngineAnnounce(String engineName)
-    {
-      if (InvokeRequired)
-      {
-        return Invoke(new EngineAnnounceDelegate(EngineAnnounce), new object[] { engineName }).ToString();
-      }
-      else
-      {
-        Box testBox;
-        int i = 0;
-        String fullName = engineName + i.ToString();
-        while (engineBoxes.TryGetValue(fullName, out testBox))
-        {
-          i++;
-          fullName = engineName + i.ToString();
-        }
-
-        Box box = flowChart.CreateBox(0.0F, 0.0F, 0.0F, 0.0F);
-        box.Selected = false;
-        box.Shape = ShapeTemplate.Decision;
-        box.Text = fullName;
-
-        Arrow arrow = flowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(1.0F, 1.0F));
-        arrow.Selected = false;
-        engineArrows.Add(fullName, arrow);
-
-
-        engineBoxes.Add(fullName, box);
-
-        RedrawAll();
-
-        return fullName;
-      }
-    }
-
-    bool StateChanged(out Int64 requestId, EngineBaseProtocol.RunState runState)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      ClientBaseProtocol.Permissions permissions = null;
-      switch (runState)
-      {
-        case EngineBaseProtocol.RunState.Edit:
-          permissions = new ClientBaseProtocol.Permissions(true, true, true);
-          break;
-        case EngineBaseProtocol.RunState.Idle:
-          permissions = new ClientBaseProtocol.Permissions(false, true, false);
-          break;
-        case EngineBaseProtocol.RunState.Run:
-          permissions = new ClientBaseProtocol.Permissions(false, true, false);
-          break;
-      }
-
-      eventId++;
-      clientClientServiceProtocol.PermissionsChanged(eventId, requestId, permissions);
-      return true;
-    }
-
-
-
-
-    bool ConfirmModelStencil(ModelStencil modelstencil)
-    {
-      // TODO: check whether this stencil is to be included in the project.
-      return true;
-    }
-
-    bool LoadGraphics()
-    {
-      try
-      {
-        Dictionary<Guid, GraphicGroup> tempGraphicGroups;
-
-        Dictionary<Guid, GraphicLink> tempGraphicLinks;
-        Dictionary<Guid, GraphicItem> tempGraphicItems;
-        Dictionary<Guid, GraphicThing> tempGraphicThings;
-
-        {
-          BinaryFormatter bf = new BinaryFormatter();
-          StreamReader streamRdr = new StreamReader(projectPath + "GraphicGroups.10");
-          Stream stream = streamRdr.BaseStream;
-          tempGraphicGroups = (Dictionary<Guid, GraphicGroup>)bf.Deserialize(stream);
-          stream.Close();
-        }
-
-        {
-          BinaryFormatter bf = new BinaryFormatter();
-          StreamReader streamRdr = new StreamReader(projectPath + "GraphicLinks.10");
-          Stream stream = streamRdr.BaseStream;
-          tempGraphicLinks = (Dictionary<Guid, GraphicLink>)bf.Deserialize(stream);
-          stream.Close();
-        }
-
-        {
-          BinaryFormatter bf = new BinaryFormatter();
-          StreamReader streamRdr = new StreamReader(projectPath + "GraphicItems.10");
-          Stream stream = streamRdr.BaseStream;
-          tempGraphicItems = (Dictionary<Guid, GraphicItem>)bf.Deserialize(stream);
-          stream.Close();
-        }
-
-        {
-          BinaryFormatter bf = new BinaryFormatter();
-          StreamReader streamRdr = new StreamReader(projectPath + "GraphicThings.10");
-          Stream stream = streamRdr.BaseStream;
-          tempGraphicThings = (Dictionary<Guid, GraphicThing>)bf.Deserialize(stream);
-          stream.Close();
-        }
-
-        graphicGroups = tempGraphicGroups;
-
-        graphicLinks = tempGraphicLinks;
-        graphicItems = tempGraphicItems;
-        graphicThings = tempGraphicThings;
-
-        if (graphicGroups == null)
-          graphicGroups = new Dictionary<Guid, GraphicGroup>();
-
-        if (graphicLinks == null)
-          graphicLinks = new Dictionary<Guid, GraphicLink>();
-        if (graphicItems == null)
-          graphicItems = new Dictionary<Guid, GraphicItem>();
-        if (graphicThings == null)
-          graphicThings = new Dictionary<Guid, GraphicThing>();
-
-        return true;
-      }
-      catch (Exception)
-      {
-        if (graphicGroups == null)
-          graphicGroups = new Dictionary<Guid, GraphicGroup>();
-
-        if (graphicLinks == null)
-          graphicLinks = new Dictionary<Guid, GraphicLink>();
-        if (graphicItems == null)
-          graphicItems = new Dictionary<Guid, GraphicItem>();
-        if (graphicThings == null)
-          graphicThings = new Dictionary<Guid, GraphicThing>();
-
-        return false;
-      }
-    }
-
-    bool SaveGraphics()
-    {
-      try
-      {
-        {
-          BinaryFormatter bf = new BinaryFormatter();
-          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicGroups.10");
-          Stream stream = streamWriter.BaseStream;
-          bf.Serialize(stream, graphicGroups);
-          stream.Close();
-        }
-
-        {
-          BinaryFormatter bf = new BinaryFormatter();
-          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicLinks.10");
-          Stream stream = streamWriter.BaseStream;
-          bf.Serialize(stream, graphicLinks);
-          stream.Close();
-        }
-
-        {
-          BinaryFormatter bf = new BinaryFormatter();
-          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicItems.10");
-          Stream stream = streamWriter.BaseStream;
-          bf.Serialize(stream, graphicItems);
-          stream.Close();
-        }
-
-        {
-          BinaryFormatter bf = new BinaryFormatter();
-          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicThings.10");
-          Stream stream = streamWriter.BaseStream;
-          bf.Serialize(stream, graphicThings);
-          stream.Close();
-        }
-        return true;
-      }
-      catch (Exception)
-      {
-        return false;
-      }
-    }
-
-    bool LoadGraphics(out Int64 requestId)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      return LoadGraphics();
-    }
-
-    bool SaveGraphics(out Int64 requestId)
-    {
-      this.requestId++;
-      requestId = this.requestId;
-
-      return SaveGraphics();
-    }
-
-    void GetStencils(ConfigData configData)
-    {
-      {
-        int iStencil = 0;
-        LogNote("Srvr", 0, "ModelStencils:");
-        String[] dirs = Directory.GetFiles(stencilPath, "*.modelstencil");
-        for (int i = 0; i < dirs.GetLength(0); i++)
-        {
-          String fullpath = dirs[i];
-
-          //Create dummy ModelStencil for comparison...
-          {
-            ModelStencil modelStencil2 = new ModelStencil();
-            modelStencil2.Tag = "";
-            modelStencil2.GroupName = "Control";
-            ArrayList elements = new ArrayList();
-            SysCAD.Protocol.Arc arc = new SysCAD.Protocol.Arc(0, 0, 100, 100, 10, 360);
-            elements.Add(arc);
-            modelStencil2.Elements = elements;
-
-            modelStencil2.Decorations = new ArrayList();
-            ArrayList anchors = new ArrayList();
-            Anchor anchor = new Anchor("tag", AnchorType.Electrical, 0, 0.0f, 1.0f);
-            anchors.Add(anchor);
-            Anchor anchor2 = new Anchor("tag2", AnchorType.Electrical, 0, 0.0f, 1.0f);
-            anchors.Add(anchor2);
-            modelStencil2.Anchors = anchors;
-            modelStencil2.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-
-            SoapFormatter sf2 = new SoapFormatter();
-            StreamWriter streamWriter = new StreamWriter(fullpath + ".new");
-            Stream stream2 = streamWriter.BaseStream;
-            sf2.Serialize(stream2, modelStencil2);
-            stream2.Close();
-          }
-
-          try
-          {
-            SoapFormatter sf = new SoapFormatter();
-            StreamReader streamRdr = new StreamReader(fullpath);
-            Stream stream = streamRdr.BaseStream;
-            ModelStencil modelStencil = (ModelStencil)sf.Deserialize(stream);
-            modelStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
-
-            if (ConfirmModelStencil(modelStencil))
-            {
-              TrimAnchorPoints(modelStencil);
-              configData.ModelStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), modelStencil);
-            }
-
-            stream.Close();
-            //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
-            LogNote("Srvr", 0, "  %i] %s", iStencil++, System.IO.Path.GetFileNameWithoutExtension(fullpath));
-          }
-          catch (Exception e)
-          {
-            Message("Error '" + e.Message + "' loading ModelStencil: " + fullpath, MessageType.Error);
-          }
-        }
-
-        Console.WriteLine("\n");
-      }
-
-      {
-        int iStencil = 0;
-        LogNote("Srvr", 0, "GraphicStencils:");
-        String[] dirs = Directory.GetFiles(stencilPath, "*.graphicstencil");
-        for (int i = 0; i < dirs.GetLength(0); i++)
-        {
-          String fullpath = dirs[i];
-
-          ////Create dummy GraphicStencil for comparison...
-          //{
-          //  GraphicStencil graphicStencil2 = new GraphicStencil();
-          //  graphicStencil2.Tag = "";
-          //  ArrayList elements = new ArrayList();
-          //  SysCAD.Protocol.Arc arc = new SysCAD.Protocol.Arc(0, 0, 100, 100, 10, 360);
-          //  elements.Add(arc);
-          //  graphicStencil2.Elements = elements;
-
-          //  graphicStencil2.Decorations = new ArrayList();
-
-          //  SoapFormatter sf2 = new SoapFormatter();
-          //  StreamWriter streamWriter = new StreamWriter(fullpath + ".new");
-          //  Stream stream2 = streamWriter.BaseStream;
-          //  sf2.Serialize(stream2, graphicStencil2);
-          //  stream2.Close();
-          //}
-
-          SoapFormatter sf = new SoapFormatter();
-          Stream stream = (new StreamReader(fullpath)).BaseStream;
-          GraphicStencil graphicStencil = (GraphicStencil)sf.Deserialize(stream);
-          stream.Close();
-
-
-          graphicStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
-          configData.GraphicStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), graphicStencil);
-          //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
-          LogNote("Srvr", 0, "  %i] %s", iStencil++, System.IO.Path.GetFileNameWithoutExtension(fullpath));
-        }
-      }
-
-      {
-        int iStencil = 0;
-        LogNote("Srvr", 0, "ThingStencils:");
-        String[] dirs = Directory.GetFiles(stencilPath, "*.thingstencil");
-        for (int i = 0; i < dirs.GetLength(0); i++)
-        {
-          String fullpath = dirs[i];
-
-          ////Create dummy ThingStencil for comparison...
-          //{
-          //  ThingStencil thingStencil = new ThingStencil();
-          //  thingStencil.Tag = "a tank annotation";
-          //  thingStencil.Model = "Tank-1";
-          //  thingStencil.defaultSize.Width = 20.0;
-          //  thingStencil.defaultSize.Height = 20.0;
-          //  thingStencil.Xaml = 
-          //      "            <!-- Saved from Aurora XAML Designer for WinFX - Mobiform Software Ltd. - Thursday, 4 January 2007 11:45:44 AM -."
-          //      "<Canvas xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" Name=\"Canvas1\" Width=\"132\" Height=\"141\" Background=\"{x:Static Brushes.Transparent}\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">"
-          //      "  <Ellipse Canvas.Left=\"6\" Canvas.Top=\"105\" Width=\"120\" Height=\"30\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
-          //      "    <Ellipse.Fill>"
-          //      "      <LinearGradientBrush StartPoint=\"0,0\" EndPoint=\"0.03,1\">"
-          //      "        <GradientStop Color=\"#FFECE9D8\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
-          //      "      </LinearGradientBrush>"
-          //      "    </Ellipse.Fill>"
-          //      "  </Ellipse>"
-          //      "  <Rectangle Canvas.Left=\"6\" Canvas.Top=\"21\" Width=\"120\" Height=\"100\" Stroke=\"Gray\" StrokeThickness=\"0.5\">"
-          //      "    <Rectangle.Fill>"
-          //      "      <LinearGradientBrush StartPoint=\"0,1\" EndPoint=\"1,1\">"
-          //      "        <GradientStop Color=\"#FFECE9D8\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
-          //      "      </LinearGradientBrush>"
-          //      "    </Rectangle.Fill>"
-          //      "  </Rectangle>"
-          //      "  <Rectangle Canvas.Left=\"16\" Canvas.Bottom=\"21\" Width=\"100\" Height=\"100\" Fill=\"Blue\" Stroke=\"Black\">"
-          //      "  </Rectangle>"
-          //      "  <Rectangle Canvas.Left=\"16\" Canvas.Top=\"31\" Width=\"100\" Height=\"[[[[TAG]], 0, 3, 0, 85, Linear, Integer]]\" Stroke=\"Black\">"
-          //      "    <Rectangle.Fill>"
-          //      "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"0,1\" EndPoint=\"1,1\">"
-          //      "        <GradientStop Color=\"Black\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"Black\" Offset=\"1\" />"
-          //      "        <GradientStop Color=\"#FF444444\" Offset=\"0.821339950372208\" />"
-          //      "      </LinearGradientBrush>"
-          //      "    </Rectangle.Fill>"
-          //      "  </Rectangle>"
-          //      "  <Ellipse Canvas.Left=\"2\" Canvas.Top=\"34\" Width=\"10\" Height=\"20\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
-          //      "    <Ellipse.Fill>"
-          //      "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"1,0\" EndPoint=\"1,1\">"
-          //      "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
-          //      "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
-          //      "      </LinearGradientBrush>"
-          //      "    </Ellipse.Fill>"
-          //      "  </Ellipse>"
-          //      "  <Ellipse Canvas.Left=\"2\" Canvas.Top=\"63\" Width=\"10\" Height=\"20\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
-          //      "    <Ellipse.Fill>"
-          //      "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"1,0\" EndPoint=\"1,1\">"
-          //      "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
-          //      "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
-          //      "      </LinearGradientBrush>"
-          //      "    </Ellipse.Fill>"
-          //      "  </Ellipse>"
-          //      "  <Ellipse Canvas.Left=\"56\" Canvas.Top=\"129\" Width=\"20\" Height=\"10\" Stroke=\"#FF716F64\">"
-          //      "    <Ellipse.Fill>"
-          //      "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"0,1\" EndPoint=\"1,1\">"
-          //      "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
-          //      "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
-          //      "      </LinearGradientBrush>"
-          //      "    </Ellipse.Fill>"
-          //      "  </Ellipse>"
-          //      "  <Ellipse Canvas.Left=\"120.5\" Canvas.Top=\"63\" Width=\"10\" Height=\"20\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
-          //      "    <Ellipse.Fill>"
-          //      "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"1,0\" EndPoint=\"1,1\">"
-          //      "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
-          //      "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
-          //      "      </LinearGradientBrush>"
-          //      "    </Ellipse.Fill>"
-          //      "  </Ellipse>"
-          //      "  <Ellipse Canvas.Left=\"120.5\" Canvas.Top=\"34\" Width=\"10\" Height=\"20\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
-          //      "    <Ellipse.Fill>"
-          //      "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"1,0\" EndPoint=\"1,1\">"
-          //      "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
-          //      "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
-          //      "      </LinearGradientBrush>"
-          //      "    </Ellipse.Fill>"
-          //      "  </Ellipse>"
-          //      "  <Ellipse Canvas.Left=\"56\" Canvas.Top=\"2\" Width=\"20\" Height=\"10\" Stroke=\"#FF716F64\">"
-          //      "    <Ellipse.Fill>"
-          //      "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"0,1\" EndPoint=\"1,1\">"
-          //      "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
-          //      "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
-          //      "      </LinearGradientBrush>"
-          //      "    </Ellipse.Fill>"
-          //      "  </Ellipse>"
-          //      "  <Ellipse Canvas.Left=\"6\" Canvas.Top=\"7\" Width=\"120\" Height=\"30\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
-          //      "    <Ellipse.Fill>"
-          //      "      <RadialGradientBrush Opacity=\"1\" Center=\"0.490074441687345,0.5\" RadiusX=\"0.52\" RadiusY=\"0.599255583126551\" GradientOrigin=\"0.16,0.54\">"
-          //      "        <GradientStop Color=\"#FFECE9D8\" Offset=\"0\" />"
-          //      "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
-          //      "      </RadialGradientBrush>"
-          //      "    </Ellipse.Fill>"
-          //      "  </Ellipse>"
-          //      "</Canvas>";
-
-          //  SoapFormatter sf = new SoapFormatter();
-          //  StreamWriter streamWriter = new StreamWriter(fullpath+".new");
-          //  Stream stream = streamWriter.BaseStream;
-          //  sf.Serialize(stream, thingStencil);
-          //  stream.Close();
-          //}
-
-          SoapFormatter sf = new SoapFormatter();
-          StreamReader streamRdr = new StreamReader(fullpath);
-          Stream stream = streamRdr.BaseStream;
-          ThingStencil thingStencil = (ThingStencil)sf.Deserialize(stream);
-          thingStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
-          configData.ThingStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), thingStencil);
-          stream.Close();
-          //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
-          LogNote("Srvr", 0, "  %i] %s", iStencil++, System.IO.Path.GetFileNameWithoutExtension(fullpath));
-        }
-      }
-
-    }
-
-    private void LogNote(string p, int p_2, string p_3)
-    {
-      Message(p + " : " + p_2 + " : " + p_3, MessageType.Note);
-      Console.WriteLine(p + " : " + p_2 + " : " + p_3);
-    }
-
-    private void LogNote(string p, int p_2, string p_3, int p_4, string p_5)
-    {
-      Message(p + " : " + p_2 + " : " + p_3 + " : " + p_4 + " : " + p_5, MessageType.Note);
-      //Console.WriteLine(p + " : " + p_2 + " : " + p_3 + " : " + p_4 + " : " + p_5);
-    }
-
-    void TrimAnchorPoints(ModelStencil modelStencil)
-    {
-      ArrayList anchors = modelStencil.Anchors;
-      ArrayList validAnchors = new ArrayList();
-      for (int i = 0; i < anchors.Count; i++)
-      {
-        Anchor anchor = (Anchor)(anchors[i]);
-        if (ValidAnchor(anchor))
-        {
-          validAnchors.Add(anchor);
-        }
-      }
-
-      modelStencil.Anchors = validAnchors;
-    }
-
-    bool ValidAnchor(Anchor anchor)
-    {
-      // TODO: Check here if anchor.Tag is to be included. (and possibly in future anchor.Type)
-      return true;
+      Message(message, MessageType.Note);
+      Console.WriteLine(message);
     }
 
     public void Message(string msg, MessageType msgType, MessageSource src)
@@ -1444,5 +219,25 @@ namespace Service
       set { logView.Enabled = value; }
     }
 
+    private void projectListView_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      ListView.SelectedListViewItemCollection selectedItems = projectListView.SelectedItems;
+
+      removeProjectButton.Enabled = (selectedItems.Count > 0) && false; // We're not ready for removing yet.
+    }
+
+    private void removeProjectButton_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void addProjectButton_Click(object sender, EventArgs e)
+    {
+      AddProjectForm addProjectForm = new AddProjectForm();
+      if (addProjectForm.ShowDialog(this) == DialogResult.OK)
+      {
+        AddProject(new Project(addProjectForm.projectName, addProjectForm.projectPath));
+      }
+    }
   }
 }

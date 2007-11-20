@@ -530,58 +530,100 @@ int CSfeSrvr::EO_CanClose(Strng_List & Problems)
   };
 
 
-int CSfeSrvr::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int CSfeSrvr::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                              LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                             float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                             float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                              bool mirrorX, bool mirrorY)
   {
-  return SfeFS->EO_SCInsertItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
+  return SfeFS->EO_SCInsertNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, Colour, mirrorX, mirrorY);
   };
-int CSfeSrvr::EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
+int CSfeSrvr::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
   {
-  return SfeFS->EO_SCDeleteItem(Ctrl, pTag, ItemGuid, path);
+  return SfeFS->EO_SCDeleteNodeG(Ctrl, pTag, ItemGuid, path);
   };
-int CSfeSrvr::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int CSfeSrvr::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                    LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                   float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
+                                   float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
                                    bool mirrorX, bool mirrorY)
   {
-  return SfeFS->EO_SCModifyItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
+  return SfeFS->EO_SCModifyNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, Colour, mirrorX, mirrorY);
   };
 
 
-int CSfeSrvr::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+int CSfeSrvr::EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)
+  {
+  return SfeFS->EO_SCInsertNodeM(Ctrl, pTag, ItemGuid, model);
+  };
+int CSfeSrvr::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
+  {
+  return SfeFS->EO_SCDeleteNodeM(Ctrl, pTag, ItemGuid);
+  };
+int CSfeSrvr::EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)
+  {
+  return SfeFS->EO_SCModifyNodeM(Ctrl, pTag, ItemGuid, model);
+  };
+
+
+int CSfeSrvr::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                  LPCSTR model, 
                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                  LPCSTR OriginTag, LPCSTR DestinationTag, 
                                  LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                 CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
+                                 CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
   {
-  return SfeFS->EO_SCInsertLink(Ctrl, pTag, ItemGuid, /*path,*/ 
+  return SfeFS->EO_SCInsertLinkG(Ctrl, pTag, ItemGuid, /*path,*/ 
                                 model, 
                                 OriginGuid, DestinationGuid, 
                                 OriginTag, DestinationTag, 
                                 OriginPort, DestinationPort, 
-                                ControlPoints, textArea, textAngle) ;
+                                ControlPoints, tagArea, tagAngle) ;
   };
-int CSfeSrvr::EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
+int CSfeSrvr::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
   {
-  return SfeFS->EO_SCDeleteLink(Ctrl, pTag, ItemGuid/*, path*/);
+  return SfeFS->EO_SCDeleteLinkG(Ctrl, pTag, ItemGuid/*, path*/);
   }
-int CSfeSrvr::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+int CSfeSrvr::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                               LPCSTR model, 
                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                               LPCSTR OriginTag, LPCSTR DestinationTag, 
                               LPCSTR OriginPort, LPCSTR DestinationPort, 
-                              CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) 
-
+                              CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
   {
-  return SfeFS->EO_SCModifyLink(Ctrl, pTag, ItemGuid, /*path,*/
+  return SfeFS->EO_SCModifyLinkG(Ctrl, pTag, ItemGuid, /*path,*/
                                 model, 
                                 OriginGuid, DestinationGuid, 
                                 OriginTag, DestinationTag, 
                                 OriginPort, DestinationPort, 
-                                ControlPoints, textArea, textAngle) ;
+                                ControlPoints, tagArea, tagAngle) ;
+  };
+
+int CSfeSrvr::EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                 LPCSTR model, 
+                                 LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                 LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                 LPCSTR OriginPort, LPCSTR DestinationPort)
+  {
+  return SfeFS->EO_SCInsertLinkM(Ctrl, pTag, ItemGuid, /*path,*/ 
+                                model, 
+                                OriginGuid, DestinationGuid, 
+                                OriginTag, DestinationTag, 
+                                OriginPort, DestinationPort) ;
+  };
+int CSfeSrvr::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
+  {
+  return SfeFS->EO_SCDeleteLinkM(Ctrl, pTag, ItemGuid/*, path*/);
+  }
+int CSfeSrvr::EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                              LPCSTR model, 
+                              LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                              LPCSTR OriginTag, LPCSTR DestinationTag, 
+                              LPCSTR OriginPort, LPCSTR DestinationPort) 
+  {
+  return SfeFS->EO_SCModifyLinkM(Ctrl, pTag, ItemGuid, /*path,*/
+                                model, 
+                                OriginGuid, DestinationGuid, 
+                                OriginTag, DestinationTag, 
+                                OriginPort, DestinationPort) ;
   };
 
 int CSfeSrvr::EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)

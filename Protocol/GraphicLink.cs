@@ -13,40 +13,35 @@ namespace SysCAD.Protocol
   /// Internal representation of a link in the model.
   /// </summary>
   [Serializable]
-  public class GraphicLink
+  public class GraphicLink : GraphicItem
   {
 
-    private String classId;
+    private Guid modelGuid;
 
     private List<Point> controlPoints;
-    private Guid destination;
-    private String destinationPort;
-    private Int16 destinationPortID;
-    private Guid guid;
     private Guid origin;
-    private String originPort;
+    private Guid destination;
     private Int16 originPortID;
-    private String tag;
+    private Int16 destinationPortID;
 
-    private Rectangle textArea;
-    private Double textAngle;
+    private Rectangle tagArea;
+    private Double tagAngle;
+    private Boolean tagVisible;
 
-    [NonSerialized]
-    public Object other = null;
-
-    public GraphicLink(Guid guid, String tag, String classId, Guid origin, String originPort, Int16 originPortID, 
-      Guid destination,
-      String destinationPort, Int16 destinationPortID, 
-      List<Point> controlPoints, Rectangle textArea, Double textAngle)
+    public GraphicLink()
     {
-      this.guid = guid;
-      this.tag = tag;
-      this.classId = classId;
+    }
+
+    public GraphicLink(Guid guid, Guid modelGuid, String tag, Guid origin, Int16 originPortID, 
+      Guid destination, Int16 destinationPortID, 
+      List<Point> controlPoints, Rectangle tagArea, Double tagAngle, Boolean tagVisible)
+    {
+      this.Guid = guid;
+      this.Tag = tag;
+      this.modelGuid = modelGuid;
       this.origin = origin;
-      this.originPort = originPort;
       this.originPortID = originPortID;
       this.destination = destination;
-      this.destinationPort = destinationPort;
       this.destinationPortID = destinationPortID;
 
       this.controlPoints = new List<Point>();
@@ -54,14 +49,8 @@ namespace SysCAD.Protocol
       foreach (Point controlPoint in controlPoints)
         this.controlPoints.Add(controlPoint);
 
-      this.textArea = textArea;
-      this.textAngle = textAngle;
-    }
-
-    public GraphicLink(String tag)
-    {
-      this.guid = Guid.NewGuid();
-      this.tag = tag;
+      this.tagArea = tagArea;
+      this.tagAngle = tagAngle;
     }
 
     // Norm-1 distance between the closest side of the rectangle to the point.
@@ -90,10 +79,10 @@ namespace SysCAD.Protocol
       return dX + dY;
     }
 
-    public String ClassID
+    public Guid ModelGuid
     {
-      get { return classId; }
-      set { classId = value; }
+      get { return modelGuid; }
+      set { modelGuid = value; }
     }
 
     public List<Point> ControlPoints
@@ -108,21 +97,10 @@ namespace SysCAD.Protocol
       set { destination = value; }
     }
 
-    public String DestinationPort
-    {
-      get { return destinationPort; }
-      set { destinationPort = value; }
-    }
-
     public Int16 DestinationPortID
     {
       get { return destinationPortID; }
       set { destinationPortID = value; }
-    }
-
-    public Guid Guid
-    {
-      get { return guid; }
     }
 
     public Guid Origin
@@ -131,34 +109,52 @@ namespace SysCAD.Protocol
       set { origin = value; }
     }
 
-    public String OriginPort
-    {
-      get { return originPort; }
-      set { originPort = value; }
-    }
-
     public Int16 OriginPortID
     {
       get { return originPortID; }
       set { originPortID = value; }
     }
 
-    public String Tag
+    public Rectangle TagArea
     {
-      get { return tag; }
-      set { tag = value; }
+      get { return tagArea; }
+      set { tagArea = value; }
     }
 
-    public Rectangle TextArea
+    public Double TagAngle
     {
-      get { return textArea; }
-      set { textArea = value; }
+      get { return tagAngle; }
+      set { tagAngle = value; }
     }
 
-    public Double TextAngle
+    public Boolean TagVisible
     {
-      get { return textAngle; }
-      set { textAngle = value; }
+      get { return tagVisible; }
+      set { tagVisible = value; }
+    }
+
+    public GraphicLink Clone()
+    {
+      GraphicLink graphicLink = new GraphicLink();
+
+      graphicLink.Tag = Tag;
+      graphicLink.Guid = Guid;
+
+      graphicLink.modelGuid = modelGuid;
+      graphicLink.origin = origin;
+      graphicLink.destination = destination;
+      graphicLink.originPortID = originPortID;
+      graphicLink.destinationPortID = destinationPortID;
+
+      graphicLink.controlPoints = new List<Point>();
+
+      foreach (Point controlPoint in controlPoints)
+        graphicLink.controlPoints.Add(controlPoint);
+
+      graphicLink.tagArea = tagArea;
+      graphicLink.tagAngle = tagAngle;
+      
+      return graphicLink;
     }
   }
 }
