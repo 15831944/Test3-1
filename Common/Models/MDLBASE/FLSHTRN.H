@@ -160,7 +160,7 @@ typedef CArraySrch <CFT_Flash*, CFT_Flash*> CArrayFlsh;
 //
 //=========================================================================== 
 
-#if KeepOldTearVarBlkEdit
+#if WithTearVarBlkEdit
 DEFINE_TAGOBJEDTDERIVED(FlshTrnTearVarBlk, TearVarBlkClassDef);
 #else
 DEFINE_TAGOBJDERIVED(FlshTrnTearVarBlk, TearVarBlkClassDef);

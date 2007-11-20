@@ -1234,6 +1234,7 @@ enum FE_TagOps
   FETOp_MrkCrit3,
   FETOp_ClrMarked,
   FETOp_GetActiveConns,
+  FETOp_GetTears,
 
   };
 

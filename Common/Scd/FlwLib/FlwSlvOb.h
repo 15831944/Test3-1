@@ -137,9 +137,9 @@ class DllImportExport SDBObjectEdt : public FxdEdtBookRef
 //
 // ==========================================================================
 
-#if KeepOldTearObject    
+#if WithTearObject    
 
-#if KeepOldTearObjectEdit 
+#if WithTearObjectEdit 
 DEFINE_TAGOBJEDT(TearObject)
 #else
 DEFINE_TAGOBJ(TearObject)
@@ -152,15 +152,18 @@ class TearObject : public CTNode
     virtual ~TearObject();
 
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual void   BuildCommonSEDefn(DataDefnBlk &DDB) {}; // Hide 'Info Page' for TearObject
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual pchar  TagOfParent() { return PlantModelTag; };
+  
+    int       m_iTagWidth;
   };
 
 // ===========================================================================
 
 
-#if KeepOldTearObjectEdit 
+#if WithTearObjectEdit 
 
 _FWDDEF(TearObjectEdt);
 class DllImportExport TearObjectEdt : public FxdEdtBookRef

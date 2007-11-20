@@ -66,9 +66,9 @@
 #define WITHANALYSE           0
 #define WITHDRVMAN            0
 
-#define KeepOldTearObject        (0)
-#define KeepOldTearObjectEdit    (KeepOldTearObject && 0)
-#define KeepOldTearVarBlkEdit    (0)
+#define WithTearObject        01
+#define WithTearObjectEdit    (WithTearObject && 0)
+#define WithTearVarBlkEdit    0
 
 
 

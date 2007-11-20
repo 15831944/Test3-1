@@ -1269,204 +1269,204 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
         DCB.B=TP_Normal;
       return 1;
       }
-    case xidTearInitWhen:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>=2)
-        {
-        if (DCB.rB)
-          IOFlange(iT)->SetTearInitWhen(*DCB.rB);
-        DCB.B=IOFlange(iT)->TearInitWhen();
-        DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
-        }
-      else
-        DCB.B=TIW_OnInit;
-      return 1;
-      }
-    case xidTearInitHow:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>=2)
-        {
-        if (DCB.rB)
-          IOFlange(iT)->SetTearInitHow(*DCB.rB);
-        DCB.B=IOFlange(iT)->TearInitHow();
-        DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
-        }
-      else
-        DCB.B=TIH_ZeroNIters;
-      return 1;
-      }
-    case xidTearInitEstUsage:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>=2)
-        {
-        if (DCB.rB)
-          {
-          IOFlange(iT)->SetTearInitEstUsage(*DCB.rB);
-          }
-        DCB.B=IOFlange(iT)->TearInitEstUsage();
-        //DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
-        }
-      else
-        DCB.B=TIEU_None;
-      return 1;
-      }
-    case xidTearInitActive:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>=2)
-        {
-        CFlange &F=*IOFlange(iT);
-        if (F.TearInitActive())
-          {
-          DCB.B=F.TearInitHow();
-          //switch (F.TearInitHow())
-          //  {
-          //  case TIH_ZeroNIters:
-          //    DCB.B=F.TearHoldCount()<F.TearHoldRqdCnt() ? TIH_Zeroing : TIH_ZeroNIters;
-          //    break;
-          //  case TIH_HoldNIters:
-          //    DCB.B=F.TearHoldCount()<F.TearHoldRqdCnt() ? TIH_Holding : TIH_HoldNIters;
-          //    break;
-          //  case TIH_RampNIters:
-          //    DCB.B=F.TearHoldCount()<F.TearHoldRqdCnt() ? TIH_Ramping : TIH_RampNIters;
-          //    break;
-          //  }
+    //case xidTearInitWhen:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>=2)
+    //    {
+    //    if (DCB.rB)
+    //      IOFlange(iT)->SetTearInitWhen(*DCB.rB);
+    //    DCB.B=IOFlange(iT)->TearInitWhen();
+    //    DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
+    //    }
+    //  else
+    //    DCB.B=TIW_OnInit;
+    //  return 1;
+    //  }
+    //case xidTearInitHow:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>=2)
+    //    {
+    //    if (DCB.rB)
+    //      IOFlange(iT)->SetTearInitHow(*DCB.rB);
+    //    DCB.B=IOFlange(iT)->TearInitHow();
+    //    DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
+    //    }
+    //  else
+    //    DCB.B=TIH_ZeroNIters;
+    //  return 1;
+    //  }
+    //case xidTearInitEstUsage:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>=2)
+    //    {
+    //    if (DCB.rB)
+    //      {
+    //      IOFlange(iT)->SetTearInitEstUsage(*DCB.rB);
+    //      }
+    //    DCB.B=IOFlange(iT)->TearInitEstUsage();
+    //    //DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
+    //    }
+    //  else
+    //    DCB.B=TIEU_None;
+    //  return 1;
+    //  }
+    //case xidTearInitActive:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>=2)
+    //    {
+    //    CFlange &F=*IOFlange(iT);
+    //    if (F.TearInitActive())
+    //      {
+    //      DCB.B=F.TearInitHow();
+    //      //switch (F.TearInitHow())
+    //      //  {
+    //      //  case TIH_ZeroNIters:
+    //      //    DCB.B=F.TearHoldCount()<F.TearHoldRqdCnt() ? TIH_Zeroing : TIH_ZeroNIters;
+    //      //    break;
+    //      //  case TIH_HoldNIters:
+    //      //    DCB.B=F.TearHoldCount()<F.TearHoldRqdCnt() ? TIH_Holding : TIH_HoldNIters;
+    //      //    break;
+    //      //  case TIH_RampNIters:
+    //      //    DCB.B=F.TearHoldCount()<F.TearHoldRqdCnt() ? TIH_Ramping : TIH_RampNIters;
+    //      //    break;
+    //      //  }
 
-          //DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
-          }
-        else DCB.B=TIH_Off;
-        }
-      else
-        DCB.B=0;//TI_OnInit|TI_Zero;
-      return 1;
-      }
-    case xidTearInitActivate:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>=2)
-        {
-        if (DCB.rB)
-          IOFlange(iT)->SetTearInitActive(*DCB.rB!=0, !DCB.ForFileSnpScn());
-        //DCB.B=IOFlange(iT)->TearInitActive();
-        //DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
-        }
-      else
-        DCB.B=0;//TI_OnInit|TI_Zero;
-      return 1;
-      }
-    case xidTearCntRqd:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>=2)
-        {
-        if (DCB.rB)
-          IOFlange(iT)->SetTearHoldRqdCnt(*DCB.rB);
-        DCB.B=IOFlange(iT)->TearHoldRqdCnt();
-        DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()>=TT_ManualTear) ? isParm : 0;
-        }
-      else
-        DCB.B=-1;
-      return 1;
-      }
-    case xidTearCntAct:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>=2)
-        {
-        if (DCB.rB)
-          IOFlange(iT)->SetTearHoldCount(*DCB.rB);
-        DCB.B=IOFlange(iT)->TearHoldCount();
-        //DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()>=TT_ManualTear) ? isParm : 0;
-        }
-      else
-        DCB.B=-1;
-      return 1;
-      }
-    case xidTearQmMode:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
-        {
-        SpImage &I=*IOFlange(iT)->TearImage();
-        if (DCB.rB)
-          I.SetQMode(SpImgMode(*DCB.rB));
-        DCB.B=I.QMode();
-        }
-      else
-        DCB.B=SPI_QModeNone;
-      return 1;
-      }
-    case xidTearQmRqd:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
-        {
-        SpImage &I=*IOFlange(iT)->TearImage();
-        if (DCB.rD)
-          I.SetQmRqdTo(*DCB.rD, true, !DCB.ForFileSnpScn());
-        DCB.D=I.QmRqd();
-        }
-      else
-        DCB.D=dNAN;
-      return 1;
-      }
-    case xidTearQvRqd:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
-        {
-        SpImage &I=*IOFlange(iT)->TearImage();
-        if (DCB.rD)
-          I.SetQvRqdTo(*DCB.rD, true, !DCB.ForFileSnpScn());
-        DCB.D=I.QvRqd();
-        }
-      else
-        DCB.D=dNAN;
-      return 1;
-      }
-    case xidTearNQvRqd:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
-        {
-        SpImage &I=*IOFlange(iT)->TearImage();
-        if (DCB.rD)
-          I.SetNQvRqdTo(*DCB.rD, true, !DCB.ForFileSnpScn());
-        DCB.D=I.NQvRqd();
-        }
-      else
-        DCB.D=dNAN;
-      return 1;
-      }
-    case xidTearTRqd:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
-        {
-        if (DCB.rD)
-          IOFlange(iT)->TearImage()->SetTRqdTo(*DCB.rD);
-        DCB.D=IOFlange(iT)->TearImage()->TRqd();
-        }
-      else
-        DCB.D=dNAN;
-      return 1;
-      }
-    case xidTearPRqd:
-      {
-      int iT=0;
-      if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
-        {
-        if (DCB.rD)
-          IOFlange(iT)->TearImage()->SetPRqdTo(*DCB.rD);
-        DCB.D=IOFlange(iT)->TearImage()->PRqd();
-        }
-      else
-        DCB.D=dNAN;
-      return 1;
-      }
+    //      //DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
+    //      }
+    //    else DCB.B=TIH_Off;
+    //    }
+    //  else
+    //    DCB.B=0;//TI_OnInit|TI_Zero;
+    //  return 1;
+    //  }
+    //case xidTearInitActivate:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>=2)
+    //    {
+    //    if (DCB.rB)
+    //      IOFlange(iT)->SetTearInitActive(*DCB.rB!=0, !DCB.ForFileSnpScn());
+    //    //DCB.B=IOFlange(iT)->TearInitActive();
+    //    //DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()==TT_ManualTear) ? isParm : 0;
+    //    }
+    //  else
+    //    DCB.B=0;//TI_OnInit|TI_Zero;
+    //  return 1;
+    //  }
+    //case xidTearCntRqd:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>=2)
+    //    {
+    //    if (DCB.rB)
+    //      IOFlange(iT)->SetTearHoldRqdCnt(*DCB.rB);
+    //    DCB.B=IOFlange(iT)->TearHoldRqdCnt();
+    //    DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()>=TT_ManualTear) ? isParm : 0;
+    //    }
+    //  else
+    //    DCB.B=-1;
+    //  return 1;
+    //  }
+    //case xidTearCntAct:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>=2)
+    //    {
+    //    if (DCB.rB)
+    //      IOFlange(iT)->SetTearHoldCount(*DCB.rB);
+    //    DCB.B=IOFlange(iT)->TearHoldCount();
+    //    //DCB.dwRetFlags=(IOFlange(iT)->RqdTearType()>=TT_ManualTear) ? isParm : 0;
+    //    }
+    //  else
+    //    DCB.B=-1;
+    //  return 1;
+    //  }
+    //case xidTearQmMode:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
+    //    {
+    //    SpImage &I=*IOFlange(iT)->TearImage();
+    //    if (DCB.rB)
+    //      I.SetQMode(SpImgMode(*DCB.rB));
+    //    DCB.B=I.QMode();
+    //    }
+    //  else
+    //    DCB.B=SPI_QModeNone;
+    //  return 1;
+    //  }
+    //case xidTearQmRqd:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
+    //    {
+    //    SpImage &I=*IOFlange(iT)->TearImage();
+    //    if (DCB.rD)
+    //      I.SetQmRqdTo(*DCB.rD, true, !DCB.ForFileSnpScn());
+    //    DCB.D=I.QmRqd();
+    //    }
+    //  else
+    //    DCB.D=dNAN;
+    //  return 1;
+    //  }
+    //case xidTearQvRqd:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
+    //    {
+    //    SpImage &I=*IOFlange(iT)->TearImage();
+    //    if (DCB.rD)
+    //      I.SetQvRqdTo(*DCB.rD, true, !DCB.ForFileSnpScn());
+    //    DCB.D=I.QvRqd();
+    //    }
+    //  else
+    //    DCB.D=dNAN;
+    //  return 1;
+    //  }
+    //case xidTearNQvRqd:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
+    //    {
+    //    SpImage &I=*IOFlange(iT)->TearImage();
+    //    if (DCB.rD)
+    //      I.SetNQvRqdTo(*DCB.rD, true, !DCB.ForFileSnpScn());
+    //    DCB.D=I.NQvRqd();
+    //    }
+    //  else
+    //    DCB.D=dNAN;
+    //  return 1;
+    //  }
+    //case xidTearTRqd:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
+    //    {
+    //    if (DCB.rD)
+    //      IOFlange(iT)->TearImage()->SetTRqdTo(*DCB.rD);
+    //    DCB.D=IOFlange(iT)->TearImage()->TRqd();
+    //    }
+    //  else
+    //    DCB.D=dNAN;
+    //  return 1;
+    //  }
+    //case xidTearPRqd:
+    //  {
+    //  int iT=0;
+    //  if (NoProcLnkIOs()>1 && IOFlange(iT)->TearImageExists())
+    //    {
+    //    if (DCB.rD)
+    //      IOFlange(iT)->TearImage()->SetPRqdTo(*DCB.rD);
+    //    DCB.D=IOFlange(iT)->TearImage()->PRqd();
+    //    }
+    //  else
+    //    DCB.D=dNAN;
+    //  return 1;
+    //  }
     case xidOldQmReqd       :
       if (DCB.rD)
         {

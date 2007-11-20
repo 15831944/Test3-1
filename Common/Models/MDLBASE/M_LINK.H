@@ -201,21 +201,21 @@ XID xidFlwPhaseAct        = MdlBsXID(9019);
 
 XID xidTearPriority       = MdlBsXID(9020);
 XID xidTearType           = MdlBsXID(9021);
-XID xidTearInitWhen       = MdlBsXID(9022);
-XID xidTearInitHow        = MdlBsXID(9023);
-XID xidTearInitEstUsage   = MdlBsXID(9024);
-XID xidTearInitActive     = MdlBsXID(9025);
-XID xidTearInitActivate   = MdlBsXID(9026);
-XID xidTearCntRqd         = MdlBsXID(9027);
-XID xidTearCntAct         = MdlBsXID(9028);
+//XID xidTearInitWhen       = MdlBsXID(9022);
+//XID xidTearInitHow        = MdlBsXID(9023);
+//XID xidTearInitEstUsage   = MdlBsXID(9024);
+//XID xidTearInitActive     = MdlBsXID(9025);
+//XID xidTearInitActivate   = MdlBsXID(9026);
+//XID xidTearCntRqd         = MdlBsXID(9027);
+//XID xidTearCntAct         = MdlBsXID(9028);
 XID xidTearState          = MdlBsXID(9029);
-
-XID xidTearQmMode         = MdlBsXID(9030);
-XID xidTearQmRqd          = MdlBsXID(9031);
-XID xidTearQvRqd          = MdlBsXID(9032);
-XID xidTearNQvRqd         = MdlBsXID(9033);
-XID xidTearPRqd           = MdlBsXID(9034);
-XID xidTearTRqd           = MdlBsXID(9035);
+//
+//XID xidTearQmMode         = MdlBsXID(9030);
+//XID xidTearQmRqd          = MdlBsXID(9031);
+//XID xidTearQvRqd          = MdlBsXID(9032);
+//XID xidTearNQvRqd         = MdlBsXID(9033);
+//XID xidTearPRqd           = MdlBsXID(9034);
+//XID xidTearTRqd           = MdlBsXID(9035);
 
 XID xidTearFlangeTag      = MdlBsXID(9036);
 XID xidTearBlockTag       = MdlBsXID(9037);

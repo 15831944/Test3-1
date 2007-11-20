@@ -2963,7 +2963,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             if (DoingGrid)
               {
               if (d.m_iGridCol==0)
-                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,"");
+                {
+                Strng Sep;
+                Sep.LPad(ColHdrs[0].m_Gap);
+                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,Sep());
+                }
               }
             else
               {
@@ -3030,7 +3034,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             if (DoingGrid)
               {
               if (d.m_iGridCol==0)
-                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,"");
+                {
+                Strng Sep;
+                Sep.LPad(ColHdrs[0].m_Gap);
+                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,Sep());
+                }
               }
             else
               {
@@ -3125,8 +3133,12 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             if (DoingGrid)
               {
               if (d.m_iGridCol==0)
-                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,"");
+                {
+                Strng Sep;
+                Sep.LPad(ColHdrs[0].m_Gap);
+                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,Sep());
                 //SetDesc(LnNo, "", -1, NamW+WdtAdj, 3, "");
+                }
               }
             else
               {

@@ -1187,7 +1187,7 @@ CCtrlData::CCtrlData()
 //
 //===========================================================================
 
-#if KeepOldTearVarBlkEdit
+#if WithTearVarBlkEdit
 IMPLEMENT_TAGOBJEDTDERIVED(FlangeTearVarBlk, "FlangeTVB", "TbFlange", "", "TBFG", TOC_SYSTEM,
                    TearVarBlkEdt,
                    "FlangeTearVarBlk", "Flange Tear Variable Calculation Blk",
@@ -1248,6 +1248,7 @@ void FlangeTearVarBlk::DoConstruct()
   TV[n].m_pDiffFmt=&m_TFmt;
   TV[n].m_pMeasCnv=&m_TCnv;
   TV[n].m_pMeasFmt=&m_TFmt;
+  TV[n].m_Initial=StdT;
   n++;
   TV[n].m_Tag.Set("Press");
   TV[n].m_Sym.Set("P");
@@ -1255,6 +1256,7 @@ void FlangeTearVarBlk::DoConstruct()
   TV[n].m_pDiffFmt=&m_PFmt;
   TV[n].m_pMeasCnv=&m_PCnv;
   TV[n].m_pMeasFmt=&m_PFmt;
+  TV[n].m_Initial=StdP;
   n++;
   for (int s=0; s<SVSpcCount(); s++)
     {
@@ -1264,6 +1266,7 @@ void FlangeTearVarBlk::DoConstruct()
     TV[n].m_pDiffFmt=&m_QFmt;
     TV[n].m_pMeasCnv=&m_QCnv;
     TV[n].m_pMeasFmt=&m_QFmt;
+    TV[n].m_Initial=0;
     n++;
     }
   for (  ; s<SVValueCount(); s++)
@@ -1275,6 +1278,7 @@ void FlangeTearVarBlk::DoConstruct()
     TV[n].m_pDiffFmt=&m_QFmt;
     TV[n].m_pMeasCnv=&m_QCnv;
     TV[n].m_pMeasFmt=&m_QFmt;
+    TV[n].m_Initial=0;
     n++;
     }
 
@@ -1365,7 +1369,7 @@ CConnect(Connect_Flange, pClass_, TagIn, pAttach, eAttach)
   m_pTearImg          = NULL;
 
   m_SubTag            =  "Qo";
-  m_iNameWidth        = -1;
+  //m_iNameWidth        = -1;
 
   m_bRedirectActive   = false;
   m_pRedirectTo       =  NULL;
@@ -1419,67 +1423,67 @@ LPSTR CFlange::SetTag(LPSTR ReqdTag, bool AllowEmptyTag)
 
 // --------------------------------------------------------------------------
 
-XID xidGlblTearMeth           = MdlBsXID(5510);
-XID xidGlblTearMaxIters       = MdlBsXID(5511);
-XID xidGlblTearHold           = MdlBsXID(5512);
-XID xidGlblTearDampGroup      = MdlBsXID(5513);
-XID xidGlblTearDampReqd       = MdlBsXID(5514);
-XID xidGlblTearDampGrowth     = MdlBsXID(5515);
-XID xidGlblTearDampDecay      = MdlBsXID(5516);
-XID xidGlblTearWegDelay       = MdlBsXID(5517);
-XID xidGlblTearWegBound       = MdlBsXID(5518);
-XID xidGlblTearWegClamp       = MdlBsXID(5519);
-XID xidGlblTearTolStrat       = MdlBsXID(5520);
-XID xidGlblTearTolAbs         = MdlBsXID(5521);
-XID xidGlblTearTolRel         = MdlBsXID(5522);
-
-XID xidFlngTearMeth           = MdlBsXID(5530);
-XID xidFlngTearCnvIters       = MdlBsXID(5531);
-XID xidFlngTearNVar           = MdlBsXID(5532);
-XID xidFlngTearHold           = MdlBsXID(5533);
-XID xidFlngTearDampGroup      = MdlBsXID(5534);
-XID xidFlngTearDampReqd       = MdlBsXID(5535);
-XID xidFlngTearDampGrowth     = MdlBsXID(5536);
-XID xidFlngTearDampDecay      = MdlBsXID(5537);
-XID xidFlngTearWegDelay       = MdlBsXID(5538);
-XID xidFlngTearWegBound       = MdlBsXID(5539);
-XID xidFlngTearWegClamp       = MdlBsXID(5540);
-XID xidFlngTearTolStrat       = MdlBsXID(5541);
-XID xidFlngTearTolAbs         = MdlBsXID(5542);
-XID xidFlngTearTolRel         = MdlBsXID(5543);
-
+//XID xidGlblTearMeth           = MdlBsXID(5510);
+//XID xidGlblTearMaxIters       = MdlBsXID(5511);
+//XID xidGlblTearHold           = MdlBsXID(5512);
+//XID xidGlblTearDampGroup      = MdlBsXID(5513);
+//XID xidGlblTearDampReqd       = MdlBsXID(5514);
+//XID xidGlblTearDampGrowth     = MdlBsXID(5515);
+//XID xidGlblTearDampDecay      = MdlBsXID(5516);
+//XID xidGlblTearWegDelay       = MdlBsXID(5517);
+//XID xidGlblTearWegBound       = MdlBsXID(5518);
+//XID xidGlblTearWegClamp       = MdlBsXID(5519);
+//XID xidGlblTearTolStrat       = MdlBsXID(5520);
+//XID xidGlblTearTolAbs         = MdlBsXID(5521);
+//XID xidGlblTearTolRel         = MdlBsXID(5522);
+//
 //XID xidFlngTearMeth           = MdlBsXID(5530);
 //XID xidFlngTearCnvIters       = MdlBsXID(5531);
 //XID xidFlngTearNVar           = MdlBsXID(5532);
-//XID xidFlngTearDampGrp        = MdlBsXID(5533);
-//XID xidFlngTearDampReqd       = MdlBsXID(5534);
-//xidFlngTearWegDelay,  
-//xidFlngTearWegBound,  
-//xidFlngTearWegClamp,  
+//XID xidFlngTearHold           = MdlBsXID(5533);
+//XID xidFlngTearDampGroup      = MdlBsXID(5534);
+//XID xidFlngTearDampReqd       = MdlBsXID(5535);
+//XID xidFlngTearDampGrowth     = MdlBsXID(5536);
+//XID xidFlngTearDampDecay      = MdlBsXID(5537);
+//XID xidFlngTearWegDelay       = MdlBsXID(5538);
+//XID xidFlngTearWegBound       = MdlBsXID(5539);
+//XID xidFlngTearWegClamp       = MdlBsXID(5540);
+//XID xidFlngTearTolStrat       = MdlBsXID(5541);
+//XID xidFlngTearTolAbs         = MdlBsXID(5542);
+//XID xidFlngTearTolRel         = MdlBsXID(5543);
 //
-//XID xidFlngTearTolStrat       = MdlBsXID(5535);
-//XID xidFlngTearTolAbs         = MdlBsXID(5536);
-//XID xidFlngTearTolRel         = MdlBsXID(5537);
-XID xidFlngTearValues         = MdlBsXID(5550);
-
+////XID xidFlngTearMeth           = MdlBsXID(5530);
+////XID xidFlngTearCnvIters       = MdlBsXID(5531);
+////XID xidFlngTearNVar           = MdlBsXID(5532);
+////XID xidFlngTearDampGrp        = MdlBsXID(5533);
+////XID xidFlngTearDampReqd       = MdlBsXID(5534);
+////xidFlngTearWegDelay,  
+////xidFlngTearWegBound,  
+////xidFlngTearWegClamp,  
+////
+////XID xidFlngTearTolStrat       = MdlBsXID(5535);
+////XID xidFlngTearTolAbs         = MdlBsXID(5536);
+////XID xidFlngTearTolRel         = MdlBsXID(5537);
+//XID xidFlngTearValues         = MdlBsXID(5550);
+//
 XID xidFlngTearBlock          = MdlBsXID(5552); // temporary
 XID xidFlngTearBlocks         = MdlBsXID(5553); // temporary
-
-enum 
-  {
-  FTV_Input,
-  FTV_Output,
-  FTV_Error,
-  FTV_Hold,
-  FTV_Cvgd,
-  FTV_Iters,
-  FTV_EPS_Abs,
-  FTV_EPS_Rel,
-  FTV_Method,
-  FTV_EPStrat,
-
-  // max value 15 - 4 bits
-  };
+//
+//enum 
+//  {
+//  FTV_Input,
+//  FTV_Output,
+//  FTV_Error,
+//  FTV_Hold,
+//  FTV_Cvgd,
+//  FTV_Iters,
+//  FTV_EPS_Abs,
+//  FTV_EPS_Rel,
+//  FTV_Method,
+//  FTV_EPStrat,
+//
+//  // max value 15 - 4 bits
+//  };
 
 
 
@@ -1500,65 +1504,65 @@ void CFlange::BuildDataDefn(DataDefnBlk & DDB)
 
   if (IsTear())
     {
-    if ((m_iNameWidth<0) && m_pVarBlk && (m_pVarBlk->NVariables()>0))
-      {
-      int N=m_pVarBlk->NVariables();
-      m_iNameWidth=8;
-      for (int i=0; i<N; i++)
-        m_iNameWidth=Max(m_iNameWidth, (int)(strlen(GetDisplayTag(m_pVarBlk->TV[i].m_Tag, m_pVarBlk->TV[i].m_Sym))+1));
-      }
+    //if ((m_iNameWidth<0) && m_pVarBlk && (m_pVarBlk->NVariables()>0))
+    //  {
+    //  int N=m_pVarBlk->NVariables();
+    //  m_iNameWidth=8;
+    //  for (int i=0; i<N; i++)
+    //    m_iNameWidth=Max(m_iNameWidth, (int)(strlen(GetDisplayTag(m_pVarBlk->TV[i].m_Tag, m_pVarBlk->TV[i].m_Sym))+1));
+    //  }
 
-    if (!DDB.ForFileSnpScn())
-      {
-      DDB.Text(StdSepUnderbar);
+    //if (!DDB.ForFileSnpScn())
+    //  {
+      //DDB.Text(StdSepUnderbar);
       DDB.Text("This flange has a tear in place");
-      DDB.String  ("TearBlock",               "",       DC_,      "",   xidFlngTearBlock,           this, isTag);//isParm);
-      DDB.String  ("TearBlocks",              "",       DC_,      "",   xidFlngTearBlocks,           this, isTag);//isParm);
+      DDB.String  ("TearSummary",               "",       DC_,      "",   xidFlngTearBlocks,           this, isTag|noFileAtAll);//isParm);
+      DDB.String  ("TearBlock",                "",       DC_,      "",   xidFlngTearBlock,           this, isTag|noFileAtAll);//isParm);
 
-      DDB.Text(StdSepUnderbar);
-      DDB.Text("GLOBAL Tear Defaults");
-      DDB.Text("Control:");
-      DDB.String  ("GlblTear.Method",         "",       DC_,      "",   xidGlblTearMeth,           this, isParm|SetOnChange, DDBTearMethod);
-      DDB.Long    ("GlblTear.MaxIters",       "",       DC_,      "",   xidGlblTearMaxIters,       this, isParm);
-      DDB.String  ("GlblTear.Hold",           "",       DC_,      "",   xidGlblTearHold,           this, isParm, DDBHoldOutput);
-      DDB.Text("Damping:");
-      DDB.String  ("GlblTear.Damp.Group",     "",       DC_,      "",   xidGlblTearDampGroup,      this, isParm|SetOnChange, DDBDampAsGroup);
-      DDB.Double  ("GlblTear.Damp.Reqd",      "",       DC_Frac,  "%",  xidGlblTearDampReqd,       this, isParm);
-      DDB.Double  ("GlblTear.Damp.Growth",    "",       DC_Frac,  "%",  xidGlblTearDampGrowth,     this, isParm);
-      DDB.Double  ("GlblTear.Damp.Decay",     "",       DC_Frac,  "%",  xidGlblTearDampDecay,      this, isParm);
-      DDB.Text("Wegstein:");
-      DDB.Long    ("GlblTear.Wegs.Delay",     "",       DC_,      "",   xidGlblTearWegDelay,       this, isParm);
-      DDB.Double  ("GlblTear.Wegs.Bound",     "",       DC_,      "",   xidGlblTearWegBound,       this, isParm);
-      DDB.Double  ("GlblTear.Wegs.Clamp",     "",       DC_,      "",   xidGlblTearWegClamp,       this, isParm);
-      DDB.Text("Cnv Tolerance:");
-      DDB.String  ("GlblTear.Tol.Strat",      "",       DC_,      "",   xidGlblTearTolStrat,       this, (m_pVarBlk?isParm:0)|SetOnChange, DDBEPSStrategy);
-      DDB.Double  ("GlblTear.Tol.Abs",        "",       DC_Frac,  "%",  xidGlblTearTolAbs,         this, isParm|DDEF_FLOATFMT);
-      DDB.Double  ("GlblTear.Tol.Rel",        "",       DC_Frac,  "%",  xidGlblTearTolRel,         this, isParm|DDEF_FLOATFMT);
-      }
+    //  DDB.Text(StdSepUnderbar);
+    //  DDB.Text("GLOBAL Tear Defaults");
+    //  DDB.Text("Control:");
+    //  DDB.String  ("GlblTear.Method",         "",       DC_,      "",   xidGlblTearMeth,           this, isParm|SetOnChange, DDBTearMethod);
+    //  DDB.Long    ("GlblTear.MaxIters",       "",       DC_,      "",   xidGlblTearMaxIters,       this, isParm);
+    //  DDB.String  ("GlblTear.Hold",           "",       DC_,      "",   xidGlblTearHold,           this, isParm, DDBHoldOutput);
+    //  DDB.Text("Damping:");
+    //  DDB.String  ("GlblTear.Damp.Group",     "",       DC_,      "",   xidGlblTearDampGroup,      this, isParm|SetOnChange, DDBDampAsGroup);
+    //  DDB.Double  ("GlblTear.Damp.Reqd",      "",       DC_Frac,  "%",  xidGlblTearDampReqd,       this, isParm);
+    //  DDB.Double  ("GlblTear.Damp.Growth",    "",       DC_Frac,  "%",  xidGlblTearDampGrowth,     this, isParm);
+    //  DDB.Double  ("GlblTear.Damp.Decay",     "",       DC_Frac,  "%",  xidGlblTearDampDecay,      this, isParm);
+    //  DDB.Text("Wegstein:");
+    //  DDB.Long    ("GlblTear.Wegs.Delay",     "",       DC_,      "",   xidGlblTearWegDelay,       this, isParm);
+    //  DDB.Double  ("GlblTear.Wegs.Bound",     "",       DC_,      "",   xidGlblTearWegBound,       this, isParm);
+    //  DDB.Double  ("GlblTear.Wegs.Clamp",     "",       DC_,      "",   xidGlblTearWegClamp,       this, isParm);
+    //  DDB.Text("Cnv Tolerance:");
+    //  DDB.String  ("GlblTear.Tol.Strat",      "",       DC_,      "",   xidGlblTearTolStrat,       this, (m_pVarBlk?isParm:0)|SetOnChange, DDBEPSStrategy);
+    //  DDB.Double  ("GlblTear.Tol.Abs",        "",       DC_Frac,  "%",  xidGlblTearTolAbs,         this, isParm|DDEF_FLOATFMT);
+    //  DDB.Double  ("GlblTear.Tol.Rel",        "",       DC_Frac,  "%",  xidGlblTearTolRel,         this, isParm|DDEF_FLOATFMT);
+    //  }
 
-    DDB.Text(StdSepUnderbar);
-    DDB.Text("Tear Defaults for THIS tear");
-    DDB.Text("Control:");
-    DDB.String  ("Tear.Method",             "",       DC_,      "",   xidFlngTearMeth,        this, (m_pVarBlk?isParm:0)|SetOnChange, DDBTearMethodDef);
-    DDB.Long    ("Tear.CnvIters",           "",       DC_,      "",   xidFlngTearCnvIters,    this, 0);//isParm);
-    DDB.Long    ("Tear.VarCount",           "",       DC_,      "",   xidFlngTearNVar,        this, 0);//isParm);
-    DDB.String  ("Tear.Hold",               "",       DC_,      "",   xidFlngTearHold,        this, (m_pVarBlk?isParm:0), DDBHoldOutputDef);
-    DDB.Text("Damping:");                                                                               
-    DDB.String  ("Tear.Damp.Group",         "",       DC_,      "",   xidFlngTearDampGroup,      this, (m_pVarBlk?isParm:0)|SetOnChange, DDBDampAsGroupDef);
-    DDB.Double  ("Tear.Damp.Reqd",          "",       DC_Frac,  "%",  xidFlngTearDampReqd,       this, (m_pVarBlk?isParm:0)|NAN_OK);
-    DDB.Double  ("Tear.Damp.Growth",        "",       DC_Frac,  "%",  xidFlngTearDampGrowth,     this, (m_pVarBlk?isParm:0)|NAN_OK);
-    DDB.Double  ("Tear.Damp.Decay",         "",       DC_Frac,  "%",  xidFlngTearDampDecay,      this, (m_pVarBlk?isParm:0)|NAN_OK);
-    //DDB.Text("Wegstein:");
-    //DDB.Long    ("Tear.Wegs.Delay",         "",       DC_,      "",   xidFlngTearWegDelay,       this, isParm);
-    //DDB.Double  ("Tear.Wegs.Bound",         "",       DC_,      "",   xidFlngTearWegBound,       this, isParm);
-    //DDB.Double  ("Tear.Wegs.Clamp",         "",       DC_,      "",   xidFlngTearWegClamp,       this, isParm);
-    DDB.Text("Cnv Tolerance:");
-    DDB.String  ("Tear.Tol.Strat",          "",       DC_,      "",   xidFlngTearTolStrat,       this, (m_pVarBlk?isParm:0)|SetOnChange, DDBEPSStrategyDef);
-    DDB.Double  ("Tear.Tol.Abs",            "",       DC_Frac,  "%",  xidFlngTearTolAbs,         this, (m_pVarBlk?isParm:0)|NAN_OK|DDEF_FLOATFMT);
-    DDB.Double  ("Tear.Tol.Rel",            "",       DC_Frac,  "%",  xidFlngTearTolRel,         this, (m_pVarBlk?isParm:0)|NAN_OK|DDEF_FLOATFMT);
+    //DDB.Text(StdSepUnderbar);
+    //DDB.Text("Tear Defaults for THIS tear");
+    //DDB.Text("Control:");
+    //DDB.String  ("Tear.Method",             "",       DC_,      "",   xidFlngTearMeth,        this, (m_pVarBlk?isParm:0)|SetOnChange, DDBTearMethodDef);
+    //DDB.Long    ("Tear.CnvIters",           "",       DC_,      "",   xidFlngTearCnvIters,    this, 0);//isParm);
+    //DDB.Long    ("Tear.VarCount",           "",       DC_,      "",   xidFlngTearNVar,        this, 0);//isParm);
+    //DDB.String  ("Tear.Hold",               "",       DC_,      "",   xidFlngTearHold,        this, (m_pVarBlk?isParm:0), DDBHoldOutputDef);
+    //DDB.Text("Damping:");                                                                               
+    //DDB.String  ("Tear.Damp.Group",         "",       DC_,      "",   xidFlngTearDampGroup,      this, (m_pVarBlk?isParm:0)|SetOnChange, DDBDampAsGroupDef);
+    //DDB.Double  ("Tear.Damp.Reqd",          "",       DC_Frac,  "%",  xidFlngTearDampReqd,       this, (m_pVarBlk?isParm:0)|NAN_OK);
+    //DDB.Double  ("Tear.Damp.Growth",        "",       DC_Frac,  "%",  xidFlngTearDampGrowth,     this, (m_pVarBlk?isParm:0)|NAN_OK);
+    //DDB.Double  ("Tear.Damp.Decay",         "",       DC_Frac,  "%",  xidFlngTearDampDecay,      this, (m_pVarBlk?isParm:0)|NAN_OK);
+    ////DDB.Text("Wegstein:");
+    ////DDB.Long    ("Tear.Wegs.Delay",         "",       DC_,      "",   xidFlngTearWegDelay,       this, isParm);
+    ////DDB.Double  ("Tear.Wegs.Bound",         "",       DC_,      "",   xidFlngTearWegBound,       this, isParm);
+    ////DDB.Double  ("Tear.Wegs.Clamp",         "",       DC_,      "",   xidFlngTearWegClamp,       this, isParm);
+    //DDB.Text("Cnv Tolerance:");
+    //DDB.String  ("Tear.Tol.Strat",          "",       DC_,      "",   xidFlngTearTolStrat,       this, (m_pVarBlk?isParm:0)|SetOnChange, DDBEPSStrategyDef);
+    //DDB.Double  ("Tear.Tol.Abs",            "",       DC_Frac,  "%",  xidFlngTearTolAbs,         this, (m_pVarBlk?isParm:0)|NAN_OK|DDEF_FLOATFMT);
+    //DDB.Double  ("Tear.Tol.Rel",            "",       DC_Frac,  "%",  xidFlngTearTolRel,         this, (m_pVarBlk?isParm:0)|NAN_OK|DDEF_FLOATFMT);
 
-    BuildDataDefnTearValues(DDB);
-    BuildDataDefnTearMethod(DDB);
+    //BuildDataDefnTearValues(DDB);
+    //BuildDataDefnTearMethod(DDB);
 
     if (m_ShowFlws)
       DDB.Object(ConduitIn(), this, "Qi", NULL, DDB_RqdPage); 
@@ -1569,113 +1573,6 @@ void CFlange::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Object(ConduitIO(), this, m_SubTag(), NULL, DDB_RqdPage); 
   
   DDB.EndStruct();
-  };
-
-// --------------------------------------------------------------------------
-
-void CFlange::BuildDataDefnTearValues(DataDefnBlk & DDB)
-  {
-  if (m_pVarBlk)
-    {
-    int N=m_pVarBlk->NVariables();
-
-    if (N>0)
-      {
-      DDB.Page("Values", DDB_RqdPage);
-      DDB.Text(" ");
-      DDB.BeginGrid("ABC", 5, N, 9, 1);
-
-      DDB.ColumnHeader("Variable",   m_iNameWidth, 0, 0);
-      DDB.ColumnHeader("Input",     10, 0, 2);
-      //DDB.ColumnHeader("Output",    10, 0, 2);
-      DDB.ColumnHeader("Error",     10, 1, 2);
-      //DDB.ColumnHeader("Hold",       4, 0, 1);
-      DDB.ColumnHeader("Cvgd",       4, 1, 2);
-      DDB.ColumnHeader("Count",      5, 1, 2);
-      DDB.ColumnHeader("EPS_Abs",   10, 0, 2);
-      DDB.ColumnHeader("EPS_Rel",   10, 0, 2);
-      //DDB.ColumnHeader("Value",      9, 0, 2);
-
-      if (DDB.BeginArray(this, "Tear.Values", NULL, DDB_NoPage))
-        {
-        for (int i=0; i<N; i++)
-          {
-          TearVar & V = m_pVarBlk->TV[i];
-          LPSTR Txt = V.m_Sym();
-          CnvAttribute * pCnv = V.m_pMeasCnv;
-          CnvAttribute * pDCnv = V.m_pDiffCnv;
-          //LPSTR Txt=m_pVarBlk->TV[i].m_Sym();
-          DDB.RowHeader(Txt);
-          DDB.RowStart();
-
-          DDB.BeginElement(this, Txt);
-          DDB.Double  ("Input",   "", pCnv->Index(),      pCnv->Text(),  xidFlngTearValues, (i<<4) | FTV_Input,   this, 0);
-          DDB.Double  ("Error",   "", pDCnv->Index(),     pDCnv->Text(), xidFlngTearValues, (i<<4) | FTV_Error,   this, 0|DDEF_FLOATFMT);
-          //DDB.CheckBox("Hold",    "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Hold , this, isParm|SetOnChange);
-          DDB.Long    ("Cvgd",    "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Cvgd,    this, 0);
-          DDB.Long    ("Iters",   "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Iters,   this, 0);
-          DDB.Double  ("EPS_Abs", "", pDCnv->Index(),     pDCnv->Text(), xidFlngTearValues, (i<<4) | FTV_EPS_Abs, this, isParm|NAN_OK|DDEF_FLOATFMT);
-          DDB.Double  ("EPS_Rel", "", DC_Frac,            "%",           xidFlngTearValues, (i<<4) | FTV_EPS_Rel, this, isParm|NAN_OK|DDEF_FLOATFMT);
-          //DDB.RowEnd();
-          }
-        }
-      DDB.EndArray();
-      DDB.EndGrid();
-      }
-    }
-
-  };
-
-// --------------------------------------------------------------------------
-
-void CFlange::BuildDataDefnTearMethod(DataDefnBlk & DDB)
-  {
-  if (m_pVarBlk)
-    {
-    int N=m_pVarBlk->NVariables();
-
-    if (N>0)
-      {
-      DDB.Page("Method", DDB_RqdPage);
-      DDB.Text(" ");
-      DDB.BeginGrid("AB", 4, N, 9, 1);
-
-      DDB.ColumnHeader("Variable",   m_iNameWidth, 0, 0);
-      DDB.ColumnHeader("Input",     10, 0, 2);
-      DDB.ColumnHeader("Output",    10, 1, 2);
-      //DDB.ColumnHeader("Error",     10, 1, 2);
-      DDB.ColumnHeader("Hold",       5, 2, 0);
-      DDB.ColumnHeader("Method",    12, 2, 0);
-      //DDB.ColumnHeader("EPS_Abs",    8, 0, 2);
-      //DDB.ColumnHeader("EPS_Rel",    8, 0, 2);
-      //DDB.ColumnHeader("Value",      9, 0, 2);
-
-      if (DDB.BeginArray(this, "Tear.Methods", NULL, DDB_NoPage))
-        {
-        for (int i=0; i<N; i++)
-          {
-          TearVar & V = m_pVarBlk->TV[i];
-          LPSTR Txt = V.m_Sym();
-          CnvAttribute * pCnv = V.m_pMeasCnv;
-          //CnvAttribute * pDCnv = V.m_pDiffCnv;
-          //LPSTR Txt=m_pVarBlk->TV[i].m_Sym();
-          DDB.RowHeader(Txt);
-          DDB.RowStart();
-
-          DDB.BeginElement(this, Txt);
-          DDB.Double  ("Input",   "", pCnv->Index(),      pCnv->Text(),  xidFlngTearValues, (i<<4) | FTV_Input,   this, 0);
-          DDB.Double  ("Output",  "", pCnv->Index(),      pCnv->Text(),  xidFlngTearValues, (i<<4) | FTV_Output,  this, V.HoldOutput()?isParm:0);
-          DDB.String  ("Hold",    "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Hold,    this, isParm/*|SetOnChange*/, DDBHoldOutputDef);
-          DDB.String  ("Method",  "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Method,  this, isParm, DDBTearMethodDef);
-          //DDB.Double  ("Method",  "", DC_,                "",            xidFlngTearValues, (i<<4) | FTV_Method,  this, isParm);
-          //DDB.RowEnd();
-          }
-        }
-      DDB.EndArray();
-      DDB.EndGrid();
-      }
-    }
-
   };
 
 // --------------------------------------------------------------------------
@@ -1761,71 +1658,71 @@ flag CFlange::DataXchg(DataChangeBlk & DCB)
         //  TFmt.FormatFloat(TCnv.Human(m_Blks[i]->EPS_RelCfg()), Str);
         //  break;
 
-    case xidGlblTearMeth:
-      if (DCB.rpC)
-        gs_EqnCB.Cfg.m_iConvergeMeth=FindTearConvergeMethod(DCB.rpC);
-      DCB.pC = (LPSTR)TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth);
-      return 1;
-    case xidGlblTearMaxIters:
-      if (DCB.rL)
-        gs_EqnCB.Cfg.m_iMaxIters=*DCB.rL;
-      DCB.L=gs_EqnCB.Cfg.m_iMaxIters;
-      return 1;
-    case xidGlblTearHold:
-      if (DCB.rpC)
-        gs_EqnCB.Cfg.m_iHoldOutput=FindHoldOutput(DCB.rpC);
-      DCB.pC=HoldOutputStr(gs_EqnCB.Cfg.m_iHoldOutput);
-      return 1;
-    case xidGlblTearDampGroup:
-      if (DCB.rpC)
-        gs_EqnCB.Cfg.m_iDampAsGroup=FindDampAsGroup(DCB.rpC);
-      DCB.pC=(LPSTR)DampAsGroupStr(gs_EqnCB.Cfg.m_iDampAsGroup);
-      return 1;
-    case xidGlblTearDampReqd:
-      if (DCB.rD)
-        gs_EqnCB.Cfg.m_DampingRqd = *DCB.rD;
-      DCB.D=gs_EqnCB.Cfg.m_DampingRqd;
-      return 1;
-    case xidGlblTearDampGrowth:
-      if (DCB.rD)
-        gs_EqnCB.Cfg.m_DampFctGrowth = *DCB.rD;
-      DCB.D=gs_EqnCB.Cfg.m_DampFctGrowth;
-      return 1;
-    case xidGlblTearDampDecay:
-      if (DCB.rD)
-        gs_EqnCB.Cfg.m_DampFctDecay = *DCB.rD;
-      DCB.D=gs_EqnCB.Cfg.m_DampFctDecay;
-      return 1;
-    case xidGlblTearWegDelay:
-      if (DCB.rL)
-        gs_EqnCB.Cfg.m_iWA_Delay = (short)*DCB.rL;
-      DCB.L=gs_EqnCB.Cfg.m_iWA_Delay;
-      return 1;
-    case xidGlblTearWegBound:
-      if (DCB.rD)
-        gs_EqnCB.Cfg.m_WA_Bound = *DCB.rD;
-      DCB.D=gs_EqnCB.Cfg.m_WA_Bound;
-      return 1;
-    case xidGlblTearWegClamp:
-      if (DCB.rD)
-        gs_EqnCB.Cfg.m_WA_Clamping = *DCB.rD;
-      DCB.D=gs_EqnCB.Cfg.m_WA_Clamping;
-      return 1;
-    case xidGlblTearTolStrat:
-      if (DCB.rpC)
-        gs_EqnCB.Cfg.m_iEPSStrategy=FindEPSStrategy(DCB.rpC);
-      DCB.pC=(LPSTR)EPSStrategyStr(gs_EqnCB.Cfg.m_iEPSStrategy);
-      return 1;
-    case xidGlblTearTolAbs:
-      if (DCB.rD)
-        gs_EqnCB.Cfg.m_EPS_Abs = *DCB.rD;
-      DCB.D=gs_EqnCB.Cfg.m_EPS_Abs;
-      return 1;
-    case xidGlblTearTolRel:
-      if (DCB.rD)
-        gs_EqnCB.Cfg.m_EPS_Rel = *DCB.rD;
-      DCB.D=gs_EqnCB.Cfg.m_EPS_Rel;
-      return 1;
+    //case xidGlblTearMeth:
+    //  if (DCB.rpC)
+    //    gs_EqnCB.Cfg.m_iConvergeMeth=FindTearConvergeMethod(DCB.rpC);
+    //  DCB.pC = (LPSTR)TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth);
+    //  return 1;
+    //case xidGlblTearMaxIters:
+    //  if (DCB.rL)
+    //    gs_EqnCB.Cfg.m_iMaxIters=*DCB.rL;
+    //  DCB.L=gs_EqnCB.Cfg.m_iMaxIters;
+    //  return 1;
+    //case xidGlblTearHold:
+    //  if (DCB.rpC)
+    //    gs_EqnCB.Cfg.m_iHoldOutput=FindHoldOutput(DCB.rpC);
+    //  DCB.pC=HoldOutputStr(gs_EqnCB.Cfg.m_iHoldOutput);
+    //  return 1;
+    //case xidGlblTearDampGroup:
+    //  if (DCB.rpC)
+    //    gs_EqnCB.Cfg.m_iDampAsGroup=FindDampAsGroup(DCB.rpC);
+    //  DCB.pC=(LPSTR)DampAsGroupStr(gs_EqnCB.Cfg.m_iDampAsGroup);
+    //  return 1;
+    //case xidGlblTearDampReqd:
+    //  if (DCB.rD)
+    //    gs_EqnCB.Cfg.m_DampingRqd = *DCB.rD;
+    //  DCB.D=gs_EqnCB.Cfg.m_DampingRqd;
+    //  return 1;
+    //case xidGlblTearDampGrowth:
+    //  if (DCB.rD)
+    //    gs_EqnCB.Cfg.m_DampFctGrowth = *DCB.rD;
+    //  DCB.D=gs_EqnCB.Cfg.m_DampFctGrowth;
+    //  return 1;
+    //case xidGlblTearDampDecay:
+    //  if (DCB.rD)
+    //    gs_EqnCB.Cfg.m_DampFctDecay = *DCB.rD;
+    //  DCB.D=gs_EqnCB.Cfg.m_DampFctDecay;
+    //  return 1;
+    //case xidGlblTearWegDelay:
+    //  if (DCB.rL)
+    //    gs_EqnCB.Cfg.m_iWA_Delay = (short)*DCB.rL;
+    //  DCB.L=gs_EqnCB.Cfg.m_iWA_Delay;
+    //  return 1;
+    //case xidGlblTearWegBound:
+    //  if (DCB.rD)
+    //    gs_EqnCB.Cfg.m_WA_Bound = *DCB.rD;
+    //  DCB.D=gs_EqnCB.Cfg.m_WA_Bound;
+    //  return 1;
+    //case xidGlblTearWegClamp:
+    //  if (DCB.rD)
+    //    gs_EqnCB.Cfg.m_WA_Clamping = *DCB.rD;
+    //  DCB.D=gs_EqnCB.Cfg.m_WA_Clamping;
+    //  return 1;
+    //case xidGlblTearTolStrat:
+    //  if (DCB.rpC)
+    //    gs_EqnCB.Cfg.m_iEPSStrategy=FindEPSStrategy(DCB.rpC);
+    //  DCB.pC=(LPSTR)EPSStrategyStr(gs_EqnCB.Cfg.m_iEPSStrategy);
+    //  return 1;
+    //case xidGlblTearTolAbs:
+    //  if (DCB.rD)
+    //    gs_EqnCB.Cfg.m_EPS_Abs = *DCB.rD;
+    //  DCB.D=gs_EqnCB.Cfg.m_EPS_Abs;
+    //  return 1;
+    //case xidGlblTearTolRel:
+    //  if (DCB.rD)
+    //    gs_EqnCB.Cfg.m_EPS_Rel = *DCB.rD;
+    //  DCB.D=gs_EqnCB.Cfg.m_EPS_Rel;
+    //  return 1;
 
     case xidFlngTearBlock:
       DCB.pC=TearGetTag();
@@ -1834,254 +1731,254 @@ flag CFlange::DataXchg(DataChangeBlk & DCB)
       DCB.pC="$Tear";
       return 1;
 
-    case xidFlngTearMeth:
-      if (m_pVarBlk)
-        {
-        if (DCB.rpC)
-          m_pVarBlk->SetConvergeMethod(DCB.rpC);
-        DCB.pC = TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth, m_pVarBlk->ConvergeMethod(), -1, DCB.ForView()?&DCB.dwRetFlags:NULL);
-        }
-      else
-        DCB.pC = "";
-      return 1;
-    case xidFlngTearNVar:
-      DCB.L = m_pVarBlk ? m_pVarBlk->NVariables():0;
-      return 1;
-    case xidFlngTearHold:
-      if (m_pVarBlk)
-        {
-        if (DCB.rpC)
-          m_pVarBlk->m_iHoldOutput=FindHoldOutput(DCB.rpC);
-        DCB.pC = HoldOutputStr(gs_EqnCB.Cfg.m_iHoldOutput, m_pVarBlk->m_iHoldOutput, -1, DCB.ForView()?&DCB.dwRetFlags:NULL);
-        }
-      else
-        DCB.pC="";
-      return 1;
-    case xidFlngTearCnvIters:
-      DCB.L = m_pVarBlk ? m_pVarBlk->m_lConvergeLoopCnt:0;
-      return 1;
-    case xidFlngTearDampGroup:
-      if (m_pVarBlk)
-        {
-        if (DCB.rpC)
-          m_pVarBlk->m_iDampAsGroup=FindDampAsGroup(DCB.rpC);
-        DCB.pC = DampAsGroupStr(gs_EqnCB.Cfg.m_iDampAsGroup, m_pVarBlk->DampAsGroupCfg(), -1, DCB.ForView()?&DCB.dwRetFlags:NULL);
-        }
-      else
-        DCB.pC = "";
-      return 1;
-    case xidFlngTearDampReqd:
-      if (m_pVarBlk)
-        {
-        if (DCB.rD)
-          m_pVarBlk->m_DampingRqd=*DCB.rD;
-        if (Valid(m_pVarBlk->m_DampingRqd))
-          DCB.D = m_pVarBlk->m_DampingRqd;
-        else
-          {
-          DCB.D = gs_EqnCB.Cfg.m_DampingRqd;
-          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
-          }
-        }
-      else
-        DCB.D = dNAN;
-      return 1;
+    //case xidFlngTearMeth:
+    //  if (m_pVarBlk)
+    //    {
+    //    if (DCB.rpC)
+    //      m_pVarBlk->SetConvergeMethod(DCB.rpC);
+    //    DCB.pC = TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth, m_pVarBlk->ConvergeMethod(), -1, DCB.ForView()?&DCB.dwRetFlags:NULL);
+    //    }
+    //  else
+    //    DCB.pC = "";
+    //  return 1;
+    //case xidFlngTearNVar:
+    //  DCB.L = m_pVarBlk ? m_pVarBlk->NVariables():0;
+    //  return 1;
+    //case xidFlngTearHold:
+    //  if (m_pVarBlk)
+    //    {
+    //    if (DCB.rpC)
+    //      m_pVarBlk->m_iHoldOutput=FindHoldOutput(DCB.rpC);
+    //    DCB.pC = HoldOutputStr(gs_EqnCB.Cfg.m_iHoldOutput, m_pVarBlk->m_iHoldOutput, -1, DCB.ForView()?&DCB.dwRetFlags:NULL);
+    //    }
+    //  else
+    //    DCB.pC="";
+    //  return 1;
+    //case xidFlngTearCnvIters:
+    //  DCB.L = m_pVarBlk ? m_pVarBlk->m_lConvergeLoopCnt:0;
+    //  return 1;
+    //case xidFlngTearDampGroup:
+    //  if (m_pVarBlk)
+    //    {
+    //    if (DCB.rpC)
+    //      m_pVarBlk->m_iDampAsGroup=FindDampAsGroup(DCB.rpC);
+    //    DCB.pC = DampAsGroupStr(gs_EqnCB.Cfg.m_iDampAsGroup, m_pVarBlk->DampAsGroupCfg(), -1, DCB.ForView()?&DCB.dwRetFlags:NULL);
+    //    }
+    //  else
+    //    DCB.pC = "";
+    //  return 1;
+    //case xidFlngTearDampReqd:
+    //  if (m_pVarBlk)
+    //    {
+    //    if (DCB.rD)
+    //      m_pVarBlk->m_DampingRqd=*DCB.rD;
+    //    if (Valid(m_pVarBlk->m_DampingRqd))
+    //      DCB.D = m_pVarBlk->m_DampingRqd;
+    //    else
+    //      {
+    //      DCB.D = gs_EqnCB.Cfg.m_DampingRqd;
+    //      DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+    //      }
+    //    }
+    //  else
+    //    DCB.D = dNAN;
+    //  return 1;
 
-    case xidFlngTearDampGrowth:
-      if (m_pVarBlk)
-        {
-        if (DCB.rD)
-          m_pVarBlk->m_DampFctGrowth=*DCB.rD;
-        if (Valid(m_pVarBlk->m_DampFctGrowth))
-          DCB.D = m_pVarBlk->m_DampFctGrowth;
-        else
-          {
-          DCB.D = gs_EqnCB.Cfg.m_DampFctGrowth;
-          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
-          }
-        }
-      else
-        DCB.D = dNAN;
-      return 1;
+    //case xidFlngTearDampGrowth:
+    //  if (m_pVarBlk)
+    //    {
+    //    if (DCB.rD)
+    //      m_pVarBlk->m_DampFctGrowth=*DCB.rD;
+    //    if (Valid(m_pVarBlk->m_DampFctGrowth))
+    //      DCB.D = m_pVarBlk->m_DampFctGrowth;
+    //    else
+    //      {
+    //      DCB.D = gs_EqnCB.Cfg.m_DampFctGrowth;
+    //      DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+    //      }
+    //    }
+    //  else
+    //    DCB.D = dNAN;
+    //  return 1;
 
-    case xidFlngTearDampDecay:
-      if (m_pVarBlk)
-        {
-        if (DCB.rD)
-          m_pVarBlk->m_DampFctDecay=*DCB.rD;
-        if (Valid(m_pVarBlk->m_DampFctDecay))
-          DCB.D = m_pVarBlk->m_DampFctDecay;
-        else
-          {
-          DCB.D = gs_EqnCB.Cfg.m_DampFctDecay;
-          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
-          }
-        }
-      else
-        DCB.D = dNAN;
-      return 1;
+    //case xidFlngTearDampDecay:
+    //  if (m_pVarBlk)
+    //    {
+    //    if (DCB.rD)
+    //      m_pVarBlk->m_DampFctDecay=*DCB.rD;
+    //    if (Valid(m_pVarBlk->m_DampFctDecay))
+    //      DCB.D = m_pVarBlk->m_DampFctDecay;
+    //    else
+    //      {
+    //      DCB.D = gs_EqnCB.Cfg.m_DampFctDecay;
+    //      DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+    //      }
+    //    }
+    //  else
+    //    DCB.D = dNAN;
+    //  return 1;
  
-    case xidFlngTearTolStrat:
-      if (m_pVarBlk)
-        {
-        if (DCB.rpC)
-          m_pVarBlk->m_iEPSStrategy=FindEPSStrategy(DCB.rpC);
-        DCB.pC = EPSStrategyStr(gs_EqnCB.Cfg.m_iEPSStrategy, m_pVarBlk->m_iEPSStrategy, -1, DCB.ForView()?&DCB.dwRetFlags:NULL);
-        }
-      else
-        DCB.pC = "";
-      return 1;
-    case xidFlngTearTolAbs:
-      if (m_pVarBlk)
-        {
-        if (DCB.rD)
-          m_pVarBlk->m_EPS_Abs=*DCB.rD;
-        if (Valid(m_pVarBlk->m_EPS_Abs))
-          DCB.D = m_pVarBlk->m_EPS_Abs;
-        else
-          {
-          DCB.D = gs_EqnCB.Cfg.m_EPS_Abs;
-          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
-          }
-        }
-      else
-        DCB.D = dNAN;
-      return 1;
-    case xidFlngTearTolRel:
-      if (m_pVarBlk)
-        {
-        if (DCB.rD)
-          m_pVarBlk->m_EPS_Rel=*DCB.rD;
-        if (Valid(m_pVarBlk->m_EPS_Rel))
-          DCB.D = m_pVarBlk->m_EPS_Rel;
-        else
-          {
-          DCB.D = gs_EqnCB.Cfg.m_EPS_Rel;
-          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
-          }
-        }
-      else
-        DCB.D = dNAN;
-      return 1;
+    //case xidFlngTearTolStrat:
+    //  if (m_pVarBlk)
+    //    {
+    //    if (DCB.rpC)
+    //      m_pVarBlk->m_iEPSStrategy=FindEPSStrategy(DCB.rpC);
+    //    DCB.pC = EPSStrategyStr(gs_EqnCB.Cfg.m_iEPSStrategy, m_pVarBlk->m_iEPSStrategy, -1, DCB.ForView()?&DCB.dwRetFlags:NULL);
+    //    }
+    //  else
+    //    DCB.pC = "";
+    //  return 1;
+    //case xidFlngTearTolAbs:
+    //  if (m_pVarBlk)
+    //    {
+    //    if (DCB.rD)
+    //      m_pVarBlk->m_EPS_Abs=*DCB.rD;
+    //    if (Valid(m_pVarBlk->m_EPS_Abs))
+    //      DCB.D = m_pVarBlk->m_EPS_Abs;
+    //    else
+    //      {
+    //      DCB.D = gs_EqnCB.Cfg.m_EPS_Abs;
+    //      DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+    //      }
+    //    }
+    //  else
+    //    DCB.D = dNAN;
+    //  return 1;
+    //case xidFlngTearTolRel:
+    //  if (m_pVarBlk)
+    //    {
+    //    if (DCB.rD)
+    //      m_pVarBlk->m_EPS_Rel=*DCB.rD;
+    //    if (Valid(m_pVarBlk->m_EPS_Rel))
+    //      DCB.D = m_pVarBlk->m_EPS_Rel;
+    //    else
+    //      {
+    //      DCB.D = gs_EqnCB.Cfg.m_EPS_Rel;
+    //      DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+    //      }
+    //    }
+    //  else
+    //    DCB.D = dNAN;
+    //  return 1;
 
-    case xidFlngTearValues:
-      {
-      int i=DCB.lHandle2 >> 4;
-      switch (DCB.lHandle2 & 0xf)
-        {
-        case FTV_Hold:
-          if (m_pVarBlk)
-            {
-            if (DCB.rpC)
-              m_pVarBlk->TV[i].m_iHoldOutput=FindHoldOutput(DCB.rpC);
-            DCB.pC=m_pVarBlk->TV[i].HoldOutputStr(DCB.ForView()?&DCB.dwRetFlags:NULL);
-            }
-          else
-            DCB.B=0;
-          return 1;
+    //case xidFlngTearValues:
+    //  {
+    //  int i=DCB.lHandle2 >> 4;
+    //  switch (DCB.lHandle2 & 0xf)
+    //    {
+    //    case FTV_Hold:
+    //      if (m_pVarBlk)
+    //        {
+    //        if (DCB.rpC)
+    //          m_pVarBlk->TV[i].m_iHoldOutput=FindHoldOutput(DCB.rpC);
+    //        DCB.pC=m_pVarBlk->TV[i].HoldOutputStr(DCB.ForView()?&DCB.dwRetFlags:NULL);
+    //        }
+    //      else
+    //        DCB.B=0;
+    //      return 1;
 
-        case FTV_Input:      
-          if (m_pVarBlk)
-            DCB.D = m_pVarBlk->TV[i].m_Meas[0];
-          else
-            DCB.D=dNAN;
-          return 1;
+    //    case FTV_Input:      
+    //      if (m_pVarBlk)
+    //        DCB.D = m_pVarBlk->TV[i].m_Meas[0];
+    //      else
+    //        DCB.D=dNAN;
+    //      return 1;
 
-        case FTV_Output:
-          if (m_pVarBlk)
-            {
-            if (DCB.rD)
-              m_pVarBlk->TV[i].m_X[0]=*DCB.rD;
-            DCB.D = m_pVarBlk->TV[i].m_X[0];
-            }
-          else
-            DCB.D=dNAN;
-          return 1;
+    //    case FTV_Output:
+    //      if (m_pVarBlk)
+    //        {
+    //        if (DCB.rD)
+    //          m_pVarBlk->TV[i].m_X[0]=*DCB.rD;
+    //        DCB.D = m_pVarBlk->TV[i].m_X[0];
+    //        }
+    //      else
+    //        DCB.D=dNAN;
+    //      return 1;
 
-        case FTV_Error:
-          if (m_pVarBlk)
-            DCB.D = m_pVarBlk->TV[i].m_Error[0];
-          else
-            DCB.D=dNAN;
-          return 1;
+    //    case FTV_Error:
+    //      if (m_pVarBlk)
+    //        DCB.D = m_pVarBlk->TV[i].m_Error[0];
+    //      else
+    //        DCB.D=dNAN;
+    //      return 1;
 
-        case FTV_Cvgd:
-          if (m_pVarBlk)
-            DCB.L = m_pVarBlk->TV[i].m_iConvergedCnt>0;
-          else
-            DCB.L=-1;
-          return 1;
+    //    case FTV_Cvgd:
+    //      if (m_pVarBlk)
+    //        DCB.L = m_pVarBlk->TV[i].m_iConvergedCnt>0;
+    //      else
+    //        DCB.L=-1;
+    //      return 1;
 
-        case FTV_Iters:
-          if (m_pVarBlk)
-            DCB.L = m_pVarBlk->TV[i].m_iConvergedCnt;
-          else
-            DCB.L=-1;
-          return 1;
+    //    case FTV_Iters:
+    //      if (m_pVarBlk)
+    //        DCB.L = m_pVarBlk->TV[i].m_iConvergedCnt;
+    //      else
+    //        DCB.L=-1;
+    //      return 1;
 
-        case FTV_EPS_Abs:
-          if (m_pVarBlk)
-            {
-            if (DCB.rD)
-              m_pVarBlk->TV[i].m_EPS_Abs=*DCB.rD;
-            DCB.D = m_pVarBlk->TV[i].m_EPS_Abs;
-            if (!Valid(DCB.D))
-              {
-              DCB.D = m_pVarBlk->EPS_Abs(gs_EqnCB, i);
-              DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
-              }
-            }
-          else
-            DCB.D=dNAN;
-          return 1;
-       
-        case FTV_EPS_Rel:
-          if (m_pVarBlk)
-            {
-            if (DCB.rD)
-              m_pVarBlk->TV[i].m_EPS_Rel=*DCB.rD;
-            DCB.D = m_pVarBlk->TV[i].m_EPS_Rel;
-            if (!Valid(DCB.D))
-              {
-              DCB.D = m_pVarBlk->EPS_Rel(gs_EqnCB, i);
-              DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
-              }
-            }
-          else
-            DCB.D=dNAN;
-          return 1;
+    //    case FTV_EPS_Abs:
+    //      if (m_pVarBlk)
+    //        {
+    //        if (DCB.rD)
+    //          m_pVarBlk->TV[i].m_EPS_Abs=*DCB.rD;
+    //        DCB.D = m_pVarBlk->TV[i].m_EPS_Abs;
+    //        if (!Valid(DCB.D))
+    //          {
+    //          DCB.D = m_pVarBlk->EPS_Abs(gs_EqnCB, i);
+    //          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+    //          }
+    //        }
+    //      else
+    //        DCB.D=dNAN;
+    //      return 1;
+    //   
+    //    case FTV_EPS_Rel:
+    //      if (m_pVarBlk)
+    //        {
+    //        if (DCB.rD)
+    //          m_pVarBlk->TV[i].m_EPS_Rel=*DCB.rD;
+    //        DCB.D = m_pVarBlk->TV[i].m_EPS_Rel;
+    //        if (!Valid(DCB.D))
+    //          {
+    //          DCB.D = m_pVarBlk->EPS_Rel(gs_EqnCB, i);
+    //          DCB.dwRetFlags=DDEF_SHOWASDEFAULT;
+    //          }
+    //        }
+    //      else
+    //        DCB.D=dNAN;
+    //      return 1;
 
-        case FTV_Method:
-          if (m_pVarBlk)
-            {
-            if (DCB.rpC)
-              m_pVarBlk->TV[i].m_iTearMethod = FindTearConvergeMethod(DCB.rpC);
-            DCB.pC=m_pVarBlk->TV[i].TearMethodStr(DCB.ForView()?&DCB.dwRetFlags:NULL);
-            }
-          else
-            {
-            DCB.pC=" ";
-            }
-          return 1;
+    //    case FTV_Method:
+    //      if (m_pVarBlk)
+    //        {
+    //        if (DCB.rpC)
+    //          m_pVarBlk->TV[i].m_iTearMethod = FindTearConvergeMethod(DCB.rpC);
+    //        DCB.pC=m_pVarBlk->TV[i].TearMethodStr(DCB.ForView()?&DCB.dwRetFlags:NULL);
+    //        }
+    //      else
+    //        {
+    //        DCB.pC=" ";
+    //        }
+    //      return 1;
 
-        case FTV_EPStrat:
-          if (m_pVarBlk)
-            {
-            //if (DCB.rpC)
-            //  m_pVarBlk->TV[i].m_iTearMethod = FindTearConvergeMethod(DCB.rpC);
-            DCB.pC=m_pVarBlk->TV[i].TearMethodStr(DCB.ForView()?&DCB.dwRetFlags:NULL);
-            }
-          else
-            {
-            DCB.pC=" ";
-            }
-          return 1;
-
-        default:
-          DCB.D=dNAN;
-          return 1;
-        }
-      }
+    //    case FTV_EPStrat:
+    //      if (m_pVarBlk)
+    //        {
+    //        //if (DCB.rpC)
+    //        //  m_pVarBlk->TV[i].m_iTearMethod = FindTearConvergeMethod(DCB.rpC);
+    //        DCB.pC=m_pVarBlk->TV[i].TearMethodStr(DCB.ForView()?&DCB.dwRetFlags:NULL);
+    //        }
+    //      else
+    //        {
+    //        DCB.pC=" ";
+    //        }
+    //      return 1;
+    //
+    //    default:
+    //      DCB.D=dNAN;
+    //      return 1;
+    //    }
+    //  }
     }
 
   if (ConduitIO()->DataXchg(DCB))

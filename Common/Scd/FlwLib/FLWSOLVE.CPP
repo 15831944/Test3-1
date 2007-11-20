@@ -10889,7 +10889,7 @@ void CFlwSolver::BuildDataDefnOld(DataDefnBlk & DDB)
 
     Strng Commnt, Nm;
     int i=0,iPg=0;
-    TearVarBlkIter TCBs(TearVarBlk::List);
+    TearVarBlkIter TCBs(TearVarBlk::sm_List);
     for (TearVarBlk *pT=TCBs.First(); pT; pT=TCBs.Next(), i++)
       if (!pT->IsGroupBlk())
         {
@@ -12181,6 +12181,55 @@ class CLTHelp
         }
       };
 
+    TearVarBlk * TearLoopGetStart(POSITION &Pos, TearVarBlk * pPrev)
+      {   
+      TearVarBlk *p=NULL;
+  //      TearVarBlkIter TCBs(TearVarBlk::sm_List);
+  //for (TearVarBlk* pT=TCBs.First(); pT; pT=TCBs.Next())
+  //  if (pT->Active())
+
+      if (pPrev==NULL)
+        Pos = TearVarBlk::sm_List.GetHeadPosition();
+      if (Pos)
+        p = TearVarBlk::sm_List.GetNext(Pos);
+
+      if (p)
+        {
+        //LPSTR pTag=p->Tag();
+        //if (pTag && strlen(pTag)>0)
+        //  {
+        if (p->Tag() && !p->IsGroupBlk())
+          {
+          if (m_DoingAll)
+            m_pS=new Strng(p->Tag());
+          else
+            m_pS=m_TagList.Find(p->Tag());
+          }
+        else
+          {
+          m_pS=NULL;
+          int xxx=0;
+          }
+        //  }
+        }
+
+      return p;
+      };
+    void TearLoopGetEnd(bool DoIt, TearVarBlk *p, int i)
+      {
+      if (DoIt && m_pS && m_pS->GetLength()>0)
+        {
+        //dbgpln("<<<<<<< %i 0x%08x 0x%08x %s", i, p, m_pS, m_pS->Str());
+        m_pS->SetIndex(i);
+        if (m_DoingAll)
+          m_TagList.Append(m_pS);
+        }
+      else
+        {
+        int xxx=0;
+        }
+      };
+
     //CConnectMap::CPair * ConnLoopGetStart(CConnectMap::CPair *p)
     //  {      
     //  if (p==NULL)
@@ -12219,6 +12268,7 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
 
   FlwNode *pNd=NULL;
   CConnect *pCn=NULL;
+  TearVarBlk *pTr=NULL;
   POSITION Pos=NULL;
   int i;
   switch (Act)
@@ -12330,6 +12380,35 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
           N++;
           }
         LTH.ConnLoopGetEnd(DoIt, pCn, PackConnect(iFlowType, iUseStatus));
+        }
+      break;
+      }
+    case FETOp_GetTears:
+      {
+      while (pTr=LTH.TearLoopGetStart(Pos, pTr))
+        {
+        //dbgpln("ConnLoop 0x%08x %s", pCn, LTH.m_pS->Str());
+        
+        bool DoIt=true;//pTr->IsTear();//dynamic_cast<CFlange*>(pCn)!=NULL;
+        //int iFlowType=FlwType_Null;
+        //int iUseStatus=pCn->UseStatus();
+
+        //if (DoIt && LTH.m_pS)
+        //  {
+        //  if (pCn->m_pNdSrc && pCn->m_pNdSrc->GetActive())
+        //    {
+        //    int IOId = pCn->m_pNdSrc->IOId_Self(pCn->m_iIOSrc);
+        //    if (IsMLnkIOId(IOId))         iFlowType=FlwType_Proc;
+        //    else if (IsMakeupIOId(IOId))  iFlowType=FlwType_Makeup;
+        //    else if (IsBleedIOId(IOId))   iFlowType=FlwType_Bleed;
+        //    else if (IsSpillIOId(IOId))   iFlowType=FlwType_Spill;
+        //    else if (IsVentIOId(IOId))    iFlowType=FlwType_Vent;
+        //    else if (IsLeakIOId(IOId))    iFlowType=FlwType_Leak;
+        //    else                          iFlowType=FlwType_Other;
+        //    }
+        //  N++;
+        //  }
+        LTH.TearLoopGetEnd(DoIt, pTr, 0);
         }
       break;
       }
@@ -14859,7 +14938,7 @@ flag CFlwSolver::EO_BeginSave(FilingControlBlock &FCB)
   //fSaveNode=true;
   pSaveNode=NULL;
   //fSaveTear=true;
-  pSaveTear=TearVarBlk::List.GetHeadPosition();
+  pSaveTear=TearVarBlk::sm_List.GetHeadPosition();
 
   //CProfINIFile PF(PrjFile());
   //PF.WrStr("General", "CnvDB",   CnvsFilename());
@@ -15000,7 +15079,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
     case SW_7:
       if (pSaveTear)
         {
-        TearVarBlk *pT=TearVarBlk::List.GetNext(pSaveTear);
+        TearVarBlk *pT=TearVarBlk::sm_List.GetNext(pSaveTear);
         if (pT)
           {
           Tag=pT->FullObjTag();

@@ -116,7 +116,7 @@ class DllImportExport TearVar
 
     Strng          m_Tag;
     Strng          m_Sym;
-    Strng          m_Name;
+    //Strng          m_Name;
 
     // Tear advance
     flag           m_bTestIsValid;
@@ -138,6 +138,7 @@ class DllImportExport TearVar
     double         m_CurTol;
     CDArray        m_Error;
     CDArray        m_Meas;
+    double         m_Initial;
 
     CnvAttribute * m_pMeasCnv;
     CnvAttribute * m_pDiffCnv;
@@ -164,9 +165,6 @@ class DllImportExport TearPosBlk //: public TaggedObject
   friend class EqnSolverBlk;
 
   public:
-
-    static TearPosBlkList List;
-
     TearPosBlk(byte DefaultTearType);
     virtual        ~TearPosBlk();
 
@@ -215,7 +213,10 @@ class DllImportExport TearPosBlk //: public TaggedObject
     virtual flag   TearAdvance(TearVarArray & TV, EqnSlvCtrlBlk & EqnCB) { return 0; };
 
   protected:
-    POSITION ListPos;
+    POSITION       m_ListPos;
+
+  public:
+    static TearPosBlkList sm_List;
 
   public:
     byte           m_iRqdTearType,
@@ -238,6 +239,10 @@ class DllImportExport TearPosBlk //: public TaggedObject
 //
 //
 //=========================================================================
+
+extern DllImportExport DDBValueLst DDBTearPri[];
+extern DllImportExport DDBValueLst DDBTearTypeRqd[];
+extern DllImportExport DDBValueLst DDBTearState[];
 
 const byte TCM_Default      = 0;
 const byte TCM_DirectSubs   = 1;
@@ -299,7 +304,7 @@ extern DllImportExport  int FindEPSStrategy(LPCSTR Str);
 //
 //=========================================================================
 
-#if KeepOldTearVarBlkEdit
+#if WithTearVarBlkEdit
 DEFINE_TAGOBJEDT(TearVarBlk);
 #else
 DEFINE_TAGOBJ(TearVarBlk);
@@ -310,7 +315,7 @@ typedef CSCDPtrListIter<TearVarBlkList, TearVarBlk*> TearVarBlkIter;
 
 class DllImportExport TearVarBlk : public TaggedObject
   {
-#if KeepOldTearVarBlkEdit
+#if WithTearVarBlkEdit
   friend class TearVarBlkEdt;
 #endif
   friend class EqnSolverBlk;
@@ -319,7 +324,6 @@ class DllImportExport TearVarBlk : public TaggedObject
   friend class CFlange;
 
   public:
-    static TearVarBlkList List;
     static TearVarBlk *Find(LPSTR Tag);
     static TearVarBlk *staticFindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
     static TearVarBlk *Add(TearPosBlk *Pos, LPSTR Tag);
@@ -336,13 +340,21 @@ class DllImportExport TearVarBlk : public TaggedObject
     virtual void   OnEditDestroy() {};
 
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    void           BuildDataDefnFile(DataDefnBlk & DDB);
+    void           BuildDataDefnTearValues(DataDefnBlk & DDB);
+    void           BuildDataDefnTearMethod(DataDefnBlk & DDB);
+    virtual void   BuildDataDefnInitialVars(DataDefnBlk & DDB);
+    virtual void   BuildCommonSEDefn(DataDefnBlk &DDB)           {}; // Hide 'Info Page' for TearVarBlks
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual pchar  TagOfParent() { return PlantModelTag; };
 
+    static void    BuildDataDefnGlblTears(DataDefnBlk & DDB, TaggedObject * pOwner);
+    static flag    DataXchgGlblTears(DataChangeBlk & DCB);
+
     void           Connect(TearPosBlk *PosBlk);//, flag CreateIfReqd);
     void           DisConnect();
-    int            Active() { return TaggedObject::GetActive() && (pPosBlk !=NULL); };
+    int            Active() { return TaggedObject::GetActive() && (m_pPosBlk !=NULL); };
     int            InUse() { return m_bInUse; };
     void           SetInUse(int InUse) { m_bInUse=InUse; };
     void           SetActive(int On);
@@ -385,51 +397,55 @@ class DllImportExport TearVarBlk : public TaggedObject
 
     void           SetNVariables(int Variables, byte Used);
 
-    int            NVariables() { return nVariables; };
+    int            NVariables() { return m_nVariables; };
     void           SetNHistory(int History);
-    int            NHistory() { return nHistory; };
+    int            NHistory() { return m_nHistory; };
     long           SeqConvergedCnt() { return m_lSeqConvergedCnt; };
     long           ConvergeLoopCnt() { return m_lConvergeLoopCnt; };
     byte           TearTagTyp() { return iTearTagTyp; };
     char*          LHSTag(Strng & Tg);
     char*          RHSTag(Strng & Tg);
 
-    TearPosBlk    *PosBlk() { return pPosBlk; };
+    TearPosBlk    *PosBlk() { return m_pPosBlk; };
 
-    void           SetRqdTearType(byte Type)  { pPosBlk->SetRqdTearType(Type); };
-    byte           RqdTearType()              { return pPosBlk->RqdTearType(); };
-    void           SetTearType(byte Type)     { pPosBlk->SetTearType(Type); };
-    byte           TearType()                 { return pPosBlk->TearType(); };
-    flag           IsTear()                   { return pPosBlk->IsTear(); };
-    flag           IsSystemTear()             { return pPosBlk->IsSystemTear(); };
-    byte           TearPriority()             { return pPosBlk->TearPriority(); };
-    void           SetTearPriority(byte iPri) { pPosBlk->SetTearPriority(iPri); };
-    //byte           TearInitMode()             { return pPosBlk->TearInitMode(); };
-    byte           TearInitWhen()             { return pPosBlk->TearInitWhen(); };
-    byte           TearInitHow()              { return pPosBlk->TearInitHow(); };
-    byte           TearInitEstUsage()         { return pPosBlk->TearInitEstUsage(); };
-    bool           TearInitActive()           { return pPosBlk->TearInitActive(); };
-    //void           SetTearInitMode(byte iMd)  { pPosBlk->SetTearInitMode(iMd); };
-    void           SetTearInitWhen(byte iMd)  { pPosBlk->SetTearInitWhen(iMd); };
-    void           SetTearInitHow(byte iMd)   { pPosBlk->SetTearInitHow(iMd); };
-    void           SetTearInitEstUsage(byte iEu) { pPosBlk->SetTearInitEstUsage(iEu); };
-    void           SetTearInitActive(bool On, bool SetCount) { pPosBlk->SetTearInitActive(On, SetCount); };
-    void           SetTearInitCounters(bool AtStart) { pPosBlk->SetTearInitCounters(AtStart); };
-    void           BumpTearInitCounters()     { pPosBlk->BumpTearInitCounters(); };
-    double         EstimatePortion()          { return pPosBlk->EstimatePortion(); };
+    void           SetRqdTearType(byte Type)  { m_pPosBlk->SetRqdTearType(Type); };
+    byte           RqdTearType()              { return m_pPosBlk->RqdTearType(); };
+    void           SetTearType(byte Type)     { m_pPosBlk->SetTearType(Type); };
+    byte           TearType()                 { return m_pPosBlk->TearType(); };
+    flag           IsTear()                   { return m_pPosBlk->IsTear(); };
+    flag           IsSystemTear()             { return m_pPosBlk->IsSystemTear(); };
+    byte           TearPriority()             { return m_pPosBlk->TearPriority(); };
+    void           SetTearPriority(byte iPri) { m_pPosBlk->SetTearPriority(iPri); };
+    //byte           TearInitMode()             { return m_pPosBlk->TearInitMode(); };
+    byte           TearInitWhen()             { return m_pPosBlk->TearInitWhen(); };
+    byte           TearInitHow()              { return m_pPosBlk->TearInitHow(); };
+    byte           TearInitEstUsage()         { return m_pPosBlk->TearInitEstUsage(); };
+    bool           TearInitActive()           { return m_pPosBlk->TearInitActive(); };
+    //void           SetTearInitMode(byte iMd)  { m_pPosBlk->SetTearInitMode(iMd); };
+    void           SetTearInitWhen(byte iMd)  { m_pPosBlk->SetTearInitWhen(iMd); };
+    void           SetTearInitHow(byte iMd)   { m_pPosBlk->SetTearInitHow(iMd); };
+    void           SetTearInitEstUsage(byte iEu) { m_pPosBlk->SetTearInitEstUsage(iEu); };
+    void           SetTearInitActive(bool On, bool SetCount) { m_pPosBlk->SetTearInitActive(On, SetCount); };
+    void           SetTearInitCounters(bool AtStart) { m_pPosBlk->SetTearInitCounters(AtStart); };
+    int            TearHoldRqdCnt()             { return m_pPosBlk->TearHoldRqdCnt(); };
+    void           SetTearHoldRqdCnt(int iCnt) { m_pPosBlk->SetTearHoldRqdCnt(iCnt); };
+    int            TearHoldCount()             { return m_pPosBlk->TearHoldCount(); };
+    void           SetTearHoldCount(int iCnt) { m_pPosBlk->SetTearHoldCount(iCnt); };
+    void           BumpTearInitCounters()     { m_pPosBlk->BumpTearInitCounters(); };
+    double         EstimatePortion()          { return m_pPosBlk->EstimatePortion(); };
 
-    bool           TearAdvanceReqd()          { return pPosBlk && (pPosBlk->TearVarType() & TVT_Tear) !=0; };
-    bool           TearTestReqd()             { return pPosBlk && (pPosBlk->TearVarType() & (TVT_Test))!=0; };
+    bool           TearAdvanceReqd()          { return m_pPosBlk && (m_pPosBlk->TearVarType() & TVT_Tear) !=0; };
+    bool           TearTestReqd()             { return m_pPosBlk && (m_pPosBlk->TearVarType() & (TVT_Test))!=0; };
 
-    void           TearInitialiseOutputs(double EstimatePortion) { pPosBlk->TearInitialiseOutputs(EstimatePortion); };
-    void           TearInputs2Outputs()       { pPosBlk->TearInputs2Outputs(); };
-    LPSTR         TearGetTag()               { return pPosBlk->TearGetTag(); };
-    int            TearGetConvergeInfo()      { return pPosBlk->TearGetConvergeInfo(TV); };
-    void           TearGetErrors()            { pPosBlk->TearGetErrors(TV); };
-    void           TearGetInputs()            { pPosBlk->TearGetInputs(TV); };
-    void           TearGetOutputs()           { pPosBlk->TearGetOutputs(TV); };
-    void           TearSetOutputs()           { pPosBlk->TearSetOutputs(TV); };
-    flag           TearAdvance(EqnSlvCtrlBlk & EqnCB) { return pPosBlk->TearAdvance(TV, EqnCB); };
+    void           TearInitialiseOutputs(double EstimatePortion) { m_pPosBlk->TearInitialiseOutputs(EstimatePortion); };
+    void           TearInputs2Outputs()       { m_pPosBlk->TearInputs2Outputs(); };
+    LPSTR         TearGetTag()               { return m_pPosBlk->TearGetTag(); };
+    int            TearGetConvergeInfo()      { return m_pPosBlk->TearGetConvergeInfo(TV); };
+    void           TearGetErrors()            { m_pPosBlk->TearGetErrors(TV); };
+    void           TearGetInputs()            { m_pPosBlk->TearGetInputs(TV); };
+    void           TearGetOutputs()           { m_pPosBlk->TearGetOutputs(TV); };
+    void           TearSetOutputs()           { m_pPosBlk->TearSetOutputs(TV); };
+    flag           TearAdvance(EqnSlvCtrlBlk & EqnCB) { return m_pPosBlk->TearAdvance(TV, EqnCB); };
 
     int            IsGroupBlk() { return fGroupBlk; };
 
@@ -474,15 +490,17 @@ class DllImportExport TearVarBlk : public TaggedObject
     void           AdvAdaptDirect(EqnSlvCtrlBlk & TCB, double Damping);
     void           Advance(EqnSlvCtrlBlk & TCB);
 
-    Strng &        SymOrTag(int i) { return TV[i].m_Sym.Length()>0 ? TV[i].m_Sym : TV[i].m_Sym; };
+    LPSTR          SymOrTag(int i) { return TV[i].m_Sym.Length()>0 ? TV[i].m_Sym() : TV[i].m_Tag(); };
 
     void           GetGroupGlblTag(Strng & Tag) { Tag.Set("%s_%s", sGroupTag(), "Tear"); };
 
   protected:
-    POSITION ListPos;
   public:
+    static TearVarBlkList sm_List;
 
   protected:
+    POSITION       m_ListPos;
+
     byte           bUsedByBlk;
 
     byte           m_iHoldOutput;
@@ -490,9 +508,9 @@ class DllImportExport TearVarBlk : public TaggedObject
     flag           m_bInUse;
     flag           fGroupBlk;
 
-    TearPosBlk    *pPosBlk;
-    long           nVariables;
-    long           nHistory;
+    TearPosBlk    *m_pPosBlk;
+    long           m_nVariables;
+    long           m_nHistory;
 
     byte           m_iDampAsGroup;
     double         m_DampingRqd;
@@ -503,6 +521,9 @@ class DllImportExport TearVarBlk : public TaggedObject
     byte           m_iEPSStrategy;
     double         m_EPS_Abs;
     double         m_EPS_Rel;
+
+    int            m_iTagWidth;
+    int            m_iSymWidth;
 
     //byte           m_iDampAsGroup;
     //double         m_DampingRqd;
@@ -534,7 +555,7 @@ class DllImportExport TearVarBlk : public TaggedObject
 //
 //=========================================================================
 
-#if KeepOldTearVarBlkEdit
+#if WithTearVarBlkEdit
 class DllImportExport TearVarBlkEdt : public FxdEdtBookRef
   {
   public :

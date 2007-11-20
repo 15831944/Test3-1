@@ -6437,27 +6437,12 @@ void DataDefnBlk::ColumnHeader(LPSTR Text, int Width, int Gap, int Justification
         T.LRTrim();
         if (T.GetLength()>Width)
           T.SetLength(Width); // trunc if neccessary
-        //if (Justification<0)
-          T.RPad(Width);      
-        //else if (Justification>0)
-        //  T.LPad(Width);      
-        //else
-        //  {
-        //  int Len=T.GetLength();
-        //  int RightSpc=(Width-Len)/2;
-        //  T.LPad(Len+RightSpc);      
-        //  T.RPad(Width);      
-        //  }
+        T.RPad(Width);      
         }
       T+=",";
       Strng X;
       X.Set("%i", Gap);
       T+=X();
-      //atof(
-      //int L=T.GetLength()+Gap;
-      //T.RPad(L);      // lengthen if neccessary
-      //T.SetLength(L); // trunc if neccessary
-      //T+=",";
       T+=Justification<0?"<":Justification>0?">":".";
 
       m_pItem->AppendLayout(tt_ColHdr, T(), CurrentFlags());

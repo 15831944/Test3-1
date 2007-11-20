@@ -1646,8 +1646,8 @@ flag SDBObjectEdt::DoAccRptTagLists()
 //===========================================================================
 
 
-#if KeepOldTearObject
-#if KeepOldTearObjectEdit
+#if WithTearObject
+#if WithTearObjectEdit
 IMPLEMENT_TAGOBJEDT(TearObject, "FS_Tears", "FS_Tears", "", "$Tears", TOC_SYSTEM,  TearObjectEdt, "The Tears", "The Tears");
 #else
 IMPLEMENT_TAGOBJ(TearObject, "FS_Tears", "FS_Tears", "", "$Tears", "TB", TOC_SYSTEM,  "The Tears", "The Tears");
@@ -1657,6 +1657,7 @@ TearObject::TearObject(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   CTNode(pClass_, TagIn, pAttach, eAttach)
   {
   bDoSystemDefn=false;
+  m_iTagWidth=-1;
   };
 
 TearObject::~TearObject()
@@ -1665,11 +1666,25 @@ TearObject::~TearObject()
 
 //--------------------------------------------------------------------------
 
+XID xidSummaryTearError   = MdlBsXID(6010);
+XID xidSummaryTearVarCvg  = MdlBsXID(6011);
+XID xidSummaryTearVarCnt  = MdlBsXID(6012);
+XID xidSummaryTearCvgCnt  = MdlBsXID(6013);
+XID xidSummaryTearCvgd    = MdlBsXID(6014);
+XID xidSummaryTearMethod  = MdlBsXID(6015);
+
+
 void TearObject::BuildDataDefn(DataDefnBlk & DDB)
   {
   if (DDB.BeginStruct(this))
     {
-/*    Strng Commnt, Nm;
+    //DDB.Text("Summary");
+    //DDB.Text("Summary");
+
+    //TearVarBlk::BuildDataDefnGlblTears(DDB, this);
+
+
+    /*    Strng Commnt, Nm;
     int i=0,iPg=0;
     TearVarBlkIter TCBs(TearVarBlk::List);
     if (DDB.ForView())
@@ -1689,6 +1704,81 @@ void TearObject::BuildDataDefn(DataDefnBlk & DDB)
           i++;
           }
       }*/
+
+    int N=TearVarBlk::sm_List.GetCount();
+
+    bool Head1Done=false;
+    const int LnsPerPage=60;
+    int NLns=0;
+
+    if (DDB.ForView() && N>0)
+      {
+      if (m_iTagWidth<0)
+        {
+        m_iTagWidth=10;
+        TearVarBlkIter TCBs(TearVarBlk::sm_List);
+        TearVarBlk *pT;
+        for (pT=TCBs.First(); pT; pT=TCBs.Next())
+          {
+          if (!pT->IsGroupBlk() && pT->IsTear())
+            {
+            m_iTagWidth = Max(m_iTagWidth, (int)strlen(pT->Tag()));
+            }
+          }
+        }
+
+      if (DDB.BeginArray(this, "Tear.Summary", NULL, DDB_NoPage))
+        {
+        TearVarBlkIter TCBs(TearVarBlk::sm_List);
+        TearVarBlk *pT;
+        int i=0;
+        for (pT=TCBs.First(); pT; pT=TCBs.Next())
+          {
+          if (!pT->IsGroupBlk() && pT->IsTear())
+            {
+
+            if (NLns>LnsPerPage || !Head1Done)
+              {
+              if (Head1Done)
+                DDB.Page("Tears", N>1/*N>5*/ ? DDB_RqdPage:DDB_NoPage);
+              //DDB.Text(" ");
+              DDB.BeginGrid("ABC", 6, N, 9, 1);
+
+              DDB.ColumnHeader("Tear",       m_iTagWidth, 01, -1);
+              DDB.ColumnHeader("MaxError",   12, 1, 1);
+              DDB.ColumnHeader("VarCvg",      7, 0, 1);
+              DDB.ColumnHeader("VarCnt",      7, 0, 1);
+              DDB.ColumnHeader("CvgCnt",      7, 1, 1);
+              DDB.ColumnHeader("Cvgd",        5, 1, 1);
+              DDB.ColumnHeader("Method",     10, 0, -1);
+
+              if (!Head1Done)
+                {
+                Head1Done=true;
+                NLns=20; // LnsPerPage-5;
+                }
+              else
+                NLns=0;
+              }
+            LPSTR Txt = pT->Tag();
+            DDB.RowHeader(Txt);
+            DDB.RowStart();
+
+            DDB.BeginElement(this, Txt);
+            DDB.Double  ("Error",   "", DC_Frac, "%",  xidSummaryTearError,  (long)pT,   this, 0);
+            DDB.Long    ("VarCvg",  "", DC_,     "",   xidSummaryTearVarCvg, (long)pT,   this, 0);
+            DDB.Long    ("VarCnt",  "", DC_,     "",   xidSummaryTearVarCnt, (long)pT,   this, 0);
+            DDB.Long    ("CvgCnt",  "", DC_,     "",   xidSummaryTearCvgCnt, (long)pT,   this, 0);
+            DDB.Long    ("Cvgd",    "", DC_,     "",   xidSummaryTearCvgd,   (long)pT,   this, 0);
+            DDB.String  ("Method",  "", DC_,     "",   xidSummaryTearMethod, (long)pT,   this, 0, DDBTearMethod);
+            NLns++;
+            i++;
+            }
+          }
+        }
+      DDB.EndArray();
+      DDB.EndGrid();
+      }
     }
   DDB.EndStruct();
   };
@@ -1699,11 +1789,32 @@ flag TearObject::DataXchg(DataChangeBlk & DCB)
   {
   if (CTNode::DataXchg(DCB))
     return 1;
+  if (TearVarBlk::DataXchgGlblTears(DCB))
+    return 1;
 
   switch (DCB.lHandle)
     {
     case xidATearTag:
       DCB.pC="";  // Ignore
+      return 1;
+
+    case xidSummaryTearError:
+      DCB.D=0;//((TearVarBlk*)DCB.lHandle2)->NVariables();
+      return 1;
+    case xidSummaryTearVarCvg:
+      DCB.L=2;
+      return 1;
+    case xidSummaryTearVarCnt:
+      DCB.L=((TearVarBlk*)DCB.lHandle2)->NVariables();
+      return 1;
+    case xidSummaryTearCvgCnt:
+      DCB.L=((TearVarBlk*)DCB.lHandle2)->ConvergeLoopCnt();
+      return 1;
+    case xidSummaryTearCvgd:
+      DCB.L=((TearVarBlk*)DCB.lHandle2)->ConvergeLoopCnt()>0;
+      return 1;
+    case xidSummaryTearMethod:
+      DCB.pC=TearConvergeMethodStr(gs_EqnCB.Cfg.m_iConvergeMeth, ((TearVarBlk*)DCB.lHandle2)->ConvergeMethod(), -1, &DCB.dwRetFlags);
       return 1;
     }
 
@@ -1724,8 +1835,8 @@ flag TearObject::ValidateData(ValidateDataBlk & VDB)
 //
 //===========================================================================
 
-#if KeepOldTearObjectEdit
-        
+#if WithTearObjectEdit
+                      
 const int Id_TDfTearMethod        = 1;
 const int Id_TDfCnvgdIters        = 2;
 const int Id_TDfMaxIters          = 3;
@@ -1752,7 +1863,7 @@ const int Id_TearBlkFind1Btn      = 29;
 const int Id_TearBlkFind2Btn      = 30;
                                   
 const int Id_TearDmpTearMeth      = 40;
-const int Id_TearDmpDampAsGroup   = 41;
+const int Id_TearDmpDampAsGroup   = 41;                               
 const int Id_TearDmpBlkDamp       = 42;
 
 const int Id_TearDmpGlblDamp      = 45;
@@ -1862,7 +1973,7 @@ void TearObjectEdt::Build()
 
   m_pSlctTVB=NULL;
 
-  TearVarBlkIter TCBs(TearVarBlk::List);
+  TearVarBlkIter TCBs(TearVarBlk::sm_List);
   TearVarBlk* pT;
   TearVarBlk* pT0=NULL;
   for (pT=TCBs.First(); pT; pT=TCBs.Next())

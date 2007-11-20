@@ -295,102 +295,102 @@ void Duct::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility();
 
-  if (DDB.BeginStruct(this, "Tear", NULL, DDB_NoPage, -1, MarkerClosed))
-    {
-    static DDBValueLst DDB2T[]=
-      {
-        {TP_First,  "First"},
-        {TP_Normal, "Normal"},
-        {TP_Last,   "Last"},
-        {0}
-      };
-    static DDBValueLst DDB3T[]=
-      {
-        {TT_NoTear,     "NoTear"},
-        //{TT_SystemTear, "SystemTear"}, // Cannot Select this
-        {TT_ManualTear, "ManualTear"},
-        {TT_Break,      "Break"},
-        {0}
-      };
-    static DDBValueLst DDB4T[]=
-      {
-        {TT_NoTear,     "NoTear"},
-        {TT_SystemTear, "SystemTear"},
-        {TT_ManualTear, "ManualTear"},
-        {TT_Break,      "Break"},
-        {0}
-      };
-    static DDBValueLst DDB6T[]=
-      {
-        {TIH_ZeroNIters,     "Zero"                       },
-        {TIH_HoldNIters,     "Hold"                       },
-        {TIH_RampNIters,     "Ramp"                       },
-        {0}
-      };
-    static DDBValueLst DDB7T[]=
-      {
-        {TIW_OnInit,         "OnInitialise", MDD_Default  },
-        {TIW_OnStart,        "OnStart"                    },
-        {TIW_Always,         "Always"                     },
-        {TIW_Manual,         "ManualOnly"                 },
-        {0}
-      };
+  //if (DDB.BeginStruct(this, "Tear", NULL, DDB_NoPage, -1, MarkerClosed))
+  //  {
+  //  static DDBValueLst DDB2T[]=
+  //    {
+  //      {TP_First,  "First"},
+  //      {TP_Normal, "Normal"},
+  //      {TP_Last,   "Last"},
+  //      {0}
+  //    };
+  //  static DDBValueLst DDB3T[]=
+  //    {
+  //      {TT_NoTear,     "NoTear"},
+  //      //{TT_SystemTear, "SystemTear"}, // Cannot Select this
+  //      {TT_ManualTear, "ManualTear"},
+  //      {TT_Break,      "Break"},
+  //      {0}
+  //    };
+  //  static DDBValueLst DDB4T[]=
+  //    {
+  //      {TT_NoTear,     "NoTear"},
+  //      {TT_SystemTear, "SystemTear"},
+  //      {TT_ManualTear, "ManualTear"},
+  //      {TT_Break,      "Break"},
+  //      {0}
+  //    };
+  //  static DDBValueLst DDB6T[]=
+  //    {
+  //      {TIH_ZeroNIters,     "Zero"                       },
+  //      {TIH_HoldNIters,     "Hold"                       },
+  //      {TIH_RampNIters,     "Ramp"                       },
+  //      {0}
+  //    };
+  //  static DDBValueLst DDB7T[]=
+  //    {
+  //      {TIW_OnInit,         "OnInitialise", MDD_Default  },
+  //      {TIW_OnStart,        "OnStart"                    },
+  //      {TIW_Always,         "Always"                     },
+  //      {TIW_Manual,         "ManualOnly"                 },
+  //      {0}
+  //    };
 
-    static DDBValueLst DDB8T[]=
-      {
-        {SPI_QModeNone, "None"},
-        {SPI_QModeQm,   "Mass"},
-        {SPI_QModeQv,   "Volume"},
-        {SPI_QModeNQv,  "NVolume"},
-        {0},
-      };
-    DDEF_Flags B4TearVis=DDB.GetVisibility();
-    DDB.Byte        ("Priority",      "",   DC_,    "",       xidTearPriority,     this, isParm|SetOnChange, DDB2T);
-    DDB.Byte        ("RqdType",       "",   DC_,    "",       xidTearType,         this, isParm|SetOnChange, DDB3T);
-    DDB.Byte        ("State",         "",   DC_,    "",       xidTearState,        this, 0, DDB4T);
-    DDB.String      ("TearBlk",       "",   DC_,    "",       xidTearBlockTag,     this, 0|isTag);
+  //  static DDBValueLst DDB8T[]=
+  //    {
+  //      {SPI_QModeNone, "None"},
+  //      {SPI_QModeQm,   "Mass"},
+  //      {SPI_QModeQv,   "Volume"},
+  //      {SPI_QModeNQv,  "NVolume"},
+  //      {0},
+  //    };
+  //  DDEF_Flags B4TearVis=DDB.GetVisibility();
+  //  DDB.Byte        ("Priority",      "",   DC_,    "",       xidTearPriority,     this, isParm|SetOnChange, DDB2T);
+  //  DDB.Byte        ("RqdType",       "",   DC_,    "",       xidTearType,         this, isParm|SetOnChange, DDB3T);
+  //  DDB.Byte        ("State",         "",   DC_,    "",       xidTearState,        this, 0, DDB4T);
+  //  DDB.String      ("TearBlk",       "",   DC_,    "",       xidTearBlockTag,     this, 0|isTag);
 
-    DDB.Visibility(NSHM_All, (NoFlwIOs()>1 && IOFlange(0)->RqdTearType()>=TT_ManualTear));
+  //  DDB.Visibility(NSHM_All, (NoFlwIOs()>1 && IOFlange(0)->RqdTearType()>=TT_ManualTear));
 
-    if (PrjFileVerNo()>=78)
-      {
-      if (DDB.BeginStruct(this, "Init", NULL, DDB_NoPage))
-        {
-        DDB.Byte        ("QmMode",   "",   DC_,    "",       xidTearQmMode,       this, isParm|SetOnChange, DDB8T);
-        DDB.Byte        ("How",      "",   DC_,    "",       xidTearInitHow,      this, isParm|SetOnChange, DDB6T);
-        DDB.Byte        ("When",     "",   DC_,    "",       xidTearInitWhen,     this, isParm|SetOnChange, DDB7T);
-        DDB.Byte        ("Count",    "",   DC_,    "",       xidTearCntRqd,       this, isParm);
-        DDB.Byte        ("Iters",    "",   DC_,    "",       xidTearCntAct,       this, InitHidden);
-        DDB.CheckBoxBtn ("Active",   "",   DC_,    "",       xidTearInitActive,   this, isParm|SetOnChange);
+  //  if (PrjFileVerNo()>=78)
+  //    {
+  //    if (DDB.BeginStruct(this, "Init", NULL, DDB_NoPage))
+  //      {
+  //      DDB.Byte        ("QmMode",   "",   DC_,    "",       xidTearQmMode,       this, isParm|SetOnChange, DDB8T);
+  //      DDB.Byte        ("How",      "",   DC_,    "",       xidTearInitHow,      this, isParm|SetOnChange, DDB6T);
+  //      DDB.Byte        ("When",     "",   DC_,    "",       xidTearInitWhen,     this, isParm|SetOnChange, DDB7T);
+  //      DDB.Byte        ("Count",    "",   DC_,    "",       xidTearCntRqd,       this, isParm);
+  //      DDB.Byte        ("Iters",    "",   DC_,    "",       xidTearCntAct,       this, InitHidden);
+  //      DDB.CheckBoxBtn ("Active",   "",   DC_,    "",       xidTearInitActive,   this, isParm|SetOnChange);
 
-        DDB.Double      ("Qm_Rqd",   "",   DC_Qm,  "kg/s",   xidTearQmRqd,        this, isParm|NAN_OK);
-        DDB.Double      ("Qv_Rqd",   "",   DC_Qv,  "L/s",    xidTearQvRqd,        this, isParm|NAN_OK);
-        DDB.Double      ("NQv_Rqd",  "",   DC_NQv, "NL/s",   xidTearNQvRqd,       this, isParm|NAN_OK);
-        DDB.Double      ("P_Rqd",    "",   DC_P,   "kPag",   xidTearPRqd,         this, isParm|NAN_OK);
-        DDB.Double      ("T_Rqd",    "",   DC_T,   "C",      xidTearTRqd,         this, isParm|NAN_OK);
-        }
-      DDB.EndStruct();
-      }
-    else
-      {
-      DDB.Byte        ("Init.QmMode", "",   DC_,    "",       xidTearQmMode,       this, isParm|SetOnChange, DDB8T);
-      DDB.Byte        ("Init.How",    "",   DC_,    "",       xidTearInitHow,      this, isParm|SetOnChange, DDB6T);
-      DDB.Byte        ("Init.When",   "",   DC_,    "",       xidTearInitWhen,     this, isParm|SetOnChange, DDB7T);
-      DDB.Byte        ("Init.Count",  "",   DC_,    "",       xidTearCntRqd,       this, isParm);
-      DDB.Byte        ("Init.Iters",  "",   DC_,    "",       xidTearCntAct,       this, InitHidden);
-      DDB.CheckBoxBtn ("Init.Active", "",   DC_,    "",       xidTearInitActive,   this, isParm|SetOnChange);
-      DDB.Double      ("Qm_Rqd",      "",   DC_Qm,  "kg/s",   xidTearQmRqd,        this, isParm|NAN_OK);
-      DDB.Double      ("Qv_Rqd",      "",   DC_Qv,  "L/s",    xidTearQvRqd,        this, isParm|NAN_OK);
-      DDB.Double      ("NQv_Rqd",     "",   DC_NQv, "NL/s",   xidTearNQvRqd,       this, isParm|NAN_OK);
-      DDB.Double      ("P_Rqd",       "",   DC_P,   "kPag",   xidTearPRqd,         this, isParm|NAN_OK);
-      DDB.Double      ("T_Rqd",       "",   DC_T,   "C",      xidTearTRqd,         this, isParm|NAN_OK);
-      }
+  //      DDB.Double      ("Qm_Rqd",   "",   DC_Qm,  "kg/s",   xidTearQmRqd,        this, isParm|NAN_OK);
+  //      DDB.Double      ("Qv_Rqd",   "",   DC_Qv,  "L/s",    xidTearQvRqd,        this, isParm|NAN_OK);
+  //      DDB.Double      ("NQv_Rqd",  "",   DC_NQv, "NL/s",   xidTearNQvRqd,       this, isParm|NAN_OK);
+  //      DDB.Double      ("P_Rqd",    "",   DC_P,   "kPag",   xidTearPRqd,         this, isParm|NAN_OK);
+  //      DDB.Double      ("T_Rqd",    "",   DC_T,   "C",      xidTearTRqd,         this, isParm|NAN_OK);
+  //      }
+  //    DDB.EndStruct();
+  //    }
+  //  else
+  //    {
+  //    DDB.Byte        ("Init.QmMode", "",   DC_,    "",       xidTearQmMode,       this, isParm|SetOnChange, DDB8T);
+  //    DDB.Byte        ("Init.How",    "",   DC_,    "",       xidTearInitHow,      this, isParm|SetOnChange, DDB6T);
+  //    DDB.Byte        ("Init.When",   "",   DC_,    "",       xidTearInitWhen,     this, isParm|SetOnChange, DDB7T);
+  //    DDB.Byte        ("Init.Count",  "",   DC_,    "",       xidTearCntRqd,       this, isParm);
+  //    DDB.Byte        ("Init.Iters",  "",   DC_,    "",       xidTearCntAct,       this, InitHidden);
+  //    DDB.CheckBoxBtn ("Init.Active", "",   DC_,    "",       xidTearInitActive,   this, isParm|SetOnChange);
+  //    DDB.Double      ("Qm_Rqd",      "",   DC_Qm,  "kg/s",   xidTearQmRqd,        this, isParm|NAN_OK);
+  //    DDB.Double      ("Qv_Rqd",      "",   DC_Qv,  "L/s",    xidTearQvRqd,        this, isParm|NAN_OK);
+  //    DDB.Double      ("NQv_Rqd",     "",   DC_NQv, "NL/s",   xidTearNQvRqd,       this, isParm|NAN_OK);
+  //    DDB.Double      ("P_Rqd",       "",   DC_P,   "kPag",   xidTearPRqd,         this, isParm|NAN_OK);
+  //    DDB.Double      ("T_Rqd",       "",   DC_T,   "C",      xidTearTRqd,         this, isParm|NAN_OK);
+  //    }
 
-    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-    DDB.CheckBoxBtn ("AdjQmToEstQm",  "",   DC_,    "",       &m_bAdjustToEstFlow,  this, isParm|SetOnChange);
-    DDB.SetVisibility(B4TearVis);
-    }
-  DDB.EndStruct();
+  //  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+  //  DDB.CheckBoxBtn ("AdjQmToEstQm",  "",   DC_,    "",       &m_bAdjustToEstFlow,  this, isParm|SetOnChange);
+  //  DDB.SetVisibility(B4TearVis);
+  //  }
+  //DDB.EndStruct();
 
   if (1)//NetDynamicMethod() && IsSrcSnk)
     {

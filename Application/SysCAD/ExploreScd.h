@@ -7,6 +7,7 @@
 class CExploreScd;
 class CXTTag;
 class CXTFlow;
+class CXTTear;
 class CXTClass; 
 class CXTPage; 
 class CGrfDoc;
@@ -45,6 +46,23 @@ class CXTFlowHPair
     HTREEITEM     m_hTag;
   };
 
+class CXTTearHPair
+  {
+  public:
+    CXTTearHPair()
+      {
+      m_pTag=NULL;
+      m_hTag=0;
+      }
+    CXTTearHPair(CXTTear * pTag)
+      {
+      m_pTag=pTag;
+      m_hTag=0;
+      }
+    CXTTear     * m_pTag;
+    HTREEITEM     m_hTag;
+  };
+
 class CXTPageHPair
   {
   public:
@@ -78,6 +96,9 @@ class CXTClassMap         : public CMap   <LPCTSTR, LPCTSTR, CXTClass*, CXTClass
 class CXTFlowArray        : public CArray <CXTFlow*, CXTFlow*> {};
 class CXTFlowMap          : public CMap   <LPCTSTR, LPCTSTR, CXTFlow*, CXTFlow*> {};
 
+class CXTTearArray        : public CArray <CXTTear*, CXTTear*> {};
+class CXTTearMap          : public CMap   <LPCTSTR, LPCTSTR, CXTTear*, CXTTear*> {};
+
 enum 
   { 
   TrID_GraphicHdr, TrID_Graphic, 
@@ -87,9 +108,10 @@ enum
   TrID_FlowHdr,  TrID_Flow, 
   TrID_MUFlowHdr,  TrID_MUFlow, 
   TrID_SPFlowHdr,  TrID_SPFlow, 
-  TrID_ClassHdr, TrID_Class
+  TrID_ClassHdr, TrID_Class,
   //TrID_LostGrfHdr, TrID_LostGrf,
   //TrID_LostMdlHdr, TrID_LostMdl,
+  TrID_TearHdr,  TrID_Tear, 
   };
 
 class CXTTreeInfo
@@ -128,7 +150,25 @@ class CXTTreeInfo
 
   };
 
-class CXTTag : public CXTTreeInfo
+class CXTCommon : public CXTTreeInfo
+  {
+  friend class CExploreScd;
+
+  public:
+    CXTCommon(CExploreScd * Dlg, int Id, LPCSTR Tag);
+    ~CXTCommon();
+
+  public:
+    CExploreScd   & m_Dlg;
+    CString         m_sTag;
+    CString         m_sTagLwr;
+    BOOL            m_Selected;
+    BOOL            m_Marked;
+    HTREEITEM       m_hTreeItem;
+  };
+
+
+class CXTTag : public CXTCommon
   {
   friend class CExploreScd;
 
@@ -139,15 +179,15 @@ class CXTTag : public CXTTreeInfo
     int Icon();
 
   public:
-    CExploreScd   & m_Dlg;
-    CString         m_sTag;
-    CString         m_sTagLwr;
+    //CExploreScd   & m_Dlg;
+    //CString         m_sTag;
+    //CString         m_sTagLwr;
     CXTClass      * m_pClass;
-    BOOL            m_Selected;
-    BOOL            m_Marked;
+    //BOOL            m_Selected;
+    //BOOL            m_Marked;
     BOOL            m_InUse;
     BOOL            m_ModelOK;
-    HTREEITEM       m_hTreeItem;
+    //HTREEITEM       m_hTreeItem;
     HTREEITEM       m_hClassItem;
     int             m_iAccPage;
     //HTREEITEM       m_hLostGrf;
@@ -157,7 +197,7 @@ class CXTTag : public CXTTreeInfo
 
   };
 
-class CXTFlow : public CXTTreeInfo
+class CXTFlow : public CXTCommon
   {
   friend class CExploreScd;
 
@@ -170,17 +210,50 @@ class CXTFlow : public CXTTreeInfo
     HTREEITEM       ReqdParentItem();
 
   public:
-    CExploreScd   & m_Dlg;
-    CString         m_sTag;
-    CString         m_sTagLwr;
+    //CExploreScd   & m_Dlg;
+    //CString         m_sTag;
+    //CString         m_sTagLwr;
     int             m_iFlowType;
     int             m_iUseStatus;
     //CXTClass      * m_pClass;
-    BOOL            m_Selected;
-    BOOL            m_Marked;
+    //BOOL            m_Selected;
+    //BOOL            m_Marked;
     BOOL            m_InUse;
     BOOL            m_ModelOK;
-    HTREEITEM       m_hTreeItem;
+    //HTREEITEM       m_hTreeItem;
+    //HTREEITEM       m_hClassItem;
+    //int             m_iAccPage;
+    //HTREEITEM       m_hLostGrf;
+
+    //CXTPageHPairArray  m_Pages;
+    //CXTPageHPairMap    m_PHMap;
+
+  };
+
+class CXTTear : public CXTCommon
+  {
+  friend class CExploreScd;
+
+  public:
+    CXTTear(CExploreScd * Dlg, LPCTSTR Tag);//, int TearType, int UseStatus);//, CXTClass * ClassId);
+    ~CXTTear();
+
+    int             Icon();
+    bool            ShowIt();
+    HTREEITEM       ReqdParentItem();
+
+  public:
+    //CExploreScd   & m_Dlg;
+    //CString         m_sTag;
+    //CString         m_sTagLwr;
+    //int             m_iTearType;
+    //int             m_iUseStatus;
+    //CXTClass      * m_pClass;
+    //BOOL            m_Selected;
+    //BOOL            m_Marked;
+    BOOL            m_InUse;
+    BOOL            m_ModelOK;
+    //HTREEITEM       m_hTreeItem;
     //HTREEITEM       m_hClassItem;
     //int             m_iAccPage;
     //HTREEITEM       m_hLostGrf;
@@ -278,6 +351,7 @@ class CExpTreeCtrl : public CTreeCtrl
 class CExploreScd : public CDialog
   {
   friend class CXTFlow;
+  friend class CXTTear;
 
   DECLARE_DYNAMIC(CExploreScd)
 
@@ -308,6 +382,7 @@ class CExploreScd : public CDialog
 
     void GetRawTags();
     void GetRawFlows();
+    void GetRawTears();
     void GetRawPages(bool ChangesOK);
     void FindTagPages();
     void RemoveUnusedItems();
@@ -321,8 +396,10 @@ class CExploreScd : public CDialog
     void PositionControls(int cx, int cy);
     void FixFilterStuff();
     void SetFilter();
-    void SetTagFilter(CXTTag & Tg, BOOL DoSetup);
-    void SetFlowFilter(CXTFlow & Tg, BOOL DoSetup);
+    void SetFilter(CXTCommon & Tg, BOOL DoSetup);
+    //void SetTagFilter(CXTTag & Tg, BOOL DoSetup);
+    //void SetFlowFilter(CXTFlow & Tg, BOOL DoSetup);
+    //void SetTearFilter(CXTTear & Tg, BOOL DoSetup);
     void UpdateSelectDisplay();
 
     bool LoadTagTree(bool DoKbdTest);
@@ -336,6 +413,9 @@ class CExploreScd : public CDialog
 
     void AddFlowToTree(CXTFlow *pFlow, CXTFlow*pPrev);
     void RemoveFlowFromTree(CXTFlow * pFlow);
+
+    void AddTearToTree(CXTTear *pTear, CXTTear*pPrev);
+    void RemoveTearFromTree(CXTTear * pTear);
 
     void DeleteGraphicPage(CXTPage * pPage);
     void RenameGraphicPage(CXTPage * pPage);
@@ -373,6 +453,7 @@ class CExploreScd : public CDialog
     CXTTreeInfo           m_SPFlowTitle;
     //CXTTreeInfo           m_LostGrfTitle;
     //CXTTreeInfo           m_LostMdlTitle;
+    CXTTreeInfo           m_TearTitle;
 
     CImageList            m_TreeImgList;
     int                   m_WindowCount;
@@ -390,6 +471,7 @@ class CExploreScd : public CDialog
     HTREEITEM             m_hFlowsItem;
     HTREEITEM             m_hMUFlowsItem;
     HTREEITEM             m_hSPFlowsItem;
+    HTREEITEM             m_hTearsItem;
     //HTREEITEM             m_hLostGrfItem;
     //HTREEITEM             m_hLostMdlItem;
     HTREEITEM             m_hPrevSel;
@@ -402,6 +484,7 @@ class CExploreScd : public CDialog
     BOOL                  m_bFlowsExpanded;
     BOOL                  m_bMUFlowsExpanded;
     BOOL                  m_bSPFlowsExpanded;
+    BOOL                  m_bTearsExpanded;
     //BOOL                  m_bLostGrfExpanded;
     //BOOL                  m_bLostMdlExpanded;
 
@@ -413,6 +496,7 @@ class CExploreScd : public CDialog
     int                   m_nFlowsSelected;
     //int                   m_nLostGrf;
     //int                   m_nLostMdl;
+    int                   m_nTearsSelected;
 
     int                   m_ChangeBusy;
 
@@ -431,6 +515,9 @@ class CExploreScd : public CDialog
 
     CXTFlowArray          m_Flows;
     CXTFlowMap            m_FlowMap;
+
+    CXTTearArray          m_Tears;
+    CXTTearMap            m_TearMap;
 
     byte                  m_iShowWhatFlows;
     bool                  m_bBranchMU;

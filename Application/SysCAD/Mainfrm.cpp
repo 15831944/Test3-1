@@ -1331,7 +1331,7 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
           DeleteMenuItem(ID_PROJECT_OPENLOCAL);
           }
 
-#if !KeepOldTearObject
+#if !WithTearObject
         DeleteMenuItem(ID_VIEW_TEARBLOCKS);
 #endif
 

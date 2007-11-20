@@ -131,13 +131,6 @@ class CTraceList;
 class CNodeProcedures;
 class CNodeTagIOList;
 
-//============================================================================
-// ===========================================================================
-
-const LPSTR StdSepUnderbar = "________________________________________";
-const LPSTR StdSepDash     = "----------------------------------------";
-const LPSTR StdSepEquals   = "========================================";
-
 //===========================================================================
 //
 //
@@ -1410,7 +1403,7 @@ class FlwBlkArray : public CArray <FlwBlk, FlwBlk&>
 //
 // =========================================================================
 
-#if KeepOldTearVarBlkEdit
+#if WithTearVarBlkEdit
 DEFINE_TAGOBJEDTDERIVED(FlangeTearVarBlk, TearVarBlkClassDef);
 #else
 DEFINE_TAGOBJDERIVED(FlangeTearVarBlk, TearVarBlkClassDef);
@@ -1670,8 +1663,8 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     virtual void   BuildCommonSEDefn(DataDefnBlk &DDB) {}; // Hide 'Info Page' for flanges
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    void           BuildDataDefnTearValues(DataDefnBlk & DDB);
-    void           BuildDataDefnTearMethod(DataDefnBlk & DDB);
+    //void           BuildDataDefnTearValues(DataDefnBlk & DDB);
+    //void           BuildDataDefnTearMethod(DataDefnBlk & DDB);
 
     virtual LPSTR  Tag();
     virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
@@ -1818,8 +1811,8 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
 
     CAreaSum       m_Sum;
 
-    Strng          m_sTmp;
-    int            m_iNameWidth;
+    //Strng          m_sTmp;
+    //int            m_iNameWidth;
 
 #if DOPB_FILT_RESULTS
     int            nMSRqd;

@@ -235,7 +235,7 @@ void CFT_Mixer::Deactivate()
 //
 //==========================================================================
 
-#if KeepOldTearVarBlkEdit
+#if WithTearVarBlkEdit
 IMPLEMENT_TAGOBJEDTDERIVED(FlshTrnTearVarBlk, "FlshTrnTearVarBlk", "TbFlshTrn", "", "TBFT", TOC_SYSTEM, 
                            TearVarBlkEdt, 
                            "Flash Train TearVarBlk", "Flash Train Tear Variable Calculation Blk",

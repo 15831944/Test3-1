@@ -71,6 +71,7 @@ const int Img_FlowSpillIU     = 28;
 const int Img_FlowVentIU      = 29;
 const int Img_FlowLeakIU      = 30;
 const int Img_FlowOtherIU     = 31;
+const int Img_Tear            = 32;
 
 const int PgType2TrIDs[3]={TrID_Other, TrID_Graphic, TrID_Trend};
 const int PgType2ImgIDsActive[3]={Img_Other, Img_GrfActive, Img_Trnd};
@@ -102,17 +103,37 @@ static LPCTSTR Section="Explorer";
 
 //---------------------------------------------------------------------------
 
-CXTTag::CXTTag(CExploreScd * Dlg, LPCTSTR Tag, CXTClass * Class) : m_Dlg(*Dlg) , CXTTreeInfo(TrID_Node, &m_sTag)
+CXTCommon::CXTCommon(CExploreScd * Dlg, int Id, LPCSTR Tag) : m_Dlg(*Dlg) , CXTTreeInfo(Id, &m_sTag)
   {
   m_sTag=Tag;
   m_sTagLwr=Tag;
   m_sTagLwr.MakeLower();
-  m_pClass=Class;
+  //m_pClass=Class;
   m_Selected=false;
   m_Marked=false;
+  //m_InUse=true;
+  //m_ModelOK=true;
+  m_hTreeItem=NULL;
+  //m_hClassItem=NULL;
+  };
+
+CXTCommon::~CXTCommon()
+  {
+  }
+
+//---------------------------------------------------------------------------
+
+CXTTag::CXTTag(CExploreScd * Dlg, LPCTSTR Tag, CXTClass * Class) : /*m_Dlg(*Dlg), */  CXTCommon(Dlg, TrID_Node, Tag)
+  {
+  //m_sTag=Tag;
+  //m_sTagLwr=Tag;
+  //m_sTagLwr.MakeLower();
+  m_pClass=Class;
+  //m_Selected=false;
+  //m_Marked=false;
   m_InUse=true;
   m_ModelOK=true;
-  m_hTreeItem=NULL;
+//  m_hTreeItem=NULL;
   m_hClassItem=NULL;
   m_iAccPage=-1;
   };
@@ -128,19 +149,19 @@ int CXTTag::Icon() { return m_ModelOK ? (m_Pages.GetCount()>0?Img_Node:Img_LostG
 
 //---------------------------------------------------------------------------
 
-CXTFlow::CXTFlow(CExploreScd * Dlg, LPCTSTR Tag, int FlowType, int UseStatus) : m_Dlg(*Dlg) , CXTTreeInfo(TrID_Flow, &m_sTag)
+CXTFlow::CXTFlow(CExploreScd * Dlg, LPCTSTR Tag, int FlowType, int UseStatus) : /*m_Dlg(*Dlg) ,*/ CXTCommon(Dlg, TrID_Flow, Tag)
   {
-  m_sTag=Tag;
-  m_sTagLwr=Tag;
-  m_sTagLwr.MakeLower();
+  //m_sTag=Tag;
+  //m_sTagLwr=Tag;
+  //m_sTagLwr.MakeLower();
   m_iFlowType=FlowType;
   m_iUseStatus=UseStatus;
   //m_pClass=Class;
-  m_Selected=false;
-  m_Marked=false;
+  //m_Selected=false;
+  //m_Marked=false;
   m_InUse=true;
   m_ModelOK=true;
-  m_hTreeItem=NULL;
+  //m_hTreeItem=NULL;
   //m_hClassItem=NULL;
   //m_iAccPage=-1;
   };
@@ -178,6 +199,61 @@ HTREEITEM CXTFlow::ReqdParentItem()
     default:
       return m_Dlg.m_hFlowsItem;
     }
+  }
+
+//---------------------------------------------------------------------------
+
+CXTTear::CXTTear(CExploreScd * Dlg, LPCTSTR Tag/*, int TearType, int UseStatus*/) : /*m_Dlg(*Dlg) ,*/ CXTCommon(Dlg, TrID_Tear, Tag)
+  {
+  //m_sTag=Tag;
+  //m_sTagLwr=Tag;
+  //m_sTagLwr.MakeLower();
+  //m_iTearType=TearType;
+  //m_iUseStatus=UseStatus;
+  //m_pClass=Class;
+  //m_Selected=false;
+  //m_Marked=false;
+  m_InUse=true;
+  m_ModelOK=true;
+  //m_hTreeItem=NULL;
+  //m_hClassItem=NULL;
+  //m_iAccPage=-1;
+  };
+
+CXTTear::~CXTTear() 
+  {
+  //for (int i=0; i<m_Pages.GetCount(); i++)
+  //  delete m_Pages[i];
+  //m_Pages.SetSize(0, 128);
+  };
+
+int CXTTear::Icon()    
+  { 
+  //if (m_iUseStatus&CUseMsk_InUse)
+  //  return Img_TearIU+m_iTearType; 
+  //if (m_iUseStatus&CUseMsk_WasUsed)
+  //  return Img_TearWU+m_iTearType; 
+  return Img_Tear;//NU+m_iTearType; 
+  }
+
+bool CXTTear::ShowIt() 
+  { return m_Selected && true; };//((m_iUseStatus&m_Dlg.m_iShowWhatTears) || ((m_iUseStatus==0) && (m_Dlg.m_iShowWhatTears&CUseMsk_Exists))); }
+
+HTREEITEM CXTTear::ReqdParentItem()
+  {
+  //switch (m_iTearType)
+  //  {
+  //  case FlwType_Makeup:
+  //  case FlwType_Bleed:
+  //    return m_Dlg.m_bBranchMU ? m_Dlg.m_hMUTearsItem : m_Dlg.m_hTearsItem;
+  //  case FlwType_Spill:
+  //  case FlwType_Vent:
+  //  case FlwType_Leak:
+  //    return m_Dlg.m_bBranchSP ? m_Dlg.m_hSPTearsItem : m_Dlg.m_hTearsItem;
+  //  default:
+  //    return m_Dlg.m_hTearsItem;
+  //  }
+  return m_Dlg.m_hTearsItem;
   }
 
 //---------------------------------------------------------------------------
@@ -290,6 +366,7 @@ m_NodeTitle(TrID_NodeHdr,   "Node"),
 m_FlowTitle(TrID_FlowHdr,  "Flow"),
 m_MUFlowTitle(TrID_MUFlowHdr,  "Makeups & Bleeds"),
 m_SPFlowTitle(TrID_SPFlowHdr,  "Spills, Vents & Leaks"),
+m_TearTitle(TrID_TearHdr, "Tears"),
 m_OtherTitle(TrID_OtherHdr, "...")
   {
   m_FilterString    = "Boil";
@@ -303,9 +380,11 @@ m_OtherTitle(TrID_OtherHdr, "...")
   m_hFlowsItem      = NULL;
   m_hMUFlowsItem    = NULL;
   m_hSPFlowsItem    = NULL;
+  m_hTearsItem      = NULL;
 
   m_nTagsSelected   = 0;
   m_nFlowsSelected  = 0;
+  m_nTearsSelected  = 0;
   m_WindowCount     = 0;
   m_GraphicCount    = 0;
   m_TrendCount      = 0;
@@ -412,6 +491,7 @@ BOOL CExploreScd::OnInitDialog()
   m_hClassItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Class,      GetTreeInfo(m_ClassTitle), TVI_ROOT);
   m_hNodesItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Node,       GetTreeInfo(m_NodeTitle), TVI_ROOT);
   m_hFlowsItem = InsertItem(LPSTR_TEXTCALLBACK, Img_FlowProcIU, GetTreeInfo(m_FlowTitle), TVI_ROOT);
+  m_hTearsItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Tear,       GetTreeInfo(m_TearTitle), TVI_ROOT);
   m_hOtherItem = InsertItem(LPSTR_TEXTCALLBACK, Img_Other,      GetTreeInfo(m_OtherTitle), TVI_ROOT);
   m_hMUFlowsItem = NULL;
   m_hSPFlowsItem = NULL;
@@ -422,6 +502,7 @@ BOOL CExploreScd::OnInitDialog()
   m_bClassExpanded = PF.RdInt(Section, "Classes.Open", 0);
   m_bNodesExpanded = PF.RdInt(Section, "Nodes.Open", 0);
   m_bFlowsExpanded = PF.RdInt(Section, "Flows.Open", 0);
+  m_bTearsExpanded = PF.RdInt(Section, "Tears.Open", 0);
   m_bMUFlowsExpanded = PF.RdInt(Section, "Flows.Open.MU", 0);
   m_bSPFlowsExpanded = PF.RdInt(Section, "Flows.Open.SP", 0);
 
@@ -681,6 +762,7 @@ void CExploreScd::SaveExpanded()
     PF.WrInt(Section, "Classes.Open",  (m_Tree.GetItemState(m_hClassItem, TVIS_EXPANDED)&TVIS_EXPANDED)!=0?1:0);
     PF.WrInt(Section, "Nodes.Open",    (m_Tree.GetItemState(m_hNodesItem, TVIS_EXPANDED)&TVIS_EXPANDED)!=0?1:0);
     PF.WrInt(Section, "Flows.Open",    (m_Tree.GetItemState(m_hFlowsItem, TVIS_EXPANDED)&TVIS_EXPANDED)!=0?1:0);
+    PF.WrInt(Section, "Tears.Open",    (m_Tree.GetItemState(m_hTearsItem, TVIS_EXPANDED)&TVIS_EXPANDED)!=0?1:0);
     PF.WrInt(Section, "MUFlows.Open",  m_hMUFlowsItem && (m_Tree.GetItemState(m_hMUFlowsItem, TVIS_EXPANDED)&TVIS_EXPANDED)!=0?1:0);
     PF.WrInt(Section, "SPFlows.Open",  m_hSPFlowsItem && (m_Tree.GetItemState(m_hSPFlowsItem, TVIS_EXPANDED)&TVIS_EXPANDED)!=0?1:0);
 
@@ -921,6 +1003,70 @@ void CExploreScd::GetRawFlows()
 #endif
         m_Flows.Add(pFlow);
         m_FlowMap.SetAt(pFlow->m_sTag, pFlow);
+        }
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+void CExploreScd::GetRawTears()
+  {
+  SFEFlwLib* pFlwLib = gs_pPrj->FlwLib();
+  if (pFlwLib)
+    {
+    Strng_List RawTears;
+    int NTears;
+
+    RawTears.Append("*");
+    NTears = gs_pPrj->FlwLib()->FE_TagOperation(FETOp_GetTears, RawTears);
+
+
+    for (Strng *pRawTear=RawTears.First(); pRawTear; pRawTear=RawTears.Next())
+      {
+      int xxx=0;
+      //if (pRawTear->XStrICmp(PlantModelTag)==0 || pRawTag->XStrICmp(PlantAreaTag)==0)
+      //  continue;
+
+      CXTTear *pTear;
+      if (m_TearMap.Lookup(pRawTear->Str(), pTear))
+        {
+        pTear->m_InUse=true;
+        pTear->m_ModelOK=true;
+        //pTear->m_iTearType=UnPackConnectTearType(pRawTear->Index());
+        //pTear->m_iUseStatus=UnPackConnectUseStatus(pRawTear->Index());
+#if dbgAdd
+        dbgpln("Tear  InUse %4i %4i %s", pTear->m_iTearType, pTear->m_iUseStatus, pTear->m_sTag);
+#endif
+        }
+      else
+        {
+
+        //Strng ClassId;
+        //flag b = gs_pPrj->RequestModelClassId(pRawTear->Str(), ClassId);
+        //if (!b)
+        //  ClassId="";
+
+        //for (int iClass=0; iClass<m_Classes.GetCount(); iClass++)
+        //  if (m_Classes[iClass]->m_sClassId.CompareNoCase(ClassId())==0)
+        //    break;
+        //if (iClass==m_Classes.GetCount())
+        //  {
+        //  CXTClass *pClass=new CXTClass(this, ClassId());
+        //  m_Classes.Add(pClass);
+        //  m_ClassMap.SetAt(pClass->m_sClassId, pClass);
+        //  pClass->m_hClassItem=InsertItem(LPSTR_TEXTCALLBACK, Img_Class, GetTreeInfo(pClass), m_hClassItem, TVI_SORT); 
+        //  }
+
+        pTear=new CXTTear(this, pRawTear->Str());//, UnPackConnectTearType(pRawTear->Index()), UnPackConnectUseStatus(pRawTear->Index()));//, m_Classes[iClass]);
+        //pTear=new CXTTear(this, pRawTear->Str(), 1, 09);//, m_Classes[iClass]);
+        pTear->m_ModelOK=true;
+
+#if dbgAdd   
+        dbgpln("Tear  New   %4i %4i %s", pTear->m_iTearType, pTear->m_iUseStatus, pTear->m_sTag);
+#endif
+        m_Tears.Add(pTear);
+        m_TearMap.SetAt(pTear->m_sTag, pTear);
         }
       }
     }
@@ -1188,6 +1334,45 @@ void CExploreScd::RemoveUnusedItems()
       }
     }
 
+  for (int t=0; t<m_Tears.GetCount(); t++)
+    {
+    CXTTear *pTear=m_Tears[t];
+    if (!pTear->m_InUse)
+      {
+      RemoveTearFromTree(pTear);
+      //for (int p=0; p<pTag->m_Pages.GetCount(); p++)
+      //  {
+      //  // Remove Page under Tag
+      //  CXTPageHPair *pPH=pTag->m_Pages[p];
+
+      //  // Remove Tag entries under the Page where the tag is shown
+      //  CXTPage *pPg=pPH->m_pPage;
+      //  for (int i=0; i<pPg->m_TagHs.GetCount(); i++)
+      //    {
+      //    CXTTagHPair *pTH=pPg->m_TagHs[i];
+      //    if (pTH->m_pTag==pTag)
+      //      {
+      //      HTREEITEM h=pTH->m_hTag;
+      //      if (h)
+      //        m_Tree.DeleteItem(h);
+      //      pPg->m_TagHMap.RemoveKey(pTag);
+      //      pPg->m_TagHs.RemoveAt(i);
+      //      delete pTH;
+      //      break;
+      //      }
+      //    }
+      //  }
+
+#if dbgAdd   
+      dbgpln("Tear  Remov %s", pTear->m_sTag);
+#endif
+
+      m_TearMap.RemoveKey(pTear->m_sTag);
+      m_Tears.RemoveAt(t--);
+      delete pTear;
+      }
+    }
+
   for (int p=0; p<m_Pages.GetCount(); p++)
     {
     CXTPage *pPage=m_Pages[p];
@@ -1289,6 +1474,7 @@ void CExploreScd::FinaliseHeaders()
   m_Tree.Expand(m_hClassItem, m_bClassExpanded?TVE_EXPAND:TVE_COLLAPSE);
   m_Tree.Expand(m_hNodesItem, m_bNodesExpanded?TVE_EXPAND:TVE_COLLAPSE);
   m_Tree.Expand(m_hFlowsItem, m_bFlowsExpanded?TVE_EXPAND:TVE_COLLAPSE);
+  m_Tree.Expand(m_hTearsItem, m_bTearsExpanded?TVE_EXPAND:TVE_COLLAPSE);
   if (m_hMUFlowsItem)
     m_Tree.Expand(m_hMUFlowsItem, m_bSPFlowsExpanded?TVE_EXPAND:TVE_COLLAPSE);
   if (m_hMUFlowsItem)
@@ -1318,6 +1504,7 @@ void CExploreScd::BuildTags()
   m_Tree.Expand(m_hClassItem, TVE_COLLAPSE|TVE_COLLAPSERESET);
   m_Tree.Expand(m_hNodesItem, TVE_COLLAPSE|TVE_COLLAPSERESET);
   m_Tree.Expand(m_hFlowsItem, TVE_COLLAPSE|TVE_COLLAPSERESET);
+  m_Tree.Expand(m_hTearsItem, TVE_COLLAPSE|TVE_COLLAPSERESET);
 
   ClearTags();
 
@@ -1333,6 +1520,11 @@ void CExploreScd::BuildTags()
   GetRawFlows();
 #if dbgTime
   dbgpln("B1:%10.3f", SW.Lap()*1e3);
+#endif
+
+  GetRawTears();
+#if dbgTime
+  dbgpln("B2:%10.3f", SW.Lap()*1e3);
 #endif
 
   GetRawPages(true);
@@ -1452,6 +1644,11 @@ void CExploreScd::ReBuildTags()
   dbgpln("B1:%10.3f", SW.Lap()*1e3);
 #endif
 
+  GetRawTears();
+#if dbgTime
+  dbgpln("B2:%10.3f", SW.Lap()*1e3);
+#endif
+
   GetRawPages(true);//false);
 #if dbgTime
   dbgpln("D:%10.3f", SW.Lap()*1e3);
@@ -1513,6 +1710,23 @@ void CExploreScd::ReBuildTags()
     }
 
   UpdateFlowBranches(false);
+
+  CXTTear *pPrevTear=NULL;
+  for (int t=0; t<m_Tears.GetCount(); t++)
+    {
+    CXTTear *pTear=m_Tears[t];
+    if (pTear->m_InUse && pTear->ShowIt())
+      {
+      AddTearToTree(pTear, pPrevTear);
+      pPrevTear=pTear;
+      }
+    else
+      {
+      RemoveTearFromTree(pTear);
+      }
+    }
+
+  //UpdateTearBranches(false);
 
 
 #if dbgTime
@@ -1594,6 +1808,8 @@ bool CExploreScd::LoadTagTree(bool DoKbdTest)
       }
     }
 
+  //--------------------------
+
   UpdateFlowBranches(true);
   CXTFlow *pPrevFlow=NULL;
   for (int i=0; i<m_Flows.GetCount(); i++)
@@ -1634,6 +1850,23 @@ bool CExploreScd::LoadTagTree(bool DoKbdTest)
     }
 
   UpdateFlowBranches(false);
+
+  //--------------------------
+
+  CXTTear *pPrevTear=NULL;
+  for (int i=0; i<m_Tears.GetCount(); i++)
+    {
+    CXTTear * pTear=m_Tears[i];
+    if (pTear->m_Selected)
+      {
+      AddTearToTree(pTear, pPrevTear);
+      pPrevTear=pTear;
+      }
+    else
+      RemoveTearFromTree(pTear);
+    }
+
+  //--------------------------
 
   for (int p=0; p<m_Pages.GetCount(); p++)
     {
@@ -1914,6 +2147,51 @@ void CExploreScd::RemoveFlowFromTree(CXTFlow * pFlow)
 
 //--------------------------------------------------------------------------
 
+void CExploreScd::AddTearToTree(CXTTear *pTear, CXTTear * pPrev)
+  {
+#if dbgAdd   
+  dbgp("Add  Tear  Tree  %-25s", pTear->m_sTag);
+#endif
+
+  if (pTear->m_hTreeItem && pTear->m_hTreeItem!=pTear->ReqdParentItem())
+    RemoveTearFromTree(pTear);
+
+  if (!pTear->m_hTreeItem)
+    {
+
+    pTear->m_hTreeItem = InsertItem(LPSTR_TEXTCALLBACK, 
+      pTear->Icon(), 
+      GetTreeInfo(pTear), 
+      pTear->ReqdParentItem(), 
+      pPrev ? pPrev->m_hTreeItem : TVI_LAST);
+
+#if dbgAdd   
+    dbgp(" [Add Tree %#08x]",pTear->m_hTreeItem);
+#endif
+    }
+  m_Tree.SetItemImage(pTear->m_hTreeItem, pTear->Icon(), pTear->Icon());
+#if dbgAdd   
+  dbgpln("");
+#endif
+  }
+
+//--------------------------------------------------------------------------
+
+void CExploreScd::RemoveTearFromTree(CXTTear * pTear)
+  {
+  if (pTear->m_hTreeItem)
+    {
+#if dbgAdd   
+    dbgpln("Rem  Tear  Tree %#08x %s", pTear->m_hTreeItem, pTear->m_sTag);
+#endif
+    m_Tree.DeleteItem(pTear->m_hTreeItem);
+    //m_HTearMap.RemoveKey(pTear->m_hTreeItem);
+    pTear->m_hTreeItem=NULL;
+    }
+  }
+
+//--------------------------------------------------------------------------
+
 void CExploreScd::AddPageToTree(CXTPage * pPage)
   {
   if (!pPage->m_hPage)
@@ -1971,17 +2249,20 @@ void CExploreScd::SetFilter()
     return;
 
   for (int i=0; i<m_Tags.GetCount(); i++)
-    SetTagFilter(*m_Tags[i], i==0);
+    SetFilter(*m_Tags[i], i==0);
 
   for (int i=0; i<m_Flows.GetCount(); i++)
-    SetFlowFilter(*m_Flows[i], i==0);
+    SetFilter(*m_Flows[i], i==0);
+
+  for (int i=0; i<m_Tears.GetCount(); i++)
+    SetFilter(*m_Tears[i], i==0);
 
   UpdateSelectDisplay();
   }
 
 //-------------------------------------------------------------------------
 
-void CExploreScd::SetTagFilter(CXTTag & Tg, BOOL DoSetup)
+void CExploreScd::SetFilter(CXTCommon & Tg, BOOL DoSetup)
   {
   switch (m_FilterRule)
     {
@@ -2061,87 +2342,87 @@ void CExploreScd::SetTagFilter(CXTTag & Tg, BOOL DoSetup)
     }
   }
 
-//-------------------------------------------------------------------------
-
-void CExploreScd::SetFlowFilter(CXTFlow & Tg, BOOL DoSetup)
-  {
-  switch (m_FilterRule)
-    {
-    case eFROff:
-      {
-      Tg.m_Selected=true;
-      break;
-      }
-    case eFRContains:
-      {
-      BOOL Selected;
-      if (m_bCaseSens)
-        Selected=strstr(Tg.m_sTag, m_FilterString)!=NULL;
-      else
-        Selected=strstr(Tg.m_sTagLwr, m_FilterString)!=NULL;
-      Tg.m_Selected=Selected;
-      //}
-      break;
-      }
-    case eFRWildCard:
-    case eFRRegExp:
-      {
-      if (DoSetup)
-        {
-        if (!m_pFilterRE)
-          m_pFilterRE=new IRegExpPtr("VBScript.RegExp");
-        (*m_pFilterRE)->Global     = _variant_t(true);//' Set do all occurs
-        (*m_pFilterRE)->IgnoreCase = _variant_t(!m_bCaseSens);//' Set case insensitivity.
-        switch (m_FilterRule)
-          {
-          case eFRWildCard:
-            {
-            CString S("^");
-            for (int i=0; i<m_FilterString.GetLength(); i++)
-              {
-              if (m_FilterString[i]=='*')
-                S+=".*";
-              else if (m_FilterString[i]=='?')
-                S+=".";
-              else if (m_FilterString[i]!='^' && m_FilterString[i]!='$')
-                S+=m_FilterString[i];
-              }
-            S+="$";
-            (*m_pFilterRE)->Pattern = _bstr_t(S);
-            break;
-            }
-          case eFRRegExp:
-            {
-            CString S("^");
-            for (int i=0; i<m_FilterString.GetLength(); i++)
-              {
-              if (m_FilterString[i]!='^' && m_FilterString[i]!='$')
-                S+=m_FilterString[i];
-              }
-            S+="$";
-            (*m_pFilterRE)->Pattern = _bstr_t(S);
-            break;
-            }
-          default:
-            (*m_pFilterRE)->Pattern = _bstr_t(m_FilterString);
-            break;
-          }
-        }
-
-      try
-        {
-        Tg.m_Selected=((*m_pFilterRE)->Test(_bstr_t(Tg.m_sTag))==VARIANT_TRUE);
-        }
-      catch(...)
-        {
-        LogError("TagChangeFilter", 0, "Failure in Regular expressions");
-        Tg.m_Selected=true;
-        }
-      //  }
-      break;
-      }
-    }
-  }
+////-------------------------------------------------------------------------
+//
+//void CExploreScd::SetFlowFilter(CXTFlow & Tg, BOOL DoSetup)
+//  {
+//  switch (m_FilterRule)
+//    {
+//    case eFROff:
+//      {
+//      Tg.m_Selected=true;
+//      break;
+//      }
+//    case eFRContains:
+//      {
+//      BOOL Selected;
+//      if (m_bCaseSens)
+//        Selected=strstr(Tg.m_sTag, m_FilterString)!=NULL;
+//      else
+//        Selected=strstr(Tg.m_sTagLwr, m_FilterString)!=NULL;
+//      Tg.m_Selected=Selected;
+//      //}
+//      break;
+//      }
+//    case eFRWildCard:
+//    case eFRRegExp:
+//      {
+//      if (DoSetup)
+//        {
+//        if (!m_pFilterRE)
+//          m_pFilterRE=new IRegExpPtr("VBScript.RegExp");
+//        (*m_pFilterRE)->Global     = _variant_t(true);//' Set do all occurs
+//        (*m_pFilterRE)->IgnoreCase = _variant_t(!m_bCaseSens);//' Set case insensitivity.
+//        switch (m_FilterRule)
+//          {
+//          case eFRWildCard:
+//            {
+//            CString S("^");
+//            for (int i=0; i<m_FilterString.GetLength(); i++)
+//              {
+//              if (m_FilterString[i]=='*')
+//                S+=".*";
+//              else if (m_FilterString[i]=='?')
+//                S+=".";
+//              else if (m_FilterString[i]!='^' && m_FilterString[i]!='$')
+//                S+=m_FilterString[i];
+//              }
+//            S+="$";
+//            (*m_pFilterRE)->Pattern = _bstr_t(S);
+//            break;
+//            }
+//          case eFRRegExp:
+//            {
+//            CString S("^");
+//            for (int i=0; i<m_FilterString.GetLength(); i++)
+//              {
+//              if (m_FilterString[i]!='^' && m_FilterString[i]!='$')
+//                S+=m_FilterString[i];
+//              }
+//            S+="$";
+//            (*m_pFilterRE)->Pattern = _bstr_t(S);
+//            break;
+//            }
+//          default:
+//            (*m_pFilterRE)->Pattern = _bstr_t(m_FilterString);
+//            break;
+//          }
+//        }
+//
+//      try
+//        {
+//        Tg.m_Selected=((*m_pFilterRE)->Test(_bstr_t(Tg.m_sTag))==VARIANT_TRUE);
+//        }
+//      catch(...)
+//        {
+//        LogError("TagChangeFilter", 0, "Failure in Regular expressions");
+//        Tg.m_Selected=true;
+//        }
+//      //  }
+//      break;
+//      }
+//    }
+//  }
 
 //-------------------------------------------------------------------------
 
@@ -2172,11 +2453,34 @@ void CExploreScd::UpdateSelectDisplay()
     CXTFlow &Fl=*m_Flows[i];
     if (Fl.ShowIt())
       {
+      //dbgpln("-- Show %s", Fl.m_sTag);
       m_nFlowsSelected++;
       //Tg.m_pClass->m_nSelected++;
       }
+    else
+      {
+      //dbgpln("--      %s", Fl.m_sTag);
+      }
     //Tg.m_pClass->m_nCount++;
     }
+
+  m_nTearsSelected=0;
+  for (int i=0; i<m_Tears.GetCount(); i++)
+    {
+    CXTTear &Fl=*m_Tears[i];
+    if (Fl.ShowIt())
+      {
+      //dbgpln("-- Show %s", Fl.m_sTag);
+      m_nTearsSelected++;
+      //Tg.m_pClass->m_nSelected++;
+      }
+    else
+      {
+      //dbgpln("--      %s", Fl.m_sTag);
+      }
+    //Tg.m_pClass->m_nCount++;
+    }
+
 
   m_GraphicTitle.m_pStr->Format("Graphics (%i)", m_GraphicCount);
   m_TrendTitle.m_pStr->Format("Trends (%i)", m_TrendCount);
@@ -2191,6 +2495,11 @@ void CExploreScd::UpdateSelectDisplay()
     m_FlowTitle.m_pStr->Format("Flows (%i)", m_Flows.GetCount());
   else
     m_FlowTitle.m_pStr->Format("Flows (%i of %i)", m_nFlowsSelected, m_Flows.GetCount());
+
+  if (m_nTearsSelected==m_Tears.GetCount())
+    m_TearTitle.m_pStr->Format("Tears (%i)", m_Tears.GetCount());
+  else
+    m_TearTitle.m_pStr->Format("Tears (%i of %i)", m_nTearsSelected, m_Tears.GetCount());
 
   }
 
@@ -3077,6 +3386,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         case TrID_Flow: Id = TrID_FlowHdr;        break;
         case TrID_MUFlow: Id = TrID_MUFlowHdr;    break;
         case TrID_SPFlow: Id = TrID_SPFlowHdr;    break;
+        case TrID_Tear: Id = TrID_TearHdr;        break;
         }
       }
   //m_hGraphItem = InsertItem(LPSTR_TEXTCALLBACK, Img_GrfActive,  GetTreeInfo(m_GraphicTitle), TVI_ROOT);
@@ -3289,6 +3599,36 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           //case 130:
           //  CopyTagList2Clipboard(m_hNodesItem, 0, "Tag", CString(""), CString(""));
           //  break;
+          }
+        break;
+        }
+      case TrID_TearHdr:
+        {
+        CMenu Menu;
+        Menu.CreatePopupMenu();
+        Menu.AppendMenu(MF_STRING|MF_GRAYED, 99, "Tears");
+        Menu.AppendMenu(MF_SEPARATOR, 99);
+        //Menu.AppendMenu(MF_STRING, 105, "Bulk Tag Change");
+        Menu.AppendMenu(MF_STRING, 131, "Summary");
+        Menu.AppendMenu(MF_SEPARATOR, 99);
+        Menu.AppendMenu(MF_STRING, 130, "Copy Tag List to Clipboard");
+
+        CPoint curPoint;
+        GetCursorPos(&curPoint);
+
+        int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+        Menu.DestroyMenu();                                           
+        switch (RetCd)
+          {
+          case 105:
+            DoBulkTagChange(m_hTearsItem, NULL, &m_Tags, 0);//m_hNodesItem);
+            break;
+          case 130:
+            CopyTagList2Clipboard(m_hTearsItem, 0, "Tag", CString(""), CString(""));
+            break;
+          case 131:
+            gs_AccessWnds.AccessNode(-1, "$Tear"); 
+            break;
           }
         break;
         }
@@ -3591,6 +3931,46 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           ASSERT_ALWAYS(FALSE, "Bad Flow Lookup", __FILE__, __LINE__);
         break;
         }
+      case TrID_Tear:
+        {
+        CString Txt = m_Tree.GetItemText(hSel);
+        CXTTear *pTear;
+        if (m_TearMap.Lookup(Txt, pTear))
+          {
+          CString S;
+          CMenu Menu;
+          Menu.CreatePopupMenu();
+          S.Format("Tear %s", Txt); 
+          Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
+          Menu.AppendMenu(MF_SEPARATOR, 99);
+          Menu.AppendMenu(MF_STRING, 131, "Summary");
+          Menu.AppendMenu(MF_SEPARATOR, 99);
+          Menu.AppendMenu(MF_STRING, 102, "Access");
+          //Menu.AppendMenu(MF_STRING, 104, "Change Tag ...");
+
+          CPoint curPoint;
+          GetCursorPos(&curPoint);
+
+          int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+          Menu.DestroyMenu();                                           
+          switch (RetCd)
+            {
+            case 102: gs_AccessWnds.AccessNode(-1, Txt); break;
+            case 104:
+              {
+              //CChangeTag ChgTag((LPSTR)(LPCSTR)Txt, true);
+              //ChgTag.DoModal();
+              break;
+              }
+            case 131:
+              gs_AccessWnds.AccessNode(-1, "$Tear"); 
+              break;
+            }
+          }
+        else
+          ASSERT_ALWAYS(FALSE, "Bad Tear Lookup", __FILE__, __LINE__);
+        break;
+        }
       }
     }
   ShowWindow(SW_RESTORE);//SW_SHOWNORMAL);
@@ -3614,12 +3994,18 @@ void CExploreScd::OnNMDblclkTree(NMHDR *pNMHDR, LRESULT *pResult)
         break;
         }
       case TrID_Node:
-        {
-        CString Txt = m_Tree.GetItemText(hSel);
-        gs_AccessWnds.AccessNode(-1, Txt); 
-        break;
-        }
+        //{
+        //CString Txt = m_Tree.GetItemText(hSel);
+        //gs_AccessWnds.AccessNode(-1, Txt); 
+        //break;
+        //}
       case TrID_Flow: 
+        //{
+        //CString Txt = m_Tree.GetItemText(hSel);
+        //gs_AccessWnds.AccessNode(-1, Txt); 
+        //break;
+        //}
+      case TrID_Tear: 
         {
         CString Txt = m_Tree.GetItemText(hSel);
         gs_AccessWnds.AccessNode(-1, Txt); 
@@ -3703,6 +4089,8 @@ void CExploreScd::OnTvnItemexpandedTree(NMHDR *pNMHDR, LRESULT *pResult)
     m_bNodesExpanded=Exp;
   if (Item==m_hFlowsItem) 
     m_bFlowsExpanded=Exp;
+  if (Item==m_hTearsItem) 
+    m_bTearsExpanded=Exp;
   if (Item==m_hMUFlowsItem) 
     m_bMUFlowsExpanded=Exp;
   if (Item==m_hSPFlowsItem) 

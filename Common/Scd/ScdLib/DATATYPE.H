@@ -108,6 +108,12 @@ const TABOptions TABOpt_AllInfoOnce      = TABOpt_Once|TABOpt_AllInfo;
 const TABOptions TABOPT_DisplayOnly      = 0x0000001000000000;
 
 //---------------------------------------------------------------------------
+
+const LPSTR StdSepUnderbar = "________________________________________";
+const LPSTR StdSepDash     = "----------------------------------------";
+const LPSTR StdSepEquals   = "========================================";
+
+//---------------------------------------------------------------------------
 //data types in md_share0.h
 
 inline flag IsData(byte iType)        { return (iType>=tt_Bool && iType <= tt_Strng); };
