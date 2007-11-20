@@ -199,6 +199,7 @@ class DllImportExport CPwrUser : public TaggedObject
     CPwrSupply    * Supply();
     CPwrLoad      * Load();
     void            SetConnect(CPwrUserConns Connect, CPwrSupply *pPwrSupply);
+    bool            SupplyConnected() { return (Supply()!=NULL); };
     static bool     ChangeLoadToMatch(CPwrLoad ** pLoad, CPwrSupply *pSupply);
 
     flag            GlobalConnect(FlwNode * pNd, CPwrSupply * pSupply); 

@@ -406,13 +406,14 @@ flag CrushBlk::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case  1: pS="W\tNo Size distributions defined";   return 1;
+    case  1: pS="W\tNo Size distributions defined"; return 1;
     case  2: 
       if (bForcePartCrv)
         pS="N\tForced larger sizes";
       else
         pS="N\tSizes redistributed";
       return 1;
+    case  3: pS="W\tOff:No power supply defined"; return 1;
     default:                                               
       return TaggedObject::CIStrng(No, pS);
     }
@@ -493,7 +494,7 @@ Crush1::Crush1 (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObj
   CB(&CrushBlkClass, "CB", this, TOA_Embedded),
   Disch("Disch", this, TOA_Embedded),
   MSB("PL_Basic", this, &m_Pwr),
-  m_Pwr("525c_A/C", this, TOA_Embedded)
+  m_Pwr("525v_A/C", this, TOA_Embedded)
   {
   AttachClassInfo(nc_Process, Crush1IOAreaList);
 
@@ -617,6 +618,7 @@ void Crush1::EvalProducts(CNodeEvalIndex & NEI)
   const int ioProd = IOWithId_Self(ioidProd);
   if (ioProd>=0 && On)
     {
+    CB.ClrCI(3);
     SigmaQInPMin(Disch, som_ALL, Id_2_Mask(ioidFeed));
     BOOL ValidData = (Disch.QMass(som_Sol)>1.0e-6);
 		SpConduit Sd("Sd", this, TOA_Free);
@@ -659,11 +661,16 @@ void Crush1::EvalProducts(CNodeEvalIndex & NEI)
 
     IOConduit(ioProd)->QCopy(Disch);
     }
-  else if (ioProd>=0)
+  else
     {
-    SpConduit & Qp=*IOConduit(ioProd); //Qp product
-    Qp.QZero();
-    SigmaQInPMin(Qp, som_ALL, Id_2_Mask(ioidFeed)); //set product = feed
+    Power = 0.0;
+    CB.SetCI(3, !m_Pwr.SupplyConnected());
+    if (ioProd>=0)
+      {
+      SpConduit & Qp=*IOConduit(ioProd); //Qp product
+      Qp.QZero();
+      SigmaQInPMin(Qp, som_ALL, Id_2_Mask(ioidFeed)); //set product = feed
+      }
     }
   }
 

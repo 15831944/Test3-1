@@ -105,7 +105,7 @@ Crusher::Crusher (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagO
   DischPart("Partition", "DischPart", this, TOA_Embedded),
   Disch("Disch", this, TOA_Embedded),
   MSB("PL_Basic", this, &m_Pwr),
-  m_Pwr("525c_A/C", this, TOA_Embedded)
+  m_Pwr("525v_A/C", this, TOA_Embedded)
   {
   AttachClassInfo(nc_Process, CrusherIOAreaList);
 

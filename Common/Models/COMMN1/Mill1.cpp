@@ -97,7 +97,7 @@ Mill1::Mill1 (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAt
   CB(&CrushBlkClass, "CB", this, TOA_Embedded),
   Disch("Disch", this, TOA_Embedded),
   MSB("PL_Basic", this, &m_Pwr),
-  m_Pwr("525c_A/C", this, TOA_Embedded)
+  m_Pwr("525v_A/C", this, TOA_Embedded)
   {               
   AttachClassInfo(nc_Process, MillIOAreaList);
   //AttachIOAreas(MillIOAreaList);
@@ -254,6 +254,7 @@ void Mill1::EvalProducts(CNodeEvalIndex & NEI)
   
   if (ioProd>=0 && On)
     {
+    CB.ClrCI(3);
     StkSpConduit QFd("Fd", chLINEID(), this);
 
     SigmaQInPMin(QFd(), som_ALL, Id_2_Mask(ioidFeed));
@@ -301,12 +302,16 @@ void Mill1::EvalProducts(CNodeEvalIndex & NEI)
 
     IOConduit(ioProd)->QCopy(Disch);
     }
-  else if (ioProd>=0)
+  else
     {
-    SpConduit & Qp=*IOConduit(ioProd); //Qp product
-    Qp.QZero();
-    SigmaQInPMin(Qp, som_ALL, Id_2_Mask(ioidFeed)); //set product = feed
-    }
+    Power = 0.0;
+    CB.SetCI(3, !m_Pwr.SupplyConnected());
+    if (ioProd>=0)
+      {
+      SpConduit & Qp=*IOConduit(ioProd); //Qp product
+      Qp.QZero();
+      SigmaQInPMin(Qp, som_ALL, Id_2_Mask(ioidFeed)); //set product = feed
+      }
   }
 
 //--------------------------------------------------------------------------

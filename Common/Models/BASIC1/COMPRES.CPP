@@ -51,7 +51,7 @@ GasPump_GP::GasPump_GP(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   MN_BstRes(pClass_, TagIn, pAttach, eAttach),
   m_FRB("Limit", FBRShow_What|FBRShow_Reqd|FBRShow_Cur, FBReg_Off|FBReg_Pi|FBReg_Qm|FBReg_Qv|FBReg_QvStep, FBReg_Pi, 1.0, 5.0, (float)Std_P, 0.0, 0.0, 1.0),
   m_PSB("PL_Basic", this, &m_Pwr),
-  m_Pwr("525c_A/C", this, TOA_Embedded),
+  m_Pwr("525v_A/C", this, TOA_Embedded),
   m_SpdVar(BXO_Blank)
   {
   //AttachIOAreas(GasPumpIOAreaList, &GasPumpGroup, &NullFlwGroup);

@@ -73,9 +73,8 @@ class DllImportExport CrushBlk : public TaggedObject
   protected:
     void CalcExtents();
 
-  private:
-    DEFINE_CI(CrushBlk, TaggedObject, 3);
-
+  public:
+    DEFINE_CI(CrushBlk, TaggedObject, 4);
   };
 
 //=========================================================================== 
