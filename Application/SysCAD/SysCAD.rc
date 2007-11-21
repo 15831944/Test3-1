@@ -513,6 +513,10 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Reset Service",               ID_CK_LIC_RESETSERVICE
     END
+    POPUP "&SysCAD 10"
+    BEGIN
+        MENUITEM "At&tach...",                      ID_SCD10_ATTACH
+    END
     POPUP "&Help"
     BEGIN
         MENUITEM "Online Help",                 ID_ONLINE_HOME
@@ -1483,7 +1487,6 @@ BEGIN
     POPUP "&SysCAD 10"
     BEGIN
         MENUITEM "&Export",                      ID_SCD10_EXPORT
-        MENUITEM "At&tach...",                      ID_SCD10_ATTACH
     END
     POPUP "&Help"
     BEGIN

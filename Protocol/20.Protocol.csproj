@@ -116,9 +116,9 @@
     <None Include="Protocol.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\LogView\71.Log.csproj">
+    <ProjectReference Include="..\Common\LogView\21.Log.csproj">
       <Project>{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}</Project>
-      <Name>71.Log</Name>
+      <Name>21.Log</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

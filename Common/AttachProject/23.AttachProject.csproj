@@ -61,13 +61,13 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Protocol\70.Protocol.csproj">
+    <ProjectReference Include="..\..\Protocol\20.Protocol.csproj">
       <Project>{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}</Project>
-      <Name>70.Protocol</Name>
+      <Name>20.Protocol</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AddProject\AddProject.csproj">
+    <ProjectReference Include="..\AddProject\22.AddProject.csproj">
       <Project>{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}</Project>
-      <Name>AddProject</Name>
+      <Name>22.AddProject</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
