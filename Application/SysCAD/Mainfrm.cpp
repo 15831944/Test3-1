@@ -298,7 +298,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_UPDATE_COMMAND_UI(ID_FILE_EXPORT, OnUpdateFileExport)
   ON_COMMAND(ID_DELETEDEBUGFILE, OnDeleteDebugFile)
   ON_COMMAND(ID_SCD10_EXPORT, &CMainFrame::OnScd10Export)
+  ON_COMMAND(ID_SCD10_ATTACH, &CMainFrame::OnScd10Attach)
   ON_UPDATE_COMMAND_UI(ID_SCD10_EXPORT, &CMainFrame::OnUpdateScd10Export)
+  ON_UPDATE_COMMAND_UI(ID_SCD10_ATTACH, &CMainFrame::OnUpdateScd10Attach)
   END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
@@ -1361,6 +1363,7 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
         DeleteMenuItem(ID_FILE_Save);
         DeleteMenuItem(ID_FILE_Load);
         DeleteMenuItem(ID_SCD10_EXPORT);
+        DeleteMenuItem(ID_SCD10_ATTACH);
 #endif
         //DeleteMenuItem(ID_GRF_ZoomIso);
         DeleteMenuItem(ID_MENU_CLEANUP_REQD);
@@ -4371,6 +4374,26 @@ void CMainFrame::OnScd10Export()
   }
 
 void CMainFrame::OnUpdateScd10Export(CCmdUI *pCmdUI)
+  {
+#if SYSCAD10
+  pCmdUI->Enable(true);//EnablePrjOK() && !EnableNotStopped());
+#else
+  pCmdUI->Enable(false);
+#endif
+  }
+
+
+//===========================================================================
+
+
+void CMainFrame::OnScd10Attach()
+  {
+#if SYSCAD10
+  gs_pPrj->Attach2Scd10();
+#endif
+  }
+
+void CMainFrame::OnUpdateScd10Attach(CCmdUI *pCmdUI)
   {
 #if SYSCAD10
   pCmdUI->Enable(true);//EnablePrjOK() && !EnableNotStopped());

@@ -31,6 +31,12 @@ namespace SysCAD
       }
     }
 
+    public AttachProjectForm(AttachProjectForm previousAttachProjectForm)
+    {
+      clientProtocol = previousAttachProjectForm.clientProtocol;
+      config = previousAttachProjectForm.config;
+    }
+
     private void RefreshProjectList()
     {
       addButton.Enabled = true;

@@ -18,8 +18,12 @@ class CSvcConnectCLR
   public:
     ~CSvcConnectCLR(void);
 
-    bool Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath);
+    bool Startup(CSvcConnect * pConn, LPCSTR configPath);
     void Shutdown();
+
+    bool PrepareForExport(LPCSTR projectName, LPCSTR projectPath);
+
+    void Attach2Scd10();
 
     void Sync(__int64 requestId);
 

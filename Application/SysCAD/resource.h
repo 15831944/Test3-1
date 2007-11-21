@@ -2048,6 +2048,7 @@
 #define ID_IMPORTSCD10_XXX              30536
 #define ID_SCD10_IMPORT                 30537
 #define ID_SCD10_EXPORT                 30538
+#define ID_SCD10_ATTACH                 30539
 #define IDS_OPENFILELOCAL               61446
 
 // Next default values for new objects

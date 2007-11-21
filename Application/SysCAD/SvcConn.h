@@ -59,7 +59,7 @@ class CSvcConnect
   public:
     ~CSvcConnect();
 
-    bool Startup(LPCSTR projectPath, LPCSTR configPath);
+    bool Startup(LPCSTR configPath);
     void Shutdown();
     //void Initialise();
     //void Terminate();
@@ -67,6 +67,7 @@ class CSvcConnect
     //bool RequestItemDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
 
     void Export2Scd10(LPCSTR projectPath, LPCSTR configPath);
+    void Attach2Scd10();
     void Load();
     void Save();
 

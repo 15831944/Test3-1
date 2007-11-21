@@ -1480,9 +1480,10 @@ BEGIN
         MENUITEM "Select &Window ...\tCtrl+W",  ID_WNDW_SELECT
         MENUITEM "A&rrange Windows ...",        ID_WNDW_ARRANGESPECIAL
     END
-    POPUP "SysCAD 10"
+    POPUP "&SysCAD 10"
     BEGIN
-        MENUITEM "Export",                      ID_SCD10_EXPORT
+        MENUITEM "&Export",                      ID_SCD10_EXPORT
+        MENUITEM "At&tach...",                      ID_SCD10_ATTACH
     END
     POPUP "&Help"
     BEGIN

@@ -43,6 +43,9 @@ using namespace System::Runtime::Serialization::Formatters::Soap;
 
 using namespace System::Runtime::InteropServices;//;::Marshal;
 
+using namespace SysCAD;
+using namespace System::Windows::Forms;
+
 #pragma managed
 
 //========================================================================
@@ -99,7 +102,7 @@ ref class CSvcConnectCLRThread
       {
       };
 
-    bool Startup(String^ projectName, String^ projectPath, String^ configPath)
+    bool Startup(String^ configPath)
       {
         
       LogNote("CSvcConnectCLRThread", 0, "Startup");
@@ -157,110 +160,117 @@ ref class CSvcConnectCLRThread
         // Connect to config data.
         success = config->TestUrl(gcnew Uri("ipc://SysCAD.Service/Global"));
         }
-      if (success)
+
+      return success;      
+      };
+
+
+
+
+    bool PrepareForExport(String^ projectName, String^ projectPath)
+    {
+      config->Syncxxx();
+
+      config->AddProjectAnyway(projectName, projectPath);
+
+      bool clientSuccess = false;
+      bool engineSuccess = false;
+      int i=0;
+      while ((!((clientSuccess)&&(engineSuccess)))&&(i++ < 20)) //_MUST_ find a better way to handle this! (but only temporary...)
         {
-        config->Syncxxx();
+        // Basically need to wait until service is ready.
+        Sleep(i*i*i); // Last wait will be 1sec.
 
-        config->AddProjectAnyway(projectName, projectPath);
+        delete clientProtocol;
+        delete engineProtocol;
+        clientProtocol = gcnew ClientProtocol;
+        engineProtocol = gcnew EngineProtocol;
 
-        bool clientSuccess = false;
-        bool engineSuccess = false;
-        i=0;
-        while ((!((clientSuccess)&&(engineSuccess)))&&(i++ < 20)) //_MUST_ find a better way to handle this! (but only temporary...)
-          {
-          // Basically need to wait until service is ready.
-          Sleep(i*i*i); // Last wait will be 1sec.
+        // Connect to graphic data.
 
-          delete clientProtocol;
-          delete engineProtocol;
-          clientProtocol = gcnew ClientProtocol;
-          engineProtocol = gcnew EngineProtocol;
-
-          // Connect to graphic data.
-
-          clientSuccess = clientProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Client/" + projectName));
-          engineSuccess = engineProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Engine/" + projectName));
-          }
-        if (clientSuccess&&engineSuccess)
-          {
-            clientProtocol->Connect("SysCAD9.1\nConnection: Client");
-            engineProtocol->Connect("SysCAD9.1\nConnection: Engine");
-
-          // This will allow the editor to create/delete in addition to modify after the project loads.
-          __int64 requestId;
-          engineProtocol->ChangeState(requestId, SysCAD::Protocol::EngineBaseProtocol::RunState::Edit);
-
-					engineProtocol->PortInfoRequested += gcnew EngineProtocol::PortInfoRequestedHandler(this, &CSvcConnectCLRThread::PortInfoRequested);
-
-          /*
-          This is where import goes
-          */
-
-          clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
-
-          ////////////////////////////////
-          ////////////////////////////////
-
-          // Keith:
-          // The lines above start the Service, connect to it, and sync the data.
-          // You can see below the for each that will be needed to read through each item/link/thing.
-          // (things are probably not required a the moment.)
-
-          // Obviously these are empty until we 'bootstrap' the values from the current 9 graphics.
-          // The Connect() tries to load the 10 graphics, and if it faile then the Count() of each 
-          // dictionary will be 0.
-          // A 'save' has to be done first to fill this, and then the 10 graphics can be used.
-
-          //for each (GraphicItem ^ item in clientProtocol->graphicItems->Values)
-          //{
-          // 'Go To Definition' on GraphicItem doesn't go to the source but does show the
-          // ObjectBrowser with all the available members.
-          // e.g.
-          // item->Angle
-          // item->X
-
-          //CNM Removed must work out when to do this
-          //m_pConn->OnCreateItem(-1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
-          //  ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
-          //  CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Bottom, item->BoundingRect.Top), 
-          //  item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
-          //  item->MirrorX, item->MirrorY);
-          //int yyy=0;
-          //Chris
-          //}
-
-          //for each (GraphicLink ^ link in clientProtocol->graphicLinks->Values)
-          //  {
-          //  }
-
-          //for each (GraphicThing ^ thing in clientProtocol->graphicThings->Values)
-          //  {
-          //  }
-
-
-
-          // GraphicItems is a dictionary of all the items.  The key is the guid, and the value is the item itself.
-          // The dictionary class contains all the usual functions for extracting particular elements based on key, etc.
-          // protocol->graphicItems->Keys returns a collection of keys.
-
-          // For the 'save' we'll need to do a series of {Delete/Create/Modify}{Item/Link/Thing} to update the service.
-          // Then call the Save function in protocol (and later config.)
-          // This will cause the data service is holding to be serialized to disk (this might not work at first run.)
-
-          // N.B. Strings are a bastard...  Converting from char* -> String is simply a case of declaring
-          // 'String ^ a = gcnew String(charStarVar);'
-          // But going the other way as far as I can tell can only be acheived by iterating through the entire String 
-          // character by character and popping the null on the end manually.
-
-          // N.B. There are two paths (here and in service.exe) that refer to the full path of the Service.exe
-          // (search for /pkh/ and you'll find them.)
-          // (I couldn't work out exactly how all the output-path stuff was working,
-          // so I reverted back to a static path for now...)
-
-          ///////////////////////////////
-          ///////////////////////////////
-          }
+        clientSuccess = clientProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Client/" + projectName));
+        engineSuccess = engineProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Engine/" + projectName));
         }
+      if (clientSuccess&&engineSuccess)
+        {
+          clientProtocol->Connect("SysCAD9.1\nConnection: Client");
+          engineProtocol->Connect("SysCAD9.1\nConnection: Engine");
+
+        // This will allow the editor to create/delete in addition to modify after the project loads.
+        __int64 requestId;
+        engineProtocol->ChangeState(requestId, SysCAD::Protocol::EngineBaseProtocol::RunState::Edit);
+
+			  engineProtocol->PortInfoRequested += gcnew EngineProtocol::PortInfoRequestedHandler(this, &CSvcConnectCLRThread::PortInfoRequested);
+
+        /*
+        This is where import goes
+        */
+
+        clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
+
+        ////////////////////////////////
+        ////////////////////////////////
+
+        // Keith:
+        // The lines above start the Service, connect to it, and sync the data.
+        // You can see below the for each that will be needed to read through each item/link/thing.
+        // (things are probably not required a the moment.)
+
+        // Obviously these are empty until we 'bootstrap' the values from the current 9 graphics.
+        // The Connect() tries to load the 10 graphics, and if it faile then the Count() of each 
+        // dictionary will be 0.
+        // A 'save' has to be done first to fill this, and then the 10 graphics can be used.
+
+        //for each (GraphicItem ^ item in clientProtocol->graphicItems->Values)
+        //{
+        // 'Go To Definition' on GraphicItem doesn't go to the source but does show the
+        // ObjectBrowser with all the available members.
+        // e.g.
+        // item->Angle
+        // item->X
+
+        //CNM Removed must work out when to do this
+        //m_pConn->OnCreateItem(-1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
+        //  ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
+        //  CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Bottom, item->BoundingRect.Top), 
+        //  item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
+        //  item->MirrorX, item->MirrorY);
+        //int yyy=0;
+        //Chris
+        //}
+
+        //for each (GraphicLink ^ link in clientProtocol->graphicLinks->Values)
+        //  {
+        //  }
+
+        //for each (GraphicThing ^ thing in clientProtocol->graphicThings->Values)
+        //  {
+        //  }
+
+
+
+        // GraphicItems is a dictionary of all the items.  The key is the guid, and the value is the item itself.
+        // The dictionary class contains all the usual functions for extracting particular elements based on key, etc.
+        // protocol->graphicItems->Keys returns a collection of keys.
+
+        // For the 'save' we'll need to do a series of {Delete/Create/Modify}{Item/Link/Thing} to update the service.
+        // Then call the Save function in protocol (and later config.)
+        // This will cause the data service is holding to be serialized to disk (this might not work at first run.)
+
+        // N.B. Strings are a bastard...  Converting from char* -> String is simply a case of declaring
+        // 'String ^ a = gcnew String(charStarVar);'
+        // But going the other way as far as I can tell can only be acheived by iterating through the entire String 
+        // character by character and popping the null on the end manually.
+
+        // N.B. There are two paths (here and in service.exe) that refer to the full path of the Service.exe
+        // (search for /pkh/ and you'll find them.)
+        // (I couldn't work out exactly how all the output-path stuff was working,
+        // so I reverted back to a static path for now...)
+
+        ///////////////////////////////
+        ///////////////////////////////
+        }
+
       if (clientProtocol == nullptr)
         return false;
 
@@ -268,11 +278,22 @@ ref class CSvcConnectCLRThread
         (clientProtocol->graphic->Links == nullptr) || (clientProtocol->graphic->Things == nullptr))
         return false;
 
-      return (!((clientProtocol->graphic->Groups->Count == 0)&&
-        (clientProtocol->graphic->Nodes->Count == 0)&&
-        (clientProtocol->graphic->Links->Count == 0)&&
-        (clientProtocol->graphic->Things->Count == 0)));
-      };
+      //return (!((clientProtocol->graphic->Groups->Count == 0)&&
+      //  (clientProtocol->graphic->Nodes->Count == 0)&&
+      //  (clientProtocol->graphic->Links->Count == 0)&&
+      //  (clientProtocol->graphic->Things->Count == 0)));
+
+      return true;
+    };
+
+    void Attach2Scd10()
+    {
+      AttachProjectForm^ attachProjectForm = gcnew AttachProjectForm();
+      if (attachProjectForm->ShowDialog() == DialogResult::OK)
+      {
+        // Deal with the fact, load the project.
+      }
+    };
 
     // ====================================================================
     //
@@ -858,10 +879,8 @@ CSvcConnectCLR::~CSvcConnectCLR(void)
   {
   }
 
-bool CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath)
+bool CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR configPath)
   {
-  String^ projectPathString = gcnew String(projectPath);
-  String^ projectNameString = gcnew String(Path::GetFileNameWithoutExtension(Path::GetDirectoryName(projectPathString)));
   String^ configPathString = gcnew String(configPath);
 
   LogNote("CSvcConnectCLR", 0, "Startup");
@@ -870,10 +889,22 @@ bool CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR con
   //m_pSrvr->Initialise();
 
   CSvcConnectCLRThreadGlbl::gs_SrvrThread = gcnew CSvcConnectCLRThread(m_pConn);//.Startup("");
-  return CSvcConnectCLRThreadGlbl::gs_SrvrThread->Startup(projectNameString, projectPathString, configPathString);   
+  return CSvcConnectCLRThreadGlbl::gs_SrvrThread->Startup(configPathString);   
 
 
   //System::Threading::S
+  };
+
+  bool CSvcConnectCLR::PrepareForExport(LPCSTR projectName, LPCSTR projectPath)
+  {
+    String^ projectNameString = gcnew String(projectName);
+    String^ projectPathString = gcnew String(projectPath);
+    return CSvcConnectCLRThreadGlbl::gs_SrvrThread->PrepareForExport(projectNameString, projectPathString);   
+  };
+
+  void CSvcConnectCLR::Attach2Scd10()
+  {
+    CSvcConnectCLRThreadGlbl::gs_SrvrThread->Attach2Scd10();
   };
 
 void CSvcConnectCLR::Shutdown()

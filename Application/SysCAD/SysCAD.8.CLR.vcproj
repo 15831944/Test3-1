@@ -560,9 +560,9 @@
 			RelativePath="System.Runtime.Serialization.Formatters.Soap.dll"
 			AssemblyName="System.Runtime.Serialization.Formatters.Soap, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
 		/>
-		<AssemblyReference
-			RelativePath="..\..\Bin\Protocol.dll"
-			AssemblyName="Protocol, Version=4.2.0.28260, PublicKeyToken=8cb361a6244c44c8, processorArchitecture=MSIL"
+		<ProjectReference
+			ReferencedProjectIdentifier="{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}"
+			RelativePathToProject=".\Common\AddProject\AddProject.csproj"
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"
@@ -574,7 +574,23 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\LogView.dll"
-			AssemblyName="LogView, Version=1.0.2853.32308, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
+			AssemblyName="LogView, Version=1.0.2880.22146, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}"
+			RelativePathToProject=".\Common\AttachProject\AttachProject.csproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}"
+			RelativePathToProject=".\Protocol\70.Protocol.csproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
+			RelativePathToProject=".\Common\LogView\71.Log.csproj"
+		/>
+		<AssemblyReference
+			RelativePath="System.Windows.Forms.dll"
+			AssemblyName="System.Windows.Forms, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
 		/>
 	</References>
 	<Files>
