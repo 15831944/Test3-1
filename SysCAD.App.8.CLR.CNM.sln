@@ -515,19 +515,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "um.TS_ModelLib", "SMDK\RTTS
 		{8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB} = {8FD4B8B0-DA3A-4FA1-9374-DBA530CAA5FB}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10.RegexWrap", "Common\Scd\RegexWrap\RegexWrap.8.vcproj", "{677378C7-60A9-4EBF-84C7-39EEB45EE499}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegexWrap", "Common\Scd\RegexWrap\RegexWrap.8.vcproj", "{677378C7-60A9-4EBF-84C7-39EEB45EE499}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11.SHA512Wrap", "Common\Scd\SHA512Wrap\SHA512Wrap.8.vcproj", "{01014D59-0CCC-46DC-9138-EF6CCC208795}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SHA512Wrap", "Common\Scd\SHA512Wrap\SHA512Wrap.8.vcproj", "{01014D59-0CCC-46DC-9138-EF6CCC208795}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "20.Protocol", "Protocol\20.Protocol.csproj", "{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protocol", "Protocol\Protocol.csproj", "{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -552,7 +552,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "96.DevLibEx", "Common\DevLi
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "21.Log", "Common\LogView\21.Log.csproj", "{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log", "Common\LogView\Log.csproj", "{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -648,13 +648,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.TTechWOR", "SMDK\TransCr
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "22.AddProject", "Common\AddProject\22.AddProject.csproj", "{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddProject", "Common\AddProject\AddProject.csproj", "{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "23.AttachProject", "Common\AttachProject\23.AttachProject.csproj", "{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttachProject", "Common\AttachProject\AttachProject.csproj", "{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"

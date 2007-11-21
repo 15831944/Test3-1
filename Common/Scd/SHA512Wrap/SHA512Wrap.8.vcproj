@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="11.SHA512Wrap"
+	Name="SHA512Wrap"
 	ProjectGUID="{01014D59-0CCC-46DC-9138-EF6CCC208795}"
 	RootNamespace="SHA512Wrap"
 	>

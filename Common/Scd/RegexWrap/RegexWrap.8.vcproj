@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="10.RegexWrap"
+	Name="RegexWrap"
 	ProjectGUID="{677378C7-60A9-4EBF-84C7-39EEB45EE499}"
 	RootNamespace="RegexWrap"
 	>
