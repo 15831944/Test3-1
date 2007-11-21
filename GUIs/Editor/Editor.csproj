@@ -154,21 +154,17 @@
       <Project>{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}</Project>
       <Name>AttachProject</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Common\LogView\71.Log.csproj">
+    <ProjectReference Include="..\..\Common\LogView\Log.csproj">
       <Project>{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}</Project>
-      <Name>71.Log</Name>
+      <Name>Log</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Common\Start\Start.csproj">
       <Project>{41259FBA-4939-495B-BDF8-7B75F3B7DB98}</Project>
       <Name>Start</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Protocol\70.Protocol.csproj">
+    <ProjectReference Include="..\..\Protocol\Protocol.csproj">
       <Project>{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}</Project>
-      <Name>70.Protocol</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Service\72.Service.csproj">
-      <Project>{317F8980-564D-423D-945F-D7A9F4A8043D}</Project>
-      <Name>72.Service</Name>
+      <Name>Protocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\FlowChart.NET\FlowChart.NET.csproj">
       <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>

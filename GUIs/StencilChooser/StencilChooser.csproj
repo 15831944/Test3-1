@@ -63,13 +63,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Protocol\70.Protocol.csproj">
-      <Project>{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}</Project>
-      <Name>70.Protocol</Name>
-    </ProjectReference>
+    <None Include="StencilChooer.snk" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="StencilChooer.snk" />
+    <ProjectReference Include="..\..\Protocol\Protocol.csproj">
+      <Project>{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}</Project>
+      <Name>Protocol</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

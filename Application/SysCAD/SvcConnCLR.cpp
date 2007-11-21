@@ -288,6 +288,7 @@ ref class CSvcConnectCLRThread
 
     void Attach2Scd10()
     {
+
       AttachProjectForm^ attachProjectForm = gcnew AttachProjectForm();
       if (attachProjectForm->ShowDialog() == DialogResult::OK)
       {

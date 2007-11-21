@@ -47,10 +47,10 @@ namespace SysCAD.Service
 
         logView.LogFile = System.IO.Path.GetTempPath() + "test.log";
 
-        Config.AddProjectHandler addProject = new Config.AddProjectHandler(AddProject);
-        Config.AddProjectAnywayHandler addProjectAnyway = new Config.AddProjectAnywayHandler(AddProjectAnyway);
+        Config.AddProjectHandler addProjectHandler = new Config.AddProjectHandler(AddProject);
+        Config.AddProjectAnywayHandler addProjectAnywayHandler = new Config.AddProjectAnywayHandler(AddProjectAnyway);
         configData = new ConfigData();
-        configData.Setup(stencilPath, addProject, addProjectAnyway);
+        configData.Setup(stencilPath, addProjectHandler, addProjectAnywayHandler);
 
         RemotingServices.Marshal(configData, "Global");
 
