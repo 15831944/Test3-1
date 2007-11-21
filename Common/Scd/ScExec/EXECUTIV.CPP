@@ -1831,7 +1831,12 @@ int CExecutive::DeleteTags(Strng_List & Tags)
   Ret = EODT_FAILED;
   for (OInx=0; OInx<Size; OInx++)
     {
-    Ret=Objs_Reg[OInx]->EO_DeleteTags(Tags);
+    int LclRet=Objs_Reg[OInx]->EO_DeleteTags(Tags);
+    if (LclRet!=EODT_NOTFOUND)
+      Ret=LclRet;
+    }
+  if (Ret==EODT_DONE)
+    {
     for (Strng * pTag=Tags.First(); pTag; pTag=pTag->Next())
       {
       if (pTag->Index()==EODT_FAILED)

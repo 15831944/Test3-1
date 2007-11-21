@@ -5665,7 +5665,7 @@ int AccNodeWnd::EO_DeleteTags(Strng_List & Tags)
       CloseWnd();
       }
     }
-  return EODT_DONE;
+  return EODT_NOTFOUND;
   }
 
 //---------------------------------------------------------------------------

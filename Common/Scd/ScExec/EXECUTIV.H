@@ -459,9 +459,9 @@ class DllImportExport CExecObj
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)      { return EOCT_NOTFOUND; };
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag)           { return EOCT_NOTFOUND; };
     virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)       { return EOCT_DONE;     };
-    virtual int    EO_QueryDeleteTags(Strng_List & Tags)                { return 0; };
-    virtual int    EO_DeleteTags(Strng_List & Tags)                     { return 0; };
-    virtual int    EO_DeleteTagsDone(Strng_List & Tags)                 { return 0; };
+    virtual int    EO_QueryDeleteTags(Strng_List & Tags)                { return EODT_NOTFOUND; };
+    virtual int    EO_DeleteTags(Strng_List & Tags)                     { return EODT_NOTFOUND; };
+    virtual int    EO_DeleteTagsDone(Strng_List & Tags)                 { return EODT_DONE;     };
     virtual int    EO_CanClose(Strng_List & Problems)                   { return EO_CanClose_Yes; };
 
 

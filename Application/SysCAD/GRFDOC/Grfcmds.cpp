@@ -2334,22 +2334,22 @@ void GrfCmdBlk::DoChangeUnit()
                   Pos.Set(DXF_INSERT_PT(e)[0], DXF_INSERT_PT(e)[1], DXF_INSERT_PT(e)[2]);
                   pDsp->SetCPtWorld(Pos, Pt1);
                   }
-                pchar pTag;
-                if (0)//DelMdl)
-                  {
-                  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
-                    {
-                    CMdlValueSet::Clear();
-                    int RetCode = gs_Exec.DeleteTags(Strng_List(pTag));
-                    if (RetCode!=EODT_DONE)
-                      {
-                      LogError(pTag, 0, "Model not deleted");
-                      DeletesFailedCnt++;
-                      }
-                    else
-                      MdlDeletes++;
-                    }
-                  }
+                //pchar pTag;
+                //if (0)//DelMdl)
+                //  {
+                //  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
+                //    {
+                //    CMdlValueSet::Clear();
+                //    int RetCode = gs_Exec.DeleteTags(Strng_List(pTag));
+                //    if (RetCode!=EODT_DONE)
+                //      {
+                //      LogError(pTag, 0, "Model not deleted");
+                //      DeletesFailedCnt++;
+                //      }
+                //    else
+                //      MdlDeletes++;
+                //    }
+                //  }
                 if (1)
                   {
                   pDsp->Draw(e, GrfHelper.GR_BACKGROUND);
@@ -2649,22 +2649,22 @@ void GrfCmdBlk::DoChangeUnit()
                   Pos.Set(DXF_INSERT_PT(e)[0], DXF_INSERT_PT(e)[1], DXF_INSERT_PT(e)[2]);
                   pDsp->SetCPtWorld(Pos, Pt1);
                   }
-                pchar pTag;
-                if (0)//DelMdl)
-                  {
-                  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
-                    {
-                    CMdlValueSet::Clear();
-                    int RetCode = gs_Exec.DeleteTags(Strng_List(pTag));
-                    if (RetCode!=EODT_DONE)
-                      {
-                      LogError(pTag, 0, "Model not deleted");
-                      DeletesFailedCnt++;
-                      }
-                    else
-                      MdlDeletes++;
-                    }
-                  }
+                //pchar pTag;
+                //if (0)//DelMdl)
+                //  {
+                //  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
+                //    {
+                //    CMdlValueSet::Clear();
+                //    int RetCode = gs_Exec.DeleteTags(Strng_List(pTag));
+                //    if (RetCode!=EODT_DONE)
+                //      {
+                //      LogError(pTag, 0, "Model not deleted");
+                //      DeletesFailedCnt++;
+                //      }
+                //    else
+                //      MdlDeletes++;
+                //    }
+                //  }
                 if (1)
                   {
                   pDsp->Draw(e, GrfHelper.GR_BACKGROUND);
@@ -7102,27 +7102,37 @@ void GrfCmdBlk::DoExplode()
           {
           DXF_ENTITY e = p->EntityPtr();
           if (e)
-            {
-            int ok = 0;
+             {
+            //int ok = 0;
             pchar pTag = Find_Attr_Value(e, TagAttribStr);
             if (pTag)
               {
-              ok=1;
-              //char msg[1024];
-              //if (DoMdl)
-              //  sprintf(msg,"Exploding this block will cause model %s to be deleted.\nContinue?",pTag);
-              //else
-              //  sprintf(msg,"Exploding this block may cause model %s to be inaccessible.\nContinue?",pTag);
-              //if (AfxMessageBox(msg, MB_YESNO|MB_ICONQUESTION)==IDYES)
-              //  ok = 1;
-              //else
-              //  pDsp->Draw(e,-1);
+              if (Find_Attr_Value(e, AssocTagAttribStr)!=NULL) // Is AssocGrf
+                {
+                pDsp->Vp1->DeSelectEntity(p);
+                e=NULL;
+                LogNote(pTag, 0, "Cannot select Associated Graphics for Explode");
+                }
               }
-            else
-              ok = 0; // CNM was 1 but crashes
+            //if (pTag)
+            //  {
+            //  ok=1;
+            //  //char msg[1024];
+            //  //if (DoMdl)
+            //  //  sprintf(msg,"Exploding this block will cause model %s to be deleted.\nContinue?",pTag);
+            //  //else
+            //  //  sprintf(msg,"Exploding this block may cause model %s to be inaccessible.\nContinue?",pTag);
+            //  //if (AfxMessageBox(msg, MB_YESNO|MB_ICONQUESTION)==IDYES)
+            //  //  ok = 1;
+            //  //else
+            //  //  pDsp->Draw(e,-1);
+            //  }
+            //else
+            //  ok = 0; // CNM was 1 but crashes
             // Already added
+
             ExpBlk* db = (ExpBlk*)gs_pCmd->GetDataBlk();
-            if (db)
+            if (e && db)
               {
               ExpBlk& DB = *db;
               for (int i=0; e && (i<DB.GetSize()); i++)
@@ -7131,6 +7141,7 @@ void GrfCmdBlk::DoExplode()
                   e = NULL;
                 }
               }
+
             if (e)
               {
               tExpBlkEntry E;
@@ -7187,46 +7198,60 @@ void GrfCmdBlk::DoExplode()
         if (db)
           {
           ExpBlk & DB = *db;
+          Strng_List DelTags;
+          CArray<long, long> DBIndices;
           for (int i=0; i < DB.GetSize(); i++)
             {
             dbgpln("Delete %8x", DB[i].e);
             if (strlen(DB[i].Tag))
               {
               dbgpln("Delete %s", DB[i].Tag);
-              /*int err = (DoMdl ? pMdl->DeleteNodeModel(DB[i].Tag) : 0);
-              if (err)
-                LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Model not deleted[%i]\n%s", err, DB[i].Tag);
-              else*/
-              CMdlValueSet::Clear();
-              int RetCode = (DoMdl ? gs_Exec.DeleteTags(Strng_List(DB[i].Tag)) : EODT_DONE);
-              if (RetCode!=EODT_DONE)
-                LogError(DB[i].Tag, LF_DoAfxMsgBox|LF_Exclamation, "Model not deleted");
-              else
-                {
-                if (DoMdl)
-                  bFlag3 = 1;
-                if (pDrw->Exists(DB[i].e))
-                  {
-                  CEntInView* pE = pDrw->FindEntInView(DB[i].e);
-                  if (pE)
-                    pE->ClrMarkBit();
-
-                  //TODO : if (bFlag2) Explode Tag Attribute Only!
-                  pDsp->Draw(DB[i].e, GrfHelper.GR_BACKGROUND);
-                  pDrw->Explode(DB[i].e);
-                  }
-                }
+              DelTags.Append(DB[i].Tag);
+              DBIndices.Add(i);
+              if (!DoMdl)
+                DelTags.Last()->SetIndex(EODT_DONE);
               }
-            else
+            else if (pDrw->Exists(DB[i].e))
               {
-              if (pDrw->Exists(DB[i].e))
+              CEntInView* pE = pDrw->FindEntInView(DB[i].e);
+              if (pE)
+                pE->ClrMarkBit();
+              //TODO : if (bFlag2) Explode Tag Attribute Only!
+              pDsp->Draw(DB[i].e, GrfHelper.GR_BACKGROUND);
+              pDrw->Explode(DB[i].e);
+              }
+            }
+
+          if (DelTags.Length()>0)
+            {
+            int iDBIndex=0;
+            CMdlValueSet::Clear();
+            int RetCode = (DoMdl ? gs_Exec.DeleteTags(DelTags) : EODT_DONE);
+            for (Strng * pTag=DelTags.First(); pTag; pTag=DelTags.Next())
+              {
+              int i=DBIndices[iDBIndex++];
+              switch (pTag->Index())
                 {
-                CEntInView* pE = pDrw->FindEntInView(DB[i].e);
-                if (pE)
-                  pE->ClrMarkBit();
-                //TODO : if (bFlag2) Explode Tag Attribute Only!
-                pDsp->Draw(DB[i].e, GrfHelper.GR_BACKGROUND);
-                pDrw->Explode(DB[i].e);
+                case EODT_FAILED:
+                  if (DoMdl)
+                    LogError(pTag->Str(), 0, "Model not deleted");
+                  break;
+                case EODT_DONE:
+                  {
+                  if (DoMdl)
+                    bFlag3 = 1;
+                  if (pDrw->Exists(DB[i].e))
+                    {
+                    CEntInView* pE = pDrw->FindEntInView(DB[i].e);
+                    if (pE)
+                      pE->ClrMarkBit();
+
+                    //TODO : if (bFlag2) Explode Tag Attribute Only!
+                    pDsp->Draw(DB[i].e, GrfHelper.GR_BACKGROUND);
+                    pDrw->Explode(DB[i].e);
+                    }
+                  break;
+                  }
                 }
               }
             }
@@ -7703,29 +7728,32 @@ void GrfCmdBlk::DoDelete()
             {
             BOOL AlreadySelected;
             CEntInView* p = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt, AlreadySelected);
-            if (p && AlreadySelected)
+            if (p)
               {
-              BOOL Ok = true;
-              if (DelMdl && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()))
+              if (AlreadySelected)
                 {
-                pchar pTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr);
-                if (pTag)
+                BOOL Ok = true;
+                if (DelMdl && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()))
                   {
-                  RequestModelIOConnRec Info;
-                  int i = 0;
-                  while (gs_pPrj->RequestModelIOConn(pTag, i++, Info) && Ok)
+                  pchar pTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr);
+                  if (pTag)
                     {
-                    if (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0)
-                      Ok = false; //cannot unselect model with links!!!
+                    RequestModelIOConnRec Info;
+                    int i = 0;
+                    while (gs_pPrj->RequestModelIOConn(pTag, i++, Info) && Ok)
+                      {
+                      if (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0)
+                        Ok = false; //cannot unselect model with links!!!
+                      }
                     }
+                  //if (pTag && !LinkEntity(pTag))
+                  //  Ok = flase; //cannot unselect model with links!!!
                   }
-                //if (pTag && !LinkEntity(pTag))
-                //  Ok = flase; //cannot unselect model with links!!!
-                }
-              if (Ok)
-                {
-                pDsp->Vp1->DeSelectEntity(p);
-                bFlag1 = false;
+                if (Ok)
+                  {
+                  pDsp->Vp1->DeSelectEntity(p);
+                  bFlag1 = false;
+                  }
                 }
               }
             }
@@ -7754,19 +7782,28 @@ void GrfCmdBlk::DoDelete()
           pchar pTag;
           if (p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && (pTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr)))
             {
-            RequestModelIOConnRec Info;
-            int i = 0;
-            pDsp->Vp1->ClrSelectionAllList();
-            pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
-            while (gs_pPrj->RequestModelIOConn(pTag, i++, Info))
+            pchar pAssocTag = Find_Attr_Value(p->EntityPtr(), AssocTagAttribStr);
+            if (pAssocTag==NULL) // cannot select 
               {
-              if (!Info.fIsDirectConnect && (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0))
+              RequestModelIOConnRec Info;
+              int i = 0;
+              pDsp->Vp1->ClrSelectionAllList();
+              pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
+              pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
+              while (gs_pPrj->RequestModelIOConn(pTag, i++, Info))
                 {
-                char *a[] = { TagAttribStr,    (pchar)NULL };
-                char *b[] = { Info.Tag(), (pchar)NULL };
-                pDrw->SelectInsertsOnAttrCombo(NULL, a, b, NULL);
+                if (!Info.fIsDirectConnect && (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0))
+                  {
+                  char *a[] = { TagAttribStr,    (pchar)NULL };
+                  char *b[] = { Info.Tag(), (pchar)NULL };
+                  pDrw->SelectInsertsOnAttrCombo(NULL, a, b, NULL);
+                  }
                 }
+              }
+            else
+              {
+              pDsp->Vp1->DeSelectEntity(p);
+              LogNote(pTag, 0, "Cannot select Associated Graphics for Delete");
               }
             }
           p = pDsp->Vp1->NextSelectedEntity();
@@ -7852,13 +7889,19 @@ void GrfCmdBlk::DoDelete()
       if (DelTags.Length()>0)
         {
         int RetCode = gs_Exec.DeleteTags(DelTags);
-        //if (RetCode!=EODT_DONE)
-        //  {
-        //  LogError(pTag, 0, "Model not deleted");
-        //  DeletesFailedCnt++;
-        //  }
-        //else
-        //  MdlDeletes++;
+        for (Strng * pTag=DelTags.First(); pTag; pTag=DelTags.Next())
+          {
+          switch (pTag->Index())
+            {
+            case EODT_FAILED:
+              LogError(pTag->Str(), 0, "Model not deleted");
+              DeletesFailedCnt++;
+              break;
+            case EODT_DONE:
+              MdlDeletes++;
+              break;
+            }
+          }
         }
       if (DeletesFailedCnt)
         {
