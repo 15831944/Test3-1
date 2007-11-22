@@ -43,6 +43,8 @@ namespace SysCAD.Protocol
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
     public bool Connect(String engineName)
     {
+      if (serviceGraphic.PortInfoRequested != null) // An engine is already connected.
+        return false;
 
       try
       {
@@ -52,7 +54,7 @@ namespace SysCAD.Protocol
 
         serviceGraphicPortInfoRequestedHandler = new EngineServiceProtocol.PortInfoRequestedHandler(ServiceGraphicPortInfoRequested);
 
-        serviceGraphic.PortInfoRequested += serviceGraphicPortInfoRequestedHandler;
+        serviceGraphic.PortInfoRequested = serviceGraphicPortInfoRequestedHandler;
 
         Syncxxx();
 
