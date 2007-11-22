@@ -89,7 +89,7 @@ namespace MindFusion.FlowChartX
 
 			// we want to process keyboard input
 			SetStyle(ControlStyles.Selectable, true);
-
+     
 			// init static objects
 			lock (syncRoot)
 			{

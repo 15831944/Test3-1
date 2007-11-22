@@ -21,8 +21,8 @@ namespace SysCAD.Editor
 
     private State state;
 
-    private bool selected;
-    private bool hovered;
+    private bool selected = false;
+    private bool hovered = false;
 
     public EditorLink(State state, Guid guid, String tag, GraphicLink graphicLink, ModelLink modelLink)
     {
