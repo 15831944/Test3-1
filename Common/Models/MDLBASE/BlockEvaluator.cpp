@@ -263,6 +263,7 @@ void CBlockEvaluator::SetMakeupCount(int N)
        m_pMakeups[a]->SetEnable(true);
        AddBlk(m_pMakeups[a], 1+a);
        }
+     SortBlocks();
      }
    }
 
@@ -289,6 +290,7 @@ void CBlockEvaluator::SetBleedCount(int N)
       m_pBleeds[a]->SetEnable(true);
       AddBlk(m_pBleeds[a], MaxNdMakeups*2+a);
       }
+    SortBlocks();
     }
   }
 
