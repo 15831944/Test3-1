@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -32,7 +31,7 @@ namespace SysCAD.Editor
     private Config config;
 
     private delegate void CreateGroupDelegate(GraphicGroup graphicGroup);
-    private delegate void CreateNodeDelegate(ModelNode modelNode, GraphicNode graphicNode);
+    private delegate void CreateNodeDelegate(State state, ModelNode modelNode, GraphicNode graphicNode);
     private delegate void CreateLinkDelegate(ModelLink modelLink, GraphicLink graphicLink);
     private delegate void CreateThingDelegate(GraphicThing graphicThing);
 
@@ -145,7 +144,7 @@ namespace SysCAD.Editor
 
             item.anchorIntToTag.Add(anchorInt, anchor.Tag + anchorPtInt.ToString());
             item.anchorTagToInt.Add(anchor.Tag + anchorPtInt.ToString(), anchorInt);
-            
+
             anchorInt++;
             anchorPtInt++;
           }
@@ -265,9 +264,9 @@ namespace SysCAD.Editor
       //return xaml;
     }
 
-    public void SetArrow(Guid guid, String tag, Arrow arrow, GraphicLink graphicLink, ModelLink modelLink)
+    public void SetArrow(State state, Guid guid, String tag, Arrow arrow, GraphicLink graphicLink, ModelLink modelLink)
     {
-      EditorLink link = new EditorLink(guid, tag, graphicLink, modelLink);
+      EditorLink link = new EditorLink(state, guid, tag, graphicLink, modelLink);
       link.Arrow = arrow;
       editorLinks.Add(guid, link);
     }
@@ -317,45 +316,34 @@ namespace SysCAD.Editor
         Box box = null;
         PureComponents.TreeView.Node node = null;
 
-        {
-          node = tvNavigation.AddNodeByPath(graphicGroup.Path + graphicGroup.Tag, graphicGroup.Guid.ToString());
-          node.AllowDrop = false;
-
-          tvNavigation.AddSelectedNode(node);
-        }
+        node = tvNavigation.AddNodeByPath(graphicGroup.Path + graphicGroup.Tag, graphicGroup.Guid.ToString());
+        node.AllowDrop = false;
+        tvNavigation.AddSelectedNode(node);
 
         bool isVisible = true;
         if (node.Parent != null) // if we're not root, make visibility same as parent.
           isVisible = node.Parent.IsSelected;
 
-        {
-          box = flowChart.CreateBox((float)graphicGroup.X, (float)graphicGroup.Y, (float)graphicGroup.Width, (float)graphicGroup.Height);
-          box.ToolTip = graphicGroup.Tag;
-          box.Style = BoxStyle.Rectangle;
+        box = flowChart.CreateBox((float)graphicGroup.X, (float)graphicGroup.Y, (float)graphicGroup.Width, (float)graphicGroup.Height);
+        box.ToolTip = graphicGroup.Tag;
+        box.Style = BoxStyle.Rectangle;
 
-          box.FillColor = System.Drawing.Color.FromArgb(80, 222, 184, 136);
-          box.FrameColor = System.Drawing.Color.FromArgb(160, 111, 92, 68);
-          box.Visible = isVisible;
-
-          box.ZBottom();
-
-          // Make groups unmodifiable -- for now.
-          box.Locked = true;
-        }
+        // Make groups unmodifiable -- for now.
+        box.Locked = true;
 
         EditorGroup group = new EditorGroup(graphicGroup.Guid, graphicGroup.Tag, box, isVisible, graphicGroup);
-
-        box.Tag = group;
-
         editorGroups.Add(group.Guid, group);
 
+        box.Tag = group;
         node.Tag = group;
+
+        group.Visible = isVisible;
       }
     }
 
     public bool creatingNode = false; // Allows us to turn off some notifications during the creation process (specifically selectionChanged.)
 
-    internal void CreateNode(ModelNode modelNode, GraphicNode graphicNode)
+    internal void CreateNode(State state, ModelNode modelNode, GraphicNode graphicNode)
     {
       if (flowChart.InvokeRequired)
       {
@@ -365,7 +353,7 @@ namespace SysCAD.Editor
       {
         creatingNode = true; // turn off flowchart events while we're mid-create.
 
-        EditorNode editorNode = new EditorNode(graphicNode);
+        EditorNode editorNode = new EditorNode(state, graphicNode);
 
         PureComponents.TreeView.Node treeViewNode = null;
         {
@@ -393,7 +381,7 @@ namespace SysCAD.Editor
           clientProtocol.LogMessage(out requestId, "ModelStencil not found in library for shape \'" + modelNode.NodeClass + "\'", SysCAD.Log.MessageType.Error);
         }
 
-        Box textBox=null, graphicBox=null, modelBox=null;
+        Box textBox = null, graphicBox = null, modelBox = null;
 
         {
           SysCAD.Protocol.Rectangle textArea = graphicNode.TagArea;
@@ -425,14 +413,13 @@ namespace SysCAD.Editor
             Handles.ResizeBottomRight | Handles.ResizeBottomLeft | Handles.ResizeTopCenter |
             Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
             Handles.Move;
-          textBox.Visible = ShowTags && isVisible;
           textBox.Text = graphicNode.Tag;
         }
 
         {
           graphicBox = flowChart.CreateBox((float)graphicNode.X, (float)graphicNode.Y, (float)graphicNode.Width, (float)graphicNode.Height);
           graphicBox.RotationAngle = (float)graphicNode.Angle;
-          graphicBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicItem.Model";
+          graphicBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicNode.Model";
           graphicBox.Style = BoxStyle.Shape;
 
           if (graphicStencil != null)
@@ -442,7 +429,6 @@ namespace SysCAD.Editor
 
           graphicBox.EnabledHandles = Handles.None;
           graphicBox.HandlesStyle = HandlesStyle.Invisible;
-          graphicBox.Visible = ShowGraphics && isVisible;
 
           if (graphicNode.FillColor.IsEmpty)
             graphicNode.FillColor = graphicBox.FillColor;
@@ -456,7 +442,7 @@ namespace SysCAD.Editor
         {
           modelBox = flowChart.CreateBox((float)graphicNode.X, (float)graphicNode.Y, (float)graphicNode.Width, (float)graphicNode.Height);
           modelBox.RotationAngle = (float)graphicNode.Angle;
-          modelBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicItem.Model";
+          modelBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicNode.Model";
           modelBox.Style = BoxStyle.Shape;
 
           //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
@@ -468,7 +454,7 @@ namespace SysCAD.Editor
             //RequestPortInfo test code.
             //{
             //  Int64 requestId2;
-            //  RequestGraphicPortInfo(out requestId2, graphicItem.Guid, ((Anchor)(modelStencil.Anchors[0])).Tag);
+            //  RequestGraphicPortInfo(out requestId2, graphicNode.Guid, ((Anchor)(modelStencil.Anchors[0])).Tag);
             //}
           }
           else
@@ -478,7 +464,6 @@ namespace SysCAD.Editor
 
           modelBox.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
           modelBox.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
-          modelBox.Visible = ShowModels && isVisible;
         }
 
         if (textBox != null && graphicBox != null && modelBox != null)
@@ -490,7 +475,7 @@ namespace SysCAD.Editor
           editorNode.ModelBox = modelBox;
           editorNode.GraphicBox = graphicBox;
           editorNode.TextBox = textBox;
-          editorNode.SetVisible(ShowTags && isVisible, this);
+          editorNode.Visible = ShowTags && isVisible;
 
           modelBox.Tag = editorNode;
           graphicBox.Tag = editorNode;
@@ -499,6 +484,8 @@ namespace SysCAD.Editor
           editorNodes.Add(editorNode.Guid, editorNode);
 
           treeViewNode.Tag = editorNode;
+
+          editorNode.UpdateVisibility();
         }
       }
     }
@@ -525,7 +512,7 @@ namespace SysCAD.Editor
         }
       }
     }
-    
+
     internal void CreateLink(ModelLink modelLink, GraphicLink graphicLink)
     {
 
@@ -540,8 +527,8 @@ namespace SysCAD.Editor
         {
           EditorNode destinationNode, originNode;
           if (
-            (editorNodes.TryGetValue(graphicLink.Origin, out originNode)) 
-            && 
+            (editorNodes.TryGetValue(graphicLink.Origin, out originNode))
+            &&
             (editorNodes.TryGetValue(graphicLink.Destination, out destinationNode))
             )
           {
@@ -582,7 +569,6 @@ namespace SysCAD.Editor
             Handles.ResizeBottomRight | Handles.ResizeBottomLeft | Handles.ResizeTopCenter |
             Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
             Handles.Move;
-          textBox.Visible = ShowTags && isVisible;
           textBox.Text = graphicLink.Tag;
         }
 
@@ -679,10 +665,10 @@ namespace SysCAD.Editor
           }
         }
 
-        EditorLink editorLink = new EditorLink(graphicLink.Guid, graphicLink.Tag, graphicLink, modelLink);
+        EditorLink editorLink = new EditorLink(this, graphicLink.Guid, graphicLink.Tag, graphicLink, modelLink);
         editorLink.Arrow = arrow;
         editorLink.TextBox = textBox;
-        editorLink.SetVisible(this);
+        editorLink.UpdateVisibility();
 
         arrow.Tag = editorLink;
 
@@ -711,8 +697,6 @@ namespace SysCAD.Editor
 
     //    box.FillColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
     //    box.FrameColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
-
-    //    box.Visible = isVisible;
 
     //    box.ZBottom();
 
@@ -897,7 +881,7 @@ namespace SysCAD.Editor
     internal ModelNode ModelNode(Box box)
     {
       ModelNode modelNode = null;
-      
+
       if (box.Tag is EditorNode)
       {
         GraphicNode graphicNode = null;
@@ -1015,12 +999,12 @@ namespace SysCAD.Editor
 
         if (editorGroups.TryGetValue(guid, out group))
         {
-          group.SetVisible(visible);
+          group.Visible = visible;
         }
 
         if (editorNodes.TryGetValue(guid, out item))
         {
-          item.SetVisible(visible, this);
+          item.Visible = visible;
         }
 
         //Thing thing;
@@ -1028,7 +1012,6 @@ namespace SysCAD.Editor
         //if (things.TryGetValue(guid, out thing))
         //{
         //  thing.Visible = visible;
-        //  thing.Box.Visible = visible;
         //}
       }
     }
@@ -1376,7 +1359,7 @@ namespace SysCAD.Editor
 
           flowchart.BackColor = System.Drawing.SystemColors.Highlight;
           modelSelectedThumbnails.Add(key, flowchart.CreateImage());
-          
+
           flowchart.DeleteObject(box);
         }
 
@@ -1392,7 +1375,7 @@ namespace SysCAD.Editor
           box.Style = BoxStyle.Shape;
           box.Shape = GetShapeTemplate(stencil, false, false);
           box.Locked = true;
-          
+
           flowchart.BackColor = System.Drawing.SystemColors.Window;
           graphicUnselectedThumbnails.Add(key, flowchart.CreateImage());
 
@@ -1533,10 +1516,10 @@ namespace SysCAD.Editor
     }
 
     internal void ConnectGraphic(
-      ClientProtocol.PermissionsChangedHandler permissionsChangedHandler, 
-      ClientProtocol.StepHandler stepHandler, 
-      ClientProtocol.SyncHandler syncHandler, 
-      ClientProtocol.ChangedHandler changedHandler, 
+      ClientProtocol.PermissionsChangedHandler permissionsChangedHandler,
+      ClientProtocol.StepHandler stepHandler,
+      ClientProtocol.SyncHandler syncHandler,
+      ClientProtocol.ChangedHandler changedHandler,
       ClientProtocol.PortInfoRequestedHandler portInfoRequestedHandler)
     {
       clientProtocol.PermissionsChanged += permissionsChangedHandler;

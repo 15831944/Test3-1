@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,7 +9,6 @@ namespace SysCAD.Editor
 {
   internal class EditorLink
   {
-
     private Arrow arrow;
     private Box textBox;
 
@@ -21,8 +19,14 @@ namespace SysCAD.Editor
 
     private String tag;
 
-    public EditorLink(Guid guid, String tag, GraphicLink graphicLink, ModelLink modelLink)
+    private State state;
+
+    private bool selected;
+    private bool hovered;
+
+    public EditorLink(State state, Guid guid, String tag, GraphicLink graphicLink, ModelLink modelLink)
     {
+      this.state = state;
       this.guid = guid;
       this.tag = tag;
       this.graphicLink = graphicLink;
@@ -68,35 +72,99 @@ namespace SysCAD.Editor
       get { return tag; }
     }
 
+    public bool Selected
+    {
+      get { return selected; }
+      set 
+      { 
+        selected = value;
+        UpdateVisibility();
+      }
+    }
+    public bool Hovered
+    {
+      get { return hovered; }
+      set
+      { 
+        hovered = value;
+        UpdateVisibility();
+      }
+    }
+
     Int64 requestId;
 
-    internal void SetVisible(State state)
+    public bool Visible
     {
-      EditorNode origin = arrow.Origin.Tag as EditorNode;
-      EditorNode destination = arrow.Destination.Tag as EditorNode;
+      get
+      {
+        EditorNode origin = arrow.Origin.Tag as EditorNode;
+        EditorNode destination = arrow.Destination.Tag as EditorNode;
 
-      bool visible = true;
-      if (origin != null)
-      {
-        visible = visible && origin.Visible;
-      }
-      else
-      {
-        state.ClientProtocol.LogMessage(out requestId, "EditorNode missing for Origin.", SysCAD.Log.MessageType.Error);
-      }
+        bool visible = true;
 
-      if (destination != null)
-      {
-        visible = visible && destination.Visible;
-      }
-      else
-      {
-        state.ClientProtocol.LogMessage(out requestId, "EditorNode missing for Destination.)", SysCAD.Log.MessageType.Error);
-      }
+        if (origin != null)
+          visible = visible && origin.Visible;
+        else
+          state.ClientProtocol.LogMessage(out requestId, "EditorNode missing for Origin.", SysCAD.Log.MessageType.Error);
 
-      arrow.Visible = visible && state.ShowLinks;
+        if (destination != null)
+          visible = visible && destination.Visible;
+        else
+          state.ClientProtocol.LogMessage(out requestId, "EditorNode missing for Destination.)", SysCAD.Log.MessageType.Error);
+
+        return visible;
+      }
+    }
+
+    internal void UpdateVisibility()
+    {
+      arrow.Visible = Visible && state.ShowLinks;
       textBox.Visible = arrow.Visible && graphicLink.TagVisible && state.ShowTags;
       textBox.ZIndex = arrow.ZIndex - 100000;
+
+      if (hovered)
+      {
+        arrow.CustomDraw = CustomDraw.Additional;
+        arrow.ZTop();
+
+        if (arrow.Destination is Box)
+        {
+          EditorNode node = arrow.Destination.Tag as EditorNode;
+          node.ModelBox.ZIndex = arrow.ZIndex - 100000;
+          node.GraphicBox.ZIndex = arrow.ZIndex - 200000;
+          node.TextBox.ZIndex = arrow.ZIndex - 300000;
+        }
+
+        if (arrow.Origin is Box)
+        {
+          EditorNode node = arrow.Origin.Tag as EditorNode;
+          node.ModelBox.ZIndex = arrow.ZIndex - 100000;
+          node.GraphicBox.ZIndex = arrow.ZIndex - 200000;
+          node.TextBox.ZIndex = arrow.ZIndex - 300000;
+        }
+      }
+      else
+      {
+        arrow.CustomDraw = CustomDraw.None;
+
+        if (arrow.Destination is Box)
+        {
+          EditorNode node = arrow.Destination.Tag as EditorNode;
+          node.ModelBox.ZIndex = arrow.ZIndex - 100000;
+          node.GraphicBox.ZIndex = arrow.ZIndex - 200000;
+          node.TextBox.ZIndex = arrow.ZIndex - 300000;
+        }
+
+        if (arrow.Origin is Box)
+        {
+          EditorNode node = arrow.Origin.Tag as EditorNode;
+          node.ModelBox.ZIndex = arrow.ZIndex - 100000;
+          node.GraphicBox.ZIndex = arrow.ZIndex - 200000;
+          node.TextBox.ZIndex = arrow.ZIndex - 300000;
+        }
+
+        arrow.Visible = true;
+      }
     }
   }
 }

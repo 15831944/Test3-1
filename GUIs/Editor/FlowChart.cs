@@ -259,35 +259,45 @@ namespace SysCAD.Editor
 
       foreach (Box box in fcFlowChart.Boxes)
       {
-
-        if (box.Visible)
+        if (box.Tag is EditorNode)
         {
-          foundVisibleObject = true;
-
-          if (box.BoundingRect.Left < minX) minX = box.BoundingRect.Left;
-
-          if (box.BoundingRect.Top < minY) minY = box.BoundingRect.Top;
-
-          if (box.BoundingRect.Right > maxX) maxX = box.BoundingRect.Right;
-
-          if (box.BoundingRect.Bottom > maxY) maxY = box.BoundingRect.Bottom;
+          EditorNode node = box.Tag as EditorNode;
+          if (node.Visible)
+          {
+            foundVisibleObject = true;
+            if (box.BoundingRect.Left < minX) minX = box.BoundingRect.Left;
+            if (box.BoundingRect.Top < minY) minY = box.BoundingRect.Top;
+            if (box.BoundingRect.Right > maxX) maxX = box.BoundingRect.Right;
+            if (box.BoundingRect.Bottom > maxY) maxY = box.BoundingRect.Bottom;
+          }
+        }
+        else if (box.Tag is EditorGroup)
+        {
+          EditorGroup group = box.Tag as EditorGroup;
+          if (group.Visible)
+          {
+            foundVisibleObject = true;
+            if (box.BoundingRect.Left < minX) minX = box.BoundingRect.Left;
+            if (box.BoundingRect.Top < minY) minY = box.BoundingRect.Top;
+            if (box.BoundingRect.Right > maxX) maxX = box.BoundingRect.Right;
+            if (box.BoundingRect.Bottom > maxY) maxY = box.BoundingRect.Bottom;
+          }
         }
       }
 
       foreach (Arrow arrow in fcFlowChart.Arrows)
       {
-
-        if (arrow.Visible)
+        if (arrow.Tag is EditorLink)
         {
-          foundVisibleObject = true;
-
-          if (arrow.BoundingRect.Left < minX) minX = arrow.BoundingRect.Left;
-
-          if (arrow.BoundingRect.Top < minY) minY = arrow.BoundingRect.Top;
-
-          if (arrow.BoundingRect.Right > maxX) maxX = arrow.BoundingRect.Right;
-
-          if (arrow.BoundingRect.Bottom > maxY) maxY = arrow.BoundingRect.Bottom;
+          EditorLink link = arrow.Tag as EditorLink;
+          if (link.Visible)
+          {
+            foundVisibleObject = true;
+            if (arrow.BoundingRect.Left < minX) minX = arrow.BoundingRect.Left;
+            if (arrow.BoundingRect.Top < minY) minY = arrow.BoundingRect.Top;
+            if (arrow.BoundingRect.Right > maxX) maxX = arrow.BoundingRect.Right;
+            if (arrow.BoundingRect.Bottom > maxY) maxY = arrow.BoundingRect.Bottom;
+          }
         }
       }
 
@@ -301,16 +311,6 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
 
       SetSizes();
-
-      foreach (Box box in fcFlowChart.Boxes)
-      {
-
-        if ((box.Visible) && (box.Tag is Thing))
-        {
-          //Thing thing = box.Tag as Thing;
-          //box.Image = State.GetImage(thing.GraphicThing, fcFlowChart);
-        }
-      }
     }
 
     internal static SysCAD.Protocol.Point getCenter(SysCAD.Protocol.Rectangle rect)
@@ -395,7 +395,7 @@ namespace SysCAD.Editor
         ModelNode modelNode;
         if (state.ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
         {
-          state.CreateNode(modelNode, graphicNode);
+          state.CreateNode(state, modelNode, graphicNode);
         }
         else
         {
@@ -1480,54 +1480,14 @@ namespace SysCAD.Editor
         }
       }
 
-      if (hoverArrow != null)
+      if ((hoverArrow != null)&&(hoverArrow.Tag is EditorLink))
       {
-        hoverArrow.CustomDraw = CustomDraw.Additional;
-        hoverArrow.ZTop();
-
-        if (hoverArrow.Destination is Box)
-        {
-          EditorNode hoverItem = hoverArrow.Destination.Tag as EditorNode;
-          hoverItem.ModelBox.ZIndex = hoverArrow.ZIndex - 100000;
-          hoverItem.GraphicBox.ZIndex = hoverArrow.ZIndex - 200000;
-          hoverItem.TextBox.ZIndex = hoverArrow.ZIndex - 300000;
-        }
-
-        if (hoverArrow.Origin is Box)
-        {
-          EditorNode hoverItem = hoverArrow.Origin.Tag as EditorNode;
-          hoverItem.ModelBox.ZIndex = hoverArrow.ZIndex - 100000;
-          hoverItem.GraphicBox.ZIndex = hoverArrow.ZIndex - 200000;
-          hoverItem.TextBox.ZIndex = hoverArrow.ZIndex - 300000;
-        }
-
-        hoverArrow.Visible = state.ShowLinks;
+        (hoverArrow.Tag as EditorLink).Hovered = true;
       }
 
       if ((hoverBox != null) && (hoverBox.Tag is EditorNode))
       {
-        EditorNode hoverItem = hoverBox.Tag as EditorNode;
-        hoverItem.GraphicBox.Visible = hoverItem.Visible;
-        //hoverItem.Graphic.ZTop();
-        hoverItem.ModelBox.Visible = hoverItem.Visible;
-        hoverItem.ModelBox.CustomDraw = CustomDraw.Additional;
-        hoverItem.ModelBox.ZIndex = hoverItem.GraphicBox.ZIndex + 100000;
-        hoverItem.TextBox.ZIndex = hoverItem.GraphicBox.ZIndex - 100000;
-        hoverItem.TextBox.Visible = hoverItem.Visible && state.ShowTags;
-
-        foreach (Arrow arrow in hoverItem.IncomingArrows)
-        {
-          arrow.Visible = hoverItem.Visible;
-          arrow.CustomDraw = CustomDraw.Additional;
-          arrow.ZIndex = hoverItem.TextBox.ZIndex - 100000;
-        }
-
-        foreach (Arrow arrow in hoverItem.OutgoingArrows)
-        {
-          arrow.Visible = hoverItem.Visible;
-          arrow.CustomDraw = CustomDraw.Additional;
-          arrow.ZIndex = hoverItem.TextBox.ZIndex - 100000;
-        }
+        (hoverBox.Tag as EditorNode).Hovered = true;
       }
 
       if (oldHoverArrow != null)
@@ -1535,25 +1495,6 @@ namespace SysCAD.Editor
 
         if (oldHoverArrow != hoverArrow) // we've moved on, un-hover the old one.
         {
-          oldHoverArrow.CustomDraw = CustomDraw.None;
-
-          if (oldHoverArrow.Destination is Box)
-          {
-            EditorNode oldHoverItem = oldHoverArrow.Destination.Tag as EditorNode;
-            oldHoverItem.ModelBox.ZIndex = oldHoverArrow.ZIndex - 100000;
-            oldHoverItem.GraphicBox.ZIndex = oldHoverArrow.ZIndex - 200000;
-            oldHoverItem.TextBox.ZIndex = oldHoverArrow.ZIndex - 300000;
-          }
-
-          if (oldHoverArrow.Origin is Box)
-          {
-            EditorNode oldHoverItem = oldHoverArrow.Origin.Tag as EditorNode;
-            oldHoverItem.ModelBox.ZIndex = oldHoverArrow.ZIndex - 100000;
-            oldHoverItem.GraphicBox.ZIndex = oldHoverArrow.ZIndex - 200000;
-            oldHoverItem.TextBox.ZIndex = oldHoverArrow.ZIndex - 300000;
-          }
-
-          oldHoverArrow.Visible = true;
         }
       }
 
@@ -1562,31 +1503,8 @@ namespace SysCAD.Editor
 
         if (oldHoverBox != hoverBox) // we've moved on, un-hover the old one.
         {
-
           if (oldHoverBox.Tag is EditorNode)
-          {
-            EditorNode oldHoverItem = oldHoverBox.Tag as EditorNode;
-            oldHoverItem.GraphicBox.Visible = oldHoverItem.Visible && state.ShowGraphics;
-            oldHoverItem.ModelBox.Visible = oldHoverItem.Visible && (oldHoverItem.ModelBox.Selected || state.ShowModels);
-            oldHoverItem.ModelBox.CustomDraw = CustomDraw.None;
-            oldHoverItem.ModelBox.ZIndex = oldHoverItem.GraphicBox.ZIndex + 100000;
-            oldHoverItem.TextBox.ZIndex = oldHoverItem.GraphicBox.ZIndex - 100000;
-            oldHoverItem.TextBox.Visible = oldHoverItem.Visible && state.ShowTags;
-
-            foreach (Arrow arrow in oldHoverItem.IncomingArrows)
-            {
-              arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
-              arrow.CustomDraw = CustomDraw.None;
-              arrow.ZIndex = oldHoverItem.TextBox.ZIndex - 100000;
-            }
-
-            foreach (Arrow arrow in oldHoverItem.OutgoingArrows)
-            {
-              arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
-              arrow.CustomDraw = CustomDraw.None;
-              arrow.ZIndex = oldHoverItem.TextBox.ZIndex - 100000;
-            }
-          }
+            (oldHoverBox.Tag as EditorNode).Hovered = false;
 
           else if (oldHoverBox.Tag is Thing)
           {
@@ -1701,7 +1619,7 @@ namespace SysCAD.Editor
             ModelNode modelNode;
             if (state.ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
             {
-              state.CreateNode(modelNode, graphicNode);
+              state.CreateNode(state, modelNode, graphicNode);
             }
             else
             {

@@ -83,14 +83,19 @@ namespace SysCAD.Editor
     public bool Visible
     {
       get { return visible; }
-      set { visible = value; }
+      set 
+      { 
+        visible = value;
+        UpdateVisibility();
+      }
     }
 
-    internal void SetVisible(bool visible)
+    internal void UpdateVisibility()
     {
-      Visible = visible;
-      Box.Visible = visible;// && group.Box.Selected;
-      Box.ZBottom();
+      box.FillColor = System.Drawing.Color.FromArgb(80, 222, 184, 136);
+      box.FrameColor = System.Drawing.Color.FromArgb(160, 111, 92, 68);
+      box.Visible = visible;
+      box.ZBottom();
     }
   }
 }

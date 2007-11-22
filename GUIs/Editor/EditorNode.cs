@@ -11,6 +11,7 @@ namespace SysCAD.Editor
 
   internal class EditorNode
   {
+    private State state;
     private GraphicNode graphicNode;
 
     private Box graphicBox;
@@ -20,14 +21,16 @@ namespace SysCAD.Editor
     private PureComponents.TreeView.Node node;
 
     private bool selected;
+    private bool hovered;
     private bool visible;
 
     public Dictionary<int, String> anchorIntToTag = new Dictionary<int, String>();
     public Dictionary<String, int> anchorTagToInt = new Dictionary<String, int>();
 
-    public EditorNode(GraphicNode graphicItem)
+    public EditorNode(State state, GraphicNode graphicNode)
     {
-      this.graphicNode = graphicItem;
+      this.state = state;
+      this.graphicNode = graphicNode;
     }
 
     public override string ToString()
@@ -89,12 +92,6 @@ namespace SysCAD.Editor
       get { return modelBox.OutgoingArrows; }
     }
 
-    public bool Selected
-    {
-      get { return selected; }
-      set { selected = value; }
-    }
-
     public String Tag
     {
       get
@@ -145,20 +142,42 @@ namespace SysCAD.Editor
     public bool Visible
     {
       get { return visible; }
+      set
+      {
+        visible = value;
+        UpdateVisibility();
+      }
     }
 
-    internal void SetVisible(bool visible, State state)
+    public bool Selected
     {
-      this.visible = visible;
-
-      SetVisible(state);
+      get { return selected; }
+      set
+      {
+        selected = value;
+        UpdateVisibility();
+      }
     }
 
-    internal void SetVisible(State state)
+    public bool Hovered
+    {
+      get { return hovered; }
+      set
+      {
+        hovered = value;
+        UpdateVisibility();
+      }
+    }
+
+    internal void UpdateVisibility()
     {
       Int64 requestId;
 
-      ModelBox.Visible = visible && (ModelBox.Selected || state.ShowModels);
+      //ModelBox.Visible = visible && (ModelBox.Selected || state.ShowModels);
+
+      Color modelBoxColor = Color.FromArgb((visible && (ModelBox.Selected || state.ShowModels)) ? 128 : 255, ModelBox.FillColor);
+      ModelBox.FillColor = modelBoxColor;
+
       GraphicBox.Visible = visible && state.ShowGraphics;
       TextBox.Visible = visible && graphicNode.TagVisible && state.ShowTags;
 
@@ -167,7 +186,7 @@ namespace SysCAD.Editor
         EditorLink linkDestination = (arrowDestination.Tag as EditorLink);
         if (linkDestination != null)
         {
-          linkDestination.SetVisible(state);
+          linkDestination.UpdateVisibility();
         }
         else
         {
@@ -180,11 +199,56 @@ namespace SysCAD.Editor
         EditorLink linkOrigin = (arrowOrigin.Tag as EditorLink);
         if (linkOrigin != null)
         {
-          linkOrigin.SetVisible(state);
+          linkOrigin.UpdateVisibility();
         }
         else
         {
           state.ClientProtocol.LogMessage(out requestId, "EditorLink missing for Arrow (Tag: " + arrowOrigin.Text + ")", SysCAD.Log.MessageType.Error);
+        }
+      }
+
+      if (hovered)
+      {
+        ModelBox.CustomDraw = CustomDraw.Additional;
+        ModelBox.ZIndex = GraphicBox.ZIndex + 100000;
+        TextBox.ZIndex = GraphicBox.ZIndex - 100000;
+        TextBox.Visible = Visible && state.ShowTags;
+
+        foreach (Arrow arrow in IncomingArrows)
+        {
+          arrow.Visible = Visible;
+          arrow.CustomDraw = CustomDraw.Additional;
+          arrow.ZIndex = TextBox.ZIndex - 100000;
+        }
+
+        foreach (Arrow arrow in OutgoingArrows)
+        {
+          arrow.Visible = Visible;
+          arrow.CustomDraw = CustomDraw.Additional;
+          arrow.ZIndex = TextBox.ZIndex - 100000;
+        }
+      }
+      else
+      {
+        GraphicBox.Visible = Visible && state.ShowGraphics;
+        ModelBox.Visible = Visible && (ModelBox.Selected || state.ShowModels);
+        ModelBox.CustomDraw = CustomDraw.None;
+        ModelBox.ZIndex = GraphicBox.ZIndex + 100000;
+        TextBox.ZIndex = GraphicBox.ZIndex - 100000;
+        TextBox.Visible = Visible && state.ShowTags;
+
+        foreach (Arrow arrow in IncomingArrows)
+        {
+          arrow.Visible = Visible && state.ShowLinks;
+          arrow.CustomDraw = CustomDraw.None;
+          arrow.ZIndex = TextBox.ZIndex - 100000;
+        }
+
+        foreach (Arrow arrow in OutgoingArrows)
+        {
+          arrow.Visible = Visible && state.ShowLinks;
+          arrow.CustomDraw = CustomDraw.None;
+          arrow.ZIndex = TextBox.ZIndex - 100000;
         }
       }
     }

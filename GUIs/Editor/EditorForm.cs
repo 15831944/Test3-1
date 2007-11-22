@@ -367,14 +367,11 @@ namespace SysCAD.Editor
 
           if (item.ModelBox.Selected)
           {
-            item.ModelBox.Visible = item.Visible;
-            item.ModelBox.ZIndex = item.GraphicBox.ZIndex + 100000;
-            item.TextBox.ZIndex = item.GraphicBox.ZIndex - 100000;
-            item.TextBox.Visible = item.Visible && frmFlowChart.State.ShowTags;
+            item.Selected = true;
           }
           else
           {
-            item.ModelBox.Visible = item.Visible && frmFlowChart.State.ShowModels;
+            item.Selected = false;
           }
         }
 
@@ -382,7 +379,11 @@ namespace SysCAD.Editor
         {
           if (link.Arrow.Selected)
           {
-            link.SetVisible(frmFlowChart.State);
+            link.Selected = true;
+          }
+          else
+          {
+            link.Selected = false;
           }
         }
 
@@ -686,9 +687,7 @@ namespace SysCAD.Editor
 
       foreach (EditorNode item in frmFlowChart.State.Items)
       {
-        item.GraphicBox.Visible = item.Visible && frmFlowChart.State.ShowGraphics;
-        item.ModelBox.ZIndex = item.GraphicBox.ZIndex + 100000;
-        item.TextBox.ZIndex = item.GraphicBox.ZIndex - 100000;
+        item.UpdateVisibility();
       }
     }
 
@@ -701,7 +700,7 @@ namespace SysCAD.Editor
         EditorLink link = arrow.Tag as EditorLink;
         if (link != null)
         {
-          link.SetVisible(frmFlowChart.State);
+          link.UpdateVisibility();
         }
         else
         {
@@ -716,8 +715,7 @@ namespace SysCAD.Editor
 
       foreach (EditorGroup group in frmFlowChart.State.Groups)
       {
-        group.Box.Visible = group.Visible && frmFlowChart.State.ShowGroups;
-        group.Box.ZBottom();
+        group.UpdateVisibility();
       }
     }
 
@@ -727,9 +725,7 @@ namespace SysCAD.Editor
 
       foreach (EditorNode item in frmFlowChart.State.Items)
       {
-        item.ModelBox.Visible = item.Visible && frmFlowChart.State.ShowModels;
-        item.ModelBox.ZIndex = item.GraphicBox.ZIndex + 100000;
-        item.TextBox.ZIndex = item.GraphicBox.ZIndex - 100000;
+        item.UpdateVisibility();
       }
     }
 
@@ -739,12 +735,12 @@ namespace SysCAD.Editor
 
       foreach (EditorLink link in frmFlowChart.State.Links)
       {
-        link.SetVisible(frmFlowChart.State);
+        link.UpdateVisibility();
       }
 
       foreach (EditorNode item in frmFlowChart.State.Items)
       {
-        item.SetVisible(frmFlowChart.State);
+        item.UpdateVisibility();
       }
 
       frmFlowChart.FlowChart.Invalidate();
