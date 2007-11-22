@@ -42,7 +42,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_AccIn(eDIO_Accum, this, false, true, AccumIOTag),
   m_AccOut(eDIO_Deplete, this, false, true, DepleteIOTag),
   m_AccCalc(this, m_AccIn, m_AccOut),
-  m_BlkEval(this, true)
+  m_BlkEval(this, BEO_StateSemantics|BEO_WithMakeups|BEO_WithBleeds)
   {
   //pQFeed=NULL;
   //pQProd=NULL;

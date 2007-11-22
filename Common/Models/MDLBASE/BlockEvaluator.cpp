@@ -22,7 +22,7 @@ XID xidNBleeds        = EvalBlkXID(2);
 XID xidOldBlkSeq      = EvalBlkXID(3);
 
 CBlockEvaluator::CBlockEvaluator(FlwNode * pNd,
-                                 bool AllowStateSemantics,
+                                 DWORD Options,
                                  CReactionBase * pRB,
                                  CHXBase *pHX,
                                  CEnvironHXBase * pEHX,
@@ -30,9 +30,10 @@ CBlockEvaluator::CBlockEvaluator(FlwNode * pNd,
                                  CEvapBase * pEvap)
   {
   m_pNd             = pNd;
-  m_bAllowStateSemantics = AllowStateSemantics && pNd->NetDynamicMethod();
+  m_Options         = Options;
+  m_bAllowStateSemantics = false;
   
-  Attach(AllowStateSemantics, pRB, pHX, pEHX, pVLE, pEvap);
+  Attach((Options & BEO_StateSemantics)!=0, pRB, pHX, pEHX, pVLE, pEvap);
   };
 
 //-------------------------------------------------------------------------
@@ -83,17 +84,6 @@ void CBlockEvaluator::Attach(bool AllowStateSemantics,
 
   m_nMaxNdMakeups  = MaxNdMakeups;
 
-  //if (m_pRB  )
-  //  m_nMaxNdMakeups++;
-  //if (m_pHX  ) 
-  //  m_nMaxNdMakeups++;
-  //if (m_pEHX ) 
-  //  m_nMaxNdMakeups++;
-  //if (m_pVLE ) 
-  //  m_nMaxNdMakeups++;
-  //if (m_pEvap) 
-  //  m_nMaxNdMakeups++;
-
   SortBlocks();
   };
 
@@ -103,17 +93,6 @@ void CBlockEvaluator::SetEnable(bool On)
   {
   for (int a=0; a<m_pMakeups.GetSize(); a++)
     m_pMakeups[a]->SetEnable(On);
-
-  //if (m_pRB)
-  //  m_pRB->Add_OnOff(DDB, isParmStopped|SetOnChange);
-  //if (m_pHX)
-  //  m_pHX->Add_OnOff(DDB, isParmStopped|SetOnChange);
-  //if (m_pEHX)
-  //  m_pEHX->Add_OnOff(DDB, isParmStopped|SetOnChange);
-  //if (m_pVLE)
-  //  m_pVLE->Add_OnOff(DDB, isParmStopped|SetOnChange);
-  //if (m_pEvap)
-  //  m_pEvap->Add_OnOff(DDB, isParmStopped|SetOnChange);
 
   for (int a=0; a<m_pBleeds.GetSize(); a++)
     m_pBleeds[a]->SetEnable(On);
@@ -168,12 +147,17 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
     DDB.String("", "EvalSeq.Feed", DC_, "", &m_sBlkSeqFeed, m_pNd, 0); 
     if (m_bAllowStateSemantics)
       DDB.String("", "EvalSeq.Content", DC_, "", &m_sBlkSeqState, m_pNd, 0); 
-    DDB.Long("Makeups", "", DC_, "", xidNMakeups, m_pNd, isParmStopped|SetOnChange); 
-    DDB.Long("Bleeds",  "", DC_, "", xidNBleeds,  m_pNd, isParmStopped|SetOnChange); 
+    if (m_Options&BEO_WithMakeups)
+      DDB.Long("Makeups", "", DC_, "", xidNMakeups, m_pNd, isParmStopped|SetOnChange); 
+    if (m_Options&BEO_WithBleeds)
+      DDB.Long("Bleeds",  "", DC_, "", xidNBleeds,  m_pNd, isParmStopped|SetOnChange); 
 
     //DDB.Text("");
-    for (int a=0; a<m_pMakeups.GetSize(); a++)
-      m_pMakeups[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 100000+a*1000);
+    if (m_Options&BEO_WithMakeups)
+      {
+      for (int a=0; a<m_pMakeups.GetSize(); a++)
+        m_pMakeups[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 100000+a*1000);
+      }
 
     if (m_pRB)
       m_pRB->Add_OnOff(DDB, isParmStopped|SetOnChange);
@@ -186,8 +170,11 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
     if (m_pEvap)
       m_pEvap->Add_OnOff(DDB, isParmStopped|SetOnChange);
 
-    for (int a=0; a<m_pBleeds.GetSize(); a++)
-      m_pBleeds[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 200000+a*1000);
+    if (m_Options&BEO_WithBleeds)
+      {
+      for (int a=0; a<m_pBleeds.GetSize(); a++)
+        m_pBleeds[a]->Add_OnOff(DDB, isParmStopped|SetOnChange, 200000+a*1000);
+      }
     }
 
   if (PrjFileVerNo()>=99)

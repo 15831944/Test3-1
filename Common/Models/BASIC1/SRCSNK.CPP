@@ -332,9 +332,9 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double ("NDensity",     "NRho", DC_Rho,  "kg/m^3", xidNRho,       this, isResult|noFile|noSnap);
   DDB.Double ("Pressure",     "P",    DC_P,    "kPag",   xidPMean,      this, isResult|noFile|noSnap);
 
-  //DDB.Visibility(NSHM_All, !fCrossConnected);
-  //DDB.Text  ("");
-  //m_BlkEval.Add_OnOff(DDB);  
+  DDB.Text  ("");
+  DDB.Visibility(NSHM_All, !fCrossConnected);
+  m_BlkEval.Add_OnOff(DDB);  
 
   if (!NetProbalMethod())
     {
@@ -375,8 +375,8 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double("QOut",         "",    DC_Qm  , "kg/s",   &dQ_Out,  this, isResult|0);
   DDB.Double("TOut",         "",    DC_T   , "C",      &dT_Out,  this, isResult|0);
 
-  //DDB.Visibility(NSHM_All, !fCrossConnected);
-  //m_BlkEval.BuildDataDefn(DDB);
+  DDB.Visibility(NSHM_All, !fCrossConnected);
+  m_BlkEval.BuildDataDefn(DDB);
 
   DDB.Visibility(NSHM_All, (SSMode & SSM_Source) || (iRevFlw==SSQmRev_Image));
   DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);

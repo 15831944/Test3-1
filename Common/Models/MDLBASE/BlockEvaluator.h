@@ -15,6 +15,10 @@
   #define DllImportExport
 #endif
 
+const DWORD BEO_StateSemantics  = 0x00000001;
+const DWORD BEO_WithMakeups     = 0x00000002;
+const DWORD BEO_WithBleeds      = 0x00000004;
+
 class DllImportExport CBlockEvaluator
   {
   friend class CBlockEvalBase;
@@ -24,7 +28,7 @@ class DllImportExport CBlockEvaluator
     static const int MaxBEBlocks           =   1  +1   +1   +1   +MaxNdMakeups+MaxNdBleeds;
 
     CBlockEvaluator(FlwNode * pNd,
-                    bool AllowStateSemantics,
+                    DWORD Options,
                     CReactionBase * pRB = NULL,
                     CHXBase *pHX = NULL,
                     CEnvironHXBase * pEHX = NULL,
@@ -98,6 +102,7 @@ class DllImportExport CBlockEvaluator
     CArray <CMakeupBase*, CMakeupBase*> m_pMakeups;
     CArray <CBleedBase*, CBleedBase*> m_pBleeds;
 
+    DWORD             m_Options;
     bool              m_bAllowStateSemantics;
     //bool              m_bIsSurgeType;
 
