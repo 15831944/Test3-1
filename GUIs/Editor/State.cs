@@ -994,7 +994,7 @@ namespace SysCAD.Editor
       if (keyGuid != null)
       {
         Guid guid = new Guid(keyGuid);
-        EditorNode item;
+        EditorNode node;
         EditorGroup group;
 
         if (editorGroups.TryGetValue(guid, out group))
@@ -1002,9 +1002,9 @@ namespace SysCAD.Editor
           group.Visible = visible;
         }
 
-        if (editorNodes.TryGetValue(guid, out item))
+        if (editorNodes.TryGetValue(guid, out node))
         {
-          item.Visible = visible;
+          node.Visible = visible;
         }
 
         //Thing thing;

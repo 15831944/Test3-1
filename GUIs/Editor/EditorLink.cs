@@ -87,6 +87,12 @@ namespace SysCAD.Editor
       set
       { 
         hovered = value;
+
+        if (arrow.Origin is Box)
+          (arrow.Origin.Tag as EditorNode).UpdateVisibility();
+        if (arrow.Destination is Box)
+          (arrow.Destination.Tag as EditorNode).UpdateVisibility();
+        
         UpdateVisibility();
       }
     }
@@ -122,48 +128,17 @@ namespace SysCAD.Editor
       textBox.Visible = arrow.Visible && graphicLink.TagVisible && state.ShowTags;
       textBox.ZIndex = arrow.ZIndex - 100000;
 
-      if (hovered)
+      EditorNode originNode = arrow.Origin.Tag as EditorNode;
+      EditorNode destinationNode = arrow.Destination.Tag as EditorNode;
+
+      if ((hovered) || (originNode.Hovered) || (destinationNode.Hovered) )
       {
         arrow.CustomDraw = CustomDraw.Additional;
         arrow.ZTop();
-
-        if (arrow.Destination is Box)
-        {
-          EditorNode node = arrow.Destination.Tag as EditorNode;
-          node.ModelBox.ZIndex = arrow.ZIndex - 100000;
-          node.GraphicBox.ZIndex = arrow.ZIndex - 200000;
-          node.TextBox.ZIndex = arrow.ZIndex - 300000;
-        }
-
-        if (arrow.Origin is Box)
-        {
-          EditorNode node = arrow.Origin.Tag as EditorNode;
-          node.ModelBox.ZIndex = arrow.ZIndex - 100000;
-          node.GraphicBox.ZIndex = arrow.ZIndex - 200000;
-          node.TextBox.ZIndex = arrow.ZIndex - 300000;
-        }
       }
       else
       {
         arrow.CustomDraw = CustomDraw.None;
-
-        if (arrow.Destination is Box)
-        {
-          EditorNode node = arrow.Destination.Tag as EditorNode;
-          node.ModelBox.ZIndex = arrow.ZIndex - 100000;
-          node.GraphicBox.ZIndex = arrow.ZIndex - 200000;
-          node.TextBox.ZIndex = arrow.ZIndex - 300000;
-        }
-
-        if (arrow.Origin is Box)
-        {
-          EditorNode node = arrow.Origin.Tag as EditorNode;
-          node.ModelBox.ZIndex = arrow.ZIndex - 100000;
-          node.GraphicBox.ZIndex = arrow.ZIndex - 200000;
-          node.TextBox.ZIndex = arrow.ZIndex - 300000;
-        }
-
-        arrow.Visible = true;
       }
     }
   }

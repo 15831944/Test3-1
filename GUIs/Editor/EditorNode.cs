@@ -23,6 +23,7 @@ namespace SysCAD.Editor
 
     private bool selected = false;
     private bool hovered = false;
+    private bool linkHovered = false;
     private bool visible = false;
 
     public Dictionary<int, String> anchorIntToTag = new Dictionary<int, String>();
@@ -42,7 +43,7 @@ namespace SysCAD.Editor
 
     public void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
     {
-      if (visible && (ModelBox.Selected || state.ShowModels || hovered))
+      if (visible && (ModelBox.Selected || state.ShowModels || ((hovered) || (linkHovered))))
       {
         opacity+=50;
         if (opacity > 220)
@@ -63,6 +64,12 @@ namespace SysCAD.Editor
 
       ModelBox.FillColor = Color.FromArgb(opacity, System.Drawing.Color.FromArgb(220, 222, 184, 136));
       ModelBox.FrameColor = Color.FromArgb(opacity, System.Drawing.Color.FromArgb(255, 111, 92, 68));
+
+      GraphicBox.FillColor = Color.FromArgb(220 - opacity, GraphicBox.FillColor);
+      GraphicBox.FrameColor = Color.FromArgb(255 - opacity, GraphicBox.FrameColor);
+
+      foreach (AnchorPoint anchorPoint in ModelBox.AnchorPattern.Points)
+        anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
     }
 
     public override string ToString()
@@ -177,6 +184,12 @@ namespace SysCAD.Editor
       set
       {
         visible = value;
+
+        foreach (Arrow arrow in ModelBox.IncomingArrows)
+          (arrow.Tag as EditorLink).UpdateVisibility();
+        foreach (Arrow arrow in ModelBox.OutgoingArrows)
+          (arrow.Tag as EditorLink).UpdateVisibility();
+
         UpdateVisibility();
       }
     }
@@ -197,6 +210,12 @@ namespace SysCAD.Editor
       set
       {
         hovered = value;
+
+        foreach (Arrow arrow in ModelBox.IncomingArrows)
+          (arrow.Tag as EditorLink).UpdateVisibility();
+        foreach (Arrow arrow in ModelBox.OutgoingArrows)
+          (arrow.Tag as EditorLink).UpdateVisibility();
+        
         UpdateVisibility();
       }
     }
@@ -210,27 +229,11 @@ namespace SysCAD.Editor
       GraphicBox.Visible = visible && state.ShowGraphics;
       TextBox.Visible = visible && graphicNode.TagVisible && state.ShowTags;
 
-      bool linkHovered = false;
-
+      linkHovered = false;
       foreach (Arrow arrow in ModelBox.IncomingArrows)
-      {
-        EditorLink link = (arrow.Tag as EditorLink);
-        if (link.Hovered) linkHovered = true;
-        if (link != null)
-          link.UpdateVisibility();
-        else
-          state.ClientProtocol.LogMessage(out requestId, "EditorLink missing for Arrow (Tag: " + arrow.Text + ")", SysCAD.Log.MessageType.Error);
-      }
-
+        if ((arrow.Tag as EditorLink).Hovered) linkHovered = true;
       foreach (Arrow arrow in ModelBox.OutgoingArrows)
-      {
-        EditorLink link = (arrow.Tag as EditorLink);
-        if (link.Hovered) linkHovered = true;
-        if (link != null)
-          link.UpdateVisibility();
-        else
-          state.ClientProtocol.LogMessage(out requestId, "EditorLink missing for Arrow (Tag: " + arrow.Text + ")", SysCAD.Log.MessageType.Error);
-      }
+        if ((arrow.Tag as EditorLink).Hovered) linkHovered = true;
 
       if ((hovered) || (linkHovered))
         ModelBox.CustomDraw = CustomDraw.Additional;

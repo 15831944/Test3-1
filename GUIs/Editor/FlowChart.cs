@@ -1187,7 +1187,6 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_DrawBox(object sender, BoxDrawArgs e)
     {
-
       if (arrowBeingModified != null)
       {
         SysCAD.Protocol.Point originPos = new SysCAD.Protocol.Point(arrowBeingModified.ControlPoints[0]);
@@ -1481,37 +1480,24 @@ namespace SysCAD.Editor
       }
 
       if ((hoverArrow != null)&&(hoverArrow.Tag is EditorLink))
-      {
         (hoverArrow.Tag as EditorLink).Hovered = true;
-      }
 
       if ((hoverBox != null) && (hoverBox.Tag is EditorNode))
-      {
         (hoverBox.Tag as EditorNode).Hovered = true;
-      }
 
       if (oldHoverArrow != null)
-      {
-
         if (oldHoverArrow != hoverArrow) // we've moved on, un-hover the old one.
-        {
-        }
-      }
+          (oldHoverArrow.Tag as EditorLink).Hovered = false;
 
       if (oldHoverBox != null) // deal with old itemBox.
-      {
-
         if (oldHoverBox != hoverBox) // we've moved on, un-hover the old one.
-        {
           if (oldHoverBox.Tag is EditorNode)
             (oldHoverBox.Tag as EditorNode).Hovered = false;
 
-          else if (oldHoverBox.Tag is Thing)
-          {
-            // Unhover the old thing.
-          }
-        }
-      }
+          //else if (oldHoverBox.Tag is Thing)
+          //{
+          //  // Unhover the old thing.
+          //}
 
       oldHoverArrow = hoverArrow;
       oldHoverBox = hoverBox;
