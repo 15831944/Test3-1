@@ -43,7 +43,7 @@ namespace SysCAD.Editor
 
     public void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
     {
-      if (visible && (ModelBox.Selected || state.ShowModels || ((hovered) || (linkHovered))))
+      if (visible && (ModelBox.Selected || state.ShowModels || hovered || linkHovered))
       {
         opacity+=50;
         if (opacity > 220)
@@ -224,8 +224,7 @@ namespace SysCAD.Editor
     {
       Int64 requestId;
 
-      modelBox.Visible = true;
-
+      ModelBox.Visible = visible;
       GraphicBox.Visible = visible && state.ShowGraphics;
       TextBox.Visible = visible && graphicNode.TagVisible && state.ShowTags;
 
@@ -235,10 +234,10 @@ namespace SysCAD.Editor
       foreach (Arrow arrow in ModelBox.OutgoingArrows)
         if ((arrow.Tag as EditorLink).Hovered) linkHovered = true;
 
-      if ((hovered) || (linkHovered))
+      //if ((hovered) || (linkHovered))
         ModelBox.CustomDraw = CustomDraw.Additional;
-      else
-        ModelBox.CustomDraw = CustomDraw.None;
+      //else
+      //  ModelBox.CustomDraw = CustomDraw.None;
 
       opacityTimer.Start();
     }

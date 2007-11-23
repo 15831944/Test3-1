@@ -499,7 +499,7 @@ ref class CSvcConnectCLRThread
 			{
 
       GraphicLink ^ GLnk = gcnew GraphicLink(Guid(gcnew String(GraphicGuid)), Guid(gcnew String(ModelGuid)), gcnew String(Tag), 
-        Guid(gcnew String(OriginGrfGuid)), -1, Guid(gcnew String(DestinationGrfGuid)), -1,  
+        Guid(gcnew String(OriginGrfGuid)), 0, Guid(gcnew String(DestinationGrfGuid)), 0,  
         Pts, gcnew SysCAD::Protocol::Rectangle(tagArea.Left(), tagArea.Bottom(), tagArea.Width(), tagArea.Height()), tagAngle, tagVisible);
 
       //  gcnew String(OriginPort), -1, gcnew String(DestinationPort), -1, Pts, TA, tagAngle);

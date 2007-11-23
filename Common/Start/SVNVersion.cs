@@ -6,6 +6,6 @@ namespace SysCAD.SVNVersion
 {
   public class SVNVersion
   {
-    public const int version = 3068;
+    public const int version = 3069;
   }
 }
