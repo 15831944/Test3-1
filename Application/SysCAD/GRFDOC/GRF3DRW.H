@@ -616,6 +616,7 @@ class LayerCollection
     DML_ITEM         FindItem(C3_CURVE c);
     CGrfLayer *      FindLayer(DXF_ENTITY e);
     CGrfLayer *      FindLayer(C3_CURVE c);
+    DXF_ENTITY       FindInsertNear(REAL X, REAL Y, REAL Z, REAL Tol);
     flag             Delete(DXF_ENTITY e);
     flag             Delete(C3_CURVE c);
     flag             Hide(DXF_ENTITY e, flag On);

@@ -53,10 +53,14 @@ void CMakeupBlock::BuildDataDefn(DataDefnBlk& DDB)
 
 void CMakeupBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
   {
+  SrcIO.Cd.QZero();
+  SrcIO.Sum.ZeroFlows();
   };
 
 void CMakeupBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
+  SrcIO.Cd.QZero();
+  SrcIO.Sum.ZeroFlows();
   };
 
 //============================================================================

@@ -3827,6 +3827,8 @@ void FlwSlvBlk::SwapAndClearTOSequence(byte Which)
 
 //---------------------------------------------------------------------------
 
+#define dbgClusters 0
+
 void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
   {
   if (Which & TOSL_Proc)
@@ -3851,6 +3853,11 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
     }
 
   bool DoingDynMode=(Flags & FTS_DynMode);
+
+#if dbgFlwSolve
+  if (dbgEvalOrdFind())
+    dbgpln("EvalOrder - Find >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+#endif
 
   int DoDump=0;
   if (Which & TOSL_Proc)
@@ -3879,7 +3886,9 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
           p->SetIOEvalSeq_WasOut(i, p->IOEvalSeq_Out(i));
           }
 
-        //dbgpln("%s", p->Tag());
+#if dbgClusters 
+        dbgpln("%s", p->Tag());
+#endif
         while (p->EvalProductClusters(c, Mask))
           {
           if (p->m_Clusters.GetSize()<=c)
@@ -3893,10 +3902,14 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
           C.m_nFlwIOsInDone=0;
           C.m_nFlwIOsInReqd=0;
           C.m_nFlwIOs=0;
-          //dbgp("                             %2i %#06.6x : ", c, Mask);
+          
+#if dbgClusters
+          dbgpln("  %2i %#06.6x : ", c, Mask);
+#endif
           for (int io=0; io<p->NoFlwIOs(); io++)
             {
-            if (io<p->NoProcLnkIOs())
+            //if (io<p->NoProcLnkIOs())
+            if (io<p->NoProcessIOs())
               {
               if (fabs(p->IOQmEst_In(io)-p->Nd_Rmt(io)->IOQmEst_Out(p->IOIONo_Rmt(io)))>1.0e-3)
                 {
@@ -3907,13 +3920,13 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
               }
             if ((1<<p->IO_Join_Id(io)) & Mask)
               {
-              //dbgp(" %2i", io);
+#if dbgClusters 
+              dbgpln("    %2i %s", io, p->Nd_Rmt(io)->FullObjTag());
+#endif
               C.m_IOs.SetAtGrow(C.m_nFlwIOs++, io);
               p->SetIO_Cluster_Id(io, c);
               }
             }
-          //dbgpln("");
-
           c++;
           }
         p->m_Clusters.SetSize(c);
@@ -4201,6 +4214,12 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
 #endif
       }
     }
+
+#if dbgFlwSolve
+  if (dbgEvalOrdFind())
+    dbgpln("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+#endif
+
   if (0 && DoDump)
     DumpEvalOrder(Which);
   };
@@ -5504,10 +5523,15 @@ void FlwSlvPB::RemoveBadConnectNds()
   {
   for (;;)
     {
-    bool ExtractsDone=true;
+    bool OneRemoved=false;
     CFlwNodeIterWithPos NP(m_AllNds);
     for (FlwNode * p=NP.First(); (p); p=NP.Next())
       {
+
+#if dbgFlwSolve
+        if (dbgEvalOrdFind())
+          dbgpln("QueryRemove from Eval %s", p->FullObjTag());
+#endif
 
       if (p->NodeFlwTask(NFT_PBQueryRemove)>0)
         {
@@ -5515,7 +5539,7 @@ void FlwSlvPB::RemoveBadConnectNds()
         p->NodeFlwTask(NFT_PBRemove);
         m_AllNds.RemoveAt(NP.Pos());
         m_ExcNds.AddTail(p);
-        ExtractsDone=false;
+        OneRemoved=true;
         CFlwNodeIterWithPos Proc(m_ProcessNds);
         for (FlwNode * np=Proc.First(); (np); np=Proc.Next())
           {
@@ -5528,7 +5552,7 @@ void FlwSlvPB::RemoveBadConnectNds()
 
 #if dbgFlwSolve
         if (dbgEvalOrdFind())
-          dbgpln("Remove %s", p->FullObjTag());
+          dbgpln("                                                             Remove from Eval %s", p->FullObjTag());
 #endif
         }
       //if (p->GetActiveHold())
@@ -5536,7 +5560,7 @@ void FlwSlvPB::RemoveBadConnectNds()
       //else
       //  p->ClrCI(25);
       }
-    if (ExtractsDone)
+    if (!OneRemoved)
       break;
     }
   }
@@ -5986,7 +6010,11 @@ int FlwSlvPB::TermSolution(const EqnSlvCtrlBlk & EQCtrl)
 
   CFlwNodeIter Exc(m_ExcNds);
   for (p=Exc.First(); (p); p=Exc.Next())
+    {
     p->SetActiveHoldAuto(false);
+    for (int i=0; i<p->NoFlwIOs(); i++)
+      p->IOFlange(i)->SetActiveHoldAuto(false);
+    }
 
   TestClosure(ProcTOSequence);
 
@@ -12706,9 +12734,9 @@ int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status, fla
 
         Status[i].m_Tag=Tg;
         Status[i].m_dwFlags=pF->ModelStatus();
+        //dbgpln("**Fl Get %8x %s", Status[i].m_dwFlags, Status[i].m_Tag());
         i++;
         }
-      //dbgpln("**Fl Get %8x %s", Status[i].m_dwFlags, Status[i].m_Tag());
       }
     }
 
@@ -12780,7 +12808,10 @@ flag CFlwSolver::RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs)
     Chgs+=p->ModelAssocGrfs(Grfs, Index++);
 
   if (Grfs.GetCount()!=Index)
+    {
     Grfs.SetSize(Index);
+    Chgs++;
+    }
 
   return Chgs>0;
   };

@@ -534,6 +534,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Flotation Cell.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Separ1\Flotation Cell.cpp"
 				>
 			</File>
@@ -667,6 +671,14 @@
 				RelativePath=".\TimingStructs.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\TubeDigester.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TubeDigester.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -681,7 +693,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Separ1\Flotation Cell.h"
+				RelativePath=".\Flotation Cell.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FlotationTank.h"
 				>
 			</File>
 			<File

@@ -2563,6 +2563,8 @@ dword  CFlange::ModelStatus()
   {
   dword Status=0;
 
+  if (GetActiveHold())
+    Status = FNS_Hold;
   if (FlwNode::GetStatusAsStopped())
     {
     Status = FNS_LNoFlw;
@@ -8433,7 +8435,7 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
           }
         }
 
-      //dbgpln("PBReInit %s %s", IsLnk()?"IsLnk":"", m_sTag());
+      dbgpln("PBReInit %s %s", IsLnk()?"IsLnk":"", m_sTag());
       return 0;
     case NFT_PBQueryRemove:
       {
@@ -8441,7 +8443,7 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
       long nOut=0;
       for (int i=0; i<NoFlwIOs(); i++)
         {
-        //dbgpln("  %3i %20s %20s", i, DbgFltString(IOQmEst_In(i)), DbgFltString(IOQm_In(i)));
+        dbgpln("  %3i %20s %20s", i, DbgFltString(IOQmEst_In(i)), DbgFltString(IOQm_In(i)));
         if (IO_In(i))
           nIn++;
         else if (IO_Out(i))
@@ -8454,25 +8456,25 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
           RemOK=(nOut>0);
         else // nIn>0
           RemOK=(nOut==0); 
-        //dbgpln("PBQueryRemove Proc         %3s i:%3i o:%3i %s", RemOK?"YES":"", nIn, nOut, m_sTag());
+        dbgpln("PBQueryRemove Proc         %3s i:%3i o:%3i %s", RemOK?"YES":"", nIn, nOut, m_sTag());
         return RemOK && ((m_dwType&nc_Audit)==0);
         }
       else if (m_dwType & nc_MSrcSnk)
         {
         bool RemOK;
         RemOK = (nIn==0) && (nOut==0);
-        //dbgpln("PBQueryRemove SrcSnk       %3s i:%3i o:%3i %s", RemOK?"YES":"", nIn, nOut, m_sTag());
+        dbgpln("PBQueryRemove SrcSnk       %3s i:%3i o:%3i %s", RemOK?"YES":"", nIn, nOut, m_sTag());
         return RemOK && ((m_dwType&nc_Audit)==0);
         }
       else if (m_dwType & (nc_MLnk|nc_MBst|nc_MXfer))
         {
         bool RemOK=(nIn==0 || nOut==0);
-        //dbgpln("PBQueryRemove Lnk|Bst|Xfer %3s i:%3i o:%3i %s", RemOK?"YES":"", nIn, nOut, m_sTag());
+        dbgpln("PBQueryRemove Lnk|Bst|Xfer %3s i:%3i o:%3i %s", RemOK?"YES":"", nIn, nOut, m_sTag());
         return RemOK && ((m_dwType&nc_Audit)==0);
         }
       else
         {
-        //dbgpln("PBQueryRemove Other        %3s i:%3i o:%3i %s", "", 0, 0, m_sTag());
+        dbgpln("PBQueryRemove Other        %3s i:%3i o:%3i %s", "", 0, 0, m_sTag());
         return 0;
         }
       break;
@@ -8488,7 +8490,14 @@ long FlwNode::NodeFlwTask(NodeFlwTasks Task)
         {
         for (int i=0; i<NoFlwIOs(); i++)
           {
-          Nd_Rmt(i)->SetQmEst2IO(0.0);
+          if (i<NoProcLnkIOs())
+            Nd_Rmt(i)->SetQmEst2IO(0.0);
+          else
+            {
+            SetIOQm_In(i, 0.0);
+            SetIOQmEst_In(i, 0.0);
+            IOFlange(i)->SetActiveHoldAuto(true);
+            }
           }
         }
       return 0;
@@ -9053,7 +9062,7 @@ int FlwNode::ModelAssocGrfs(CMdlAssocGrfArray & Grfs, int Index)
           I.m_bShowIt = Show;
 
 #if dbgAssocGrfs 
-          dbgp(" %s", pC->FullTag());
+          dbgp(" %s %s", Show?"Show":"    ", pC->FullTag());
 #endif
           }
         else

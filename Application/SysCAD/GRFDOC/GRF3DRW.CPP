@@ -3855,6 +3855,23 @@ CGrfLayer * LayerCollection::FindLayer(C3_CURVE c)
 
 //----------------------------------------------------------------------------
 
+DXF_ENTITY LayerCollection::FindInsertNear(REAL X, REAL Y, REAL Z, REAL Tol)
+  {
+  DML_ITEM it;
+  DXF_ENTITY ei;
+  CGrfLayer * l;
+
+  WALK_LAYERS(Layers,NULL, l)
+    {
+    WALK_ENTITY_LIST(l->InsertLst, it, ei)
+      if (Sqr(DXF_INSERT_PT(ei)[0]-X)+Sqr(DXF_INSERT_PT(ei)[1]-Y)+Sqr(DXF_INSERT_PT(ei)[2]-Z)<=Sqr(Tol))
+        return ei;
+    }
+  return NULL;
+  };
+
+//----------------------------------------------------------------------------
+
 void LayerCollection::ChangeLayer(DXF_ENTITY e,LayerTypes NewLayer)
   {
   RemoveFromLayer(e);
@@ -9154,7 +9171,9 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount,
         {
         BlockName="MAKEUP_ASSOCGRF";
         pSym=MakeupSym;
-        AssocGrfPos.Set(Bnds.minpt[0], Bnds.maxpt[1]+TypeCount*4, pt[2]);
+        for (int i=0; i<TypeCount*2 && FindInsertNear(Bnds.minpt[0], Bnds.maxpt[1]+i*4, pt[2], 1); i++)
+          {};
+        AssocGrfPos.Set(Bnds.minpt[0], Bnds.maxpt[1]+i*4, pt[2]);
         AssTagPos.Set(0.0, 4.0, 0.0);
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;
@@ -9163,7 +9182,9 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount,
         {
         BlockName="SPILL_ASSOCGRF";
         pSym=SpillSym;
-        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.minpt[1]-TypeCount*4, pt[2]);
+        for (int i=0; i<TypeCount*2 && FindInsertNear(Bnds.maxpt[0], Bnds.minpt[1]+i*4, pt[2], 1); i++)
+          {};
+        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.minpt[1]-i*4, pt[2]);
         AssTagPos.Set(0.0, 2.0, 0.0);
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;
@@ -9172,7 +9193,9 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount,
         {
         BlockName="VENT_ASSOCGRF";
         pSym=VentSym;
-        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1]+TypeCount*4, pt[2]);
+        for (int i=0; i<TypeCount*2 && FindInsertNear(Bnds.maxpt[0], Bnds.maxpt[1]+i*4, pt[2], 1); i++)
+          {};
+        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1]+i*4, pt[2]);
         AssTagPos.Set(0.0, -2.0, 0.0);
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;

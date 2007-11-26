@@ -104,8 +104,8 @@ MakeupSrc::MakeupSrc(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   MN_Area(pClass_, TagIn, pAttach, eAttach),
   m_CF(this)
   {
+  AttachClassInfo(nc_MSrcSnk|/*nc_Audit|*/nc_MkupBled,NULL);
   AttachIOAreas(MakeupSrcIOAreaList);
-  //AttachClassInfo(nc_MSrcSnk|nc_Audit|nc_MkupBled,NULL);
   m_Content.SetView(SVV_AsMassFrac);
 
   m_CF.m_bAllowFlow = false;
@@ -213,8 +213,8 @@ IMPLEMENT_MODELUNIT(BleedSnk, "BleedSnk", "1", Drw_BleedSnk, "Feed", "BleedSnk",
 BleedSnk::BleedSnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Area(pClass_, TagIn, pAttach, eAttach)
   {
+  AttachClassInfo(nc_MSrcSnk|/*nc_Audit|*/nc_MkupBled,NULL);
   AttachIOAreas(BleedSnkIOAreaList);
-  //AttachClassInfo(nc_MSrcSnk|nc_Audit|nc_MkupBled,NULL);
   m_Content.SetView(SVV_AsMassFrac);  
   m_bForceAudit=true;
   }
