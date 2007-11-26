@@ -15,10 +15,23 @@ using System.Runtime.Remoting.Channels.Tcp;
 
 //using System.Security.Permissions;
 using System.Drawing.Drawing2D;
+using System.Runtime.Remoting;
 
 namespace SysCAD.Protocol
 {
+  [Serializable]
+  public class ConnectionLostException : SystemException
+  {
+    Exception originalException = null;
+    Exception subsequentException = null;
 
+    public ConnectionLostException(Exception originalException, Exception subsequentException)
+    {
+      this.originalException = originalException;
+      this.subsequentException = subsequentException;
+    }
+  }
+  
   [Serializable]
   public sealed class ClientProtocol : ClientBaseProtocol
   {
@@ -46,7 +59,12 @@ namespace SysCAD.Protocol
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
     public bool Connect(String clientName)
     {
+      this.clientName = clientName;
+      return Connect();
+    }
 
+    public bool Connect()
+    {
       try
       {
         serviceGraphic = Activator.GetObject(typeof(BaseProtocol), url.ToString()) as ClientServiceProtocol;
@@ -77,52 +95,202 @@ namespace SysCAD.Protocol
 
     private string Announce(string name)
     {
-      return serviceGraphic.Announce(name);
+      try
+      {
+        return serviceGraphic.Announce(name);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          return serviceGraphic.Announce(name);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     private void Renounce(string name)
     {
-      serviceGraphic.Renounce(name);
+      try
+      {
+        serviceGraphic.Renounce(name);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          serviceGraphic.Renounce(name);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     public bool Change(out Int64 requestId, List<Item> create, List<Item> modify, List<Guid> delete)
     {
-      return serviceGraphic.Change(out requestId, create, modify, delete);
+      try
+      {
+        return serviceGraphic.Change(out requestId, create, modify, delete);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          return serviceGraphic.Change(out requestId, create, modify, delete);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     public void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
     {
-      serviceGraphic.GetPropertyValues(out requestId, ref tagPathList);
+      try
+      {
+        serviceGraphic.GetPropertyValues(out requestId, ref tagPathList);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          serviceGraphic.GetPropertyValues(out requestId, ref tagPathList);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     public void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
     {
-      serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
+      try
+      {
+        serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     public bool Load(out Int64 requestId)
     {
-      return serviceGraphic.Load(out requestId);
+      try
+      {
+        return serviceGraphic.Load(out requestId);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          return serviceGraphic.Load(out requestId);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     public bool RequestPortInfo(out Int64 requestId, Guid guid, String tag)
     {
-      return serviceGraphic.RequestPortInfo(out requestId, guid, tag);
+      try
+      {
+        return serviceGraphic.RequestPortInfo(out requestId, guid, tag);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          return serviceGraphic.RequestPortInfo(out requestId, guid, tag);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     public ArrayList PropertyList(out Int64 requestId, Guid guid, String tag, String path)
     {
-      return serviceGraphic.PropertyList(out requestId, guid, tag, path);
+      try
+      {
+        return serviceGraphic.PropertyList(out requestId, guid, tag, path);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          return serviceGraphic.PropertyList(out requestId, guid, tag, path);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
     {
-      serviceGraphic.LogMessage(out requestId, message, messageType);
+      try
+      {
+        serviceGraphic.LogMessage(out requestId, message, messageType);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          serviceGraphic.LogMessage(out requestId, message, messageType);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     public bool Save(out Int64 requestId)
     {
-      return serviceGraphic.Save(out requestId);
+      try
+      {
+        return serviceGraphic.Save(out requestId);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          return serviceGraphic.Save(out requestId);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
     }
 
     //public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect)

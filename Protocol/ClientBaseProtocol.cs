@@ -73,8 +73,11 @@ namespace SysCAD.Protocol
     {
       if (Changed != null)
       {
-        try { Changed(eventId, requestId, created, modified, deleted); }
-        catch (SocketException) { }
+        foreach (ChangedHandler changedHandler in Changed.GetInvocationList())
+        {
+          try { changedHandler(eventId, requestId, created, modified, deleted); }
+          catch (SocketException) { Changed -= changedHandler; }
+        }
       }
     }
 
@@ -82,8 +85,11 @@ namespace SysCAD.Protocol
     {
       if (PortInfoRequested != null)
       {
-        try { PortInfoRequested(eventId, requestId, guid, tag, portInfo); }
-        catch (SocketException) { }
+        foreach (PortInfoRequestedHandler portInfoRequestedHandler in PortInfoRequested.GetInvocationList())
+        {
+          try { portInfoRequestedHandler(eventId, requestId, guid, tag, portInfo); }
+          catch (SocketException) { PortInfoRequested -= portInfoRequestedHandler; }
+        }
       }
     }
 
@@ -91,8 +97,11 @@ namespace SysCAD.Protocol
     {
       if (PermissionsChanged != null)
       {
-        try { PermissionsChanged(eventId, requestId, permissions); }
-        catch (SocketException) { }
+        foreach (PermissionsChangedHandler permissionsChangedHandler in PermissionsChanged.GetInvocationList())
+        {
+          try { permissionsChangedHandler(eventId, requestId, permissions); }
+          catch (SocketException) { PermissionsChanged -= permissionsChangedHandler; }
+        }
       }
     }
 
@@ -100,8 +109,11 @@ namespace SysCAD.Protocol
     {
       if (Step != null)
       {
-        try {Step(eventId, step, time);}
-        catch (SocketException) { }
+        foreach (StepHandler stepHandler in Step.GetInvocationList())
+        {
+          try { stepHandler(eventId, step, time); }
+          catch (SocketException) { Step -= stepHandler; }
+        }
       }
     }
 
@@ -109,8 +121,11 @@ namespace SysCAD.Protocol
     {
       if (Sync != null)
       {
-        try {Sync(eventId);}
-        catch (SocketException) { }
+        foreach (SyncHandler syncHandler in Sync.GetInvocationList())
+        {
+          try { Sync(eventId); }
+          catch (SocketException) { Sync -= syncHandler;  }
+        }
       }
     }
   }

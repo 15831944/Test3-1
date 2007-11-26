@@ -33,8 +33,11 @@ namespace SysCAD.Protocol
     {
       if (PortInfoRequested != null)
       {
-        try { PortInfoRequested(eventId, requestId, guid, tag); }
-        catch (SocketException) { }
+        foreach (PortInfoRequestedHandler portInfoRequestedHandler in PortInfoRequested.GetInvocationList())
+        {
+          try { portInfoRequestedHandler(eventId, requestId, guid, tag); }
+          catch (SocketException) { PortInfoRequested -= portInfoRequestedHandler; }
+        }
       }
     }
   }
