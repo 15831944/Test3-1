@@ -433,15 +433,20 @@ void CFlwEqn::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBl
 
   double Ti=C.Temp();
 
+  //FE.DPq;
+
   // Heating due to frictional effects
-  double PwrLoss=0.981*fabs((Po-Pi)*C.QMass())/GTZ(C.Rho());
-  //FTB.AddWorkPower(PwrLoss, Po);
+  double PwrLoss=0.981*fabs(FE.DPq()*Min(C.QMass(), fabs(FE.QmMeas())))/GTZ(C.Rho());
+  FTB.AddHeatPower(PwrLoss, Po);
 
   // PolyTropic Flow
   // n=1 : isothermal
   // n>1 : polytropic
   // n=gamma (Cp/Cv) : adiabatic
   //m_dPolyTropicN=Range(1.0, m_dPolyTropicN, 1.5);
+
+  FTB.PVConst() = Range(1.0, FTB.PVConst(), 1.5);
+  
   double GTo=Ti*Pow(Po/Pi,(FTB.PVConst()-1.)/FTB.PVConst());
   double LTo=Ti;
   double GCp=C.totCp(som_Gas);
@@ -463,6 +468,8 @@ void CFlwEqn::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBl
     #endif
     FTB.AddACPower(PwrAC, Po);
     }
+  else
+    FTB.AddACPower(0.0, Po);
   }
 
 void CFlwEqn::EvalDiscrete(CFlwBlkBase & FE)
@@ -2770,7 +2777,7 @@ void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagCommen
 
     DDB.Text("");
     DDB.Double ("TRise.Work",         "",  DC_dT,  "C", &m_TRiseMech,    m_pNd, isResult|noFileAtAll);
-    DDB.Double ("TRise.Heat",         "",  DC_dT,  "C", &m_TRiseHeat,    m_pNd, isResult|noFileAtAll);
+    DDB.Double ("TRise.Losses",       "",  DC_dT,  "C", &m_TRiseHeat,    m_pNd, isResult|noFileAtAll);
     if (Flags & FEOF_WithAutoComp)
       DDB.Double ("TRise.AutoComp",   "",  DC_dT,  "C", &m_TRiseAC,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.VLE",          "",  DC_dT,  "C", &m_TRiseVLE,     m_pNd, isResult|noFileAtAll);
