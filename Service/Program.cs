@@ -11,93 +11,36 @@ namespace SysCAD.Service
     /// The main entry point for the application.
     /// </summary>
     [STAThread]
-    static int Main(string[] args)
+    static int Main()
     {
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
 
-      if (args.Length == 3)
+      String stencilPath = "..\\BaseFiles\\Stencils";
+
+      Dictionary<string, Project>  projects = new Dictionary<string, Project>();
+
+      if (Properties.Service.Default.projects == null)
       {
-        String projectPath;
-        String configPath;
-        String stencilPath;
-
-        projectPath = args[0].Trim();
-        configPath = args[1].Trim();
-        stencilPath = args[2].Trim();
-
-        Dictionary<string, Project> projects = new Dictionary<string, Project>();
-
-        {
-          Project project = new Project(System.IO.Path.GetFileNameWithoutExtension(System.IO.Path.GetDirectoryName(projectPath)), projectPath);
-          projects.Add(project.Name, project);
-        }
-
-        {
-          Project project = new Project("!!Depreciated Parameter List Used!!", "!!Depreciated Parameter List Used!!");
-          projects.Add(project.Name, project);
-        }
-
-        Application.Run(new ServiceTemporaryWindow(stencilPath, projects));
+        Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
       }
-      else if (args.Length == 1) // New startup.
+
+      foreach (string projectString in Properties.Service.Default.projects)
       {
-        String stencilPath;
-
-        stencilPath = args[0].Trim();
-
-        Properties.Service serviceSettings = Properties.Service.Default;
-        if (Properties.Service.Default.projects == null)
-        {
-          //Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
-
-          //{
-          //  Project project = new Project("Nickel Copper Leach Demo (Test 1)", @"E:\Kenwalt 07-09-25\Projects\SysCAD 10\Nickel Copper Leach Demo\Nickel Copper Leach Demo.spf\");
-          //  Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
-          //}
-
-          //{
-          //  Project project = new Project("Nickel Copper Leach Demo (Test 2)", @"E:\Kenwalt 07-09-25\Projects\SysCAD 10\Nickel Copper Leach Demo\Nickel Copper Leach Demo.spf\");
-          //  Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
-          //}
-
-          //{
-          //  Project project = new Project("Nickel Copper Leach Demo (Test 3)", @"E:\Kenwalt 07-09-25\Projects\SysCAD 10\Nickel Copper Leach Demo\Nickel Copper Leach Demo.spf\");
-          //  Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
-          //}
-
-          //Properties.Service.Default.Save();
-        }
-
-        Dictionary<string, Project>  projects = new Dictionary<string, Project>();
-
-        if (Properties.Service.Default.projects == null)
-        {
-          Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
-        }
-
-        foreach (string projectString in Properties.Service.Default.projects)
-        {
-          string[] projectStrings = projectString.Split('\t');
-          Project project = new Project(projectStrings[0], projectStrings[1]);
-          projects.Add(project.Path, project);
-        }
-          
-        Application.Run(new ServiceTemporaryWindow(stencilPath, projects));
-
-        foreach (Project project in projects.Values)
-        {
-          Properties.Service.Default.projects.Clear();
-          Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
-        }
-
-        Properties.Service.Default.Save();
+        string[] projectStrings = projectString.Split('\t');
+        Project project = new Project(projectStrings[0], projectStrings[1]);
+        projects.Add(project.Path, project);
       }
-      else
+        
+      Application.Run(new ServiceTemporaryWindow(stencilPath, projects));
+
+      foreach (Project project in projects.Values)
       {
-        // Fail to start...
-        return -1;
+        Properties.Service.Default.projects.Clear();
+        Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
       }
+
+      Properties.Service.Default.Save();
 
       return 0;
     }

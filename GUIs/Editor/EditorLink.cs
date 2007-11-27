@@ -4,6 +4,7 @@ using System.Text;
 using MindFusion.FlowChartX;
 using System.Drawing;
 using SysCAD.Protocol;
+using System.Timers;
 
 namespace SysCAD.Editor
 {
@@ -24,6 +25,15 @@ namespace SysCAD.Editor
     private bool selected = false;
     private bool hovered = false;
 
+    private int opacity;
+
+    public int Opacity
+    {
+      get { return opacity; }
+      set { opacity = value; }
+    }
+    private Timer opacityTimer = new Timer();
+
     public EditorLink(State state, Guid guid, String tag, GraphicLink graphicLink, ModelLink modelLink)
     {
       this.state = state;
@@ -31,6 +41,31 @@ namespace SysCAD.Editor
       this.tag = tag;
       this.graphicLink = graphicLink;
       this.modelLink = modelLink;
+
+      opacityTimer.Interval = 50;
+      opacityTimer.Elapsed += new ElapsedEventHandler(opacityTimer_Elapsed);
+    }
+
+    private void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
+    {
+      if (Visible && ((hovered) || ((arrow.Origin.Tag as EditorNode).Hovered) || ((arrow.Destination.Tag as EditorNode).Hovered)))
+      {
+        opacity += 50;
+        if (opacity > 220)
+        {
+          opacityTimer.Stop();
+          opacity = 220;
+        }
+      }
+      else
+      {
+        opacity -= 50;
+        if (opacity < 1)
+        {
+          opacityTimer.Stop();
+          opacity = 1;
+        }
+      }
     }
 
     internal void Remove(FlowChart flowChart)
@@ -128,18 +163,13 @@ namespace SysCAD.Editor
       textBox.Visible = arrow.Visible && graphicLink.TagVisible && state.ShowTags;
       textBox.ZIndex = arrow.ZIndex - 100000;
 
-      EditorNode originNode = arrow.Origin.Tag as EditorNode;
-      EditorNode destinationNode = arrow.Destination.Tag as EditorNode;
 
-      if ((hovered) || (originNode.Hovered) || (destinationNode.Hovered) )
-      {
-        arrow.CustomDraw = CustomDraw.Additional;
+      arrow.CustomDraw = CustomDraw.Additional;
+
+      if ((hovered) || ((arrow.Origin.Tag as EditorNode).Hovered) || ((arrow.Destination.Tag as EditorNode).Hovered))
         arrow.ZTop();
-      }
-      else
-      {
-        arrow.CustomDraw = CustomDraw.None;
-      }
+
+      opacityTimer.Start();
     }
   }
 }

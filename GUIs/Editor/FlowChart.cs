@@ -1022,6 +1022,7 @@ namespace SysCAD.Editor
     private void fcFlowChart_DrawArrow(object sender, ArrowDrawArgs e)
     {
       Arrow arrow = e.Arrow;
+      EditorLink link = arrow.Tag as EditorLink;
 
       if (arrow != arrowBeingModified)
       {
@@ -1046,10 +1047,10 @@ namespace SysCAD.Editor
               PointF[] extensionPoints =
                 new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(150, 0, 0, 255), 0.0F);
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, 0, 0, 255), 0.0F);
               e.Graphics.DrawLines(pen, extensionPoints);
 
-              pen = new System.Drawing.Pen(Color.Green, 0.0F);
+              pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.Green), 0.0F);
               SysCAD.Protocol.Rectangle anchorPointRect = new SysCAD.Protocol.Rectangle(anchorPointPos, SysCAD.Protocol.Size.Empty);
               anchorPointRect.Inflate((double)fcFlowChart.SelHandleSize, (double)fcFlowChart.SelHandleSize);
               e.Graphics.DrawEllipse(pen, anchorPointRect);
@@ -1088,10 +1089,10 @@ namespace SysCAD.Editor
               PointF[] extensionPoints =
                 new PointF[] { arrow.ControlPoints[0], anchorPointPos };
 
-              System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(150, 0, 0, 255), 0.0F);
+              System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, 0, 0, 255), 0.0F);
               e.Graphics.DrawLines(pen, extensionPoints);
 
-              pen = new System.Drawing.Pen(Color.Green, 0.0F);
+              pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.Green), 0.0F);
               SysCAD.Protocol.Rectangle r = new SysCAD.Protocol.Rectangle(anchorPointPos, SysCAD.Protocol.Size.Empty);
               r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
               e.Graphics.DrawEllipse(pen, r);
@@ -1129,7 +1130,7 @@ namespace SysCAD.Editor
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos.ToPointF() };
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.LightBlue), 0.0F);
 
             e.Graphics.DrawLines(pen, extensionPoints);
           }
@@ -1144,7 +1145,7 @@ namespace SysCAD.Editor
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos.ToPointF() };
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(150, 0, 0, 255), 0.0F);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, 0, 0, 255), 0.0F);
 
             e.Graphics.DrawLines(pen, extensionPoints);
           }
@@ -1162,7 +1163,7 @@ namespace SysCAD.Editor
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[0], anchorPointPos.ToPointF() };
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.LightBlue, 0.0F);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.LightBlue), 0.0F);
 
             e.Graphics.DrawLines(pen, extensionPoints);
           }
@@ -1177,7 +1178,7 @@ namespace SysCAD.Editor
             PointF[] extensionPoints =
               new PointF[] { arrow.ControlPoints[0], anchorPointPos.ToPointF() };
 
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(150, 0, 0, 255), 0.0F);
+            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, 0, 0, 255), 0.0F);
 
             e.Graphics.DrawLines(pen, extensionPoints);
           }
