@@ -3451,6 +3451,31 @@ flag TaggedObject::DataXchg(DataChangeBlk & DCB)
     case xidEqRepKey  : if (DCB.rL)  m_lReportKey=*DCB.rL; DCB.L=m_lReportKey; return 1;
     case xidEqGUID    : if (DCB.rpC) SetGuid(DCB.rpC); DCB.pC=(LPSTR)Guid(); return 1;
     case xidPrimaryCfg: if (DCB.rpC) PutPrimaryCfg(DCB.rpC); DCB.pC=(LPSTR)GetPrimaryCfg(); return 1;
+    case xidTOCondition:
+      {
+      m_sCndStrng="";
+      Strng_List L;
+      GetAllCIs(L);
+      int i=0;
+      for (pStrng p= L.First();p; p=L.Next())
+        {
+        if (i++>0)
+          m_sCndStrng+="\n";
+        char *ps=p->Str();
+        char *pt=strchr(ps, '\t');
+        m_sCndStrng+=pt ? (pt+1) : ps;
+        }
+      if (i>0)
+        DCB.dwRetFlags=DDEF_INERROR;
+      else
+        m_sCndStrng="OK";
+
+      DCB.pC=m_sCndStrng();
+      return 1;
+      }
+    case xidTOConditionCount:
+      DCB.L=CountAllCIs(1000);
+      return 1;
     }
   return 0;
   }

@@ -507,9 +507,9 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
 
     CTimeStateBlock &IntCB() { return XDoingPB() ? PB.IntCB : Dyn.IntCB; };
 
-    void           DoGlobalLinks(int DoingStart);
-    void           TryDoGlobalLinks() { DoGlobalLinks(False); };
-    void           UnDoGlobalLinks();
+    void           DoGlobalLinks();
+    void           TryDoGlobalLinks() { DoGlobalLinks(); };
+    void           UnDoGlobalLinks(bool FullDisconnect=true);
 
     long           MarkFlwNodesPressNetwork(FlwNode * pNd);
     long           MarkFlwNodesFlowNetwork(FlwNode * pNd);
@@ -687,11 +687,12 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     int            LastNotPacked; // Used for testing in EO_ReadSubsData
 
     void           XDataClear();
-    byte           iSaveWhat;
-    pFlwNode       pSaveNode;
-    POSITION       pSaveTear;
-    int            iSaveIONo;
-    Strng          Label;
+    byte           m_iSaveWhat;
+    pFlwNode       m_pSaveNode;
+    POSITION       m_pSaveTear;
+    POSITION       m_pSaveConn;
+    int            m_iSaveIONo;
+    Strng          m_sLabel;
 
     // Multi Processor Stuff
     long           nProcessors;

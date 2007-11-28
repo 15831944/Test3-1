@@ -9723,12 +9723,13 @@ CFlwSolver::CFlwSolver(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   XData.SetSize(0, 64);
   LastNotPacked=-1;
   Rpt=NULL;
-  iSaveWhat=100;
+  m_iSaveWhat=100;
 //  fSaveNode=false;
 //  fSaveTear=false;
-  pSaveNode=NULL;
-  pSaveTear=NULL;
-  iSaveIONo=0;
+  m_pSaveNode=NULL;
+  m_pSaveTear=NULL;
+  m_iSaveIONo=0;
+  m_pSaveConn=NULL;
   m_RQ_Files_Cnt=0;
   m_bThreadStats=false;
 
@@ -11596,7 +11597,7 @@ void CFlwSolver::Set_All_Sizes()
 
 static bool GlobalLinksBusy() { return (gs_Exec.Running() && !gs_Exec.Starting() && !gs_Exec.BetweenSteps()); }
 
-void CFlwSolver::DoGlobalLinks(int DoingStart)
+void CFlwSolver::DoGlobalLinks()
   {
   if (GlobalLinksBusy())
     return;
@@ -11798,7 +11799,7 @@ DeleteIt:
 
 //--------------------------------------------------------------------------
 
-void CFlwSolver::UnDoGlobalLinks()
+void CFlwSolver::UnDoGlobalLinks(bool FullDisConnect)
   {
   if (!fGlblLinksDone)
     return;
@@ -13180,18 +13181,18 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
           pTOC->SetFlagged(0);
           pTOC = pTOC->NextClass();
           }
-        pSaveNode = NULL;
-        while (GetObj_All(pSaveNode))
+        m_pSaveNode = NULL;
+        while (GetObj_All(m_pSaveNode))
           {
-          if (!pSaveNode->Internal)
+          if (!m_pSaveNode->Internal)
             {
             //
             // CNM - removed - does not appear to do anything usefull
             //
-            //if (!pSaveNode->Class()->Flagged())
+            //if (!m_pSaveNode->Class()->Flagged())
             //  {
-            //  pSaveNode->Class()->SetFlagged(1);
-            //  CXM_ObjectTag ObjTag(pSaveNode->Tag(), 0);
+            //  m_pSaveNode->Class()->SetFlagged(1);
+            //  CXM_ObjectTag ObjTag(m_pSaveNode->Tag(), 0);
             //  CXM_ObjectData OD;
             //  CXM_Route Route;
 
@@ -13218,9 +13219,9 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
             //      }
             //    }
             //  }
-            int iFU = pSaveNode->FilesUsed(pMFFI->Files);
+            int iFU = m_pSaveNode->FilesUsed(pMFFI->Files);
             while (iFU-->0)
-              pMFFI->FileObjs.Add(pSaveNode->Tag());
+              pMFFI->FileObjs.Add(m_pSaveNode->Tag());
             }
           }
         pTOC = TagObjClass::FirstClass();
@@ -13314,18 +13315,18 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
     case RQ_Tags: //return info on all tags based on request criteria...
     case RQ_TagsConns: //return info on all tags based on request criteria...
       if (Rqst.bFirst)
-        pSaveNode = NULL;
-      while (GetObj_All(pSaveNode))
+        m_pSaveNode = NULL;
+      while (GetObj_All(m_pSaveNode))
         {
-        if (!pSaveNode->Internal)
+        if (!m_pSaveNode->Internal)
           {
-          if (Rqst.pGroup==NULL || _stricmp(Rqst.pGroup, pSaveNode->ClassId())==0)
+          if (Rqst.pGroup==NULL || _stricmp(Rqst.pGroup, m_pSaveNode->ClassId())==0)
             {
-            Info.sData = pSaveNode->FullObjTag();
+            Info.sData = m_pSaveNode->FullObjTag();
             if (Rqst.RQ_Type==RQ_TagsConns)
               {
               Strng_List TagLst;
-              int NConns=pSaveNode->GetConnectionTags(TagLst);
+              int NConns=m_pSaveNode->GetConnectionTags(TagLst);
               if (NConns)
                 {
                 pStrng p;
@@ -13368,12 +13369,12 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
         {
         Info.bDWDataValid = 1;
         Info.dwData = 0;
-        pSaveNode = NULL;
-        while (GetObj_All(pSaveNode))
+        m_pSaveNode = NULL;
+        while (GetObj_All(m_pSaveNode))
           {
-          if (!pSaveNode->Internal)
+          if (!m_pSaveNode->Internal)
             {
-            if (Rqst.pGroup==NULL || _stricmp(Rqst.pGroup, pSaveNode->ClassId())==0)
+            if (Rqst.pGroup==NULL || _stricmp(Rqst.pGroup, m_pSaveNode->ClassId())==0)
               Info.dwData++;
             }
           }
@@ -13385,17 +13386,17 @@ flag CFlwSolver::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Inf
         {
         Info.bDWDataValid = 1;
         Info.dwData = 0;
-        pSaveNode = NULL;
-        while (GetObj_All(pSaveNode))
+        m_pSaveNode = NULL;
+        while (GetObj_All(m_pSaveNode))
           {
-          if (!pSaveNode->Internal)
+          if (!m_pSaveNode->Internal)
             {
-            //if ((pSaveNode->Class()->CategoryMdl() & Rqst.dwReqData)!=0) WRONG
-            const DWORD dw1 = pSaveNode->Class()->CategoryMdl();
+            //if ((m_pSaveNode->Class()->CategoryMdl() & Rqst.dwReqData)!=0) WRONG
+            const DWORD dw1 = m_pSaveNode->Class()->CategoryMdl();
             if ((dw1 & Rqst.dwReqData)==dw1) //all mdl test criteria met
               Info.dwData++;
             else
-              LogNote("FlwSolve", 0, "Unit not Licensed %s", pSaveNode->FullObjTag());
+              LogNote("FlwSolve", 0, "Unit not Licensed %s", m_pSaveNode->FullObjTag());
             }
           }
         return true;
@@ -13636,12 +13637,12 @@ int CFlwSolver::EO_DeleteTags(Strng_List & Tags)
         delete p;
 
         //ask all models if they want to do anything internally for the delete tag...
-        pSaveNode = NULL;
-        while (GetObj_All(pSaveNode))
+        m_pSaveNode = NULL;
+        while (GetObj_All(m_pSaveNode))
           {
-          if (!pSaveNode->Internal)
+          if (!m_pSaveNode->Internal)
             {
-            pSaveNode->DeleteTag(pTag->Str());
+            m_pSaveNode->DeleteTag(pTag->Str());
             }
           }                         
         pTag->SetIndex(EODT_DONE);
@@ -13738,12 +13739,12 @@ int CFlwSolver::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
     delete p;
 
     //ask all models if they want to do anything internally for the delete tag...
-    pSaveNode = NULL;
-    while (GetObj_All(pSaveNode))
+    m_pSaveNode = NULL;
+    while (GetObj_All(m_pSaveNode))
       {
-      if (!pSaveNode->Internal)
+      if (!m_pSaveNode->Internal)
         {
-        pSaveNode->DeleteTag((LPSTR)pTag);
+        m_pSaveNode->DeleteTag((LPSTR)pTag);
         }
       }
 
@@ -13836,12 +13837,12 @@ int CFlwSolver::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
     delete p;
 
     //ask all models if they want to do anything internally for the delete tag...
-    pSaveNode = NULL;
-    while (GetObj_All(pSaveNode))
+    m_pSaveNode = NULL;
+    while (GetObj_All(m_pSaveNode))
       {
-      if (!pSaveNode->Internal)
+      if (!m_pSaveNode->Internal)
         {
-        pSaveNode->DeleteTag((LPSTR)pTag);
+        m_pSaveNode->DeleteTag((LPSTR)pTag);
         }
       }
 
@@ -13897,7 +13898,7 @@ flag CFlwSolver::EO_Starting(flag fBeginStarting)
   if (fBeginStarting)
     {
     gs_FSIdleRequested=false;
-    DoGlobalLinks(true);
+    DoGlobalLinks();
     }
 
   gs_MsgLog.SetDefer(false);
@@ -14956,7 +14957,7 @@ flag CFlwSolver::EO_BeginSave(FilingControlBlock &FCB)
   {
   gs_EqnSlv.FindAllTearsInUse();
 
-  UnDoGlobalLinks();
+  UnDoGlobalLinks(false);
   if (fGlblLinksDone)
     {
     LogError(Tag(), LF_Exclamation, "UnDoGlobalLinks FAILED");
@@ -14964,13 +14965,13 @@ flag CFlwSolver::EO_BeginSave(FilingControlBlock &FCB)
 
   TRACE1("CFlwSolver - Save BEGIN %s\n", FCB.Label());
 
-  Label=FCB.Label();
-  iSaveWhat=0;
+  m_sLabel=FCB.Label();
+  m_iSaveWhat=0;
   //fSaveNode=true;
-  pSaveNode=NULL;
+  m_pSaveNode=NULL;
   //fSaveTear=true;
-  pSaveTear=TearVarBlk::sm_List.GetHeadPosition();
-
+  m_pSaveTear=TearVarBlk::sm_List.GetHeadPosition();
+  m_pSaveConn=FlwNode::sm_ConnectList.GetHeadPosition();
   //CProfINIFile PF(PrjFile());
   //PF.WrStr("General", "CnvDB",   CnvsFilename());
   ////PF.WrStr("General", "LibSDB",  LibSDBName());
@@ -14996,18 +14997,19 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
     }
 
   typedef enum {
-    SW_0,
-    SW_1,
-    SW_2,
-    SW_3,
+    SW_NODES,
+    SW_FLANGES,
+    SW_PB,
+    SW_DYN,
+    SW_SDB,
 #if WithTearObject
-    SW_4,
+    SW_TEAROBJ,
 #endif
 #if WITHCHANGEOBJ
-    SW_5,
+    SW_CHNG,
 #endif
-    SW_6,
-    SW_7,
+    SW_TOLOBJ,
+    SW_TEARS,
 #if WITHCTRLOBJ
     SW_CTRL,
 #endif
@@ -15019,40 +15021,42 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
     SW_IO
 #endif
     } SWTCHNO ;
-//  #if WITHCTRLOBJ && WITHORDEROBJ
-//    #define SW_CTRL  8
-//    #define SW_ORDER 9
-//    #define SW_POWER 10
-//  #elif WITHCTRLOBJ
-//    #define SW_CTRL  8
-//    #define SW_POWER 9
-//  #elif WITHORDEROBJ
-//    #define SW_ORDER 8
-//    #define SW_POWER 9
-//  #else
-//    #define SW_POWER 8
-//  #endif
-//  #if WITHIOOBJ
-//    #define SW_IO (SW_POWER+1)
-//  #endif
+
   CXM_ObjectData *pData=new CXM_ObjectData(0);
-  switch ((SWTCHNO)iSaveWhat)
+  switch ((SWTCHNO)m_iSaveWhat)
     {
-    case SW_0:
-      while (GetObj_All(pSaveNode))
-        if (!pSaveNode->Internal)
+    case SW_NODES:
+      while (GetObj_All(m_pSaveNode))
+        if (!m_pSaveNode->Internal)
           break;
-      if (pSaveNode)
+      if (m_pSaveNode)
         {
-        Tag=pSaveNode->Tag();
-        pSaveNode->GetDefinedData(Tag(), pData->List, Opts, NULL);
+        Tag=m_pSaveNode->Tag();
+        m_pSaveNode->GetDefinedData(Tag(), pData->List, Opts, NULL);
+        //pData->SetSize();
         XM.PackMsg(pData);
-        pSaveNode->ClearDDBLists();
+        m_pSaveNode->ClearDDBLists();
         return true;
         }
-      iSaveWhat++;
-    case SW_1:
-      iSaveWhat++;
+      m_iSaveWhat++;
+    case SW_FLANGES:
+      if (m_pSaveConn)
+        {
+        CConnect *pC=FlwNode::sm_ConnectList.GetNext(m_pSaveConn);
+        if (pC)
+          {
+          Tag=m_pSaveNode->Tag();
+          m_pSaveNode->GetDefinedData(Tag(), pData->List, Opts, NULL);
+            Tag=pC->FullObjTag();
+            pC->GetDefinedData(Tag(), pData->List, Opts, NULL);
+            //pData->SetSize();
+          XM.PackMsg(pData);
+            pC->ClearDDBLists();
+          return true;
+          }
+        }
+      m_iSaveWhat++;
+    case SW_PB:
       if (NetProbalMethod())
         {
         Tag=PB.Tag();
@@ -15062,9 +15066,9 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
         }
       else
         XM.Clear();
+      m_iSaveWhat++;
       return true;
-    case SW_2:
-      iSaveWhat++;
+    case SW_DYN:
       if (NetDynamicMethod())
         {
         Tag=Dyn.Tag();
@@ -15074,43 +15078,44 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
         }
       else
         XM.Clear();
+      m_iSaveWhat++;
       return true;
-    case SW_3:
-      iSaveWhat++;
+    case SW_SDB:
       Tag=SDBObj.Tag();
       SDBObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
       XM.PackMsg(pData);
       SDBObj.ClearDDBLists();
+      m_iSaveWhat++;
       return true;
 #if WithTearObject
-    case SW_4:
-      iSaveWhat++;
+    case SW_TEAROBJ:
       Tag=TearObj.Tag();
       TearObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
       XM.PackMsg(pData);
       TearObj.ClearDDBLists();
+      m_iSaveWhat++;
       return true;
 #endif
 #if WITHCHANGEOBJ
-    case SW_5:
-      iSaveWhat++;
+    case SW_CHNG:
       Tag=ChgObj.Tag();
       ChgObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
       XM.PackMsg(pData);
       ChgObj.ClearDDBLists();
+      m_iSaveWhat++;
       return true;
 #endif
-    case SW_6:
-      iSaveWhat++;
+    case SW_TOLOBJ:
       Tag=TolObj.Tag();
       TolObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
       XM.PackMsg(pData);
       TolObj.ClearDDBLists();
+      m_iSaveWhat++;
       return true;
-    case SW_7:
-      if (pSaveTear)
+    case SW_TEARS:
+      if (m_pSaveTear)
         {
-        TearVarBlk *pT=TearVarBlk::sm_List.GetNext(pSaveTear);
+        TearVarBlk *pT=TearVarBlk::sm_List.GetNext(m_pSaveTear);
         if (pT)
           {
           Tag=pT->FullObjTag();
@@ -15121,42 +15126,42 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
           }
         }
       else
-        iSaveWhat++;
+        m_iSaveWhat++;
       // TO KGA have you been able to test that the objects below here get saved ???
       // CNM - change to return tue - stuff below did not get saved
       return true;
 #if WITHCTRLOBJ
     case SW_CTRL:
-      iSaveWhat++;
       Tag=CtrlObj.Tag();
       CtrlObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
       XM.PackMsg(pData);
       CtrlObj.ClearDDBLists();
+      m_iSaveWhat++;
       return true;
 #endif
 #if WITHORDEROBJ
     case SW_ORDER:
-      iSaveWhat++;
       Tag=OrderObj.Tag();
       OrderObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
       XM.PackMsg(pData);
       OrderObj.ClearDDBLists();
+      m_iSaveWhat++;
       return true;
 #endif
     case SW_POWER:
-      iSaveWhat++;
       Tag=PwrObj.Tag();
       PwrObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
       XM.PackMsg(pData);
       PwrObj.ClearDDBLists();
+      m_iSaveWhat++;
       return true;
 #if WITHIOOBJ
     case SW_IO:
-      iSaveWhat++;
       Tag=IOObj.Tag();
       IOObj.GetDefinedData(Tag(), pData->List, Opts, NULL);
       XM.PackMsg(pData);
       IOObj.ClearDDBLists();
+      m_iSaveWhat++;
       return true;
 #endif
     default:
@@ -15171,8 +15176,8 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
 
 flag CFlwSolver::EO_SaveOtherData(FilingControlBlock &FCB)
   {
-  if (pSaveNode)
-    return pSaveNode->GetOtherData(FCB);
+  if (m_pSaveNode)
+    return m_pSaveNode->GetOtherData(FCB);
   return false;
   }
 
@@ -15180,20 +15185,20 @@ flag CFlwSolver::EO_SaveOtherData(FilingControlBlock &FCB)
 
 flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
   {
-  while (GetObj_All(pSaveNode))
+  while (GetObj_All(m_pSaveNode))
     {
-    if (!pSaveNode->Internal)
+    if (!m_pSaveNode->Internal)
       {
       int nios=0;
-      int Start[4] = {0,                             pSaveNode->CIO1(), pSaveNode->EIO1(), pSaveNode->AIO1()};
-      int End[4] =   {pSaveNode->NoProcLnkIOs(),     pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
+      int Start[4] = {0,                             m_pSaveNode->CIO1(), m_pSaveNode->EIO1(), m_pSaveNode->AIO1()};
+      int End[4] =   {m_pSaveNode->NoProcLnkIOs(),     m_pSaveNode->CION(), m_pSaveNode->EION(), m_pSaveNode->AION()};
       for (int pass=0; pass<4; pass++)
         {
         for (int i=Start[pass]; i<End[pass]; i++)
           {
-          FlwNode * pSelf=pSaveNode;
-          FlwNode * pRmt=pSaveNode->Nd_Rmt(i);
-          if (!pSaveNode->Internal || !pSaveNode->Nd_Rmt(i)->Internal)
+          FlwNode * pSelf=m_pSaveNode;
+          FlwNode * pRmt=m_pSaveNode->Nd_Rmt(i);
+          if (!m_pSaveNode->Internal || !m_pSaveNode->Nd_Rmt(i)->Internal)
             nios++;
           }
         }
@@ -15202,16 +15207,16 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
       }
     }
 
-  if (pSaveNode)
+  if (m_pSaveNode)
     {
-    int Start[4] = {0,                          pSaveNode->CIO1(), pSaveNode->EIO1(), pSaveNode->AIO1()};
-    int End[4] =   {pSaveNode->NoProcLnkIOs(),  pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
+    int Start[4] = {0,                          m_pSaveNode->CIO1(), m_pSaveNode->EIO1(), m_pSaveNode->AIO1()};
+    int End[4] =   {m_pSaveNode->NoProcLnkIOs(),  m_pSaveNode->CION(), m_pSaveNode->EION(), m_pSaveNode->AION()};
     for (int pass=0; pass<4; pass++)
       {
       for (int i=Start[pass]; i<End[pass]; i++)
         {
-        FlwNode * pSelf=pSaveNode;
-        FlwNode * pRmt=pSaveNode->Nd_Rmt(i);
+        FlwNode * pSelf=m_pSaveNode;
+        FlwNode * pRmt=m_pSaveNode->Nd_Rmt(i);
         if (!pSelf->Internal || !pRmt->Internal)
           {
           Strng STag, DTag, TTag, CTag;
@@ -15222,7 +15227,7 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
             pSelf=pSelf->Parent();
           STag=strstr(TTag(), pSelf->Tag());
 
-          int j=pSaveNode->IOIONo_Rmt(i);
+          int j=m_pSaveNode->IOIONo_Rmt(i);
           //        TTag=pRmt->FullIOTag(OId_NodeIO, pRmt->IOs[j].IODescSelf, TU_IndividuallyUnique, false);
           TTag=pRmt->FullIOTag(OId_NodeIO, pRmt->IODescNo_Self(j), TU_IndividuallyUnique, false);
           while (pRmt->Internal)
@@ -15310,7 +15315,7 @@ flag CFlwSolver::EO_BeginLoad(FilingControlBlock &FCB)
   gs_PwrSupplies.Initialise(true);
 
   TRACE0("CFlwSolver - Load BEGIN\n");
-  Label=FCB.Label();
+  m_sLabel=FCB.Label();
 #if dbgTraceMemState
   dbgMemoryState("Flw Start Load");
 #endif
@@ -15392,6 +15397,11 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
         if ((pObj==NULL) && (FCB.Type()==TOF_DBase))
           {
           // Prevent any other FlwSolvers Etc being created
+          dbgpln(">>>>>>>>>%s<<<<<<<<<<", pItem->Class());
+
+          if (_stricmp(pItem->Class(), CFlangeClass.ClassId())==0)
+            goto Done;
+
           if (_stricmp(pItem->Class(), CFlwSolverClass.ClassId())==0)
             goto Done;
           if (_stricmp(pItem->Class(), FlwSlvPBClass.ClassId())==0)
@@ -15444,6 +15454,10 @@ Done:;
               //Loaded=true;
               }
             }
+          }
+        else if (_stricmp(pItem->Class(), CFlangeClass.ClassId())==0)
+          {
+          // this will be created on the fly - makeups etc - ie ignore for now!
           }
         else if ((_stricmp(pItem->Class(), "TbPID")==0) ||
                  (_stricmp(pItem->Class(), "TbPID2")==0))
@@ -15575,8 +15589,10 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
 
 flag CFlwSolver::EO_EndConnect(FilingControlBlock &FCB)
   {
-  FlwNode *p=NULL;
-  while (GetObj_All(p))
+  for (FlwNode *p=NULL; GetObj_All(p); )
+    p->ConnectDirectConnects();
+
+  for (FlwNode *p=NULL; GetObj_All(p); )
     p->CleanupConnections();
 
   return true;
@@ -15600,7 +15616,8 @@ flag CFlwSolver::EO_EndLoad(FilingControlBlock &FCB)
   FlwNode * p=NULL;
   while (GetObj_All(p))
     {
-    p->OnLoad(Label());
+    dbgpln("----------%s---------", p->FullObjTag());
+    p->OnLoad(m_sLabel());
 #ifdef _DEBUG
     if (_stricmp(p->Tag(), "T_125")==0)
       {

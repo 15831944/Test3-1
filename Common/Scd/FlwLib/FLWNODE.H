@@ -546,9 +546,9 @@ class DllImportExport CDirectFlwIO
     bool          MethodEnable(long NetMethod);
 
     void          MakeRmtTag();
-    flag          GlobalConnect();
-    flag          GlobalDisConnect();
-    void          GlobalConnectFinal();
+    flag          DoConnect();
+    flag          DoDisConnect();
+    //void          DoConnectFinal();
     void          PostConnect(int IONo);
     void          PreDisConnect(int IONo);
 
@@ -633,6 +633,7 @@ class DllImportExport CDirectFlwIO
     flag          m_bMLnkConnd;
     flag          m_bShowUsr;
     bool          m_bIsXfer;
+
     Strng         m_sTag;
     Strng         m_sRmtTag;
     Strng         m_sRmtTmp;
@@ -1659,6 +1660,7 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     CFlange(TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
     virtual ~CFlange();
 
+    virtual void   BuildCommonStartDefn(DataDefnBlk & DDB);
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual void   BuildCommonSEDefn(DataDefnBlk &DDB) {}; // Hide 'Info Page' for flanges
     virtual flag   DataXchg(DataChangeBlk & DCB);
@@ -3596,6 +3598,12 @@ class DllImportExport FlwNode : public CTNode
     void           DoGlobalDisconnect();
     void           DoGlobalConnect();
 
+    void           DoDirectConnect(CDirectFlwIO * pDIO);
+    void           DoDirectDisConnect(CDirectFlwIO * pDIO);
+
+    void           ConnectDirectConnects();
+    void           DisConnectDirectConnects();
+
     static void    AddToConnectList(CConnect * pConnect); 
     static void    RemoveFromConnectList(CConnect * pConnect); 
     static void    AddToConnectMap(LPSTR ConnTag, CConnect * pConnect); 
@@ -4591,7 +4599,6 @@ class DllImportExport FlwNode : public CTNode
 #if WITHSPECSHEETS
     Strng          sSpecSheet;
 #endif
-    Strng          sCndStrng;
 
     //long           m_nFlwIOsIn, m_nFlwIOsOut;     // No of FlwIOs in & out of each node
     long           m_nCtrlIOsIn, m_nCtrlIOsOut;   // No of CtrlIOs in & out of each node
@@ -4717,8 +4724,6 @@ XID xidEvalSeq                    = FlwXID(16);
 #ifndef _RELEASE
 XID xidEvalOrderDiff              = FlwXID(17);
 #endif
-XID xidNdCondition                = FlwXID(18);
-XID xidNdConditionCount           = FlwXID(19);
 XID xidSetState                   = FlwXID(20);
 XID xidNdNJoins                   = FlwXID(21);
 XID xidNdNIOs                     = FlwXID(22);

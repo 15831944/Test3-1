@@ -466,7 +466,7 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
             }
           else
             Lo=Tmp;
-          if (pEqn);
+          if (pEqn)
             {
             pEqn->m_Ts=SafeAtoF(Lo(), CfgLoT);
             pEqn->m_Te=SafeAtoF(Hi(), CfgHiT);

@@ -193,6 +193,8 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
     case xidMakeupEnable:
       if (DCB.rB)
         {
+        m_pNd->DoDirectDisConnect(&m_SrcIO);
+        dbgpln("------------xidMakeupEnable");
         if (*DCB.rB)
           {
           Open(*DCB.rB);
@@ -204,12 +206,15 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
           Close();
           SetEnable(false);
           }
+        m_pNd->DoDirectConnect(&m_SrcIO);
         }
       DCB.B=OpenStatus();// (Enabled());
       return 1;
     case xidMakeupMdlNm:
       if (DCB.rpC && !m_fFixed)
         {
+        m_pNd->DoDirectDisConnect(&m_SrcIO);
+        dbgpln("------------xidMakeupMdlNm");
         int WasEnabled=m_fEnabled;
         TagObjClass * pC=CMakeupBlockClass.FindGrpShortDesc(DCB.rpC);
         if (pC)
@@ -221,6 +226,7 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
           {
           }
         m_SrcIO.UsrEnable = m_pMakeupB ? m_pMakeupB->DoesSomething() && Enabled() : false;
+        m_pNd->DoDirectConnect(&m_SrcIO);
         }
       DCB.pC = m_pMakeupB ? m_pMakeupB->ShortDesc() : "";
       return 1;

@@ -1115,6 +1115,8 @@ XID xidEqLink              = SysXID(7);
 XID xidEqGUID              = SysXID(8);
 XID xidEqRepKey            = SysXID(9);
 XID xidPrimaryCfg          = SysXID(10);
+XID xidTOCondition         = SysXID(11);
+XID xidTOConditionCount    = SysXID(12);
 
 XID xidTOSelectString0     = SysXID(100);
 XID xidTOSelectString1     = SysXID(101);
@@ -1538,6 +1540,8 @@ protected:
     flag            m_bFileIOBusy;
 
     CAssocGrfShowArray  m_AssocGrfShow;//
+
+    Strng           m_sCndStrng;
 
   protected:
     TagObjClass*   m_pClass;

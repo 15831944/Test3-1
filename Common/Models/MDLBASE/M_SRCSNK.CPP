@@ -1599,6 +1599,8 @@ dword  MN_SrcSnk::ModelStatus()
         }
       }
     }
+  else
+    Status |= FNS_UNoFlw;
 
   return Status;
   };

@@ -534,14 +534,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Flotation Cell.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Separ1\Flotation Cell.cpp"
-				>
-			</File>
-			<File
 				RelativePath="KW_SMDK2.cpp"
 				>
 				<FileConfiguration
@@ -690,14 +682,6 @@
 			</File>
 			<File
 				RelativePath=".\Filter Press.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Flotation Cell.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FlotationTank.h"
 				>
 			</File>
 			<File
