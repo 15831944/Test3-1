@@ -472,7 +472,7 @@ namespace SysCAD.Editor
         oldOriginGuid = (arrow.Tag as EditorLink).GraphicLink.Origin;
       else
         oldOriginGuid = Guid.Empty;
-      
+
       oldOriginBox = arrow.Origin as Box;
       oldOriginAnchor = arrow.OrgnAnchor;
 
@@ -480,7 +480,7 @@ namespace SysCAD.Editor
         oldDestinationGuid = (arrow.Tag as EditorLink).GraphicLink.Destination;
       else
         oldDestinationGuid = Guid.Empty;
-      
+
       oldDestinationBox = arrow.Destination as Box;
       oldDestinationAnchor = arrow.DestAnchor;
 
@@ -522,14 +522,14 @@ namespace SysCAD.Editor
             newOriginBox = originBox;
             newOriginAnchor = closestI;
 
-              String anchorString;
-              (newOriginBox.Tag as EditorNode).anchorIntToTag.TryGetValue(newOriginAnchor, out anchorString);
+            String anchorString;
+            (newOriginBox.Tag as EditorNode).anchorIntToTag.TryGetValue(newOriginAnchor, out anchorString);
 
-              if (anchorString != null)
-              {
-                  form1.ToolStripStatusLabel.Text = "Origin Item: " + newOriginTag +
-        " : " + " Oritin Port: " + anchorString.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-              }
+            if (anchorString != null)
+            {
+              form1.ToolStripStatusLabel.Text = "Origin Item: " + newOriginTag +
+    " : " + " Oritin Port: " + anchorString.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+            }
           }
         }
       }
@@ -551,43 +551,43 @@ namespace SysCAD.Editor
 
           if (destinationBox != null)
           {
-              int closestI = 0;
-              Double closestDistance = Double.MaxValue;
+            int closestI = 0;
+            Double closestDistance = Double.MaxValue;
 
-              for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
+            for (int i = 0; i < destinationBox.AnchorPattern.Points.Count; i++)
+            {
+
+              if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
               {
+                SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(destinationBox.BoundingRect),
+                  destinationBox.AnchorPattern.Points[i].X,
+                  destinationBox.AnchorPattern.Points[i].Y,
+                  destinationBox.RotationAngle);
+                Double thisDistance = Distance(destinationPos, anchorPointPos);
 
-                  if (destinationBox.AnchorPattern.Points[i].AllowIncoming)
-                  {
-                      SysCAD.Protocol.Point anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(destinationBox.BoundingRect),
-                        destinationBox.AnchorPattern.Points[i].X,
-                        destinationBox.AnchorPattern.Points[i].Y,
-                        destinationBox.RotationAngle);
-                      Double thisDistance = Distance(destinationPos, anchorPointPos);
-
-                      if (thisDistance < closestDistance)
-                      {
-                          closestDistance = thisDistance;
-                          closestI = i;
-                      }
-                  }
+                if (thisDistance < closestDistance)
+                {
+                  closestDistance = thisDistance;
+                  closestI = i;
+                }
               }
+            }
 
-              newDestinationGuid = (destinationBox.Tag as EditorNode).Guid;
-              newDestinationTag = (destinationBox.Tag as EditorNode).Tag;
-              newDestinationBox = destinationBox;
-              newDestinationAnchor = closestI;
+            newDestinationGuid = (destinationBox.Tag as EditorNode).Guid;
+            newDestinationTag = (destinationBox.Tag as EditorNode).Tag;
+            newDestinationBox = destinationBox;
+            newDestinationAnchor = closestI;
 
-              String anchorString;
-              (newDestinationBox.Tag as EditorNode).anchorIntToTag.TryGetValue(newDestinationAnchor, out anchorString);
+            String anchorString;
+            (newDestinationBox.Tag as EditorNode).anchorIntToTag.TryGetValue(newDestinationAnchor, out anchorString);
 
-              if (anchorString != null)
-              {
-                  form1.ToolStripStatusLabel.Text = "Destination Item: " + newDestinationTag +
-                    " : " + " Destination Port: " + anchorString.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-              }
+            if (anchorString != null)
+            {
+              form1.ToolStripStatusLabel.Text = "Destination Item: " + newDestinationTag +
+                " : " + " Destination Port: " + anchorString.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+            }
           }
-      }
+        }
       }
 
       if ((newOriginBox != null) && (newDestinationBox != null) && (newOriginBox == newDestinationBox)) // refliexive, disconnect modifying end.
@@ -682,7 +682,7 @@ namespace SysCAD.Editor
         if (newDestinationAnchor != -1)
         {
           String fullAnchor = (newDestinationBox.Tag as EditorNode).anchorIntToTag[newDestinationAnchor];
-          String anchorName = fullAnchor.TrimEnd(new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'});
+          String anchorName = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
           Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length));
           destinationPort = anchorName;
           destinationPortID = anchorID;
@@ -1048,7 +1048,6 @@ namespace SysCAD.Editor
 
             if ((box != null) && (arrow.DestAnchor != -1))
             {
-
               PointF anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(box.BoundingRect),
                 box.AnchorPattern.Points[arrow.DestAnchor].X,
                 box.AnchorPattern.Points[arrow.DestAnchor].Y,
@@ -1070,9 +1069,22 @@ namespace SysCAD.Editor
             {
               Color errorColor = new Color();
 
-              if (box != null) errorColor = Color.Yellow;
+              if (box != null)
+              {
+                errorColor = Color.Yellow;
+                PointF anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(box.BoundingRect),
+                  50,
+                  50,
+                  box.RotationAngle).ToPointF();
 
-              else errorColor = Color.Red;
+                PointF[] extensionPoints =
+                  new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
+
+                System.Drawing.Pen pen1 = new System.Drawing.Pen(Color.FromArgb(link.Opacity, errorColor), 0.0F);
+                e.Graphics.DrawLines(pen1, extensionPoints);
+              }
+              else 
+                errorColor = Color.Red;
 
               System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
               PointF controlPoint = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
@@ -1112,9 +1124,23 @@ namespace SysCAD.Editor
             {
               Color errorColor = new Color();
 
-              if (box != null) errorColor = Color.Yellow;
+              if (box != null)
+              {
+                errorColor = Color.Yellow;
 
-              else errorColor = Color.Red;
+                PointF anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(box.BoundingRect),
+                  50,
+                  50,
+                  box.RotationAngle).ToPointF();
+
+                PointF[] extensionPoints =
+                  new PointF[] { arrow.ControlPoints[0], anchorPointPos };
+
+                System.Drawing.Pen pen1 = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.Yellow), 0.0F);
+                e.Graphics.DrawLines(pen1, extensionPoints);
+              }
+              else
+                errorColor = Color.Red;
 
               System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
               PointF p = arrow.ControlPoints[0];
@@ -1490,7 +1516,7 @@ namespace SysCAD.Editor
         }
       }
 
-      if ((hoverArrow != null)&&(hoverArrow.Tag is EditorLink))
+      if ((hoverArrow != null) && (hoverArrow.Tag is EditorLink))
         (hoverArrow.Tag as EditorLink).Hovered = true;
 
       if ((hoverBox != null) && (hoverBox.Tag is EditorNode))
@@ -1505,10 +1531,10 @@ namespace SysCAD.Editor
           if (oldHoverBox.Tag is EditorNode)
             (oldHoverBox.Tag as EditorNode).Hovered = false;
 
-          //else if (oldHoverBox.Tag is Thing)
-          //{
-          //  // Unhover the old thing.
-          //}
+      //else if (oldHoverBox.Tag is Thing)
+      //{
+      //  // Unhover the old thing.
+      //}
 
       oldHoverArrow = hoverArrow;
       oldHoverBox = hoverBox;
@@ -1869,10 +1895,10 @@ namespace SysCAD.Editor
       {
         List<SysCAD.Protocol.Point> controlPoints = State.GetControlPoints(arrow.ControlPoints);
 
-        if (Math.Abs(controlPoints[0].X - controlPoints[1].X) <= fcFlowChart.MergeThreshold/10.0)
+        if (Math.Abs(controlPoints[0].X - controlPoints[1].X) <= fcFlowChart.MergeThreshold / 10.0)
           arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Auto;
 
-        else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold/10.0)
+        else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold / 10.0)
           arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Auto;
 
         GraphicLink graphicLink = (arrow.Tag as EditorLink).GraphicLink as GraphicLink;
@@ -2035,7 +2061,7 @@ namespace SysCAD.Editor
             tempTagExtension++;
             SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(fcFlowChart.ClientToDoc(fcFlowChart.PointToClient(new System.Drawing.Point(e.X, e.Y))), graphicStencil.defaultSize);
             SysCAD.Protocol.Rectangle textArea = new SysCAD.Protocol.Rectangle(0.0, 0.0, 0.0, 0.0);
-            
+
 
             throw new NotImplementedException("The method or operation is not implemented.");
             //bool a = state.CreateGraphicItem(out requestId, out guid, "Item " + tempTagExtension.ToString(), state.TVNavigation.SelectedNode.FullPath + state.TVNavigation.PathSeparator,
