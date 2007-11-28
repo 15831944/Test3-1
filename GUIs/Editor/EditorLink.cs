@@ -34,6 +34,8 @@ namespace SysCAD.Editor
     }
     private Timer opacityTimer = new Timer();
 
+    private System.IO.StreamWriter debugLog;
+
     public EditorLink(State state, Guid guid, String tag, GraphicLink graphicLink, ModelLink modelLink)
     {
       this.state = state;
@@ -44,6 +46,8 @@ namespace SysCAD.Editor
 
       opacityTimer.Interval = 50;
       opacityTimer.Elapsed += new ElapsedEventHandler(opacityTimer_Elapsed);
+
+      debugLog = new System.IO.StreamWriter("c:\\" + guid.ToString() + " - " + tag + ".log");
     }
 
     private void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
@@ -77,9 +81,33 @@ namespace SysCAD.Editor
 
     public Arrow Arrow
     {
-      get { return arrow; }
-      set { arrow = value; }
+      get { 
+        //DebugCheck(); 
+        return arrow; 
+      }
+      set { 
+        //DebugCheck(); 
+        arrow = value; 
+      }
     }
+
+    //private void DebugCheck()
+    //{
+    //  if (arrow != null)
+    //  {
+    //    debugLog.WriteLine(arrow.ControlPoints.ToString());
+
+    //    System.Diagnostics.StackFrame stackFrame = new System.Diagnostics.StackFrame(1, true);
+
+    //    debugLog.WriteLine(stackFrame.ToString());
+
+    //    for (int i = 1; i < arrow.ControlPoints.Count; i++)
+    //    {
+    //      if ((arrow.ControlPoints[i - 1].X != arrow.ControlPoints[i].X) && (arrow.ControlPoints[i - 1].Y != arrow.ControlPoints[i].Y))
+    //        System.Diagnostics.Debugger.Break();
+    //    }
+    //  }
+    //}
 
     public Box TextBox
     {

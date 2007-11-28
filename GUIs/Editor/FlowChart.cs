@@ -465,7 +465,7 @@ namespace SysCAD.Editor
 
       arrowBeingModifiedSelectionHandle = selectionHandle;
       arrowBeingModified = arrow;
-      arrowBeingModified.CustomDraw = CustomDraw.Additional;
+      //arrowBeingModified.CustomDraw = CustomDraw.Additional;
       arrowBeingModified.ZTop();
 
       if (arrow.Tag != null)
@@ -717,7 +717,7 @@ namespace SysCAD.Editor
 
       form1.ToolStripStatusLabel.Text = "";
 
-      arrowBeingModified.CustomDraw = CustomDraw.None;
+      //arrowBeingModified.CustomDraw = CustomDraw.None;
       arrowBeingModifiedSelectionHandle = -1;
       arrowBeingModified = null;
       originAnchorChosen = null;
@@ -797,6 +797,16 @@ namespace SysCAD.Editor
           {
             oldControlPoints.RemoveAt(i - 1);
             oldControlPoints.RemoveAt(i - 1);
+
+            // Deal with the adjacent points being slightly out of algnment.
+            if (Math.Abs(oldControlPoints[i - 1].X - oldControlPoints[i - 2].X) < Math.Abs(oldControlPoints[i - 1].Y - oldControlPoints[i - 2].Y))
+            {
+              oldControlPoints[i - 1].X = oldControlPoints[i - 2].X;
+            }
+            else
+            {
+              oldControlPoints[i - 1].Y = oldControlPoints[i - 2].Y;
+            }
             i = 2;
           }
 
@@ -825,7 +835,7 @@ namespace SysCAD.Editor
 
       form1.ToolStripStatusLabel.Text = "";
 
-      arrowBeingModified.CustomDraw = CustomDraw.None;
+      //arrowBeingModified.CustomDraw = CustomDraw.None;
       arrowBeingModifiedSelectionHandle = -1;
       arrowBeingModified = null;
       originAnchorChosen = null;
