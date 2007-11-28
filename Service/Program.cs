@@ -13,36 +13,79 @@ namespace SysCAD.Service
     [STAThread]
     static int Main()
     {
-      Application.EnableVisualStyles();
-      Application.SetCompatibleTextRenderingDefault(false);
-
-      String stencilPath = "..\\BaseFiles\\Stencils";
-
-      Dictionary<string, Project>  projects = new Dictionary<string, Project>();
-
-      if (Properties.Service.Default.projects == null)
+      try
       {
-        Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
-      }
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
 
-      foreach (string projectString in Properties.Service.Default.projects)
+        String stencilPath = "..\\BaseFiles\\Stencils";
+
+        Dictionary<string, Project> projects = new Dictionary<string, Project>();
+
+        if (Properties.Service.Default.projects == null)
+        {
+          Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
+        }
+
+        foreach (string projectString in Properties.Service.Default.projects)
+        {
+          string[] projectStrings = projectString.Split('\t');
+          Project project = new Project(projectStrings[0], projectStrings[1]);
+          projects.Add(project.Path, project);
+        }
+
+        Application.Run(new ServiceTemporaryWindow(stencilPath, projects));
+
+        foreach (Project project in projects.Values)
+        {
+          Properties.Service.Default.projects.Clear();
+          Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
+        }
+
+        Properties.Service.Default.Save();
+
+        return 0;
+      }
+      catch (Exception e)
       {
-        string[] projectStrings = projectString.Split('\t');
-        Project project = new Project(projectStrings[0], projectStrings[1]);
-        projects.Add(project.Path, project);
+        ShowStackTraceBox(e);
+        return -1;
       }
-        
-      Application.Run(new ServiceTemporaryWindow(stencilPath, projects));
+    }
 
-      foreach (Project project in projects.Values)
+    private static void ShowStackTraceBox(Exception e)
+    {
+      string messagePre = string.Empty;
+      string messageBody = string.Empty;
+      string messagePost = string.Empty;
+      messagePre += "An error has occurred, please add this information to bugzilla\n";
+      messagePre += "or email a copy of this debug information along with what you\n";
+      messagePre += "were doing to paul.hannah@syscad.net:\n\n";
+      messageBody += "Exception message:\n" + e.Message + "\n\n";
+      if ((e.Data != null) && (e.Data.Count > 0))
       {
-        Properties.Service.Default.projects.Clear();
-        Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
+        messageBody += "Extra details:\n";
+        foreach (System.Collections.DictionaryEntry de in e.Data)
+          messageBody += "    The key is '" + de.Key + "' and the value is: " + de.Value + "\n";
+        messageBody += "\n";
       }
+      if (e.InnerException != null)
+      {
+        messageBody += "Inner exception message:\n" + e.InnerException.Message + "\n\n";
+        if (e.InnerException.Data != null)
+        {
+          messageBody += "  Extra details:";
+          foreach (System.Collections.DictionaryEntry de in e.InnerException.Data)
+            messageBody += "    The key is '" + de.Key + "' and the value is: " + de.Value + "\n";
+          messageBody += "\n";
+        }
+      }
+      messageBody += "Stack trace:\n" + e.StackTrace;
+      messagePost += "\n\n\n(A copy of this debug information has already been pasted into the clipboard.)";
 
-      Properties.Service.Default.Save();
+      Clipboard.SetText(messageBody);
 
-      return 0;
+      MessageBox.Show(messagePre + messageBody + messagePost, "An error has occurred.");
     }
   }
 }

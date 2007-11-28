@@ -34,8 +34,6 @@ namespace SysCAD.Editor
     //  oldIndex = oNode.Index;
     //}
 
-    private delegate void LoadProjectDelegate(ClientProtocol clientProtocol, Config config);
-
     Int64 requestId;
 
     public EditorForm()
@@ -58,7 +56,9 @@ namespace SysCAD.Editor
 
       this.Text = "SysCAD.Editor (" + Assembly.Load("SysCAD.Editor").GetName().Version + ") -- SVN Revision: " + SysCAD.SVNVersion.SVNVersion.version + " -- ";
     }
-    
+
+    public delegate void LoadProjectDelegate(ClientProtocol clientProtocol, Config config);
+
     public void LoadProject(ClientProtocol clientProtocol, Config config)
     {
 
@@ -302,7 +302,7 @@ namespace SysCAD.Editor
       {
         attachProjectForm.Close();
 
-        LoadProject(attachProjectForm.ClientProtocol, attachProjectForm.Config);
+        BeginInvoke(new LoadProjectDelegate(LoadProject), new object[] { attachProjectForm.ClientProtocol, attachProjectForm.Config });
       }
     }
 
