@@ -71,7 +71,7 @@ void CMakeupBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, d
 
 CMakeupBase::CMakeupBase(TaggedObject * pAttach, int Index, LPTSTR Name) : CBlockEvalBase(BEId_Makeup, Index, Name, false),
 m_SrcIO(eDIO_Makeup, dynamic_cast<FlwNode*>(pAttach), false, false,
-        Name, IOId_Makeup2Area+Index, IOId_AreaMakeupO, "MakeupSrc", "MakeupSrc_1")
+        Name, IOId_Makeup2Area+Index, IOId_AreaMakeupO, "MakeupSrc", "")//MakeupSrc_1")
   {
   m_pMakeupB        = NULL;
   m_pNd             = dynamic_cast<FlwNode*>(pAttach);
@@ -206,7 +206,8 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
           Close();
           SetEnable(false);
           }
-        m_pNd->DoDirectConnect(&m_SrcIO);
+        if (!DCB.ForFiling()) // do not try connect during load
+          m_pNd->DoDirectConnect(&m_SrcIO);
         }
       DCB.B=OpenStatus();// (Enabled());
       return 1;
@@ -226,7 +227,8 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
           {
           }
         m_SrcIO.UsrEnable = m_pMakeupB ? m_pMakeupB->DoesSomething() && Enabled() : false;
-        m_pNd->DoDirectConnect(&m_SrcIO);
+        if (!DCB.ForFiling()) // do not try connect during load
+          m_pNd->DoDirectConnect(&m_SrcIO);
         }
       DCB.pC = m_pMakeupB ? m_pMakeupB->ShortDesc() : "";
       return 1;

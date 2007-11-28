@@ -511,7 +511,9 @@ enum eDIOConnectSelects
   eDIOSlct_None, eDIOSlct_All, eDIOSlct_Selected
   };
 
-extern DllImportExport Strng gs_DirectFlwIOTagDefault;
+extern DllImportExport Strng gs_DIOAreaTagDefault;
+extern DllImportExport Strng gs_DIOMakeupTagDefault;
+extern DllImportExport Strng gs_DIOBleedTagDefault;
 
 //---------------------------------------------------------------------------
 

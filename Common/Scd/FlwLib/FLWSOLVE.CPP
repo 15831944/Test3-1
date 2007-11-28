@@ -242,6 +242,8 @@ XID xidDefSatPMeth                    = FlwXID(1025);
 XID xidDefSatPCmp                     = FlwXID(1026);
 
 XID xidDefaultArea                    = FlwXID(1030);
+XID xidDefaultSrc                     = FlwXID(1031);
+XID xidDefaultSnk                     = FlwXID(1032);
 //XID xidMissSpillAreas                 = FlwXID(2022);
 XID xidODEMethod                      = FlwXID(1521);
 XID xidODESSCtrl                      = FlwXID(1522);
@@ -6930,7 +6932,9 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
 
     DDB.Text  ("");
     DDB.Text  ("Options");
-    DDB.String("DefaultArea",       "", DC_,      "",    xidDefaultArea,  &FlwSlvNd, isParmStopped|isTag);
+    //DDB.String("DefaultArea",       "", DC_,      "",    xidDefaultArea,  &FlwSlvNd, isParmStopped|isTag);
+    //DDB.String("DefaultMakeupSrc",  "", DC_,      "",    xidDefaultSrc,   &FlwSlvNd, isParmStopped|isTag);
+    //DDB.String("DefaultBleedSnk",   "", DC_,      "",    xidDefaultSnk,   &FlwSlvNd, isParmStopped|isTag);
     //DDB.String("MissingSpills",     "", DC_,      "",    xidMissSpillAreas,  &FlwSlvNd, MultiLineStr|noFile|noSnap);
     DDB.Byte  ("Momentum",          "", DC_,      "",    &CFlwBlkBase::fMomentumOn,  &FlwSlvNd, isParm, DDBOnOff);
     DDB.Double("KFactMult",         "", DC_Frac,  "",    &gs_PressDropKFactMult, &FlwSlvNd, isParm);
@@ -10538,15 +10542,18 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
 
     DDB.Text    ("");
     DDB.Text    ("Direct IO Links");
-    if (DDB.BeginStruct(this, "DIO", NULL, DDB_NoPage))
-      {
+    DDB.String("Default.Area",       "", DC_,      "",    xidDefaultArea,      this, isParmStopped|isTag);
+    DDB.String("Default.MakeupSrc",  "", DC_,      "",    xidDefaultSrc,       this, isParmStopped|isTag);
+    DDB.String("Default.BleedSnk",   "", DC_,      "",    xidDefaultSnk,       this, isParmStopped|isTag);
+    //if (DDB.BeginStruct(this, "DIO", NULL, DDB_NoPage))
+    //  {
       static DDBValueLst DDBSV[]= { {eDIOSlct_None, "None"}, {eDIOSlct_All, "All"}, /*{eDIOSlct_Selected, "Selected"}, */{0} };
-      DDB.Long("ConnectSpills",         "", DC_,   "",  xidDIOSpillsVents,          this, isParmStopped, DDBSV);
-      DDB.Long("ConnectLeaks",          "", DC_,   "",  xidDIOLeaks,                this, isParmStopped, DDBSV);
-      DDB.Long("ConnectAudit",          "", DC_,   "",  xidDIOAudit,                this, isParmStopped, DDBSV);
+      DDB.Long("DIO.ConnectSpills",         "", DC_,   "",  xidDIOSpillsVents,    this, isParmStopped, DDBSV);
+      DDB.Long("DIO.ConnectLeaks",          "", DC_,   "",  xidDIOLeaks,          this, isParmStopped, DDBSV);
+      DDB.Long("DIO.ConnectAudit",          "", DC_,   "",  xidDIOAudit,          this, isParmStopped, DDBSV);
       DDB.Text(" ");
-      }
-    DDB.EndStruct();
+    //  }
+    //DDB.EndStruct();
 
 
     //DDB.Text  ("Executive");
@@ -11310,8 +11317,18 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidDefaultArea:
       if (DCB.rpC)
-        gs_DirectFlwIOTagDefault=DCB.rpC;
-      DCB.pC=gs_DirectFlwIOTagDefault();
+        gs_DIOAreaTagDefault=DCB.rpC;
+      DCB.pC=gs_DIOAreaTagDefault();
+      return 1;
+    case xidDefaultSrc:
+      if (DCB.rpC)
+        gs_DIOMakeupTagDefault=DCB.rpC;
+      DCB.pC=gs_DIOMakeupTagDefault();
+      return 1;
+    case xidDefaultSnk:
+      if (DCB.rpC)
+        gs_DIOBleedTagDefault=DCB.rpC;
+      DCB.pC=gs_DIOBleedTagDefault();
       return 1;
     //case xidMissSpillAreas:
     //  {
@@ -12679,11 +12696,15 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
 
 //--------------------------------------------------------------------------
 
+#define dbgRequestModelStatus 0
+
 int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged)
   {
   TagsChanged= false;
-
-  //dbgpln("CFlwSolver::RequestModelStatus");
+#if dbgRequestModelStatus
+  dbgpln("CFlwSolver::RequestModelStatus");
+  int dbgNdCnt=0;
+#endif
 
   m_dwMdlStatusOptions=Options;//Criteria.m_dwMdlStatusOptions;
   if (!GetStatus())
@@ -12707,10 +12728,29 @@ int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status, fla
       {
       TagsChanged = TagsChanged || (Status[i].m_Tag.XStrICmp(p->FullObjTag())!=0);
 
+#if dbgRequestModelStatus
+      if (0)
+        {
+        for (int f=0; f<p->NoFlwIOs(); f++)
+          {
+          dbgp("    Qm[%3i]", f);
+          dbgp(" %12.4f", p->IOQm_In(f));
+          dbgp(" %12.4f", p->IOQmEst_In(f));
+          if (f<p->NoProcLnkIOs())
+            dbgp(" %12.4f", p->IOConduit(f)->QMass());
+          else
+            dbgp(" %12s", "");
+          dbgpln(" %-15s %s", p->IODesc_Self(f)->m_pName, p->FullObjTag());
+          }
+        }
+#endif
+
       Status[i].m_Tag=p->FullObjTag();
       Status[i].m_dwFlags=p->ModelStatus();
 
-      //dbgpln("**Nd Get %8x %s", Status[i].m_dwFlags, Status[i].m_Tag());
+#if dbgRequestModelStatus
+      dbgpln("**Nd %5i Get %8x %s", dbgNdCnt++, Status[i].m_dwFlags, Status[i].m_Tag());
+#endif
       i++;
       }
     }
@@ -15045,13 +15085,10 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
         CConnect *pC=FlwNode::sm_ConnectList.GetNext(m_pSaveConn);
         if (pC)
           {
-          Tag=m_pSaveNode->Tag();
-          m_pSaveNode->GetDefinedData(Tag(), pData->List, Opts, NULL);
-            Tag=pC->FullObjTag();
-            pC->GetDefinedData(Tag(), pData->List, Opts, NULL);
-            //pData->SetSize();
+          Tag=pC->FullObjTag();
+          pC->GetDefinedData(Tag(), pData->List, Opts, NULL);
           XM.PackMsg(pData);
-            pC->ClearDDBLists();
+          pC->ClearDDBLists();
           return true;
           }
         }
@@ -15397,7 +15434,7 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
         if ((pObj==NULL) && (FCB.Type()==TOF_DBase))
           {
           // Prevent any other FlwSolvers Etc being created
-          dbgpln(">>>>>>>>>%s<<<<<<<<<<", pItem->Class());
+          //dbgpln(">>>>>>>>>%s<<<<<<<<<<", pItem->Class());
 
           if (_stricmp(pItem->Class(), CFlangeClass.ClassId())==0)
             goto Done;
@@ -15616,7 +15653,7 @@ flag CFlwSolver::EO_EndLoad(FilingControlBlock &FCB)
   FlwNode * p=NULL;
   while (GetObj_All(p))
     {
-    dbgpln("----------%s---------", p->FullObjTag());
+    //dbgpln("----------%s---------", p->FullObjTag());
     p->OnLoad(m_sLabel());
 #ifdef _DEBUG
     if (_stricmp(p->Tag(), "T_125")==0)

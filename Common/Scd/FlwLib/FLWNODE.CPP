@@ -4075,7 +4075,7 @@ void FlwNode::MakeAreaTag()
   if (m_sAreaTag.GetLength()>0)
     m_pArea.m_sTag=m_sAreaTag;
   else
-    m_pArea.m_sTag=gs_DirectFlwIOTagDefault;
+    m_pArea.m_sTag=gs_DIOAreaTagDefault;
   }
 
 //--------------------------------------------------------------------------
@@ -4096,7 +4096,7 @@ LPCTSTR FlwNode::GetAreaTagDisp()
   if (m_sAreaTag.GetLength()>0)
     m_sAreaDisp=m_sAreaTag();
   else
-    m_sAreaDisp.Set("<%s>", gs_DirectFlwIOTagDefault());
+    m_sAreaDisp.Set("<%s>", gs_DIOAreaTagDefault());
   return m_sAreaDisp();
   }
 
@@ -4170,6 +4170,8 @@ void FlwNode::GlobalConnect()
     //LogError(FullTag(), 0, "%s NOT Found", m_pArea.m_sTag());
     AreaOK=false;
     }
+
+  //ConnectDirectConnects();
 
   //int iEnabled=0;
   //m_nMkupDirectIOs=0;
@@ -4380,7 +4382,7 @@ void FlwNode::DoDirectConnect(CDirectFlwIO * pDIO)
         }
       }
     }
-  else if (strlen(pDIO->m_sRmtTag())>0)
+  else if (pDIO->m_sRmtTag() && strlen(pDIO->m_sRmtTag())>0)
     {
     //LogError(FullObjTag(), 0, "Invalid Direct Connect Tag %s", pDIO->m_sRmtTag());
     ////BadDirects++;
@@ -12501,7 +12503,9 @@ void CExternAuditCalc::Complete(int Instance, CReactionBase * pRB, double ExtMas
 //
 //===========================================================================
 
-Strng gs_DirectFlwIOTagDefault(PlantAreaTag);
+Strng gs_DIOAreaTagDefault(PlantAreaTag);
+Strng gs_DIOMakeupTagDefault("MakeupSrc_1");
+Strng gs_DIOBleedTagDefault("BleedSnk_1");
 //Strng_List gs_DirectFlwIOTagsMissing;
 
 //===========================================================================
@@ -12896,10 +12900,23 @@ LPCTSTR CDirectFlwIO::TargetStr(flag ForFiling)
     m_sRmtTmp=m_sRmtTagDef;
   else if (ForFiling)//DCB.ForFileSnpScn())
     m_sRmtTmp="";
-  else if (m_pNd->m_sAreaTag.GetLength()>0)
-    m_sRmtTmp.Set("<%s>", m_pNd->m_sAreaTag());
-  else
-    m_sRmtTmp.Set("<%s>", gs_DirectFlwIOTagDefault());
+  else 
+    {
+    switch (m_eType)
+      {
+      case eDIO_Makeup:
+        m_sRmtTmp.Set("<%s>", gs_DIOMakeupTagDefault());
+        break;
+      case eDIO_Bleed:
+        m_sRmtTmp.Set("<%s>", gs_DIOBleedTagDefault());
+        break;
+      default:
+        if (m_pNd->m_sAreaTag.GetLength()>0)
+          m_sRmtTmp.Set("<%s>", m_pNd->m_sAreaTag());
+        else
+          m_sRmtTmp.Set("<%s>", gs_DIOAreaTagDefault());
+      }
+    }
   return (LPCTSTR)m_sRmtTmp();
   };
 
@@ -12922,7 +12939,7 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
       }
 
     case xidRmtTag:
-      if (DCB.rpC && Target() && strcmp(Target(), DCB.rpC)!=0)
+      if (DCB.rpC && (!Target() || (strcmp(Target(), DCB.rpC)!=0)))
         {
         m_pNd->DoDirectDisConnect(this);
         SetTarget(DCB.rpC);
@@ -12966,25 +12983,30 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidDrctQmEst:
       if (DCB.rD && m_iMyConnectedIO>=0)
-        m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst = *DCB.rD;
-      DCB.D = (m_iMyConnectedIO>=0) ? m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst : dNAN;
+        {
+        m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst = Valid(*DCB.rD) ? *DCB.rD : 0.0;
+        }
+      DCB.D = (m_iMyConnectedIO>=0) ? m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst : 0.0;//dNAN;
       return 1;
     case xidDrctQm:
       {
-      double Sgn = (m_iMyConnectedIO>=0) ? Sign(m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
+      double QmEst= (m_iMyConnectedIO>=0) ? m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst : 0.0;
+      double Sgn = Valid(QmEst) ? Sign(QmEst) : 0.0;
       DCB.D = HasConduit ? Sgn*Cd.QMass() : Sum.FlowMass;//dNAN;
       return 1;
       }
     case xidDrctQv:
       {
-      double Sgn = (m_iMyConnectedIO>=0) ? Sign(m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
-      DCB.D=HasConduit ? Sgn*Cd.QVolume() : dNAN;
+      double QmEst= (m_iMyConnectedIO>=0) ? m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst : 0.0;
+      double Sgn = Valid(QmEst) ? Sign(QmEst) : 0.0;
+      DCB.D=HasConduit ? Sgn*Cd.QVolume() : 0.0;
       return 1;
       }
     case xidDrctNQv:
       {
-      double Sgn = (m_iMyConnectedIO>=0) ? Sign(m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
-      DCB.D=HasConduit ? Sgn*Cd.QNVolume() : dNAN;
+      double QmEst= (m_iMyConnectedIO>=0) ? m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst : 0.0;
+      double Sgn = Valid(QmEst) ? Sign(QmEst) : 0.0;
+      DCB.D=HasConduit ? Sgn*Cd.QNVolume() : 0.0;
       return 1;
       }
     case xidConnectState:
@@ -13035,10 +13057,23 @@ void CDirectFlwIO::MakeRmtTag()
     m_pRmt.m_sTag=m_sRmtTag;
   else if (m_sRmtTagDef.GetLength()>0)
     m_pRmt.m_sTag=m_sRmtTagDef;
-  else if (m_pNd && m_pNd->m_sAreaTag.GetLength()>0)
-    m_pRmt.m_sTag=m_pNd->m_sAreaTag;
-  else
-    m_pRmt.m_sTag=gs_DirectFlwIOTagDefault;
+  else 
+    {
+    switch (m_eType)
+      {
+      case eDIO_Makeup:
+        m_pRmt.m_sTag=gs_DIOMakeupTagDefault;
+        break;
+      case eDIO_Bleed:
+        m_pRmt.m_sTag=gs_DIOBleedTagDefault;
+        break;
+      default:
+        if (m_pNd && m_pNd->m_sAreaTag.GetLength()>0)
+          m_pRmt.m_sTag=m_pNd->m_sAreaTag;
+        else
+          m_pRmt.m_sTag=gs_DIOAreaTagDefault;
+      }
+    }
   }
 
 //--------------------------------------------------------------------------

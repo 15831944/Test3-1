@@ -553,8 +553,8 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     void           FE_Net_SetLnkEPSRel(double Eps)   { Dyn.FlwNets.m_LnkEPS.SetRel(Eps);};
     double         FE_Net_GetNetDeRate()             { return Dyn.FlwNets.m_NetDeRating;};
     void           FE_Net_SetNetDeRate(double Mult)  { Dyn.FlwNets.m_NetDeRating=Mult;};
-    LPCTSTR        FE_Net_GetSpillArea()             { return gs_DirectFlwIOTagDefault();};
-    void           FE_Net_SetSpillArea(LPCTSTR Spill) { gs_DirectFlwIOTagDefault=Spill;};
+    LPCTSTR        FE_Net_GetSpillArea()             { return gs_DIOAreaTagDefault();};
+    void           FE_Net_SetSpillArea(LPCTSTR Spill) { gs_DIOAreaTagDefault=Spill;};
     
     void           DoTraceChanges(dword Flags);
 
