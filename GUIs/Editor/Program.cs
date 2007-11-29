@@ -13,19 +13,21 @@ namespace SysCAD.Editor
     [STAThread]
     static void Main()
     {
+      Application.EnableVisualStyles();
+      Application.SetCompatibleTextRenderingDefault(false);
+
+      EditorForm editorForm = new EditorForm();
       try
       {
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new EditorForm());
+        Application.Run(editorForm);
       }
       catch (Exception e)
       {
-        ShowStackTraceBox(e);
+        ShowStackTraceBox(e, editorForm);
       }
     }
 
-    private static void ShowStackTraceBox(Exception e)
+    private static void ShowStackTraceBox(Exception e, EditorForm editorForm)
     {
       string messagePre = string.Empty;
       string messageBody = string.Empty;
@@ -44,16 +46,103 @@ namespace SysCAD.Editor
       if (e.InnerException != null)
       {
         messageBody += "Inner exception message:\n" + e.InnerException.Message + "\n\n";
-      if (e.InnerException.Data != null)
+        if (e.InnerException.Data != null)
+        {
+          messageBody += "  Extra details:";
+          foreach (System.Collections.DictionaryEntry de in e.InnerException.Data)
+            messageBody += "    The key is '" + de.Key + "' and the value is: " + de.Value + "\n";
+          messageBody += "\n";
+        }
+      }
+      messageBody += "Stack trace:\n" + e.StackTrace + "\n\n";
+
+      if (editorForm != null)
       {
-        messageBody += "  Extra details:";
-        foreach (System.Collections.DictionaryEntry de in e.InnerException.Data)
-          messageBody += "    The key is '" + de.Key + "' and the value is: " + de.Value + "\n";
-        messageBody += "\n";
+        if (editorForm.FrmFlowChart != null)
+        {
+          if (editorForm.FrmFlowChart.State != null)
+          {
+            if (editorForm.FrmFlowChart.State.Config != null)
+            {
+              if (editorForm.FrmFlowChart.State.Config.GraphicStencils != null)
+              {
+                messageBody += "GraphicStencils:\n";
+                foreach (SysCAD.Protocol.GraphicStencil graphicStencil in editorForm.FrmFlowChart.State.Config.GraphicStencils.Values)
+                  messageBody += "Tag: " + graphicStencil.Tag + "\n";
+                messageBody += "\n";
+              }
+              if (editorForm.FrmFlowChart.State.Config.ModelStencils != null)
+              {
+                messageBody += "ModelStencils:\n";
+                foreach (SysCAD.Protocol.ModelStencil modelStencil in editorForm.FrmFlowChart.State.Config.ModelStencils.Values)
+                  messageBody += "Tag: " + modelStencil.Tag + "\n";
+                messageBody += "\n";
+              }
+              if (editorForm.FrmFlowChart.State.Config.ProjectList != null)
+              {
+                messageBody += "ProjectList:\n";
+                foreach (string project in editorForm.FrmFlowChart.State.Config.ProjectList)
+                  messageBody += "Project: " + project + "\n";
+                messageBody += "\n";
+              }
+            }
+            if (editorForm.FrmFlowChart.State.ClientProtocol != null)
+            {
+              if (editorForm.FrmFlowChart.State.ClientProtocol.graphic != null)
+              {
+                if (editorForm.FrmFlowChart.State.ClientProtocol.graphic.Groups != null)
+                {
+                  messageBody += "Groups:\n";
+                  foreach (SysCAD.Protocol.GraphicGroup group in editorForm.FrmFlowChart.State.ClientProtocol.graphic.Groups.Values)
+                  {
+                    messageBody += "Tag: " + group.Tag + "\n";
+                    messageBody += "Path: " + group.Path + "\n";
+                    messageBody += "Guid: " + group.Guid.ToString() + "\n";
+                    messageBody += "Rect: " + group.BoundingRect.ToString() + "\n";
+                    messageBody += "\n";
+                  }
+                  messageBody += "\n";
+                }
+                if (editorForm.FrmFlowChart.State.ClientProtocol.graphic.Nodes != null)
+                {
+                  messageBody += "Nodes:\n";
+                  foreach (SysCAD.Protocol.GraphicNode node in editorForm.FrmFlowChart.State.ClientProtocol.graphic.Nodes.Values)
+                  {
+                    messageBody += "Tag: " + node.Tag + "\n";
+                    messageBody += "Path: " + node.Path + "\n";
+                    messageBody += "Guid: " + node.Guid.ToString() + "\n";
+                    messageBody += "Rect: " + node.BoundingRect.ToString() + "\n";
+                    messageBody += "\n";
+                  }
+                  messageBody += "\n";
+                }
+                if (editorForm.FrmFlowChart.State.ClientProtocol.graphic.Links != null)
+                {
+                  messageBody += "Links:\n";
+                  foreach (SysCAD.Protocol.GraphicLink link in editorForm.FrmFlowChart.State.ClientProtocol.graphic.Links.Values)
+                  {
+                    messageBody += "Tag: " + link.Tag + "\n";
+                    messageBody += "Origin: " + link.Origin + "\n";
+                    messageBody += "OriginPortID: " + link.OriginPortID + "\n";
+                    messageBody += "Destination: " + link.Destination + "\n";
+                    messageBody += "DestinationPortID: " + link.DestinationPortID + "\n";
+                    messageBody += "Guid: " + link.Guid.ToString() + "\n";
+                    messageBody += "ControlPoints: " + link.ControlPoints.ToString() + "\n";
+                    messageBody += "\n";
+                  }
+                  messageBody += "\n";
+                }
+                if (editorForm.FrmFlowChart.State.ClientProtocol.graphic.Things != null)
+                {
+
+                }
+              }
+            }
+          }
+        }
       }
-      }
-      messageBody += "Stack trace:\n" + e.StackTrace;
-      messagePost += "\n\n\n(A copy of this debug information has already been pasted into the clipboard.)";
+
+      messagePost += "\n(A copy of this debug information has already been pasted into the clipboard.)";
 
       Clipboard.SetText(messageBody);
 

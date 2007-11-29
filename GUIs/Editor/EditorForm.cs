@@ -22,7 +22,13 @@ namespace SysCAD.Editor
 
   internal partial class EditorForm : Form
   {
-    FrmFlowChart frmFlowChart;
+    private FrmFlowChart frmFlowChart;
+
+    internal FrmFlowChart FrmFlowChart
+    {
+      get { return frmFlowChart; }
+      set { frmFlowChart = value; }
+    }
 
     static List<PureComponents.TreeView.Node> wasSelectedNodes = new List<PureComponents.TreeView.Node>();
 

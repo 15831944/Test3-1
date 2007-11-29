@@ -63,7 +63,7 @@ namespace SysCAD.Editor
 
     private Anchor originAnchorChosen;
 
-    private State state = new State();
+    public State state = new State();
     private int tempArrowKey;
 
     //private int tempBoxKey;
