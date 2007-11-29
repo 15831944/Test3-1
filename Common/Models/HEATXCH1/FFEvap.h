@@ -44,11 +44,16 @@ class DllImportExport CHXSideHelper
     void BuildDataDefn(TaggedObject* pTagObj, DataDefnBlk & DDB);
   };
 
+const byte FFMeth_TRise = 1;
+const byte FFMeth_TBoil = 2;
+
 DEFINE_TAGOBJ(FFEvap);
 class DllImportExport FFEvap : public MN_Surge
   {
   public:
-    double         dTRiseRqd;
+    byte           m_iMethod;
+    double         m_TBoilRqd;
+    double         m_TRiseRqd;
     double         dShellHeatLoss;
     double         dTubeMinPout;
     double         dDuty;

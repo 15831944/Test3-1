@@ -114,8 +114,10 @@ FFEvap::FFEvap(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   AttachIOAreas(FFEvapIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
   dShellHeatLoss = 0.0;
-  dTRiseRqd   = 0.0;
-  dTubeMinPout = 20.0;
+  m_iMethod     = FFMeth_TRise; 
+  m_TBoilRqd    = Std_T;
+  m_TRiseRqd    = 0.0;
+  dTubeMinPout  = 20.0;
   dDuty       = 0.0;
   iCalcMode   = QST_General;
   dPrvVapFrac = 0.0;
@@ -181,8 +183,14 @@ void FFEvap::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("Tube Side (Liquor)");
   DDB.CheckBox("AllowEvap", "", DC_,     "",         &bAllowEvap,     this, isParm|SetOnChange);
   DDB.Visibility(NM_Probal|SM_All|HM_All, bAllowEvap);
-  DDB.Double  ("TRiseRqd",  "", DC_dT,   "C",        &dTRiseRqd,      this, isParm);
-  DDB.Double  ("MinPressOut", "MinPout", DC_P, "kPag", &dTubeMinPout, this, isParm);
+  static DDBValueLst DDBMeth[]={
+    {FFMeth_TBoil, "TempOfBoiling"},
+    {FFMeth_TRise, "TempRise"},
+    {0}};
+  DDB.Byte    ("",   "Method",  DC_,     "",         &m_iMethod,       this  ,isParm, DDBMeth);
+  DDB.Double  ("TRiseRqd",  "", DC_dT,   "C",        &m_TRiseRqd,      this, (m_iMethod==FFMeth_TRise ? isParm:0));
+  DDB.Double  ("TBoilRqd",  "", DC_T,    "C",        &m_TBoilRqd,      this, (m_iMethod==FFMeth_TBoil ? isParm:0));
+  DDB.Double  ("MinPressOut", "MinPout", DC_P, "kPag", &dTubeMinPout,  this, isParm);
   DDB.Visibility();
   DDB.Double  ("EvapQm",    "", DC_Qm,   "kg/s",     &dQmEvap,        this, isResult);
   DDB.Text    ("Shell Side");
@@ -217,7 +225,8 @@ flag FFEvap::DataXchg(DataChangeBlk & DCB)
 flag FFEvap::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=MN_Surge::ValidateData(VDB);
-  dTRiseRqd=ValidateRange(VDB, "TRiseRqd", -150.0, dTRiseRqd, 500.0);
+  m_TRiseRqd=ValidateRange(VDB, "TRiseRqd", -150.0, m_TRiseRqd, 500.0);
+  m_TBoilRqd=ValidateRange(VDB, "TBoilRqd", C2K(-100), m_TBoilRqd, C2K(1000));
   return OK;
   }
 
@@ -419,7 +428,13 @@ void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
           Ctubes().Set_totHf(Tubes.dHi+dDuty); //apply duty
           if (bAllowEvap)
             {
-            Tubes.dTo = Tubes.dTi + dTRiseRqd; //required temperature
+            switch (m_iMethod)
+              {
+              case FFMeth_TBoil:   m_TRiseRqd = Max(0.0, m_TBoilRqd - Tubes.dTi); break;
+              case FFMeth_TRise:   m_TBoilRqd = m_TRiseRqd + Tubes.dTi; break;
+              }
+
+            Tubes.dTo = Tubes.dTi + m_TRiseRqd; //required temperature
             Tubes.dPo = Ctubes().SaturationP(Tubes.dTo); //estimate required pressure
             if (Tubes.dPo<dTubeMinPout)
               {
@@ -504,7 +519,7 @@ void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
         if (bOnLine)
           {
           SetCI(1, ZeroEvapLimit);
-          SetCI(2, bAllowEvap && !ZeroEvapLimit && fabs(Tubes.dTi + dTRiseRqd - Tubes.dTo)>1.0e-4);
+          SetCI(2, bAllowEvap && !ZeroEvapLimit && fabs(Tubes.dTi + m_TRiseRqd - Tubes.dTo)>1.0e-4);
           IOConduit(IOConden)->QSetF(Cshell(), som_SL, 1.0, Shell.dPo);
           IOConduit(IOHotLiq)->QSetF(Ctubes(), som_SL, 1.0, Tubes.dPo);
           IOConduit(IOHotEvap)->QSetF(Ctubes(), som_Gas, 1.0, Tubes.dPo);
