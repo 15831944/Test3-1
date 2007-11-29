@@ -55,7 +55,7 @@ enum  QST_CalcMode { QST_FTCActive, QST_Makup, QST_General };
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(FFEvap, "FFEvap", "", Drw_FFEvap, "HeatTransfer", "FFE", TOC_PROBAL|TOC_GRP_ENERGY|TOC_HEATEXTRA,
+IMPLEMENT_MODELUNIT(FFEvap, "FFEvap", "", Drw_FFEvap, "HeatTransfer", "FFE", TOC_PROBAL|TOC_GRP_ENERGY|TOC_HEATBAL,
                     "Heat Transfer:Falling Film Evaporator",
                     "Falling Film Evaporator." )
 

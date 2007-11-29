@@ -381,7 +381,9 @@ void FilterPress::EvalProducts()
 
 			dWashEfficiency = CL > 0 ? 1 - dCLtoCOFrac : dNAN;
 
-			MStream QWashingOutput = QCake;
+		  //MStream QWashingOutput = QCake; BAD idea, QWashingOutput becomes a reference to QCake!!!!
+		  MStreamI QWashingOutput;
+      QWashingOutput = QCake;
 			QWashingOutput.ZeroMass();
 
 			for (int i = 0; i < gs_MVDefn.Count(); i++)

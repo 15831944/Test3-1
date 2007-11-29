@@ -48,7 +48,7 @@ static double Drw_CoolingTower[] = { DD_Poly, -14,-15, -14,-8, 14,-8, 14,-15, -1
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(CoolingTower, "CoolTwr", "", Drw_CoolingTower, "HeatTransfer", "CT", TOC_PROBAL|TOC_GRP_ENERGY|TOC_HEATEXTRA,
+IMPLEMENT_MODELUNIT(CoolingTower, "CoolTwr", "", Drw_CoolingTower, "HeatTransfer", "CT", TOC_PROBAL|TOC_GRP_ENERGY|TOC_HEATBAL,
 //                    "HX - Cooling Tower",
                     "Heat Transfer:Cooling Tower",
                     "Simple cooling tower model. The unit calculates the amount "
