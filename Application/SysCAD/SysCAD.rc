@@ -339,6 +339,7 @@ BEGIN
     BUTTON      ID_ACTIONS_RUN_STEADY
     BUTTON      ID_PROJECT_EDIT_SETTINGS
     BUTTON      ID_PROJECT_EDIT_COLOURS
+    BUTTON      ID_GRF_InsertSymbol
 END
 
 IDR_MOREGRF TOOLBAR  16, 15
@@ -1441,6 +1442,8 @@ BEGIN
             MENUITEM "&Scale/Rotate",               ID_GRF_AlterEntity
             MENUITEM "&Tag Annotation",             ID_GRF_TagAnnot
             MENUITEM "&Dump",                       ID_GRF_DumpEntities
+            MENUITEM SEPARATOR
+            MENUITEM "Insert S&ymbol",              ID_GRF_InsertSymbol
             MENUITEM SEPARATOR
             MENUITEM "Insert Te&xt",                ID_GRF_InsertText
             MENUITEM "Update T&ext",                ID_GRF_UpdateText
@@ -4742,6 +4745,7 @@ STRINGTABLE
 BEGIN
     ID_GRF_InsertGroup      "Insert a Group into a flowsheet\nInsert Group "
     ID_GRF_CreateGroup      "Create a Group from a parts of a flowsheet\nCreate Group"
+    ID_GRF_InsertSymbol     "Insert Symbol\nInsert Symbol"
     ID_GRF_InsertText       "Insert Text\nInsert Text"
 END
 

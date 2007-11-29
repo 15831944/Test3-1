@@ -432,6 +432,7 @@ void GrfCmdBlk::BuildVNT()
   SETVNT("ACCess",    "Parms", "@ SELect", 1, (CmdFn)&GrfCmdBlk::DoConfig, EF_ERS);
   SETVNT("ACCess",    "Vars",  "@ SELect", 1, (CmdFn)&GrfCmdBlk::DoConfig, EF_ERS);
   SETVNT("INsert",    "UNit",  "@ Tag Basetag Scale XScale YScale Rotate XY X Y Model * ", 1, (CmdFn)&GrfCmdBlk::DoInsert, EF_Edit);
+  SETVNT("INsert",    "SYmbol", "@ Tag Basetag Scale XScale YScale Rotate XY X Y Model * ", 1, (CmdFn)&GrfCmdBlk::DoInsert, EF_Edit);
   SETVNT("INsert",    "LInk",  "@ Tag BASetag Ortho Free BRk BACk SNd SIo DNd DIo MOdel MEthod * ", 1, (CmdFn)&GrfCmdBlk::DoConnect, EF_Edit);
   SETVNT("CHange",    "UNit",  "@ * = ", 1, (CmdFn)&GrfCmdBlk::DoChangeUnit, EF_Edit);
   SETVNT("MOve",      "LInk",  "@ Lnk Ortho Free BRk BAck", 1, (CmdFn)&GrfCmdBlk::DoMoveLink, EF_Edit);
@@ -521,6 +522,7 @@ void GrfCmdBlk::BuildVNT()
   SETCIS(ID_GRF_RefreshAllAnnotation, "refresh annotation all\r");
   SETCIS(ID_GRF_CreateToggle, "create toggle * ");
   SETCIS(ID_GRF_UpdateToggle, "update toggle ");
+  SETCIS(ID_GRF_InsertSymbol, "insert symbol * ");
   SETCIS(ID_GRF_InsertText, "alter text * create ");
   SETCIS(ID_GRF_UpdateText, "alter text * update ");
   SETCIS(ID_GRF_LoadDrawing, "load drawing *\r");
@@ -599,6 +601,7 @@ flag GrfCmdBlk::UpdateCmdStr(int nID, CCmdUI* pCmdUI)
     case ID_GRF_UpdateAnnotation:
     case ID_GRF_CreateToggle:
     case ID_GRF_UpdateToggle:
+    case ID_GRF_InsertSymbol:
     case ID_GRF_InsertText:
     case ID_GRF_UpdateText:
     case ID_GRF_DeleteUnit:
@@ -700,6 +703,7 @@ flag GrfCmdBlk::UpdateCmdStr(int nID, CCmdUI* pCmdUI)
       case ID_GRF_UpdateAnnotation:
       case ID_GRF_CreateToggle:
       case ID_GRF_UpdateToggle:
+      case ID_GRF_InsertSymbol:
       case ID_GRF_InsertText:
       case ID_GRF_UpdateText:
       case ID_GRF_AlterEntity:
@@ -2009,6 +2013,8 @@ void GrfCmdBlk::DoInsert()
   enum MId { MID_Dig=1, MID_Tag, MID_BaseTag,
              MID_Scale, MID_XScale, MID_YScale, MID_Rotate,
              MID_XY, MID_X, MID_Y, MID_Model, MID_Dlg };
+  bool DoMdl = (Noun==1);
+  bool DoSym = (Noun==1 || Noun==2);
   switch (When)
     {
     case EX_MODIFIER_RDY :
@@ -2044,7 +2050,7 @@ void GrfCmdBlk::DoInsert()
         case MID_X      : gs_pCmd->SetParmInfo(AFloat, 1); break;
         case MID_Y      : gs_pCmd->SetParmInfo(AFloat, 1); break;
         case MID_Model  : gs_pCmd->SetParmInfo(AName, 1); break;
-        case MID_Dlg    : pMdlDlg = new CInsertUnitDlg(CDlgWhat_InsUnit, false, pMdl, AfxGetMainWnd()); break;
+        case MID_Dlg    : pMdlDlg = new CInsertUnitDlg(DoMdl?CDlgWhat_InsUnit:CDlgWhat_InsSymb, false, pMdl, AfxGetMainWnd()); break;
         default :;
         }
       break;
@@ -2082,11 +2088,12 @@ void GrfCmdBlk::DoInsert()
           CB = new CInsertBlk;
           gs_pCmd->SetDataBlk((void *) CB);
 
-          bool DoAddModel=true;
+          bool DoAddModel=DoMdl;
           if (pMdlDlg)
             {
             pMdlDlg->CompleteForUse(true);
-            DoAddModel=!pMdlDlg->m_bExistingModel;
+            if (DoMdl)
+              DoAddModel=!pMdlDlg->m_bExistingModel;
             ATag = pMdlDlg->m_Tag();
             AClass = pMdlDlg->m_ModelClass();
 
@@ -2136,7 +2143,7 @@ void GrfCmdBlk::DoInsert()
             case -1:  // Bad
               break;
             case -2: // Not Found
-              if (!DoAddModel)
+              if (!DoAddModel && DoMdl)
                 {
                 if (AfxMessageBox("Model is Missing\nAdd It", MB_YESNO|MB_ICONQUESTION)==IDYES)
                   {
@@ -2149,7 +2156,7 @@ void GrfCmdBlk::DoInsert()
               break;
             };
 
-          if (gs_License.NodeCountExceeded(1, eLic_MsgBox))
+          if (DoMdl && gs_License.NodeCountExceeded(1, eLic_MsgBox))
             {
             LogWarning("License", LF_DoAfxMsgBox|LF_Exclamation, "Maximum number of units (%d) exceeded", gs_License.MaxNodesAllowed());
             AllOK=false;
@@ -2166,13 +2173,14 @@ void GrfCmdBlk::DoInsert()
             if (gs_pPrj->SvcActive)
               {
               SCD10ENTER;
+              //What about Symbol only ??????????
               gs_pPrj->Svc.GCBCreateNode((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
               SCD10LEAVE;
               }
             else
 #endif
               {
-              CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
+              CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), DoAddModel?CB->ATag():NULL, NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
               if (CB->e)
                 {
                 Strng TheGuid;
@@ -11173,7 +11181,7 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
       DrawBlockName=MakeValidBlockName((char*)(LPCSTR)DrawBlockName);
       b = pDrw->Blocks.Find((LPTSTR)(LPCTSTR)DrawBlockName);
       if (!b)
-        LogNote("GrfCmds", 0, "Drawing '%s' not found for '%s', use default", DrawTyp_, Tag);
+        LogNote("GrfCmds", 0, "Drawing '%s' not found for '%s', use default", DrawTyp_, Tag?Tag:"Symbol");
       }
     }
 

@@ -2020,6 +2020,7 @@
 #define ID_GRF_InsertGroup              30490
 #define IDD_NEUTRALINSERTGROUP          30490
 #define ID_GRF_CreateGroup              30492
+#define ID_GRF_InsertSymbol             30494
 #define ID_GRF_InsertText               30495
 #define ID_GRF_UpdateText               30496
 #define ID_GRF_ChangeUnit               30497

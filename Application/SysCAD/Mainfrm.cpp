@@ -2569,6 +2569,7 @@ static UINT BASED_CODE ToolbarIds[] =
   ID_ACTIONS_RUN_STEADY,
   ID_PROJECT_EDIT_SETTINGS,
   ID_PROJECT_EDIT_COLOURS,
+  ID_GRF_InsertSymbol,
   };
 
 static UINT BASED_CODE GrfSymbsIds[] =
@@ -2691,6 +2692,8 @@ static UINT BASED_CODE GrfToolBarIds[] =
   ID_GRF_CreateGroup,
   ID_GRF_InsertGroup,
 #endif
+  ID_SEPARATOR,
+  ID_GRF_InsertSymbol,
   };
 
 static UINT BASED_CODE ConstructToolBarIds[] =
