@@ -405,7 +405,7 @@ class DllImportExport CFlwEqnFlwRqd
 //============================================================================
 
 const byte FEOF_Null             = 0x00;
-const byte FEOF_WithAutoComp     = 0x01;
+//const byte FEOF_WithAutoComp     = 0x01;
 const byte FEOF_WithPVConst      = 0x02;
 const byte FEOF_ShowPVConst      = 0x04;
 
@@ -1149,7 +1149,7 @@ class DllImportExport CFlwThermalBlk
     void          AddACPower(double Power, double Press);
     void          EndEvalProducts();
 
-    flag          AutoCompOn()  { return m_AutoCompOn;  };
+    //flag          AutoCompOn()  { return m_AutoCompOn;  };
     double      & TRiseRqd()    { return m_TRiseRqd;    };
     double      & PVConst()     { return m_PVConst; };
 
@@ -1178,7 +1178,7 @@ class DllImportExport CFlwThermalBlk
     double        m_TRiseRqd;
     double        m_TFinalRqd;
     double        m_PVConst;
-    flag          m_AutoCompOn;
+    //flag          m_AutoCompOn;
 
     double        m_TRiseMech;     // Temp Rise due to Power Input - Resistance-  etc
     double        m_TRiseHeat;     // Temp Rise due to Heat Exchange
@@ -1204,6 +1204,14 @@ class DllImportExport CFlwThermalBlk
     double        m_TRiseTot;      // Temp Rise Total
     double        m_PowerTot;      // 
     double        m_PowerCorr;     // 
+
+    double        m_HzIn;
+    double        m_HzInPo;
+    double        m_dHz_Z;
+    double        m_dHz_Vel;
+    double        m_dHz_Other;
+    double        m_HzOut;
+
 
     #if dbgFlwEqns  
     double        m_TRiseMechTmp;     

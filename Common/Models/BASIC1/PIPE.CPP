@@ -948,7 +948,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility();
   DDB.Text("");
-  m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, FEOF_WithAutoComp|FEOF_WithPVConst);
+  m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, /*FEOF_WithAutoComp|*/FEOF_WithPVConst);
 
   //BuildDataDefnAreaIOs(DDB);
 

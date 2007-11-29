@@ -427,18 +427,64 @@ void CFlwEqn::DumpTest(char * Fn, double Lo, double Hi, double Delta,
 
 //==========================================================================
 
+/***************************************************************************
+Hi Chris,
+ 
+I had another look with data from a different book and I get a  different answer this time. 
+I will try to resolve what the difference is but I think the volume data may have been 
+wrong in the first book. Basically a control volume can be drawn about the pipe
+and the 1st law applied to give (for a steady state process):
+ 
+q + h1 + gz1 + v1^2/2 = h2 + gz2 + v2^2/2 + w
+ 
+assuming that q = 0 (no heat transfer) and v^2 ~0 (negligible velocity) then the relation can be rearranged to:
+ 
+h2 - h1 = g(z1 - z2) + w
+ 
+there is no work crossing the control volume boundary - the work associated with the water entering 
+and leaving the control volume is accounted for in the enthalpy term which just leaves:
+ 
+h2 - h1 = g(z1 - z2)   (NB dh = Cp dT does not apply here since this is a compressible fluid)
+ 
+h2 = h1 + g(z1 - z2)/Cp
+ 
+So for  1000 m dP = rho* 9.807 * (1000 - 0)  is 9.800 MPa (using average densities) and dh g*1000 which is 9.807 kJ/kg
+ 
+I downloaded a trial version of IAPWS IF-97 properties calculator from here
+http://www.steam-water-properties.com/steam-water-software-download.html#A1
+ 
+we'll take 0.1 and 9.907 MPa  as the pressures and 25 °C as the initial Temperature, with the above, h1 = 104.9280675 kJ/kg
+ 
+We know then h2 = h1 + dh = 104.9280675 + 9.807 = 114.7350675
+ 
+using the above program we can find a temperature then that matches the enthalpy at the given pressure. 
+This turns out to be 25.1916°C. So the water has heated up, but not by very much for going 100 m down a pipe. 
+There specific volume goes from 0.0010030 to 0.0009986 which is a decrease of only 0.4%. I am surprised at this 
+since my natural thought would be that it would heat up, but I think the above is correct.
+ 
+Regards,
+John
+
+***************************************************************************/
+
 void CFlwEqn::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBlk & FTB)
   {
   SpConduit &C=FE.Cd();
 
   double Ti=C.Temp();
 
-  //FE.DPq;
+  // 1st Thermo Law - see above
+  // Enthalpy Change (+) for Drop in Z  -  AutoCompression 
+  double dH = 9.81*(-m_PhD.Rise()*LScale())/**(C.Rho()/1000.0)*/* 0.001/*J->kJ*/;
+  FTB.AddACPower(dH*C.QMass(), Po);
+
+  // Assume that V^2 terms are negligible currecnly difficult to get at) 
 
   // Heating due to frictional effects
   double PwrLoss=0.981*fabs(FE.DPq()*Min(C.QMass(), fabs(FE.QmMeas())))/GTZ(C.Rho());
   FTB.AddHeatPower(PwrLoss, Po);
 
+  // Work
   // PolyTropic Flow
   // n=1 : isothermal
   // n>1 : polytropic
@@ -455,21 +501,21 @@ void CFlwEqn::EvalProducts(CFlwBlkBase & FE, double Pi, double Po, CFlwThermalBl
   // This goes wrong if Po is wrong/out of range !!!!!!! CNM
   FTB.AddWorkPower((To-Ti)*C.totCp(), Po);
 
-  // AutoCompression
-  double PwrAC=0;
-  if (FTB.AutoCompOn())
-    {
-    //only for flow down ???
-    //PwrAC= PhD.Rise()*FE.QmSign()<0.0 ? 0.001*9.81*fabs(PhD.Rise())*C.QMass() : 0.0;
-    PwrAC= 0.001*9.81*fabs(m_PhD.Rise()*LScale())*C.QMass();
-    #if WithMG
-    if (MGOptions())
-      PwrAC=0;
-    #endif
-    FTB.AddACPower(PwrAC, Po);
-    }
-  else
-    FTB.AddACPower(0.0, Po);
+  //// AutoCompression
+  //double PwrAC=0;
+  //if (FTB.AutoCompOn())
+  //  {
+  //  //only for flow down ???
+  //  //PwrAC= PhD.Rise()*FE.QmSign()<0.0 ? 0.001*9.81*fabs(PhD.Rise())*C.QMass() : 0.0;
+  //  PwrAC= 0.001*9.81*fabs(m_PhD.Rise()*LScale())*C.QMass();
+  //  #if WithMG
+  //  if (MGOptions())
+  //    PwrAC=0;
+  //  #endif
+  //  FTB.AddACPower(PwrAC, Po);
+  //  }
+  //else
+  //  FTB.AddACPower(0.0, Po);
   }
 
 void CFlwEqn::EvalDiscrete(CFlwBlkBase & FE)
@@ -2714,7 +2760,7 @@ CFlwThermalBlk::CFlwThermalBlk(FlwNode * Nd, CFlwEqnPtr * FEP)//, CVLEBase * VLE
   m_TRiseSpec       = TR_None;
   m_TRiseRqd        = 0;
   m_TFinalRqd       = Std_T;
-  m_AutoCompOn      = false;
+  //m_AutoCompOn      = true;
   m_PVConst         = 1.0;
 
   m_TIn             = Std_T;
@@ -2738,14 +2784,21 @@ CFlwThermalBlk::CFlwThermalBlk(FlwNode * Nd, CFlwEqnPtr * FEP)//, CVLEBase * VLE
   m_PowerAC         = 0.0;
   m_PowerTot        = 0.0;
   m_PowerCorr       = 0.0;
+
+  m_HzIn            = 0.0;
+  m_HzInPo          = 0.0;
+  m_dHz_Z           = 0.0;
+  m_dHz_Vel         = 0.0;
+  m_dHz_Other       = 0.0;
+  m_HzOut           = 0.0;
   };
 
 //--------------------------------------------------------------------------
 
 void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagComment, DDBPages PageIs, byte Flags)
   {
-  if ((Flags & FEOF_WithAutoComp)==0)
-    m_AutoCompOn=false;
+  //if ((Flags & FEOF_WithAutoComp)==0)
+  //  m_AutoCompOn=false;
   if ((Flags & (FEOF_WithPVConst|FEOF_ShowPVConst))==0)
     m_PVConst=1.0;
 
@@ -2764,8 +2817,8 @@ void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagCommen
     DDB.Double ("TOut.Final",         "",  DC_T,   "C", &m_TFinalRqd,    m_pNd, isParm);
     DDB.Visibility();
     DDB.Text("");
-    if (Flags & FEOF_WithAutoComp)
-      DDB.CheckBox("AutoCompression", "",  DC_,    "",  &m_AutoCompOn,   m_pNd, isParm);
+    //if (Flags & FEOF_WithAutoComp)
+    //  DDB.CheckBox("AutoCompression", "",  DC_,    "",  &m_AutoCompOn,   m_pNd, isParm);
     if (Flags & (FEOF_WithPVConst|FEOF_ShowPVConst))
       {
       DDB.Double ("PVConst",          "",  DC_,    "",  &m_PVConst,  m_pNd, (Flags & FEOF_WithPVConst)?isParm:0);
@@ -2778,8 +2831,8 @@ void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagCommen
     DDB.Text("");
     DDB.Double ("TRise.Work",         "",  DC_dT,  "C", &m_TRiseMech,    m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.Losses",       "",  DC_dT,  "C", &m_TRiseHeat,    m_pNd, isResult|noFileAtAll);
-    if (Flags & FEOF_WithAutoComp)
-      DDB.Double ("TRise.AutoComp",   "",  DC_dT,  "C", &m_TRiseAC,      m_pNd, isResult|noFileAtAll);
+    //if (Flags & FEOF_WithAutoComp)
+    DDB.Double ("TRise.AutoComp",     "",  DC_dT,  "C", &m_TRiseAC,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.VLE",          "",  DC_dT,  "C", &m_TRiseVLE,     m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.Reactions",    "",  DC_dT,  "C", &m_TRiseRB,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("TRise.Evaporation",  "",  DC_dT,  "C", &m_TRiseEvap,    m_pNd, isResult|noFileAtAll);
@@ -2792,13 +2845,21 @@ void CFlwThermalBlk::BuildDataDefn(DataDefnBlk & DDB, char* Tag, char* TagCommen
     DDB.Text("");
     DDB.Double ("Power.Work",         "",  DC_Pwr,  "kW",   &m_PowerMech,    m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Heat",         "",  DC_Pwr,  "kW",   &m_PowerHeat,    m_pNd, isResult|noFileAtAll);
-    if (Flags & FEOF_WithAutoComp)
-      DDB.Double ("Power.AutoComp",   "",  DC_Pwr,  "kW",   &m_PowerAC,      m_pNd, isResult|noFileAtAll);
+    //if (Flags & FEOF_WithAutoComp)
+    DDB.Double ("Power.AutoComp",     "",  DC_Pwr,  "kW",   &m_PowerAC,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Reactions",    "",  DC_Pwr,  "kW",   &m_PowerRB,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Evaporation",  "",  DC_Pwr,  "kW",   &m_PowerRB,      m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Environment",  "",  DC_Pwr,  "kW",   &m_PowerEHX,     m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Correction",   "",  DC_Pwr,  "kW",   &m_PowerCorr,    m_pNd, isResult|noFileAtAll);
     DDB.Double ("Power.Total",        "",  DC_Pwr,  "kW",   &m_PowerTot,     m_pNd, isResult|noFileAtAll);
+
+    DDB.Text("");
+    DDB.Double ("Enthalpy.In",         "",  DC_HMs,  "kJ/kg",   &m_HzIn,        m_pNd, isResult|noFileAtAll);
+    DDB.Double ("Enthalpy.Chg.dZ",     "",  DC_HMs,  "kJ/kg",   &m_dHz_Z,       m_pNd, isResult|noFileAtAll);
+    DDB.Double ("Enthalpy.Chg.Vel",    "",  DC_HMs,  "kJ/kg",   &m_dHz_Vel,     m_pNd, isResult|noFileAtAll);
+    DDB.Double ("Enthalpy.Chg.Other",  "",  DC_HMs,  "kJ/kg",   &m_dHz_Other,   m_pNd, isResult|noFileAtAll);
+    DDB.Double ("Enthalpy.Out",        "",  DC_HMs,  "kJ/kg",   &m_HzOut,       m_pNd, isResult|noFileAtAll);
+    //DDB.Double ("Enthalpy.In@Po",      "",  DC_HMs,  "kJ/kg",   &m_HzInPo,      m_pNd, isResult|noFileAtAll);
     }
   DDB.EndStruct();
   };
@@ -2857,6 +2918,13 @@ void CFlwThermalBlk::BeginEvalProducts(SpConduit & Cd)
   m_PowerAC      = 0.0;
   m_PowerTot     = 0.0;
   m_PowerCorr    = 0.0;
+
+  m_HzIn          = m_pCd->msHz();
+  //m_HzInPo        = -m_HzIn;
+  m_dHz_Z         = 0.0;
+  m_dHz_Vel       = 0.0;
+  m_dHz_Other     = 0.0;
+  m_HzOut         = 0.0;
   };
 
 //--------------------------------------------------------------------------
@@ -2870,6 +2938,8 @@ void CFlwThermalBlk::AddWorkPower(double Power, double Press)
   #endif
   m_PowerMech+=Power;
   m_TRiseMech-=m_pCd->Temp();
+  m_dHz_Other-=m_pCd->msHz();
+
   //m_pCd->SetHoldEquilibrate();
   //double Hf=m_pCd->totHf()+Power;
 
@@ -2880,6 +2950,7 @@ void CFlwThermalBlk::AddWorkPower(double Power, double Press)
 
   m_pCd->Set_totHf(m_pCd->totHf()+Power, Press);
   m_TRiseMech+=m_pCd->Temp();
+  m_dHz_Other+=m_pCd->msHz();
   #if (dbgFlwEqns)
   if (dbgThermals())
     dbgpln("                       %10.2f %10.2f %10.2f Vel:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseMech-m_TRiseMechTmp, m_TRiseMech);
@@ -2897,6 +2968,7 @@ void CFlwThermalBlk::AddHeatPower(double Power, double Press)
   #endif
   m_PowerHeat+=Power;
   m_TRiseHeat-=m_pCd->Temp();
+  m_dHz_Other-=m_pCd->msHz();
   //m_pCd->SetHoldEquilibrate();
   //double Hf=m_pCd->totHf()+Power;
 
@@ -2907,6 +2979,7 @@ void CFlwThermalBlk::AddHeatPower(double Power, double Press)
 
   m_pCd->Set_totHf(m_pCd->totHf()+Power, Press);
   m_TRiseHeat+=m_pCd->Temp();
+  m_dHz_Other+=m_pCd->msHz();
   #if (dbgFlwEqns)
   if (dbgThermals())
     dbgpln("                       %10.2f %10.2f %10.2f Heat:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseHeat-m_TRiseHeatTmp, m_TRiseHeat);
@@ -2923,10 +2996,12 @@ void CFlwThermalBlk::AddVLEBegin()
   m_TRiseVLETmp=m_TRiseVLE;
   #endif
   m_TRiseVLE-=m_pCd->Temp();
+  m_dHz_Other-=m_pCd->msHz();
   };
 void CFlwThermalBlk::AddVLEEnd()
   {
   m_TRiseVLE+=m_pCd->Temp();
+  m_dHz_Other+=m_pCd->msHz();
   #if (dbgFlwEqns)
   if (dbgThermals())
     dbgpln("                       %10.2f %10.2f %10.2f VLE:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseVLE-m_TRiseVLETmp, m_TRiseVLE);
@@ -2944,11 +3019,13 @@ void CFlwThermalBlk::AddEHXBegin()
   #endif
   m_PowerEHX-=m_pCd->totHf();
   m_TRiseEHX-=m_pCd->Temp();
+  m_dHz_Other-=m_pCd->msHz();
   };
 void CFlwThermalBlk::AddEHXEnd()
   {
   m_PowerEHX+=m_pCd->totHf();
   m_TRiseEHX+=m_pCd->Temp();
+  m_dHz_Other+=m_pCd->msHz();
   #if (dbgFlwEqns)
   if (dbgThermals())
     dbgpln("                      %10.2f %10.2f %10.2f  EHX:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseEHX-m_TRiseEHXTmp, m_TRiseEHX);
@@ -2966,11 +3043,13 @@ void CFlwThermalBlk::AddRBBegin()
   #endif
   m_PowerRB-=m_pCd->totHf();
   m_TRiseRB-=m_pCd->Temp();
+  m_dHz_Other-=m_pCd->msHz();
   };
 void CFlwThermalBlk::AddRBEnd()
   {
   m_PowerRB+=m_pCd->totHf();
   m_TRiseRB+=m_pCd->Temp();
+  m_dHz_Other+=m_pCd->msHz();
   #if (dbgFlwEqns)
   if (dbgThermals())
     dbgpln("                       %10.2f %10.2f %10.2f  RB:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseRB-m_TRiseRBTmp, m_TRiseRB);
@@ -2988,11 +3067,13 @@ void CFlwThermalBlk::AddEvapBegin()
   #endif
   m_PowerEvap-=m_pCd->totHf();
   m_TRiseEvap-=m_pCd->Temp();
+  m_dHz_Other-=m_pCd->msHz();
   };
 void CFlwThermalBlk::AddEvapEnd()
   {
   m_PowerEvap+=m_pCd->totHf();
   m_TRiseEvap+=m_pCd->Temp();
+  m_dHz_Other+=m_pCd->msHz();
   #if (dbgFlwEqns)
   if (dbgThermals())
     dbgpln("                       %10.2f %10.2f %10.2f  Evap:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseEvap-m_TRiseEvapTmp, m_TRiseEvap);
@@ -3010,8 +3091,10 @@ void CFlwThermalBlk::AddACPower(double Power, double Press)
   #endif
   m_PowerAC+=Power;
   m_TRiseAC-=m_pCd->Temp();
+  m_dHz_Z-=m_pCd->msHz();
   m_pCd->Set_totHf(m_pCd->totHf()+Power, Press);
   m_TRiseAC+=m_pCd->Temp();
+  m_dHz_Z+=m_pCd->msHz();
   #if (dbgFlwEqns)
   if (dbgThermals())
     dbgpln("                       %10.2f %10.2f %10.2f  AC:%+10.5f %10.5f", m_pCd->totHz(), K2C(m_pCd->Temp()), m_pCd->Press(), m_TRiseAC-m_TRiseACTmp, m_TRiseAC);
@@ -3023,6 +3106,8 @@ void CFlwThermalBlk::AddACPower(double Power, double Press)
 void CFlwThermalBlk::EndEvalProducts()
   {
   m_HfOut    = m_pCd->totHf();
+  m_HzOut    = m_pCd->msHz();
+  //m_HzInPo  += m_pCd->msHz(som_ALL, m_TIn, m_pCd->Press());
 
 #if UseNewThermalBlock
   if (m_TRiseSpec!=TR_None)
