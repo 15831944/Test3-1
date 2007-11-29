@@ -270,7 +270,7 @@ typedef struct
         Mdls_Electrical  : 1,  // Option19  0x0001   = KW Electrical                            |       
         Mdls_Alumina     : 1,  // Option18  0x0001   = KW Alumina                               |       
         Mdls_SizeDist    : 1,  // Option17  0x0001   = KW Size-distribution/communition models  |       
-        Mdls_HeatExtra   : 1,  // Option16  0x0001   = KW HeatEx PowerPlant models              |       
+        Mdls_PowerPlant  : 1,  // Option16  0x0001   = KW PowerPlant models                     |       
         Mdls_HeatBal     : 1,  // Option15  0x0001   = KW HeatEx models!                        |       
         Func_Spare2      : 1,  // Option14  0x0001   =                                          |
         Func_Spare1      : 1,  // Option13  0x0001   =                                          |
@@ -343,7 +343,7 @@ class DllImportExport CSysCADLicense : public CLicense
     inline BOOL       AllowMdlsQAL();
     inline BOOL       AllowMdlsUser();
     inline BOOL       AllowMdlsSMDKRuntime();
-    inline BOOL       AllowMdlsHeatExtra();
+    inline BOOL       AllowMdlsPowerPlant();
     inline BOOL       AllowMdlsHeatBal();
     inline BOOL       AllowMdlsAlumina();
     inline BOOL       AllowMdlsSizeDist();

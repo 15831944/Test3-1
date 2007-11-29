@@ -35,7 +35,7 @@ static double Drw_Boiler[] = {  DD_Poly, 5,10, 5,-10, -5,-10, -5,10, 5,10,
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(Boiler, "Boiler", "", Drw_Boiler, "HeatTransfer", "BL", TOC_PROBAL|TOC_GRP_ENERGY|TOC_HEATEXTRA,
+IMPLEMENT_MODELUNIT(Boiler, "Boiler", "", Drw_Boiler, "HeatTransfer", "BL", TOC_PROBAL|TOC_GRP_ENERGY|TOC_POWERPLANT,
                     "Heat Transfer:Boiler",
                     "Simple Boiler." );
 

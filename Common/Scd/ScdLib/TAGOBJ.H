@@ -389,7 +389,7 @@ const DWORD TOC_SOLVE_MASK   = 0x0000000f; //mask for bits associated with solve
 //options associated with license options... (should use ONE of the following)
 const DWORD TOC_STD_KENWALT  = 0x00000010; //part of standard Kenwalt models
 const DWORD TOC_HEATBAL      = 0x00000020; //Kenwalt Heat Exchange models
-const DWORD TOC_HEATEXTRA    = 0x00000040; //Kenwalt Extra Heat Exchange models
+const DWORD TOC_POWERPLANT   = 0x00000040; //Kenwalt Power Plant models (was "Extra Heat Exchange" before Build 126)
 const DWORD TOC_SIZEDIST     = 0x00000080; //Kenwalt size-distribution/communition models
 const DWORD TOC_ALUMINA      = 0x00000100; //Kenwalt alumina models
 const DWORD TOC_SMDKRUNTIME  = 0x00000200; //SMDK runtime BlackBox models

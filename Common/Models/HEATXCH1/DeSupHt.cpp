@@ -36,7 +36,7 @@ static double Drw_DeSuperHeater[] = { DD_Poly, 8,3, 2,1, 1,1, 1,2, -1,2, -1,1, -
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(DeSuperHeater, "DesuperHeater", "", Drw_DeSuperHeater, "HeatTransfer", "DSH", TOC_PROBAL|TOC_GRP_ENERGY|TOC_HEATEXTRA,
+IMPLEMENT_MODELUNIT(DeSuperHeater, "DesuperHeater", "", Drw_DeSuperHeater, "HeatTransfer", "DSH", TOC_PROBAL|TOC_GRP_ENERGY|TOC_POWERPLANT,
                     "Heat Transfer:DesuperHeater",
                     "Simple Desuperheater." )
                     

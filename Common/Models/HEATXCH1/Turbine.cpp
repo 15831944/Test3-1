@@ -17,7 +17,7 @@ static double Drw_Turbine[] = { DD_Poly, -4,4, -4,-4, 4,-8, 4,8, -4,4,
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(CTurbine, "Turbine", "", Drw_Turbine, "HeatTransfer", "TRB", TOC_PROBAL|TOC_GRP_ENERGY|TOC_HEATEXTRA,
+IMPLEMENT_MODELUNIT(CTurbine, "Turbine", "", Drw_Turbine, "HeatTransfer", "TRB", TOC_PROBAL|TOC_GRP_ENERGY|TOC_POWERPLANT,
                     "Heat Transfer:Steam Turbine",
                     "Steam Turbine." )
 

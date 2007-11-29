@@ -114,7 +114,7 @@ void MUnitDefBase::SetModelLicense(dword License)
   if (License & MLicense_Standard) DW = (DW | TOC_STD_KENWALT);
   //if (License & MLicense_BlackBox) DW = (DW | TOC_SMDKRUNTIME);
   if (License & MLicense_HeatExchange) DW = (DW | TOC_HEATBAL);
-  if (License & MLicense_ExtraHeatExchange) DW = (DW | TOC_HEATEXTRA);
+  if (License & MLicense_PowerPlant) DW = (DW | TOC_POWERPLANT);
   if (License & MLicense_PSD) DW = (DW | TOC_SIZEDIST);
   if (License & MLicense_Alumina) DW = (DW | TOC_ALUMINA);
   if (License & MLicense_Electrical) DW = (DW | TOC_POWERDIST);

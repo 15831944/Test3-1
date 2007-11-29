@@ -543,7 +543,7 @@ int GetAuthorization(DWORD * dwOpLevel, int dec)
   Opt.m_Opts.Mdls_Electrical    = PF.RdInt("Options", "Mdls_Electrical  ",    0  );
   Opt.m_Opts.Mdls_Alumina       = PF.RdInt("Options", "Mdls_Alumina     ",    1  );
   Opt.m_Opts.Mdls_SizeDist      = PF.RdInt("Options", "Mdls_SizeDist    ",    1  );
-  Opt.m_Opts.Mdls_HeatExtra     = PF.RdInt("Options", "Mdls_HeatExtra   ",    1  );
+  Opt.m_Opts.Mdls_PowerPlant    = PF.RdInt("Options", "Mdls_PowerPlant  ",    1  );
   Opt.m_Opts.Mdls_HeatBal       = PF.RdInt("Options", "Mdls_HeatBal     ",    1  );
   Opt.m_Opts.Func_Spare2        = PF.RdInt("Options", "Func_Spare2      ",    1  );
   Opt.m_Opts.Func_Spare1        = PF.RdInt("Options", "Func_Spare1      ",    1  );
@@ -3275,7 +3275,7 @@ DWORD CSysCADLicense::GetDemoOptions()
   //model add-ons...
   Opt.m_Opts.Mdls_Electrical        = 0;
   Opt.m_Opts.Mdls_SMDKRuntime       = 0;
-  Opt.m_Opts.Mdls_HeatExtra         = 0;
+  Opt.m_Opts.Mdls_PowerPlant        = 0;
   Opt.m_Opts.Mdls_HeatBal           = 1;
   Opt.m_Opts.Mdls_Alumina           = 0;
   Opt.m_Opts.Mdls_SizeDist          = 0;
@@ -3313,7 +3313,7 @@ DWORD CSysCADLicense::GetAcademicOptions()
   //model add-ons...
   Opt.m_Opts.Mdls_Electrical        = 0;
   Opt.m_Opts.Mdls_SMDKRuntime       = 0;//1;
-  Opt.m_Opts.Mdls_HeatExtra         = 1;
+  Opt.m_Opts.Mdls_PowerPlant        = 1;
   Opt.m_Opts.Mdls_HeatBal           = 1;
   Opt.m_Opts.Mdls_Alumina           = 1;//0;
   Opt.m_Opts.Mdls_SizeDist          = 1;
@@ -3351,7 +3351,7 @@ DWORD CSysCADLicense::GetTrialOptions()
   //model add-ons...
   Opt.m_Opts.Mdls_Electrical        = 1;
   Opt.m_Opts.Mdls_SMDKRuntime       = 1;
-  Opt.m_Opts.Mdls_HeatExtra         = 1;
+  Opt.m_Opts.Mdls_PowerPlant        = 1;
   Opt.m_Opts.Mdls_HeatBal           = 1;
   Opt.m_Opts.Mdls_Alumina           = 1;
   Opt.m_Opts.Mdls_SizeDist          = 1;
@@ -3560,8 +3560,8 @@ DWORD CSysCADLicense::LicCatagories()
   DWORD dw=TOC_STD_KENWALT;
   if (AllowMdlsHeatBal())
     dw |= TOC_HEATBAL;
-  if (AllowMdlsHeatExtra())
-    dw |= TOC_HEATEXTRA;
+  if (AllowMdlsPowerPlant())
+    dw |= TOC_POWERPLANT;
   if (AllowMdlsSizeDist())
     dw |= TOC_SIZEDIST;
   if (AllowMdlsAlumina())
@@ -3641,7 +3641,7 @@ BOOL CSysCADLicense::AllowMdlsAlcan()          { return m_pSecOpt->m_Opts.Client
 BOOL CSysCADLicense::AllowMdlsQAL()            { return m_pSecOpt->m_Opts.Client_QAL && !m_State.m_bBlocked; };
 BOOL CSysCADLicense::AllowMdlsUser()           { return m_pSecOpt->m_Opts.Client_Other && !m_State.m_bBlocked; };
 BOOL CSysCADLicense::AllowMdlsSMDKRuntime()    { return m_pSecOpt->m_Opts.Mdls_SMDKRuntime && !m_State.m_bBlocked; };
-BOOL CSysCADLicense::AllowMdlsHeatExtra()      { return m_pSecOpt->m_Opts.Mdls_HeatExtra && !m_State.m_bBlocked; };
+BOOL CSysCADLicense::AllowMdlsPowerPlant()     { return m_pSecOpt->m_Opts.Mdls_PowerPlant && !m_State.m_bBlocked; };
 BOOL CSysCADLicense::AllowMdlsHeatBal()        { return m_pSecOpt->m_Opts.Mdls_HeatBal && !m_State.m_bBlocked; };
 BOOL CSysCADLicense::AllowMdlsAlumina()        { return m_pSecOpt->m_Opts.Mdls_Alumina && !m_State.m_bBlocked; };
 BOOL CSysCADLicense::AllowMdlsSizeDist()       { return m_pSecOpt->m_Opts.Mdls_SizeDist && !m_State.m_bBlocked; };
