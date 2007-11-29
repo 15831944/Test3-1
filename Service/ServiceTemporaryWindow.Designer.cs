@@ -62,7 +62,8 @@ namespace SysCAD.Service
       this.logView.LogFile = "c:\\ServiceLog.txt";
       this.logView.Name = "logView";
       this.logView.Size = new System.Drawing.Size(876, 116);
-      this.logView.TabIndex = 0;
+      this.logView.TabIndex = 4;
+      this.logView.TabStop = false;
       this.logView.UseCompatibleStateImageBehavior = false;
       this.logView.View = System.Windows.Forms.View.Details;
       // 
@@ -82,7 +83,8 @@ namespace SysCAD.Service
       this.splitContainer1.Panel2.Controls.Add(this.logView);
       this.splitContainer1.Size = new System.Drawing.Size(876, 596);
       this.splitContainer1.SplitterDistance = 476;
-      this.splitContainer1.TabIndex = 1;
+      this.splitContainer1.TabIndex = 10;
+      this.splitContainer1.TabStop = false;
       // 
       // splitContainer2
       // 
@@ -99,7 +101,8 @@ namespace SysCAD.Service
       this.splitContainer2.Panel2.Controls.Add(this.tableLayoutPanel1);
       this.splitContainer2.Size = new System.Drawing.Size(876, 476);
       this.splitContainer2.SplitterDistance = 637;
-      this.splitContainer2.TabIndex = 1;
+      this.splitContainer2.TabIndex = 10;
+      this.splitContainer2.TabStop = false;
       // 
       // flowChart
       // 
@@ -113,7 +116,7 @@ namespace SysCAD.Service
       this.flowChart.Location = new System.Drawing.Point(0, 0);
       this.flowChart.Name = "flowChart";
       this.flowChart.Size = new System.Drawing.Size(637, 476);
-      this.flowChart.TabIndex = 0;
+      this.flowChart.TabIndex = 5;
       // 
       // tableLayoutPanel1
       // 
@@ -146,7 +149,8 @@ namespace SysCAD.Service
       this.projectListView.MultiSelect = false;
       this.projectListView.Name = "projectListView";
       this.projectListView.Size = new System.Drawing.Size(229, 420);
-      this.projectListView.TabIndex = 0;
+      this.projectListView.TabIndex = 2;
+      this.projectListView.TabStop = false;
       this.projectListView.UseCompatibleStateImageBehavior = false;
       this.projectListView.View = System.Windows.Forms.View.Details;
       this.projectListView.SelectedIndexChanged += new System.EventHandler(this.projectListView_SelectedIndexChanged);
@@ -165,7 +169,7 @@ namespace SysCAD.Service
       this.addProjectButton.Location = new System.Drawing.Point(3, 429);
       this.addProjectButton.Name = "addProjectButton";
       this.addProjectButton.Size = new System.Drawing.Size(75, 23);
-      this.addProjectButton.TabIndex = 1;
+      this.addProjectButton.TabIndex = 0;
       this.addProjectButton.Text = "Add";
       this.addProjectButton.UseVisualStyleBackColor = true;
       this.addProjectButton.Click += new System.EventHandler(this.addProjectButton_Click);
@@ -176,7 +180,7 @@ namespace SysCAD.Service
       this.removeProjectButton.Location = new System.Drawing.Point(120, 429);
       this.removeProjectButton.Name = "removeProjectButton";
       this.removeProjectButton.Size = new System.Drawing.Size(75, 23);
-      this.removeProjectButton.TabIndex = 2;
+      this.removeProjectButton.TabIndex = 1;
       this.removeProjectButton.Text = "Remove Project";
       this.removeProjectButton.UseVisualStyleBackColor = true;
       this.removeProjectButton.Click += new System.EventHandler(this.removeProjectButton_Click);

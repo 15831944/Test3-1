@@ -29,6 +29,8 @@ namespace SysCAD.Service
     {
       InitializeComponent();
 
+      addProjectButton.Focus();
+
       this.Text = "SysCAD.Service (" + Assembly.Load("SysCAD.Service").GetName().Version + ") -- SVN Revision: " + SysCAD.SVNVersion.SVNVersion.version;
 
       Config config = new Config();

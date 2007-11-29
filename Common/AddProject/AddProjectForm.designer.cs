@@ -46,7 +46,7 @@ namespace SysCAD
       this.addButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.addButton.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.addButton.Enabled = false;
-      this.addButton.Location = new System.Drawing.Point(166, 68);
+      this.addButton.Location = new System.Drawing.Point(309, 108);
       this.addButton.Margin = new System.Windows.Forms.Padding(2);
       this.addButton.Name = "addButton";
       this.addButton.Size = new System.Drawing.Size(56, 19);
@@ -58,7 +58,7 @@ namespace SysCAD
       // 
       this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.cancelButton.Location = new System.Drawing.Point(227, 68);
+      this.cancelButton.Location = new System.Drawing.Point(370, 108);
       this.cancelButton.Margin = new System.Windows.Forms.Padding(2);
       this.cancelButton.Name = "cancelButton";
       this.cancelButton.Size = new System.Drawing.Size(56, 19);
@@ -73,29 +73,28 @@ namespace SysCAD
       // nameLabel
       // 
       this.nameLabel.AutoSize = true;
-      this.nameLabel.Location = new System.Drawing.Point(12, 15);
+      this.nameLabel.Location = new System.Drawing.Point(12, 51);
       this.nameLabel.Name = "nameLabel";
       this.nameLabel.Size = new System.Drawing.Size(38, 13);
-      this.nameLabel.TabIndex = 7;
+      this.nameLabel.TabIndex = 1;
       this.nameLabel.Text = "Name:";
       // 
       // nameTextBox
       // 
       this.nameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.nameTextBox.Location = new System.Drawing.Point(56, 12);
+      this.nameTextBox.Location = new System.Drawing.Point(55, 48);
       this.nameTextBox.Name = "nameTextBox";
-      this.nameTextBox.Size = new System.Drawing.Size(227, 20);
-      this.nameTextBox.TabIndex = 8;
+      this.nameTextBox.Size = new System.Drawing.Size(371, 20);
+      this.nameTextBox.TabIndex = 2;
       this.nameTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
       // 
       // browseButton
       // 
-      this.browseButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-      this.browseButton.Location = new System.Drawing.Point(15, 68);
+      this.browseButton.Location = new System.Drawing.Point(12, 12);
       this.browseButton.Name = "browseButton";
       this.browseButton.Size = new System.Drawing.Size(75, 23);
-      this.browseButton.TabIndex = 9;
+      this.browseButton.TabIndex = 0;
       this.browseButton.Text = "Browse...";
       this.browseButton.UseVisualStyleBackColor = true;
       this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
@@ -104,26 +103,28 @@ namespace SysCAD
       // 
       this.pathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.pathTextBox.Location = new System.Drawing.Point(56, 38);
+      this.pathTextBox.Location = new System.Drawing.Point(55, 74);
       this.pathTextBox.Name = "pathTextBox";
-      this.pathTextBox.Size = new System.Drawing.Size(227, 20);
-      this.pathTextBox.TabIndex = 11;
+      this.pathTextBox.Size = new System.Drawing.Size(371, 20);
+      this.pathTextBox.TabIndex = 4;
       this.pathTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
       // 
       // pathLabel
       // 
       this.pathLabel.AutoSize = true;
-      this.pathLabel.Location = new System.Drawing.Point(12, 41);
+      this.pathLabel.Location = new System.Drawing.Point(12, 77);
       this.pathLabel.Name = "pathLabel";
       this.pathLabel.Size = new System.Drawing.Size(32, 13);
-      this.pathLabel.TabIndex = 10;
+      this.pathLabel.TabIndex = 3;
       this.pathLabel.Text = "Path:";
       // 
       // AddProjectForm
       // 
+      this.AcceptButton = this.addButton;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(294, 98);
+      this.CancelButton = this.cancelButton;
+      this.ClientSize = new System.Drawing.Size(437, 138);
       this.Controls.Add(this.pathTextBox);
       this.Controls.Add(this.pathLabel);
       this.Controls.Add(this.browseButton);
@@ -135,7 +136,7 @@ namespace SysCAD
       this.Margin = new System.Windows.Forms.Padding(2);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(300, 130);
+      this.MinimumSize = new System.Drawing.Size(300, 170);
       this.Name = "AddProjectForm";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
