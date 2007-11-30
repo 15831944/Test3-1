@@ -441,11 +441,10 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       SigmaQInPMin(Fd(), som_ALL, Id_2_Mask(ioidFd));
       flag HasFlw = (Fd().QMass(som_ALL)>UsableMass);
 
-      m_BlkEval.EvalProducts(0, Fd(), Fd->Press(), NULL);
-
-
       if (m_bShowQFeed)
         m_QFeed.QCopy(Fd());
+
+      //m_BlkEval.EvalProducts(0, Fd(), Fd->Press(), NULL);
 
       //double POut = AtmosPress(); //force outlet to Atmos P
       double POut = Std_P; //force outlet to Std_P

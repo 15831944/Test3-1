@@ -895,14 +895,14 @@ double QSMBayer::SolidsConc(double T_)
 
 double QSMBayer::LVolume25()
   {
-  return (Mass(som_Liq) / Rho(som_Liq, C_2_K(25.0), Press()));
+  return (Mass(som_Liq) / GTZ(Rho(som_Liq, C_2_K(25.0), Press())));
   }
 
 //---------------------------------------------------------------------------
 
 double QSMBayer::SLVolume25()
   {
-  return (Mass(som_SL) / Rho(som_SL, C_2_K(25.0), Press()));
+  return (Mass(som_SL) / GTZ(Rho(som_SL, C_2_K(25.0), Press())));
   }
 
 //---------------------------------------------------------------------------

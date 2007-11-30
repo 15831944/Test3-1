@@ -5015,7 +5015,7 @@ int GCInsMngr::UpdateXRef(pGCVar pVar)
   //dbgpln("  ---> UpdateXRef %s %s %s ", pXRef->m_bMustSet?"Set":"   ", pXRef->m_bMustGet?"Get":"   ", pXRef->m_sRefTag());
 
   //pXRef->SetRefTagOK(1);
-  //dbgpln("FNXR %s", pXRef->pName);
+  //dbgpln("FNXR %s", pXRef->m_pName);
 #pragma chCHECKIT("MustBeParm")
   int RetCode = m_pXRM->ResolveNearXRef(pXRef, false);
   if (pXRef->m_bDynTag)
