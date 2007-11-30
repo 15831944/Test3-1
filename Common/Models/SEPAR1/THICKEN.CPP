@@ -444,8 +444,6 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       if (m_bShowQFeed)
         m_QFeed.QCopy(Fd());
 
-      //m_BlkEval.EvalProducts(0, Fd(), Fd->Press(), NULL);
-
       //double POut = AtmosPress(); //force outlet to Atmos P
       double POut = Std_P; //force outlet to Std_P
       CThickenerOFFnd Fnd(Wrk(), Fd(), Co, Cu, pVent, this, &m_BlkEval, POut, m_RqdUFSolids, m_iRqdOFMethod);
