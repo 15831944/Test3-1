@@ -11684,6 +11684,7 @@ DeleteIt:
         if (p->HeatMethod()==0)
           LogWarning(Tag(), 0, "No Allowed HeatMethod %s", ClassId());
     
+        dbgpln("XXXXX %s", p->FullObjTag());
         //p->SetFlowMode(p->FlowMode()); // update FlowMode requirements
         //double t0=SW.Secs();
         p->GlobalConnect();
@@ -15434,9 +15435,11 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
         if ((pObj==NULL) && (FCB.Type()==TOF_DBase))
           {
           // Prevent any other FlwSolvers Etc being created
-          //dbgpln(">>>>>>>>>%s<<<<<<<<<<", pItem->Class());
+          dbgp(">>>>>>>>> %-20s %-30s", pItem->Class(), pItem->SymOrTag());
 
           if (_stricmp(pItem->Class(), CFlangeClass.ClassId())==0)
+            goto Done;
+          if (_stricmp(pItem->Class(), CDirectLinkClass.ClassId())==0)
             goto Done;
 
           if (_stricmp(pItem->Class(), CFlwSolverClass.ClassId())==0)
@@ -15471,8 +15474,10 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
           if (_stricmp(pItem->Class(), IOObjectClass.ClassId())==0)
             goto Done;
 #endif
+          dbgp(" Insert!");
           pObj=InsertNode(this, pItem->Class(), pItem->SubClass(), pItem->PrimaryCfg(), pItem->SymOrTag(), NULL, TOA_Free);//pchar TypIdIn, pchar TagIn)
 Done:;
+          dbgpln("");
           }
 
         if (IsPBClass && !NetProbalMethod())
@@ -15492,7 +15497,8 @@ Done:;
               }
             }
           }
-        else if (_stricmp(pItem->Class(), CFlangeClass.ClassId())==0)
+        else if ((_stricmp(pItem->Class(), CFlangeClass.ClassId())==0) || 
+                 (_stricmp(pItem->Class(), CDirectLinkClass.ClassId())==0))
           {
           // this will be created on the fly - makeups etc - ie ignore for now!
           }
