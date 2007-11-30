@@ -19,6 +19,8 @@
 static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
+#define AllSymsString "*All*"
+
 //===========================================================================
 //
 //
@@ -214,13 +216,7 @@ void CInsertUnitDlg::Reset()
 void CInsertUnitDlg::DoDataExchange(CDataExchange* pDX)
   {
   CDialog::DoDataExchange(pDX);
-  //{{AFX_DATA_MAP(CInsertUnitDlg)
-  //DDX_Text(pDX, IDC_MDLROT, m_Rotate);
-  //DDX_Text(pDX, IDC_MDLSCL_X, m_Scl_X);
-  //DDX_Text(pDX, IDC_MDLSCL_Y, m_Scl_Y);
   DDX_Check(pDX, IDC_HideTag, m_HideTag);
-  DDX_Check(pDX, IDC_ALLSYMB, m_AllSymbols);
-  //}}AFX_DATA_MAP
   DDX_Control(pDX, IDC_MDL_TREE, m_MdlTree);
   DDX_Control(pDX, IDC_STATICFRAME, m_SymbolFrame);
   DDX_Control(pDX, IDC_MDLSYMBOL, m_SymbolList);
@@ -228,8 +224,8 @@ void CInsertUnitDlg::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_MDLROT, m_Rotate);
   DDX_Control(pDX, IDC_MDLSCL_X, m_Scl_X);
   DDX_Control(pDX, IDC_MDLSCL_Y, m_Scl_Y);
-  DDX_Control(pDX, IDC_DRWGROUPSTATIC, m_DrwGrpStatic);
   DDX_Check(pDX, IDC_EXISTINGMODEL, m_bExistingModel);
+  DDX_Control(pDX, IDC_MDLGROUP, m_MdlGroup);
   }
 
 //---------------------------------------------------------------------------
@@ -259,6 +255,7 @@ BEGIN_MESSAGE_MAP(CInsertUnitDlg, CDialog)
   ON_BN_CLICKED(IDC_HideTag, OnBnClickedHidetag)
   ON_STN_CLICKED(IDC_STATICFRAME, OnStnClickedStaticframe)
   ON_BN_CLICKED(IDOK, OnBnClickedOk)
+  ON_CBN_SELCHANGE(IDC_MDLGROUP, &CInsertUnitDlg::OnCbnSelchangeMdlgroup)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
@@ -495,6 +492,7 @@ BOOL CInsertUnitDlg::OnInitDialog()
   m_bInited=true;
 
   m_SymbolList.ResetContent();
+  m_MdlGroup.ResetContent();
   //LISTBOXINFO LI;
   //pSymList->GetListBoxInfo(&LI);
   //CEdit Ed;
@@ -510,7 +508,7 @@ BOOL CInsertUnitDlg::OnInitDialog()
     return FALSE;
     }
 
-  ChangeModel((LPTSTR)(LPCTSTR)GetSelMdlName(), 0);
+  ChangeModel(NULL, GetSelMdlName(), 0);
 
   ShowWindow(SW_SHOW);    
 
@@ -883,7 +881,7 @@ void CInsertUnitDlg::MakeUniqueTag()
 
 //---------------------------------------------------------------------------
 
-void CInsertUnitDlg::ChangeModel(LPTSTR MdlName, DWORD MdlIndex)
+void CInsertUnitDlg::ChangeModel(LPCSTR GrpName, LPCSTR MdlName, DWORD MdlIndex)
   {
   if (m_iHoldUpd==0)
     UpdateData(true);
@@ -893,7 +891,7 @@ void CInsertUnitDlg::ChangeModel(LPTSTR MdlName, DWORD MdlIndex)
     {
     m_BaseTag     = "";
     m_ModelClass  = "";
-    m_DrwGroup    = "";
+    m_DrwGroup    = GrpName?GrpName:"";
     FillSymbolList();
     LoadSelectedSymbol();//OnLbnSelchangeMdlsymbol();//OnSelchangeMdlsymbol();
     }
@@ -901,12 +899,12 @@ void CInsertUnitDlg::ChangeModel(LPTSTR MdlName, DWORD MdlIndex)
     {
 
     if (MdlName)
-      m_MLH.Find(MdlName);
+      m_MLH.Find((LPSTR)MdlName);
     else
       m_MLH.Find(MdlIndex);
     m_BaseTag     = m_MLH.m_pBaseTag ? *m_MLH.m_pBaseTag:"";
     m_ModelClass  = m_MLH.m_pModelClass ? *m_MLH.m_pModelClass : "";
-    m_DrwGroup    = m_MLH.m_pDrwGroup ? *m_MLH.m_pDrwGroup:"";
+    m_DrwGroup    = GrpName?GrpName:m_MLH.m_pDrwGroup ? *m_MLH.m_pDrwGroup:"";
 
     m_SymbolList.ResetContent();
     if (m_MLH.m_pDescStr)
@@ -1141,9 +1139,32 @@ void CInsertUnitDlg::FillSymbolList()
   {
   CWaitCursor Wait;
 
-  m_SymbolList.LockWindowUpdate();
+  m_MdlGroup.LockWindowUpdate();
+  m_MdlGroup.ResetContent();
+  m_MdlGroup.AddString(AllSymsString);
 
-  CString GrpTxt("Drawing Group: ");
+  POSITION Pos=m_DrwSymbols.GetHeadPosition();
+  while (Pos)
+    {
+    CString &S=m_DrwSymbols.GetNext(Pos);
+    int iColon=S.Find(":");
+    if (iColon>=0)
+      {
+      CString Grp(S.Left(iColon));
+      if (m_MdlGroup.FindString(-1, Grp)<0)
+        m_MdlGroup.AddString(Grp);
+      }
+    }
+
+  if (m_AllSymbols)
+    m_MdlGroup.SelectString(-1, AllSymsString);
+  else
+    m_MdlGroup.SelectString(-1, m_DrwGroup());
+
+
+  m_MdlGroup.UnlockWindowUpdate();
+
+  m_SymbolList.LockWindowUpdate();
   m_SymbolList.ResetContent();
 
   if (m_bMdlValid && m_DrwGroup())
@@ -1154,7 +1175,6 @@ void CInsertUnitDlg::FillSymbolList()
 
     if (m_AllSymbols)
       {
-      GrpTxt+="ALL";
       POSITION Pos=m_DrwSymbols.GetHeadPosition();
       while (Pos)
         {
@@ -1164,7 +1184,6 @@ void CInsertUnitDlg::FillSymbolList()
       }
     else
       {
-      GrpTxt+=m_DrwGroup();
       int GrpLen=m_DrwGroup.GetLength();
       POSITION Pos=m_DrwSymbols.GetHeadPosition();
       while (Pos)
@@ -1197,7 +1216,6 @@ void CInsertUnitDlg::FillSymbolList()
         }
     }
 
-  m_DrwGrpStatic.SetWindowText(GrpTxt);
   m_SymbolList.UnlockWindowUpdate();
   }
 
@@ -1911,7 +1929,7 @@ void CInsertUnitDlg::OnChangeMdltag()
   Tag=Tag.Trim();
   m_bTagChgd = Tag.GetLength()>0;
   if (!m_bTagChgd)
-    ChangeModel((LPTSTR)(LPCTSTR)GetSelMdlName(), 0);
+    ChangeModel(NULL, GetSelMdlName(), 0);
   }
 
 //---------------------------------------------------------------------------
@@ -1930,14 +1948,14 @@ void CInsertUnitDlg::OnTvnSelchangedMdlTree(NMHDR *pNMHDR, LRESULT *pResult)
     if (Data<0xFFFF)
       {
       m_bMdlValid=true;
-      ChangeModel(NULL, Data);
+      ChangeModel(NULL, NULL, Data);
       Done=true;
       }
     }
 
   if (!Done)
     {
-    ChangeModel(NULL, 0xFFFF);
+    ChangeModel(NULL, NULL, 0xFFFF);
     InvalidateRect(m_SymRectClient, TRUE); 
     m_SymbolFrame.Invalidate();
     }
@@ -1951,7 +1969,7 @@ void CInsertUnitDlg::OnAllsymb()
   {
   UpdateData(TRUE);
   //m_bUsePrevSymb = 1;
-  ChangeModel((LPTSTR)(LPCTSTR)GetSelMdlName(), 0);
+  ChangeModel(NULL, GetSelMdlName(), 0);
   //m_bUsePrevSymb = 0;
   }
 
@@ -2057,3 +2075,24 @@ void CInsertUnitDlg::OnBnClickedOk()
   // TODO: Add your control notification handler code here
   OnOK();
   }
+
+void CInsertUnitDlg::OnCbnSelchangeMdlgroup()
+  {
+  UpdateData(TRUE);
+
+  int iCur=m_MdlGroup.GetCurSel();
+  if (iCur>=0)
+    {
+    CString Grp;
+    m_MdlGroup.GetLBText(iCur, Grp);
+    m_AllSymbols=(Grp.CompareNoCase(AllSymsString)==0);
+    m_DrwGroup = Grp;
+    UpdateData(FALSE); // put it away
+
+    m_iHoldUpd++;    
+    ChangeModel(Grp, GetSelMdlName(), 0);
+    m_iHoldUpd--;    
+    UpdateData(FALSE);
+    }
+  }
+

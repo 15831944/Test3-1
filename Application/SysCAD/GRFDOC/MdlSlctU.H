@@ -46,7 +46,7 @@ class CInsertUnitDlg : public CDialog
     void                  SaveLastSymbol();
     void                  SelectLastSymbol(LPCTSTR RqdSymbol=NULL);
     void                  FillSymbolList();
-    void                  ChangeModel(LPTSTR MdlName, DWORD MdlIndex);
+    void                  ChangeModel(LPCSTR GrpName, LPCSTR MdlName, DWORD MdlIndex);
     CString               GetSelMdlName();
     long                  GetSelMdlIndex();
     void                  SetCWin(flag On);
@@ -104,7 +104,6 @@ class CInsertUnitDlg : public CDialog
     CEdit                 m_Scl_X;
     CEdit                 m_Scl_Y;
     BOOL                  m_HideTag;
-    BOOL                  m_AllSymbols;
     CTreeCtrl             m_MdlTree;
     //}}AFX_DATA
 
@@ -142,6 +141,7 @@ class CInsertUnitDlg : public CDialog
 
     CBitmap               IWinBitmap;
     CBitmap               CWinBitmap;
+    BOOL                  m_AllSymbols;
 
     Grf3D_Display       * m_pDsp;
     DXF_Drawing         * m_pDrw;
@@ -199,11 +199,12 @@ class CInsertUnitDlg : public CDialog
 
     DECLARE_MESSAGE_MAP()
 public:
-  CStatic m_DrwGrpStatic;
   afx_msg void OnBnClickedHidetag();
   afx_msg void OnStnClickedStaticframe();
   afx_msg void OnBnClickedOk();
   BOOL m_bExistingModel;
+  CComboBox m_MdlGroup;
+  afx_msg void OnCbnSelchangeMdlgroup();
 };
 
 //---------------------------------------------------------------------------
