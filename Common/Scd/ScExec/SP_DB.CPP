@@ -7252,6 +7252,10 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
     //Fn+="SpecieData.ini";
     Fn=FnSpecieDataINIFile();
     CProfINIFile PF(Fn());
+    // Clear;
+    PF.WrSection("Elements", "\0\0");
+    PF.WrSection("Species", "\0\0");
+    // Write Current Config
     for (int e=0; e<EDB.Count(); e++)
       {
       if (1)//EDB[e]
