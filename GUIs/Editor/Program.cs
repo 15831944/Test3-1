@@ -17,30 +17,57 @@ namespace SysCAD.Editor
       Application.SetCompatibleTextRenderingDefault(false);
 
       EditorForm editorForm = new EditorForm();
-      try
+
+      while (editorForm != null)
       {
-        Application.Run(editorForm);
-      }
-      catch (Exception e)
-      {
-        ShowStackTraceBox(e, editorForm);
+        try
+        {
+          Application.Run(editorForm);
+        }
+        catch (SysCAD.Protocol.ConnectionLostException cle)
+        {
+          if (MessageBox.Show("The connection with the server was lost.", "Connection with server lost.", MessageBoxButtons.RetryCancel) == DialogResult.Retry)
+          {
+            editorForm.Dispose();
+            editorForm = new EditorForm();
+          }
+          else
+          {
+            editorForm.Dispose();
+            editorForm = null;
+          }
+        }
+        catch (Exception e)
+        {
+          if (ShowStackTraceBox(e, editorForm) == DialogResult.Retry)
+          {
+            editorForm.Dispose();
+            editorForm = new EditorForm();
+          }
+          else
+          {
+            editorForm.Dispose();
+            editorForm = null;
+          }
+        }
       }
     }
 
-    private static void ShowStackTraceBox(Exception e, EditorForm editorForm)
+    private static DialogResult ShowStackTraceBox(Exception e, EditorForm editorForm)
     {
       string messagePre = string.Empty;
       string messageBody = string.Empty;
-      string messagePost = string.Empty;
-      messagePre += "An error has occurred, please add this information to bugzilla\n";
-      messagePre += "or email a copy of this debug information along with what you\n";
-      messagePre += "were doing to paul.hannah@syscad.net:\n\n";
-      messageBody += "Exception message:\n" + e.Message + "\n\n";
+
+      messagePre += "An error has occurred.  Detailed debug information has been copied into the clipboard.\n";
+      messagePre += "Please add to bugzilla or email paul.hannah@syscad.net a copy of this debug information\n";
+      messagePre += "along with what you were doing.\n\n";
+            
+      messageBody += "Exception:\n" + e.ToString() + "\n\n";
       if ((e.Data != null) && (e.Data.Count > 0))
       {
         messageBody += "Extra details:\n";
         foreach (System.Collections.DictionaryEntry de in e.Data)
-          messageBody += "    The key is '" + de.Key + "' and the value is: " + de.Value + "\n";
+          messageBody += "The key is '" + de.Key + "' and the value is: " + de.Value + "\n";
         messageBody += "\n";
       }
       if (e.InnerException != null)
@@ -48,13 +75,12 @@ namespace SysCAD.Editor
         messageBody += "Inner exception message:\n" + e.InnerException.Message + "\n\n";
         if (e.InnerException.Data != null)
         {
-          messageBody += "  Extra details:";
+          messageBody += "Extra details:";
           foreach (System.Collections.DictionaryEntry de in e.InnerException.Data)
-            messageBody += "    The key is '" + de.Key + "' and the value is: " + de.Value + "\n";
+            messageBody += "The key is '" + de.Key + "' and the value is: " + de.Value + "\n";
           messageBody += "\n";
         }
       }
-      messageBody += "Stack trace:\n" + e.StackTrace + "\n\n";
 
       if (editorForm != null)
       {
@@ -142,11 +168,9 @@ namespace SysCAD.Editor
         }
       }
 
-      messagePost += "\n(A copy of this debug information has already been pasted into the clipboard.)";
-
       Clipboard.SetText(messageBody);
 
-      MessageBox.Show(messagePre + messageBody + messagePost, "An error has occurred.");
+      return MessageBox.Show(messagePre, "An error has occurred.", MessageBoxButtons.RetryCancel);
     }
   }
 }

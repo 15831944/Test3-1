@@ -34,7 +34,9 @@ namespace SysCAD.Service
           projects.Add(project.Path, project);
         }
 
-        Application.Run(new ServiceTemporaryWindow(stencilPath, projects));
+        ServiceTemporaryWindow serviceTemporaryWindow = new ServiceTemporaryWindow(stencilPath, projects);
+        Application.Run(serviceTemporaryWindow);
+        serviceTemporaryWindow.Dispose();
 
         foreach (Project project in projects.Values)
         {

@@ -34,7 +34,7 @@ namespace SysCAD.Editor
     }
     private Timer opacityTimer = new Timer();
 
-    private System.IO.StreamWriter debugLog;
+    //private System.IO.StreamWriter debugLog;
 
     public EditorLink(State state, Guid guid, String tag, GraphicLink graphicLink, ModelLink modelLink)
     {
@@ -47,7 +47,11 @@ namespace SysCAD.Editor
       opacityTimer.Interval = 50;
       opacityTimer.Elapsed += new ElapsedEventHandler(opacityTimer_Elapsed);
 
-      debugLog = new System.IO.StreamWriter("c:\\" + guid.ToString() + " - " + tag + ".log");
+      //debugLog = new System.IO.StreamWriter("c:\\" + guid.ToString() + " - " + tag + ".log");
+    }
+
+    ~EditorLink()
+    {
     }
 
     private void opacityTimer_Elapsed(object source, ElapsedEventArgs e)

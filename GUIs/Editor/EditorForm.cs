@@ -20,7 +20,7 @@ using System.Runtime.Remoting.Channels.Tcp;
 namespace SysCAD.Editor
 {
 
-  internal partial class EditorForm : Form
+  internal partial class EditorForm : Form, IDisposable
   {
     private FrmFlowChart frmFlowChart;
 
@@ -61,6 +61,34 @@ namespace SysCAD.Editor
       //catch (Exception) { }
 
       this.Text = "SysCAD.Editor (" + Assembly.Load("SysCAD.Editor").GetName().Version + ") -- SVN Revision: " + SysCAD.SVNVersion.SVNVersion.version + " -- ";
+    }
+
+    ~EditorForm()
+    {
+      Dispose(false);
+    }
+
+    protected void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        foreach (System.Runtime.Remoting.Channels.IChannel channel in System.Runtime.Remoting.Channels.ChannelServices.RegisteredChannels)
+          System.Runtime.Remoting.Channels.ChannelServices.UnregisterChannel(channel);
+      }
+      // Code to dispose the un-managed resources of the class
+
+      if (disposing && (components != null))
+      {
+        components.Dispose();
+      }
+
+      base.Dispose(disposing);
+    }
+
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
     }
 
     public delegate void LoadProjectDelegate(ClientProtocol clientProtocol, Config config);
@@ -268,7 +296,7 @@ namespace SysCAD.Editor
       if (barManager1.Commands["Tools.Unlock(Demo)"].Text == "Unlock (Demo)")
       {
         frmFlowChart.State.Permissions = new ClientBaseProtocol.Permissions(true, true, true);
-        barManager1.Commands["Tools.Unlock(Demo)"].Text= "Lock (Demo)";
+        barManager1.Commands["Tools.Unlock(Demo)"].Text = "Lock (Demo)";
         SetButtonStates();
       }
       else
@@ -447,10 +475,10 @@ namespace SysCAD.Editor
       if (IsLeaf(node))
       {
         //if (IsItem(node))
-          //frmFlowChart.State.ModifyGraphicNodePath(out requestId, new Guid(node.Key), node.FullPath);
+        //frmFlowChart.State.ModifyGraphicNodePath(out requestId, new Guid(node.Key), node.FullPath);
 
         //if (IsThing(node))
-          //frmFlowChart.State.ModifyGraphicThingPath(out requestId, new Guid(node.Key), node.FullPath);
+        //frmFlowChart.State.ModifyGraphicThingPath(out requestId, new Guid(node.Key), node.FullPath);
       }
 
       foreach (PureComponents.TreeView.Node subNode in node.Nodes)
@@ -540,7 +568,7 @@ namespace SysCAD.Editor
         barManager1.Commands["Selection.SelectItems"].Enabled = projectOpen;
         barManager1.Commands["Selection.SelectLinks"].Enabled = projectOpen;
         barManager1.Commands["Mode.Modify"].Enabled = projectOpen && permissions.Modify;
-        
+
         barManager1.Commands["Mode.CreateLink"].Enabled = projectOpen && permissions.Create;
         stencilChooser1.Enabled = projectOpen && permissions.Create;
 

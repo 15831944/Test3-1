@@ -43,6 +43,7 @@ namespace SysCAD.Service
 
         Hashtable ipcProps = new Hashtable();
         ipcProps["portName"] = "SysCAD.Service";
+        ipcProps["exclusiveAddressUse"] = false;
         //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
         IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
         ChannelServices.RegisterChannel(ipcChannel, false);
@@ -65,6 +66,34 @@ namespace SysCAD.Service
 
         this.projects = projects;
       }
+    }
+
+    ~ServiceTemporaryWindow()
+    {
+      Dispose(false);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        foreach (System.Runtime.Remoting.Channels.IChannel channel in System.Runtime.Remoting.Channels.ChannelServices.RegisteredChannels)
+          System.Runtime.Remoting.Channels.ChannelServices.UnregisterChannel(channel);
+      }
+      // Code to dispose the un-managed resources of the class
+
+      if (disposing && (components != null))
+      {
+        components.Dispose();
+      }
+
+      base.Dispose(disposing);
+    }
+
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
     }
 
     private delegate bool TestProjectDelegate(Project project);

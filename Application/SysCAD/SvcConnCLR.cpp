@@ -100,6 +100,8 @@ ref class CSvcConnectCLRThread
       };
     ~CSvcConnectCLRThread()
       {
+        for each (IChannel^ channel in ChannelServices::RegisteredChannels)
+          ChannelServices::UnregisterChannel(channel);
       };
 
     bool Startup(String^ configPath)
