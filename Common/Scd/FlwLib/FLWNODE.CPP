@@ -3359,7 +3359,8 @@ flag FlwNode::fInConfigureJoins       = 0;
 flag FlwNode::fCollectChgStats        = 0;
 dword FlwNode::m_dwMdlStatusOptions   = 0;
 
-long gs_ClosureOption   = CloseTest_Off;
+long gs_ClosureOption   = CloseTest_Msgs;
+long gs_ClosureIterCnt  = 10; //eval every 10 iters
 long gs_SpillOption     = SpillReports_Cnds;
 long gs_AuditOption     = Audit_Off;
 bool gs_FSIdleRequested = false;

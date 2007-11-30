@@ -3254,6 +3254,7 @@ const long CloseTest_Both = (CloseTest_Msgs|CloseTest_Cnds);
 const long CloseTest_IdleBoth = (CloseTest_Idle|CloseTest_Msgs|CloseTest_Cnds);
 
 extern DllImportExport long gs_ClosureOption;
+extern DllImportExport long gs_ClosureIterCnt;
 
 const long SpillReports_Off   = 0x00;
 const long SpillReports_Idle  = 0x01;

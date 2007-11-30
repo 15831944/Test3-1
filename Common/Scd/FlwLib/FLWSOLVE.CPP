@@ -5636,7 +5636,6 @@ int FlwSlvPB::InitSolution(const EqnSlvCtrlBlk & EQCtrl, CFlwNodeList &AllNdsIn)
   FixAllNdsLists();
 
   //RemoveBadConnectNds();
-
   if (!PreStartCheckAll())
     {
     LogWarning("Solver", 0, "PreStart Checks Failed");
@@ -5653,18 +5652,16 @@ int FlwSlvPB::InitSolution(const EqnSlvCtrlBlk & EQCtrl, CFlwNodeList &AllNdsIn)
 
   DoSolnInit(true);//false);
 
-  if (1)
-    {
-    EvalAllCtrlInitialise(CO_All);
+  EvalAllCtrlInitialise(CO_All);
 
-    if (BuildCtrlNdListReqd())
-      {
-      CStopWatchLap SWLapCtrlOverHead(gs_swCtrlOverHead);
-      BuildCtrlNdList();
-      FindTOSequence((FSTC.NThreads() ? FTS_ThrdSeq : 0), TOSL_Ctrl);
-      }
+  if (BuildCtrlNdListReqd())
+    {
+    CStopWatchLap SWLapCtrlOverHead(gs_swCtrlOverHead);
+    BuildCtrlNdList();
+    FindTOSequence((FSTC.NThreads() ? FTS_ThrdSeq : 0), TOSL_Ctrl);
     }
 
+  m_ClosureIters = 0;
 
 #if TimingSteps
   dbgpln("Started       %12.3f %12.3f ---------------", s_swTiming.Lap()*1e3,s_swTiming.Secs()*1e3);
@@ -5864,7 +5861,7 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
 
   MarkClosureDataAvail(ProcTOSequence);
 #if (dbgFlwSolve)
-  if (gs_ClosureOption!=CloseTest_Off || dbgTestClosure())
+  if ((gs_ClosureOption!=CloseTest_Off && (m_ClosureIters++%gs_ClosureIterCnt)==0) || dbgTestClosure())
     TestClosure(ProcTOSequence);
 #endif
 
@@ -9117,6 +9114,8 @@ flag FlwSlvDyn::Start(CXM_TimeControl &CB, CFlwNodeList &AllNdsIn)
     TIMINGLAP("Started");
 
     SHOWPROGRESS(1, "DynStart C");
+
+    m_ClosureIters = 0;
     }
   else
     {
@@ -9228,7 +9227,8 @@ flag FlwSlvDyn::Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
 
   SHOWPROGRESS(1, "Execute 3");
   
-  bool DoClosureTests=(gs_ClosureOption!=CloseTest_Off);
+  bool DoClosureTests = (gs_ClosureOption!=CloseTest_Off && (m_ClosureIters++%gs_ClosureIterCnt)==0) || dbgTestClosure();
+
   bool StopRequired=false;
   for ( ;NIters>0 && !StopRequired;NIters--)
     {
@@ -10499,7 +10499,8 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Text    ("");
     DDB.Text    ("Balance & Closure");
     DDB.Double  ("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
-    DDB.Long    ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
+    DDB.Long    ("Closure.Tests",         "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
+    DDB.Long    ("Closure.IterCnt",       "", DC_,     "",  &gs_ClosureIterCnt,                 this, isParmStopped|SetOnChange);
     DDB.Long    ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
     DDB.Long    ("AuditLevel",            "", DC_,     "",  &gs_AuditOption,                    this, isParmStopped|SetOnChange, DDBAuditOptions);
     //DDB.Long    ("RangeChecks",           "", DC_,     "",  &gs_RangeChecks,                    this, isParmStopped|SetOnChange, DDBRangeChecks);
@@ -11453,6 +11454,7 @@ flag CFlwSolver::ValidateData(ValidateDataBlk & VDB)
   {//Note: This is not called at EO startup because CFlwSolver is not a "normal active node"
   flag OK=PB.ValidateData(VDB);
   nRqdThreads=Range(-1L, nRqdThreads, nProcessors+4L);
+  gs_ClosureIterCnt = Max(1L, gs_ClosureIterCnt);
 #if FORCERQDTHREADS
   nRqdThreads = 0;
 #endif

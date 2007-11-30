@@ -224,6 +224,8 @@ class FlwSlvBlk
 
     Strng_List     TBReport;
 
+    long                m_ClosureIters;
+
     CSFGIOStack         m_SFGInsStack;
     CSFGIOStack         m_SFGOutsStack;
   };
