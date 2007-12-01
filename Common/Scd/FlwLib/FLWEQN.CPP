@@ -2311,6 +2311,16 @@ bool CFlwBlkBase::GetBasicModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, b
           }
         else if (Valid(FR.m_MaxQvCap))
           Cap=FR.m_MaxQvCap*Regulation;
+        if (FR.m_BatchMethod==BO_TotalMass && Valid(FR.m_RqdMBatch))
+          {//reduce capacity, if required, to achieve batch total
+          if (FR.m_RqdMBatch<UsableMass)
+            {
+            FR.m_RqdMBatch = 0.0;
+            Cap=0.0;
+            }
+          else if (Cap*ICGetTimeInc()>FR.m_RqdMBatch)
+            Cap = FR.m_RqdMBatch/ICGetTimeInc();
+          }
         if (Valid(Cap))
           SetXferCapacity(Cap*MeanRho(pProps));
         }
