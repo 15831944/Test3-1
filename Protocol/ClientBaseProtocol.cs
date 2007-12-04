@@ -13,6 +13,7 @@ using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Net.Sockets;
+using System.Collections.ObjectModel;
 
 namespace SysCAD.Protocol
 {
@@ -25,7 +26,7 @@ namespace SysCAD.Protocol
     public StepHandler Step;
     public SyncHandler Sync;
 
-    public delegate void ChangedHandler(Int64 eventId, Int64 requestId, List<Guid> created, List<Guid> modified, List<Guid> deleted);
+    public delegate void ChangedHandler(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted);
     public delegate void PortInfoRequestedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo);
     public delegate void PermissionsChangedHandler(Int64 eventId, Int64 requestId, Permissions permissions);
     public delegate void StepHandler(Int64 eventId, Int64 step, DateTime time);
@@ -69,7 +70,7 @@ namespace SysCAD.Protocol
       return null;
     }
 
-    public void OnChanged(Int64 eventId, Int64 requestId, List<Guid> created, List<Guid> modified, List<Guid> deleted)
+    public void OnChanged(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted)
     {
       if (Changed != null)
       {

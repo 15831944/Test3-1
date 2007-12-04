@@ -18,6 +18,7 @@ using System.Collections;
 using System.Globalization;
 using System.Resources;
 using System.Reflection;
+using System.Collections.ObjectModel;
 
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
 namespace SysCAD.Editor
@@ -735,7 +736,7 @@ namespace SysCAD.Editor
       ModelLink modelLink = new ModelLink(new Guid(), string.Empty, "Pipe-1", modelOrigin.Guid, modelDestination.Guid, originPort, destinationPort);
       GraphicLink graphicLink = new GraphicLink(new Guid(), modelLink.Guid, string.Empty, origin.Guid, originPortID, destination.Guid, destinationPortID, controlPoints, textArea, 0.0, true);
 
-      List<Item> create = new List<Item>();
+      Collection<Item> create = new Collection<Item>();
       create.Add(modelLink);
       create.Add(graphicLink);
 
@@ -915,7 +916,7 @@ namespace SysCAD.Editor
         graphicLink.DestinationPortID = Convert.ToInt16(destinationFullAnchor.Substring(destinationAnchorName.Length), CultureInfo.InvariantCulture);
       }
 
-      List<Item> modify = new List<Item>();
+      Collection<Item> modify = new Collection<Item>();
       if (graphicLink != null)
       {
         GraphicLink newGraphicLink = graphicLink.Clone();
@@ -926,7 +927,7 @@ namespace SysCAD.Editor
 
       if (!state.ClientProtocol.Change(out requestId, null, modify, null))
       { // Request was refused, undo manipulation...
-        List<Guid> modified = new List<Guid>();
+        Collection<Guid> modified = new Collection<Guid>();
 
         foreach (Item item in modify)
         {
@@ -1629,13 +1630,13 @@ namespace SysCAD.Editor
       form1.LoadProject(state.ClientProtocol, state.Config);
     }
 
-    private void fcFlowChart_Changed(Int64 eventId, Int64 requestId, List<Guid> created, List<Guid> modified, List<Guid> deleted)
+    private void fcFlowChart_Changed(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted)
     {
       DoCreated(created);
       DoModified(modified);
     }
 
-    private void DoCreated(List<Guid> created)
+    private void DoCreated(Collection<Guid> created)
     {
       if (created != null)
       {
@@ -1673,7 +1674,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void DoModified(List<Guid> modified)
+    private void DoModified(Collection<Guid> modified)
     {
       if (modified != null)
       {
@@ -1724,7 +1725,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChartBoxModified(object sender, BoxMouseArgs e)
     {
-      List<Item> modify = new List<Item>();
+      Collection<Item> modify = new Collection<Item>();
 
       if (e.Box.Tag is EditorNode)
       {
@@ -1766,7 +1767,7 @@ namespace SysCAD.Editor
 
         if (!state.ClientProtocol.Change(out requestId, null, modify, null))
         { // Request was refused, undo manipulation...
-          List<Guid> modified = new List<Guid>();
+          Collection<Guid> modified = new Collection<Guid>();
 
           foreach (Item item in modify)
           {

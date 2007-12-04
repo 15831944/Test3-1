@@ -16,17 +16,18 @@ using System.Runtime.Remoting.Channels.Tcp;
 //using System.Security.Permissions;
 using System.Drawing.Drawing2D;
 using System.Runtime.Remoting;
+using System.Collections.ObjectModel;
 
 namespace SysCAD.Protocol
 {
   class Action
   {
     //Int64 requestId;
-    List<Item> create = new List<Item>();
-    List<Item> modify = new List<Item>();
-    List<Guid> delete = new List<Guid>();
+    Collection<Item> create = new Collection<Item>();
+    Collection<Item> modify = new Collection<Item>();
+    Collection<Guid> delete = new Collection<Guid>();
 
-    public List<Item> Modify
+    public Collection<Item> Modify
     {
       get { return modify; }
       set { modify = value; }
@@ -163,8 +164,8 @@ namespace SysCAD.Protocol
           redoAction.Modify.Add(graphic.Links[item.Guid].Clone());
       }
       redoList.Push(redoAction);
-      
-      return serviceGraphic.Change(out requestId, new List<Item>(), undoAction.Modify, new List<Guid>());
+
+      return serviceGraphic.Change(out requestId, new Collection<Item>(), undoAction.Modify, new Collection<Guid>());
     }
 
     public bool Redo(out Int64 requestId)
@@ -181,10 +182,10 @@ namespace SysCAD.Protocol
       }
       undoList.Push(undoAction);
 
-      return serviceGraphic.Change(out requestId, new List<Item>(), redoAction.Modify, new List<Guid>());
+      return serviceGraphic.Change(out requestId, new Collection<Item>(), redoAction.Modify, new Collection<Guid>());
     }
 
-    public bool Change(out Int64 requestId, List<Item> create, List<Item> modify, List<Guid> delete)
+    public bool Change(out Int64 requestId, Collection<Item> create, Collection<Item> modify, Collection<Guid> delete)
     {
       try
       {
@@ -495,7 +496,7 @@ namespace SysCAD.Protocol
       OnPermissionsChanged(eventId, requestId, permissions);
     }
 
-    public void ServiceGraphicChanged(Int64 eventId, Int64 requestId, List<Guid> created, List<Guid> modified, List<Guid> deleted)
+    public void ServiceGraphicChanged(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted)
     {
       if (created != null)
       {

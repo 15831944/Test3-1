@@ -14,6 +14,7 @@ using System.Collections;
 
 //using System.Runtime.Remoting.Channels.Tcp;
 using System.Drawing.Drawing2D;
+using System.Collections.ObjectModel;
 
 namespace SysCAD.Protocol
 {
@@ -44,7 +45,7 @@ namespace SysCAD.Protocol
 
     public delegate bool ChangePermissionsHandler(out Int64 requestId, Permissions permissions);
 
-    public delegate bool ChangeHandler(out Int64 requestId, List<Item> create, List<Item> modify, List<Guid> delete);
+    public delegate bool ChangeHandler(out Int64 requestId, Collection<Item> create, Collection<Item> modify, Collection<Guid> delete);
 
     public delegate void GetPropertyValuesHandler(out Int64 requestId, ref ArrayList propertyList);
     public delegate void GetSubTagsHandler(out Int64 requestId, String propertyPath, out ArrayList propertyList);
@@ -104,12 +105,12 @@ namespace SysCAD.Protocol
       return clientChangePermissions(out requestId, permissions);
     }
 
-    public bool Change(out Int64 requestId, List<Item> create, List<Item> modify, List<Guid> delete)
+    public bool Change(out Int64 requestId, Collection<Item> create, Collection<Item> modify, Collection<Guid> delete)
     {
       return changeHandler(out requestId, create, modify, delete);
     }
 
-    public void DoChanged(Int64 eventId, Int64 requestId, List<Guid> created, List<Guid> modified, List<Guid> deleted)
+    public void DoChanged(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted)
     {
       OnChanged(eventId, requestId, created, modified, deleted);
     }

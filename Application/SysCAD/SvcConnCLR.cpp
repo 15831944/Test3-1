@@ -46,6 +46,8 @@ using namespace System::Runtime::InteropServices;//;::Marshal;
 using namespace SysCAD;
 using namespace System::Windows::Forms;
 
+using namespace System::Collections::ObjectModel;
+
 #pragma managed
 
 //========================================================================
@@ -94,9 +96,9 @@ ref class CSvcConnectCLRThread
       {
       // There could be sharing problems - when importing and editing simultaneously -  unlikely
       m_pConn = pConn;
-      m_Create = gcnew List<Item^>; 
-      m_Modify = gcnew List<Item^>;
-      m_Delete = gcnew List<Guid>;  
+      m_Create = gcnew Collection<Item^>; 
+      m_Modify = gcnew Collection<Item^>;
+      m_Delete = gcnew Collection<Guid>;  
       };
     ~CSvcConnectCLRThread()
       {
@@ -395,10 +397,10 @@ ref class CSvcConnectCLRThread
 
     void DoDeleteNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid)
       {
-      List<Item^>  ^Create;// = gcnew List<Item^>; 
-      List<Item^>  ^Modify;// = gcnew List<Item^>;
-      List<Guid>   ^GDelete = gcnew List<Guid>;  
-      List<Guid>   ^MDelete = gcnew List<Guid>;  
+      Collection<Item^>  ^Create;// = gcnew Collection<Item^>; 
+      Collection<Item^>  ^Modify;// = gcnew Collection<Item^>;
+      Collection<Guid>   ^GDelete = gcnew Collection<Guid>;  
+      Collection<Guid>   ^MDelete = gcnew Collection<Guid>;  
 
       GDelete->Add(Guid(gcnew String(GraphicGuid)));
       clientProtocol->Change(requestId, Create, Modify, GDelete);
@@ -666,7 +668,7 @@ ref class CSvcConnectCLRThread
 				engineProtocol->RequestPortInfo(requestId, guid, tag, portInfo);
       }
 
-    void Changed(Int64 eventId, Int64 requestId, List<Guid> ^ created, List<Guid> ^ modified, List<Guid> ^ deleted)
+    void Changed(Int64 eventId, Int64 requestId, Collection<Guid> ^ created, Collection<Guid> ^ modified, Collection<Guid> ^ deleted)
       {
 			if (created != nullptr)
 				//PKH!!! -- this throws an exception: ProcessCreatedList(eventId, requestId, created);
@@ -731,7 +733,7 @@ ref class CSvcConnectCLRThread
         }
       }
 
-    void ProcessModifiedList(Int64 eventId, Int64 requestId, List<Guid> ^ modified)
+    void ProcessModifiedList(Int64 eventId, Int64 requestId, Collection<Guid> ^ modified)
       {
       for each (Guid ^ guid in modified)
         {
@@ -783,7 +785,7 @@ ref class CSvcConnectCLRThread
         }
       }
 
-    void ProcessDeletedList(Int64 eventId, Int64 requestId, List<Guid> ^ deleted)
+    void ProcessDeletedList(Int64 eventId, Int64 requestId, Collection<Guid> ^ deleted)
       {
       for each (Guid ^ guid in deleted )
         {
@@ -855,9 +857,9 @@ ref class CSvcConnectCLRThread
 
     CSvcConnect   * m_pConn;
   
-    List<Item^>  ^m_Create;// = gcnew List<Item^>; 
-    List<Item^>  ^m_Modify;// = gcnew List<Item^>;
-    List<Guid>   ^m_Delete;// = gcnew List<Guid>;  
+    Collection<Item^>  ^m_Create;// = gcnew Collection<Item^>; 
+    Collection<Item^>  ^m_Modify;// = gcnew Collection<Item^>;
+    Collection<Guid>   ^m_Delete;// = gcnew Collection<Guid>;  
 
 };
 

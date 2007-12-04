@@ -11,6 +11,7 @@ using System.Runtime.Remoting;
 using MindFusion.FlowChartX;
 using MindFusion.FlowChartX.LayoutSystem;
 using System.Globalization;
+using System.Collections.ObjectModel;
 
 namespace SysCAD.Service
 {
@@ -189,18 +190,18 @@ namespace SysCAD.Service
       }
     }
 
-    public bool Change(out Int64 requestId, List<Item> create, List<Item> modify, List<Guid> delete)
+    public bool Change(out Int64 requestId, Collection<Item> create, Collection<Item> modify, Collection<Guid> delete)
     {
       this.requestId++;
       requestId = this.requestId;
 
-      List<ModelItem> modelCreate = new List<ModelItem>();
-      List<ModelItem> modelModify = new List<ModelItem>();
-      List<Guid> modelDelete = new List<Guid>();
+      Collection<ModelItem> modelCreate = new Collection<ModelItem>();
+      Collection<ModelItem> modelModify = new Collection<ModelItem>();
+      Collection<Guid> modelDelete = new Collection<Guid>();
 
-      List<GraphicItem> graphicCreate = new List<GraphicItem>();
-      List<GraphicItem> graphicModify = new List<GraphicItem>();
-      List<Guid> graphicDelete = new List<Guid>();
+      Collection<GraphicItem> graphicCreate = new Collection<GraphicItem>();
+      Collection<GraphicItem> graphicModify = new Collection<GraphicItem>();
+      Collection<Guid> graphicDelete = new Collection<Guid>();
 
       { // Check if OK to go ahead.
         if (create != null)
@@ -283,9 +284,9 @@ namespace SysCAD.Service
         model.Delete(guid);
       }
 
-      List<Guid> graphicCreated = new List<Guid>();
-      List<Guid> graphicModified = new List<Guid>();
-      List<Guid> graphicDeleted = new List<Guid>();
+      Collection<Guid> graphicCreated = new Collection<Guid>();
+      Collection<Guid> graphicModified = new Collection<Guid>();
+      Collection<Guid> graphicDeleted = new Collection<Guid>();
 
       foreach (GraphicItem graphicItem in graphicCreate)
       {
