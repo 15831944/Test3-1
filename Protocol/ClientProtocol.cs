@@ -19,6 +19,20 @@ using System.Runtime.Remoting;
 
 namespace SysCAD.Protocol
 {
+  class Action
+  {
+    //Int64 requestId;
+    List<Item> create = new List<Item>();
+    List<Item> modify = new List<Item>();
+    List<Guid> delete = new List<Guid>();
+
+    public List<Item> Modify
+    {
+      get { return modify; }
+      set { modify = value; }
+    }
+  }
+
   [Serializable]
   public class ConnectionLostException : SystemException
   {
@@ -51,6 +65,9 @@ namespace SysCAD.Protocol
     private ClientServiceProtocol.ChangedHandler serviceGraphicChangedHandler = null;
 
     Uri url = null;
+
+    private Stack<Action> undoList = new Stack<Action>();
+    private Stack<Action> redoList = new Stack<Action>();
 
     public ClientProtocol()
     {
@@ -133,10 +150,56 @@ namespace SysCAD.Protocol
       }
     }
 
+    public bool Undo(out Int64 requestId)
+    {
+      Action undoAction = undoList.Pop();
+
+      Action redoAction = new Action();
+      foreach (Item item in undoAction.Modify)
+      {
+        if (item is GraphicNode)
+          redoAction.Modify.Add(graphic.Nodes[item.Guid].Clone());
+        if (item is GraphicLink)
+          redoAction.Modify.Add(graphic.Links[item.Guid].Clone());
+      }
+      redoList.Push(redoAction);
+      
+      return serviceGraphic.Change(out requestId, new List<Item>(), undoAction.Modify, new List<Guid>());
+    }
+
+    public bool Redo(out Int64 requestId)
+    {
+      Action redoAction = redoList.Pop();
+      
+      Action undoAction = new Action();
+      foreach (Item item in redoAction.Modify)
+      {
+        if (item is GraphicNode)
+          undoAction.Modify.Add(graphic.Nodes[item.Guid].Clone());
+        if (item is GraphicLink)
+          undoAction.Modify.Add(graphic.Links[item.Guid].Clone());
+      }
+      undoList.Push(undoAction);
+
+      return serviceGraphic.Change(out requestId, new List<Item>(), redoAction.Modify, new List<Guid>());
+    }
+
     public bool Change(out Int64 requestId, List<Item> create, List<Item> modify, List<Guid> delete)
     {
       try
       {
+        redoList.Clear();
+
+        Action undoAction = new Action();
+        foreach (Item item in modify)
+        {
+          if (item is GraphicNode)
+            undoAction.Modify.Add(graphic.Nodes[item.Guid].Clone());
+          if (item is GraphicLink)
+            undoAction.Modify.Add(graphic.Links[item.Guid].Clone());
+        }
+        undoList.Push(undoAction);
+
         return serviceGraphic.Change(out requestId, create, modify, delete);
       }
       catch (Exception originalException)

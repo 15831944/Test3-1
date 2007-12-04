@@ -27,7 +27,7 @@ namespace SysCAD
       if (Directory.Exists(folderBrowserDialog1.SelectedPath))
       {
         pathTextBox.Text = folderBrowserDialog1.SelectedPath;
-        if (nameTextBox.Text.Length == 0)
+        if (String.IsNullOrEmpty(nameTextBox.Text))
           nameTextBox.Text = Path.GetFileNameWithoutExtension(folderBrowserDialog1.SelectedPath);
         nameTextBox.Focus();
       }

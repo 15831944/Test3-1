@@ -15,70 +15,64 @@ namespace SysCAD.Editor
 
     private GraphicGroup graphicGroup;
 
-    private Guid guid;
-    private PureComponents.TreeView.Node node;
-    private bool selected;
-    private String tag;
-
     private bool visible;
 
-    public EditorGroup(Guid guid, String tag, Box box, bool visible, GraphicGroup graphicGroup)
+    private State state;
+
+    public EditorGroup(State state, GraphicGroup graphicGroup)
     {
-      this.guid = guid;
-      this.tag = tag;
-      this.box = box;
-      this.visible = visible;
+      this.state = state;
       this.graphicGroup = graphicGroup;
     }
 
     public override string ToString()
     {
-      return tag;
+      return graphicGroup.Tag;
     }
 
-    internal void Remove(FlowChart flowChart)
-    {
+    //internal void Remove(FlowChart flowChart)
+    //{
 
-      if (Box != null)
-        flowChart.DeleteObject(Box);
+    //  if (Box != null)
+    //    flowChart.DeleteObject(Box);
 
-      if (Node != null)
-        Node.Remove();
-    }
+    //  if (Node != null)
+    //    Node.Remove();
+    //}
 
     public Box Box
     {
-      get { return box; }
+      //get { return box; }
       set { box = value; }
     }
 
-    public GraphicGroup GraphicGroup
-    {
-      get { return graphicGroup; }
-    }
+    //public GraphicGroup GraphicGroup
+    //{
+    //  get { return graphicGroup; }
+    //}
 
     public Guid Guid
     {
-      get { return guid; }
+      get { return graphicGroup.Guid; }
     }
 
-    public PureComponents.TreeView.Node Node
-    {
-      get { return node; }
-      set { node = value; }
-    }
+    //public PureComponents.TreeView.Node Node
+    //{
+    //  get { return node; }
+    //  set { node = value; }
+    //}
 
-    public bool Selected
-    {
-      get { return selected; }
-      set { selected = value; }
-    }
+    //public bool Selected
+    //{
+    //  get { return selected; }
+    //  set { selected = value; }
+    //}
 
-    public String Tag
-    {
-      get { return tag; }
-      set { tag = value; }
-    }
+    //public String Tag
+    //{
+    //  get { return tag; }
+    //  set { tag = value; }
+    //}
 
     public bool Visible
     {
@@ -94,7 +88,8 @@ namespace SysCAD.Editor
     {
       box.FillColor = System.Drawing.Color.FromArgb(80, 222, 184, 136);
       box.FrameColor = System.Drawing.Color.FromArgb(160, 111, 92, 68);
-      box.Visible = visible;
+      if (visible && state.ShowGroups)
+        box.Visible = visible;
       box.ZBottom();
     }
   }

@@ -20,10 +20,10 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Xml;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace SysCAD.Editor
 {
-
   internal class State
   {
     private FlowChart flowChart;
@@ -31,7 +31,7 @@ namespace SysCAD.Editor
     private Config config;
 
     private delegate void CreateGroupDelegate(GraphicGroup graphicGroup);
-    private delegate void CreateNodeDelegate(State state, ModelNode modelNode, GraphicNode graphicNode);
+    private delegate void CreateNodeDelegate(ModelNode modelNode, GraphicNode graphicNode);
     private delegate void CreateLinkDelegate(ModelLink modelLink, GraphicLink graphicLink);
     private delegate void CreateThingDelegate(GraphicThing graphicThing);
 
@@ -53,17 +53,17 @@ namespace SysCAD.Editor
 
     Int64 requestId;
 
-    public Dictionary<String, Bitmap> ModelUnselectedThumbnails
-    {
-      get { return modelUnselectedThumbnails; }
-      set { modelUnselectedThumbnails = value; }
-    }
+    //public Dictionary<String, Bitmap> ModelUnselectedThumbnails
+    //{
+    //  get { return modelUnselectedThumbnails; }
+    //  set { modelUnselectedThumbnails = value; }
+    //}
 
-    public Dictionary<String, Bitmap> ModelSelectedThumbnails
-    {
-      get { return modelSelectedThumbnails; }
-      set { modelSelectedThumbnails = value; }
-    }
+    //public Dictionary<String, Bitmap> ModelSelectedThumbnails
+    //{
+    //  get { return modelSelectedThumbnails; }
+    //  set { modelSelectedThumbnails = value; }
+    //}
 
     private Dictionary<String, Bitmap> graphicUnselectedThumbnails = new Dictionary<String, Bitmap>();
     private Dictionary<String, Bitmap> graphicSelectedThumbnails = new Dictionary<String, Bitmap>();
@@ -71,16 +71,16 @@ namespace SysCAD.Editor
     public Dictionary<String, Bitmap> GraphicUnselectedThumbnails
     {
       get { return graphicUnselectedThumbnails; }
-      set { graphicUnselectedThumbnails = value; }
+    //  set { graphicUnselectedThumbnails = value; }
     }
 
     public Dictionary<String, Bitmap> GraphicSelectedThumbnails
     {
       get { return graphicSelectedThumbnails; }
-      set { graphicSelectedThumbnails = value; }
+    //  set { graphicSelectedThumbnails = value; }
     }
 
-    bool projectOpen = false;
+    bool projectOpen;
 
     ClientBaseProtocol.Permissions permissions = new ClientBaseProtocol.Permissions(false, false, false);
 
@@ -89,8 +89,9 @@ namespace SysCAD.Editor
     private bool selectLinks = true;
     private bool showGraphics = true;
     private bool showLinks = true;
+    private bool showGroups = true;
 
-    private bool showModels = false;
+    private bool showModels;
     private bool showTags = true;
     Int64 step = Int64.MinValue;
 
@@ -101,12 +102,12 @@ namespace SysCAD.Editor
 
     private PureComponents.TreeView.TreeView tvNavigation;
 
-    public Arrow Arrow(Guid guid)
-    {
-      EditorLink link;
-      editorLinks.TryGetValue(guid, out link);
-      return link.Arrow;
-    }
+    //public Arrow Arrow(Guid guid)
+    //{
+    //  EditorLink link;
+    //  editorLinks.TryGetValue(guid, out link);
+    //  return link.Arrow;
+    //}
 
     static public AnchorPattern GetAnchorPattern(ModelStencil modelStencil, EditorNode item)
     {
@@ -142,8 +143,8 @@ namespace SysCAD.Editor
             anchorPoint.Tag = anchor;
             anchorPointCollection.Add(anchorPoint);
 
-            item.anchorIntToTag.Add(anchorInt, anchor.Tag + anchorPtInt.ToString());
-            item.anchorTagToInt.Add(anchor.Tag + anchorPtInt.ToString(), anchorInt);
+            item.anchorIntToTag.Add(anchorInt, anchor.Tag + anchorPtInt.ToString(CultureInfo.InvariantCulture));
+            item.anchorTagToInt.Add(anchor.Tag + anchorPtInt.ToString(CultureInfo.InvariantCulture), anchorInt);
 
             anchorInt++;
             anchorPtInt++;
@@ -251,25 +252,25 @@ namespace SysCAD.Editor
     //      return System.Drawing.Image.FromStream(stream);
     //    }
 
-    public static String PreprocessXaml(String xaml)
-    {
-      //String xaml = unProcessedXaml;
-      //Regex regex = new Regex(@"\[\[[^\]]*\]\]");
-      MatchEvaluator myEvaluator = new MatchEvaluator(ProcessMatch);
-      return Regex.Replace(xaml, @"\[\[[^\]]*\]\]", myEvaluator);
-      //MatchCollection matches = regex.Matches(xaml);
-      //foreach (Match match in matches)
-      //{
-      //}
-      //return xaml;
-    }
+    //public static String PreprocessXaml(String xaml)
+    //{
+    //  //String xaml = unProcessedXaml;
+    //  //Regex regex = new Regex(@"\[\[[^\]]*\]\]");
+    //  MatchEvaluator myEvaluator = new MatchEvaluator(ProcessMatch);
+    //  return Regex.Replace(xaml, @"\[\[[^\]]*\]\]", myEvaluator);
+    //  //MatchCollection matches = regex.Matches(xaml);
+    //  //foreach (Match match in matches)
+    //  //{
+    //  //}
+    //  //return xaml;
+    //}
 
-    public void SetArrow(State state, Guid guid, String tag, Arrow arrow, GraphicLink graphicLink, ModelLink modelLink)
-    {
-      EditorLink link = new EditorLink(state, guid, tag, graphicLink, modelLink);
-      link.Arrow = arrow;
-      editorLinks.Add(guid, link);
-    }
+    //public void SetArrow(State state, Guid guid, String tag, Arrow arrow, GraphicLink graphicLink, ModelLink modelLink)
+    //{
+    //  EditorLink link = new EditorLink(state, guid, tag, graphicLink, modelLink);
+    //  link.Arrow = arrow;
+    //  editorLinks.Add(guid, link);
+    //}
 
     static public void SetControlPoints(Arrow arrow, List<SysCAD.Protocol.Point> points)
     {
@@ -331,8 +332,10 @@ namespace SysCAD.Editor
         // Make groups unmodifiable -- for now.
         box.Locked = true;
 
-        EditorGroup group = new EditorGroup(graphicGroup.Guid, graphicGroup.Tag, box, isVisible, graphicGroup);
+        EditorGroup group = new EditorGroup(this, graphicGroup);
         editorGroups.Add(group.Guid, group);
+
+        group.Box = box;
 
         box.Tag = group;
         node.Tag = group;
@@ -341,9 +344,9 @@ namespace SysCAD.Editor
       }
     }
 
-    public bool creatingNode = false; // Allows us to turn off some notifications during the creation process (specifically selectionChanged.)
+    public bool creatingNode; // Allows us to turn off some notifications during the creation process (specifically selectionChanged.)
 
-    internal void CreateNode(State state, ModelNode modelNode, GraphicNode graphicNode)
+    internal void CreateNode(ModelNode modelNode, GraphicNode graphicNode)
     {
       if (flowChart.InvokeRequired)
       {
@@ -353,7 +356,7 @@ namespace SysCAD.Editor
       {
         creatingNode = true; // turn off flowchart events while we're mid-create.
 
-        EditorNode editorNode = new EditorNode(state, graphicNode);
+        EditorNode editorNode = new EditorNode(this, graphicNode);
 
         PureComponents.TreeView.Node treeViewNode = null;
         {
@@ -522,20 +525,6 @@ namespace SysCAD.Editor
       }
       else
       {
-        bool isVisible = false;
-
-        {
-          EditorNode destinationNode, originNode;
-          if (
-            (editorNodes.TryGetValue(graphicLink.Origin, out originNode))
-            &&
-            (editorNodes.TryGetValue(graphicLink.Destination, out destinationNode))
-            )
-          {
-            isVisible = ((originNode.Visible) || (destinationNode.Visible));
-          }
-        }
-
         Box textBox = null;
 
         {
@@ -620,13 +609,13 @@ namespace SysCAD.Editor
           if (destination != null)
             arrow.Destination = destination.ModelBox;
 
-          if ((modelLink.OriginPort != null) && ((origin.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.OriginPort + graphicLink.OriginPortID.ToString())))
-            arrow.OrgnAnchor = (origin.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.OriginPort + graphicLink.OriginPortID.ToString()];
+          if ((modelLink.OriginPort != null) && ((origin.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.OriginPort + graphicLink.OriginPortID.ToString(CultureInfo.InvariantCulture))))
+            arrow.OrgnAnchor = (origin.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.OriginPort + graphicLink.OriginPortID.ToString(CultureInfo.InvariantCulture)];
           else
             arrow.OrgnAnchor = -1;
 
-          if ((modelLink.DestinationPort != null) && ((destination.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.DestinationPort + graphicLink.DestinationPortID.ToString())))
-            arrow.DestAnchor = (destination.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.DestinationPort + graphicLink.DestinationPortID.ToString()];
+          if ((modelLink.DestinationPort != null) && ((destination.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.DestinationPort + graphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture))))
+            arrow.DestAnchor = (destination.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.DestinationPort + graphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture)];
           else
             arrow.DestAnchor = -1;
 
@@ -665,7 +654,7 @@ namespace SysCAD.Editor
           }
         }
 
-        EditorLink editorLink = new EditorLink(this, graphicLink.Guid, graphicLink.Tag, graphicLink, modelLink);
+        EditorLink editorLink = new EditorLink(this, graphicLink, modelLink);
         editorLink.Arrow = arrow;
         editorLink.TextBox = textBox;
         editorLink.UpdateVisibility();
@@ -806,46 +795,46 @@ namespace SysCAD.Editor
     }
 
 
-    internal bool Exists(Guid guid)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal bool Exists(Guid guid)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      EditorLink link;
-      editorLinks.TryGetValue(guid, out link);
+    //  EditorLink link;
+    //  editorLinks.TryGetValue(guid, out link);
 
-      Thing thing;
-      things.TryGetValue(guid, out thing);
+    //  Thing thing;
+    //  things.TryGetValue(guid, out thing);
 
-      return ((link != null) || (item != null) || (thing != null));
-    }
+    //  return ((link != null) || (item != null) || (thing != null));
+    //}
 
-    internal bool Exists(String tag)
-    {
+    //internal bool Exists(String tag)
+    //{
 
-      foreach (EditorNode item in editorNodes.Values)
-      {
+    //  foreach (EditorNode item in editorNodes.Values)
+    //  {
 
-        if (item.Tag == tag)
-          return true;
-      }
+    //    if (item.Tag == tag)
+    //      return true;
+    //  }
 
-      foreach (EditorLink link in editorLinks.Values)
-      {
+    //  foreach (EditorLink link in editorLinks.Values)
+    //  {
 
-        if (link.Tag == tag)
-          return true;
-      }
+    //    if (link.Tag == tag)
+    //      return true;
+    //  }
 
-      foreach (Thing thing in things.Values)
-      {
+    //  foreach (Thing thing in things.Values)
+    //  {
 
-        if (thing.Tag == tag)
-          return true;
-      }
+    //    if (thing.Tag == tag)
+    //      return true;
+    //  }
 
-      return false;
-    }
+    //  return false;
+    //}
 
     internal static List<SysCAD.Protocol.Point> GetControlPoints(MindFusion.FlowChartX.PointCollection pointCollection)
     {
@@ -859,22 +848,28 @@ namespace SysCAD.Editor
       return list;
     }
 
-    internal void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
-    {
-      clientProtocol.GetPropertyValues(out requestId, ref tagPathList);
-    }
+    //internal void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
+    //{
+    //  clientProtocol.GetPropertyValues(out requestId, ref tagPathList);
+    //}
 
     internal void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
     {
       clientProtocol.GetSubTags(out requestId, propertyPath, out propertyList);
     }
 
+    internal GraphicNode GraphicNode(Guid guid)
+    {
+      GraphicNode graphicNode = null;
+      clientProtocol.graphic.Nodes.TryGetValue(guid, out graphicNode);
+      return graphicNode;
+    }
+
     internal GraphicNode GraphicNode(Box box)
     {
       GraphicNode graphicNode = null;
-
       if (box.Tag is EditorNode)
-        clientProtocol.graphic.Nodes.TryGetValue((box.Tag as EditorNode).Guid, out graphicNode);
+        graphicNode = GraphicNode((box.Tag as EditorNode).Guid);
       return graphicNode;
     }
 
@@ -893,21 +888,21 @@ namespace SysCAD.Editor
       return modelNode;
     }
 
-    internal GraphicGroup GraphicGroup(Guid guid)
-    {
-      GraphicGroup graphicGroup = null;
-      clientProtocol.graphic.Groups.TryGetValue(guid, out graphicGroup);
-      return graphicGroup;
-    }
+    //internal GraphicGroup GraphicGroup(Guid guid)
+    //{
+    //  GraphicGroup graphicGroup = null;
+    //  clientProtocol.graphic.Groups.TryGetValue(guid, out graphicGroup);
+    //  return graphicGroup;
+    //}
 
-    internal GraphicGroup GraphicGroup(Box box)
-    {
-      GraphicGroup graphicGroup = null;
+    //internal GraphicGroup GraphicGroup(Box box)
+    //{
+    //  GraphicGroup graphicGroup = null;
 
-      if (box.Tag is EditorNode)
-        clientProtocol.graphic.Groups.TryGetValue((box.Tag as EditorNode).Guid, out graphicGroup);
-      return graphicGroup;
-    }
+    //  if (box.Tag is EditorNode)
+    //    clientProtocol.graphic.Groups.TryGetValue((box.Tag as EditorNode).Guid, out graphicGroup);
+    //  return graphicGroup;
+    //}
 
     internal GraphicNode GraphicItem(Guid guid)
     {
@@ -948,27 +943,27 @@ namespace SysCAD.Editor
       return graphicThing;
     }
 
-    internal GraphicThing GraphicThing(Guid guid)
-    {
-      GraphicThing graphicThing;
-      clientProtocol.graphic.Things.TryGetValue(guid, out graphicThing);
-      return graphicThing;
-    }
+    //internal GraphicThing GraphicThing(Guid guid)
+    //{
+    //  GraphicThing graphicThing;
+    //  clientProtocol.graphic.Things.TryGetValue(guid, out graphicThing);
+    //  return graphicThing;
+    //}
 
-    internal bool IsItem(Guid guid)
-    {
-      return clientProtocol.graphic.Nodes.ContainsKey(guid);
-    }
+    //internal bool IsItem(Guid guid)
+    //{
+    //  return clientProtocol.graphic.Nodes.ContainsKey(guid);
+    //}
 
-    internal bool IsLink(Guid guid)
-    {
-      return clientProtocol.graphic.Links.ContainsKey(guid);
-    }
+    //internal bool IsLink(Guid guid)
+    //{
+    //  return clientProtocol.graphic.Links.ContainsKey(guid);
+    //}
 
-    internal bool IsThing(Guid guid)
-    {
-      return clientProtocol.graphic.Things.ContainsKey(guid);
-    }
+    //internal bool IsThing(Guid guid)
+    //{
+    //  return clientProtocol.graphic.Things.ContainsKey(guid);
+    //}
 
     internal EditorNode Item(Guid guid)
     {
@@ -977,17 +972,17 @@ namespace SysCAD.Editor
       return item;
     }
 
-    internal void ItemSelected(Guid guid, bool selected)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal void ItemSelected(Guid guid, bool selected)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      if (item != null)
-      {
-        item.Selected = selected;
-        item.ModelBox.Selected = selected && item.Visible;
-      }
-    }
+    //  if (item != null)
+    //  {
+    //    item.Selected = selected;
+    //    item.ModelBox.Selected = selected && item.Visible;
+    //  }
+    //}
 
     internal void SetVisible(String keyGuid, bool visible)
     {
@@ -1074,130 +1069,130 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void SetAngle(Guid guid, float angle)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal void SetAngle(Guid guid, float angle)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      if (item != null)
-      {
-        item.ModelBox.RotationAngle = angle;
-        item.GraphicBox.RotationAngle = angle;
-      }
-    }
+    //  if (item != null)
+    //  {
+    //    item.ModelBox.RotationAngle = angle;
+    //    item.GraphicBox.RotationAngle = angle;
+    //  }
+    //}
 
-    internal void SetFillColor(Guid guid, System.Drawing.Color fillColor)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal void SetFillColor(Guid guid, System.Drawing.Color fillColor)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      if (item != null)
-      {
-        item.GraphicBox.FillColor = fillColor;
-      }
-    }
+    //  if (item != null)
+    //  {
+    //    item.GraphicBox.FillColor = fillColor;
+    //  }
+    //}
 
-    internal void SetHeight(Guid guid, float height)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal void SetHeight(Guid guid, float height)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      if (item != null)
-      {
-        SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.ModelBox.BoundingRect);
-        boundingRect.Height = height;
-        item.ModelBox.BoundingRect = boundingRect;
-        item.GraphicBox.BoundingRect = boundingRect;
-      }
-    }
+    //  if (item != null)
+    //  {
+    //    SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.ModelBox.BoundingRect);
+    //    boundingRect.Height = height;
+    //    item.ModelBox.BoundingRect = boundingRect;
+    //    item.GraphicBox.BoundingRect = boundingRect;
+    //  }
+    //}
 
-    internal void SetMirrorX(Guid guid, bool mirrorX)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal void SetMirrorX(Guid guid, bool mirrorX)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      if (item != null)
-      {
-        GraphicNode graphicNode;
+    //  if (item != null)
+    //  {
+    //    GraphicNode graphicNode;
 
-        if (clientProtocol.graphic.Nodes.TryGetValue(guid, out graphicNode))
-        {
-          graphicNode.MirrorX = mirrorX;
+    //    if (clientProtocol.graphic.Nodes.TryGetValue(guid, out graphicNode))
+    //    {
+    //      graphicNode.MirrorX = mirrorX;
 
-          GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
+    //      GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
 
-          if (graphicStencil != null)
-          {
-            item.GraphicBox.Shape = GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
-          }
-        }
-      }
-    }
+    //      if (graphicStencil != null)
+    //      {
+    //        item.GraphicBox.Shape = GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
+    //      }
+    //    }
+    //  }
+    //}
 
-    internal void SetMirrorY(Guid guid, bool mirrorY)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal void SetMirrorY(Guid guid, bool mirrorY)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      if (item != null)
-      {
-        GraphicNode graphicNode;
+    //  if (item != null)
+    //  {
+    //    GraphicNode graphicNode;
 
-        if (clientProtocol.graphic.Nodes.TryGetValue(guid, out graphicNode))
-        {
-          graphicNode.MirrorY = mirrorY;
+    //    if (clientProtocol.graphic.Nodes.TryGetValue(guid, out graphicNode))
+    //    {
+    //      graphicNode.MirrorY = mirrorY;
 
-          GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
+    //      GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
 
-          if (graphicStencil != null)
-          {
-            item.GraphicBox.Shape = GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
-          }
-        }
-      }
-    }
+    //      if (graphicStencil != null)
+    //      {
+    //        item.GraphicBox.Shape = GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
+    //      }
+    //    }
+    //  }
+    //}
 
-    internal void SetWidth(Guid guid, float width)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal void SetWidth(Guid guid, float width)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      if (item != null)
-      {
-        SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.ModelBox.BoundingRect);
-        boundingRect.Width = width;
-        item.ModelBox.BoundingRect = boundingRect;
-        item.GraphicBox.BoundingRect = boundingRect;
-      }
-    }
+    //  if (item != null)
+    //  {
+    //    SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.ModelBox.BoundingRect);
+    //    boundingRect.Width = width;
+    //    item.ModelBox.BoundingRect = boundingRect;
+    //    item.GraphicBox.BoundingRect = boundingRect;
+    //  }
+    //}
 
-    internal void SetX(Guid guid, float x)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal void SetX(Guid guid, float x)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      if (item != null)
-      {
-        SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.ModelBox.BoundingRect);
-        boundingRect.X = x;
-        item.ModelBox.BoundingRect = boundingRect;
-        item.GraphicBox.BoundingRect = boundingRect;
-      }
-    }
+    //  if (item != null)
+    //  {
+    //    SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.ModelBox.BoundingRect);
+    //    boundingRect.X = x;
+    //    item.ModelBox.BoundingRect = boundingRect;
+    //    item.GraphicBox.BoundingRect = boundingRect;
+    //  }
+    //}
 
-    internal void SetY(Guid guid, float y)
-    {
-      EditorNode item;
-      editorNodes.TryGetValue(guid, out item);
+    //internal void SetY(Guid guid, float y)
+    //{
+    //  EditorNode item;
+    //  editorNodes.TryGetValue(guid, out item);
 
-      if (item != null)
-      {
-        SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.ModelBox.BoundingRect);
-        boundingRect.Y = y;
-        item.ModelBox.BoundingRect = boundingRect;
-        item.GraphicBox.BoundingRect = boundingRect;
-      }
-    }
+    //  if (item != null)
+    //  {
+    //    SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(item.ModelBox.BoundingRect);
+    //    boundingRect.Y = y;
+    //    item.ModelBox.BoundingRect = boundingRect;
+    //    item.GraphicBox.BoundingRect = boundingRect;
+    //  }
+    //}
 
     internal void PermissionsChanged(ClientBaseProtocol.Permissions permissions)
     {
@@ -1239,88 +1234,88 @@ namespace SysCAD.Editor
       return null;
     }
 
-    private static String ProcessMatch(Match match)
-    {
-      char[] splitter = { '[', ',', ']' };
+    //private static String ProcessMatch(Match match)
+    //{
+    //  char[] splitter = { '[', ',', ']' };
 
-      String resultStr = String.Empty;
-      String matchStr = match.ToString();
-      String[] strings = matchStr.Split(splitter, StringSplitOptions.RemoveEmptyEntries);
+    //  String resultStr = String.Empty;
+    //  String matchStr = match.ToString();
+    //  String[] strings = matchStr.Split(splitter, StringSplitOptions.RemoveEmptyEntries);
 
-      // Just randomly throw in some information until the connection to SysCAD9 is finished.\
-      switch (strings[6].Trim())
-      {
+    //  // Just randomly throw in some information until the connection to SysCAD9 is finished.\
+    //  switch (strings[6].Trim())
+    //  {
 
-        case "Hex":
-          {
-            int minResultValue;
-            int maxResultValue;
+    //    case "Hex":
+    //      {
+    //        int minResultValue;
+    //        int maxResultValue;
 
-            if (strings[3].Trim()[0] == '#')
-              minResultValue = Int32.Parse(strings[3].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber);
+    //        if (strings[3].Trim()[0] == '#')
+    //          minResultValue = Int32.Parse(strings[3].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 
-            else
-              minResultValue = Int32.Parse(strings[3].Trim());
+    //        else
+    //          minResultValue = Int32.Parse(strings[3].Trim(), CultureInfo.InvariantCulture);
 
-            if (strings[4].Trim()[0] == '#')
-              maxResultValue = Int32.Parse(strings[4].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber);
+    //        if (strings[4].Trim()[0] == '#')
+    //          maxResultValue = Int32.Parse(strings[4].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 
-            else
-              maxResultValue = Int32.Parse(strings[4].Trim());
+    //        else
+    //          maxResultValue = Int32.Parse(strings[4].Trim(), CultureInfo.InvariantCulture);
 
-            Random rand = new Random();
-            resultStr = rand.Next(minResultValue, maxResultValue + 1).ToString("X6");
-          }
-          break;
+    //        Random rand = new Random();
+    //        resultStr = rand.Next(minResultValue, maxResultValue + 1).ToString("X6", CultureInfo.InvariantCulture);
+    //      }
+    //      break;
 
-        case "Integer":
-          {
-            int minResultValue;
-            int maxResultValue;
+    //    case "Integer":
+    //      {
+    //        int minResultValue;
+    //        int maxResultValue;
 
-            if (strings[3].Trim()[0] == '#')
-              minResultValue = Int32.Parse(strings[3].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber);
+    //        if (strings[3].Trim()[0] == '#')
+    //          minResultValue = Int32.Parse(strings[3].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 
-            else
-              minResultValue = Int32.Parse(strings[3].Trim());
+    //        else
+    //          minResultValue = Int32.Parse(strings[3].Trim(), CultureInfo.InvariantCulture);
 
-            if (strings[4].Trim()[0] == '#')
-              maxResultValue = Int32.Parse(strings[4].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber);
+    //        if (strings[4].Trim()[0] == '#')
+    //          maxResultValue = Int32.Parse(strings[4].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 
-            else
-              maxResultValue = Int32.Parse(strings[4].Trim());
+    //        else
+    //          maxResultValue = Int32.Parse(strings[4].Trim(), CultureInfo.InvariantCulture);
 
-            Random rand = new Random();
-            resultStr = rand.Next(minResultValue, maxResultValue + 1).ToString();
-          }
-          break;
+    //        Random rand = new Random();
+    //        resultStr = rand.Next(minResultValue, maxResultValue + 1).ToString(CultureInfo.InvariantCulture);
+    //      }
+    //      break;
 
-        case "Float":
-          {
+    //    case "Float":
+    //      {
 
-            Double minResultValue;
+    //        Double minResultValue;
 
-            Double maxResultValue;
+    //        Double maxResultValue;
 
-            minResultValue = Double.Parse(strings[3].Trim());
-            maxResultValue = Double.Parse(strings[4].Trim());
+    //        minResultValue = Double.Parse(strings[3].Trim(), CultureInfo.InvariantCulture);
+    //        maxResultValue = Double.Parse(strings[4].Trim(), CultureInfo.InvariantCulture);
 
-            Random rand = new Random();
-            resultStr = (rand.NextDouble() * (maxResultValue - minResultValue) + minResultValue).ToString();
-          }
-          break;
+    //        Random rand = new Random();
+    //        resultStr = (rand.NextDouble() * (maxResultValue - minResultValue) + minResultValue).ToString(CultureInfo.InvariantCulture);
+    //      }
+    //      break;
 
-        default:
-          resultStr = "!!Error!!";
-          break;
-      }
+    //    default:
+    //      resultStr = "!!Error!!";
+    //      break;
+    //  }
 
-      return resultStr;
-    }
+    //  return resultStr;
+    //}
 
     public FlowChart FlowChart
     {
-      get { return flowChart; }
+      //get { return flowChart; }
       set { flowChart = value; }
     }
 
@@ -1387,15 +1382,15 @@ namespace SysCAD.Editor
       }
     }
 
-    public IEnumerable<GraphicStencil> GraphicStencilValues
-    {
-      get { return config.GraphicStencils.Values; }
-    }
+    //public IEnumerable<GraphicStencil> GraphicStencilValues
+    //{
+    //  get { return config.GraphicStencils.Values; }
+    //}
 
-    public IEnumerable<ModelStencil> ModelStencilValues
-    {
-      get { return config.ModelStencils.Values; }
-    }
+    //public IEnumerable<ModelStencil> ModelStencilValues
+    //{
+    //  get { return config.ModelStencils.Values; }
+    //}
 
     public Dictionary<String, GraphicStencil> GraphicStencils
     {
@@ -1451,8 +1446,8 @@ namespace SysCAD.Editor
 
     public bool ShowGroups
     {
-      get { return showModels; }
-      set { showModels = value; }
+      get { return showGroups; }
+      set { showGroups = value; }
     }
 
     public bool ShowTags
@@ -1467,33 +1462,33 @@ namespace SysCAD.Editor
       set { tvNavigation = value; }
     }
 
-    internal String CurrentPath
-    {
-      get
-      {
+    //internal String CurrentPath
+    //{
+    //  get
+    //  {
 
-        if (tvNavigation.SelectedNode != null)
-          return tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator;
+    //    if (tvNavigation.SelectedNode != null)
+    //      return tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator;
 
-        else
-          return tvNavigation.PathSeparator;
-      }
-    }
+    //    else
+    //      return tvNavigation.PathSeparator;
+    //  }
+    //}
 
-    internal IEnumerable<GraphicNode> GraphicItems
-    {
-      get { return clientProtocol.graphic.Nodes.Values; }
-    }
+    //internal IEnumerable<GraphicNode> GraphicItems
+    //{
+    //  get { return clientProtocol.graphic.Nodes.Values; }
+    //}
 
-    internal IEnumerable<GraphicLink> GraphicLinks
-    {
-      get { return clientProtocol.graphic.Links.Values; }
-    }
+    //internal IEnumerable<GraphicLink> GraphicLinks
+    //{
+    //  get { return clientProtocol.graphic.Links.Values; }
+    //}
 
-    internal IEnumerable<GraphicThing> GraphicThings
-    {
-      get { return clientProtocol.graphic.Things.Values; }
-    }
+    //internal IEnumerable<GraphicThing> GraphicThings
+    //{
+    //  get { return clientProtocol.graphic.Things.Values; }
+    //}
 
     internal IEnumerable<EditorGroup> Groups
     {
@@ -1510,10 +1505,10 @@ namespace SysCAD.Editor
       get { return editorLinks.Values; }
     }
 
-    internal IEnumerable<Thing> Things
-    {
-      get { return things.Values; }
-    }
+    //internal IEnumerable<Thing> Things
+    //{
+    //  get { return things.Values; }
+    //}
 
     internal void ConnectGraphic(
       ClientProtocol.PermissionsChangedHandler permissionsChangedHandler,

@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Runtime.Remoting;
 using MindFusion.FlowChartX;
 using MindFusion.FlowChartX.LayoutSystem;
+using System.Globalization;
 
 namespace SysCAD.Service
 {
@@ -25,21 +26,26 @@ namespace SysCAD.Service
     Graphic graphic;
     Model model;
 
+    [NonSerializedAttribute]
     FlowChart flowChart;
 
+    [NonSerializedAttribute]
     ConfigData configData;
+
+    [NonSerializedAttribute]
     SysCAD.Log.LogView logView;
 
-    public ClientServiceProtocol clientClientServiceProtocol;
-    public EngineServiceProtocol engineClientServiceProtocol;
+    private ClientServiceProtocol clientClientServiceProtocol;
+    private EngineServiceProtocol engineClientServiceProtocol;
 
-    public Dictionary<String, Box> clientBoxes = new Dictionary<String, Box>();
-    public Dictionary<String, Box> engineBoxes = new Dictionary<String, Box>();
+    private Dictionary<String, Box> clientBoxes = new Dictionary<String, Box>();
+    private Dictionary<String, Box> engineBoxes = new Dictionary<String, Box>();
 
-    public Dictionary<String, Arrow> clientArrows = new Dictionary<String, Arrow>();
-    public Dictionary<String, Arrow> engineArrows = new Dictionary<String, Arrow>();
+    private Dictionary<String, Arrow> clientArrows = new Dictionary<String, Arrow>();
+    private Dictionary<String, Arrow> engineArrows = new Dictionary<String, Arrow>();
 
-    public Box projectBox;
+    [NonSerializedAttribute]
+    private Box projectBox;
 
     public Project(string name, string path)
     {
@@ -80,12 +86,15 @@ namespace SysCAD.Service
       set
       {
         flowChart = value;
-        flowChart.DocExtents = new RectangleF(0.0F, 0.0F, 1000.0F, 1000.0F);
-    
-        projectBox = flowChart.CreateBox(0.0F, 0.0F, 40.0F, 20.0F);
-        projectBox.Selected = false;
-        projectBox.Text = name;
-        projectBox.Shape = ShapeTemplate.Decision;
+        if (flowChart != null)
+        {
+          flowChart.DocExtents = new RectangleF(0.0F, 0.0F, 1000.0F, 1000.0F);
+
+          projectBox = flowChart.CreateBox(0.0F, 0.0F, 40.0F, 20.0F);
+          projectBox.Selected = false;
+          projectBox.Text = name;
+          projectBox.Shape = ShapeTemplate.Decision;
+        }
 
         RedrawAll();
       }
@@ -340,310 +349,311 @@ namespace SysCAD.Service
       return Exists(item.Guid);
     }
 
-    bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
-    {
-      // Need to check for runstate here, and decide if we'll fire DoGroupCreated.
-      // This is required in case a rogue client tries to create an Group even when not supposed to.
-      // This applies to all three create*, and all three delete* events.
-      if (true)
-      { // We're going to do it.
-        // Create the Group.
-        this.requestId++;
-        requestId = this.requestId;
-        guid = Guid.NewGuid();
+    //bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
+    //{
+    //  // Need to check for runstate here, and decide if we'll fire DoGroupCreated.
+    //  // This is required in case a rogue client tries to create an Group even when not supposed to.
+    //  // This applies to all three create*, and all three delete* events.
+    //  if (true)
+    //  { // We're going to do it.
+    //    // Create the Group.
+    //    this.requestId++;
+    //    requestId = this.requestId;
+    //    guid = Guid.NewGuid();
 
-        GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
-        graphicGroup.Path = path;
-        graphicGroup.BoundingRect = boundingRect;
+    //    GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
+    //    graphicGroup.Path = path;
+    //    graphicGroup.BoundingRect = boundingRect;
 
-        graphic.Groups.Add(guid, graphicGroup);
+    //    graphic.Groups.Add(guid, graphicGroup);
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
 
-        return true;
-      }
-      //else
-      //{ // We're not going to do it.
-      //  return false;
-      //}
-    }
+    //    return true;
+    //  }
+    //  //else
+    //  //{ // We're not going to do it.
+    //  //  return false;
+    //  //}
+    //}
 
-    public delegate void DoItemCreatedDelegate(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Guid modelGuid, NodeClass model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle tagArea, Double tagAngle, Boolean tagVisible, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY);
+    //public delegate void DoItemCreatedDelegate(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Guid modelGuid, NodeClass model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle tagArea, Double tagAngle, Boolean tagVisible, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY);
 
-    bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Guid modelGuid, NodeClass model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle tagArea, Double tagAngle, Boolean tagVisible, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
-    {
-      // Need to check for runstate here, and decide if we'll fire DoItemCreated.
-      // This is required in case a rogue client tries to create an item even when not supposed to.
-      // This applies to all three create*, and all three delete* events.
-      if (true)
-      { // We're going to do it.
-        // Create the item.
-        this.requestId++;
-        requestId = this.requestId;
-        guid = Guid.NewGuid();
+    //bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Guid modelGuid, NodeClass model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle tagArea, Double tagAngle, Boolean tagVisible, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    //{
+    //  // Need to check for runstate here, and decide if we'll fire DoItemCreated.
+    //  // This is required in case a rogue client tries to create an item even when not supposed to.
+    //  // This applies to all three create*, and all three delete* events.
+    //  if (true)
+    //  { // We're going to do it.
+    //    // Create the item.
+    //    this.requestId++;
+    //    requestId = this.requestId;
+    //    guid = Guid.NewGuid();
 
-        GraphicNode graphicNode = new GraphicNode(guid, tag, path, modelGuid, stencil, boundingRect, angle, tagArea, tagAngle, tagVisible, fillColor, fillMode, mirrorX, mirrorY);
+    //    GraphicNode graphicNode = new GraphicNode(guid, tag, path, modelGuid, stencil, boundingRect, angle, tagArea, tagAngle, tagVisible, fillColor, fillMode, mirrorX, mirrorY);
 
-        graphic.Nodes.Add(guid, graphicNode);
+    //    graphic.Nodes.Add(guid, graphicNode);
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, tagArea, tagAngle, fillColor, fillMode, mirrorX, mirrorY);
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, tagArea, tagAngle, fillColor, fillMode, mirrorX, mirrorY);
 
-        return true;
-      }
-      //else
-      //{ // We're not going to do it.
-      //  return false;
-      //}
-    }
+    //    return true;
+    //  }
+    //  //else
+    //  //{ // We're not going to do it.
+    //  //  return false;
+    //  //}
+    //}
 
-    bool CreateLink(out Int64 requestId, out Guid guid, Guid modelGuid, String tag, LinkClass linkClass, Guid origin, Guid modelOrigin,
-      Guid destination, Guid modelDestination, String originPort, Int16 originPortID,
-      String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints,
-      SysCAD.Protocol.Rectangle tagArea, Double tagAngle, Boolean tagVisible)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //bool CreateLink(out Int64 requestId, out Guid guid, Guid modelGuid, String tag, LinkClass linkClass, Guid origin, Guid modelOrigin,
+    //  Guid destination, Guid modelDestination, String originPort, Int16 originPortID,
+    //  String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints,
+    //  SysCAD.Protocol.Rectangle tagArea, Double tagAngle, Boolean tagVisible)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-      GraphicNode originGraphicNode;
-      GraphicNode destinationGraphicNode;
+    //  GraphicNode originGraphicNode;
+    //  GraphicNode destinationGraphicNode;
 
-      graphic.Nodes.TryGetValue(origin, out originGraphicNode);
-      graphic.Nodes.TryGetValue(destination, out destinationGraphicNode);
+    //  graphic.Nodes.TryGetValue(origin, out originGraphicNode);
+    //  graphic.Nodes.TryGetValue(destination, out destinationGraphicNode);
 
-      if ((originGraphicNode != null) && (destinationGraphicNode != null)) // Decide whether to create a link.
-      {
-        ModelNode originModelNode;
-        ModelNode destinationModelNode;
+    //  if ((originGraphicNode != null) && (destinationGraphicNode != null)) // Decide whether to create a link.
+    //  {
+    //    ModelNode originModelNode;
+    //    ModelNode destinationModelNode;
 
-        model.Nodes.TryGetValue(originGraphicNode.ModelGuid, out originModelNode);
-        model.Nodes.TryGetValue(destinationGraphicNode.ModelGuid, out destinationModelNode);
+    //    model.Nodes.TryGetValue(originGraphicNode.ModelGuid, out originModelNode);
+    //    model.Nodes.TryGetValue(destinationGraphicNode.ModelGuid, out destinationModelNode);
 
-        if ((originModelNode != null) && (destinationModelNode != null)) // Decide whether to create a link.
-        { // We're going to do it.
-          // Create the item.
-
-
-          // Calculate the closest anchorpointid for unknown (-1) id's.
-          // The following is close, but I need to convert the link controlpoint to a relative position to the item
-          // before comparing to the anchor location...
-
-          //// Instead, for now:
-          //if (originPortID == -1) // unknown anchor id...
-          //  originPortID = 0;
-
-          //if (destinationPortID == -1) // unknown anchor id...
-          //  destinationPortID = 0;
-
-          if (originPortID == -1) // unknown anchor id...
-          {
-            Double minDistance = Double.MaxValue;
-            Int16 minID = 0;
-            ModelStencil modelStencil;
-            configData.ModelStencils.TryGetValue(originModelNode.NodeClass, out modelStencil);
-            if (modelStencil != null)
-            {
-              foreach (Anchor anchor in modelStencil.Anchors)
-              {
-                if (anchor.Tag == originPort)
-                {
-                  Double distance = 0.0;
-                  Int16 ID = 0;
-                  foreach (SysCAD.Protocol.Point position in anchor.Positions)
-                  {
-                    SysCAD.Protocol.Point anchorPoint =
-                      new SysCAD.Protocol.Point(originGraphicNode.BoundingRect.X + originGraphicNode.BoundingRect.Width * position.X / 100.0,
-                                                originGraphicNode.BoundingRect.Y + originGraphicNode.BoundingRect.Height * position.Y / 100.0);
-                    SysCAD.Protocol.Point originPoint = controlPoints[0];
-                    distance = Math.Sqrt((originPoint.X - anchorPoint.X) * (originPoint.X - anchorPoint.X) + (originPoint.Y - anchorPoint.Y) * (originPoint.Y - anchorPoint.Y));
-                    if (distance < minDistance)
-                    {
-                      minDistance = distance;
-                      minID = ID;
-                    }
-                    ID++;
-                  }
-                }
-              }
-            }
-            originPortID = minID;
-          }
+    //    if ((originModelNode != null) && (destinationModelNode != null)) // Decide whether to create a link.
+    //    { // We're going to do it.
+    //      // Create the item.
 
 
-          if (destinationPortID == -1) // unknown anchor id...
-          {
-            Double minDistance = Double.MaxValue;
-            Int16 minID = 0;
-            ModelStencil modelStencil;
-            configData.ModelStencils.TryGetValue(destinationModelNode.NodeClass, out modelStencil);
-            if (modelStencil != null)
-            {
-              foreach (Anchor anchor in modelStencil.Anchors)
-              {
-                if (anchor.Tag == destinationPort)
-                {
-                  Double distance = 0.0;
-                  Int16 ID = 0;
-                  foreach (SysCAD.Protocol.Point position in anchor.Positions)
-                  {
-                    SysCAD.Protocol.Point anchorPoint =
-                      new SysCAD.Protocol.Point(destinationGraphicNode.BoundingRect.X + destinationGraphicNode.BoundingRect.Width * position.X / 100.0,
-                                                destinationGraphicNode.BoundingRect.Y + destinationGraphicNode.BoundingRect.Height * position.Y / 100.0);
-                    SysCAD.Protocol.Point destinationPoint = controlPoints[controlPoints.Count - 1];
-                    distance = Math.Sqrt((destinationPoint.X - anchorPoint.X) * (destinationPoint.X - anchorPoint.X) + (destinationPoint.Y - anchorPoint.Y) * (destinationPoint.Y - anchorPoint.Y));
-                    if (distance < minDistance)
-                    {
-                      minDistance = distance;
-                      minID = ID;
-                    }
-                    ID++;
-                  }
-                }
-              }
-            }
-            destinationPortID = minID;
-          }
+    //      // Calculate the closest anchorpointid for unknown (-1) id's.
+    //      // The following is close, but I need to convert the link controlpoint to a relative position to the item
+    //      // before comparing to the anchor location...
+
+    //      //// Instead, for now:
+    //      //if (originPortID == -1) // unknown anchor id...
+    //      //  originPortID = 0;
+
+    //      //if (destinationPortID == -1) // unknown anchor id...
+    //      //  destinationPortID = 0;
+
+    //      if (originPortID == -1) // unknown anchor id...
+    //      {
+    //        Double minDistance = Double.MaxValue;
+    //        Int16 minID = 0;
+    //        ModelStencil modelStencil;
+    //        configData.ModelStencils.TryGetValue(originModelNode.NodeClass, out modelStencil);
+    //        if (modelStencil != null)
+    //        {
+    //          foreach (Anchor anchor in modelStencil.Anchors)
+    //          {
+    //            if (anchor.Tag == originPort)
+    //            {
+    //              Double distance = 0.0;
+    //              Int16 ID = 0;
+    //              foreach (SysCAD.Protocol.Point position in anchor.Positions)
+    //              {
+    //                SysCAD.Protocol.Point anchorPoint =
+    //                  new SysCAD.Protocol.Point(originGraphicNode.BoundingRect.X + originGraphicNode.BoundingRect.Width * position.X / 100.0,
+    //                                            originGraphicNode.BoundingRect.Y + originGraphicNode.BoundingRect.Height * position.Y / 100.0);
+    //                SysCAD.Protocol.Point originPoint = controlPoints[0];
+    //                distance = Math.Sqrt((originPoint.X - anchorPoint.X) * (originPoint.X - anchorPoint.X) + (originPoint.Y - anchorPoint.Y) * (originPoint.Y - anchorPoint.Y));
+    //                if (distance < minDistance)
+    //                {
+    //                  minDistance = distance;
+    //                  minID = ID;
+    //                }
+    //                ID++;
+    //              }
+    //            }
+    //          }
+    //        }
+    //        originPortID = minID;
+    //      }
 
 
-          guid = Guid.NewGuid();
+    //      if (destinationPortID == -1) // unknown anchor id...
+    //      {
+    //        Double minDistance = Double.MaxValue;
+    //        Int16 minID = 0;
+    //        ModelStencil modelStencil;
+    //        configData.ModelStencils.TryGetValue(destinationModelNode.NodeClass, out modelStencil);
+    //        if (modelStencil != null)
+    //        {
+    //          foreach (Anchor anchor in modelStencil.Anchors)
+    //          {
+    //            if (anchor.Tag == destinationPort)
+    //            {
+    //              Double distance = 0.0;
+    //              Int16 ID = 0;
+    //              foreach (SysCAD.Protocol.Point position in anchor.Positions)
+    //              {
+    //                SysCAD.Protocol.Point anchorPoint =
+    //                  new SysCAD.Protocol.Point(destinationGraphicNode.BoundingRect.X + destinationGraphicNode.BoundingRect.Width * position.X / 100.0,
+    //                                            destinationGraphicNode.BoundingRect.Y + destinationGraphicNode.BoundingRect.Height * position.Y / 100.0);
+    //                SysCAD.Protocol.Point destinationPoint = controlPoints[controlPoints.Count - 1];
+    //                distance = Math.Sqrt((destinationPoint.X - anchorPoint.X) * (destinationPoint.X - anchorPoint.X) + (destinationPoint.Y - anchorPoint.Y) * (destinationPoint.Y - anchorPoint.Y));
+    //                if (distance < minDistance)
+    //                {
+    //                  minDistance = distance;
+    //                  minID = ID;
+    //                }
+    //                ID++;
+    //              }
+    //            }
+    //          }
+    //        }
+    //        destinationPortID = minID;
+    //      }
 
-          GraphicLink graphicLink = new GraphicLink(guid, modelGuid, tag, origin, originPortID, destination, destinationPortID, controlPoints, tagArea, tagAngle, tagVisible);
-          graphic.Links.Add(guid, graphicLink);
 
-          // Raise event(s).
-          eventId++;
-          //clientClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, tagArea, tagAngle);
+    //      guid = Guid.NewGuid();
 
-          return true;
-        }
-      }
+    //      GraphicLink graphicLink = new GraphicLink(guid, modelGuid, tag, origin, originPortID, destination, destinationPortID, controlPoints, tagArea, tagAngle, tagVisible);
+    //      graphic.Links.Add(guid, graphicLink);
 
-      //else
-      { // We're not going to do it.
-        if (originGraphicNode == null)
-          logView.Message("Failed to create link " + tag + ".  Origin: " + origin.ToString() + " missing.", MessageType.Warning);
+    //      // Raise event(s).
+    //      eventId++;
+    //      //clientClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, tagArea, tagAngle);
 
-        if (destinationGraphicNode == null)
-          logView.Message("Failed to create link " + tag + ".  Destination: " + destination.ToString() + " missing.", MessageType.Warning);
+    //      return true;
+    //    }
+    //  }
 
-        guid = Guid.Empty;
+    //  //else
+    //  { // We're not going to do it.
+    //    if (originGraphicNode == null)
+    //      logView.Message("Failed to create link " + tag + ".  Origin: " + origin.ToString() + " missing.", MessageType.Warning);
 
-        return false;
-      }
-    }
+    //    if (destinationGraphicNode == null)
+    //      logView.Message("Failed to create link " + tag + ".  Destination: " + destination.ToString() + " missing.", MessageType.Warning);
 
-    bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    {
-      if (true) // Decide whether to create an Thing.
-      { // We're going to do it.
-        // Create the Thing.
+    //    guid = Guid.Empty;
 
-        this.requestId++;
-        requestId = this.requestId;
-        guid = Guid.NewGuid();
+    //    return false;
+    //  }
+    //}
 
-        GraphicThing graphicThing = new GraphicThing(guid, tag);
-        graphicThing.Path = path;
-        graphicThing.BoundingRect = boundingRect;
-        graphicThing.Xaml = xaml;
-        graphicThing.Angle = angle;
-        graphicThing.MirrorX = mirrorX;
-        graphicThing.MirrorY = mirrorY;
+    //bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
+    //{
+    //  if (true) // Decide whether to create an Thing.
+    //  { // We're going to do it.
+    //    // Create the Thing.
 
-        graphic.Things.Add(guid, graphicThing);
+    //    this.requestId++;
+    //    requestId = this.requestId;
+    //    guid = Guid.NewGuid();
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+    //    GraphicThing graphicThing = new GraphicThing(guid, tag);
+    //    graphicThing.Path = path;
+    //    graphicThing.BoundingRect = boundingRect;
+    //    graphicThing.Xaml = xaml;
+    //    graphicThing.Angle = angle;
+    //    graphicThing.MirrorX = mirrorX;
+    //    graphicThing.MirrorY = mirrorY;
 
-        return true;
-      }
-      //else
-      //{ // We're not going to do it.
-      //  return false;
-      //}
-    }
+    //    graphic.Things.Add(guid, graphicThing);
 
-    bool DeleteGroup(out Int64 requestId, Guid guid)
-    {
-      throw new NotImplementedException("The method or operation is not implemented.");
-    }
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
-    bool DeleteItem(out Int64 requestId, Guid guid)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //    return true;
+    //  }
+    //  //else
+    //  //{ // We're not going to do it.
+    //  //  return false;
+    //  //}
+    //}
 
-      if (graphic.Nodes.ContainsKey(guid))
-      { // We're going to do it.
+    //bool DeleteGroup(out Int64 requestId, Guid guid)
+    //{
+    //  throw new NotImplementedException("The method or operation is not implemented.");
+    //}
 
-        // Delete the item.
-        graphic.Nodes.Remove(guid);
+    //bool DeleteItem(out Int64 requestId, Guid guid)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoItemDeleted(eventId, requestId, guid);
+    //  if (graphic.Nodes.ContainsKey(guid))
+    //  { // We're going to do it.
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
+    //    // Delete the item.
+    //    graphic.Nodes.Remove(guid);
 
-    bool DeleteLink(out Int64 requestId, Guid guid)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoItemDeleted(eventId, requestId, guid);
 
-      if (graphic.Links.ContainsKey(guid))
-      { // We're going to do it.
-        // Delete the item.
+    //    return true;
+    //  }
+    //  else
+    //  { // We're not going to do it.
+    //    return false;
+    //  }
+    //}
 
-        graphic.Links.Remove(guid);
+    //bool DeleteLink(out Int64 requestId, Guid guid)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoLinkDeleted(eventId, requestId, guid);
+    //  if (graphic.Links.ContainsKey(guid))
+    //  { // We're going to do it.
+    //    // Delete the item.
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
+    //    graphic.Links.Remove(guid);
 
-    bool DeleteThing(out Int64 requestId, Guid guid)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoLinkDeleted(eventId, requestId, guid);
 
-      if (graphic.Things.ContainsKey(guid))
-      { // We're going to do it.
-        // Delete the Thing.
+    //    return true;
+    //  }
+    //  else
+    //  { // We're not going to do it.
+    //    return false;
+    //  }
+    //}
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoThingDeleted(eventId, requestId, guid);
+    //bool DeleteThing(out Int64 requestId, Guid guid)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-    bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
-    {
-      throw new NotImplementedException("The method or operation is not implemented.");
-    }
+    //  if (graphic.Things.ContainsKey(guid))
+    //  { // We're going to do it.
+    //    // Delete the Thing.
 
-    public delegate void DoPortInfoRequestedDelegate(Int64 eventId, Int64 requestId, Guid guid, String tag);
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoThingDeleted(eventId, requestId, guid);
+
+    //    return true;
+    //  }
+    //  else
+    //  { // We're not going to do it.
+    //    return false;
+    //  }
+    //}
+
+    //bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
+    //{
+    //  throw new NotImplementedException("The method or operation is not implemented.");
+    //}
+
+    public delegate void DoPortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag);
 
     public bool ClientRequestPortInfo(out Int64 requestId, Guid guid, String tag)
     {
@@ -655,8 +665,8 @@ namespace SysCAD.Service
       {
         // Raise event(s).
         eventId++;
-        DoPortInfoRequestedDelegate doPortInfoRequestedDelegate = new DoPortInfoRequestedDelegate(engineClientServiceProtocol.DoPortInfoRequested);
-        doPortInfoRequestedDelegate.BeginInvoke(eventId, requestId, guid, tag, null, null);
+        DoPortInfoRequested doPortInfoRequested = new DoPortInfoRequested(engineClientServiceProtocol.DoPortInfoRequested);
+        doPortInfoRequested.BeginInvoke(eventId, requestId, guid, tag, null, null);
 
         return true;
       }
@@ -685,194 +695,194 @@ namespace SysCAD.Service
       }
     }
 
-    bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, NodeClass model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle tagArea, Double tagAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, NodeClass model, Shape stencil, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle tagArea, Double tagAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-      if (graphic.Nodes.ContainsKey(guid))
-      { // We're going to do it.
+    //  if (graphic.Nodes.ContainsKey(guid))
+    //  { // We're going to do it.
 
-        // Need to get hold of a valid pDoc pointer... *********
+    //    // Need to get hold of a valid pDoc pointer... *********
 
-        //Individual changes would go something like this: *********
-        //int length = tag.Length;
-        //wchar_t * tagwc = (wchar_t*)(void*)Marshal.StringToHGlobalUni(tag);
+    //    //Individual changes would go something like this: *********
+    //    //int length = tag.Length;
+    //    //wchar_t * tagwc = (wchar_t*)(void*)Marshal.StringToHGlobalUni(tag);
 
-        //char * tagc = (char *)malloc(length+1);
-        //tagc[length] = 0;
-        //for (int i=0; i<length; i++)
-        //  tagc[i] = (char)tagwc[i];
+    //    //char * tagc = (char *)malloc(length+1);
+    //    //tagc[length] = 0;
+    //    //for (int i=0; i<length; i++)
+    //    //  tagc[i] = (char)tagwc[i];
 
-        //pDoc.GCB.DoModify(tagc, 
-        //                    angle,
-        //                    boundingRect, 
-        //                    fillColor,
-        //                    fillMode,
-        //                    mirrorX,
-        //                    mirrorY);
+    //    //pDoc.GCB.DoModify(tagc, 
+    //    //                    angle,
+    //    //                    boundingRect, 
+    //    //                    fillColor,
+    //    //                    fillMode,
+    //    //                    mirrorX,
+    //    //                    mirrorY);
 
-        // Modify the item.
-        GraphicNode graphicNode = graphic.Nodes[guid];
+    //    // Modify the item.
+    //    GraphicNode graphicNode = graphic.Nodes[guid];
 
-        graphicNode.Tag = tag;
-        graphicNode.Path = path;
-        graphicNode.Shape = stencil;
-        graphicNode.BoundingRect = boundingRect;
-        graphicNode.Angle = angle;
-        graphicNode.TagArea = tagArea;
-        graphicNode.TagAngle = tagAngle;
-        graphicNode.FillColor = fillColor;
-        graphicNode.FillMode = fillMode;
-        graphicNode.MirrorX = mirrorX;
-        graphicNode.MirrorY = mirrorY;
+    //    graphicNode.Tag = tag;
+    //    graphicNode.Path = path;
+    //    graphicNode.Shape = stencil;
+    //    graphicNode.BoundingRect = boundingRect;
+    //    graphicNode.Angle = angle;
+    //    graphicNode.TagArea = tagArea;
+    //    graphicNode.TagAngle = tagAngle;
+    //    graphicNode.FillColor = fillColor;
+    //    graphicNode.FillMode = fillMode;
+    //    graphicNode.MirrorX = mirrorX;
+    //    graphicNode.MirrorY = mirrorY;
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, tagArea, tagAngle, fillColor, fillMode, mirrorX, mirrorY);
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, tagArea, tagAngle, fillColor, fillMode, mirrorX, mirrorY);
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
+    //    return true;
+    //  }
+    //  else
+    //  { // We're not going to do it.
+    //    return false;
+    //  }
+    //}
 
-    bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-      if (graphic.Nodes.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the item.
+    //  if (graphic.Nodes.ContainsKey(guid))
+    //  { // We're going to do it.
+    //    // Modify the item.
 
-        GraphicNode graphicItem = graphic.Nodes[guid];
+    //    GraphicNode graphicItem = graphic.Nodes[guid];
 
-        graphicItem.Path = path;
+    //    graphicItem.Path = path;
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, path, graphicItem.NodeClass, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TagArea, graphicItem.TagAngle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, path, graphicItem.NodeClass, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TagArea, graphicItem.TagAngle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
+    //    return true;
+    //  }
+    //  else
+    //  { // We're not going to do it.
+    //    return false;
+    //  }
+    //}
 
-    bool ModifyItemBoundingRect(out Int64 requestId, Guid guid, SysCAD.Protocol.Rectangle boundingRect)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //bool ModifyItemBoundingRect(out Int64 requestId, Guid guid, SysCAD.Protocol.Rectangle boundingRect)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-      if (graphic.Nodes.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the item.
+    //  if (graphic.Nodes.ContainsKey(guid))
+    //  { // We're going to do it.
+    //    // Modify the item.
 
-        GraphicNode graphicNode = graphic.Nodes[guid];
+    //    GraphicNode graphicNode = graphic.Nodes[guid];
 
-        graphicNode.BoundingRect = boundingRect;
+    //    graphicNode.BoundingRect = boundingRect;
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicNode.Tag, graphicNode.Path, graphicNode.NodeClass, graphicNode.Shape, boundingRect, graphicNode.Angle, graphicNode.TagArea, graphicNode.TagAngle, graphicNode.FillColor, graphicNode.FillMode, graphicNode.MirrorX, graphicNode.MirrorY);
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicNode.Tag, graphicNode.Path, graphicNode.NodeClass, graphicNode.Shape, boundingRect, graphicNode.Angle, graphicNode.TagArea, graphicNode.TagAngle, graphicNode.FillColor, graphicNode.FillMode, graphicNode.MirrorX, graphicNode.MirrorY);
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
+    //    return true;
+    //  }
+    //  else
+    //  { // We're not going to do it.
+    //    return false;
+    //  }
+    //}
 
-    bool ModifyLink(out Int64 requestId, Guid guid, Guid modelGuid, String tag, String classID, Guid origin, Guid modelOrigin, Guid destination, Guid modelDestination,
-      String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle tagArea, Double tagAngle)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //bool ModifyLink(out Int64 requestId, Guid guid, Guid modelGuid, String tag, String classID, Guid origin, Guid modelOrigin, Guid destination, Guid modelDestination,
+    //  String originPort, Int16 originPortID, String destinationPort, Int16 destinationPortID, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle tagArea, Double tagAngle)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-      if (graphic.Links.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the item.
+    //  if (graphic.Links.ContainsKey(guid))
+    //  { // We're going to do it.
+    //    // Modify the item.
 
-        GraphicLink graphicLink = graphic.Links[guid];
+    //    GraphicLink graphicLink = graphic.Links[guid];
 
-        graphicLink.Tag = tag;
-        graphicLink.ModelGuid = modelGuid;
-        graphicLink.Origin = origin;
-        graphicLink.Destination = destination;
-        graphicLink.OriginPortID = originPortID;
-        graphicLink.DestinationPortID = destinationPortID;
+    //    graphicLink.Tag = tag;
+    //    graphicLink.ModelGuid = modelGuid;
+    //    graphicLink.Origin = origin;
+    //    graphicLink.Destination = destination;
+    //    graphicLink.OriginPortID = originPortID;
+    //    graphicLink.DestinationPortID = destinationPortID;
 
-        graphicLink.ControlPoints.Clear();
+    //    graphicLink.ControlPoints.Clear();
 
-        foreach (SysCAD.Protocol.Point controlPoint in controlPoints)
-          graphicLink.ControlPoints.Add(controlPoint);
+    //    foreach (SysCAD.Protocol.Point controlPoint in controlPoints)
+    //      graphicLink.ControlPoints.Add(controlPoint);
 
-        graphicLink.TagArea = tagArea;
-        graphicLink.TagAngle = tagAngle;
+    //    graphicLink.TagArea = tagArea;
+    //    graphicLink.TagAngle = tagAngle;
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints, tagArea, tagAngle);
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints, tagArea, tagAngle);
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
+    //    return true;
+    //  }
+    //  else
+    //  { // We're not going to do it.
+    //    return false;
+    //  }
+    //}
 
-    bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-      if (graphic.Things.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the Thing.
+    //  if (graphic.Things.ContainsKey(guid))
+    //  { // We're going to do it.
+    //    // Modify the Thing.
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
+    //    return true;
+    //  }
+    //  else
+    //  { // We're not going to do it.
+    //    return false;
+    //  }
+    //}
 
-    bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
-    {
-      this.requestId++;
-      requestId = this.requestId;
+    //bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
+    //{
+    //  this.requestId++;
+    //  requestId = this.requestId;
 
-      if (graphic.Things.ContainsKey(guid))
-      { // We're going to do it.
-        // Modify the item.
+    //  if (graphic.Things.ContainsKey(guid))
+    //  { // We're going to do it.
+    //    // Modify the item.
 
-        GraphicThing graphicThing = graphic.Things[guid];
+    //    GraphicThing graphicThing = graphic.Things[guid];
 
-        graphicThing.Path = path;
+    //    graphicThing.Path = path;
 
-        // Raise event(s).
-        eventId++;
-        //clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, graphicThing.Tag, path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
+    //    // Raise event(s).
+    //    eventId++;
+    //    //clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, graphicThing.Tag, path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
 
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
+    //    return true;
+    //  }
+    //  else
+    //  { // We're not going to do it.
+    //    return false;
+    //  }
+    //}
 
     public ArrayList PropertyListCheck(out Int64 requestId, Guid guid, String tag, String path)
     {
@@ -965,11 +975,11 @@ namespace SysCAD.Service
         logView.Message(message, messageType);
     }
 
-    private void LogNote(string message)
-    {
-      Message(message, MessageType.Note);
-      Console.WriteLine(message);
-    }
+    //private void LogNote(string message)
+    //{
+    //  Message(message, MessageType.Note);
+    //  Console.WriteLine(message);
+    //}
 
     public void Message(string msg, MessageType msgType, MessageSource src)
     {
@@ -1092,11 +1102,11 @@ namespace SysCAD.Service
       {
         Box testBox;
         int i = 0;
-        String fullName = clientName + i.ToString();
+        String fullName = clientName + i.ToString(CultureInfo.InvariantCulture);
         while (clientBoxes.TryGetValue(fullName, out testBox))
         {
           i++;
-          fullName = clientName + i.ToString();
+          fullName = clientName + i.ToString(CultureInfo.InvariantCulture);
         }
 
         Box box = flowChart.CreateBox(0.0F, 0.0F, 40.0F, 20.0F);
@@ -1160,11 +1170,11 @@ namespace SysCAD.Service
       {
         Box testBox;
         int i = 0;
-        String fullName = engineName + i.ToString();
+        String fullName = engineName + i.ToString(CultureInfo.InvariantCulture);
         while (engineBoxes.TryGetValue(fullName, out testBox))
         {
           i++;
-          fullName = engineName + i.ToString();
+          fullName = engineName + i.ToString(CultureInfo.InvariantCulture);
         }
 
         Box box = flowChart.CreateBox(0.0F, 0.0F, 40.0F, 20.0F);

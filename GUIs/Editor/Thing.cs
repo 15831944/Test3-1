@@ -11,7 +11,6 @@ namespace SysCAD.Editor
 
   internal class Thing
   {
-
     private Box box;
 
     private GraphicThing graphicThing;

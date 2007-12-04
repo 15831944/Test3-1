@@ -16,13 +16,16 @@ using MindFusion.FlowChartX.LayoutSystem;
 using System.Drawing.Drawing2D;
 using System.Collections;
 using System.Globalization;
+using System.Resources;
+using System.Reflection;
 
+[assembly: NeutralResourcesLanguageAttribute("en-US")]
 namespace SysCAD.Editor
 {
 
   internal partial class FrmFlowChart : Form
   {
-    private Int32 tempTagExtension = 0;
+    private Int32 tempTagExtension; // = 0;
 
     private Arrow arrowBeingModified;
     private int arrowBeingModifiedSelectionHandle = -1;
@@ -36,7 +39,8 @@ namespace SysCAD.Editor
     private Arrow hoverArrow;
     private Box hoverBox;
 
-    System.Drawing.Point mousePressed;
+    ResourceManager stringManager;
+
     int newDestinationAnchor = -1;
     Box newDestinationBox;
 
@@ -72,6 +76,8 @@ namespace SysCAD.Editor
 
     public FrmFlowChart(EditorForm form1)
     {
+      stringManager = new ResourceManager("en-US", Assembly.GetExecutingAssembly());
+
       this.form1 = form1;
       InitializeComponent();
 
@@ -395,7 +401,7 @@ namespace SysCAD.Editor
         ModelNode modelNode;
         if (state.ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
         {
-          state.CreateNode(state, modelNode, graphicNode);
+          state.CreateNode(modelNode, graphicNode);
         }
         else
         {
@@ -622,8 +628,8 @@ namespace SysCAD.Editor
 
     private void EditThing(object sender, EventArgs e)
     {
-      Thing thing = (hoverBox.Tag as Thing);
-      GraphicThing graphicThing = thing.GraphicThing;
+      //Thing thing = (hoverBox.Tag as Thing);
+      //GraphicThing graphicThing = thing.GraphicThing;
 
       //ThingEditor.ThingEditorForm thingEditor = new ThingEditor.ThingEditorForm(graphicThing);
       //thingEditor.ShowDialog();
@@ -686,7 +692,7 @@ namespace SysCAD.Editor
         {
           String fullAnchor = (newDestinationBox.Tag as EditorNode).anchorIntToTag[newDestinationAnchor];
           String anchorName = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length));
+          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length), CultureInfo.InvariantCulture);
           destinationPort = anchorName;
           destinationPortID = anchorID;
         }
@@ -705,7 +711,7 @@ namespace SysCAD.Editor
         {
           String fullAnchor = (oldOriginBox.Tag as EditorNode).anchorIntToTag[oldOriginAnchor];
           String anchorName = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length));
+          Int16 anchorID = Convert.ToInt16(fullAnchor.Substring(anchorName.Length), CultureInfo.InvariantCulture);
           originPort = anchorName;
           originPortID = anchorID;
         }
@@ -879,14 +885,14 @@ namespace SysCAD.Editor
       EditorNode originItem = e.Arrow.Origin.Tag as EditorNode;
       EditorNode destinationItem = e.Arrow.Destination.Tag as EditorNode;
 
-      Guid originGuid = Guid.Empty;
-      Guid destinationGuid = Guid.Empty;
+      //Guid originGuid = Guid.Empty;
+      //Guid destinationGuid = Guid.Empty;
 
-      if (originItem != null)
-        originGuid = originItem.Guid;
+      //if (originItem != null)
+      //  originGuid = originItem.Guid;
 
-      if (destinationItem != null)
-        destinationGuid = destinationItem.Guid;
+      //if (destinationItem != null)
+      //  destinationGuid = destinationItem.Guid;
 
       String originFullAnchor = null;
       String destinationFullAnchor = null;
@@ -898,7 +904,7 @@ namespace SysCAD.Editor
       if (originFullAnchor != null)
       {
         originAnchorName = originFullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-        graphicLink.OriginPortID = Convert.ToInt16(originFullAnchor.Substring(originAnchorName.Length));
+        graphicLink.OriginPortID = Convert.ToInt16(originFullAnchor.Substring(originAnchorName.Length), CultureInfo.InvariantCulture);
       }
 
       destinationItem.anchorIntToTag.TryGetValue(e.Arrow.DestAnchor, out destinationFullAnchor);
@@ -906,14 +912,15 @@ namespace SysCAD.Editor
       if (destinationFullAnchor != null)
       {
         destinationAnchorName = destinationFullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-        graphicLink.DestinationPortID = Convert.ToInt16(destinationFullAnchor.Substring(destinationAnchorName.Length));
+        graphicLink.DestinationPortID = Convert.ToInt16(destinationFullAnchor.Substring(destinationAnchorName.Length), CultureInfo.InvariantCulture);
       }
 
       List<Item> modify = new List<Item>();
       if (graphicLink != null)
       {
-        graphicLink.ControlPoints = State.GetControlPoints(e.Arrow.ControlPoints);
-        modify.Add(graphicLink);
+        GraphicLink newGraphicLink = graphicLink.Clone();
+        newGraphicLink.ControlPoints = State.GetControlPoints(e.Arrow.ControlPoints);
+        modify.Add(newGraphicLink);
       }
 
 
@@ -984,10 +991,8 @@ namespace SysCAD.Editor
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
       MouseEventArgs me = e as MouseEventArgs;
-      mousePressed = me.Location;
       hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
       hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location), 2.0F);
-
 
       form1.ModeModify();
 
@@ -1340,17 +1345,17 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_GroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
+    private static void fcFlowChart_GroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
+    private static void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid)
+    private static void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
@@ -1430,14 +1435,14 @@ namespace SysCAD.Editor
         if (destinationItem != null)
           arrow.Destination = destinationItem.ModelBox;
 
-        if ((modelLink.OriginPort != null) && ((originItem.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.OriginPort + graphicLink.OriginPortID.ToString())))
-          arrow.OrgnAnchor = (originItem.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.OriginPort + graphicLink.OriginPortID.ToString()];
+        if ((modelLink.OriginPort != null) && ((originItem.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.OriginPort + graphicLink.OriginPortID.ToString(CultureInfo.InvariantCulture))))
+          arrow.OrgnAnchor = (originItem.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.OriginPort + graphicLink.OriginPortID.ToString(CultureInfo.InvariantCulture)];
 
         else
           arrow.OrgnAnchor = -1;
 
-        if ((modelLink.DestinationPort != null) && ((destinationItem.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.DestinationPort + graphicLink.DestinationPortID.ToString())))
-          arrow.DestAnchor = (destinationItem.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.DestinationPort + graphicLink.DestinationPortID.ToString()];
+        if ((modelLink.DestinationPort != null) && ((destinationItem.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.DestinationPort + graphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture))))
+          arrow.DestAnchor = (destinationItem.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.DestinationPort + graphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture)];
 
         else
           arrow.DestAnchor = -1;
@@ -1505,7 +1510,6 @@ namespace SysCAD.Editor
           }
         }
 
-        Guid hoverGuid = (hoverBox.Tag as EditorNode).Guid;
         String hoverTag = (hoverBox.Tag as EditorNode).Tag;
         int hoverAnchor = closestI;
 
@@ -1593,7 +1597,7 @@ namespace SysCAD.Editor
             form1.ToolStripStatusLabel.Text =
               (newDestinationBox.Tag as EditorNode).anchorIntToTag[newDestinationAnchor];
           }
-          refreshConnectedObjects(arrowBeingModified);
+          refreshConnectedObjects();//arrowBeingModified);
         }
       }
 
@@ -1645,7 +1649,7 @@ namespace SysCAD.Editor
             ModelNode modelNode;
             if (state.ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
             {
-              state.CreateNode(state, modelNode, graphicNode);
+              state.CreateNode(modelNode, graphicNode);
             }
             else
             {
@@ -1727,23 +1731,23 @@ namespace SysCAD.Editor
         Box modelBox = (e.Box.Tag as EditorNode).ModelBox;
         Box textBox = (e.Box.Tag as EditorNode).TextBox;
 
-        GraphicNode graphicNode = state.GraphicItem((e.Box.Tag as EditorNode).Guid);
-        graphicNode.BoundingRect = new SysCAD.Protocol.Rectangle(modelBox.BoundingRect);
-        graphicNode.Angle = modelBox.RotationAngle;
-        graphicNode.TagArea = new SysCAD.Protocol.Rectangle(textBox.BoundingRect);
-        graphicNode.TagAngle = textBox.RotationAngle;
-        modify.Add(graphicNode);
+        GraphicNode newGraphicNode = state.GraphicItem((e.Box.Tag as EditorNode).Guid).Clone();
+        newGraphicNode.BoundingRect = new SysCAD.Protocol.Rectangle(modelBox.BoundingRect);
+        newGraphicNode.Angle = modelBox.RotationAngle;
+        newGraphicNode.TagArea = new SysCAD.Protocol.Rectangle(textBox.BoundingRect);
+        newGraphicNode.TagAngle = textBox.RotationAngle;
+        modify.Add(newGraphicNode);
 
         ArrowCollection incomingArrows = modelBox.IncomingArrows.Clone();
 
         foreach (Arrow arrow in incomingArrows)
         {
-          GraphicLink graphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid);
+          GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
 
-          if (graphicLink != null)
+          if (newGraphicLink != null)
           {
-            graphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
-            modify.Add(graphicLink);
+            newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
+            modify.Add(newGraphicLink);
           }
         }
 
@@ -1751,12 +1755,12 @@ namespace SysCAD.Editor
 
         foreach (Arrow arrow in outgoingArrows)
         {
-          GraphicLink graphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid);
+          GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
 
-          if (graphicLink != null)
+          if (newGraphicLink != null)
           {
-            graphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
-            modify.Add(graphicLink);
+            newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
+            modify.Add(newGraphicLink);
           }
         }
 
@@ -1775,8 +1779,8 @@ namespace SysCAD.Editor
 
       else if (e.Box.Tag is Thing)
       {
-        GraphicThing graphicThing = state.GraphicThing((e.Box.Tag as Thing).Guid);
-        Box box = (e.Box.Tag as Thing).Box;
+        //GraphicThing graphicThing = state.GraphicThing((e.Box.Tag as Thing).Guid);
+        //Box box = (e.Box.Tag as Thing).Box;
 
         //if (!state.ModifyGraphicThing(out requestId,
         //    graphicThing.Guid,
@@ -1886,7 +1890,7 @@ namespace SysCAD.Editor
       (hoverBox.Tag as Thing).Box.ZTop();
     }
 
-    private void refreshConnectedObjects(Arrow arrowBeingModified)
+    private void refreshConnectedObjects() //Arrow arrowBeingModified)
     {
       fcFlowChart.Invalidate();
     }
@@ -1904,29 +1908,29 @@ namespace SysCAD.Editor
         else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold / 10.0)
           arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Auto;
 
-        GraphicLink graphicLink = (arrow.Tag as EditorLink).GraphicLink as GraphicLink;
+        //GraphicLink graphicLink = (arrow.Tag as EditorLink).GraphicLink as GraphicLink;
 
-        EditorNode originItem = arrow.Origin.Tag as EditorNode;
-        EditorNode destinationItem = arrow.Destination.Tag as EditorNode;
+        //EditorNode originItem = arrow.Origin.Tag as EditorNode;
+        //EditorNode destinationItem = arrow.Destination.Tag as EditorNode;
 
-        String originPort = "";
-        Int16 originPortID = 0;
-        String destinationPort = "";
-        Int16 destinationPortID = 0;
+        //String originPort = "";
+        //Int16 originPortID = 0;
+        //String destinationPort = "";
+        //Int16 destinationPortID = 0;
 
-        if (arrow.OrgnAnchor != -1)
-        {
-          String fullAnchor = originItem.anchorIntToTag[arrow.OrgnAnchor];
-          originPort = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-          originPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length));
-        }
+        //if (arrow.OrgnAnchor != -1)
+        //{
+        //  String fullAnchor = originItem.anchorIntToTag[arrow.OrgnAnchor];
+        //  //originPort = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+        //  originPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length), CultureInfo.InvariantCulture);
+        //}
 
-        if (arrow.DestAnchor != -1)
-        {
-          String fullAnchor = destinationItem.anchorIntToTag[arrow.DestAnchor];
-          destinationPort = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-          destinationPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length));
-        }
+        //if (arrow.DestAnchor != -1)
+        //{
+        //  String fullAnchor = destinationItem.anchorIntToTag[arrow.DestAnchor];
+        //  //destinationPort = fullAnchor.TrimEnd(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
+        //  destinationPortID = Convert.ToInt16(fullAnchor.Substring(originPort.Length), CultureInfo.InvariantCulture);
+        //}
 
         //if (!state.ModifyGraphicLink(out requestId,
         //  graphicLink.Guid,
@@ -2003,6 +2007,16 @@ namespace SysCAD.Editor
       get { return state; }
     }
 
+    internal void Undo()
+    {
+      state.ClientProtocol.Undo(out requestId);
+    }
+
+    internal void Redo()
+    {
+      state.ClientProtocol.Redo(out requestId);
+    }
+
     internal void DeleteSelection()
     {
       List<EditorNode> items = new List<EditorNode>();
@@ -2062,8 +2076,8 @@ namespace SysCAD.Editor
           if (state.TVNavigation.SelectedNode != null)
           {
             tempTagExtension++;
-            SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(fcFlowChart.ClientToDoc(fcFlowChart.PointToClient(new System.Drawing.Point(e.X, e.Y))), graphicStencil.defaultSize);
-            SysCAD.Protocol.Rectangle textArea = new SysCAD.Protocol.Rectangle(0.0, 0.0, 0.0, 0.0);
+            //SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(fcFlowChart.ClientToDoc(fcFlowChart.PointToClient(new System.Drawing.Point(e.X, e.Y))), graphicStencil.defaultSize);
+            //SysCAD.Protocol.Rectangle textArea = new SysCAD.Protocol.Rectangle(0.0, 0.0, 0.0, 0.0);
 
 
             throw new NotImplementedException("The method or operation is not implemented.");

@@ -23,32 +23,22 @@ namespace SysCAD.Editor
         try
         {
           Application.Run(editorForm);
-        }
-        catch (SysCAD.Protocol.ConnectionLostException cle)
-        {
-          if (MessageBox.Show("The connection with the server was lost.", "Connection with server lost.", MessageBoxButtons.RetryCancel) == DialogResult.Retry)
-          {
-            editorForm.Dispose();
-            editorForm = new EditorForm();
-          }
-          else
-          {
-            editorForm.Dispose();
-            editorForm = null;
-          }
+          editorForm = null;
         }
         catch (Exception e)
         {
-          if (ShowStackTraceBox(e, editorForm) == DialogResult.Retry)
-          {
-            editorForm.Dispose();
-            editorForm = new EditorForm();
-          }
+          DialogResult dialogResult;
+          if (e is SysCAD.Protocol.ConnectionLostException)
+            dialogResult = MessageBox.Show("The connection with the server was lost.", "Connection with server lost.", MessageBoxButtons.RetryCancel);
           else
-          {
-            editorForm.Dispose();
+            dialogResult = ShowStackTraceBox(e, editorForm);
+          
+          editorForm.Dispose();
+
+          if (dialogResult == DialogResult.Retry)
+            editorForm = new EditorForm();
+          else
             editorForm = null;
-          }
         }
       }
     }

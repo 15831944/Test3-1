@@ -131,7 +131,7 @@ namespace SysCAD.Editor
 
         {
           Dictionary<String, Bitmap> modelThumbnails = new Dictionary<String, Bitmap>();
-          Dictionary<String, Bitmap> graphicThumbnails = new Dictionary<String, Bitmap>();
+          //Dictionary<String, Bitmap> graphicThumbnails = new Dictionary<String, Bitmap>();
 
           FlowChart thumbnailFlowchart = new FlowChart();
 
@@ -288,6 +288,13 @@ namespace SysCAD.Editor
           this.Delete();
           break;
 
+        case "Edit.Undo":
+          this.Undo();
+          break;
+
+        case "Edit.Redo":
+          this.Redo();
+          break;
       }
     }
 
@@ -397,27 +404,6 @@ namespace SysCAD.Editor
             item.ModelBox.Selected = true;
             item.GraphicBox.Selected = false;
             item.TextBox.Selected = false;
-          }
-
-          if (item.ModelBox.Selected)
-          {
-            item.Selected = true;
-          }
-          else
-          {
-            item.Selected = false;
-          }
-        }
-
-        foreach (EditorLink link in frmFlowChart.State.Links)
-        {
-          if (link.Arrow.Selected)
-          {
-            link.Selected = true;
-          }
-          else
-          {
-            link.Selected = false;
           }
         }
 
@@ -656,7 +642,7 @@ namespace SysCAD.Editor
     /// <summary>Determine if this node represents a leaf (i.e. item or thing.)</summary>
     /// <param name="node">Node to be tested</param>
     /// <returns>True if node represents a leaf.</returns>
-    private bool IsLeaf(PureComponents.TreeView.Node node)
+    private static bool IsLeaf(PureComponents.TreeView.Node node)
     {
       return ((node.Tag != null) && ((node.Tag is EditorNode) || (node.Tag is Thing)));
     }
@@ -664,7 +650,7 @@ namespace SysCAD.Editor
     /// <summary>Determine if this node represents a item.</summary>
     /// <param name="node">Node to be tested</param>
     /// <returns>True if node represents a item.</returns>
-    private bool IsItem(PureComponents.TreeView.Node node)
+    private static bool IsItem(PureComponents.TreeView.Node node)
     {
       return ((node.Tag != null) && (node.Tag is EditorNode));
     }
@@ -672,7 +658,7 @@ namespace SysCAD.Editor
     /// <summary>Determine if this node represents a thing.</summary>
     /// <param name="node">Node to be tested</param>
     /// <returns>True if node represents a thing.</returns>
-    private bool IsThing(PureComponents.TreeView.Node node)
+    private static bool IsThing(PureComponents.TreeView.Node node)
     {
       return ((node.Tag != null) && (node.Tag is Thing));
     }
@@ -680,7 +666,7 @@ namespace SysCAD.Editor
     /// <summary>Determine if this node represents a branch (i.e. root or group.)</summary>
     /// <param name="node">Node to be tested</param>
     /// <returns>True if node represents a branch.</returns>
-    private bool IsBranch(PureComponents.TreeView.Node node)
+    private static bool IsBranch(PureComponents.TreeView.Node node)
     {
       return ((node.Tag == null) || (node.Tag is EditorGroup));
     }
@@ -688,7 +674,7 @@ namespace SysCAD.Editor
     /// <summary>Determine if this node represents a group.</summary>
     /// <param name="node">Node to be tested</param>
     /// <returns>True if node represents a group.</returns>
-    private bool IsGroup(PureComponents.TreeView.Node node)
+    private static bool IsGroup(PureComponents.TreeView.Node node)
     {
       return ((node.Tag != null) && (node.Tag is EditorGroup));
     }
@@ -877,14 +863,14 @@ namespace SysCAD.Editor
           if (pasteData != null)
           {
 
-            foreach (Guid guid in pasteData)
-            {
+            //foreach (Guid guid in pasteData)
+            //{
               //graphicNode.X += dx;
               //graphicNode.Y += dy;
               throw new NotImplementedException("The method or operation is not implemented.");
               //frmFlowChart.NewGraphicNode(out guid, graphicNode, tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator);
               //frmFlowChart.State.newElementSelectionList.Add(guid);
-            }
+            //}
 
             //foreach (GraphicLink graphicLink in pasteData.graphicLinks.Values)
             //{
@@ -989,6 +975,16 @@ namespace SysCAD.Editor
     public void Delete()
     {
       frmFlowChart.DeleteSelection();
+    }
+
+    public void Undo()
+    {
+      frmFlowChart.Undo();
+    }
+
+    public void Redo()
+    {
+      frmFlowChart.Redo();
     }
 
     #endregion

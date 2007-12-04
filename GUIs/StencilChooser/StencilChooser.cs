@@ -37,7 +37,7 @@ namespace SysCAD
       foreach (String key in modelStencils.Keys)
       {
         String group = modelStencils[key].GroupName;
-        if ((group == null) || (group.Length == 0))
+        if (String.IsNullOrEmpty(group))
           group = "!!None!!";
 
         TreeNode groupNode;

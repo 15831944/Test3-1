@@ -22,8 +22,8 @@ namespace SysCAD.Service
 {
   public partial class ServiceTemporaryWindow : Form, ILog
   {
-    public ConfigData configData;
-    public Dictionary<string, Project> projects = new Dictionary<string,Project>();
+    private ConfigData configData;
+    private Dictionary<string, Project> projects = new Dictionary<string,Project>();
 
     public ServiceTemporaryWindow(string stencilPath, Dictionary<string, Project> projects)
     {
@@ -68,10 +68,10 @@ namespace SysCAD.Service
       }
     }
 
-    ~ServiceTemporaryWindow()
-    {
-      Dispose(false);
-    }
+    //~ServiceTemporaryWindow()
+    //{
+    //  Dispose(false);
+    //}
 
     protected override void Dispose(bool disposing)
     {
@@ -79,21 +79,14 @@ namespace SysCAD.Service
       {
         foreach (System.Runtime.Remoting.Channels.IChannel channel in System.Runtime.Remoting.Channels.ChannelServices.RegisteredChannels)
           System.Runtime.Remoting.Channels.ChannelServices.UnregisterChannel(channel);
-      }
-      // Code to dispose the un-managed resources of the class
 
-      if (disposing && (components != null))
-      {
-        components.Dispose();
+        if (components != null)
+        {
+          components.Dispose();
+        }
       }
 
       base.Dispose(disposing);
-    }
-
-    public void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
     }
 
     private delegate bool TestProjectDelegate(Project project);
@@ -106,8 +99,12 @@ namespace SysCAD.Service
       }
       else
       {
-        Int64 requestId;
-        return project.LoadGraphics(out requestId);
+        if (project != null)
+        {
+          Int64 requestId;
+          return project.LoadGraphics(out requestId);
+        }
+        else return false;
       }
     }
 
@@ -171,7 +168,7 @@ namespace SysCAD.Service
       }
     }
 
-    private bool ServiceConnectCheck(Config config)
+    private static bool ServiceConnectCheck(Config config)
     {
       return (config.TestUrl(new Uri("ipc://SysCAD.Service/Global")));
     }

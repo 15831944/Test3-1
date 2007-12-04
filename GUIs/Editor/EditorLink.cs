@@ -16,49 +16,38 @@ namespace SysCAD.Editor
     private GraphicLink graphicLink;
     private ModelLink modelLink;
 
-    private Guid guid;
-
-    private String tag;
-
     private State state;
 
-    private bool selected = false;
-    private bool hovered = false;
+    private bool hovered;// = false;
 
     private int opacity;
 
     public int Opacity
     {
       get { return opacity; }
-      set { opacity = value; }
+      //set { opacity = value; }
     }
     private Timer opacityTimer = new Timer();
 
     //private System.IO.StreamWriter debugLog;
 
-    public EditorLink(State state, Guid guid, String tag, GraphicLink graphicLink, ModelLink modelLink)
+    public EditorLink(State state, GraphicLink graphicLink, ModelLink modelLink)
     {
       this.state = state;
-      this.guid = guid;
-      this.tag = tag;
       this.graphicLink = graphicLink;
       this.modelLink = modelLink;
 
-      opacityTimer.Interval = 50;
+      opacityTimer.Interval = 100;
       opacityTimer.Elapsed += new ElapsedEventHandler(opacityTimer_Elapsed);
 
       //debugLog = new System.IO.StreamWriter("c:\\" + guid.ToString() + " - " + tag + ".log");
-    }
-
-    ~EditorLink()
-    {
     }
 
     private void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
     {
       if (Visible && ((hovered) || ((arrow.Origin.Tag as EditorNode).Hovered) || ((arrow.Destination.Tag as EditorNode).Hovered)))
       {
-        opacity += 50;
+        opacity += 100;
         if (opacity > 220)
         {
           opacityTimer.Stop();
@@ -67,7 +56,7 @@ namespace SysCAD.Editor
       }
       else
       {
-        opacity -= 50;
+        opacity -= 100;
         if (opacity < 1)
         {
           opacityTimer.Stop();
@@ -131,23 +120,14 @@ namespace SysCAD.Editor
 
     public Guid Guid
     {
-      get { return guid; }
+      get { return graphicLink.Guid; }
     }
 
-    public String Tag
-    {
-      get { return tag; }
-    }
+    //public String Tag
+    //{
+    //  get { return tag; }
+    //}
 
-    public bool Selected
-    {
-      get { return selected; }
-      set 
-      { 
-        selected = value;
-        UpdateVisibility();
-      }
-    }
     public bool Hovered
     {
       get { return hovered; }

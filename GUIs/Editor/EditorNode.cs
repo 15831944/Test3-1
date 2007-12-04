@@ -21,10 +21,9 @@ namespace SysCAD.Editor
 
     private PureComponents.TreeView.Node node;
 
-    private bool selected = false;
-    private bool hovered = false;
-    private bool linkHovered = false;
-    private bool visible = false;
+    private bool hovered;// = false;
+    private bool linkHovered;// = false;
+    private bool visible;// = false;
 
     public Dictionary<int, String> anchorIntToTag = new Dictionary<int, String>();
     public Dictionary<String, int> anchorTagToInt = new Dictionary<String, int>();
@@ -37,7 +36,7 @@ namespace SysCAD.Editor
       this.state = state;
       this.graphicNode = graphicNode;
 
-      opacityTimer.Interval = 50;
+      opacityTimer.Interval = 100;
       opacityTimer.Elapsed += new ElapsedEventHandler(opacityTimer_Elapsed);
     }
 
@@ -45,7 +44,7 @@ namespace SysCAD.Editor
     {
       if (visible && (ModelBox.Selected || state.ShowModels || hovered || linkHovered))
       {
-        opacity+=50;
+        opacity+=100;
         if (opacity > 220)
         {
           opacityTimer.Stop();
@@ -54,7 +53,7 @@ namespace SysCAD.Editor
       }
       else
       {
-        opacity-=50;
+        opacity-=100;
         if (opacity < 1)
         {
           opacityTimer.Stop();
@@ -123,7 +122,7 @@ namespace SysCAD.Editor
     public PureComponents.TreeView.Node Node
     {
       get { return node; }
-      set { node = value; }
+      //set { node = value; }
     }
 
     public ArrowCollection OutgoingArrows
@@ -153,13 +152,10 @@ namespace SysCAD.Editor
       }
     }
 
-    public Guid ModelGuid
-    {
-      get
-      {
-        return ModelGuid;
-      }
-    }
+    //public Guid ModelGuid
+    //{
+    //  get {return ModelGuid;}
+    //}
 
     public bool MirrorY
     {
@@ -194,16 +190,6 @@ namespace SysCAD.Editor
       }
     }
 
-    public bool Selected
-    {
-      get { return selected; }
-      set
-      {
-        selected = value;
-        UpdateVisibility();
-      }
-    }
-
     public bool Hovered
     {
       get { return hovered; }
@@ -222,7 +208,7 @@ namespace SysCAD.Editor
 
     internal void UpdateVisibility()
     {
-      Int64 requestId;
+      //Int64 requestId;
 
       ModelBox.Visible = visible;
       GraphicBox.Visible = visible && state.ShowGraphics;

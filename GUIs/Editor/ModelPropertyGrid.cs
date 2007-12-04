@@ -17,11 +17,11 @@ namespace SysCAD.Editor
   internal class ModelPropertyGrid : PropertyGrid
   {
 
-    private int id = 0;
+    private int id;// = 0;
 
-    private ModelItem modelItem = null;
+    private ModelItem modelItem;// = null;
     private Int64 requestId;
-    private State state = null;
+    private State state;// = null;
 
     protected override void OnPropertyExpanded(PropertyExpandedEventArgs e)
     {
@@ -61,13 +61,13 @@ namespace SysCAD.Editor
       return dummyDeleted;
     }
 
-    new internal void Clear()
-    {
-      modelItem = null;
-      state = null;
+    //new internal void Clear()
+    //{
+    //  modelItem = null;
+    //  state = null;
 
-      base.Clear();
-    }
+    //  base.Clear();
+    //}
 
     internal void SetSelectedObject(ModelItem modelItem, State state)
     {

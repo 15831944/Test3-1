@@ -47,7 +47,7 @@ namespace SysCAD.Editor
       foreach (String key in graphicStencils.Keys)
       {
         String group = modelStencils[key].GroupName;
-        if (group == String.Empty)
+        if (String.IsNullOrEmpty(group))
           group = "None";
 
         {
@@ -68,7 +68,7 @@ namespace SysCAD.Editor
  
     private void graphicTreeView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
     {
-      if (e.Node.ImageKey == String.Empty)
+      if (String.IsNullOrEmpty(e.Node.ImageKey))
       {
         if (e.Action == TreeViewAction.ByMouse)
         {
@@ -84,7 +84,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private string GetKey(TreeNode node)
+    private static string GetKey(TreeNode node)
     {
       String key = node.ImageKey; // For some reason Key isn't available, using ImageKey instead.
       if (key.StartsWith("Unselected: "))

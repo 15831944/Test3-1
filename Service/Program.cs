@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Configuration;
+using System.Security.Permissions;
 
+[assembly: CLSCompliant(true)]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+[assembly: UIPermission(SecurityAction.RequestMinimum, Unrestricted = true)]
 namespace SysCAD.Service
 {
   static class Program

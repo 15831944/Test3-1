@@ -11,6 +11,8 @@
     <AssemblyName>SysCAD.Service</AssemblyName>
     <TargetZone>LocalIntranet</TargetZone>
     <GenerateManifests>false</GenerateManifests>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Service.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -75,6 +77,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Service.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Service.snk" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\AddProject\AddProject.csproj">
