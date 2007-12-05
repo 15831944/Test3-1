@@ -57,6 +57,8 @@
   </Target>
   -->
   <ItemGroup>
+    <Compile Include="Action.cs" />
+    <Compile Include="Actioned.cs" />
     <Compile Include="Anchor.cs" />
     <Compile Include="Animation.cs" />
     <Compile Include="Arc.cs" />

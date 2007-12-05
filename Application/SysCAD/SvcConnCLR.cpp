@@ -96,10 +96,8 @@ ref class CSvcConnectCLRThread
       {
       // There could be sharing problems - when importing and editing simultaneously -  unlikely
       m_pConn = pConn;
-      m_Create = gcnew Collection<Item^>; 
-      m_Modify = gcnew Collection<Item^>;
-      m_Delete = gcnew Collection<Guid>;  
-      };
+      action = gcnew SysCAD::Protocol::Action();
+    };
     ~CSvcConnectCLRThread()
       {
         for each (IChannel^ channel in ChannelServices::RegisteredChannels)
@@ -316,7 +314,7 @@ ref class CSvcConnectCLRThread
       Grp->Path = gcnew String(Path);
       Grp->BoundingRect = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
       
-      m_Create->Add(Grp);
+      action->Create->Add(Grp);
       }
 
 
@@ -352,8 +350,8 @@ ref class CSvcConnectCLRThread
       //List<Item^>  ^Modify;// = gcnew List<Item^>;
       //List<Guid>   ^Delete;// = gcnew List<Guid>;  
 
-      m_Create->Add(MNd);
-      m_Create->Add(GNd);
+      action->Create->Add(MNd);
+      action->Create->Add(GNd);
 
       }
 
@@ -397,17 +395,12 @@ ref class CSvcConnectCLRThread
 
     void DoDeleteNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid)
       {
-      Collection<Item^>  ^Create;// = gcnew Collection<Item^>; 
-      Collection<Item^>  ^Modify;// = gcnew Collection<Item^>;
-      Collection<Guid>   ^GDelete = gcnew Collection<Guid>;  
-      Collection<Guid>   ^MDelete = gcnew Collection<Guid>;  
+        SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
 
-      GDelete->Add(Guid(gcnew String(GraphicGuid)));
-      clientProtocol->Change(requestId, Create, Modify, GDelete);
+        action->Delete->Add(Guid(gcnew String(GraphicGuid)));
+        action->Delete->Add(Guid(gcnew String(ModelGuid)));
 
-      MDelete->Add(Guid(gcnew String(ModelGuid)));
-      //PKH Answer - what goes here ?
-      //bool EOk = engineProtocol->Change(requestId, Create, Modify, GDelete
+        clientProtocol->Change(requestId, action);
       };
 
     //void ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
@@ -532,8 +525,8 @@ ref class CSvcConnectCLRThread
       //List<Item^>  ^Modify;// = gcnew List<Item^>;
       //List<Guid>   ^Delete;// = gcnew List<Guid>;  
 
-      m_Create->Add(MLnk);
-      m_Create->Add(GLnk);
+      action->Create->Add(MLnk);
+      action->Create->Add(GLnk);
 			}
 			catch (Exception ^e)
 			{
@@ -658,7 +651,7 @@ ref class CSvcConnectCLRThread
 
     bool ProcessChangeLists(Int64 requestId)
       {
-      return clientProtocol->Change(requestId, m_Create, m_Modify, m_Delete);
+      return clientProtocol->Change(requestId, action);
       }
 
 
@@ -668,16 +661,16 @@ ref class CSvcConnectCLRThread
 				engineProtocol->RequestPortInfo(requestId, guid, tag, portInfo);
       }
 
-    void Changed(Int64 eventId, Int64 requestId, Collection<Guid> ^ created, Collection<Guid> ^ modified, Collection<Guid> ^ deleted)
+    void Changed(Int64 eventId, Int64 requestId, SysCAD::Protocol::Actioned ^actioned)
       {
-			if (created != nullptr)
+			if (actioned->Created != nullptr)
 				//PKH!!! -- this throws an exception: ProcessCreatedList(eventId, requestId, created);
 
-			if (modified != nullptr)
-		    ProcessModifiedList(eventId, requestId, modified);
+			if (actioned->Modified != nullptr)
+		    ProcessModifiedList(eventId, requestId, actioned->Modified);
 
-			if (deleted != nullptr)
-	      ProcessDeletedList(eventId, requestId, deleted);
+			if (actioned->Deleted != nullptr)
+	      ProcessDeletedList(eventId, requestId, actioned->Deleted);
       }
 
     void ProcessCreatedList(Int64 eventId, Int64 requestId, List<Guid> ^ created)
@@ -857,9 +850,10 @@ ref class CSvcConnectCLRThread
 
     CSvcConnect   * m_pConn;
   
-    Collection<Item^>  ^m_Create;// = gcnew Collection<Item^>; 
-    Collection<Item^>  ^m_Modify;// = gcnew Collection<Item^>;
-    Collection<Guid>   ^m_Delete;// = gcnew Collection<Guid>;  
+    SysCAD::Protocol::Action ^action;
+    //Collection<Item^>  ^m_Create;// = gcnew Collection<Item^>; 
+    //Collection<Item^>  ^m_Modify;// = gcnew Collection<Item^>;
+    //Collection<Guid>   ^m_Delete;// = gcnew Collection<Guid>;  
 
 };
 

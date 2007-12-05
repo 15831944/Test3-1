@@ -21,11 +21,25 @@
   <DeadlockDetectionTimeout>120</DeadlockDetectionTimeout>
  </ProjectOptions>
  <Targets>
-  <Target Name="$(ProjectDir)/GUIs/Editor/bin/Debug/FlowChart.NET.dll" Analyze="False" AnalyzeAllChildren="False" />
-  <Target Name="$(ProjectDir)/GUIs/Editor/bin/Debug/Overview.dll" Analyze="False" AnalyzeAllChildren="False" />
-  <Target Name="$(ProjectDir)/GUIs/Editor/bin/Debug/Protocol.dll" Analyze="True" AnalyzeAllChildren="True" />
-  <Target Name="$(ProjectDir)/GUIs/Editor/bin/Debug/SmartPropertyGrid.dll" Analyze="False" AnalyzeAllChildren="False" />
-  <Target Name="$(ProjectDir)/GUIs/Editor/bin/Debug/SysCAD.Editor.exe" Analyze="True" AnalyzeAllChildren="True" />
+  <Target Name="$(ProjectDir)/Bin/SysCAD.Service.exe" Analyze="True" AnalyzeAllChildren="True" />
+  <Target Name="$(ProjectDir)/GUIs/Editor/bin/Debug/SysCAD.Editor.exe" Analyze="False" AnalyzeAllChildren="False">
+   <Modules AnalyzeAllChildren="False">
+    <Module Name="syscad.editor.exe" Analyze="False" AnalyzeAllChildren="False">
+     <Namespaces AnalyzeAllChildren="False">
+      <Namespace Name="SysCAD.Editor" Analyze="False" AnalyzeAllChildren="False">
+       <Types AnalyzeAllChildren="False">
+        <Type Name="EditorGroup" Analyze="False" AnalyzeAllChildren="False">
+         <Members AnalyzeAllChildren="False">
+          <Member Name="Box" Analyze="True" AnalyzeAllChildren="True" />
+         </Members>
+        </Type>
+       </Types>
+      </Namespace>
+     </Namespaces>
+     <Resources AnalyzeAllChildren="False" />
+    </Module>
+   </Modules>
+  </Target>
  </Targets>
  <Rules>
   <RuleFiles>
@@ -46,778 +60,141 @@
   <Namespaces>
    <Namespace Name="SysCAD.Editor">
     <Messages>
-     <Message TypeName="LongAcronymsShouldBePascalCased" Category="Microsoft.Naming" CheckId="CA1705" Created="2006-11-27 06:39:19Z">
+     <Message TypeName="LongAcronymsShouldBePascalCased" Category="Microsoft.Naming" CheckId="CA1705" Status="Excluded" Created="2007-12-04 00:27:14Z">
       <Issue Name="Namespace">
        <Item>SysCAD.Editor</Item>
       </Issue>
      </Message>
     </Messages>
    </Namespace>
-   <Namespace Name="SysCAD.Protocol">
+   <Namespace Name="SysCAD.Service">
     <Messages>
-     <Message TypeName="LongAcronymsShouldBePascalCased" Category="Microsoft.Naming" CheckId="CA1705" Created="2007-01-23 05:27:18Z">
+     <Message TypeName="LongAcronymsShouldBePascalCased" Category="Microsoft.Naming" CheckId="CA1705" Status="Excluded" Created="2007-12-04 02:47:45Z">
       <Issue Name="Namespace">
-       <Item>SysCAD.Protocol</Item>
+       <Item>SysCAD.Service</Item>
       </Issue>
      </Message>
     </Messages>
    </Namespace>
   </Namespaces>
   <Targets>
-   <Target Name="$(ProjectDir)/GUIs/Editor/bin/Debug/Protocol.dll">
+   <Target Name="$(ProjectDir)/Bin/SysCAD.Service.exe">
     <Modules>
-     <Module Name="protocol.dll">
-      <Messages>
-       <Message TypeName="MarkAssembliesWithComVisible" Category="Microsoft.Design" CheckId="CA1017" Created="2007-01-23 05:27:18Z">
-        <Issue Name="AttributeTrue" Level="Error">
-         <Item>Protocol</Item>
-        </Issue>
-       </Message>
-      </Messages>
+     <Module Name="syscad.service.exe">
       <Namespaces>
-       <Namespace Name="SysCAD.Protocol">
+       <Namespace Name="SysCAD.Service">
         <Types>
-         <Type Name="Anchor">
+         <Type Name="Program">
           <Members>
-           <Member Name="type">
+           <Member Name="ShowStackTraceBox(System.Exception):System.Void">
             <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 05:27:18Z">
+             <Message Id="System.Windows.Forms.MessageBox.Show(System.String,System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-12-04 02:47:45Z">
               <Issue>
-               <Item>Anchor.type</Item>
+               <Item>Program.ShowStackTraceBox(Exception):Void</Item>
+               <Item>2</Item>
+               <Item>MessageBox.Show(String, String):DialogResult</Item>
+               <Item>An error has occurred.</Item>
+              </Issue>
+             </Message>
+             <Message TypeName="SpecifyMessageBoxOptions" Category="Microsoft.Globalization" CheckId="CA1300" Created="2007-12-04 02:47:45Z">
+              <Issue>
+               <Item>Program.ShowStackTraceBox(Exception):Void</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
           </Members>
          </Type>
-         <Type Name="Animation">
+         <Type Name="Project">
           <Members>
-           <Member Name=".ctor()">
+           <Member Name="Change(System.Int64&amp;,System.Collections.Generic.List`1&lt;SysCAD.Protocol.Item&gt;,System.Collections.Generic.List`1&lt;SysCAD.Protocol.Item&gt;,System.Collections.Generic.List`1&lt;System.Guid&gt;):System.Boolean">
             <Messages>
-             <Message TypeName="DoNotInitializeUnnecessarily" Category="Microsoft.Performance" CheckId="CA1805" Created="2007-01-23 05:27:18Z">
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
-               <Item>Animation.Animation()</Item>
-               <Item>actions</Item>
-               <Item>System.String</Item>
-               <Item>null</Item>
+               <Item>requestId</Item>
+              </Issue>
+             </Message>
+             <Message TypeName="DoNotCastUnnecessarily" Category="Microsoft.Performance" CheckId="CA1800" Created="2007-12-04 02:47:45Z">
+              <Issue Name="Local">
+               <Item>item</Item>
+               <Item>SysCAD.Protocol.GraphicItem</Item>
+               <Item>Project.Change(Int64&amp;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;System.Guid&gt;):Boolean</Item>
+               <Item>isint</Item>
+              </Issue>
+              <Issue Name="Local">
+               <Item>item</Item>
+               <Item>SysCAD.Protocol.GraphicItem</Item>
+               <Item>Project.Change(Int64&amp;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;System.Guid&gt;):Boolean</Item>
+               <Item>isint</Item>
+              </Issue>
+              <Issue Name="Local">
+               <Item>item</Item>
+               <Item>SysCAD.Protocol.ModelItem</Item>
+               <Item>Project.Change(Int64&amp;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;System.Guid&gt;):Boolean</Item>
+               <Item>isint</Item>
+              </Issue>
+              <Issue Name="Local">
+               <Item>item</Item>
+               <Item>SysCAD.Protocol.ModelItem</Item>
+               <Item>Project.Change(Int64&amp;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;System.Guid&gt;):Boolean</Item>
+               <Item>isint</Item>
+              </Issue>
+             </Message>
+             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-12-04 02:47:45Z">
+              <Issue>
+               <Item>System.Collections.Generic.List`1&lt;SysCAD.Protocol.Item&gt;</Item>
+               <Item>Project.Change(Int64&amp;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;System.Guid&gt;):Boolean</Item>
               </Issue>
               <Issue>
-               <Item>Animation.Animation()</Item>
-               <Item>actionsXmlDoc</Item>
-               <Item>System.Xml.XmlDocument</Item>
-               <Item>null</Item>
+               <Item>System.Collections.Generic.List`1&lt;SysCAD.Protocol.Item&gt;</Item>
+               <Item>Project.Change(Int64&amp;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;System.Guid&gt;):Boolean</Item>
               </Issue>
               <Issue>
-               <Item>Animation.Animation()</Item>
-               <Item>decorations</Item>
-               <Item>System.Collections.ArrayList</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>Animation.Animation()</Item>
-               <Item>elements</Item>
-               <Item>System.Collections.ArrayList</Item>
-               <Item>null</Item>
+               <Item>System.Collections.Generic.List`1&lt;System.Guid&gt;</Item>
+               <Item>Project.Change(Int64&amp;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;SysCAD.Protocol.Item&gt;, List`1&lt;System.Guid&gt;):Boolean</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
-           <Member Name=".ctor(System.String,System.Collections.ArrayList,System.Collections.ArrayList)">
+           <Member Name="ChangePermissions(System.Int64&amp;,SysCAD.Protocol.ClientBaseProtocol+Permissions):System.Boolean">
             <Messages>
-             <Message TypeName="DoNotInitializeUnnecessarily" Category="Microsoft.Performance" CheckId="CA1805" Created="2007-01-23 05:27:18Z">
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
-               <Item>Animation.Animation(String, ArrayList, ArrayList)</Item>
-               <Item>actions</Item>
-               <Item>System.String</Item>
-               <Item>null</Item>
+               <Item>requestId</Item>
               </Issue>
+             </Message>
+             <Message Id="SysCAD.Service.Project.LogMessage(System.Int64@,System.String,SysCAD.Log.MessageType)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-12-04 02:47:45Z">
               <Issue>
-               <Item>Animation.Animation(String, ArrayList, ArrayList)</Item>
-               <Item>actionsXmlDoc</Item>
-               <Item>System.Xml.XmlDocument</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>Animation.Animation(String, ArrayList, ArrayList)</Item>
-               <Item>decorations</Item>
-               <Item>System.Collections.ArrayList</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>Animation.Animation(String, ArrayList, ArrayList)</Item>
-               <Item>elements</Item>
-               <Item>System.Collections.ArrayList</Item>
-               <Item>null</Item>
+               <Item>Project.ChangePermissions(Int64&amp;, Permissions):Boolean</Item>
+               <Item>2</Item>
+               <Item>Project.LogMessage(Int64&amp;, String, MessageType):Void</Item>
+               <Item>ChangePermissions not implemented yet.</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
-           <Member Name="Decorations">
+           <Member Name="ClientRenounce(System.String):System.Void">
             <Messages>
-             <Message TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227" Created="2007-01-23 05:27:18Z">
+             <Message TypeName="DoNotCatchGeneralExceptionTypes" Category="Microsoft.Design" CheckId="CA1031" Created="2007-12-04 02:47:45Z">
               <Issue>
-               <Item>Decorations</Item>
+               <Item>Project.ClientRenounce(String):Void</Item>
+               <Item>System.Exception</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
-           <Member Name="Elements">
+           <Member Name="ClientRequestPortInfo(System.Int64&amp;,System.Guid,System.String):System.Boolean">
             <Messages>
-             <Message TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>Elements</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="Arc">
-          <Members>
-           <Member Name=".ctor(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
-            <Messages>
-             <Message Id="0#x" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>Arc.Arc(Single, Single, Single, Single, Single, Single)</Item>
-               <Item>x</Item>
-              </Issue>
-             </Message>
-             <Message Id="1#y" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>Arc.Arc(Single, Single, Single, Single, Single, Single)</Item>
-               <Item>y</Item>
-              </Issue>
-             </Message>
-             <Message Id="2#w" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>Arc.Arc(Single, Single, Single, Single, Single, Single)</Item>
-               <Item>w</Item>
-              </Issue>
-             </Message>
-             <Message Id="3#h" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>Arc.Arc(Single, Single, Single, Single, Single, Single)</Item>
-               <Item>h</Item>
-              </Issue>
-             </Message>
-             <Message Id="4#a" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>Arc.Arc(Single, Single, Single, Single, Single, Single)</Item>
-               <Item>a</Item>
-              </Issue>
-             </Message>
-             <Message Id="5#s" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>Arc.Arc(Single, Single, Single, Single, Single, Single)</Item>
-               <Item>s</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="a">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>a</Item>
-              </Issue>
-             </Message>
-             <Message Id="a" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>a</Item>
-               <Item>Arc.a</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="h">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>h</Item>
-              </Issue>
-             </Message>
-             <Message Id="h" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>h</Item>
-               <Item>Arc.h</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="s">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>s</Item>
-              </Issue>
-             </Message>
-             <Message Id="s" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>s</Item>
-               <Item>Arc.s</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="w">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>w</Item>
-              </Issue>
-             </Message>
-             <Message Id="w" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>w</Item>
-               <Item>Arc.w</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="x">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>x</Item>
-              </Issue>
-             </Message>
-             <Message Id="x" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>x</Item>
-               <Item>Arc.x</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="y">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>y</Item>
-              </Issue>
-             </Message>
-             <Message Id="y" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>y</Item>
-               <Item>Arc.y</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ARectangleF">
-          <Members>
-           <Member Name=".ctor(System.Single,System.Single,System.Single,System.Single)">
-            <Messages>
-             <Message Id="0#x" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>ARectangleF.ARectangleF(Single, Single, Single, Single)</Item>
-               <Item>x</Item>
-              </Issue>
-             </Message>
-             <Message Id="1#y" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>ARectangleF.ARectangleF(Single, Single, Single, Single)</Item>
-               <Item>y</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="FromLTRB(System.Single,System.Single,System.Single,System.Single):SysCAD.Protocol.ARectangleF">
-            <Messages>
-             <Message Id="Member" TypeName="LongAcronymsShouldBePascalCased" Category="Microsoft.Naming" CheckId="CA1705" Created="2007-01-23 05:27:18Z">
-              <Issue Name="Member">
-               <Item>ARectangleF.FromLTRB(Single, Single, Single, Single):ARectangleF</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Inflate(SysCAD.Protocol.ARectangleF,System.Single,System.Single):SysCAD.Protocol.ARectangleF">
-            <Messages>
-             <Message Id="1#x" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>ARectangleF.Inflate(ARectangleF, Single, Single):ARectangleF</Item>
-               <Item>x</Item>
-              </Issue>
-             </Message>
-             <Message Id="2#y" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="ParameterOneLetter">
-               <Item>ARectangleF.Inflate(ARectangleF, Single, Single):ARectangleF</Item>
-               <Item>y</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="X">
-            <Messages>
-             <Message Id="X" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>X</Item>
-               <Item>ARectangleF.X:Single</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Y">
-            <Messages>
-             <Message Id="Y" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>Y</Item>
-               <Item>ARectangleF.Y:Single</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="BaseInterface">
-          <Messages>
-           <Message TypeName="AbstractTypesShouldNotHaveConstructors" Category="Microsoft.Design" CheckId="CA1012" Created="2007-01-23 05:27:18Z">
-            <Issue>
-             <Item>BaseInterface</Item>
-            </Issue>
-           </Message>
-          </Messages>
-          <Members>
-           <Member Name="graphicItems">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>graphicItems</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="graphicLinks">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>graphicLinks</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="graphicThings">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>graphicThings</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="InitializeLifetimeService():System.Object">
-            <Messages>
-             <Message TypeName="OverrideLinkDemandsShouldBeIdenticalToBase" Category="Microsoft.Security" CheckId="CA2123" Created="2007-01-23 05:27:18Z">
-              <Issue Name="BaseOnly">
-               <Item>BaseInterface.InitializeLifetimeService():Object</Item>
-               <Item>MarshalByRefObject.InitializeLifetimeService():Object</Item>
-               <Item>[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ItemCreated">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ItemCreated</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ItemDeleted">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ItemDeleted</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ItemModified">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ItemModified</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="LinkCreated">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>LinkCreated</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="LinkDeleted">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>LinkDeleted</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="LinkModified">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>LinkModified</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="OnLinkCreated(System.Int64,System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>BaseInterface.OnLinkCreated(Int64, Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="OnLinkModified(System.Int64,System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>BaseInterface.OnLinkModified(Int64, Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="StateChanged">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>StateChanged</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Step">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>Step</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ThingCreated">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ThingCreated</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ThingDeleted">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ThingDeleted</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ThingModified">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ThingModified</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="BaseInterface+LinkCreatedHandler">
-          <Members>
-           <Member Name="Invoke(System.Int64,System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>LinkCreatedHandler.Invoke(Int64, Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="BaseInterface+LinkModifiedHandler">
-          <Members>
-           <Member Name="Invoke(System.Int64,System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>LinkModifiedHandler.Invoke(Int64, Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="BaseInterface+RunStates">
-          <Messages>
-           <Message TypeName="OnlyFlagsEnumsShouldHavePluralNames" Category="Microsoft.Naming" CheckId="CA1717" Created="2007-01-23 05:27:18Z">
-            <Issue>
-             <Item>RunStates</Item>
-            </Issue>
-           </Message>
-          </Messages>
-         </Type>
-         <Type Name="Bezier">
-          <Members>
-           <Member Name="x1">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>x1</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="x2">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>x2</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="x3">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>x3</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="x4">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>x4</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="y1">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>y1</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="y2">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>y2</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="y3">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>y3</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="y4">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>y4</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ClientProtocol">
-          <Members>
-           <Member Name=".ctor()">
-            <Messages>
-             <Message TypeName="DoNotInitializeUnnecessarily" Category="Microsoft.Performance" CheckId="CA1805" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicItemCreatedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+ItemCreatedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicItemDeletedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+ItemDeletedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicItemModifiedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+ItemModifiedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicLinkCreatedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+LinkCreatedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicLinkDeletedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+LinkDeletedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicLinkModifiedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+LinkModifiedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicStateChangedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+StateChangedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicStepHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+StepHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicThingCreatedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+ThingCreatedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicThingDeletedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+ThingDeletedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ClientProtocol.ClientProtocol()</Item>
-               <Item>serviceGraphicThingModifiedHandler</Item>
-               <Item>SysCAD.Protocol.BaseInterface+ThingModifiedHandler</Item>
-               <Item>null</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ChangeState(System.Int64&amp;,SysCAD.Protocol.BaseInterface+RunStates):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
                <Item>requestId</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
-           <Member Name="Connect(System.Uri):System.Boolean">
+           <Member Name="EngineRequestPortInfo(System.Int64&amp;,System.Guid,System.String,SysCAD.Protocol.PortInfo):System.Boolean">
             <Messages>
-             <Message TypeName="ValidateArgumentsOfPublicMethods" Category="Microsoft.Design" CheckId="CA1062" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>'url'</Item>
-               <Item>ClientProtocol.Connect(Uri):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="connectionError">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>connectionError</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="CreateItem(System.Int64&amp;,System.Guid&amp;,System.String,System.String,SysCAD.Protocol.Model,SysCAD.Protocol.Shape,System.Drawing.RectangleF,System.Single,System.Drawing.Color,System.Drawing.Drawing2D.FillMode,System.Boolean,System.Boolean):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message Id="1#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>guid</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="CreateLink(System.Int64&amp;,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ClientProtocol.CreateLink(Int64&amp;, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="CreateThing(System.Int64&amp;,System.Guid&amp;,System.String,System.String,System.Drawing.RectangleF,System.String,System.Single,System.Boolean,System.Boolean):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message Id="1#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>guid</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteItem(System.Int64&amp;,System.Guid):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteLink(System.Int64&amp;,System.Guid):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteThing(System.Int64&amp;,System.Guid):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
                <Item>requestId</Item>
               </Issue>
@@ -826,779 +203,135 @@
            </Member>
            <Member Name="GetPropertyValues(System.Int64&amp;,System.Collections.ArrayList&amp;):System.Void">
             <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
                <Item>requestId</Item>
               </Issue>
              </Message>
-             <Message Id="1#" TypeName="DoNotPassTypesByReference" Category="Microsoft.Design" CheckId="CA1045" Created="2007-01-23 05:27:18Z">
+             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-12-04 02:47:45Z">
+              <Issue>
+               <Item>Project.GetPropertyValues(Int64&amp;, ArrayList&amp;):Void</Item>
+               <Item>1</Item>
+               <Item>NotImplementedException.NotImplementedException(String)</Item>
+               <Item>The method or operation is not implemented.</Item>
+              </Issue>
+             </Message>
+             <Message Id="1#" TypeName="DoNotPassTypesByReference" Category="Microsoft.Design" CheckId="CA1045" Created="2007-12-04 02:47:45Z">
               <Issue Level="CriticalWarning">
-               <Item>tagPathList</Item>
+               <Item>propertyList</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
            <Member Name="GetSubTags(System.Int64&amp;,System.String,System.Collections.ArrayList&amp;):System.Void">
             <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
                <Item>requestId</Item>
               </Issue>
              </Message>
-             <Message Id="2#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
+             <Message Id="2#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
                <Item>propertyList</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
-           <Member Name="ModifyItem(System.Int64&amp;,System.Guid,System.String,System.String,SysCAD.Protocol.Model,SysCAD.Protocol.Shape,System.Drawing.RectangleF,System.Single,System.Drawing.Color,System.Drawing.Drawing2D.FillMode,System.Boolean,System.Boolean):System.Boolean">
+           <Member Name="LoadGraphics(System.Int64&amp;):System.Boolean">
             <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
+              <Issue>
+               <Item>requestId</Item>
+              </Issue>
+             </Message>
+             <Message TypeName="DoNotCatchGeneralExceptionTypes" Category="Microsoft.Design" CheckId="CA1031" Created="2007-12-04 02:47:45Z">
+              <Issue>
+               <Item>Project.LoadGraphics(Int64&amp;):Boolean</Item>
+               <Item>System.Exception</Item>
+              </Issue>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="LogMessage(System.Int64&amp;,System.String,SysCAD.Log.MessageType):System.Void">
+            <Messages>
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
                <Item>requestId</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
-           <Member Name="ModifyLink(System.Int64&amp;,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Boolean">
+           <Member Name="PropertyListCheck(System.Int64&amp;,System.Guid,System.String,System.String):System.Collections.ArrayList">
             <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ClientProtocol.ModifyLink(Int64&amp;, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ModifyThing(System.Int64&amp;,System.Guid,System.String,System.String,System.Drawing.RectangleF,System.String,System.Single,System.Boolean,System.Boolean):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
                <Item>requestId</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
-           <Member Name="serviceGraphic">
+           <Member Name="SaveGraphics(System.Int64&amp;):System.Boolean">
             <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>serviceGraphic</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ServiceGraphicLinkCreated(System.Int64,System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ClientProtocol.ServiceGraphicLinkCreated(Int64, Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ServiceGraphicLinkModified(System.Int64,System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ClientProtocol.ServiceGraphicLinkModified(Int64, Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="Config">
-          <Members>
-           <Member Name="Connect(System.Uri):System.Boolean">
-            <Messages>
-             <Message Id="test" TypeName="RemoveUnusedLocals" Category="Microsoft.Performance" CheckId="CA1804" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>Config.Connect(Uri):Boolean</Item>
-               <Item>test</Item>
-               <Item>System.Collections.Specialized.StringCollection</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="ValidateArgumentsOfPublicMethods" Category="Microsoft.Design" CheckId="CA1062" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>'url'</Item>
-               <Item>Config.Connect(Uri):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="connectionError">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>connectionError</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ConfigData">
-          <Messages>
-           <Message TypeName="IdentifiersShouldDifferByMoreThanCase" Category="Microsoft.Naming" CheckId="CA1708" Created="2007-01-23 05:27:18Z">
-            <Issue Name="Member">
-             <Item>'ThingStencils'</Item>
-             <Item>thingStencils</Item>
-            </Issue>
-            <Issue Name="Member">
-             <Item>'graphicStencils'</Item>
-             <Item>GraphicStencils</Item>
-            </Issue>
-            <Issue Name="Member">
-             <Item>'modelStencils'</Item>
-             <Item>ModelStencils</Item>
-            </Issue>
-           </Message>
-          </Messages>
-          <Members>
-           <Member Name="graphicStencils">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>graphicStencils</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="InitializeLifetimeService():System.Object">
-            <Messages>
-             <Message TypeName="OverrideLinkDemandsShouldBeIdenticalToBase" Category="Microsoft.Security" CheckId="CA2123" Created="2007-01-23 05:27:18Z">
-              <Issue Name="BaseOnly">
-               <Item>ConfigData.InitializeLifetimeService():Object</Item>
-               <Item>MarshalByRefObject.InitializeLifetimeService():Object</Item>
-               <Item>[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="modelStencils">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>modelStencils</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ProjectList">
-            <Messages>
-             <Message TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ProjectList</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="thingStencils">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>thingStencils</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="GraphicItem">
-          <Members>
-           <Member Name="anchorIntToTag">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>anchorIntToTag</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="anchorTagToInt">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>anchorTagToInt</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Populate(System.String,System.Data.OleDb.OleDbConnection):System.Void">
-            <Messages>
-             <Message TypeName="ReviewSqlQueriesForSecurityVulnerabilities" Category="Microsoft.Security" CheckId="CA2100" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>SELECT ClassID, InsertX, InsertY, ScaleX, ScaleY, Rotation, Page FROM GraphicsUnits WHERE Tag='____'</Item>
-               <Item>OleDbCommand.OleDbCommand(String, OleDbConnection)</Item>
-               <Item>GraphicItem.Populate(String, OleDbConnection):Void</Item>
-              </Issue>
-              <Issue>
-               <Item>SELECT EqpGUID FROM ModelUnits WHERE Tag='____'</Item>
-               <Item>OleDbCommand.OleDbCommand(String, OleDbConnection)</Item>
-               <Item>GraphicItem.Populate(String, OleDbConnection):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="X">
-            <Messages>
-             <Message Id="X" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>X</Item>
-               <Item>GraphicItem.X:Single</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Y">
-            <Messages>
-             <Message Id="Y" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>Y</Item>
-               <Item>GraphicItem.Y:Single</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="GraphicLink">
-          <Members>
-           <Member Name="ClassID">
-            <Messages>
-             <Message Id="Member" TypeName="ShortAcronymsShouldBeUppercase" Category="Microsoft.Naming" CheckId="CA1706" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberId">
-               <Item>GraphicLink.ClassID:String</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ControlPoints">
-            <Messages>
-             <Message TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ControlPoints</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>GraphicLink.ControlPoints:List`1&lt;System.Drawing.PointF&gt;</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Populate(System.String,System.String,System.String,System.String,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;,System.Collections.Generic.Dictionary`2&lt;System.Guid,SysCAD.Protocol.GraphicItem&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>GraphicLink.Populate(String, String, String, String, String, String, List`1&lt;System.Drawing.PointF&gt;, Dictionary`2&lt;System.Guid,SysCAD.Protocol.GraphicItem&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="GraphicStencil">
-          <Members>
-           <Member Name="Decorations">
-            <Messages>
-             <Message TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>Decorations</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="defaultSize">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>defaultSize</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Elements">
-            <Messages>
-             <Message TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>Elements</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="fillMode">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>fillMode</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="groupName">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>groupName</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="GraphicThing">
-          <Members>
-           <Member Name="X">
-            <Messages>
-             <Message Id="X" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>X</Item>
-               <Item>GraphicThing.X:Single</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Y">
-            <Messages>
-             <Message Id="Y" TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704" Created="2007-01-23 05:27:18Z">
-              <Issue Name="MemberOneLetter">
-               <Item>Y</Item>
-               <Item>GraphicThing.Y:Single</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="Line">
-          <Members>
-           <Member Name="x1">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>x1</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="x2">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>x2</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="y1">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>y1</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="y2">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>y2</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ModelLink">
-          <Members>
-           <Member Name="controlPoints">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>controlPoints</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ModelLink.controlPoints</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Populate(System.String,System.String,System.String,System.String,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;,System.Collections.Generic.Dictionary`2&lt;System.Guid,SysCAD.Protocol.GraphicItem&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ModelLink.Populate(String, String, String, String, String, String, List`1&lt;System.Drawing.PointF&gt;, Dictionary`2&lt;System.Guid,SysCAD.Protocol.GraphicItem&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ModelProperty">
-          <Members>
-           <Member Name=".ctor()">
-            <Messages>
-             <Message TypeName="DoNotInitializeUnnecessarily" Category="Microsoft.Performance" CheckId="CA1805" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ModelProperty.ModelProperty()</Item>
-               <Item>path</Item>
-               <Item>System.String</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ModelProperty.ModelProperty()</Item>
-               <Item>state</Item>
-               <Item>System.Object</Item>
-               <Item>null</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ModelStencil">
-          <Members>
-           <Member Name="Anchors">
-            <Messages>
-             <Message TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>Anchors</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Decorations">
-            <Messages>
-             <Message TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>Decorations</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Elements">
-            <Messages>
-             <Message TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>Elements</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ServiceInterface">
-          <Members>
-           <Member Name="ChangeState(System.Int64&amp;,SysCAD.Protocol.BaseInterface+RunStates):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
               <Issue>
                <Item>requestId</Item>
               </Issue>
              </Message>
-             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 05:27:18Z">
+             <Message TypeName="DoNotCatchGeneralExceptionTypes" Category="Microsoft.Design" CheckId="CA1031" Created="2007-12-04 02:47:45Z">
               <Issue>
-               <Item>ServiceInterface.ChangeState(Int64&amp;, RunStates):Boolean</Item>
+               <Item>Project.SaveGraphics(Int64&amp;):Boolean</Item>
+               <Item>System.Exception</Item>
+              </Issue>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="StateChanged(System.Int64&amp;,SysCAD.Protocol.EngineBaseProtocol+RunState):System.Boolean">
+            <Messages>
+             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-12-04 02:47:45Z">
+              <Issue>
+               <Item>requestId</Item>
+              </Issue>
+             </Message>
+            </Messages>
+           </Member>
+          </Members>
+         </Type>
+         <Type Name="ServiceTemporaryWindow">
+          <Members>
+           <Member Name="InitializeComponent():System.Void">
+            <Messages>
+             <Message Id="System.Windows.Forms.ColumnHeader.set_Text(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-12-04 02:47:45Z">
+              <Issue>
+               <Item>ServiceTemporaryWindow.InitializeComponent():Void</Item>
                <Item>1</Item>
-               <Item>NotImplementedException.NotImplementedException(String)</Item>
-               <Item>The method or operation is not implemented.</Item>
+               <Item>ColumnHeader.set_Text(String):Void</Item>
+               <Item>Name</Item>
               </Issue>
-             </Message>
-             <Message Id="runState" TypeName="ReviewUnusedParameters" Category="Microsoft.Usage" CheckId="CA1801" Created="2007-01-23 05:27:18Z" FixCategory="Breaking">
               <Issue>
-               <Item>runState</Item>
-               <Item>ServiceInterface.ChangeState(Int64&amp;, RunStates):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="changeStateHandler">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ServiceInterface.changeStateHandler</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="CreateItem(System.Int64&amp;,System.Guid&amp;,System.String,System.String,SysCAD.Protocol.Model,SysCAD.Protocol.Shape,System.Drawing.RectangleF,System.Single,System.Drawing.Color,System.Drawing.Drawing2D.FillMode,System.Boolean,System.Boolean):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message Id="1#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>guid</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="CreateLink(System.Int64&amp;,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ServiceInterface.CreateLink(Int64&amp;, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="CreateThing(System.Int64&amp;,System.Guid&amp;,System.String,System.String,System.Drawing.RectangleF,System.String,System.Single,System.Boolean,System.Boolean):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message Id="1#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>guid</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteItem(System.Int64&amp;,System.Guid):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteLink(System.Int64&amp;,System.Guid):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteThing(System.Int64&amp;,System.Guid):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DoLinkCreated(System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ServiceInterface.DoLinkCreated(Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DoLinkModified(System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ServiceInterface.DoLinkModified(Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="GetPropertyValues(System.Int64&amp;,System.Collections.ArrayList&amp;):System.Void">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>ServiceInterface.GetPropertyValues(Int64&amp;, ArrayList&amp;):Void</Item>
+               <Item>ServiceTemporaryWindow.InitializeComponent():Void</Item>
                <Item>1</Item>
-               <Item>NotImplementedException.NotImplementedException(String)</Item>
-               <Item>The method or operation is not implemented.</Item>
+               <Item>ColumnHeader.set_Text(String):Void</Item>
+               <Item>Path</Item>
               </Issue>
              </Message>
-             <Message Id="1#" TypeName="DoNotPassTypesByReference" Category="Microsoft.Design" CheckId="CA1045" Created="2007-01-23 05:27:18Z">
-              <Issue Level="CriticalWarning">
-               <Item>tagPathList</Item>
-              </Issue>
-             </Message>
-             <Message Id="tagPathList" TypeName="ReviewUnusedParameters" Category="Microsoft.Usage" CheckId="CA1801" Created="2007-01-23 05:27:18Z" FixCategory="Breaking">
+             <Message Id="System.Windows.Forms.Control.set_Text(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-12-04 02:47:45Z">
               <Issue>
-               <Item>tagPathList</Item>
-               <Item>ServiceInterface.GetPropertyValues(Int64&amp;, ArrayList&amp;):Void</Item>
+               <Item>ServiceTemporaryWindow.InitializeComponent():Void</Item>
+               <Item>1</Item>
+               <Item>Control.set_Text(String):Void</Item>
+               <Item>Add</Item>
               </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="getPropertyValuesHandler">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 05:27:18Z">
               <Issue>
-               <Item>ServiceInterface.getPropertyValuesHandler</Item>
+               <Item>ServiceTemporaryWindow.InitializeComponent():Void</Item>
+               <Item>1</Item>
+               <Item>Control.set_Text(String):Void</Item>
+               <Item>Remove Project</Item>
               </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="GetSubTags(System.Int64&amp;,System.String,System.Collections.ArrayList&amp;):System.Void">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
               <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message Id="2#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>propertyList</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ModifyItem(System.Int64&amp;,System.Guid,System.String,System.String,SysCAD.Protocol.Model,SysCAD.Protocol.Shape,System.Drawing.RectangleF,System.Single,System.Drawing.Color,System.Drawing.Drawing2D.FillMode,System.Boolean,System.Boolean):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ModifyLink(System.Int64&amp;,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ServiceInterface.ModifyLink(Int64&amp;, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ModifyThing(System.Int64&amp;,System.Guid,System.String,System.String,System.Drawing.RectangleF,System.String,System.Single,System.Boolean,System.Boolean):System.Boolean">
-            <Messages>
-             <Message Id="0#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>requestId</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ServiceInterface+CreateLinkHandler">
-          <Members>
-           <Member Name="Invoke(SysCAD.Protocol.ServiceInterface,System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Boolean">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>CreateLinkHandler.Invoke(ServiceInterface, Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ServiceInterface+GetPropertyValuesHandler">
-          <Members>
-           <Member Name="Invoke(SysCAD.Protocol.ServiceInterface,System.Int64,System.Collections.ArrayList&amp;):System.Void">
-            <Messages>
-             <Message Id="2#" TypeName="DoNotPassTypesByReference" Category="Microsoft.Design" CheckId="CA1045" Created="2007-01-23 05:27:18Z">
-              <Issue Level="CriticalWarning">
-               <Item>propertyList</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ServiceInterface+GetSubTagsHandler">
-          <Members>
-           <Member Name="Invoke(SysCAD.Protocol.ServiceInterface,System.Int64,System.String,System.Collections.ArrayList&amp;):System.Void">
-            <Messages>
-             <Message Id="3#" TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>propertyList</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ServiceInterface+ModifyLinkHandler">
-          <Members>
-           <Member Name="Invoke(SysCAD.Protocol.ServiceInterface,System.Int64,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Boolean">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>ModifyLinkHandler.Invoke(ServiceInterface, Int64, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="Shape">
-          <Members>
-           <Member Name="op_Implicit(SysCAD.Protocol.Shape):System.String">
-            <Messages>
-             <Message TypeName="ValidateArgumentsOfPublicMethods" Category="Microsoft.Design" CheckId="CA1062" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>'shape'</Item>
-               <Item>Shape.op_Implicit(Shape):String</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="ShapeConverter">
-          <Messages>
-           <Message TypeName="ComVisibleTypeBaseTypesShouldBeComVisible" Category="Microsoft.Interoperability" CheckId="CA1405" Created="2007-01-23 05:27:18Z">
-            <Issue>
-             <Item>SysCAD.Protocol.ShapeConverter</Item>
-             <Item> System.ComponentModel.StringConverter</Item>
-            </Issue>
-           </Message>
-          </Messages>
-         </Type>
-         <Type Name="ThingStencil">
-          <Members>
-           <Member Name="defaultSize">
-            <Messages>
-             <Message TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051" Created="2007-01-23 05:27:18Z">
-              <Issue>
-               <Item>defaultSize</Item>
+               <Item>ServiceTemporaryWindow.InitializeComponent():Void</Item>
+               <Item>1</Item>
+               <Item>Control.set_Text(String):Void</Item>
+               <Item>SysCAD.Service</Item>
               </Issue>
              </Message>
             </Messages>
@@ -1617,428 +350,14 @@
       <Namespaces>
        <Namespace Name="SysCAD.Editor">
         <Types>
-         <Type Name="EditorForm">
+         <Type Name="EditorNode">
           <Members>
-           <Member Name="InitializeComponent():System.Void">
+           <Member Name=".ctor(SysCAD.Editor.State,SysCAD.Protocol.GraphicNode)">
             <Messages>
-             <Message Id="ActiproSoftware.UIStudio.Bar.BarButtonCommand.#ctor(System.String,System.String,System.String,System.Int32)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
+             <Message TypeName="DoNotUseTimersThatPreventPowerStateChanges" Category="Microsoft.Mobility" CheckId="CA1601" Status="Excluded" Created="2007-12-04 00:27:14Z">
               <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;About...</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Close</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Contents...</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Copy</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Customize...</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Delete</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Find</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Index...</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;New...</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Open...</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Options...</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Paste</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Print</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Redo</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Save</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Search...</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>&amp;Undo</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Create Link</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Create Node</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Cu&amp;t</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>E&amp;xit</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Modify</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Print Pre&amp;view</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Save &amp;As...</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Save A&amp;ll</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Select &amp;All</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Select Items</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Select Links</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Show Graphics</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Show Links</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Show Models</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Show Tags</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Zoom In</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Zoom Out</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Zoom To Selected</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarButtonCommand.BarButtonCommand(String, String, String, Int32)</Item>
-               <Item>Zoom To Visible</Item>
-              </Issue>
-             </Message>
-             <Message Id="ActiproSoftware.UIStudio.Bar.BarComboBoxCommand.#ctor(System.String,System.String,System.String,System.Int32)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarComboBoxCommand.BarComboBoxCommand(String, String, String, Int32)</Item>
-               <Item>GraphicType</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarComboBoxCommand.BarComboBoxCommand(String, String, String, Int32)</Item>
-               <Item>ModelType</Item>
-              </Issue>
-             </Message>
-             <Message Id="ActiproSoftware.UIStudio.Bar.BarCommandLink.set_Text(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Edit</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Edit</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Help</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Help</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Project</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Project</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Tools</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Tools</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;View</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;View</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Window</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>&amp;Window</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>GraphicType</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>GraphicType</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>ModelType</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>BarCommandLink.set_Text(String):Void</Item>
-               <Item>ModelType</Item>
-              </Issue>
-             </Message>
-             <Message Id="ActiproSoftware.UIStudio.Bar.BarExpanderButtonCommand.#ctor(System.String,System.String,System.String,System.Int32)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarExpanderButtonCommand.BarExpanderButtonCommand(String, String, String, Int32)</Item>
-               <Item>Window List</Item>
-              </Issue>
-             </Message>
-             <Message Id="ActiproSoftware.UIStudio.Bar.BarPopupButtonCommand.#ctor(System.String,System.String,System.String,System.Int32)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>3</Item>
-               <Item>BarPopupButtonCommand.BarPopupButtonCommand(String, String, String, Int32)</Item>
-               <Item>New Menu</Item>
-              </Issue>
-             </Message>
-             <Message Id="System.Windows.Forms.Control.set_Text(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Graphic Properties</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Model Properties</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Navigation</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Overview</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>SysCAD.Editor</Item>
-              </Issue>
-              <Issue>
-               <Item>EditorForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>statusStrip1</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="tvNavigation_DragEnter(System.Object,System.EventArgs):System.Void">
-            <Messages>
-             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:54:52Z">
-              <Issue>
-               <Item>EditorForm.tvNavigation_DragEnter(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>NotImplementedException.NotImplementedException(String)</Item>
-               <Item>The method or operation is not implemented.</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="tvNavigation_DragLeave(System.Object,System.EventArgs):System.Void">
-            <Messages>
-             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:54:52Z">
-              <Issue>
-               <Item>EditorForm.tvNavigation_DragLeave(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>NotImplementedException.NotImplementedException(String)</Item>
-               <Item>The method or operation is not implemented.</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="tvNavigation_DragOver(System.Object,System.EventArgs):System.Void">
-            <Messages>
-             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:54:52Z">
-              <Issue>
-               <Item>EditorForm.tvNavigation_DragOver(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>NotImplementedException.NotImplementedException(String)</Item>
-               <Item>The method or operation is not implemented.</Item>
+               <Item>Timer.set_Interval(Double):Void</Item>
+               <Item>EditorNode.EditorNode(State, GraphicNode)</Item>
               </Issue>
              </Message>
             </Messages>
@@ -2047,42 +366,9 @@
          </Type>
          <Type Name="FrmFlowChart">
           <Members>
-           <Member Name="EditThing(System.Object,System.EventArgs):System.Void">
-            <Messages>
-             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:54:52Z">
-              <Issue>
-               <Item>FrmFlowChart.EditThing(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>NotImplementedException.NotImplementedException(String)</Item>
-               <Item>The method or operation is not implemented.</Item>
-              </Issue>
-             </Message>
-             <Message Id="graphicThing" TypeName="RemoveUnusedLocals" Category="Microsoft.Performance" CheckId="CA1804" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>FrmFlowChart.EditThing(Object, EventArgs):Void</Item>
-               <Item>graphicThing</Item>
-               <Item>SysCAD.Protocol.GraphicThing</Item>
-              </Issue>
-             </Message>
-             <Message Id="propertyGridMenu" TypeName="RemoveUnusedLocals" Category="Microsoft.Performance" CheckId="CA1804" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>FrmFlowChart.EditThing(Object, EventArgs):Void</Item>
-               <Item>propertyGridMenu</Item>
-               <Item>System.Windows.Forms.ContextMenu</Item>
-              </Issue>
-             </Message>
-             <Message Id="requestId" TypeName="RemoveUnusedLocals" Category="Microsoft.Performance" CheckId="CA1804" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>FrmFlowChart.EditThing(Object, EventArgs):Void</Item>
-               <Item>requestId</Item>
-               <Item>System.Int64</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
            <Member Name="fcFlowChart_ArrowDeleting(System.Object,MindFusion.FlowChartX.ArrowConfirmArgs):System.Void">
             <Messages>
-             <Message Id="System.Windows.Forms.MessageBox.Show(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
+             <Message Id="System.Windows.Forms.MessageBox.Show(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Status="Excluded" Created="2007-12-04 00:27:14Z">
               <Issue>
                <Item>FrmFlowChart.fcFlowChart_ArrowDeleting(Object, ArrowConfirmArgs):Void</Item>
                <Item>1</Item>
@@ -2090,76 +376,28 @@
                <Item>Not Implemented</Item>
               </Issue>
              </Message>
-             <Message TypeName="SpecifyMessageBoxOptions" Category="Microsoft.Globalization" CheckId="CA1300" Created="2007-01-23 04:48:33Z">
+             <Message TypeName="SpecifyMessageBoxOptions" Category="Microsoft.Globalization" CheckId="CA1300" Status="Excluded" Created="2007-12-04 00:27:14Z">
               <Issue>
                <Item>FrmFlowChart.fcFlowChart_ArrowDeleting(Object, ArrowConfirmArgs):Void</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
-           <Member Name="fcFlowChart_Click(System.Object,System.EventArgs):System.Void">
+           <Member Name="fcFlowChart_GroupDeleted(System.Int64,System.Int64,System.Guid):System.Void">
             <Messages>
-             <Message Id="System.Windows.Forms.Menu+MenuItemCollection.Add(System.String,System.EventHandler)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
+             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Status="Excluded" Created="2007-12-04 00:27:14Z">
               <Issue>
-               <Item>FrmFlowChart.fcFlowChart_Click(Object, EventArgs):Void</Item>
+               <Item>FrmFlowChart.fcFlowChart_GroupDeleted(Int64, Int64, Guid):Void</Item>
                <Item>1</Item>
-               <Item>MenuItemCollection.Add(String, EventHandler):MenuItem</Item>
-               <Item>Edit Thing</Item>
-              </Issue>
-              <Issue>
-               <Item>FrmFlowChart.fcFlowChart_Click(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>MenuItemCollection.Add(String, EventHandler):MenuItem</Item>
-               <Item>Imitate update</Item>
-              </Issue>
-              <Issue>
-               <Item>FrmFlowChart.fcFlowChart_Click(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>MenuItemCollection.Add(String, EventHandler):MenuItem</Item>
-               <Item>Insert Annotation</Item>
-              </Issue>
-              <Issue>
-               <Item>FrmFlowChart.fcFlowChart_Click(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>MenuItemCollection.Add(String, EventHandler):MenuItem</Item>
-               <Item>Layout Flowchart (!!Broken in an interesting way in latest release!!)</Item>
-              </Issue>
-              <Issue>
-               <Item>FrmFlowChart.fcFlowChart_Click(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>MenuItemCollection.Add(String, EventHandler):MenuItem</Item>
-               <Item>Raise to Top</Item>
-              </Issue>
-              <Issue>
-               <Item>FrmFlowChart.fcFlowChart_Click(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>MenuItemCollection.Add(String, EventHandler):MenuItem</Item>
-               <Item>Raise to Top</Item>
-              </Issue>
-              <Issue>
-               <Item>FrmFlowChart.fcFlowChart_Click(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>MenuItemCollection.Add(String, EventHandler):MenuItem</Item>
-               <Item>Route Links</Item>
-              </Issue>
-              <Issue>
-               <Item>FrmFlowChart.fcFlowChart_Click(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>MenuItemCollection.Add(String, EventHandler):MenuItem</Item>
-               <Item>Send to Bottom</Item>
-              </Issue>
-              <Issue>
-               <Item>FrmFlowChart.fcFlowChart_Click(Object, EventArgs):Void</Item>
-               <Item>1</Item>
-               <Item>MenuItemCollection.Add(String, EventHandler):MenuItem</Item>
-               <Item>Send to Bottom</Item>
+               <Item>NotImplementedException.NotImplementedException(String)</Item>
+               <Item>The method or operation is not implemented.</Item>
               </Issue>
              </Message>
             </Messages>
            </Member>
            <Member Name="InitializeComponent():System.Void">
             <Messages>
-             <Message Id="System.Windows.Forms.Control.set_Text(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
+             <Message Id="System.Windows.Forms.Control.set_Text(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Status="Excluded" Created="2007-12-04 00:27:14Z">
               <Issue>
                <Item>FrmFlowChart.InitializeComponent():Void</Item>
                <Item>1</Item>
@@ -2169,786 +407,19 @@
              </Message>
             </Messages>
            </Member>
-           <Member Name="NewGraphicItem(System.String,System.String,System.String,System.Drawing.RectangleF,System.Single,System.Drawing.Color,System.Drawing.Drawing2D.FillMode,System.Boolean,System.Boolean):System.Void">
-            <Messages>
-             <Message Id="System.Int32.ToString" TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>FrmFlowChart.NewGraphicItem(String, String, String, RectangleF, Single, Color, FillMode, Boolean, Boolean):Void</Item>
-               <Item>System.Int32.ToString</Item>
-               <Item>System.Int32.ToString(System.IFormatProvider)</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="NewGraphicLink(SysCAD.Protocol.GraphicLink,System.Single,System.Single):SysCAD.Protocol.GraphicLink">
-            <Messages>
-             <Message Id="System.Int32.ToString" TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>FrmFlowChart.NewGraphicLink(GraphicLink, Single, Single):GraphicLink</Item>
-               <Item>System.Int32.ToString</Item>
-               <Item>System.Int32.ToString(System.IFormatProvider)</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="NewGraphicThing(System.String,System.Drawing.RectangleF,System.String,System.Single,System.Boolean,System.Boolean):System.Void">
-            <Messages>
-             <Message Id="System.Int32.ToString" TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>FrmFlowChart.NewGraphicThing(String, RectangleF, String, Single, Boolean, Boolean):Void</Item>
-               <Item>System.Int32.ToString</Item>
-               <Item>System.Int32.ToString(System.IFormatProvider)</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="GraphicPropertyGrid">
-          <Members>
-           <Member Name=".ctor()">
-            <Messages>
-             <Message TypeName="DoNotInitializeUnnecessarily" Category="Microsoft.Performance" CheckId="CA1805" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.GraphicPropertyGrid()</Item>
-               <Item>graphicItem</Item>
-               <Item>SysCAD.Protocol.GraphicItem</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>GraphicPropertyGrid.GraphicPropertyGrid()</Item>
-               <Item>graphicLink</Item>
-               <Item>SysCAD.Protocol.GraphicLink</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>GraphicPropertyGrid.GraphicPropertyGrid()</Item>
-               <Item>id</Item>
-               <Item>System.Int32</Item>
-               <Item>0</Item>
-              </Issue>
-              <Issue>
-               <Item>GraphicPropertyGrid.GraphicPropertyGrid()</Item>
-               <Item>state</Item>
-               <Item>SysCAD.Editor.State</Item>
-               <Item>null</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Clear():System.Void">
-            <Messages>
-             <Message TypeName="DoNotDecreaseInheritedMemberVisibility" Category="Microsoft.Usage" CheckId="CA2222" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.Clear():Void</Item>
-               <Item>VisualHint.SmartPropertyGrid.PropertyGrid</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemGraphicAngle">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemGraphicAngle</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemGraphicBoungingRectHeight">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemGraphicBoungingRectHeight</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemGraphicBoungingRectLeft">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemGraphicBoungingRectLeft</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemGraphicBoungingRectTop">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemGraphicBoungingRectTop</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemGraphicBoungingRectWidth">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemGraphicBoungingRectWidth</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemGraphicFillColor">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemGraphicFillColor</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemGraphicFillMode">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemGraphicFillMode</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemGraphicPath">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemGraphicPath</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemGraphicShape">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemGraphicShape</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemModelGuid">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemModelGuid</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemModelModel">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemModelModel</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="itemModelTag">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.itemModelTag</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="linkModelClassID">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.linkModelClassID</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="linkModelDestination">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.linkModelDestination</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="linkModelDestinationPort">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.linkModelDestinationPort</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="linkModelGuid">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.linkModelGuid</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="linkModelOrigin">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.linkModelOrigin</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="linkModelOriginPort">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.linkModelOriginPort</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="linkModelTag">
-            <Messages>
-             <Message TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>GraphicPropertyGrid.linkModelTag</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="InsertAnnotationDialog">
-          <Members>
-           <Member Name="InitializeComponent():System.Void">
-            <Messages>
-             <Message Id="System.Windows.Forms.Control.set_Text(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>InsertAnnotationDialog.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Annotation:</Item>
-              </Issue>
-              <Issue>
-               <Item>InsertAnnotationDialog.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Cancel</Item>
-              </Issue>
-              <Issue>
-               <Item>InsertAnnotationDialog.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Expert</Item>
-              </Issue>
-              <Issue>
-               <Item>InsertAnnotationDialog.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>InsertAnnotationDialog</Item>
-              </Issue>
-              <Issue>
-               <Item>InsertAnnotationDialog.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Linked Item:</Item>
-              </Issue>
-              <Issue>
-               <Item>InsertAnnotationDialog.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>OK</Item>
-              </Issue>
-              <Issue>
-               <Item>InsertAnnotationDialog.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Simple</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
           </Members>
          </Type>
          <Type Name="ModelPropertyGrid">
           <Members>
-           <Member Name=".ctor()">
+           <Member Name="RemoveDummy(VisualHint.SmartPropertyGrid.PropertyEnumerator):System.Boolean">
             <Messages>
-             <Message TypeName="DoNotInitializeUnnecessarily" Category="Microsoft.Performance" CheckId="CA1805" Created="2007-01-23 04:48:33Z">
+             <Message TypeName="DoNotCallPropertiesThatCloneValuesInLoops" Category="Microsoft.Performance" CheckId="CA1817" Status="Excluded" Created="2007-12-04 00:27:14Z">
               <Issue>
-               <Item>ModelPropertyGrid.ModelPropertyGrid()</Item>
-               <Item>id</Item>
-               <Item>System.Int32</Item>
-               <Item>0</Item>
-              </Issue>
-              <Issue>
-               <Item>ModelPropertyGrid.ModelPropertyGrid()</Item>
-               <Item>modelItem</Item>
-               <Item>SysCAD.Protocol.ModelItem</Item>
-               <Item>null</Item>
-              </Issue>
-              <Issue>
-               <Item>ModelPropertyGrid.ModelPropertyGrid()</Item>
-               <Item>state</Item>
-               <Item>SysCAD.Editor.State</Item>
-               <Item>null</Item>
+               <Item>ModelPropertyGrid.RemoveDummy(PropertyEnumerator):Boolean</Item>
+               <Item>PropertyEnumerator.get_Parent():PropertyEnumerator</Item>
               </Issue>
              </Message>
             </Messages>
-           </Member>
-           <Member Name="Clear():System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>ModelPropertyGrid.Clear():Void</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="DoNotDecreaseInheritedMemberVisibility" Category="Microsoft.Usage" CheckId="CA2222" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>ModelPropertyGrid.Clear():Void</Item>
-               <Item>VisualHint.SmartPropertyGrid.PropertyGrid</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="OpenProjectForm">
-          <Members>
-           <Member Name="InitializeComponent():System.Void">
-            <Messages>
-             <Message Id="System.Windows.Forms.Control.set_Text(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>OpenProjectForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Cancel</Item>
-              </Issue>
-              <Issue>
-               <Item>OpenProjectForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>List Projects</Item>
-              </Issue>
-              <Issue>
-               <Item>OpenProjectForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Open</Item>
-              </Issue>
-              <Issue>
-               <Item>OpenProjectForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>OpenProjectForm</Item>
-              </Issue>
-              <Issue>
-               <Item>OpenProjectForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Projects</Item>
-              </Issue>
-              <Issue>
-               <Item>OpenProjectForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>Repository:</Item>
-              </Issue>
-              <Issue>
-               <Item>OpenProjectForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>e.g. localhost:8065</Item>
-              </Issue>
-              <Issue>
-               <Item>OpenProjectForm.InitializeComponent():Void</Item>
-               <Item>1</Item>
-               <Item>Control.set_Text(String):Void</Item>
-               <Item>ipc://SysCAD.Service/</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-          </Members>
-         </Type>
-         <Type Name="State">
-          <Members>
-           <Member Name="ChangeState(System.Int64&amp;,SysCAD.Protocol.BaseInterface+RunStates):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.ChangeState(Int64&amp;, RunStates):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="CreateGraphicLink(System.Int64&amp;,System.Guid,System.String,System.String,System.Guid,System.Guid,System.String,System.String,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.CreateGraphicLink(Int64&amp;, Guid, String, String, Guid, Guid, String, String, List`1&lt;System.Drawing.PointF&gt;):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="CreateLink(SysCAD.Protocol.GraphicLink,System.Boolean,MindFusion.FlowChartX.FlowChart):System.Void">
-            <Messages>
-             <Message Id="destinationTag" TypeName="RemoveUnusedLocals" Category="Microsoft.Performance" CheckId="CA1804" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.CreateLink(GraphicLink, Boolean, FlowChart):Void</Item>
-               <Item>destinationTag</Item>
-               <Item>System.String</Item>
-              </Issue>
-             </Message>
-             <Message Id="originTag" TypeName="RemoveUnusedLocals" Category="Microsoft.Performance" CheckId="CA1804" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.CreateLink(GraphicLink, Boolean, FlowChart):Void</Item>
-               <Item>originTag</Item>
-               <Item>System.String</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteGraphicItem(System.Int64&amp;,System.Guid):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.DeleteGraphicItem(Int64&amp;, Guid):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteGraphicLink(System.Int64&amp;,System.Guid):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.DeleteGraphicLink(Int64&amp;, Guid):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteGraphicThing(System.Int64&amp;,System.Guid):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.DeleteGraphicThing(Int64&amp;, Guid):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="DeleteLink(System.Guid):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.DeleteLink(Guid):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Exists(System.Guid):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.Exists(Guid):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="GetPropertyValues(System.Int64&amp;,System.Collections.ArrayList&amp;):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.GetPropertyValues(Int64&amp;, ArrayList&amp;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="GraphicLinks">
-            <Accessors>
-             <Accessor Name="get_GraphicLinks():System.Collections.Generic.IEnumerable`1&lt;SysCAD.Protocol.GraphicLink&gt;">
-              <Messages>
-               <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-                <Issue>
-                 <Item>State.get_GraphicLinks():IEnumerable`1&lt;SysCAD.Protocol.GraphicLink&gt;</Item>
-                </Issue>
-               </Message>
-              </Messages>
-             </Accessor>
-            </Accessors>
-           </Member>
-           <Member Name="IsItem(System.Guid):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.IsItem(Guid):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="IsLink(System.Guid):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.IsLink(Guid):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="IsThing(System.Guid):System.Boolean">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.IsThing(Guid):Boolean</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ItemSelected(System.Guid,System.Boolean):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.ItemSelected(Guid, Boolean):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="ProcessMatch(System.Text.RegularExpressions.Match):System.String">
-            <Messages>
-             <Message Id="System.Double.Parse(System.String)" TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Double.Parse(System.String)</Item>
-               <Item>System.Double.Parse(System.String,System.IFormatProvider)</Item>
-              </Issue>
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Double.Parse(System.String)</Item>
-               <Item>System.Double.Parse(System.String,System.IFormatProvider)</Item>
-              </Issue>
-             </Message>
-             <Message Id="System.Double.ToString" TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Double.ToString</Item>
-               <Item>System.Double.ToString(System.IFormatProvider)</Item>
-              </Issue>
-             </Message>
-             <Message Id="System.Int32.Parse(System.String)" TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.Parse(System.String)</Item>
-               <Item>System.Int32.Parse(System.String,System.IFormatProvider)</Item>
-              </Issue>
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.Parse(System.String)</Item>
-               <Item>System.Int32.Parse(System.String,System.IFormatProvider)</Item>
-              </Issue>
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.Parse(System.String)</Item>
-               <Item>System.Int32.Parse(System.String,System.IFormatProvider)</Item>
-              </Issue>
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.Parse(System.String)</Item>
-               <Item>System.Int32.Parse(System.String,System.IFormatProvider)</Item>
-              </Issue>
-             </Message>
-             <Message Id="System.Int32.Parse(System.String,System.Globalization.NumberStyles)" TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.Parse(System.String,System.Globalization.NumberStyles)</Item>
-               <Item>System.Int32.Parse(System.String,System.Globalization.NumberStyles,System.IFormatProvider)</Item>
-              </Issue>
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.Parse(System.String,System.Globalization.NumberStyles)</Item>
-               <Item>System.Int32.Parse(System.String,System.Globalization.NumberStyles,System.IFormatProvider)</Item>
-              </Issue>
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.Parse(System.String,System.Globalization.NumberStyles)</Item>
-               <Item>System.Int32.Parse(System.String,System.Globalization.NumberStyles,System.IFormatProvider)</Item>
-              </Issue>
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.Parse(System.String,System.Globalization.NumberStyles)</Item>
-               <Item>System.Int32.Parse(System.String,System.Globalization.NumberStyles,System.IFormatProvider)</Item>
-              </Issue>
-             </Message>
-             <Message Id="System.Int32.ToString" TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.ToString</Item>
-               <Item>System.Int32.ToString(System.IFormatProvider)</Item>
-              </Issue>
-             </Message>
-             <Message Id="System.Int32.ToString(System.String)" TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.ProcessMatch(Match):String</Item>
-               <Item>System.Int32.ToString(System.String)</Item>
-               <Item>System.Int32.ToString(System.String,System.IFormatProvider)</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetAngle(System.Guid,System.Single):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.SetAngle(Guid, Single):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetControlPoints(MindFusion.FlowChartX.Arrow,System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;):System.Void">
-            <Messages>
-             <Message TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>System.Collections.Generic.List`1&lt;System.Drawing.PointF&gt;</Item>
-               <Item>State.SetControlPoints(Arrow, List`1&lt;System.Drawing.PointF&gt;):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetFillColor(System.Guid,System.Drawing.Color):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.SetFillColor(Guid, Color):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetHeight(System.Guid,System.Single):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.SetHeight(Guid, Single):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetMirrorX(System.Guid,System.Boolean):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.SetMirrorX(Guid, Boolean):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetMirrorY(System.Guid,System.Boolean):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.SetMirrorY(Guid, Boolean):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetTag(System.Guid,System.String):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.SetTag(Guid, String):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetWidth(System.Guid,System.Single):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.SetWidth(Guid, Single):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetX(System.Guid,System.Single):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.SetX(Guid, Single):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="SetY(System.Guid,System.Single):System.Void">
-            <Messages>
-             <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-              <Issue>
-               <Item>State.SetY(Guid, Single):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="StateChanged(SysCAD.Protocol.BaseInterface+RunStates):System.Void">
-            <Messages>
-             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:54:52Z">
-              <Issue>
-               <Item>State.StateChanged(RunStates):Void</Item>
-               <Item>1</Item>
-               <Item>NotImplementedException.NotImplementedException(String)</Item>
-               <Item>The method or operation is not implemented.</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="MarkMembersAsStatic" Category="Microsoft.Performance" CheckId="CA1822" Created="2007-01-23 04:48:33Z" FixCategory="NonBreaking">
-              <Issue>
-               <Item>State.StateChanged(RunStates):Void</Item>
-              </Issue>
-             </Message>
-             <Message Id="runState" TypeName="ReviewUnusedParameters" Category="Microsoft.Usage" CheckId="CA1801" Created="2007-01-23 04:48:33Z" FixCategory="NonBreaking">
-              <Issue>
-               <Item>runState</Item>
-               <Item>State.StateChanged(RunStates):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Step(System.Int64,System.DateTime):System.Void">
-            <Messages>
-             <Message Id="System.NotImplementedException.#ctor(System.String)" TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303" Created="2007-01-23 04:54:52Z">
-              <Issue>
-               <Item>State.Step(Int64, DateTime):Void</Item>
-               <Item>1</Item>
-               <Item>NotImplementedException.NotImplementedException(String)</Item>
-               <Item>The method or operation is not implemented.</Item>
-              </Issue>
-             </Message>
-             <Message TypeName="MarkMembersAsStatic" Category="Microsoft.Performance" CheckId="CA1822" Created="2007-01-23 04:48:33Z" FixCategory="NonBreaking">
-              <Issue>
-               <Item>State.Step(Int64, DateTime):Void</Item>
-              </Issue>
-             </Message>
-             <Message Id="step" TypeName="ReviewUnusedParameters" Category="Microsoft.Usage" CheckId="CA1801" Created="2007-01-23 04:48:33Z" FixCategory="NonBreaking">
-              <Issue>
-               <Item>step</Item>
-               <Item>State.Step(Int64, DateTime):Void</Item>
-              </Issue>
-             </Message>
-             <Message Id="time" TypeName="ReviewUnusedParameters" Category="Microsoft.Usage" CheckId="CA1801" Created="2007-01-23 04:48:33Z" FixCategory="NonBreaking">
-              <Issue>
-               <Item>time</Item>
-               <Item>State.Step(Int64, DateTime):Void</Item>
-              </Issue>
-             </Message>
-            </Messages>
-           </Member>
-           <Member Name="Things">
-            <Accessors>
-             <Accessor Name="get_Things():System.Collections.Generic.IEnumerable`1&lt;SysCAD.Editor.Thing&gt;">
-              <Messages>
-               <Message TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811" Created="2007-01-23 04:48:33Z">
-                <Issue>
-                 <Item>State.get_Things():IEnumerable`1&lt;SysCAD.Editor.Thing&gt;</Item>
-                </Issue>
-               </Message>
-              </Messages>
-             </Accessor>
-            </Accessors>
            </Member>
           </Members>
          </Type>
@@ -2960,35 +431,20 @@
    </Target>
   </Targets>
   <Rules>
-   <Rule TypeName="AbstractTypesShouldNotHaveConstructors" Category="Microsoft.Design" CheckId="CA1012">
-    <Resolution Name="Default">Change the accessibility of all public constructors in '{0}' to protected.</Resolution>
-   </Rule>
    <Rule TypeName="AvoidOutParameters" Category="Microsoft.Design" CheckId="CA1021">
     <Resolution Name="Default">Consider a design that does not require that '{0}' be an out parameter.</Resolution>
    </Rule>
-   <Rule TypeName="AvoidUncalledPrivateCode" Category="Microsoft.Performance" CheckId="CA1811">
-    <Resolution Name="Default">'{0}' appears to have no upstream public or protected callers.</Resolution>
+   <Rule TypeName="DoNotCallPropertiesThatCloneValuesInLoops" Category="Microsoft.Performance" CheckId="CA1817">
+    <Resolution Name="Default">Within {0}, consider  getting the value of '{1}' once and caching it inside a local variable before entering the loop.</Resolution>
    </Rule>
-   <Rule TypeName="AvoidUnusedPrivateFields" Category="Microsoft.Performance" CheckId="CA1823">
-    <Resolution Name="Default">It appears that field '{0}' is never used or is only ever assigned to. Use this field or remove it.</Resolution>
+   <Rule TypeName="DoNotCastUnnecessarily" Category="Microsoft.Performance" CheckId="CA1800">
+    <Resolution Name="Local">'{0}', a local, is cast to type '{1}' multiple times in method {2}. Cache the result of the 'as' operator or direct cast in order to eliminate the redundant {3} instruction.</Resolution>
    </Rule>
-   <Rule TypeName="CollectionPropertiesShouldBeReadOnly" Category="Microsoft.Usage" CheckId="CA2227">
-    <Resolution Name="Default">Change '{0}' to be read-only by removing the property setter.</Resolution>
-   </Rule>
-   <Rule TypeName="ComVisibleTypeBaseTypesShouldBeComVisible" Category="Microsoft.Interoperability" CheckId="CA1405">
-    <Resolution Name="Default">'{0}' is marked ComVisible(true) but has the following ComVisible(false) types in its object hierarchy: {1}</Resolution>
-   </Rule>
-   <Rule TypeName="DoNotDeclareVisibleInstanceFields" Category="Microsoft.Design" CheckId="CA1051">
-    <Resolution Name="Default">Make '{0}' private or internal (Friend in VB, public private in C++) and provide a public or protected property to access it.</Resolution>
-   </Rule>
-   <Rule TypeName="DoNotDecreaseInheritedMemberVisibility" Category="Microsoft.Usage" CheckId="CA2222">
-    <Resolution Name="Default">Make {0} non-private, mark it as final, or seal its declaring type. This method was originally defined in base class '{1}'.</Resolution>
+   <Rule TypeName="DoNotCatchGeneralExceptionTypes" Category="Microsoft.Design" CheckId="CA1031">
+    <Resolution Name="Default">Modify '{0}' to catch a more specific exception than '{1}' or rethrow the exception.</Resolution>
    </Rule>
    <Rule TypeName="DoNotExposeGenericLists" Category="Microsoft.Design" CheckId="CA1002">
     <Resolution Name="Default">Change '{0}' in {1} to use Collection&lt;T&gt;, ReadOnlyCollection&lt;T&gt; or KeyedCollection&lt;K,V&gt;</Resolution>
-   </Rule>
-   <Rule TypeName="DoNotInitializeUnnecessarily" Category="Microsoft.Performance" CheckId="CA1805">
-    <Resolution Name="Default">{0} initializes field {1} of type {2} to {3}. Remove this initialization as it will be done automatically by the runtime.</Resolution>
    </Rule>
    <Rule TypeName="DoNotPassLiteralsAsLocalizedParameters" Category="Microsoft.Globalization" CheckId="CA1303">
     <Resolution Name="Default">{0} passes a literal as parameter {1} of a call to {2}. Retrieve the following string argument from a resource table instead: '{3}'</Resolution>
@@ -2996,50 +452,12 @@
    <Rule TypeName="DoNotPassTypesByReference" Category="Microsoft.Design" CheckId="CA1045">
     <Resolution Name="Default">Consider a design that does not require that '{0}' be a reference parameter.</Resolution>
    </Rule>
-   <Rule TypeName="IdentifiersShouldBeSpelledCorrectly" Category="Microsoft.Naming" CheckId="CA1704">
-    <Resolution Name="MemberOneLetter">Consider providing a more meaningful name than the one-letter token '{0}' in member name '{1}'.</Resolution>
-    <Resolution Name="ParameterOneLetter">In method {0}, consider providing a more meaningful name than the one-letter parameter name '{1}'.</Resolution>
-   </Rule>
-   <Rule TypeName="IdentifiersShouldDifferByMoreThanCase" Category="Microsoft.Naming" CheckId="CA1708">
-    <Resolution Name="Member">Change member names {0} and '{1}' so that they differ by more than case.</Resolution>
-   </Rule>
+   <Rule TypeName="DoNotUseTimersThatPreventPowerStateChanges" Category="Microsoft.Mobility" CheckId="CA1601" />
    <Rule TypeName="LongAcronymsShouldBePascalCased" Category="Microsoft.Naming" CheckId="CA1705">
-    <Resolution Name="Member">Correct the capitalization of member name '{0}'.</Resolution>
     <Resolution Name="Namespace">Correct the capitalization of namespace name '{0}'.</Resolution>
-   </Rule>
-   <Rule TypeName="MarkAssembliesWithComVisible" Category="Microsoft.Design" CheckId="CA1017">
-    <Resolution Name="AttributeTrue">Consider changing the ComVisible attribute on '{0}' to false, and opting in at the type level.</Resolution>
-   </Rule>
-   <Rule TypeName="MarkMembersAsStatic" Category="Microsoft.Performance" CheckId="CA1822">
-    <Resolution Name="Default">The 'this' parameter (or 'Me' in VB) of {0} is never used. Mark the member as static (or Shared in VB) or use 'this'/'Me' in the method body or at least one property accessor, if appropriate.</Resolution>
-   </Rule>
-   <Rule TypeName="OnlyFlagsEnumsShouldHavePluralNames" Category="Microsoft.Naming" CheckId="CA1717">
-    <Resolution Name="Default">If the name '{0}' is plural, change it to its singular form.</Resolution>
-   </Rule>
-   <Rule TypeName="OverrideLinkDemandsShouldBeIdenticalToBase" Category="Microsoft.Security" CheckId="CA2123">
-    <Resolution Name="BaseOnly">Add the following security attribute to {0} in order to match a LinkDemand on base method {1}:  {2}.</Resolution>
-   </Rule>
-   <Rule TypeName="RemoveUnusedLocals" Category="Microsoft.Performance" CheckId="CA1804">
-    <Resolution Name="Default">{0} declares a local, '{1}', of type {2}, which is never used or is only assigned to. Use this local or remove it.</Resolution>
-   </Rule>
-   <Rule TypeName="ReviewSqlQueriesForSecurityVulnerabilities" Category="Microsoft.Security" CheckId="CA2100">
-    <Resolution Name="Default">Review if the query string "{0}", passed to {1} in {2}, accepts any user input. If so, consider using a parameterized Sql query instead of building up the query via string concatenations.</Resolution>
-   </Rule>
-   <Rule TypeName="ReviewUnusedParameters" Category="Microsoft.Usage" CheckId="CA1801">
-    <Resolution Name="Default">Parameter '{0}' of {1} is never used. Remove the parameter or use it in the method body.</Resolution>
-   </Rule>
-   <Rule TypeName="ShortAcronymsShouldBeUppercase" Category="Microsoft.Naming" CheckId="CA1706">
-    <Resolution Name="Member">Correct the capitalization of '{0}' in member name '{1}'.</Resolution>
-    <Resolution Name="MemberId">'Id' is an abbreviation and therefore is not subject to acronym casing guidelines. Correct the capitalization of 'ID' in member name '{0}' by changing it to 'Id'.</Resolution>
-   </Rule>
-   <Rule TypeName="SpecifyIFormatProvider" Category="Microsoft.Globalization" CheckId="CA1305">
-    <Resolution Name="Default">{0} makes a call to {1} that does not explicitly provide an IFormatProvider. This should be replaced with a call to {2}.</Resolution>
    </Rule>
    <Rule TypeName="SpecifyMessageBoxOptions" Category="Microsoft.Globalization" CheckId="CA1300">
     <Resolution Name="Default">Change {0} to call the MessageBox.Show overload that specifies MessageBoxOptions, and make sure to set MessageBoxOptions.RightAlign and MessageBoxOptions.RtlReading if RightToLeft is set to RightToLeft.Yes on the parent control. If it is set to RightTolLeft.Inherit, check its parent until a value indicating Yes or No is found.</Resolution>
-   </Rule>
-   <Rule TypeName="ValidateArgumentsOfPublicMethods" Category="Microsoft.Design" CheckId="CA1062">
-    <Resolution Name="Default">Validate parameter {0} passed to externally visible method {1}.</Resolution>
    </Rule>
   </Rules>
  </FxCopReport>

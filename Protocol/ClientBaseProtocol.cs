@@ -26,7 +26,7 @@ namespace SysCAD.Protocol
     public StepHandler Step;
     public SyncHandler Sync;
 
-    public delegate void ChangedHandler(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted);
+    public delegate void ChangedHandler(Int64 eventId, Int64 requestId, Actioned actioned);
     public delegate void PortInfoRequestedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo);
     public delegate void PermissionsChangedHandler(Int64 eventId, Int64 requestId, Permissions permissions);
     public delegate void StepHandler(Int64 eventId, Int64 step, DateTime time);
@@ -70,13 +70,13 @@ namespace SysCAD.Protocol
       return null;
     }
 
-    public void OnChanged(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted)
+    public void OnChanged(Int64 eventId, Int64 requestId, Actioned actioned)
     {
       if (Changed != null)
       {
         foreach (ChangedHandler changedHandler in Changed.GetInvocationList())
         {
-          try { changedHandler(eventId, requestId, created, modified, deleted); }
+          try { changedHandler(eventId, requestId, actioned); }
           catch (SocketException) { Changed -= changedHandler; }
         }
       }

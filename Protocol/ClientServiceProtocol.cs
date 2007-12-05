@@ -45,7 +45,7 @@ namespace SysCAD.Protocol
 
     public delegate bool ChangePermissionsHandler(out Int64 requestId, Permissions permissions);
 
-    public delegate bool ChangeHandler(out Int64 requestId, Collection<Item> create, Collection<Item> modify, Collection<Guid> delete);
+    public delegate bool ChangeHandler(out Int64 requestId, Action action);
 
     public delegate void GetPropertyValuesHandler(out Int64 requestId, ref ArrayList propertyList);
     public delegate void GetSubTagsHandler(out Int64 requestId, String propertyPath, out ArrayList propertyList);
@@ -105,14 +105,14 @@ namespace SysCAD.Protocol
       return clientChangePermissions(out requestId, permissions);
     }
 
-    public bool Change(out Int64 requestId, Collection<Item> create, Collection<Item> modify, Collection<Guid> delete)
+    public bool Change(out Int64 requestId, Action action)
     {
-      return changeHandler(out requestId, create, modify, delete);
+      return changeHandler(out requestId, action);
     }
 
-    public void DoChanged(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted)
+    public void DoChanged(Int64 eventId, Int64 requestId, Actioned actioned)
     {
-      OnChanged(eventId, requestId, created, modified, deleted);
+      OnChanged(eventId, requestId, actioned);
     }
 
     public void DoPortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo)

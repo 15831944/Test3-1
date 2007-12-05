@@ -190,7 +190,7 @@ namespace SysCAD.Service
       }
     }
 
-    public bool Change(out Int64 requestId, Collection<Item> create, Collection<Item> modify, Collection<Guid> delete)
+    public bool Change(out Int64 requestId, SysCAD.Protocol.Action action)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -204,9 +204,9 @@ namespace SysCAD.Service
       Collection<Guid> graphicDelete = new Collection<Guid>();
 
       { // Check if OK to go ahead.
-        if (create != null)
+        if (action.Create != null)
         {
-          foreach (Item item in create)
+          foreach (Item item in action.Create)
           {
             if (Exists(item))
             {
@@ -223,9 +223,9 @@ namespace SysCAD.Service
           }
         }
 
-        if (modify != null)
+        if (action.Modify != null)
         {
-          foreach (Item item in modify)
+          foreach (Item item in action.Modify)
           {
             if (!Exists(item))
             {
@@ -242,9 +242,9 @@ namespace SysCAD.Service
           }
         }
 
-        if (delete != null)
+        if (action.Delete != null)
         {
-          foreach (Guid guid in delete)
+          foreach (Guid guid in action.Delete)
           {
             if (!Exists(guid))
             {
@@ -284,38 +284,29 @@ namespace SysCAD.Service
         model.Delete(guid);
       }
 
-      Collection<Guid> graphicCreated = new Collection<Guid>();
-      Collection<Guid> graphicModified = new Collection<Guid>();
-      Collection<Guid> graphicDeleted = new Collection<Guid>();
+      Actioned graphicActioned = new Actioned();
 
       foreach (GraphicItem graphicItem in graphicCreate)
       {
         graphic.Create(graphicItem);
-        graphicCreated.Add(graphicItem.Guid);
+        graphicActioned.Created.Add(graphicItem.Guid);
       }
 
       foreach (GraphicItem graphicItem in graphicModify)
       {
         graphic.Modify(graphicItem);
-        graphicModified.Add(graphicItem.Guid);
+        graphicActioned.Modified.Add(graphicItem.Guid);
       }
 
       foreach (Guid guid in graphicDelete)
       {
         graphic.Delete(guid);
-        graphicDeleted.Add(guid);
+        graphicActioned.Deleted.Add(guid);
       }
-
-      if (graphicCreated.Count == 0)
-        graphicCreated = null;
-      if (graphicModified.Count == 0)
-        graphicModified = null;
-      if (graphicDeleted.Count == 0)
-        graphicDeleted = null;
 
       { // Do Change here.
         eventId++;
-        clientClientServiceProtocol.DoChanged(eventId, requestId, graphicCreated, graphicModified, graphicDeleted);
+        clientClientServiceProtocol.DoChanged(eventId, requestId, graphicActioned);
       }
 
       return true;

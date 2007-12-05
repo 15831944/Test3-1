@@ -20,20 +20,6 @@ using System.Collections.ObjectModel;
 
 namespace SysCAD.Protocol
 {
-  class Action
-  {
-    //Int64 requestId;
-    Collection<Item> create = new Collection<Item>();
-    Collection<Item> modify = new Collection<Item>();
-    Collection<Guid> delete = new Collection<Guid>();
-
-    public Collection<Item> Modify
-    {
-      get { return modify; }
-      set { modify = value; }
-    }
-  }
-
   [Serializable]
   public class ConnectionLostException : SystemException
   {
@@ -165,7 +151,7 @@ namespace SysCAD.Protocol
       }
       redoList.Push(redoAction);
 
-      return serviceGraphic.Change(out requestId, new Collection<Item>(), undoAction.Modify, new Collection<Guid>());
+      return serviceGraphic.Change(out requestId, undoAction);
     }
 
     public bool Redo(out Int64 requestId)
@@ -182,17 +168,17 @@ namespace SysCAD.Protocol
       }
       undoList.Push(undoAction);
 
-      return serviceGraphic.Change(out requestId, new Collection<Item>(), redoAction.Modify, new Collection<Guid>());
+      return serviceGraphic.Change(out requestId, redoAction);
     }
 
-    public bool Change(out Int64 requestId, Collection<Item> create, Collection<Item> modify, Collection<Guid> delete)
+    public bool Change(out Int64 requestId, Action action)
     {
       try
       {
         redoList.Clear();
 
         Action undoAction = new Action();
-        foreach (Item item in modify)
+        foreach (Item item in action.Modify)
         {
           if (item is GraphicNode)
             undoAction.Modify.Add(graphic.Nodes[item.Guid].Clone());
@@ -201,14 +187,14 @@ namespace SysCAD.Protocol
         }
         undoList.Push(undoAction);
 
-        return serviceGraphic.Change(out requestId, create, modify, delete);
+        return serviceGraphic.Change(out requestId, action);
       }
       catch (Exception originalException)
       {
         try
         {
           Connect();
-          return serviceGraphic.Change(out requestId, create, modify, delete);
+          return serviceGraphic.Change(out requestId, action);
         }
         catch (Exception subsequentException)
         {
@@ -496,33 +482,33 @@ namespace SysCAD.Protocol
       OnPermissionsChanged(eventId, requestId, permissions);
     }
 
-    public void ServiceGraphicChanged(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted)
+    public void ServiceGraphicChanged(Int64 eventId, Int64 requestId, Actioned actioned)
     {
-      if (created != null)
+      if (actioned.Created != null)
       {
-        foreach (Guid guid in created)
+        foreach (Guid guid in actioned.Created)
         {
           graphic.Create(serviceGraphic.graphic.Get(guid));
         }
       }
 
-      if (modified != null)
+      if (actioned.Modified != null)
       {
-        foreach (Guid guid in modified)
+        foreach (Guid guid in actioned.Modified)
         {
           graphic.Modify(serviceGraphic.graphic.Get(guid));
         }
       }
 
-      if (deleted != null)
+      if (actioned.Deleted != null)
       {
-        foreach (Guid guid in deleted)
+        foreach (Guid guid in actioned.Deleted)
         {
           graphic.Delete(guid);
         }
       }
 
-      OnChanged(eventId, requestId, created, modified, deleted);
+      OnChanged(eventId, requestId, actioned);
     }
 
     public void ServiceGraphicStep(Int64 eventId, Int64 step, DateTime time)

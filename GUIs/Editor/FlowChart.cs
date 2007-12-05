@@ -736,11 +736,12 @@ namespace SysCAD.Editor
       ModelLink modelLink = new ModelLink(new Guid(), string.Empty, "Pipe-1", modelOrigin.Guid, modelDestination.Guid, originPort, destinationPort);
       GraphicLink graphicLink = new GraphicLink(new Guid(), modelLink.Guid, string.Empty, origin.Guid, originPortID, destination.Guid, destinationPortID, controlPoints, textArea, 0.0, true);
 
-      Collection<Item> create = new Collection<Item>();
-      create.Add(modelLink);
-      create.Add(graphicLink);
+      SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
 
-      state.ClientProtocol.Change(out requestId, create, null, null);
+      action.Create.Add(modelLink);
+      action.Create.Add(graphicLink);
+
+      state.ClientProtocol.Change(out requestId, action);
     }
 
     private void fcFlowChart_ArrowCreating(object sender, AttachConfirmArgs e)
@@ -916,20 +917,20 @@ namespace SysCAD.Editor
         graphicLink.DestinationPortID = Convert.ToInt16(destinationFullAnchor.Substring(destinationAnchorName.Length), CultureInfo.InvariantCulture);
       }
 
-      Collection<Item> modify = new Collection<Item>();
+      SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
       if (graphicLink != null)
       {
         GraphicLink newGraphicLink = graphicLink.Clone();
         newGraphicLink.ControlPoints = State.GetControlPoints(e.Arrow.ControlPoints);
-        modify.Add(newGraphicLink);
+        action.Modify.Add(newGraphicLink);
       }
 
 
-      if (!state.ClientProtocol.Change(out requestId, null, modify, null))
+      if (!state.ClientProtocol.Change(out requestId, action))
       { // Request was refused, undo manipulation...
         Collection<Guid> modified = new Collection<Guid>();
 
-        foreach (Item item in modify)
+        foreach (Item item in action.Modify)
         {
           modified.Add(item.Guid);
         }
@@ -1630,10 +1631,10 @@ namespace SysCAD.Editor
       form1.LoadProject(state.ClientProtocol, state.Config);
     }
 
-    private void fcFlowChart_Changed(Int64 eventId, Int64 requestId, Collection<Guid> created, Collection<Guid> modified, Collection<Guid> deleted)
+    private void fcFlowChart_Changed(Int64 eventId, Int64 requestId, Actioned actioned)
     {
-      DoCreated(created);
-      DoModified(modified);
+      DoCreated(actioned.Created);
+      DoModified(actioned.Modified);
     }
 
     private void DoCreated(Collection<Guid> created)
@@ -1725,7 +1726,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChartBoxModified(object sender, BoxMouseArgs e)
     {
-      Collection<Item> modify = new Collection<Item>();
+      SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
 
       if (e.Box.Tag is EditorNode)
       {
@@ -1737,7 +1738,7 @@ namespace SysCAD.Editor
         newGraphicNode.Angle = modelBox.RotationAngle;
         newGraphicNode.TagArea = new SysCAD.Protocol.Rectangle(textBox.BoundingRect);
         newGraphicNode.TagAngle = textBox.RotationAngle;
-        modify.Add(newGraphicNode);
+        action.Modify.Add(newGraphicNode);
 
         ArrowCollection incomingArrows = modelBox.IncomingArrows.Clone();
 
@@ -1748,7 +1749,7 @@ namespace SysCAD.Editor
           if (newGraphicLink != null)
           {
             newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
-            modify.Add(newGraphicLink);
+            action.Modify.Add(newGraphicLink);
           }
         }
 
@@ -1761,15 +1762,15 @@ namespace SysCAD.Editor
           if (newGraphicLink != null)
           {
             newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
-            modify.Add(newGraphicLink);
+            action.Modify.Add(newGraphicLink);
           }
         }
 
-        if (!state.ClientProtocol.Change(out requestId, null, modify, null))
+        if (!state.ClientProtocol.Change(out requestId, action))
         { // Request was refused, undo manipulation...
           Collection<Guid> modified = new Collection<Guid>();
 
-          foreach (Item item in modify)
+          foreach (Item item in action.Modify)
           {
             modified.Add(item.Guid);
           }
