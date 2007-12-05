@@ -461,7 +461,7 @@ double CDataCnv::XformNormal(double x)
   {
   switch (m_iXform)
     {
-    case 1: return (acos(x)-dOff*dOffMult)/dScl;
+    case 1: return (acos(Range(0.0, x, 1.0))-dOff*dOffMult)/dScl;
     case 2: return x/dScl+(dOff!=0.0 ? AtmosPress(0) : 0.0);
     }
   return x;
