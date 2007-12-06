@@ -994,7 +994,11 @@ int SFEFlwLib::FE_LoadAllModelAssocGrfs()
       CMdlAssocGrf * pG=m_AssocGrfs.m_Grfs[ig];
       m_AssocGrfs.m_Map.SetAt((LPTSTR)(LPCTSTR)pG->m_sNdTag, CMdlAssocGrfMapItem(pG,-1));
       for (int i=0; i<pG->m_Items.GetCount(); i++)
+        {
         m_AssocGrfs.m_Map.SetAt((LPTSTR)(LPCTSTR)pG->m_Items[i].m_sTag, CMdlAssocGrfMapItem(pG,i));
+        if (pG->m_Items[i].m_sPrevTag.GetLength()>0)
+          m_AssocGrfs.m_Map.SetAt((LPTSTR)(LPCTSTR)pG->m_Items[i].m_sPrevTag, CMdlAssocGrfMapItem(pG,i));
+        }
 
 #if (0 && dbgAssocGrfs)
       dbgpln("  %s", pG->m_sNdTag);

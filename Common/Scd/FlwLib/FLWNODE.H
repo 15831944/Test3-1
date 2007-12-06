@@ -1529,8 +1529,7 @@ class DllImportExport CConnect : public CSFGNodeInfo, public CTNode
     // CSFGNodeInfo Overides
     virtual LPCTSTR SFGNodeTag(TaggedObject * pRefTo=NULL) { return FullObjTag(); };
     virtual CSFGNodeInfo * SFGNodePtr()         { return this;};
-
-
+                         
   public:
     dword          m_dwID;
     flag           m_fIsEvalSeqStart;
@@ -1542,7 +1541,9 @@ class DllImportExport CConnect : public CSFGNodeInfo, public CTNode
     int            m_iIdDst;
     byte           m_iUseStatus;
     
+    FlwNode*       m_pRefNd;
     Strng          m_sRefIOTg;
+    Strng          m_sPrevTag;
     
     POSITION       m_ListPosn;
 
@@ -1964,14 +1965,20 @@ DllImportExport IOAreaRec TwoIOAreaListWithMBS[];
   {"", "MU2", IOId_Makeup2Area+1, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
   {"", "MU3", IOId_Makeup2Area+2, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
   {"", "MU4", IOId_Makeup2Area+3, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
-  {"", "MU5", IOId_Makeup2Area+4, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1}
+  {"", "MU5", IOId_Makeup2Area+4, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "MU6", IOId_Makeup2Area+5, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "MU7", IOId_Makeup2Area+6, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "MU8", IOId_Makeup2Area+7, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1}
 
-#define BLEED2AREA()  /*==MaxNdBleeds*/                                                                                                          \
+#define BLEED2AREA()  /*==MaxNdBleeds*/                                                                                                           \
   {"", "BL1",  IOId_Bleed2Area,    LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
   {"", "BL2",  IOId_Bleed2Area+1,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
   {"", "BL3",  IOId_Bleed2Area+2,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
   {"", "BL4",  IOId_Bleed2Area+3,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
-  {"", "BL5",  IOId_Bleed2Area+4,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1}
+  {"", "BL5",  IOId_Bleed2Area+4,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "BL6",  IOId_Bleed2Area+5,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "BL7",  IOId_Bleed2Area+6,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "BL8",  IOId_Bleed2Area+7,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1}
 
 #define SPILL2AREA           {"", SpillIOTag,   IOId_Spill2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  -1        }
 #define VENT2AREA(DisableId) {"", VentIOTag,    IOId_Vent2Area,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  DisableId }
@@ -3569,7 +3576,7 @@ class DllImportExport FlwNode : public CTNode
 
      // CTNode override
     //virtual LPSTR  Tag();
-    //virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
+    virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
     //virtual LPSTR  Guid();
     //virtual LPSTR  SetGuid(LPSTR ReqdGuid);
 
@@ -4424,10 +4431,8 @@ class DllImportExport FlwNode : public CTNode
     virtual void   UpdateMsSoln(SparseSolver & SS);
 #endif
 
-    int            ModelAssocGrfs(CMdlAssocGrfArray & Grfs, int Index);
-    virtual int    UpdateAssocGrfs(int & Count) { return 0; };
-
-    //virtual int    ModelAssocGrfsChgCnt();
+    virtual int    ModelAssocGrfsUpdate(int & Count) { return 0; };
+    virtual int    ModelAssocGrfs(CMdlAssocGrfArray & Grfs, int & Index);
 
     virtual dword  ModelStatus();
     static bool    GetStatusAsStopped() { return gs_Exec.Stopped() && ((m_dwMdlStatusOptions&MSO_ShowRunInEdit)!=0); };
@@ -4963,21 +4968,47 @@ inline FlwNode * CMSIO::Nd_Rmt() { return m_pNd->Nd_Rmt(m_iIONo); };
 
 #define MAKEIOTG4DDB(Tg, i, fe)                                                                    \
   {                                                                                                \
-  if (PrjFileVerNo()<69)                                                                           \
-    {                                                                                              \
-    if (fe>0)                                                                                      \
-      Tg.Set("%s.%i", Nd_Rmt(i)->Tag(), fe);                                                       \
-    else                                                                                           \
-      Tg=Nd_Rmt(i)->Tag();                                                                         \
-    }                                                                                              \
-  else                                                                                             \
+  if (PrjFileVerNo()>=69)                                                                          \
     {                                                                                              \
     if (fe>0)                                                                                      \
       Tg.Set("%s.%s.%i", Nd_Rmt(i)->Tag(), IODesc_Rmt(i)->DefaultIOName(OrigPrjFileVerNo()), fe);  \
     else                                                                                           \
       Tg.Set("%s.%s", Nd_Rmt(i)->Tag(), IODesc_Rmt(i)->DefaultIOName(OrigPrjFileVerNo()));         \
     }                                                                                              \
+  else                                                                                             \
+    {                                                                                              \
+    if (fe>0)                                                                                      \
+      Tg.Set("%s.%i", Nd_Rmt(i)->Tag(), fe);                                                       \
+    else                                                                                           \
+      Tg=Nd_Rmt(i)->Tag();                                                                         \
+    }                                                                                              \
   }
+
+#define MAKEFLNGTG4DDB(Tg, i, fe)                                                                  \
+  {                                                                                                \
+  if (PrjFileVerNo()>=116)                                                                         \
+    {                                                                                              \
+    if (fe>0)                                                                                      \
+      Tg.Set("%s.%i", IOFlange(i)->Tag(), fe);                                                     \
+    else                                                                                           \
+      Tg = IOFlange(i)->Tag();                                                                     \
+    }                                                                                              \
+  else if (PrjFileVerNo()>=69)                                                                     \
+    {                                                                                              \
+    if (fe>0)                                                                                      \
+      Tg.Set("%s.%s.%i", Nd_Rmt(i)->Tag(), IODesc_Rmt(i)->DefaultIOName(OrigPrjFileVerNo()), fe);  \
+    else                                                                                           \
+      Tg.Set("%s.%s", Nd_Rmt(i)->Tag(), IODesc_Rmt(i)->DefaultIOName(OrigPrjFileVerNo()));         \
+    }                                                                                              \
+  else                                                                                             \
+    {                                                                                              \
+    if (fe>0)                                                                                      \
+      Tg.Set("%s.%i", Nd_Rmt(i)->Tag(), fe);                                                       \
+    else                                                                                           \
+      Tg=Nd_Rmt(i)->Tag();                                                                         \
+    }                                                                                              \
+  }
+
 #define MAKELNKTG4DDB(Tg, i, fe)                                                                   \
   {                                                                                                \
   Tg.Set("Lnk.%i.%i", i, fe);                                                                      \

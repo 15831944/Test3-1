@@ -664,6 +664,15 @@ flag CGrfLayer::ChangeTag(pchar pOldTag, pchar pNewTag)
           DXF_ATTRIB_VALUE_SET(e1, pNewTag);
           TagChngd = 1;
           }
+        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),AssocTagAttribStr) &&
+          DXF_ATTRIB_VALUE_GET(e1) && !_stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )                        
+          {
+#if dbgTagManagement
+          dbgpln(" Ass>> %s -> %s", pOldTag, pNewTag);
+#endif
+          DXF_ATTRIB_VALUE_SET(e1, pNewTag);
+          TagChngd = 1;
+          }
         }
       }
     }
@@ -747,6 +756,35 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrf
   DumpInsertList("CCC", InsertLst);
 #endif
 
+#if dbgAssocGrf && 01
+  if (1)
+    {
+    dbgpln("Array:----------------------------------------------");
+    for (int i=0; i<xGrfs.GetCount(); i++)
+      {
+      for (int j=0; j<xGrfs[i]->m_Items.GetCount(); j++)
+        {
+        if (j==0)
+          dbgp(" %4i %-40s", i, xGrfs[i]->m_sNdTag);
+        else
+          dbgp(" %4s %-40s", "", "");
+        CMdlAssocGrfItem &I=xGrfs[i]->m_Items[j];
+        dbgpln(" %2i %-6s %-4s %-6s %s", j, I.m_bExists?"Exists":"", I.m_bShowIt?"Show":"", I.m_bTagChanged?"TagChg":"", I.m_sTag);
+        }
+      }
+
+    dbgpln("Map:----------------------------------------------");
+    POSITION Pos=Map.GetStartPosition();
+    while (Pos)
+      {
+      LPSTR Tag;
+      CMdlAssocGrfMapItem GI;
+      Map.GetNextAssoc(Pos, Tag, GI);
+      dbgpln(" %-40s @ %-40s [%4i]", Tag, GI.m_pG->m_sNdTag, GI.m_Index);
+      }
+    }
+#endif                  
+
   DML_ITEM it;
   DXF_ENTITY eInsert;
   flag WorkReqd = 0;
@@ -758,31 +796,32 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrf
       LPTSTR Tag=DXF_ATTRIB_VALUE_GET(eTag);
       DXF_ENTITY eAssocTag=Find_Attr(eInsert, AssocTagAttribStr);
 #if dbgAssocGrf
-      dbgpln("ModelAssocGrfs Tag 0x%08x      = %s", eTag, Tag); 
-        {
-        POSITION Pos=Map.GetStartPosition();
-        while (Pos)
-          {
-          LPSTR Tag;
-          CMdlAssocGrfMapItem GI;
-          Map.GetNextAssoc(Pos, Tag, GI);
-          dbgpln("                 ==  %s = %s [%i]", Tag, GI.m_pG->m_sNdTag, GI.m_Index);
-          }
-        }
+      dbgp("ModelAssocGrfs Tag = %-40s", Tag); 
 #endif                               
       CMdlAssocGrfMapItem GI;
       if (Map.Lookup(Tag, GI))
         {
 #if dbgAssocGrf
-        dbgpln("                          Found @ = %s [%i]", GI.m_pG->m_sNdTag, GI.m_Index);
+        dbgp(" Found @ = %s [%i]", GI.m_pG->m_sNdTag, GI.m_Index);
 #endif
         if (eAssocTag)  // This is an Assoc Graphic
           {
           CMdlAssocGrfItem & I=GI.m_pG->m_Items[GI.m_Index];
           bool Hidden=EntityIsHidden(eInsert);
+
+          if (I.m_bTagChanged)
+            {
+            // Prev Tag has been found - change it
+#if dbgAssocGrf
+            dbgp(" Chg %s > %s", Tag, I.m_sTag);
+#endif
+            GrfsX.AddTail(CMdlAssocGrfX(CMdlAssocGrfX::eChgTag, NULL, 0, 0, 0, eTag, I.m_sTag, NULL));
+            }
+
+
           I.m_bExists=true;
 #if dbgAssocGrf
-          dbgpln("                   %s %s @ %s", Hidden?"Hidden":"Shown ", I.m_bShowIt?"ShowIt":"HideIt", Tag);
+          dbgp(" %s %s", Hidden?"Hidden":"Shown ", I.m_bShowIt?"ShowIt":"HideIt");
 #endif
           if (!I.m_bShowIt)
             {
@@ -792,9 +831,9 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrf
             if (!Hidden)
               {
 #if dbgAssocGrf
-              dbgpln("                          Hide   @ %s", Tag);
+              dbgp(" Hide");
 #endif
-              GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eHide, NULL, 0, 0, 0, eInsert));
+              GrfsX.AddTail(CMdlAssocGrfX(CMdlAssocGrfX::eHide, NULL, 0, 0, 0, eInsert, NULL, NULL));
               WorkReqd= 1;
               }
             }
@@ -803,22 +842,23 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrf
             if (Hidden)
               {
 #if dbgAssocGrf
-              dbgpln("                          Show   @ %s", Tag);
+              dbgp(" Show");
 #endif
-              GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eShow, NULL, 0, 0, 0, eInsert));
+              GrfsX.AddTail(CMdlAssocGrfX(CMdlAssocGrfX::eShow, NULL, 0, 0, 0, eInsert, NULL, NULL));
               WorkReqd= 1;
               }
             }
           }
         else //if (I.m_bShowIt)
           {
+          //if (I.m_sPrevTag.GetLength()>0)
+          //  {
+          //  }
+#if dbgAssocGrf
+          dbgp(" Add");
+#endif
           //ASSERT_ALWAYS(stricmp(Tag, GI.m_pG->m_sNdTag)==0, "Tag Should match", __FILE__, __LINE__); 
-          if (GI.m_pG->m_bIsLnk)
-            {
-            GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
-            }
-          else
-            GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
+          GrfsX.AddTail(CMdlAssocGrfX(CMdlAssocGrfX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert, NULL, NULL));
           WorkReqd= 1;
           }
         }
@@ -826,16 +866,19 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrf
         {
         // Item not found - remove it from assoc grfs
 #if dbgAssocGrf
-        dbgpln("                          Missing ");
+        dbgp(" Missing ");
 #endif
         if (eAssocTag)
           {
 #if dbgAssocGrf
-          dbgpln("                          Delete @ %s", Tag);
+          dbgp(" Delete");
 #endif
-          GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eDelete, NULL, 0, 0, 0, eInsert));
+          GrfsX.AddTail(CMdlAssocGrfX(CMdlAssocGrfX::eDelete, NULL, 0, 0, 0, eInsert, NULL, NULL));
           }
         }
+#if dbgAssocGrf
+      dbgpln("");
+#endif
       }
     }
 
@@ -3864,7 +3907,7 @@ DXF_ENTITY LayerCollection::FindInsertNear(REAL X, REAL Y, REAL Z, REAL Tol)
   WALK_LAYERS(Layers,NULL, l)
     {
     WALK_ENTITY_LIST(l->InsertLst, it, ei)
-      if (Sqr(DXF_INSERT_PT(ei)[0]-X)+Sqr(DXF_INSERT_PT(ei)[1]-Y)+Sqr(DXF_INSERT_PT(ei)[2]-Z)<=Sqr(Tol))
+      if (Sqr(DXF_INSERT_PT(ei)[0]-X)+Sqr(DXF_INSERT_PT(ei)[1]-Y)/*+Sqr(DXF_INSERT_PT(ei)[2]-Z)*/<=Sqr(Tol))
         return ei;
     }
   return NULL;
@@ -4322,6 +4365,10 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
               }
             else if (I.m_bExists && I.m_bShowIt)
               {
+              if (I.m_bTagChanged)
+                {
+                // Tag changed below
+                }
               // Shown by code below;
               }
             TypeCount[I.m_eAGType]++;
@@ -4344,6 +4391,11 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
           {
           Drawing->Hide(GX.m_Entity, false);
           pDsp->Draw(GX.m_Entity, -1);//GrfHelper.GR_BACKGROUND);
+          break;
+          }
+        case CMdlAssocGrfX::eChgTag:
+          {
+          DXF_ATTRIB_VALUE_SET(GX.m_Entity, GX.m_sNewTag.GetBuffer(0));
           break;
           }
         }
@@ -9171,8 +9223,9 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount,
         {
         BlockName="MAKEUP_ASSOCGRF";
         pSym=MakeupSym;
-        for (int i=0; i<TypeCount*2 && FindInsertNear(Bnds.minpt[0], Bnds.maxpt[1]+i*4, pt[2], 1); i++)
-          {};
+        int i=0;
+        while (i<20/*TypeCount*2*/ && FindInsertNear(Bnds.minpt[0], Bnds.maxpt[1]+i*4, pt[2], 1)!=0)
+          { i++; };
         AssocGrfPos.Set(Bnds.minpt[0], Bnds.maxpt[1]+i*4, pt[2]);
         AssTagPos.Set(0.0, 4.0, 0.0);
         AssTagPos = AssTagPos+ AssocGrfPos;                                          

@@ -526,7 +526,7 @@ class DllImportExport MN_Lnk : public MdlNode
     virtual void   EvalMsAGDatas();
 #endif
 
-    virtual int    UpdateAssocGrfs(int & Count);
+    virtual int    ModelAssocGrfsUpdate(int & Count);
 
     virtual dword  ModelStatus();
     virtual void   ClosureInfo();

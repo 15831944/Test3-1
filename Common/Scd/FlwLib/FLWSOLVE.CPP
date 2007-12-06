@@ -12849,7 +12849,7 @@ flag CFlwSolver::RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs)
   int Chgs=0;
   int Index=0;
   for (FlwNode * p = NULL; GetObj_All(p); )
-    Chgs+=p->ModelAssocGrfs(Grfs, Index++);
+    Chgs+=p->ModelAssocGrfs(Grfs, Index);
 
   if (Grfs.GetCount()!=Index)
     {

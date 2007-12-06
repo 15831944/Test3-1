@@ -72,8 +72,8 @@ class DllImportExport CBlockEvaluator
     int               MakeupCount() { return m_pMakeups.GetCount(); };
     int               BleedCount()  { return m_pBleeds.GetCount(); };
 
-    void              SetMakeupCount(int N);
-    void              SetBleedCount(int N);
+    void              SetMakeupCount(int N, bool MakeConnects);
+    void              SetBleedCount(int N, bool MakeConnects);
 
     void              CheckFlowsConsistent(int iJoinNo, bool ForMakeup);
 

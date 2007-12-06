@@ -49,9 +49,6 @@ DllImportExport LPCTSTR DbgFltString(double V, int eSig=3, int fSig=6, int RqdLe
 #define DBGATLEN         80
 #define DBGATLISTLEN     256
 
-//DllImportExport void* dbgnew(size_t size, LPCTSTR s);
-//DllImportExport void dbgdel(void* p, LPCTSTR s);
-
 DllImportExport void dbgMemoryState(LPCTSTR Where);
 DllImportExport void dbgTimeStamp(LPCTSTR Where);
 

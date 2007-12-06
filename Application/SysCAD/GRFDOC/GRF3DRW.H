@@ -459,7 +459,7 @@ class CGrfTagInfoArray : public CArray<CGrfTagInfo, CGrfTagInfo&>
 class DllImportExport CMdlAssocGrfX
   {
   public:
-    enum eActions { eNull, eAddNdAssocGrfs, eKeep, eShow, eHide, eDelete };
+    enum eActions { eNull, eAddNdAssocGrfs, eKeep, eShow, eHide, eDelete, eChgTag };
     CMdlAssocGrfX()
       {
       m_eAction        = eNull; 
@@ -469,24 +469,28 @@ class DllImportExport CMdlAssocGrfX
       m_NdY            = 0;
       m_Entity         = NULL;
       };
-    CMdlAssocGrfX(eActions eAction, CMdlAssocGrf * pAssocGrf, int iAssoc, double NdX, double NdY, DXF_ENTITY Entity)
+    CMdlAssocGrfX(eActions eAction, CMdlAssocGrf * pAssocGrf, int iAssoc, double NdX, double NdY, DXF_ENTITY Entity, LPCSTR NewTag, LPCSTR NewNdTag)
       {
       m_eAction        = eAction;
-      m_pAssocGrf        = pAssocGrf;
+      m_pAssocGrf      = pAssocGrf;
       m_iAssoc         = iAssoc;
       m_NdX            = NdX;
       m_NdY            = NdY;
       m_Entity         = Entity;
+      m_sNewTag        = NewTag;
+      m_sNewNdTag      = NewNdTag;
       };
 
   public:
 
     eActions            m_eAction;
-    CMdlAssocGrf  * m_pAssocGrf;
+    CMdlAssocGrf      * m_pAssocGrf;
     int                 m_iAssoc;
     double              m_NdX;
     double              m_NdY;
     DXF_ENTITY          m_Entity;
+    CString             m_sNewTag;
+    CString             m_sNewNdTag;
   };
 
 class CGrfLayer

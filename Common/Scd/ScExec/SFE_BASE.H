@@ -1121,20 +1121,25 @@ class DllImportExport CMdlAssocGrfItem
       m_eAGType = eAG_None; 
       m_bShowIt = true;
       m_bExists = false;
+      m_bTagChanged =  false;
       }
     CMdlAssocGrfItem(const CMdlAssocGrfItem & V) 
       { 
-      m_eAGType = V.m_eAGType;
-      m_sTag    = V.m_sTag;
-      m_bShowIt = V.m_bShowIt;
-      m_bExists = V.m_bExists; 
+      m_eAGType       = V.m_eAGType;
+      m_sTag          = V.m_sTag;
+      m_bShowIt       = V.m_bShowIt;
+      m_bExists       = V.m_bExists; 
+      m_bTagChanged   = V. m_bTagChanged;
+      m_sPrevTag      = V.m_sPrevTag;
       }
     CMdlAssocGrfItem& operator=(const CMdlAssocGrfItem & V) 
       { 
-      m_eAGType = V.m_eAGType;
-      m_sTag    = V.m_sTag;
-      m_bShowIt = V.m_bShowIt;
-      m_bExists = V.m_bExists; 
+      m_eAGType       = V.m_eAGType;
+      m_sTag          = V.m_sTag;
+      m_bShowIt       = V.m_bShowIt;
+      m_bExists       = V.m_bExists; 
+      m_bTagChanged   = V. m_bTagChanged;
+      m_sPrevTag      = V.m_sPrevTag;
       return *this;
       }
     bool operator==(const CMdlAssocGrfItem & V) 
@@ -1152,7 +1157,8 @@ class DllImportExport CMdlAssocGrfItem
     bool              m_bShowIt;
     // Working Vars
     bool              m_bExists; 
-
+    bool              m_bTagChanged;
+    CString           m_sPrevTag;
   };
 
 class DllImportExport CMdlAssocGrf

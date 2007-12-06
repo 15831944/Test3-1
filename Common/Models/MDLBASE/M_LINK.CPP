@@ -3651,7 +3651,7 @@ void MN_Lnk::EvalMsAGDatas()
 
 //--------------------------------------------------------------------------
 
-int MN_Lnk::UpdateAssocGrfs(int & Count) 
+int MN_Lnk::ModelAssocGrfsUpdate(int & Count) 
   { 
   int Chgs=0;
 

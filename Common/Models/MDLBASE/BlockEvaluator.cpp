@@ -229,13 +229,16 @@ void CBlockEvaluator::BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs)
 
  //-------------------------------------------------------------------------
 
-void CBlockEvaluator::SetMakeupCount(int N)
+void CBlockEvaluator::SetMakeupCount(int N, bool MakeConnects)
    {
    if (N!=m_pMakeups.GetSize())
      {
      N=Range(0, N, m_nMaxNdMakeups); 
      for (int a=N; a<m_pMakeups.GetSize(); a++)
        {
+       //m_pMakeups[a]->SetEnable(false);
+       m_pNd->DoDirectDisConnect(&m_pMakeups[a]->m_SrcIO);// m_pMakeups[a]->m_SrcIO.DoDisConnect();
+       //m_pMakeups[a]->m_SrcIO.ManageNdDirectIOs(false);
        RemBlk(m_pMakeups[a]);
        delete m_pMakeups[a];
        }
@@ -248,6 +251,8 @@ void CBlockEvaluator::SetMakeupCount(int N)
        m_pMakeups[a] = new CMakeupBase(m_pNd, a, Tg());
        m_pMakeups[a]->Open(1);
        m_pMakeups[a]->SetEnable(true);
+       if (MakeConnects)
+         m_pNd->DoDirectConnect(&m_pMakeups[a]->m_SrcIO);// m_pMakeups[a]->m_SrcIO.DoDisConnect();
        AddBlk(m_pMakeups[a], 1+a);
        }
      SortBlocks();
@@ -256,13 +261,14 @@ void CBlockEvaluator::SetMakeupCount(int N)
 
 //-------------------------------------------------------------------------
 
-void CBlockEvaluator::SetBleedCount(int N)
+void CBlockEvaluator::SetBleedCount(int N, bool MakeConnects)
   {
   if (N!=m_pBleeds.GetSize())
     {
     N=Range(0, N, MaxNdBleeds); 
     for (int a=N; a<m_pBleeds.GetSize(); a++)
       {
+      m_pNd->DoDirectDisConnect(&m_pBleeds[a]->m_SnkIO);// m_pMakeups[a]->m_SrcIO.DoDisConnect();
       RemBlk(m_pBleeds[a]);
       delete m_pBleeds[a];
       }
@@ -275,6 +281,8 @@ void CBlockEvaluator::SetBleedCount(int N)
       m_pBleeds[a] = new CBleedBase(m_pNd, a, Tg());
       m_pBleeds[a]->Open(1);
       m_pBleeds[a]->SetEnable(true);
+      if (MakeConnects)
+        m_pNd->DoDirectConnect(&m_pBleeds[a]->m_SnkIO);// m_pMakeups[a]->m_SrcIO.DoDisConnect();
       AddBlk(m_pBleeds[a], MaxNdMakeups*2+a);
       }
     SortBlocks();
@@ -289,12 +297,12 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
     {
     case xidNMakeups:
       if (DCB.rL)
-        SetMakeupCount(*DCB.rL);
+        SetMakeupCount(*DCB.rL, !DCB.ForFileSnpScn());
       DCB.L=m_pMakeups.GetSize();
       return 1;
     case xidNBleeds:
       if (DCB.rL)
-        SetBleedCount(*DCB.rL);
+        SetBleedCount(*DCB.rL, !DCB.ForFileSnpScn());
       DCB.L=m_pBleeds.GetSize();
       return 1;
 
