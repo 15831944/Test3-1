@@ -983,11 +983,13 @@ namespace SysCAD.Editor
     public void Undo()
     {
       frmFlowChart.Undo();
+      SetButtonStates();
     }
 
     public void Redo()
     {
       frmFlowChart.Redo();
+      SetButtonStates();
     }
 
     #endregion

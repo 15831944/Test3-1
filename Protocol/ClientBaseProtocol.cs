@@ -13,7 +13,6 @@ using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Net.Sockets;
-using System.Collections.ObjectModel;
 
 namespace SysCAD.Protocol
 {

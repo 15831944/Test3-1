@@ -14,7 +14,6 @@ using System.Collections;
 
 //using System.Runtime.Remoting.Channels.Tcp;
 using System.Drawing.Drawing2D;
-using System.Collections.ObjectModel;
 
 namespace SysCAD.Protocol
 {

@@ -18,16 +18,16 @@ namespace SysCAD.Protocol
       set { create = value; }
     }
 
-    public Collection<Guid> Delete
-    {
-      get { return delete; }
-      set { delete = value; }
-    }
-
     public Collection<Item> Modify
     {
       get { return modify; }
       set { modify = value; }
+    }
+
+    public Collection<Guid> Delete
+    {
+      get { return delete; }
+      set { delete = value; }
     }
   }
 }
