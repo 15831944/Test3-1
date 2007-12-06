@@ -667,7 +667,6 @@ int SFEFlwLib::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
-                               LPCSTR OriginPort, LPCSTR DestinationPort, 
                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
   {
   SetLoadAllModelStatus();
@@ -676,7 +675,6 @@ int SFEFlwLib::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
                                    model, 
                                    OriginGuid, DestinationGuid, 
                                    OriginTag, DestinationTag, 
-                                   OriginPort, DestinationPort, 
                                    ControlPoints, tagArea, tagAngle) ;
   CExploreScd::RefreshIt(false);
   ILEAVE
@@ -695,7 +693,6 @@ int SFEFlwLib::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
-                               LPCSTR OriginPort, LPCSTR DestinationPort, 
                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
   {
   //SetLoadAllModelStatus();
@@ -704,7 +701,6 @@ int SFEFlwLib::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
                                    model, 
                                    OriginGuid, DestinationGuid, 
                                    OriginTag, DestinationTag, 
-                                   OriginPort, DestinationPort, 
                                    ControlPoints, tagArea, tagAngle) ;
   //CExploreScd::RefreshIt(false);
   ILEAVE

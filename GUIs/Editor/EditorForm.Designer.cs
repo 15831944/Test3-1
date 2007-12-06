@@ -299,12 +299,15 @@ namespace SysCAD.Editor
       // 
       // barManager1
       // 
+      editUndoBarButtonCommand.Enabled = false;
       editUndoBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("editUndoBarButtonCommand.Image")));
       editUndoBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
-            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131162, false)});
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131162)});
+      editRedoBarButtonCommand.Enabled = false;
       editRedoBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("editRedoBarButtonCommand.Image")));
       editRedoBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
-            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131161, false)});
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131161),
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 196698)});
       editCutBarButtonCommand.Enabled = false;
       editCutBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("editCutBarButtonCommand.Image")));
       editCutBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {

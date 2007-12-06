@@ -22,6 +22,11 @@ namespace SysCAD.Editor
 
     private int opacity;
 
+    public String Tag
+    {
+      get { return graphicLink.Tag; }
+    }
+
     public int Opacity
     {
       get { return opacity; }

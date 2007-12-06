@@ -516,7 +516,7 @@ namespace SysCAD.Editor
 
     private delegate void SetButtonStatesDelegate();
 
-    private void SetButtonStates()
+    public void SetButtonStates()
     {
       if (InvokeRequired)
       {
@@ -562,6 +562,9 @@ namespace SysCAD.Editor
         barManager1.Commands["Edit.Copy"].Enabled = projectOpen;
         barManager1.Commands["Edit.Delete"].Enabled = projectOpen;
         barManager1.Commands["Edit.Paste"].Enabled = projectOpen && permissions.Create;
+
+        barManager1.Commands["Edit.Undo"].Enabled = projectOpen && frmFlowChart.State.ClientProtocol.UndoAvailable;
+        barManager1.Commands["Edit.Redo"].Enabled = projectOpen && frmFlowChart.State.ClientProtocol.RedoAvailable;
 
         if (frmFlowChart != null)
         {

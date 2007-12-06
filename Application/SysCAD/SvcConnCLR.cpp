@@ -718,7 +718,7 @@ ref class CSvcConnectCLRThread
             Pts.AddTail(CPointF(Pt->X, Pt->Y));
             }
           m_pConn->OnCreateLinkG(eventId, requestId, ToCString(GLnk->Guid.ToString()), ToCString(GLnk->Tag), "", 
-            ToCString(MLnk->Origin.ToString()), ToCString(MLnk->Destination.ToString()), ToCString(MLnk->OriginPort), ToCString(MLnk->DestinationPort),
+            ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString()),
             Pts, 
             CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height),
             float(GLnk->TagAngle));
@@ -770,7 +770,7 @@ ref class CSvcConnectCLRThread
             Pts.AddTail(CPointF(Pt->X, Pt->Y));
             }
           m_pConn->OnModifyLinkG(eventId, requestId, ToCString(GLnk->Guid.ToString()), ToCString(GLnk->Tag), "", 
-            ToCString(MLnk->Origin.ToString()), ToCString(MLnk->Destination.ToString()), ToCString(MLnk->OriginPort), ToCString(MLnk->DestinationPort),
+            ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString()),
             Pts, 
             CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height),
             float(GLnk->TagAngle));

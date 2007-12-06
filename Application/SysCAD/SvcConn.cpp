@@ -926,7 +926,6 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, /*LPCSTR path,*/ 
                                 LPCSTR ClassId, 
                                 LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                                LPCSTR OriginPort, LPCSTR DestinationPort, 
                                 CPointFList & ControlPoints,
                                 const CRectangleF & tagArea, float tagAngle)
 {
@@ -961,7 +960,6 @@ void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid,
     int RetCode = gs_Exec.SCInsertLinkG(m_Ctrl, tag, Guid, /*path,*/ ClassId, 
       OriginGuid, DestinationGuid, 
       pSrc?pSrc->Tag():"", pDst?pDst->Tag():"",
-      OriginPort, DestinationPort, 
       ControlPoints, tagArea, tagAngle);
 
     if (RetCode!=EOSC_DONE)
@@ -1158,7 +1156,6 @@ void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCST
 void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                                 LPCSTR ClassId, 
                                 LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                                LPCSTR OriginPort, LPCSTR DestinationPort, 
                                 CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
 {
   ON_ENTRY_GT("OnModifyLinkG", LinkGuid, Tag);
@@ -1186,7 +1183,7 @@ void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkG
     m_Ctrl.SetXObjArray(FindGrfWnd(GroupName));
   }
 
-  int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), OriginPort, DestinationPort, ControlPoints, tagArea, tagAngle);
+  int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), ControlPoints, tagArea, tagAngle);
   if (RetCode!=EOSC_DONE)
   {
     LogError(Tag, 0, "Link not modified");

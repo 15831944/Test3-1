@@ -56,6 +56,16 @@ namespace SysCAD.Protocol
     private Stack<Action> undoList = new Stack<Action>();
     private Stack<Action> redoList = new Stack<Action>();
 
+    public bool UndoAvailable
+    {
+      get { return undoList.Count > 0; }
+    }
+
+    public bool RedoAvailable
+    {
+      get { return redoList.Count > 0; }
+    }
+
     public ClientProtocol()
     {
     }

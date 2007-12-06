@@ -130,13 +130,11 @@ class CSvcConnect
     void OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle);
     void OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR guid);
     void OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle);
     
     void OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 

@@ -568,14 +568,12 @@ int CSfeSrvr::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
                                  LPCSTR model, 
                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                  LPCSTR OriginTag, LPCSTR DestinationTag, 
-                                 LPCSTR OriginPort, LPCSTR DestinationPort, 
                                  CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
   {
   return SfeFS->EO_SCInsertLinkG(Ctrl, pTag, ItemGuid, /*path,*/ 
                                 model, 
                                 OriginGuid, DestinationGuid, 
                                 OriginTag, DestinationTag, 
-                                OriginPort, DestinationPort, 
                                 ControlPoints, tagArea, tagAngle) ;
   };
 int CSfeSrvr::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
@@ -586,14 +584,12 @@ int CSfeSrvr::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
                               LPCSTR model, 
                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                               LPCSTR OriginTag, LPCSTR DestinationTag, 
-                              LPCSTR OriginPort, LPCSTR DestinationPort, 
                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
   {
   return SfeFS->EO_SCModifyLinkG(Ctrl, pTag, ItemGuid, /*path,*/
                                 model, 
                                 OriginGuid, DestinationGuid, 
                                 OriginTag, DestinationTag, 
-                                OriginPort, DestinationPort, 
                                 ControlPoints, tagArea, tagAngle) ;
   };
 

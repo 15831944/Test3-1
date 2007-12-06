@@ -13810,7 +13810,6 @@ int CFlwSolver::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
                                  LPCSTR model, 
                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                  LPCSTR OriginTag, LPCSTR DestinationTag, 
-                                 LPCSTR OriginPort, LPCSTR DestinationPort, 
                                  CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
   {
   return EOSC_DONE;
@@ -13825,7 +13824,6 @@ int CFlwSolver::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
-                               LPCSTR OriginPort, LPCSTR DestinationPort, 
                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
   {
   return EOSC_NOTFOUND;
