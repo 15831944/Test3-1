@@ -13032,14 +13032,15 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
       return 1;
 
     case xidDIOFlangeTag:
-      // the 116 PrjNo is to discard older badly tagged flanges which occurred due to ChangeTag bugs
-      if (PrjFileVerNo()>=116 && DCB.rpC && strlen(DCB.rpC)>0)
-        {
-        if (m_pFlng)
-          m_pFlng->SetTag(DCB.rpC);
-        else
-          m_sConnTagMem = DCB.rpC;
-        }
+      // DO NOT recover Old Tags - maybe improve later
+      //// the 116 PrjNo is to discard older badly tagged flanges which occurred due to ChangeTag bugs
+      //if (PrjFileVerNo()>=116 && DCB.rpC && strlen(DCB.rpC)>0)
+      //  {
+      //  if (m_pFlng)
+      //    m_pFlng->SetTag(DCB.rpC);
+      //  else
+      //    m_sConnTagMem = DCB.rpC;
+      //  }
 
       DCB.pC=m_pFlng && strlen(m_pFlng->Tag())>0 ? m_pFlng->Tag():m_sConnTagMem();
       return 1;

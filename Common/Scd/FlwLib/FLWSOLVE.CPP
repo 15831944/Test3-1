@@ -15063,6 +15063,19 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
 #endif
     } SWTCHNO ;
 
+
+  //static int xxxx=0;
+  //if (xxxx==0)
+  //  {
+  //  POSITION Pos=FlwNode::sm_ConnectList.GetHeadPosition();
+  //  while (Pos)
+  //    {
+  //    CConnect *pCn=FlwNode::sm_ConnectList.GetNext(Pos);
+  //    if (pCn)
+  //      dbgpln("Conn:%4i) %s", xxxx++, pCn->FullObjTag());
+  //    }
+  //  }
+
   CXM_ObjectData *pData=new CXM_ObjectData(0);
   switch ((SWTCHNO)m_iSaveWhat)
     {
