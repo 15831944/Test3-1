@@ -1123,6 +1123,8 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
         //if ((Md==FBMode_Simple || Md==FBMode_Linear || Md==FBMode_Full) && (LclOptions & (FBDDOpt_WithQmSpec|FBDDOpt_WithDPSpec)))
         if (LclOptions & (FBDDOpt_WithQmSpec|FBDDOpt_WithDPSpec))
           {
+          if (PrjFileVerNo()<116)  
+            DDB.String("",                 "Mode",        DC_,      "",        xidFlwEqnQmMode,   pOwnObj, isParm|SetOnChange);
           DDB.CheckBoxBtn("",              "AsMass",        DC_,      "",        xidFlwEqnQmAsMass,   pOwnObj, isParm|SetOnChange);
           DDB.Double ("",                  "MeasRho",       DC_Rho,   "kg/m^3",  xidFlwEqnQmMeasRho,  pOwnObj, 0|InitHidden);
           //DDB.Text("");
@@ -1330,6 +1332,13 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         SetDatumNode(*DCB.rD);
       DCB.D=DatumNode();
       return true;
+    case xidFlwEqnQmMode:
+      if (DCB.rpC)
+        {
+        Eqn()->m_FlwRqd.m_AsMass=(stricmp(DCB.rpC, "Mass")==0 || stricmp(DCB.rpC, "MassReqd")==0);
+        }
+      DCB.pC="?";
+      return 1;
     case xidFlwEqnQmAsMass:
       if (DCB.rB)
         Eqn()->m_FlwRqd.m_AsMass=*DCB.rB!=0;

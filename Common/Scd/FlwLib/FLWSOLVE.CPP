@@ -4564,7 +4564,7 @@ void FlwSlvBlk::InitClosure()
     if (!p->NetProbalMethod())
       {
       p->GetClosureInfo(false, true);
-      for (int j=0; j<p->NoProcessJoins(); j++)
+      for (int j=0; j<p->m_Closure.GetSize(); j++)
         {
         CClosureInfo & CI=p->m_Closure[j];
         CI.m_InitialContent=CI.m_ContentMass;
