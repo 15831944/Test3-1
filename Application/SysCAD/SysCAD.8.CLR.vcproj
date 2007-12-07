@@ -574,7 +574,7 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\LogView.dll"
-			AssemblyName="LogView, Version=1.0.2880.22146, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
+			AssemblyName="LogView, Version=1.0.2887.12811, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}"
@@ -582,11 +582,11 @@
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}"
-			RelativePathToProject=".\Protocol\70.Protocol.csproj"
+			RelativePathToProject=".\Protocol\Protocol.csproj"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
-			RelativePathToProject=".\Common\LogView\71.Log.csproj"
+			RelativePathToProject=".\Common\LogView\Log.csproj"
 		/>
 		<AssemblyReference
 			RelativePath="System.Windows.Forms.dll"
@@ -5999,10 +5999,6 @@
 			</File>
 			<File
 				RelativePath=".\ScdReports.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ScdSnapshot.h"
 				>
 			</File>
 			<File

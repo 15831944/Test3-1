@@ -32,7 +32,7 @@ extern "C"
 #include "wndslct.h"
 //#include "optoff.h"
 
-#define dbgAdd            0
+#define dbgAdd            01
 #define dbgTime           0
 #define dbgDumpAll        0
 #define dbgHoldLockUpdate 0
@@ -1036,7 +1036,8 @@ void CExploreScd::GetRawTears()
         //pTear->m_iTearType=UnPackConnectTearType(pRawTear->Index());
         //pTear->m_iUseStatus=UnPackConnectUseStatus(pRawTear->Index());
 #if dbgAdd
-        dbgpln("Tear  InUse %4i %4i %s", pTear->m_iTearType, pTear->m_iUseStatus, pTear->m_sTag);
+        //dbgpln("Tear  InUse %4i %4i %s", pTear->m_iTearType, pTear->m_iUseStatus, pTear->m_sTag);
+        dbgpln("Tear  %s", pTear->m_sTag);
 #endif
         }
       else
@@ -1063,7 +1064,8 @@ void CExploreScd::GetRawTears()
         pTear->m_ModelOK=true;
 
 #if dbgAdd   
-        dbgpln("Tear  New   %4i %4i %s", pTear->m_iTearType, pTear->m_iUseStatus, pTear->m_sTag);
+        //dbgpln("Tear  New   %4i %4i %s", pTear->m_iTearType, pTear->m_iUseStatus, pTear->m_sTag);
+        dbgpln("Tear  New   %s", pTear->m_sTag);
 #endif
         m_Tears.Add(pTear);
         m_TearMap.SetAt(pTear->m_sTag, pTear);
@@ -1190,7 +1192,12 @@ void CExploreScd::FindTagPages()
             int NGrfTags = pGDoc->GetTagList(pPage->m_GrfTagList);
             for (Strng * pTagLst=pPage->m_GrfTagList.First(); pTagLst; pTagLst=pPage->m_GrfTagList.Next())
               {
+#if dbgAdd   
+              dbgp("Find %s", pTagLst->Str());
+#endif
               CXTTag *pTag;
+              CXTFlow *pFlow;
+              CXTTear *pTear;
               if (m_TagMap.Lookup(pTagLst->Str(), pTag))
                 { 
                 // Tag Exists
@@ -1202,7 +1209,7 @@ void CExploreScd::FindTagPages()
                   pPage->m_TagHs.Add(pTH);
                   pPage->m_TagHMap.SetAt(pTag, pTH);
 #if dbgAdd   
-                  dbgpln("Add Tag2Page %-25s << %s", pPage->m_sPageId, pTag->m_sTag);
+                  dbgp("Add Tag2Page %-25s << %s", pPage->m_sPageId, pTag->m_sTag);
 #endif
                   }
 
@@ -1214,12 +1221,20 @@ void CExploreScd::FindTagPages()
                   pTag->m_Pages.Add(pPH);
                   pTag->m_PHMap.SetAt(pPage, pPH);
 #if dbgAdd   
-                  dbgpln("Add Page2Tag %-25s << %s", pTag->m_sTag, pPage->m_sPageId);
+                  dbgp("Add Page2Tag %-25s << %s", pTag->m_sTag, pPage->m_sPageId);
 #endif
                   }
                 }
-              else
+              else if (m_FlowMap.Lookup(pTagLst->Str(), pFlow))
                 {
+                int xxx=0;
+                }
+              else if (m_TearMap.Lookup(pTagLst->Str(), pTear))
+                {
+                int xxx=0;
+                }
+              else
+                { 
                 Strng ClassId("Missing");
 
                 for (int iClass=0; iClass<m_Classes.GetCount(); iClass++)
@@ -1237,12 +1252,15 @@ void CExploreScd::FindTagPages()
                 pTag->m_ModelOK=false;
 
 #if dbgAdd   
-                dbgpln("Tag  NoMdl%-25s %s", m_Classes[iClass]->m_sClassId, pTag->m_sTag);
+                dbgp("Tag  NoMdl%-25s %s", m_Classes[iClass]->m_sClassId, pTag->m_sTag);
 #endif
                 m_Tags.Add(pTag);
                 m_TagMap.SetAt(pTag->m_sTag, pTag);
 
                 }
+#if dbgAdd   
+              dbgpln("");
+#endif
               }
             }
           }
@@ -3947,6 +3965,12 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           Menu.AppendMenu(MF_SEPARATOR, 99);
           Menu.AppendMenu(MF_STRING, 102, "Access");
           //Menu.AppendMenu(MF_STRING, 104, "Change Tag ...");
+
+          //for (int i=0; i<pTear->m_Pages.GetCount(); i++)
+          //  {
+          //  S.Format("Goto on %s", pTag->m_Pages[i]->m_pPage->m_sPageId);
+          //  Menu.AppendMenu(MF_STRING, 110+i, S);
+          //  }
 
           CPoint curPoint;
           GetCursorPos(&curPoint);
