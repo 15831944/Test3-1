@@ -206,6 +206,8 @@ void CIORec::Clear()
   m_iIONoRmt            = 0;
   m_pRmt                = NULL;
   m_pFlng               = NULL;
+  
+  m_pDirectIO           = NULL;
   //m_dwClass             = 0;
   m_pTerm               = NULL;
   //m_pCData              = NULL;

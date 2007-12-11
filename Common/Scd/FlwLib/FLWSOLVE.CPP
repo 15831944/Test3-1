@@ -15064,15 +15064,18 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
     } SWTCHNO ;
 
 
-  //static int xxxx=0;
-  //if (xxxx==0)
+  //if (1)
   //  {
-  //  POSITION Pos=FlwNode::sm_ConnectList.GetHeadPosition();
-  //  while (Pos)
+  //  static int xxxx=0;
+  //  if (xxxx==0)
   //    {
-  //    CConnect *pCn=FlwNode::sm_ConnectList.GetNext(Pos);
-  //    if (pCn)
-  //      dbgpln("Conn:%4i) %s", xxxx++, pCn->FullObjTag());
+  //    POSITION Pos=FlwNode::sm_ConnectList.GetHeadPosition();
+  //    while (Pos)
+  //      {
+  //      CConnect *pCn=FlwNode::sm_ConnectList.GetNext(Pos);
+  //      if (pCn)
+  //        dbgpln("Conn:%4i) %-40s %s", xxxx++, pCn->FullObjTag(), pCn->m_sRefIOTg());
+  //      }
   //    }
   //  }
 
@@ -15099,7 +15102,9 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
         CConnect *pC=FlwNode::sm_ConnectList.GetNext(m_pSaveConn);
         if (pC)
           {
-          Tag=pC->FullObjTag();
+          Tag=pC->m_sRefIOTg();//pC->FullObjTag();
+          //static int yyyy=0;
+          //dbgpln("Conn:%4i) %-40s %s", yyyy++, pC->FullObjTag(), pC->m_sRefIOTg());
           pC->GetDefinedData(Tag(), pData->List, Opts, NULL);
           XM.PackMsg(pData);
           pC->ClearDDBLists();

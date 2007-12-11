@@ -2194,6 +2194,7 @@ class DllImportExport CIORec
   friend class FlwSlvPB;
   friend class FlwSlvDyn;
   friend class CFlwSolver;
+  friend class CDirectFlwIO;
 
   public:
     CIORec();
@@ -2251,9 +2252,11 @@ class DllImportExport CIORec
     eEvalSeqStart    m_eEvalSeqStart;
     CTraceArray    * m_pChgs;
 
+    CDirectFlwIO * m_pDirectIO;
+
     // PwrCtrl Common
     CTerminal      * m_pTerm;
-                   
+
     // flw specific
     FlwNode        * m_pRmt;
     CFlange        * m_pFlng;
