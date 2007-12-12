@@ -538,6 +538,7 @@ void FlwNode::AddToConnectList(CConnect * pConnect)
 #endif
   }
 
+
 void FlwNode::RemoveFromConnectList(CConnect * pConnect)
   {
   if (pConnect->m_ListPosn!=NULL)
@@ -7549,10 +7550,12 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     {
     for (int l=ion ;l<NoIOs() ;l++)
       {
-      //m_IOs[l+1] = OldIOs[l];
-      m_IOs[l+1].m_pRmt->m_IOs[m_IOs[l+1].m_iIONoRmt].m_iIONoRmt++;
-      if (m_IOs[l+1].m_pFlng)
-        IOFlange(l+1)->AdjustConnection(this, +1);
+      CIORec & IO=m_IOs[l+1];
+      IO.Rmt->m_IOs[IO.m_iIONoRmt].m_iIONoRmt++;
+      if (IO.m_pDirectIO)
+        IO.m_pDirectIO->m_iMyConnectedIO++;
+      if (IO.pFlng)
+        IO.pFlng->AdjustConnection(this, +1);
       };
     }
 
@@ -7649,10 +7652,13 @@ int FlwNode::Detach(int IONo)
     m_nIOs=m_IOs.GetSize();
     for (l = IONo ; l < m_nIOs; l++)
       {
-      if (m_IOs[l].m_pRmt)
-        m_IOs[l].m_pRmt->m_IOs[m_IOs[l].m_iIONoRmt].m_iIONoRmt--;
-      if (m_IOs[l].m_pFlng)
-        IOFlange(l)->AdjustConnection(this, -1);
+      CIORec & IO=m_IOs[l];
+      if (IO.Rmt)
+        IO.Rmt->m_IOs[IO.m_iIONoRmt].m_iIONoRmt--;
+      if (IO.m_pDirectIO)
+        IO.m_pDirectIO->m_iMyConnectedIO--;
+      if (IO.pFlng)
+        IO.pFlng->AdjustConnection(this, -1);
       };
     }
   else
