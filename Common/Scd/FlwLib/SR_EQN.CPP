@@ -2477,10 +2477,13 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
   // X1..XNEqns  -- Transfer
   // XNEqns+1..  -- Moles of each Specie
   double TotMoles=0.0;
+  double MaxMoles=0.0;
   for (int s=0; s<NSpcs; s++)
+    {
     //TotMoles+=RB.Moles_S[L2SpId[s]];
     TotMoles+=RB.Moles_BS[L2SpId[s]];  //hss 14/8/98
-
+    MaxMoles=Max(MaxMoles, RB.Moles_BS[L2SpId[s]]);
+    }
   //  Actual Moles in Reaction inc. all Srcs
   SpMArray MolesRct;
   MolesRct=RB.Moles;
@@ -2690,7 +2693,8 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
 
       }
 
-    double SimPlxScl=1.0;///(TotMoles);
+    const double MaxMolesInSimplex = 1.0e9;
+    double SimPlxScl=Min(1.0, MaxMolesInSimplex*0.001/GTZ(MaxMoles));///(TotMoles);
     SPlex.SetSize(NSpcs+NEqns, NEqns, 0, NSpcs);
 
     for (int e=0; e<NEqns; e++)
@@ -2703,8 +2707,11 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
     // Equality Eqns - Stoichiometry
     for (s=0; s<NSpcs; s++)
       {
-      if (fabs(RB.Moles[L2SpId[s]])>1.0e9)
+      if (fabs(RB.Moles[L2SpId[s]]*SimPlxScl)>MaxMolesInSimplex)
+        {
+        //dbgpln("SpecOverflow %20.3f %s", RB.Moles[L2SpId[s]], SDB[L2SpId[s]].SymOrTag());
         bSpecOverflow=true;
+        }
 
       SPlex.SetEqConst(1+s, Range(0.0, RB.Moles[L2SpId[s]]*SimPlxScl, 1.0e9)); // Inital Amount
       SPlex.SetEqXiVal(1+s, 1+NEqns+s, -1);
