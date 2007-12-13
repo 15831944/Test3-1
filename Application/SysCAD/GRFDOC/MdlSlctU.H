@@ -185,7 +185,6 @@ class CInsertUnitDlg : public CDialog
     afx_msg void          OnChangeMdltag();
     afx_msg void          OnPaint();
     afx_msg void          OnMdldoc();
-    afx_msg void          OnAllsymb();
     afx_msg void          OnUpdateOKBtn(CCmdUI* pCmdUi);
     afx_msg void          OnIwin();
     afx_msg void          OnCwin();

@@ -423,7 +423,6 @@
 #define IDC_EQUIP_ISA                   24058
 #define IDC_EQUIP_UNIQUE                24059
 #define IDC_EQUIP_REMARK                24060
-#define IDC_ALLSYMB                     24061
 #define IDC_EQP_MOUNT                   24062
 #define IDC_EQUIP_SYMBOL                24062
 #define IDC_EQP_TYPE                    24063

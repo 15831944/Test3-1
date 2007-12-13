@@ -259,7 +259,6 @@ void CHelpInfoMngr::Init()
     //see code as it changes according to use   AddHelpInfo(IDD_MDLINSERTUNITDLG , IDC_MORE               , ""   , "");
   AddHelpInfo(IDD_MDLINSERTUNITDLG , IDC_MDLROT             , "Enter the number of degrees to rotate the position of the unit in an anti-clockwise direction"   , "");
   AddHelpInfo(IDD_MDLINSERTUNITDLG , IDC_HideTag            , "Hides the tag from view when the unit is inserted into the graphics page"   , "");
-  AddHelpInfo(IDD_MDLINSERTUNITDLG , IDC_ALLSYMB            , "Allows all the symbols in the icon library to become available instead of only the model-specific icons"   , "");
   AddHelpInfo(IDD_MDLINSERTUNITDLG , IDC_MDLSYMBOL          , "Select the icon that best describes the unit"   , "");
   AddHelpInfo(IDD_MDLINSERTUNITDLG , IDC_MDLSCL_X           , "Adjusts the horizontal scaling of the unit, a value less than one decreases the scaling and vice verse"   , "");
   AddHelpInfo(IDD_MDLINSERTUNITDLG , IDC_MDLSCL_Y           , "Adjusts the vertical scaling of the unit, a value greater than one increases the scaling and vice verse"   , "");

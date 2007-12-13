@@ -240,7 +240,6 @@ BEGIN_MESSAGE_MAP(CInsertUnitDlg, CDialog)
   ON_BN_CLICKED(ID_MDLDOC, OnMdldoc)
   //ON_BN_CLICKED(ID_MDLHELP, OnMdlhelp)
   //ON_BN_CLICKED(IDC_MORE, OnMore)
-  ON_BN_CLICKED(IDC_ALLSYMB, OnAllsymb)
 	ON_BN_CLICKED(IDB_IWIN, OnIwin)
 	ON_BN_CLICKED(IDB_CWIN, OnCwin)
   //}}AFX_MSG_MAP
@@ -379,6 +378,7 @@ BOOL CInsertUnitDlg::OnInitDialog()
     GetDlgItem(IDC_MDL_TREE)->EnableWindow(FALSE);
     //GetDlgItem(IDC_MORE)->EnableWindow(FALSE);
     GetDlgItem(IDC_HideTag)->EnableWindow(FALSE);
+    GetDlgItem(IDC_MDLGROUP)->EnableWindow(FALSE);
     GetDlgItem(IDC_MDLSYMBOL)->ShowWindow(SW_HIDE);
     GetDlgItem(IDB_IWIN)->ShowWindow(SW_SHOW);
     GetDlgItem(IDB_CWIN)->ShowWindow(SW_SHOW);
@@ -430,12 +430,13 @@ BOOL CInsertUnitDlg::OnInitDialog()
     else
       m_HideTag = (PF.RdInt(m_sSection, "$HideTagConstructLink", 0)!=0);
     SetWindowText(IsUnit() ? "Construct Unit" : "Construct Link");
+    GetDlgItem(IDC_MDLGROUP)->EnableWindow(FALSE);
     GetDlgItem(IDC_MDLSYMBOL)->ShowWindow(SW_HIDE);
+    //GetDlgItem(IDC_MDLSYMBOL)->ShowWindow(SW_HIDE);
     GetDlgItem(IDB_IWIN)->ShowWindow(SW_SHOW);
     GetDlgItem(IDB_CWIN)->ShowWindow(SW_SHOW);
 
     m_SymbolFrame.EnableWindow(FALSE);
-    GetDlgItem(IDC_ALLSYMB)->EnableWindow(FALSE);
     GetDlgItem(IDC_MDLSCL_Y)->EnableWindow(FALSE);
     GetDlgItem(IDC_MDLSCL_X)->EnableWindow(FALSE);
     GetDlgItem(IDC_MDLROT)->EnableWindow(FALSE);
@@ -1961,16 +1962,6 @@ void CInsertUnitDlg::OnTvnSelchangedMdlTree(NMHDR *pNMHDR, LRESULT *pResult)
     }
   
   *pResult = 0;
-  }
-
-//---------------------------------------------------------------------------
-
-void CInsertUnitDlg::OnAllsymb() 
-  {
-  UpdateData(TRUE);
-  //m_bUsePrevSymb = 1;
-  ChangeModel(NULL, GetSelMdlName(), 0);
-  //m_bUsePrevSymb = 0;
   }
 
 //---------------------------------------------------------------------------
