@@ -645,6 +645,8 @@ class DllImportExport CFlwBlkData
     flag           m_fEvalRevOnly;   // Set if values in this flwblk are to be eval only forward
     flag           m_fHoldFastConverge;// Set if Fast Converge is NOT allowed
 
+    flag           m_bOpen2Edge;        // Set to indicate that It is possilble for flow to leave then part of network thru 'non-fixed' pipes
+    
     sint           m_sQMeas,            // sign of flow
                    m_iDirnRel2Traverse, // Dirn Relative to Traverse
                    m_iDirnRel2Connect;  // Dirn Relative to Connection to be set by models;

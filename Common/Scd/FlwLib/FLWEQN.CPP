@@ -792,6 +792,7 @@ void CFlwBlkData::ResetData(flag Complete)
   m_PropSel.m_iInUse=FBPS_Default;
 
   m_bClosed=false;
+  m_bOpen2Edge=false;
   m_fDerivsBad=false;
   m_fFunctOfPress=false;
   m_fEvalFwdOnly=false;
@@ -1123,7 +1124,7 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
         //if ((Md==FBMode_Simple || Md==FBMode_Linear || Md==FBMode_Full) && (LclOptions & (FBDDOpt_WithQmSpec|FBDDOpt_WithDPSpec)))
         if (LclOptions & (FBDDOpt_WithQmSpec|FBDDOpt_WithDPSpec))
           {
-          if (PrjFileVerNo()<116)  
+          if (OrigPrjFileVerNo()<116)  
             DDB.String("",                 "Mode",        DC_,      "",        xidFlwEqnQmMode,   pOwnObj, isParm|SetOnChange);
           DDB.CheckBoxBtn("",              "AsMass",        DC_,      "",        xidFlwEqnQmAsMass,   pOwnObj, isParm|SetOnChange);
           DDB.Double ("",                  "MeasRho",       DC_Rho,   "kg/m^3",  xidFlwEqnQmMeasRho,  pOwnObj, 0|InitHidden);

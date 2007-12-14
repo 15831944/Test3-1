@@ -143,7 +143,7 @@ void CSubNetBlk::ShowSubNet(int dbgShowConns)
     ShowSubNetsL(g, dbgShowConns);
 
   dbgpln("...");
-  JoinIter T(Ties);
+  JoinIter T(m_Ties);
   for (CJoinRec * p = T.First(); (p); p = T.Next())
     ShowSubNetsT(p, dbgShowConns);
 
@@ -169,8 +169,9 @@ void CNetBlk::ShowSubNets(int N, int dbgShowConns)
 
   Strng CS;
   int dun=0;
-  JoinIter J(Joins);
+  JoinIter J(m_Joins);
   for (CJoinRec * p = J.First(); (p); p = J.Next())
+    {
     if (!p->m_pSubNet)
       {
       if (!dun)
@@ -180,10 +181,12 @@ void CNetBlk::ShowSubNets(int N, int dbgShowConns)
         if (p->m_pSubNet)
           dbgpln("Sub ??? Unknown");
         }
-      dbgpln("%4i %s %s(%i)", p->m_pSubNet ? p->m_pSubNet->m_SubNetNo : -1, p->Nd()->TypeString(CS), p->Nd()->FullObjTag(),p->iJoinArrayInx);
+      dbgpln("%4i %-12s %s(%i)", p->m_pSubNet ? p->m_pSubNet->m_SubNetNo : -1, p->Nd()->TypeString(CS), p->Nd()->FullObjTag(),p->iJoinArrayInx);
       dun=1;
       }
+    } 
   }
+
 
 //===========================================================================
 

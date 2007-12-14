@@ -3464,7 +3464,9 @@ void MN_Lnk::EvalDiscrete()
                 VelBAD=true;
               }
             else
-              VelBAD=true;
+              {
+              //VelBAD=true;   // CNM ???????
+              }
             if (CFlwBlkData::sm_iShowQmDiffAs!=FBB_ShowAs_Off &&
                 !CFlwBlkData::m_QmMatchTol.ConvergedVV(pFB->m_Qm, pFB->m_QmEst))
               QmBAD=true;

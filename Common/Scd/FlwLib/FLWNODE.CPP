@@ -125,66 +125,6 @@ CIORec::CIORec()
 
   Clear();
 
-  //m_iIODescSelf=0;
-  //m_iIODescRmt=0;
-  //m_iIONoRmt=0;
-  //m_pRmt=NULL;
-  //m_pFlng=NULL;
-  ////m_dwClass=0;
-  //m_pTerm=NULL;
-  ////m_pCData=NULL;
-  ////m_pEData=NULL;
-  ////m_pAData=NULL;
-
-  //iJoinId=IOPt_UnKnown; // InValid Value - will force the initial change
-  //iJoinTp=IOJn_UnKnown; // InValid Value - will force the initial change
-  //iJoinConnNo=-1;
-  //iClusterId=-1;
-  //fIsSetXfer=0;
-  //fIsBuffer=0;
-  //fIsComplete=0;
-  //fSameHgt=0;
-  //fDamped=0;
-  //fV2LReqd=0;
-  //fConnToRmt=0;
-  //fAutoConnect=0;
-  //fEvalSeqIn=0;
-  //fEvalSeqOut=0;
-  //fEvalSeqWasIn=0;
-  //fEvalSeqWasOut=0;
-  //m_eEvalSeqStart=ESS_Denied;
-
-  //m_pChgs=NULL;
-  //m_pFBs=NULL;
-  //m_pPBs=NULL;
-
-
-  //iHgtOrd=0;
-
-  //m_dFracHgt=0;
-  //m_dApertureAngle=0;
-  //m_dAperture=0;
-  //m_dEntrainRateSL=0;
-  //m_dEntrainRateG=0;
-  //m_dEstV2LOnEntry=0;
-  //m_dEstL2VOnEntry=0;
-
-  //m_iExitRule=0;
-  //m_pFilter=NULL;
-
-  //dV2LQmVFact=0;
-  //dV2LQmLFact=0;
-  //dRhoHSensV=0;
-  //dRhoHSensL=0;
-  //dPSensV=0;
-  //dPSensL=0;
-
-  //iJoinTp=0;
-  //iJoinId=0;
-  //iJoinConnNo=0;
-
-  //m_pMFlwDmd = NULL;
-  //m_pOrigIORec = NULL;
   };
 
 CIORec::~CIORec()
@@ -2667,12 +2607,13 @@ CAirTermX::~CAirTermX()
 double  CJoinRec::dProdFracTol=1.0e-6;
 long CJoinRec::sm_iNo=0;
 
-CJoinRec::CJoinRec()
+CJoinRec::CJoinRec(bool DoAlloc) : m_Conns(DoAlloc)
   {
   m_iNo=sm_iNo++;
 //  fOvrSpecd=0;
 //  fWasOvrSpecd=0;
   pQmAux=NULL;
+  m_pFxdJoin=NULL;//this;
 
   Clear();
   }
@@ -2681,6 +2622,7 @@ CJoinRec::CJoinRec()
 
 CJoinRec::~CJoinRec()
   {
+  m_Conns.SetSize(0);
   if (pQmAux)
     delete pQmAux;
   };
@@ -2690,7 +2632,7 @@ CJoinRec::~CJoinRec()
 void CJoinRec::Clear()
   {
   pNd               = NULL;
-  m_nConns            = 0;
+  m_nConns          = 0;
   nProdFracs        = 0;
   fFastConvergeOK   = true;
   fMatrixChanged    = true;
@@ -2698,6 +2640,8 @@ void CJoinRec::Clear()
   fHasProdFracs     = false;
 
   TieInx.Clear();
+
+  m_pFxdJoin        = NULL;
 
   dSigmaQmV         = 0.0;
   dSigmaQmL         = 0.0;
@@ -2708,6 +2652,7 @@ void CJoinRec::Clear()
   dQmLSink          = 0.0;
   Typ               = JTyp_Unknown;
   pGFb              = NULL;
+
   iJoinArrayInx     = -1;
   m_iJoinId         = -1;
 
@@ -2779,6 +2724,15 @@ void CJoinRec::Clear()
   m_SubNetNo        = -1;
   sNetInfo          = "";
   }
+
+// --------------------------------------------------------------------------
+
+void CJoinRec::AddConnect(CJoinRec * pJoin, int iConnNo)
+  {
+  pJoin->m_Conns[iConnNo].m_iFxdConnNo=m_nConns++;
+  ASSERT(m_Conns.m_DoAlloc==false);
+  m_Conns.Add(pJoin->m_Conns.GetAt(iConnNo));
+  };
 
 // --------------------------------------------------------------------------
 
@@ -6152,7 +6106,9 @@ void FlwNode::SetIO_Open(int i, int iJoinId, flag Damped, eEvalSeqStart ESS, byt
   Joins[iJoinId].fIsMkup = false;
   Joins[iJoinId].fIsAudit = false;
   Joins[iJoinId].fIsDirect = false;
-  //Joins[iJoinId].m_iFlwPh_Act = FPh_UnKnown;
+
+  if (0)
+    dbgpln("FlwNode::SetIO_Open   %3i %3i %i %4s %s", i, iJoinId, IsMakeupIOId(IOId_Self(i)), Joins[iJoinId].fIsOpen?"Open":"", Tag());
   };
 
 //--------------------------------------------------------------------------
@@ -6202,8 +6158,8 @@ void FlwNode::SetIO_Direct(int i, int iJoinId)
   Joins[iJoinId].fIsAudit = false;//IsAuditIOId(Id);
   Joins[iJoinId].fIsDirect = true;
 
-  if (0)
-    dbgpln("FlwNode::SetIO_Direct %3i %3i %i %s", i, iJoinId, IsMakeupIOId(Id), Tag());
+ if (0)
+    dbgpln("FlwNode::SetIO_Direct %3i %3i %i %4s %s", i, iJoinId, IsMakeupIOId(Id), Joins[iJoinId].fIsOpen?"Open":"", Tag());
   };
 
 //--------------------------------------------------------------------------
@@ -6925,6 +6881,7 @@ void FlwNode::BuildJoinList()
     J.fHasDbgBrk=false;
     J.fJnV2LReqd=fabs(J.dV2LQmReqd)>V2LLimit;
     J.fIOV2LReqd=false;
+    J.m_pFxdJoin=NULL;
     }
 
   fEvalPressSensReqd=false;
@@ -6976,6 +6933,7 @@ void FlwNode::BuildJoinList()
       {
       J.m_Conns[c].m_iRmtJoin=-1;
       J.m_Conns[c].m_iRmtConn=-1;
+      J.m_Conns[c].m_iFxdConnNo=-1;
       }
     }
 
@@ -7551,11 +7509,11 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     for (int l=ion ;l<NoIOs() ;l++)
       {
       CIORec & IO=m_IOs[l+1];
-      IO.Rmt->m_IOs[IO.m_iIONoRmt].m_iIONoRmt++;
+      IO.m_pRmt->m_IOs[IO.m_iIONoRmt].m_iIONoRmt++;
       if (IO.m_pDirectIO)
         IO.m_pDirectIO->m_iMyConnectedIO++;
-      if (IO.pFlng)
-        IO.pFlng->AdjustConnection(this, +1);
+      if (IO.m_pFlng)
+        IO.m_pFlng->AdjustConnection(this, +1);
       };
     }
 
@@ -7653,12 +7611,12 @@ int FlwNode::Detach(int IONo)
     for (l = IONo ; l < m_nIOs; l++)
       {
       CIORec & IO=m_IOs[l];
-      if (IO.Rmt)
-        IO.Rmt->m_IOs[IO.m_iIONoRmt].m_iIONoRmt--;
+      if (IO.m_pRmt)
+        IO.m_pRmt->m_IOs[IO.m_iIONoRmt].m_iIONoRmt--;
       if (IO.m_pDirectIO)
         IO.m_pDirectIO->m_iMyConnectedIO--;
-      if (IO.pFlng)
-        IO.pFlng->AdjustConnection(this, -1);
+      if (IO.m_pFlng)
+        IO.m_pFlng->AdjustConnection(this, -1);
       };
     }
   else
@@ -8089,13 +8047,22 @@ CFlange* FlwNode::DisConnect(int IONo)
   if (Rmt)
     {
     int RmtIONo=IOIONo_Rmt(IONo);
-    Rmt->PreDisConnect(RmtIONo);
-    PreDisConnect(IONo);
-    Rmt->Detach(RmtIONo);
-    Detach(IONo);
+    //if ()
+    //IOAreaRec &A=IOArea_Rmt(IONo);
+    if (Rmt->m_IOs[RmtIONo].m_pDirectIO)
+      {
+      Rmt->DoDirectDisConnect(Rmt->m_IOs[RmtIONo].m_pDirectIO);
+      }
+    else
+      {
+      Rmt->PreDisConnect(RmtIONo);
+      PreDisConnect(IONo);
+      Rmt->Detach(RmtIONo);
+      Detach(IONo);
 
-    Rmt->ConnectionsChanged();
-    ConnectionsChanged();
+      Rmt->ConnectionsChanged();
+      ConnectionsChanged();
+      }
     }
   else
     {
@@ -8184,11 +8151,11 @@ void FlwNode::PostConnect(int IONo)
 
 bool FlwNode::PreDisConnectDirect(int IONo)
   {
-  int IOId=IOId_Self(IONo);
+  //int IOId=IOId_Self(IONo);
   for (int d=0; d<m_AttachedDirectIOs.GetSize(); d++)
     {
     CDirectFlwIO &D=*m_AttachedDirectIOs[d];
-    if (D.m_iLclDIOId==IOId)
+    if (D.m_iMyConnectedIO==IONo)
       {
       D.PreDisConnect(IONo);
       FlwNode::PreDisConnect(IONo);
@@ -13321,6 +13288,8 @@ flag CDirectFlwIO::DoConnect()
       }
     m_iMyConnectedIO = Info[0].IOIndex;
     int iEnvConnectedIO = Info[1].IOIndex;
+    m_pNd->m_IOs[m_iMyConnectedIO].m_pDirectIO = this;
+
     m_pNd->SetIOAutoConnect(m_iMyConnectedIO, true);
     m_pRmt->SetIOAutoConnect(iEnvConnectedIO, true);
 

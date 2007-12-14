@@ -74,8 +74,8 @@
 //===========================================================================
 
 #define dbgMSSmooth            01
-#define dbgFlwSolve            (1 || WITHDEBUG)
-#define dbgFlwSolveTS0         (1 || WITHDEBUG)
+#define dbgFlwSolve            (0 || WITHDEBUG)
+#define dbgFlwSolveTS0         (0 || WITHDEBUG)
 #define dbgFlwSolveTS1         (0 || WITHDEBUG)
 
 #if (dbgFlwSolve)
@@ -2050,7 +2050,7 @@ void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGIOStac
         }
       }
 
-Continue:
+Continue:;
     #if dbgFlwSolve
     if (dbgEvalOrdFind())
       {
@@ -9227,7 +9227,11 @@ flag FlwSlvDyn::Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
 
   SHOWPROGRESS(1, "Execute 3");
   
-  bool DoClosureTests = (gs_ClosureOption!=CloseTest_Off && (m_ClosureIters++%gs_ClosureIterCnt)==0) || dbgTestClosure();
+  bool DoClosureTests = (gs_ClosureOption!=CloseTest_Off && (m_ClosureIters++%gs_ClosureIterCnt)==0);
+#if dbgFlwSolve
+  if (dbgTestClosure())
+    DoClosureTests = true;
+#endif
 
   bool StopRequired=false;
   for ( ;NIters>0 && !StopRequired;NIters--)
@@ -10026,8 +10030,10 @@ bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMs
 
   SpModel::InitialiseHumidity();
 
+#if dbgFlwSolve 
   if (dbgSDBDump())
     CDB.DumpTest();
+#endif
   return true;
   }
 

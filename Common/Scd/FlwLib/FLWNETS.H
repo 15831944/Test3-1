@@ -84,6 +84,7 @@ class CGrpFlwBlkSD
     int             m_iLnkNo;
     FlwBlk        * m_pFBJn;
     CJoinRec      * m_pJoin;
+    int             m_iConnNo;
   };
 
 //----------------------------------------------------------------------------
@@ -352,7 +353,9 @@ class CGrpFlwBlk
                    m_fFastConvergeOK,
                    m_fHoldFastConverge,
                    m_fInGrpList,
+                   m_fOpen2Edge,
                    m_fHasDbgBrk;
+
 
     byte           m_iFlwPh_Act;
 
@@ -453,6 +456,8 @@ inline flag ConnIsFixed(CJoinRec * pJ, int c) { return pJ->IsIO(c) ? pJ->IOFB(c,
 inline flag ConnSameSubNet(CJoinRec * pJ, int c) { return (pJ->GFB(c)->m_pSubNet == pJ->SubNet()); };
 inline flag FBIsXfer(CJoinRec * pJ, int c) { return pJ->IsIO(c) ? pJ->IOFB(c,0)->GetXfer() : pJ->LinkFB(c)->GetXfer(); };
 inline flag FBIsFixed(CJoinRec * pJ, int c) { return pJ->IsIO(c) ? pJ->IOFB(c,0)->GetFixed() : pJ->LinkFB(c)->GetFixed(); };
+
+//inline flag ConnPlaced(CFxdJoin * pJ, int c) { CFxdJoinConnect & C=pJ->m_Conns[c]; return C.m_pJoin->Placed(C.m_iConnNo) && C.m_pJoin->Placed_Rmt(C.m_iConnNo); };
 
 // ===========================================================================
 
@@ -649,8 +654,8 @@ class CSubNetBlk
     void           ShowSubNetsL(CGrpFlwBlk * g, int dbgShowConns);
 
   public:
-    CJoinPtrList    Joins;
-    CJoinPtrList    Ties;
+    CJoinPtrList    m_Joins;
+    CJoinPtrList    m_Ties;
     CGrpFlwList     m_Grps;
     CJoinGFBList    m_FxdPList;
     CJoinGFBList    m_FxdQList;
@@ -779,23 +784,6 @@ class CNetBlk
   DEFINE_SPARES(CNetBlk)
 
   public:
-    CFlwNodeList    Nds;
-    CJoinPtrList    Joins;
-
-    bool           bFixBusy;
-
-    int            NetNo;
-    CFullNetBlk*    pFNB;
-    flag           fSolved;
-    flag           fTopologyChanged;
-    flag           dbgSubNetStruct;
-    int            NSubNets;
-    SubNetArray    SubNet;
-
-    int            nOverSpecChgs;
-    int            iSolvePass;
-    long           nJobsToDo;
-
     CNetBlk();
     ~CNetBlk();
     void           Clear(int NetNo, CFullNetBlk *pFNB_);
@@ -809,6 +797,7 @@ class CNetBlk
     flag           MassConserveTie(CJoinRec *p) { return p->fIsTie && !p->fIsImpNd && !p->fIsAccLnk; };
 
 
+//    void           FindFixedConnsFromJoin(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CFxdJoin * p, int ConnNo, int &FxdOrder, CGrpFlwBlk *pGFB);
     void           FindFixedConnsFromJoin(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec * p, int ConnNo, int &FxdOrder, CGrpFlwBlk *pGFB);
     void           FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec * pSrc, int SrcConnNo, CJoinRec * p, int ConnNo, CGrpFlwBlk * pGFB, LFxdPos Where, int &FxdOrder);
     void           FindFxdQs(flag ForXfer, CSubNetBlk &SNI, CJoinRec * p, int Conn, int &FxdOrder);
@@ -816,7 +805,7 @@ class CNetBlk
     void           FindMatrixConns(CSubNetBlk &SNI, CJoinRec * pSrc, CJoinRec * p, int ConnNo, CGrpFlwBlk * pGFB);
 
     flag           FindNetLinks(CSubNetBlk &SNI, CJoinRec * &pJ);
-    void           FindLonelyConns(ACPosition Pos, CSubNetBlk &SNI, CJoinRec * p, int ConnNo, CGrpFlwBlk * pGFB);
+    //void           FindLonelyConns(ACPosition Pos, CSubNetBlk &SNI, CJoinRec * p, int ConnNo, CGrpFlwBlk * pGFB);
     flag           FindLonelyConns(CSubNetBlk &SNI, CJoinRec * p, int ConnNo);
     //void           FindUnDefConns(ACPosition Pos, CSubNetBlk &SNI, CJoinRec * p, int ConnNo, CGrpFlwBlk * pGFB);
     //flag           FindUnDefConns(CSubNetBlk &SNI, CJoinRec * p, int ConnNo);
@@ -825,8 +814,17 @@ class CNetBlk
     void           BuildGFBs(CGrpFlwList & Grps);
     void           DumpGFBSummary(CGrpFlwList & Grps);
     void           SetUpGFBs(CGrpFlwList & Grps);
+    void           FindOpen2Edge(CGrpFlwList & Grps);
+    void           CombineFixedJoins(CGrpFlwList & Grps);
+  
+    void           Translate2FxdJoin(CJoinRec * & p);
+    void           Translate2FxdJoin(CJoinRec * & p, int & ConnNo);
+    CString        GetJoinTag(CJoinRec * p);
+    int            UnplacedConns(CJoinRec * p, CJoinRec * & pFree, int &iFree);
+
     void           ConfigureGFBs(CSubNetBlk & SNI);
     void           ConfigureTies(CSubNetBlk & SNI);
+
     void           BldSubNets();
     void           UnBldSubNets();
     void           FixNetTopology();
@@ -838,7 +836,8 @@ class CNetBlk
     void           SaveQmGood();
     void           SavePGood();
     void           RestorePGood();
-    void           DumpJoinList();
+    void           DumpNodeJoins();
+    void           DumpJoinList(LPCSTR Where);
 
     void           Solve();
     flag           CheckForErrors();
@@ -855,6 +854,27 @@ class CNetBlk
 
   protected:
     void           ShowSubNets(int N=-1, int dbgShowConns=false);
+
+
+  public:
+    CFlwNodeList   m_Nds;
+    CJoinPtrList   m_Joins;
+    CJoinPtrList/*CFxdJoinList*/   m_FxdJoins;
+    CGrpFlwList    m_FndOpnLst;
+
+    bool           bFixBusy;
+
+    int            NetNo;
+    CFullNetBlk*    pFNB;
+    flag           fSolved;
+    flag           fTopologyChanged;
+    flag           dbgSubNetStruct;
+    int            NSubNets;
+    SubNetArray    SubNet;
+
+    int            nOverSpecChgs;
+    int            iSolvePass;
+    long           nJobsToDo;
 
   };
 

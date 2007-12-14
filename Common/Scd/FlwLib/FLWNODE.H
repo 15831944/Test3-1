@@ -2250,7 +2250,7 @@ class DllImportExport CIORec
                      m_iIODescRmt,
                      m_iIONoRmt;
     eEvalSeqStart    m_eEvalSeqStart;
-    CTraceArray    * m_pChgs;
+    CTraceArray  * m_pChgs;
 
     CDirectFlwIO * m_pDirectIO;
 
@@ -2399,13 +2399,39 @@ class DllImportExport CJConnectRec
     int               m_iRmtJoin;
     FlwNode         * m_pRmtNd;
     CFlange         * m_pFlng;
+    int               m_iFxdConnNo;
 
     FlwBlkArray     * m_pFBs;
     CPressBlkArray  * m_pPBs;
     sint              m_iQSgn;
   };
 
-typedef CArray   <CJConnectRec, CJConnectRec&> CJConnectArray;
+//typedef CArray   <CJConnectRec, CJConnectRec&> CJConnectArray;
+class CJConnectArray : public CArray<CJConnectRec*, CJConnectRec*> 
+  {
+  public:
+    CJConnectArray(bool DoAlloc) { m_DoAlloc = DoAlloc; };
+
+    void SetSize(INT_PTR nNewSize, INT_PTR nGrowBy=-1)
+      {
+      if (m_DoAlloc)
+        {
+        int OldSize=GetSize();
+        for (int i=nNewSize; i<OldSize; i++)
+          delete GetAt(i);
+        CArray::SetSize(nNewSize, nGrowBy);
+        for (int i=OldSize; i<nNewSize; i++)
+          ElementAt(i)=new CJConnectRec;
+        }
+      else
+        CArray::SetSize(nNewSize, nGrowBy);
+      };
+
+    CJConnectRec & operator[](INT_PTR nIndex) const  { return *GetAt(nIndex); }
+    CJConnectRec & operator[](INT_PTR nIndex)        { return *ElementAt(nIndex); }
+
+    bool  m_DoAlloc;
+  };
 
 //---------------------------------------------------------------------------
 
@@ -2631,7 +2657,6 @@ class DllImportExport LnkInxBlk : public IndexBlk
     int            LQAccInx(int Lp) { return Lp==0 ? iQVAccInx : iQLAccInx; };
   };
 
-
 class DllImportExport CJoinRec
   {
   friend class CGrpFlwBlk;
@@ -2649,7 +2674,7 @@ class DllImportExport CJoinRec
   DEFINE_SPARES(CJoinRec)
 
   public:
-    CJoinRec();
+    CJoinRec(bool DoAlloc=true);
     ~CJoinRec();
     void           Clear();
     void           Prepare();
@@ -2812,6 +2837,9 @@ class DllImportExport CJoinRec
     double         PressEquil() { return dPressEquil; };
     void           SetPressEquil(double P) { ASSERT(Valid(P)); dPressEquil=P; };
 
+    // Used by Fixed Joins
+    void           AddConnect(CJoinRec * pJoin, int iConnNo);
+
   protected:
     static double   dProdFracTol;
 
@@ -2904,20 +2932,22 @@ class DllImportExport CJoinRec
     double         Prv_Sigma_R;
 
   public:
-    JoinQmAux     *pQmAux;
+    JoinQmAux    * pQmAux;
 #if defined(WITH_GFB)
-    CGrpFlwBlk*     pGFb;
+    CGrpFlwBlk   * pGFb;
 #else
-    void*          pGFb;
+    void         * pGFb;
 #endif
+
+    CJoinRec     * m_pFxdJoin;
 
     long           m_NetNo;
     long           m_SubNetNo;
 
     Strng          sNetInfo;
 
-    static long sm_iNo;
-    long      m_iNo;
+    static long    sm_iNo;
+    long           m_iNo;
 
   };
 

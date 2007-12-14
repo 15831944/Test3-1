@@ -4449,6 +4449,8 @@ void GCInsMngr::SaveClass(FilingControlBlock &FCB, pGCVar pVar)
       case VarClass:
         SaveClass(FCB, pVar2);
         break;
+      case VarLabel:
+        break;
       default:
         ASSERT(FALSE);
       }
