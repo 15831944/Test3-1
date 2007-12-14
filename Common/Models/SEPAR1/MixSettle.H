@@ -156,7 +156,7 @@ class MixerSettler : public MdlNode
     virtual flag   PutOtherData(FilingControlBlock &FCB) { return RB.PutOtherData(FCB); };
 
     double         MetalMass(SpConduit &QIn);
-    double         MetalExtract(double StripMass, double StripVol, double ExtConc, double StripConc, double Ratio);
+    double         MetalExtract(double StripMass, double StripVol, double VolAqOut, double ExtConc, double StripConc, double Ratio);
     double         GetDensity(int index, double T, double P, SpPropOveride *Ovr);
 
     virtual dword  ModelStatus();

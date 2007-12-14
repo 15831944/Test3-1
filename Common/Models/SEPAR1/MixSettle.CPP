@@ -180,7 +180,7 @@ MixerSettler::MixerSettler(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   DoLMS       = False;
   PriMetal    = "";
   SecMetal    = "";
-  iMethod     = SVM_Isotherms;
+  iMethod     = SVM_Reactions;// SVM_Isotherms;
   iSol        = 0;
   MinOrgConc  = 0.0;
   MinAqsConc  = 0.0;
@@ -195,14 +195,14 @@ MixerSettler::MixerSettler(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   Mixer.SetClosed(False);
   Settler.SetClosed(False);
 
-  PriIsotherm.SetLength(7);
-  PriIsotherm.SetPt(0, 0.0001, 0.0001);
-  PriIsotherm.SetPt(1, 0.5, 5.0);
-  PriIsotherm.SetPt(2, 1.0, 12.5);
-  PriIsotherm.SetPt(3, 2.0, 17.5);
-  PriIsotherm.SetPt(4, 4.0, 21.0);
-  PriIsotherm.SetPt(5, 8.0, 22.5);
-  PriIsotherm.SetPt(6, 16.0, 23.5);
+  //PriIsotherm.SetLength(7);
+  //PriIsotherm.SetPt(0, 0.0001, 0.0001);
+  //PriIsotherm.SetPt(1, 0.5, 5.0);
+  //PriIsotherm.SetPt(2, 1.0, 12.5);
+  //PriIsotherm.SetPt(3, 2.0, 17.5);
+  //PriIsotherm.SetPt(4, 4.0, 21.0);
+  //PriIsotherm.SetPt(5, 8.0, 22.5);
+  //PriIsotherm.SetPt(6, 16.0, 23.5);
 
   //SecIsotherm.SetLength(2);
   //SecIsotherm.SetPt(0,0.0,0.0);
@@ -389,6 +389,24 @@ flag MixerSettler::ValidateData(ValidateDataBlk & VDB)
   flag OK= MdlNode::ValidateData(VDB);
   Mixer.ValidateData(VDB);
   Settler.ValidateData(VDB);
+
+  if (iMethod==SVM_Isotherms)
+    {
+    if (!RB())
+      RB.Open(BlkEval_On);
+    if (RB.OpenStatus()<BlkEval_On)
+      {
+      RB.Close();
+      RB.Open(BlkEval_On);
+      }
+    RB.Enable();
+    //RB()->()SetOnAndOK())
+    //  {
+    //  LogError(FullObjTag(), 0, "Method is Isotherm requires ReactionBlock to be On");
+    //  OK=false;
+    //  }
+    }
+
   return OK;
   }
 
@@ -807,7 +825,7 @@ double MixerSettler::MetalMass(SpConduit &QIn)
 
 //--------------------------------------------------------------------------
 // Find the extent of metal transfer using Isotherms
-double MixerSettler::MetalExtract(double StripMass, double StripVol, double ExtConc, double StripConc, double Ratio)
+double MixerSettler::MetalExtract(double StripMass, double StripVol, double ExtConc, double StripConc, double Ratio, double VolAqOut)  
   {
 	const double YMax = PriIsotherm.ScanYMax();
 	const double YMin = PriIsotherm.ScanYMin();
@@ -823,7 +841,10 @@ double MixerSettler::MetalExtract(double StripMass, double StripVol, double ExtC
 	double ER = 0.0;
 	if (StripMass > 1e-9)
     {
-	  const double MExtract = StripVol * (StripConc - Stripped/SEff);
+    double MassInInlet = StripVol * StripConc;
+    double TheoryMassInOutlet = Stripped*VolAqOut;
+    double MExtract = (MassInInlet - TheoryMassInOutlet) * SEff;
+	  //const double MExtract = StripVol * (StripConc - Stripped/SEff);
 	  ER = Range(0.0, MExtract/StripMass, 1.0);
     }
   if (Extraction==True)
@@ -853,11 +874,16 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
       SigmaQInPMin(Aq(), som_ALL, Id_2_Mask(ioidAqIn));
       SigmaQInPMin(Og(), som_ALL, Id_2_Mask(ioidOrgIn));
 
+      const int MaxVolAqOutIters=20;
+      int VolAqOutIters=0;
+
       double Ratio; 
       const double AqIn    = Aq().QVolume(som_Liq);
       const double OrgIn   = Og().QVolume(som_Liq);
       const double AqInQm  = Aq().QMass(som_Liq);
       const double OrgInQm = Og().QMass(som_Liq);
+      double VolAqOut      = Aq().QVolume(som_Liq); // Initial Estimate
+
       //double AqT   = Aq().Temp();
       //double OrgT  = Og().Temp();
       if ((OrgIn > 1e-9) && (AqIn > 1e-9))
@@ -891,22 +917,26 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
       else
         OrgInConc = 0.0;
 
+ReTry1:
       //===============================================
       // Isotherm Method
       bool CI2On=false;
       if (iMethod==SVM_Isotherms)
         {
         if (Extraction)
-          dReactExt = MetalExtract(AqMass, AqIn, OrgInConc, AqsInConc, Ratio);
+          dReactExt = MetalExtract(AqMass, AqIn, OrgInConc, AqsInConc, Ratio, VolAqOut);
         else
-          dReactExt = MetalExtract(OgMass, OrgIn, AqsInConc, OrgInConc, Ratio);
-        
+          dReactExt = MetalExtract(OgMass, OrgIn, AqsInConc, OrgInConc, Ratio, VolAqOut);
+
         // Set the extent of reaction
         if (RB() && RB()->Eqns.GetSize()>0)
           {
           CR_Eqn* pCREqn=(CR_Eqn*)RB()->Eqns[0];
           if (pCREqn->SpecieReactantIndex(iSol)>=0 || pCREqn->SpecieProductIndex(iSol)>=0)
             {
+      		  if (!m_AllowOveride)
+              pCREqn->Control().SetExtentReqdOveride(dNAN);
+
             pCREqn->SetExtent(iSol, dReactExt);
             CI2On=Valid(pCREqn->Control().ExtentReqdOveride());
             }
@@ -916,7 +946,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
             }
           }
         }
- 		  SetCI(2, !m_AllowOveride && CI2On);
+ 		  SetCI(2, /*!m_AllowOveride &&*/ CI2On);
       
       //================================================
 
@@ -977,6 +1007,17 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
       const double AqOut  = Aqs.QVolume(som_Liq);
       const double OrgOut = Orgs.QVolume(som_Liq);
 
+      if (iMethod==SVM_Isotherms)
+        {
+        if (!ConvergedVV(VolAqOut, AqOut, 1e-12, 1e-6))
+          {
+          VolAqOut=AqOut;
+          if (VolAqOutIters++<MaxVolAqOutIters)
+            goto ReTry1;
+          LogError(FullObjTag(), 0, "VolumeAqueousOut not Converged");
+          }
+        }
+
       double AqMassOut = 0.0;
       if (AqOut>0.0)
         {
@@ -994,7 +1035,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
       else
         OrgOutConc = 0.0;
 
-      MaxLoadedConc = AqMass/GTZ((AqMass+OrgInQm)/Orgs.Rho(som_Liq));//Based on 100% Extraction
+      MaxLoadedConc = (AqMass+OgMass)/GTZ((AqMass+OrgInQm)/Orgs.Rho(som_Liq));//Based on 100% Extraction
       MaxStripConc = OgMass/GTZ((OgMass+AqInQm)/Aqs.Rho(som_Liq));
 
       //MN_Surge::EvalProducts(CNodeEvalIndex & NEI);
@@ -1006,11 +1047,15 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
       SigmaQInPMin(Aq(), som_ALL, Id_2_Mask(ioidAqIn));
       SigmaQInPMin(Og(), som_ALL, Id_2_Mask(ioidOrgIn));
 
+      const int MaxVolAqOutIters=20;
+      int VolAqOutIters=0;
+
       double Ratio; 
       const double AqIn    = Aq().QVolume(som_Liq);
       const double OrgIn   = Og().QVolume(som_Liq);
       const double AqInQm  = Aq().QMass(som_Liq);
       const double OrgInQm = Og().QMass(som_Liq);
+      double VolAqOut      = Aq().QVolume(som_Liq); // Initial Estimate
       //double AqT   = Aq().Temp();
       //double OrgT  = Og().Temp();
       if ((OrgIn > 1e-9) && (AqIn > 1e-9))
@@ -1044,15 +1089,16 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
       else
         OrgInConc = 0.0;
 
+ReTry2:
       //===============================================
       // Isotherm Method
       bool CI2On=false;
       if (iMethod==SVM_Isotherms)
         {
         if (Extraction)
-          dReactExt = MetalExtract(AqMass, AqIn, OrgInConc, AqsInConc, Ratio);
+          dReactExt = MetalExtract(AqMass, AqIn, OrgInConc, AqsInConc, Ratio, VolAqOut);
         else
-          dReactExt = MetalExtract(OgMass, OrgIn, AqsInConc, OrgInConc, Ratio);
+          dReactExt = MetalExtract(OgMass, OrgIn, AqsInConc, OrgInConc, Ratio, VolAqOut);
         
         // Set the extent of reaction
         if (RB() && RB()->Eqns.GetSize()>0)
@@ -1060,6 +1106,8 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
           CR_Eqn* pCREqn=(CR_Eqn*)RB()->Eqns[0];
           if (pCREqn->SpecieReactantIndex(iSol)>=0 || pCREqn->SpecieProductIndex(iSol)>=0)
             {
+      		  if (!m_AllowOveride)
+              pCREqn->Control().SetExtentReqdOveride(dNAN);
             pCREqn->SetExtent(iSol, dReactExt);
             CI2On=Valid(pCREqn->Control().ExtentReqdOveride());
             }
@@ -1069,7 +1117,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
             }
           }
         }
- 		  SetCI(2, !m_AllowOveride && CI2On);
+ 		  SetCI(2, /*!m_AllowOveride &&*/ CI2On);
 
       //================================================
 
@@ -1142,6 +1190,17 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
       const double AqOut  = AqO.QVolume(som_Liq);
       const double OrgOut = OrgO.QVolume(som_Liq);
 
+      if (iMethod==SVM_Isotherms)
+        {
+        if (!ConvergedVV(VolAqOut, AqOut, 1e-12, 1e-6))
+          {
+          VolAqOut=AqOut;
+          if (VolAqOutIters++<MaxVolAqOutIters)
+            goto ReTry2;
+          LogError(FullObjTag(), 0, "VolumeAqueousOut not Converged");
+          }
+        }
+
       double AqMassOut = 0.0;
       if (AqOut>0.0)
         {
@@ -1159,7 +1218,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
       else
         OrgOutConc = 0.0;
 
-      MaxLoadedConc = AqMass/GTZ((AqMass+OrgInQm)/OrgO.Rho(som_Liq));//Based on 100% Extraction
+      MaxLoadedConc = (AqMass+OgMass)/GTZ((AqMass+OrgInQm)/OrgO.Rho(som_Liq));//Based on 100% Extraction
       MaxStripConc = OgMass/GTZ((OgMass+AqInQm)/AqO.Rho(som_Liq));
 
       //MN_Surge::EvalProducts(CNodeEvalIndex & NEI);
