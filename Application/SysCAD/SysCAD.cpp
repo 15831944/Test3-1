@@ -3440,6 +3440,7 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
   dwAffinity = 0;
   bForegroundWnd = true;
   bMinimiseWnd = false;
+  bNoClosePrompt = false;
   nAutoRunWait =  0;
 #if (WITHLOCALCOPY)
   bAllowLocalCopy = true;
@@ -3562,6 +3563,10 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
       else if (Option=="/min")
         {
         bMinimiseWnd = 1;
+        }
+      else if (Option=="/nocloseprompt")
+        {
+        bNoClosePrompt = true;
         }
       else if (Option=="/n")
         {

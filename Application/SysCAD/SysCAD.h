@@ -39,7 +39,8 @@ class  CCmdLineHelper
                   bForegroundWnd:1,
                   bMinimiseWnd:1,
                   bAllowLocalCopy:1,
-                  bAllowXMenus:1;
+                  bAllowXMenus:1,
+                  bNoClosePrompt:1;
     DWORD         dwAffinity;
     long          lGobbleMemUntil;
     long          nAutoRunWait;
