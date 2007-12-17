@@ -464,6 +464,32 @@ since my natural thought would be that it would heat up, but I think the above i
  
 Regards,
 John
+---------------------------------------------------------------------------
+Hi John.,
+
+A query/check: in the eqn h2 - h1 = g(z1 - z2)  is The enthalpy change independent 
+of density – ie the dH for Water and Air over a 1000 m drop are both 9.807 kJ/kg. 
+If this is not true how does density come into it ?
+
+Chris Moreton
+---------------------------------------------------------------------------
+Hi Chris,
+
+This 1st law written below is in terms of specific properties – i.e per unit mass so [h] = kJ/kg.
+
+The potential energy term gz has the units of (m/s^2) * m – but remember a n = kg*m/s^2 so unit wise,
+1/s^2 = n/(kg*m) – thus we can write the units of gz as m^2*n/(kg*m) or n*m/kg ( a n-m is a Joule) or J/kg. 
+So the density does not enter into the first law and we get the enthalpy difference for the change in 
+height as simply g(z2-z1).
+
+However, enthalpy is dependent on pressure and pressure is dependent on density. The pressure at the 
+new depth is rho*g*z and this is the pressure we need to use when we look for temperature so that the 
+enthalpy that matches h1 plus the potential energy change.
+
+Hope this makes sense – please let me know if you have any more questions.
+
+Cheers,
+John
 
 ***************************************************************************/
 
