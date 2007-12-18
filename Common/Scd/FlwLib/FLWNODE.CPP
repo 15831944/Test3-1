@@ -4932,7 +4932,7 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
       {
       for (int i=0; i<NoFlwIOs(); i++)
         {
-        if (Nd_Rmt(i) && (IOConnect(i)->m_pRefNd==this))
+        if (Nd_Rmt(i))
           {
           Strng Tg;
           MAKEFLNGTG4DDB(Tg, i, 0);
@@ -4963,6 +4963,9 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
             DDB.Double("MkUpRqd",    "",   DC_Qm,  "kg/s",   &m_IOs[i].m_pFlng->dMkUpRqd,   this, isParmConstruct|InitHidden|NAN_OK);
             DDB.Double("MkUpRqdLcl", "",   DC_Qm,  "kg/s",   &m_IOs[i].m_pFlng->dMkUpRqdLcl,this, isParmConstruct|InitHidden|NAN_OK);
             DDB.Double("MkUpAvl",    "",   DC_Qm,  "kg/s",   &m_IOs[i].m_pFlng->dMkUpAvl,   this, isParmConstruct|InitHidden|NAN_OK);
+ 
+            //dbgpln("                             %12.4f %12.4f %12.4f ", IOPB_Self(i).P, IOPB_Self(i).PGood, IOPB_Self(i).PEst);
+
             }
           }
         }

@@ -2325,6 +2325,8 @@ flag MN_Lnk::TestFlowInfo()
 
 void MN_Lnk::EvalJoinPressures(long JoinMask)
   {
+  if (fDoDbgBrk)
+    { int xxx=0; };
   switch (NetMethod())
     {
     case NM_Probal:

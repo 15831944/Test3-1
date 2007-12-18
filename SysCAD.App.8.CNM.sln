@@ -4772,6 +4772,7 @@ Global
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
+		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
