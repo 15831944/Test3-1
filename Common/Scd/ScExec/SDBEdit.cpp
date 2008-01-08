@@ -1239,6 +1239,7 @@ struct MyFldInfo
   ADOX::DataTypeEnum          m_nType;               // Primary
   char *                      m_sType;               // Primary
   long                        m_lSize;                // Primary
+  ADOX::DataTypeEnum          m_nTypeOld;            
   ADOX::ColumnAttributesEnum  m_lAttributes;          // Primary
   BOOL                        m_bRequired;            // Secondary
   BOOL                        m_bAllowZeroLength;     // Secondary
@@ -1248,48 +1249,47 @@ struct MyFldInfo
 
 static MyFldInfo SpFI[] =
   { // Name          Wd  Al   Type                  Len  Attributes                                        Reqd   ZeroOK
-    { "Name"          , NULL,      "Name"          , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Compound"      , NULL,       "Compound"      , 14, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Phase"         , NULL,       "Phase"         ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Definition"    , NULL,       "Defn"          ,  8, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Occurence"     , NULL,       "Occ"           ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Checked"       , NULL,       "Chkd"          ,  5, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Ts"            , NULL,       "Ts(K)"         ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Te"            , NULL,       "Te(K)"         ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Density"       , "Rho",      "Rho(kg/m^3)"   , 10, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Hf25"          , "dHf",      "Hf(J/mol)"     ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "S25"           , "S298",     "S(J/mol.K)"    ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Cp"            , NULL,       "Cp(J/mol.K)"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Vp"            , NULL,       "Vp(kPa)"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Pc"            , NULL,       "Pc(MPa)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Tc"            , NULL,       "Tc(K)"         ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Vc"            , NULL,       "Vc(m^3)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Ac"            , NULL,       "Ac"            ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Dissociation"  , NULL,       "Dissociation"  ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Reference"     , NULL,       "Reference"     , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Name"          , NULL,       "Name"          , 10, 0,  ADOX::adVarWChar,       "ADOX::adVarWChar",       255, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Compound"      , NULL,       "Compound"      , 14, 0,  ADOX::adVarWChar,       "ADOX::adVarWChar",       255, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Phase"         , NULL,       "Phase"         ,  3, 0,  ADOX::adVarWChar,       "ADOX::adVarWChar",        10, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Definition"    , NULL,       "Defn"          ,  8, 0,  ADOX::adVarWChar,       "ADOX::adVarWChar",       255, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Occurence"     , NULL,       "Occ"           ,  3, 0,  ADOX::adVarWChar,       "ADOX::adVarWChar",        10, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Checked"       , NULL,       "Chkd"          ,  5, 0,  ADOX::adVarWChar,       "ADOX::adVarWChar",       255, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Ts"            , NULL,       "Ts(K)"         ,  5, 1,  ADOX::adSingle,         "ADOX::adSingle",           4, ADOX::adSingle,     /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Te"            , NULL,       "Te(K)"         ,  5, 1,  ADOX::adSingle,         "ADOX::adSingle",           4, ADOX::adSingle,     /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Density"       , "Rho",      "Rho(kg/m^3)"   , 10, 1,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Hf25"          , "dHf",      "Hf(J/mol)"     ,  8, 1,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "S25"           , "S298",     "S(J/mol.K)"    ,  8, 1,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Cp"            , NULL,       "Cp(J/mol.K)"   , 10, 0,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Vp"            , NULL,       "Vp(kPa)"       , 10, 0,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Pc"            , NULL,       "Pc(MPa)"       ,  6, 1,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Tc"            , NULL,       "Tc(K)"         ,  6, 1,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Vc"            , NULL,       "Vc(m^3)"       ,  6, 1,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Ac"            , NULL,       "Ac"            ,  6, 1,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Dissociation"  , NULL,       "Dissociation"  ,  6, 1,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Reference"     , NULL,       "Reference"     , 25, 0,  ADOX::adLongVarWChar,   "ADOX::adLongVarWChar",   255, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { NULL },
   };
 
 static MyFldInfo CnvFI[] =
   { // Name          Wd  Al   Type                  Len  Attributes                        Reqd   ZeroOK
-    { "Conversion"    , NULL,       "Conversion"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Unit"          , NULL,       "Unit"         , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "ScaleOffset"   , NULL,       "ScaleOffset"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Description"   , NULL,       "Description"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, false},
-    { "Reference"     , NULL,       "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Conversion"    , NULL,       "Conversion"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Unit"          , NULL,       "Unit"         , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "ScaleOffset"   , NULL,       "ScaleOffset"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Description"   , NULL,       "Description"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, false},
+    { "Reference"     , NULL,       "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { NULL },
   };
 
 static MyFldInfo SolnFI[] =
   { // Name          Wd  Al   Type                  Len  Attributes                        Reqd   ZeroOK
-    { "Solvent"       , NULL,       "Solvent"      , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Solute"        , NULL,       "Solute"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    //{ "OtherPhase"    , "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "OtherPhase"    , NULL,       "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false , true},
-    { "DensCorrFn"    , NULL,       "DensCorrFn"   , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
-    { "SolubilityFn"  , NULL,       "SolubilityFn" , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
-    { "HDilutionFn"   , NULL,       "HDilutionFn"  , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
-    { "Reference"     , NULL,       "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true },
+    { "Solvent"       , NULL,       "Solvent"      , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Solute"        , NULL,       "Solute"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "OtherPhase"    , NULL,       "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false , true},
+    { "DensCorrFn"    , NULL,       "DensCorrFn"   , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
+    { "SolubilityFn"  , NULL,       "SolubilityFn" , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
+    { "HDilutionFn"   , NULL,       "HDilutionFn"  , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
+    { "Reference"     , NULL,       "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, ADOX::adVarWChar,   /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true },
     { NULL },
   };
 
@@ -1598,7 +1598,7 @@ BOOL CSCD_DB::CheckFieldNames(ADOX::_TablePtr &pTbl, MyFldInfo * MFI, char*TablN
       ADOX::_ColumnPtr pCol=pTbl->Columns->GetItem((long)j);
       if (_stricmp(MFI[i].m_Name, pCol->Name)==0)
         {
-        if (pCol->Type==MFI[i].m_nType)
+        if (pCol->Type==MFI[i].m_nType || pCol->Type==MFI[i].m_nTypeOld)
           {
           FoundIt[i] = TRUE;
           //TODO Check field parameters and change if required

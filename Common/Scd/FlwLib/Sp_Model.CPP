@@ -1117,8 +1117,14 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
               // Solubility gives g/100g of solvent
               switch (Solute.m_iPhChRule)
                 {
-                case CSpecie::PhChRule_T:   RqdConc=GEZ(Solute.m_PhChFn.AtT(T)/100);  break;
-                case CSpecie::PhChRule_TP:  RqdConc=GEZ(Solute.m_PhChFn.AtTP(T, P)/100);  break;
+                case CSpecie::PhChRule_T:   
+                case CSpecie::PhChRule_SolubleT:  
+                  RqdConc=GEZ(Solute.m_PhChFn.AtT(T)/100);  
+                  break;
+                case CSpecie::PhChRule_TP:  
+                case CSpecie::PhChRule_SolubleTP:  
+                  RqdConc=GEZ(Solute.m_PhChFn.AtTP(T, P)/100);  
+                  break;
                 };
               double Err=RqdConc-ActConc;
               //Conc[i]=ActConc;
@@ -1148,8 +1154,14 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
               double RqdConc1=0;
               switch (Solute.m_iPhChRule)
                 {
-                case CSpecie::PhChRule_T:   RqdConc1=GEZ(Solute.m_PhChFn.AtT(T1)/100);  break;
-                case CSpecie::PhChRule_TP:  RqdConc1=GEZ(Solute.m_PhChFn.AtTP(T1, P)/100);  break;
+                case CSpecie::PhChRule_T:   
+                case CSpecie::PhChRule_SolubleT:   
+                  RqdConc1=GEZ(Solute.m_PhChFn.AtT(T1)/100);  
+                  break;
+                case CSpecie::PhChRule_TP:  
+                case CSpecie::PhChRule_SolubleTP:  
+                  RqdConc1=GEZ(Solute.m_PhChFn.AtTP(T1, P)/100);  
+                  break;
                 };
 
               double Slope=(RqdConc1-RqdConc)/TstdMassAq;
