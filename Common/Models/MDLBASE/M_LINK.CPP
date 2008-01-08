@@ -3125,7 +3125,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
           const double QmIn = Fi.QMass();
           if (m_FEP.FlwRqd().m_BatchMethod==BO_TotalMass && Valid(m_FEP.FlwRqd().m_RqdMBatch))
             {//reduce required batch amount by actual flow
-            m_FEP.FlwRqd().m_RqdMBatch -= (QmIn*ICGetTimeInc());
+            m_FEP.FlwRqd().m_RqdMBatch = Max(0.0, m_FEP.FlwRqd().m_RqdMBatch - (QmIn*ICGetTimeInc()));
             }
           if (fabs(QmIn)>1.0e-9 && QmIn-IOQOutEst>1.0e-12)
             {

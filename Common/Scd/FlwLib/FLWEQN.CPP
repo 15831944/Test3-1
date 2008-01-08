@@ -1419,7 +1419,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_RqdQmCap=*DCB.rD;
-        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+        if (FR.m_bMeasDensOK && (!FR.m_AsMass || !DCB.ForFileSnpScn()))
           FR.m_RqdQvCap=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_RqdQmCap;
@@ -1429,7 +1429,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_MinQmCap=*DCB.rD;
-        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+        if (FR.m_bMeasDensOK && (!FR.m_AsMass || !DCB.ForFileSnpScn()))
           FR.m_MinQvCap=Valid(*DCB.rD) ? *DCB.rD/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MinQmCap;
@@ -1439,7 +1439,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         FR.m_MaxQmCap=Valid(*DCB.rD) ? Max(FR.m_MinQmCap, *DCB.rD) : dNAN;
-        if (FR.m_bMeasDensOK && !DCB.ForFileSnpScn())
+        if (FR.m_bMeasDensOK && (!FR.m_AsMass || !DCB.ForFileSnpScn()))
           FR.m_MaxQvCap=Valid(*DCB.rD) ? Max(FR.m_MinQmCap, *DCB.rD)/FR.m_MeasDens : dNAN;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MaxQmCap;
@@ -2338,27 +2338,27 @@ bool CFlwBlkBase::GetBasicModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, b
         }
       else
         {
-        double Cap = FR.m_RqdQvCap;
-        if (Valid(Cap))
+        double QvCap = FR.m_RqdQvCap;
+        if (Valid(QvCap))
           {
-          Cap=Max(Cap, FR.m_MinQvCap);
+          QvCap=Max(QvCap, FR.m_MinQvCap);
           if (Valid(FR.m_MaxQvCap))
-            Cap=Min(Cap, FR.m_MaxQvCap*Regulation);
+            QvCap=Min(QvCap, FR.m_MaxQvCap*Regulation);
           }
         else if (Valid(FR.m_MaxQvCap))
-          Cap=FR.m_MaxQvCap*Regulation;
+          QvCap=FR.m_MaxQvCap*Regulation;
         if (FR.m_BatchMethod==BO_TotalMass && Valid(FR.m_RqdMBatch))
           {//reduce capacity, if required, to achieve batch total
           if (FR.m_RqdMBatch<UsableMass)
             {
             FR.m_RqdMBatch = 0.0;
-            Cap=0.0;
+            QvCap=0.0;
             }
-          else if (Cap*ICGetTimeInc()>FR.m_RqdMBatch)
-            Cap = FR.m_RqdMBatch/ICGetTimeInc();
+          else if (QvCap*ICGetTimeInc()*MeanRho(pProps)>FR.m_RqdMBatch)
+            QvCap = FR.m_RqdMBatch/ICGetTimeInc()/GTZ(MeanRho(pProps));
           }
-        if (Valid(Cap))
-          SetXferCapacity(Cap*MeanRho(pProps));
+        if (Valid(QvCap))
+          SetXferCapacity(QvCap*MeanRho(pProps));
         }
 
       //CFlwEqnFlwRqd &FR=FlwRqd();
