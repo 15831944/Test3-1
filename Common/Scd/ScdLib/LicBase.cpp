@@ -42,6 +42,7 @@ using namespace std;
 #if USESERVERVERSION 
 #import "..\..\..\License\CrypKeyCOMServer.exe" no_namespace named_guids
 static ICrypKeySDKServerPtr s_ptr;
+static CString CKErrMsgStr;
 #else
 #import "..\..\..\License\CrypKeyCOM.dll" no_namespace named_guids
 static ICrypKeySDKPtr s_ptr;
@@ -623,7 +624,7 @@ ULONG MyCKChallenge32(ULONG random1, ULONG random2)
 #endif
   };
 
-LPTSTR MyExplainErr(int Func, int err)              
+/*LPTSTR*/LPCSTR MyExplainErr(int Func, int err)
   { 
 #if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
@@ -633,8 +634,13 @@ LPTSTR MyExplainErr(int Func, int err)
     }
 #endif
 #if !BYPASSLICENSING
-  if (gs_License.UseCOM())
-    return s_ptr->ExplainErr(CKExplainEnum(Func), err);
+    {
+    _bstr_t bstrStart;
+    bstrStart = s_ptr->ExplainErr(CKExplainEnum(Func), err);
+    CKErrMsgStr.Format(_T("%s"), (LPCTSTR)bstrStart);
+    return (LPCSTR)CKErrMsgStr;
+    //return s_ptr->ExplainErr(CKExplainEnum(Func), err);
+    }
 #endif
   return ExplainErr(Func, err);
   };
@@ -2231,7 +2237,6 @@ ReTry:
           #if CK_ALLOWDEMOMODE
           gs_License.SetDemoMode();
           #endif
-          m_sAppPath = PrevAppPath;
           return 4; //new location failed - but set it anyway
           }
         return 1;
