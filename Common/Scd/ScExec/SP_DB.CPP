@@ -175,7 +175,7 @@ CSDB_DataRecord::CSDB_DataRecord()
   m_iErrRet=0;
   }
 
-int CSDB_DataRecord::ParseTable(LPCSTR TableName, LPCSTR ColNameX, LPCSTR ColNameY)
+int CSDB_DataRecord::ParseTable(LPCSTR TableName)
   {
   m_iErrRet=0;
   // Find Table -----------------------------------
@@ -225,12 +225,12 @@ int CSDB_DataRecord::ParseTable(LPCSTR TableName, LPCSTR ColNameX, LPCSTR ColNam
 
   // Parse Columns --------------------------------
   bool ColsReversed=false;
-  if (stricmp(ColNameX, Col0[0])==0 && stricmp(ColNameY, Col1[0])==0)
+  if (stricmp(m_sXName, Col0[0])==0 && stricmp(m_sYName, Col1[0])==0)
     { }
-  else if (stricmp(ColNameX, Col1[0])==0 && stricmp(ColNameY, Col0[0])==0)
+  else if (stricmp(m_sXName, Col1[0])==0 && stricmp(m_sYName, Col0[0])==0)
     ColsReversed=true;
   else
-    return (m_iErrRet==-4);
+    return (m_iErrRet=-4);
 
   m_X.SetSize(Col0.GetCount()-1);
   m_Y.SetSize(Col0.GetCount()-1);
@@ -241,22 +241,12 @@ int CSDB_DataRecord::ParseTable(LPCSTR TableName, LPCSTR ColNameX, LPCSTR ColNam
     }
   return m_X.GetCount();
   };
-int CSDB_DataRecord::RowCount()
-  {
-  return m_X.GetCount();
-  };
-bool CSDB_DataRecord::GetRow()
-  {
-  return (++m_iRowNo<m_X.GetCount());
-  };
-double CSDB_DataRecord::XValue()
-  {
-  return m_X[m_iRowNo];
-  };
-double CSDB_DataRecord::YValue()
-  {
-  return m_Y[m_iRowNo];
-  };
+
+int CSDB_DataRecord::RowCount()       { return m_X.GetCount();              };
+bool CSDB_DataRecord::GetRow()        { return (++m_iRowNo<m_X.GetCount()); };
+double CSDB_DataRecord::XValue()      { return m_X[m_iRowNo];               };
+double CSDB_DataRecord::YValue()      { return m_Y[m_iRowNo];               };
+
 LPCSTR CSDB_DataRecord::ErrorMsg()
   {
   switch (m_iErrRet)
@@ -434,7 +424,7 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
         if (ParenCnt==0)
           {
           Tmp.LRTrim(" \"\'");
-          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, Tmp(), NULL, pRecord), CfgLoT, CfgHiT);
+          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, Tmp(), NULL, pRecord, m_sXName(), m_sName()), CfgLoT, CfgHiT);
           }
         Tmp="";
         break;
@@ -443,7 +433,7 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
         if (Tmp.GetLength()>0)
           {
           Strng S("Const(", Tmp(), ")");
-          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S(), NULL, pRecord), CfgLoT, CfgHiT);
+          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S(), NULL, pRecord, m_sXName(), m_sName()), CfgLoT, CfgHiT);
           Tmp="";
           }
 
@@ -497,7 +487,7 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
   if (Tmp.GetLength()>0)
     {
     Strng S("Const(", Tmp(), ")");
-    AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S(), NULL, pRecord), CfgLoT, CfgHiT);
+    AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S(), NULL, pRecord, m_sXName(), m_sName()), CfgLoT, CfgHiT);
     }
   }
 
@@ -1644,7 +1634,8 @@ m_CDB(CDB),
 m_H2O(H2ODB),
 m_Cmp(*pCmp),
 m_Const(*pCmp),
-m_Common(pCmp->m_Common)
+m_Common(pCmp->m_Common),
+m_PhChFn("Solubility", "Temperature")
   {
   sCmpTag             = pCmpTag;
   sTag                = "";
@@ -2225,12 +2216,18 @@ flag CSpecie::LoadADO(CComponent * pC, CSDB_DataRecord & Record, /*CSpecie *pPrv
           else
             m_iPhChRule=PhChRule_Null;
 
-          CSpDBEqn * pEqn = CSpDBEqn::Construct(&m_Const, &m_FData[0], PhChEqn(), NULL, NULL);
-          if (pEqn)
-            {
-            m_PhChFn.AddEqn(ET_Std, pEqn, CfgLoT, CfgHiT);
-            }
-          else
+
+          bool PhChOK=true;
+          flag PhChSpecd=false;
+          ParseAnEqnSet(this, PhChOK, m_PhChFn, PhChSpecd, pC, &DataLo, PhChEqn(), ID(), "Phase Change", CfgLoT, CfgHiT, &Record);
+
+          if (!PhChOK)
+          //CSpDBEqn * pEqn = CSpDBEqn::Construct(&m_Const, &m_FData[0], PhChEqn(), NULL, NULL);
+          //if (pEqn)
+          //  {
+          //  m_PhChFn.AddEqn(ET_Std, pEqn, CfgLoT, CfgHiT);
+          //  }
+          //else
             {
             m_sPhChSpecie = "";
             m_iPhChRule = PhChRule_Null;

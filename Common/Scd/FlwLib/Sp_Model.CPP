@@ -23,9 +23,9 @@
 _declspec(dllexport) int SpModelExDbgOn = 0;
 
 #if dbgSoluble
-static CDbgMngr dbgEquilQuals           ("SpMdlEquil", "EquilQuals");
-static CDbgMngr dbgSolubleEquil         ("SpMdlEquil", "Soluble");
-static CDbgMngr dbgAutoVLEEquil         ("SpMdlEquil", "AutoVLE");
+static CDbgMngr dbgEquilQuals           ("SpModel", "Equil.Quals");
+static CDbgMngr dbgSolubleEquil         ("SpModel", "Equil.Soluble");
+static CDbgMngr dbgAutoVLEEquil         ("SpModel", "Equil.AutoVLE");
 #endif
 #if dbgSpModel
 static CDbgMngr dbgAddDeriv             ("SpModel", "AddDeriv");
@@ -1001,8 +1001,8 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
       double InitdbgT=Valid(RqdT)?RqdT:Temp();
       if (EqSolubleOn() && dbgSolubleEquil())
         {
-        dbgp("%5s","");
-        _asm int 3;
+        //DoBreak();
+        //dbgp("%5s","");
         //for (int j=0; j<SDB.m_SolubleSps.GetSize(); j++)
         //  {
         //  int iSolvent=SDB.m_SolubleSps[j];
@@ -1890,7 +1890,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
               {0},
             };
 
-          _asm int 3; //to go back
+          DoBreak(); //to go back
           //DDB.Byte  ("Rqd.What",     "", DC_,           "",             &m_AutoVLE.m_iSet,    this, /*m_iEquilAct==SQA_Create ?*/ isParm|SetOnChange/*:isResult*/, DDBHSet);
           //if (m_iEquilAct==SQA_Create)
           //  {
@@ -6790,7 +6790,7 @@ void SpModel::SetMassM(SpModel * C, CSysVector &Filter, double Mass__, double Pr
 
 	if (AsMult)
 	{
-  _asm int 3;
+  DoBreak();
   }
   m_M.Set(C->m_M, som_ALL, Frac, Filter.SVData());
   //for (i=0; i < SVSpcCount(); i++)
@@ -7076,11 +7076,13 @@ void SpModel::AddMassF(SpModel * C, CSysVector &Filter, double Frac, bool AsMult
     }
   else
     {
-  double Ft=0.0;
-  for (int i=0; i < SVSpcCount(); i++)
-    Ft+=Filter[i];
-  Ft=GTZ(Ft);
-    _asm int 3;
+    double Ft=0.0;
+    for (int i=0; i < SVSpcCount(); i++)
+      Ft+=Filter[i];
+    Ft=GTZ(Ft);
+    
+    DoBreak();
+    
     Cm.Set(C->m_M, som_ALL, 1.0, Filter.SVData());
   //for (i=0; i < SDB.No(); i++)
   //  Cm[i]=Frac*Filter[i]/Ft*C->M[i];
@@ -9389,7 +9391,7 @@ double SpModel::SaturationTotalP(double T_, CSysVector * pMA, CSaturationDefn * 
   if (m_AutoVLE.m_iCmp>=0)
     {
     double PP=PartialPress(-1, m_AutoVLE.m_iCmp, T_);
-    _asm int 3;
+    DoBreak();
     return SaturationP(T_, pMA/*, m_AutoVLE.m_iCmp*/)+PP;
     }
 

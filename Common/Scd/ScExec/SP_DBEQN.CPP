@@ -1991,7 +1991,7 @@ int SDBE_TSpline::Load(const char * pInitString, char* Cols[MaxSPDBCols], CSDB_D
       }
     }
 
-  int Ret=pRecord->ParseTable(m_Table(), "MassFraction", "Hf");
+  int Ret=pRecord->ParseTable(m_Table());
   if (Ret>0)
     {
     while (pRecord->GetRow())
@@ -2125,8 +2125,13 @@ CSpDBEqn* CSpDBEqn::ConstructCopy(CSpConstData * pConst, CSpFidelData * pSpPh)
   return CSpDBEqn::Construct(pConst, pSpPh, NULL, pEqn, NULL);
   }
 
-CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const char *pInitString, CSpDBEqn* pCopyFrom/*=NULL*/, CSDB_DataRecord * pRecord)
+CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const char *pInitString, CSpDBEqn* pCopyFrom/*=NULL*/, CSDB_DataRecord * pRecord, LPCSTR XName, LPCSTR YName)
   {
+  if (pRecord)
+    {
+    pRecord->m_sXName=XName;
+    pRecord->m_sYName=YName;
+    }
   CSpDBEqn* p=NULL;
   char Str[1024], *Cols[MaxSPDBCols];
   const char *pn=NULL;

@@ -205,7 +205,7 @@ class CSDB_DataRecord
   public:
     CSDB_DataRecord();
 
-    int             ParseTable(LPCSTR TableName, LPCSTR ColNameX, LPCSTR ColNameY);
+    int             ParseTable(LPCSTR TableName);
     int             RowCount();
     bool            GetRow();
     double          XValue();
@@ -226,7 +226,10 @@ class CSDB_DataRecord
 
     CStringArray    m_Values;
 
-    CString         m_sTable;
+    //CString         m_sTable;
+    CString         m_sXName;
+    CString         m_sYName;
+
     int             m_iRowNo;
     int             m_iErrRet;
     CArray<double, double> m_X, m_Y;
@@ -366,7 +369,7 @@ class DllImportExport CSpDBEqn
     virtual double Integrate_dT(double T1, double T2, double P) { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
     virtual double IntegrateOverT_dT(double T1, double T2, double P) { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
 
-    static CSpDBEqn *Construct(CSpConstData *pConst, CSpFidelData *pFData, const char *pInitString, CSpDBEqn *pCopyFrom, CSDB_DataRecord * pRecord);
+    static CSpDBEqn *Construct(CSpConstData *pConst, CSpFidelData *pFData, const char *pInitString, CSpDBEqn *pCopyFrom, CSDB_DataRecord * pRecord, LPCSTR XName="T", LPCSTR YName="?");
     CSpDBEqn        *ConstructCopy(CSpConstData *pConst, CSpFidelData *pFData);
 
   public:

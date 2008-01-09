@@ -78,14 +78,8 @@ void TSpline::AddPt(double Xi, double Yi)
   // Keep The order correct - X Increasing
   int n=X.GetLen();
   int i=0; 
-  if (n>0 && Xi>X[0])
-    {
-    for ( ; i<n-1; i++)
-      {
-      if (Xi>X[i] && Xi<X[i+1])
-        break;
-      }
-    }
+  while (i<n && Xi>X[i])
+    i++;
 
   X.SetSize(n+1);
   Y.SetSize(n+1);
