@@ -280,8 +280,8 @@ CFlwEqn::CFlwEqn(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObj
   m_FlwRqd.m_PressQv    = 1;
 
   m_FlwRqd.m_BatchMethod  = BO_None;
-  m_FlwRqd.m_RqdMBatch    = dNAN;
-  m_FlwRqd.m_RqdMBatchTtl = 0.0;
+  m_FlwRqd.m_RqdBatch     = dNAN;
+  m_FlwRqd.m_RqdBatchTtl  = 0.0;
   };
 
 flag CFlwEqn::DataXchg(DataChangeBlk & DCB)
@@ -1178,14 +1178,54 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
           static DDBValueLst DDBBatch[]={
             {BO_None, "None"},
             {BO_TotalMass, "Total Mass"},
+            //{BO_SolidsMass, "Solids Mass"},
+            {BO_TotalVolume, "Total Volume"},
+            //{BO_SolidsVolume, "Solids Volume"},
             {0}};
-          DDB.Long   ("BatchMethod",     "",             DC_,     "",      xidFlwEqnBatchMethod, pOwnObj, isParm, DDBBatch);
-          DDEF_Flags Vis=DDB.Visibility(NSHM_All, FlwRqd().m_BatchMethod==BO_TotalMass);
-          DDB.Double ("M.Batch",         "",             DC_M,    "kg",    xidFlwEqnMBatch, pOwnObj, isParm|NAN_OK, DDBNAN_NotSpecd);
-          DDB.Double ("M.BatchAddition", "",             DC_M,    "kg",    xidFlwEqnIncMBatch, pOwnObj, isParm|noFileAtAll);
-          DDB.Double ("M.BatchTtl",      "",             DC_M,    "kg",    xidFlwEqnMBatchTtl, pOwnObj, isResult|InitHidden);
-          DDB.Text("");
-          DDB.Visibility(Vis);
+          DDB.Long   ("BatchMethod",     "",             DC_,     "",      xidFlwEqnBatchMethod, pOwnObj, isParm|SetOnChange, DDBBatch);
+          switch (FlwRqd().m_BatchMethod)
+            {
+            case BO_TotalMass:
+              {
+              DDEF_Flags Vis=DDB.Visibility(NSHM_All);
+              DDB.Double ("M.Batch",         "",             DC_M,    "kg",    xidFlwEqnBatch, pOwnObj, isParm|NAN_OK, DDBNAN_NotSpecd);
+              DDB.Double ("M.BatchAddition", "",             DC_M,    "kg",    xidFlwEqnIncBatch, pOwnObj, isParm|noFileAtAll);
+              DDB.Double ("M.BatchTtl",      "",             DC_M,    "kg",    xidFlwEqnBatchTtl, pOwnObj, isResult|InitHidden);
+              DDB.Text("");
+              DDB.Visibility(Vis);
+              break;
+              }
+            /*case BO_SolidsMass:
+              {
+              DDEF_Flags Vis=DDB.Visibility(NSHM_All);
+              DDB.Double ("SM.Batch",         "",            DC_M,    "kg",    xidFlwEqnBatch, pOwnObj, isParm|NAN_OK, DDBNAN_NotSpecd);
+              DDB.Double ("SM.BatchAddition", "",            DC_M,    "kg",    xidFlwEqnIncBatch, pOwnObj, isParm|noFileAtAll);
+              DDB.Double ("SM.BatchTtl",      "",            DC_M,    "kg",    xidFlwEqnBatchTtl, pOwnObj, isResult|InitHidden);
+              DDB.Text("");
+              DDB.Visibility(Vis);
+              break;
+              }*/
+            case BO_TotalVolume:
+              {
+              DDEF_Flags Vis=DDB.Visibility(NSHM_All);
+              DDB.Double ("V.Batch",         "",             DC_Vol,  "m^3",   xidFlwEqnBatch, pOwnObj, isParm|NAN_OK, DDBNAN_NotSpecd);
+              DDB.Double ("V.BatchAddition", "",             DC_Vol,  "m^3",   xidFlwEqnIncBatch, pOwnObj, isParm|noFileAtAll);
+              DDB.Double ("V.BatchTtl",      "",             DC_Vol,  "m^3",   xidFlwEqnBatchTtl, pOwnObj, isResult|InitHidden);
+              DDB.Text("");
+              DDB.Visibility(Vis);
+              break;
+              }
+            /*case BO_SolidsVolume:
+              {
+              DDEF_Flags Vis=DDB.Visibility(NSHM_All);
+              DDB.Double ("SV.Batch",         "",            DC_Vol,  "m^3",   xidFlwEqnBatch, pOwnObj, isParm|NAN_OK, DDBNAN_NotSpecd);
+              DDB.Double ("SV.BatchAddition", "",            DC_Vol,  "m^3",   xidFlwEqnIncBatch, pOwnObj, isParm|noFileAtAll);
+              DDB.Double ("SV.BatchTtl",      "",            DC_Vol,  "m^3",   xidFlwEqnBatchTtl, pOwnObj, isResult|InitHidden);
+              DDB.Text("");
+              DDB.Visibility(Vis);
+              break;
+              }*/
+            }
           }
 
         if (((Md==FBMode_Simple) || (Md==FBMode_Linear) || ForNDB) && (LclOptions & FBDDOpt_WithDPSpec))
@@ -1384,33 +1424,33 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         Eqn()->m_FlwRqd.m_BatchMethod = *DCB.rL;
       DCB.L=Eqn()->m_FlwRqd.m_BatchMethod;
       return 1;
-    case xidFlwEqnMBatch:
+    case xidFlwEqnBatch:
       if (DCB.rD)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
-        FR.m_RqdMBatch=*DCB.rD;
+        FR.m_RqdBatch=*DCB.rD;
         }
-      DCB.D=Eqn()->m_FlwRqd.m_RqdMBatch;
+      DCB.D=Eqn()->m_FlwRqd.m_RqdBatch;
       return 1;
-    case xidFlwEqnMBatchTtl:
+    case xidFlwEqnBatchTtl:
       if (DCB.rD)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
-        FR.m_RqdMBatchTtl=*DCB.rD;
+        FR.m_RqdBatchTtl=*DCB.rD;
         }
-      DCB.D=Eqn()->m_FlwRqd.m_RqdMBatchTtl;
+      DCB.D=Eqn()->m_FlwRqd.m_RqdBatchTtl;
       return 1;
-    case xidFlwEqnIncMBatch:
+    case xidFlwEqnIncBatch:
       if (DCB.rD)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
-        if (Valid(FR.m_RqdMBatch))
+        if (Valid(FR.m_RqdBatch))
           {
-          FR.m_RqdMBatchTtl+=*DCB.rD;
-          FR.m_RqdMBatch+=*DCB.rD;
+          FR.m_RqdBatchTtl+=*DCB.rD;
+          FR.m_RqdBatch+=*DCB.rD;
           }
         else
-          FR.m_RqdMBatch=0.0;
+          FR.m_RqdBatch=0.0;
         }
       DCB.D=0.0;
       return 1;
@@ -2312,29 +2352,43 @@ bool CFlwBlkBase::GetBasicModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, b
       {
       if (FR.m_AsMass)
         {
-        double Cap = FR.m_RqdQmCap;
-        if (Valid(Cap))
+        double QmCap = FR.m_RqdQmCap;
+        if (Valid(QmCap))
           {
-          Cap=Max(Cap, FR.m_MinQmCap);
+          QmCap=Max(QmCap, FR.m_MinQmCap);
           if (Valid(FR.m_MaxQmCap))
-            Cap=Min(Cap, FR.m_MaxQmCap*Regulation);
+            QmCap=Min(QmCap, FR.m_MaxQmCap*Regulation);
           }
         else if (Valid(FR.m_MaxQmCap))
-          Cap=FR.m_MaxQmCap*Regulation;
+          QmCap=FR.m_MaxQmCap*Regulation;
         else if (Regulation<1.0)
-          Cap=MaxXfCap*Regulation;
-        if (FR.m_BatchMethod==BO_TotalMass && Valid(FR.m_RqdMBatch))
+          QmCap=MaxXfCap*Regulation;
+        if (Valid(FR.m_RqdBatch))
           {//reduce capacity, if required, to achieve batch total
-          if (FR.m_RqdMBatch<UsableMass)
+          if (FR.m_BatchMethod==BO_TotalMass)
             {
-            FR.m_RqdMBatch = 0.0;
-            Cap=0.0;
+            if (FR.m_RqdBatch<UsableMass)
+              {
+              FR.m_RqdBatch = 0.0;
+              QmCap=0.0;
+              }
+            else if (QmCap*ICGetTimeInc()>FR.m_RqdBatch)
+              QmCap = FR.m_RqdBatch/ICGetTimeInc();
             }
-          else if (Cap*ICGetTimeInc()>FR.m_RqdMBatch)
-            Cap = FR.m_RqdMBatch/ICGetTimeInc();
+          else if (FR.m_BatchMethod==BO_TotalVolume)
+            {
+            if (FR.m_RqdBatch<UsableMass)
+              {
+              FR.m_RqdBatch = 0.0;
+              QmCap=0.0;
+              }
+            else if (QmCap*ICGetTimeInc()*MeanRho(pProps)>FR.m_RqdBatch)
+              QmCap = FR.m_RqdBatch/ICGetTimeInc()/GTZ(MeanRho(pProps));
+            }
+          //To implement BO_SolidsMass, how do we get the solids only flow to adjust the QmCap accordingly!?
           }
-        if (Valid(Cap))
-          SetXferCapacity(Cap);
+        if (Valid(QmCap))
+          SetXferCapacity(QmCap);
         }
       else
         {
@@ -2347,18 +2401,34 @@ bool CFlwBlkBase::GetBasicModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, b
           }
         else if (Valid(FR.m_MaxQvCap))
           QvCap=FR.m_MaxQvCap*Regulation;
-        if (FR.m_BatchMethod==BO_TotalMass && Valid(FR.m_RqdMBatch))
+        if (Valid(FR.m_RqdBatch))
           {//reduce capacity, if required, to achieve batch total
-          if (FR.m_RqdMBatch<UsableMass)
+          if (FR.m_BatchMethod==BO_TotalMass)
             {
-            FR.m_RqdMBatch = 0.0;
-            QvCap=0.0;
+            if (FR.m_RqdBatch<UsableMass)
+              {
+              FR.m_RqdBatch = 0.0;
+              QvCap=0.0;
+              }
+            else if (QvCap*ICGetTimeInc()*MeanRho(pProps)>FR.m_RqdBatch)
+              QvCap = FR.m_RqdBatch/ICGetTimeInc()/GTZ(MeanRho(pProps));
             }
-          else if (QvCap*ICGetTimeInc()*MeanRho(pProps)>FR.m_RqdMBatch)
-            QvCap = FR.m_RqdMBatch/ICGetTimeInc()/GTZ(MeanRho(pProps));
+          else if (FR.m_BatchMethod==BO_TotalVolume)
+            {
+            if (FR.m_RqdBatch<UsableMass)
+              {
+              FR.m_RqdBatch = 0.0;
+              QvCap=0.0;
+              }
+            else if (QvCap*ICGetTimeInc()>FR.m_RqdBatch)
+              QvCap = FR.m_RqdBatch/ICGetTimeInc();
+            }
           }
         if (Valid(QvCap))
-          SetXferCapacity(QvCap*MeanRho(pProps));
+          {
+          const double rho = MeanRho(pProps); //this density may be wrong, usualy if previous flow was zero, etc...
+          SetXferCapacity(QvCap*rho);
+          }
         }
 
       //CFlwEqnFlwRqd &FR=FlwRqd();

@@ -177,6 +177,11 @@ flag MN_Surge::DataXchg(DataChangeBlk & DCB)
     case xidTemp:
       DCB.D=Contents.Temp();
       return 1;
+    case xidPBCyclicStorageOn:
+      if (DCB.rB)
+        m_CyclicStorage.m_bOn = *DCB.rB;
+      DCB.B=m_CyclicStorage.m_bOn;
+      return 1;
     case xidPBSurgeCycleIt:
       if (DCB.rB && *DCB.rB)
         SetCyclicStorage();

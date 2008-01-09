@@ -464,7 +464,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   m_PCtrl0.BuildDataDefn(DDB, this, NetProbalMethod(), PC_BasicPB, PC_BasicDyn);//PC_Atmos|PC_Reqd);
 
   if (NetProbalMethod())
-    DDB.CheckBox("CyclicStorage",     "",  DC_,     "",      &m_CyclicStorage.m_bOn, this, isParm|SetOnChange);
+    DDB.CheckBox("CyclicStorage",     "",  DC_,     "", xidPBCyclicStorageOn, this, isParmStopped|SetOnChange);
 
   DDB.Visibility();
   m_BlkEval.Add_OnOff(DDB);  
@@ -507,7 +507,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     {
     DDB.Visibility(NM_Probal|SM_All|HM_All, m_CyclicStorage.m_bOn);
     DDB.Text("");
-    if (DDB.BeginStruct(this, "CyclicStorage"))
+    if (DDB.BeginStruct(this, "Cyclic_Storage"))
       {
       //DDB.CheckBox("On",              "",  DC_,     "",      &m_CyclicStorage.m_bOn,          this, isParm|SetOnChange);
       DDB.CheckBox("CycleIt",         "",  DC_,     "",      xidPBSurgeCycleIt,               this, isParm|SetOnChange);

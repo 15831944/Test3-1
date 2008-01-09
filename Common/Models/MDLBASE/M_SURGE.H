@@ -31,7 +31,8 @@
 
 const int IOId_HX         = FlwIOId(80);
 
-XID xidPBSurgeCycleIt     = MdlBsXID(30000);
+XID xidPBCyclicStorageOn  = MdlBsXID(30000);
+XID xidPBSurgeCycleIt     = MdlBsXID(30001);
 
 // ==========================================================================
 

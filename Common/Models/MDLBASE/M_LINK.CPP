@@ -2173,7 +2173,7 @@ void MN_Lnk::SetState(eScdMdlStateActs RqdState)
     case MSA_DynStatsRunInit:
       if (pStats)
         pStats->ResetStats();
-      m_FEP.FlwRqd().m_RqdMBatchTtl = 0.0;
+      m_FEP.FlwRqd().m_RqdBatchTtl = 0.0;
       break;
     }
   };
@@ -3123,9 +3123,24 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
             dbgpln("EvalProducts J  %15.6f %15.6f %8.2f %15.6f %15.6f %8.2f %s", Fi.QMass(), Fi.MassFrac(som_Liq),Fi.Temp(), Fo.QMass(), Fo.MassFrac(som_Liq),Fo.Temp(), FullObjTag());
 #endif
           const double QmIn = Fi.QMass();
-          if (m_FEP.FlwRqd().m_BatchMethod==BO_TotalMass && Valid(m_FEP.FlwRqd().m_RqdMBatch))
+          if (Valid(m_FEP.FlwRqd().m_RqdBatch))
             {//reduce required batch amount by actual flow
-            m_FEP.FlwRqd().m_RqdMBatch = Max(0.0, m_FEP.FlwRqd().m_RqdMBatch - (QmIn*ICGetTimeInc()));
+            CFlwEqnFlwRqd &FR=m_FEP.FlwRqd();
+            switch (FR.m_BatchMethod)
+              {
+              case BO_TotalMass:
+                FR.m_RqdBatch = Max(0.0, FR.m_RqdBatch - (QmIn*ICGetTimeInc()));
+                break;
+              /*case BO_SolidsMass:
+                FR.m_RqdBatch = Max(0.0, FR.m_RqdBatch - (Fi.QMass(som_Sol)*ICGetTimeInc()));
+                break;*/
+              case BO_TotalVolume:
+                FR.m_RqdBatch = Max(0.0, FR.m_RqdBatch - (Fi.QVolume()*ICGetTimeInc()));
+                break;
+              /*case BO_SolidsVolume:
+                FR.m_RqdBatch = Max(0.0, FR.m_RqdBatch - (Fi.QVolume(som_Sol)*ICGetTimeInc()));
+                break;*/
+              }
             }
           if (fabs(QmIn)>1.0e-9 && QmIn-IOQOutEst>1.0e-12)
             {

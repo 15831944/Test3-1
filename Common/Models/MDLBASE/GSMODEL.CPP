@@ -360,7 +360,7 @@ m_IOAlpha(*(new GSIOAlphaArray)),
 m_IOs(*(new GSIOIndexArray)),
 m_IOThermal(*(new GSIOThermalArray))
   {
-  m_iOperation=GSO_General0;
+  m_iOperation=GSO_MassFracSplit;//GSO_General0;
 #if WITHTHERMAL 
   m_bThermal      = false;
   m_bAllowHX      = false;
