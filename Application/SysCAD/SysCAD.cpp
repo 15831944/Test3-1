@@ -535,12 +535,15 @@ BOOL CSysCADApp::InitInstStartup()
   {
   struct tRqdVersionNos ReqdVersions[] =
     {
-#ifdef _DEBUG
+#ifdef _DEBUG 
     //{"msvcrtd.dll",  6,0,8337,0,  false},//sp3
     //{"mfc42d.dll",   6,0,8267,0,  false},//sp3
 #if !DotNet
       {"msvcrtd.dll",  6,0,8797,0,  false},//sp5
       {"mfc42d.dll",   6,0,8665,0,  false},//sp5
+#elif (_MSC_VER >= 1500)
+      {"msvcr90d.dll",  9,0,21022,8,  true },//vs2008
+      {"mfc90d.dll",    9,0,21022,8,  true },//vs2008
 #elif _MSC_VER >= 1400 
 //      {"msvcr80d.dll",  8,0,50727,42,  true },//vs2005
 //      {"mfc80d.dll",    8,0,50727,42,  true },//vs2005
@@ -556,6 +559,9 @@ BOOL CSysCADApp::InitInstStartup()
 #if (!DotNet)
       {"msvcrt.dll",   6,0,8797,0,  true },//sp5
       {"mfc42.dll",    6,0,8665,0,  true},//sp5
+#elif (_MSC_VER >= 1500)
+      {"msvcr90.dll",  9,0,21022,8,  true },//vs2008
+      {"mfc90.dll",    9,0,21022,8,  true },//vs2008
 #elif (_MSC_VER >= 1400)
 //      {"msvcr80.dll",  8,0,50727,42,  true },//vs2005
 //      {"mfc80.dll",    8,0,50727,42,  true },//vs2005

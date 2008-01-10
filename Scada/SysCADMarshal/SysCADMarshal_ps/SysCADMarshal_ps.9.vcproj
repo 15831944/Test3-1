@@ -87,7 +87,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rpcndr.lib rpcns4.lib rpcrt4.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="rpcns4.lib rpcrt4.lib odbc32.lib odbccp32.lib"
 				OutputFile="..\..\..\Bin\SysCADMarshal_ps.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -191,7 +191,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib rpcndr.lib rpcns4.lib rpcrt4.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib rpcns4.lib rpcrt4.lib"
 				OutputFile="..\..\..\Bin\SysCADMarshal_ps.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -299,7 +299,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib rpcndr.lib rpcns4.lib rpcrt4.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib rpcns4.lib rpcrt4.lib"
 				OutputFile="..\..\..\Bin\SysCADMarshal_ps.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
