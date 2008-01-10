@@ -2,9 +2,9 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __SOCKET_CPP
 
 #include "stdafx.h"
+#define  __SOCKET_CPP
 #include "sc_defs.h"
 #include "pgm_e.h"
 #include "Socket.h"

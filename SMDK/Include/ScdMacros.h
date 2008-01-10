@@ -19,7 +19,19 @@
   #define LIBCOMMENTHD  ""
 #endif
 
-#if _MSC_VER>=1400
+#if _MSC_VER>=1500
+
+#if defined(DISTRIBUTION)
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Distribution9" b ".lib")
+#elif defined(_DEBUG)
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Dbg9" b ".lib")
+#elif defined(_RELEASE)
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Rls9" b ".lib")
+#else
+#define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "RDb9" b ".lib")
+#endif
+
+#elif _MSC_VER>=1400
 
 #if defined(DISTRIBUTION)
 #define LIBCOMMENT(a,b) comment( lib, LIBCOMMENTHD a "Distribution8" b ".lib")

@@ -1303,6 +1303,7 @@ BOOL KWDatabase::CompactDB(long DBFmt,
     }
     catch(_com_error & e)
     {
+      e.Error(); // just ref it
       CString SOpass, SNpass;
       SOpass.Format(DBConnectOpenString(DBFmt), EscapeQuote(lpszDBNameOld));
       SNpass.Format(DBConnectCreateString(DBFmt), EscapeQuote(lpszDBNameNew));

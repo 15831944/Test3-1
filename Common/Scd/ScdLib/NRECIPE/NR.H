@@ -420,7 +420,7 @@ void rzextr(int iest, double xest, double yest[], double yz[], double dy[], int 
 void savgol(double c[], int np, int nl, int nr, int ld, int m);
 void score(double xf, double y[], double f[]);
 void scrsho(double (*fx)(double));
-double select(unsigned long k, unsigned long n, double arr[]);
+// CNM VS ver 9 ????     double select(unsigned long k, unsigned long n, double arr[]);
 double selip(unsigned long k, unsigned long n, double arr[]);
 void shell(unsigned long n, double a[]);
 void shoot(int n, double v[], double f[]);

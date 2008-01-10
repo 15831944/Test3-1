@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="80.SysCAD.CLR"
 	ProjectGUID="{DA00A361-B55B-44B6-BA7A-9BF1BCD66304}"
 	RootNamespace="SysCAD"
 	Keyword="MFCProj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -92,6 +93,8 @@
 				ProgramDatabaseFile=".\Rls8/SysCAD.pdb"
 				SubSystem="2"
 				StackReserveSize="3145728"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -110,9 +113,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -202,6 +202,8 @@
 				ProgramDatabaseFile=".\RDb8/SysCAD.pdb"
 				SubSystem="2"
 				StackReserveSize="3145728"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -220,9 +222,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -313,6 +312,8 @@
 				ProgramDatabaseFile=".\Dbg8/SysCAD.pdb"
 				SubSystem="2"
 				StackReserveSize="3145728"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -331,9 +332,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -417,6 +415,8 @@
 				ProgramDatabaseFile=".\Rls8/SysCAD.pdb"
 				SubSystem="2"
 				StackReserveSize="3145728"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -435,9 +435,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -516,6 +513,8 @@
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				StackReserveSize="3145728"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(IntDir)/$(TargetName).lib"
 			/>
 			<Tool
@@ -537,9 +536,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy tlb &amp;  Register"
 				CommandLine="..\..\common\BldCopyCOMExe.Cmd ..\..  $(TargetName)  $(OutDir)"
@@ -551,46 +547,49 @@
 		<AssemblyReference
 			RelativePath="System.Data.dll"
 			AssemblyName="System.Data, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=x86"
+			MinFrameworkVersion="131072"
 		/>
 		<AssemblyReference
 			RelativePath="System.Runtime.Remoting.dll"
 			AssemblyName="System.Runtime.Remoting, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
 		/>
 		<AssemblyReference
 			RelativePath="System.Runtime.Serialization.Formatters.Soap.dll"
 			AssemblyName="System.Runtime.Serialization.Formatters.Soap, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}"
-			RelativePathToProject=".\Common\AddProject\AddProject.csproj"
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"
 			AssemblyName="System, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
 		/>
 		<AssemblyReference
 			RelativePath="System.Drawing.dll"
 			AssemblyName="System.Drawing, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\LogView.dll"
-			AssemblyName="LogView, Version=1.0.2887.12811, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
+			AssemblyName="LogView, Version=1.0.2895.28817, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}"
-			RelativePathToProject=".\Common\AttachProject\AttachProject.csproj"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}"
-			RelativePathToProject=".\Protocol\Protocol.csproj"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
-			RelativePathToProject=".\Common\LogView\Log.csproj"
 		/>
 		<AssemblyReference
 			RelativePath="System.Windows.Forms.dll"
 			AssemblyName="System.Windows.Forms, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
 		/>
 	</References>
 	<Files>

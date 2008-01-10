@@ -4,8 +4,8 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define __TUBE_DIGESTER_CPP
 #include "stdafx.h"
+#define __TUBE_DIGESTER_CPP
 #include "TubeDigester.h"
 #include <math.h>
 //#pragma optimize("", off)

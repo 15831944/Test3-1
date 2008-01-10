@@ -2,9 +2,9 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __ELECCB_CPP
 
 #include "stdafx.h"
+#define  __ELECBLK_CPP
 #include "sc_defs.h"
 #include "pgm_e.h"
 #include "elecblk.h"

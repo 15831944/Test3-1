@@ -2,9 +2,9 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __TRANSFORMER_CPP
 
 #include "stdafx.h"
+#define  __TRANSFORMER_CPP
 #include "sc_defs.h"
 #include "pgm_e.h"
 #include "transformer.h"

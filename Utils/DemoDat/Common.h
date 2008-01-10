@@ -3,7 +3,7 @@
 
 #ifndef _QWORD_DEFINED
 #define _QWORD_DEFINED
-typedef __int64 QWORD, *LPQWORD;
+typedef unsigned __int64 QWORD, *LPQWORD;
 #endif
 
 #define MAKEQWORD(a, b)	\

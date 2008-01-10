@@ -2,9 +2,9 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __DISTRIBUTOR_CPP
 
 #include "stdafx.h"
+#define  __BUSBAR_CPP
 #include "sc_defs.h"
 #include "pgm_e.h"
 #include "busbar.h"

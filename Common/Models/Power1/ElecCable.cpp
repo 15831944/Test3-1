@@ -2,9 +2,9 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __ELECCABLE_CPP
 
 #include "stdafx.h"
+#define  __ELECCABLE_CPP
 #include "sc_defs.h"
 #include "pgm_e.h"
 #include "eleccable.h"

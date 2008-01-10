@@ -2,9 +2,9 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __SWITCH_CPP
 
 #include "stdafx.h"
+#define  __SWITCH_CPP
 #include "sc_defs.h"
 #include "pgm_e.h"
 #include "switch.h"

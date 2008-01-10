@@ -8,6 +8,8 @@
 #include <math.h>
 //#pragma optimize("", off)
 
+#pragma warning (disable: 4018 4244)
+
 #define ROUNDBY(a, b) a/b - (int)(a/b) < 0.5 ? b * (int)(a/b) : b * (int)(a/b + 1)
 
 //====================================================================================

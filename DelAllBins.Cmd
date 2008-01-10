@@ -21,6 +21,10 @@ dir dbg8 /s /b >> delallbins.tmp
 dir rdb8 /s /b >> delallbins.tmp
 dir rls8 /s /b >> delallbins.tmp
 dir distribution8 /s /b >> delallbins.tmp
+dir dbg9 /s /b >> delallbins.tmp
+dir rdb9 /s /b >> delallbins.tmp
+dir rls9 /s /b >> delallbins.tmp
+dir distribution9 /s /b >> delallbins.tmp
 dir debug /s /b >> delallbins.tmp
 dir release /s /b >> delallbins.tmp
 

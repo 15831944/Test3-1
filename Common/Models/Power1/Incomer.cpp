@@ -2,9 +2,9 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __INCOMER_CPP
 
 #include "stdafx.h"
+#define  __INCOMER_CPP
 #include "sc_defs.h"
 #include "pgm_e.h"
 #include "incomer.h"

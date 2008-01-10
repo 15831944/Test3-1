@@ -8,6 +8,8 @@
 #include <math.h>
 #pragma optimize("", off)
 
+#pragma warning (disable: 4018 4244)
+
 //====================================================================================
 
 //TODO: A Proper icon

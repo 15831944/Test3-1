@@ -2,9 +2,9 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __AIRLINK_CPP
 
 #include "stdafx.h"
+#define  __AIRLINK_CPP
 #include "sc_defs.h"
 #include "pgm_e.h"
 #include "airlink.h"

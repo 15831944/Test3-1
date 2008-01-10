@@ -1,7 +1,7 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{07620E7A-1355-41BB-A084-B72B24401F4B}</ProjectGuid>
     <SccProjectName>
@@ -34,6 +34,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <SignAssembly>true</SignAssembly>
+    <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -386,34 +387,44 @@
     </Compile>
     <EmbeddedResource Include="Design\ColorSchemePickerForm.resx">
       <DependentUpon>ColorSchemePickerForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Design\ColorUIEditorCtrl.resx">
       <DependentUpon>ColorUIEditorCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Design\ColorUIEditorCustomCtrl.resx">
       <DependentUpon>ColorUIEditorCustomCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Design\ColorUIEditorForm.resx">
       <DependentUpon>ColorUIEditorForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Design\ColorUIEditorHexagonCtrl.resx">
       <DependentUpon>ColorUIEditorHexagonCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Design\ColorUIEditorPaletteCtrl.resx">
       <DependentUpon>ColorUIEditorPaletteCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Design\ColorUIEditorPaletteLightCtrl.resx">
       <DependentUpon>ColorUIEditorPaletteLightCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Design\ColorUIEditorWheelCtrl.resx">
       <DependentUpon>ColorUIEditorWheelCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Design\InplaceEditForm.resx">
       <DependentUpon>InplaceEditForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Design\Selector.gif" />
     <EmbeddedResource Include="Design\TreeViewDesigner.resx">
       <DependentUpon>TreeViewDesigner.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="PureComponents.TreeView.bmp" />
     <EmbeddedResource Include="PureComponents.TreeViewPathSelector.bmp" />
