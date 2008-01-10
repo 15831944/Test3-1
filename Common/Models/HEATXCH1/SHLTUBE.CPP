@@ -1760,6 +1760,8 @@ ShellTube::ShellTube(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   Shell.SetPreset(&m_Preset,NULL);
   Shell.SetVLEBlk(&((CHXShlTube*)HX())->m_VLE);
 
+  SetAllowedModes(true, NM_All|SM_Direct/*|SM_Inline*/|SM_Buffered|HM_All);
+
 //  FBP.AssignFlwEqnGroup(HeatXDPGroup, HeatXDPGroup.Default(), this);
 //  FBS.AssignFlwEqnGroup(PipeEntryGroup, PipeEntryGroup.Default(), this);
 
