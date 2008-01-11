@@ -29,5 +29,12 @@ namespace SysCAD.Protocol
       get { return delete; }
       set { delete = value; }
     }
+
+    public void Clear()
+    {
+      create.Clear();
+      modify.Clear();
+      delete.Clear();
+    }
   }
 }

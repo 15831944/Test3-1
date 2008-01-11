@@ -6682,7 +6682,7 @@ void CProject::Export2Scd10()
       // CNM Removed - temp
       //m_pSvc->Save();
       }
-    m_pSvc->Export2Scd10(PrjName(), CfgFiles());
+		m_pSvc->Export2Scd10(PrjName(), PrjFiles());
     m_pSvc->Save();
     }
   }

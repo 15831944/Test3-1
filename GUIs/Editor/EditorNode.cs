@@ -14,6 +14,7 @@ namespace SysCAD.Editor
   {
     private State state;
     private GraphicNode graphicNode;
+    public ModelNode modelNode;
 
     private Box graphicBox;
     private Box modelBox;
@@ -32,10 +33,11 @@ namespace SysCAD.Editor
     private int opacity;
     private Timer opacityTimer = new Timer();
 
-    public EditorNode(State state, GraphicNode graphicNode)
+    public EditorNode(State state, GraphicNode graphicNode, ModelNode modelNode)
     {
       this.state = state;
       this.graphicNode = graphicNode;
+      this.modelNode = modelNode;
 
       opacityTimer.Interval = 100;
       opacityTimer.Elapsed += new ElapsedEventHandler(opacityTimer_Elapsed);
@@ -228,11 +230,22 @@ namespace SysCAD.Editor
       GraphicBox.Visible = visible && state.ShowGraphics;
       TextBox.Visible = visible && graphicNode.TagVisible && state.ShowTags;
 
+      ModelBox.ZIndex = GraphicBox.ZIndex + 100;
+      TextBox.ZIndex = GraphicBox.ZIndex + 200;
+
       linkHovered = false;
       foreach (Arrow arrow in ModelBox.IncomingArrows)
-        if ((arrow.Tag as EditorLink).Hovered) linkHovered = true;
+      {
+        arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
+        if ((arrow.Tag as EditorLink).Hovered) 
+          linkHovered = true;
+      }
       foreach (Arrow arrow in ModelBox.OutgoingArrows)
-        if ((arrow.Tag as EditorLink).Hovered) linkHovered = true;
+      {
+         arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
+        if ((arrow.Tag as EditorLink).Hovered) 
+          linkHovered = true;
+      }
 
       //if ((hovered) || (linkHovered))
         ModelBox.CustomDraw = CustomDraw.Additional;

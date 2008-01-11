@@ -89,6 +89,8 @@ namespace SysCAD.Editor
       this.fcFlowChart.DragEnter += new System.Windows.Forms.DragEventHandler(fcFlowChart_DragEnter);
       this.fcFlowChart.DragOver += new System.Windows.Forms.DragEventHandler(this.fcFlowChart_DragOver);
       this.fcFlowChart.DragDrop += new System.Windows.Forms.DragEventHandler(this.fcFlowChart_DragDrop);
+      this.fcFlowChart.ShowAnchors = ShowAnchors.Selected | ShowAnchors.Auto;
+
       // 
       // FrmFlowChart
       // 

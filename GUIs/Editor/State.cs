@@ -353,7 +353,7 @@ namespace SysCAD.Editor
       {
         creatingNode = true; // turn off flowchart events while we're mid-create.
 
-        EditorNode editorNode = new EditorNode(this, graphicNode);
+        EditorNode editorNode = new EditorNode(this, graphicNode, modelNode);
 
         PureComponents.TreeView.Node treeViewNode = null;
         {
@@ -490,7 +490,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private ModelStencil ModelShape(NodeClass nodeClass)
+    public ModelStencil ModelShape(NodeClass nodeClass)
     {
       ModelStencil modelStencil;
       config.ModelStencils.TryGetValue(nodeClass, out modelStencil);
@@ -1585,7 +1585,7 @@ namespace SysCAD.Editor
           else
             modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
-          modelBox.AnchorPattern = State.GetAnchorPattern(modelStencil, editorNode);
+          modelBox.AnchorPattern = GetAnchorPattern(modelStencil, editorNode);
 
           graphicBox.BoundingRect = graphicNode.BoundingRect;
           graphicBox.RotationAngle = (float)graphicNode.Angle;

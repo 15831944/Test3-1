@@ -20,26 +20,26 @@ namespace SysCAD.Editor
 
       while (editorForm != null)
       {
-        try
-        {
+        //try
+        //{
           Application.Run(editorForm);
           editorForm = null;
-        }
-        catch (Exception e)
-        {
-          DialogResult dialogResult;
-          if (e is SysCAD.Protocol.ConnectionLostException)
-            dialogResult = MessageBox.Show("The connection with the server was lost.", "Connection with server lost.", MessageBoxButtons.RetryCancel);
-          else
-            dialogResult = ShowStackTraceBox(e, editorForm);
+        //}
+        //catch (Exception e)
+        //{
+        //  DialogResult dialogResult;
+        //  if (e is SysCAD.Protocol.ConnectionLostException)
+        //    dialogResult = MessageBox.Show("The connection with the server was lost.", "Connection with server lost.", MessageBoxButtons.RetryCancel);
+        //  else
+        //    dialogResult = ShowStackTraceBox(e, editorForm);
           
-          editorForm.Dispose();
+        //  editorForm.Dispose();
 
-          if (dialogResult == DialogResult.Retry)
-            editorForm = new EditorForm();
-          else
-            editorForm = null;
-        }
+        //  if (dialogResult == DialogResult.Retry)
+        //    editorForm = new EditorForm();
+        //  else
+        //    editorForm = null;
+        //}
       }
     }
 
@@ -48,7 +48,7 @@ namespace SysCAD.Editor
       string messagePre = string.Empty;
       string messageBody = string.Empty;
 
-      messagePre += "An error has occurred.  Detailed debug information has been copied into the clipboard.\n";
+      messagePre += "1An error has occurred.  Detailed debug information has been copied into the clipboard.\n";
       messagePre += "Please add to bugzilla or email paul.hannah@syscad.net a copy of this debug information\n";
       messagePre += "along with what you were doing.\n\n";
             
@@ -160,7 +160,7 @@ namespace SysCAD.Editor
 
       Clipboard.SetText(messageBody);
 
-      return MessageBox.Show(messagePre, "An error has occurred.", MessageBoxButtons.RetryCancel);
+      return MessageBox.Show(messagePre, "2An error has occurred.", MessageBoxButtons.RetryCancel);
     }
   }
 }

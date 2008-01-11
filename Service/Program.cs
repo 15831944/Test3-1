@@ -17,8 +17,8 @@ namespace SysCAD.Service
     [STAThread]
     static int Main()
     {
-      try
-      {
+      //try
+      //{
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 
@@ -51,12 +51,12 @@ namespace SysCAD.Service
         Properties.Service.Default.Save();
 
         return 0;
-      }
-      catch (Exception e)
-      {
-        ShowStackTraceBox(e);
-        return -1;
-      }
+      //}
+      //catch (Exception e)
+      //{
+      //  ShowStackTraceBox(e);
+      //  return -1;
+      //}
     }
 
     private static void ShowStackTraceBox(Exception e)
@@ -64,7 +64,7 @@ namespace SysCAD.Service
       string messagePre = string.Empty;
       string messageBody = string.Empty;
       string messagePost = string.Empty;
-      messagePre += "An error has occurred, please add this information to bugzilla\n";
+      messagePre += "3An error has occurred, please add this information to bugzilla\n";
       messagePre += "or email a copy of this debug information along with what you\n";
       messagePre += "were doing to paul.hannah@syscad.net:\n\n";
       messageBody += "Exception message:\n" + e.Message + "\n\n";
@@ -91,7 +91,7 @@ namespace SysCAD.Service
 
       Clipboard.SetText(messageBody);
 
-      MessageBox.Show(messagePre + messageBody + messagePost, "An error has occurred.");
+      MessageBox.Show(messagePre + messageBody + messagePost, "4An error has occurred.");
     }
   }
 }

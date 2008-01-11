@@ -22,6 +22,11 @@ namespace SysCAD.Editor
 
   internal partial class EditorForm : Form, IDisposable
   {
+    public Box hoverviewBox;
+
+    public List<EditorLink> hoverviewIncomingLinks = new List<EditorLink>();
+    public List<EditorLink> hoverviewOutgoingLinks = new List<EditorLink>();
+
     private FrmFlowChart frmFlowChart;
 
     internal FrmFlowChart FrmFlowChart
@@ -868,11 +873,11 @@ namespace SysCAD.Editor
 
             //foreach (Guid guid in pasteData)
             //{
-              //graphicNode.X += dx;
-              //graphicNode.Y += dy;
-              throw new NotImplementedException("The method or operation is not implemented.");
-              //frmFlowChart.NewGraphicNode(out guid, graphicNode, tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator);
-              //frmFlowChart.State.newElementSelectionList.Add(guid);
+            //graphicNode.X += dx;
+            //graphicNode.Y += dy;
+            throw new NotImplementedException("The method or operation is not implemented.");
+            //frmFlowChart.NewGraphicNode(out guid, graphicNode, tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator);
+            //frmFlowChart.State.newElementSelectionList.Add(guid);
             //}
 
             //foreach (GraphicLink graphicLink in pasteData.graphicLinks.Values)
@@ -993,6 +998,55 @@ namespace SysCAD.Editor
     }
 
     #endregion
+
+    private void twNavigation_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    //private void fcHoverview_DrawBox(object sender, BoxDrawArgs e)
+    //{
+    //  if (hoverviewBox.Tag is EditorNode)
+    //  {
+    //    EditorNode editorNode = hoverviewBox.Tag as EditorNode;
+    //    ModelNode modelNode = editorNode.modelNode;
+    //    ModelStencil modelStencil = frmFlowChart.State.ModelShape(modelNode.NodeClass);
+    //    GraphicStencil graphicStencil = frmFlowChart.State.GraphicShape(modelNode.NodeClass);
+
+    //    Graphics graphics = e.Graphics;
+
+    //    foreach (EditorLink link in hoverviewIncomingLinks)
+    //    {
+    //      System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.Blue), 0.0F);
+
+    //      PointF anchorPointPos = FrmFlowChart.GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(hoverviewBox.BoundingRect),
+    //hoverviewBox.AnchorPattern.Points[link.GraphicLink.DestinationPortID].X,
+    //hoverviewBox.AnchorPattern.Points[link.GraphicLink.DestinationPortID].Y,
+    //hoverviewBox.RotationAngle).ToPointF();
+
+    //      PointF pt1 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
+    //                         hoverviewBox.BoundingRect,
+    //                         link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 2].ToPointF());
+    //      PointF pt2 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
+    //                         hoverviewBox.BoundingRect,
+    //                         link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 2].ToPointF());
+
+    //      Box box1 = fcHoverview.CreateBox(pt1.X, pt1.Y, 0.001F, 0.01F);
+    //      Box box2 = fcHoverview.CreateBox(pt2.X, pt2.Y, 0.001F, 0.01F);
+    //      fcHoverview.CreateArrow(box1, box2);
+    //      fcHoverview.CreateArrow(box2, anchorPointPos);
+    //      PointF[] extensionPoints =
+    //        new PointF[] { pt1, pt2, anchorPointPos };
+
+    //      e.Graphics.DrawLines(pen, extensionPoints);
+
+    //      //pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.Green), 0.0F);
+    //      //SysCAD.Protocol.Rectangle anchorPointRect = new SysCAD.Protocol.Rectangle(anchorPointPos, SysCAD.Protocol.Size.Empty);
+    //      //anchorPointRect.Inflate((double)fcFlowChart.SelHandleSize, (double)fcFlowChart.SelHandleSize);
+    //      //e.Graphics.DrawEllipse(pen, anchorPointRect);
+    //    }
+    //  }
+    //}
 
   }
 }

@@ -178,7 +178,8 @@ namespace SysCAD.Editor
     {
       arrow.Visible = Visible && state.ShowLinks;
       textBox.Visible = arrow.Visible && graphicLink.TagVisible && state.ShowTags;
-      textBox.ZIndex = arrow.ZIndex - 100000;
+      arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
+      textBox.ZIndex = arrow.ZIndex - 10000;
 
 
       arrow.CustomDraw = CustomDraw.Additional;
