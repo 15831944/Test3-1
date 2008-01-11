@@ -1269,10 +1269,10 @@ CGetExistingItems::CGetExistingItems()
 
     if (Grp.m_pDoc->GCB.pDrw->GetBounds())
     {
-      double DrwX = C3_MIN_X(&Grp.m_pDoc->GCB.pDrw->Bounds);
-      double DrwY = C3_MIN_Y(&Grp.m_pDoc->GCB.pDrw->Bounds);
-      double DrwW = C3_MAX_X(&Grp.m_pDoc->GCB.pDrw->Bounds) - DrwX;
-      double DrwH = C3_MAX_Y(&Grp.m_pDoc->GCB.pDrw->Bounds) - DrwY;
+      double DrwX = C3_MIN_X(&Grp.m_pDoc->GCB.pDrw->m_Bounds);
+      double DrwY = C3_MIN_Y(&Grp.m_pDoc->GCB.pDrw->m_Bounds);
+      double DrwW = C3_MAX_X(&Grp.m_pDoc->GCB.pDrw->m_Bounds) - DrwX;
+      double DrwH = C3_MAX_Y(&Grp.m_pDoc->GCB.pDrw->m_Bounds) - DrwY;
       bool FoundPageSz=false;
       for (int i=0; s_PgInfo[i].Nm; i++)
       {

@@ -470,13 +470,13 @@ flag CGrfDoc::Pan(DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options)
       double xc=(C3_MIN_X(&Bounds)+C3_MAX_X(&Bounds))/2.0;
       double yc=(C3_MIN_Y(&Bounds)+C3_MAX_Y(&Bounds))/2.0;
 
-      double w = Max(C3_MAX_X(&pDrw->Bounds)-C3_MIN_X(&pDrw->Bounds), (REAL)1.0);
-      double h = Max(C3_MAX_Y(&pDrw->Bounds)-C3_MIN_Y(&pDrw->Bounds), (REAL)1.0);
+      double w = Max(C3_MAX_X(&pDrw->m_Bounds)-C3_MIN_X(&pDrw->m_Bounds), (REAL)1.0);
+      double h = Max(C3_MAX_Y(&pDrw->m_Bounds)-C3_MIN_Y(&pDrw->m_Bounds), (REAL)1.0);
 
-      double x0=pDrw->Bounds.minpt[0]-0.025*w;
-      double y0=pDrw->Bounds.minpt[1]-0.025*h;
-      double x1=pDrw->Bounds.maxpt[0]+0.025*w;
-      double y1=pDrw->Bounds.maxpt[1]+0.025*h;
+      double x0=pDrw->m_Bounds.minpt[0]-0.025*w;
+      double y0=pDrw->m_Bounds.minpt[1]-0.025*h;
+      double x1=pDrw->m_Bounds.maxpt[0]+0.025*w;
+      double y1=pDrw->m_Bounds.maxpt[1]+0.025*h;
 
       double xlh=xl/2.0;
       double ylh=yl/2.0;

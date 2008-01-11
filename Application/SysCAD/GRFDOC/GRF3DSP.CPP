@@ -1885,8 +1885,8 @@ void Grf3D_Display::SetZoom(ZoomTypes ZoomTypeIn, REAL wxl, REAL wyl, REAL wxh, 
       h = fabs(C3_MAX_Y(&vp.ZoomBox)-C3_MIN_Y(&vp.ZoomBox));
       if (w <1.0e-6 && vp.Drw->GetBounds())
         {
-        p1.Set(C3_MIN_X(&vp.Drw->Bounds), C3_MIN_Y(&vp.Drw->Bounds));
-        p2.Set(C3_MAX_X(&vp.Drw->Bounds), C3_MAX_Y(&vp.Drw->Bounds));
+        p1.Set(C3_MIN_X(&vp.Drw->m_Bounds), C3_MIN_Y(&vp.Drw->m_Bounds));
+        p2.Set(C3_MAX_X(&vp.Drw->m_Bounds), C3_MAX_Y(&vp.Drw->m_Bounds));
         c3a_box_init_pt(&vp.ZoomBox, p1.p());
         c3a_box_append_pt(&vp.ZoomBox, p2.p());
         w = fabs(C3_MAX_X(&vp.ZoomBox)-C3_MIN_X(&vp.ZoomBox));
@@ -1940,11 +1940,11 @@ void Grf3D_Display::SetZoom(ZoomTypes ZoomTypeIn, REAL wxl, REAL wyl, REAL wxh, 
         //xc = (float)(0.5*(C3_MAX_X(&vp.Drw->Bounds)+C3_MIN_X(&vp.Drw->Bounds)));
         //yc = (float)(0.5*(C3_MAX_Y(&vp.Drw->Bounds)+C3_MIN_Y(&vp.Drw->Bounds)));
         //zc = (float)(0.5*(C3_MAX_Z(&vp.Drw->Bounds)+C3_MIN_Z(&vp.Drw->Bounds)));
-        xc = (float)(0.5*Range((REAL)-1.0e38, C3_MAX_X(&vp.Drw->Bounds)+C3_MIN_X(&vp.Drw->Bounds), (REAL)1.0e38));
-        yc = (float)(0.5*Range((REAL)-1.0e38, C3_MAX_Y(&vp.Drw->Bounds)+C3_MIN_Y(&vp.Drw->Bounds), (REAL)1.0e38));
-        zc = (float)(0.5*Range((REAL)-1.0e38, C3_MAX_Z(&vp.Drw->Bounds)+C3_MIN_Z(&vp.Drw->Bounds), (REAL)1.0e38));
-        w = Range((REAL)1.0, C3_MAX_X(&vp.Drw->Bounds)-C3_MIN_X(&vp.Drw->Bounds), (REAL)1.0e30);
-        h = Range((REAL)1.0, C3_MAX_Y(&vp.Drw->Bounds)-C3_MIN_Y(&vp.Drw->Bounds), (REAL)1.0e30);
+        xc = (float)(0.5*Range((REAL)-1.0e38, C3_MAX_X(&vp.Drw->m_Bounds)+C3_MIN_X(&vp.Drw->m_Bounds), (REAL)1.0e38));
+        yc = (float)(0.5*Range((REAL)-1.0e38, C3_MAX_Y(&vp.Drw->m_Bounds)+C3_MIN_Y(&vp.Drw->m_Bounds), (REAL)1.0e38));
+        zc = (float)(0.5*Range((REAL)-1.0e38, C3_MAX_Z(&vp.Drw->m_Bounds)+C3_MIN_Z(&vp.Drw->m_Bounds), (REAL)1.0e38));
+        w = Range((REAL)1.0, C3_MAX_X(&vp.Drw->m_Bounds)-C3_MIN_X(&vp.Drw->m_Bounds), (REAL)1.0e30);
+        h = Range((REAL)1.0, C3_MAX_Y(&vp.Drw->m_Bounds)-C3_MIN_Y(&vp.Drw->m_Bounds), (REAL)1.0e30);
         const REAL ZoomBorderFactor = 1.05;
         w*=ZoomBorderFactor;
         h*=ZoomBorderFactor;
@@ -1967,11 +1967,11 @@ void Grf3D_Display::SetZoom(ZoomTypes ZoomTypeIn, REAL wxl, REAL wyl, REAL wxh, 
 #pragma chNOTE("NBNB EntityInvalidate()")
           //
           vp3_set_view_dir(vp.vp, r0, r1);//PI/6);
-          vp3_fit(vp.vp, &vp.Drw->Bounds,2.1);
+          vp3_fit(vp.vp, &vp.Drw->m_Bounds,2.1);
 
-          xl = Max(C3_MAX_X(&vp.Drw->Bounds)-C3_MIN_X(&vp.Drw->Bounds), (REAL)1.0);
-          yl = Max(C3_MAX_Y(&vp.Drw->Bounds)-C3_MIN_Y(&vp.Drw->Bounds), (REAL)1.0);
-          zl = Max(C3_MAX_Z(&vp.Drw->Bounds)-C3_MIN_Z(&vp.Drw->Bounds), (REAL)1.0);
+          xl = Max(C3_MAX_X(&vp.Drw->m_Bounds)-C3_MIN_X(&vp.Drw->m_Bounds), (REAL)1.0);
+          yl = Max(C3_MAX_Y(&vp.Drw->m_Bounds)-C3_MIN_Y(&vp.Drw->m_Bounds), (REAL)1.0);
+          zl = Max(C3_MAX_Z(&vp.Drw->m_Bounds)-C3_MIN_Z(&vp.Drw->m_Bounds), (REAL)1.0);
 
           PT3 P;
           P[0]=xc-xl/2.0;

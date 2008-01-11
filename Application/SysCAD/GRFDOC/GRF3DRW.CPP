@@ -1779,6 +1779,103 @@ flag CGrfLayer::GetCurveBox(C3_BOX_S *box,C3_CURVE c,double *BiggestDim)
   }
 
 //----------------------------------------------------------------------------
+//#ifdef dbgclosestc
+
+flag CGrfLayer::GetCurveSegs(PT3 * StartSeg, PT3 * EndSeg,C3_CURVE c,C3_TRANSFORM c3t)
+  {
+  DML_ITEM it;
+  //C3_CURVE Cls = NULL;
+  //C3_CURVE c;
+  //DistMin = 1.0e38;
+
+  //WALK_CURVE_LIST(CurveLst, it, c)
+  //  {
+    //PT3 Ray;
+    //c3v_set(0.,0.,1.,Ray);
+    //REAL d=1.0e38;
+
+    int seg;
+    REAL rad, sweep;
+    PT3 ctr, ept0, ept1, normal;
+    //PT3 ept0, ept1;
+    flag more, is_arc;
+
+    c3c_ept0(c,ept0);
+#ifdef dbgstartend
+    dbgpln("  Point                       %8.2f,%8.2f",Point[0],Point[1]);
+    dbgpln("  start   %8.2f,%8.2f ",ept0[0],ept0[1]);
+#endif
+    seg=0;
+    more=c3c_get_pcurve_data(c,seg,&is_arc,ctr,ept1,&rad,normal,&sweep);
+    while (more)
+      {
+      if (!is_arc)
+        {
+        if (seg==0)
+          {
+          c3t_eval_pt(ept0, c3t, StartSeg[0]);
+          c3t_eval_pt(ept1, c3t, StartSeg[1]);
+          }
+        c3t_eval_pt(ept0, c3t, EndSeg[0]);
+        c3t_eval_pt(ept1, c3t, EndSeg[1]);
+        }
+//      PT3 p;
+//      REAL t=c3v_project_line(ept0,ept1,Point,p);
+//      REAL dt;
+//      if (t < 0.0)
+//        dt=c3v_dist(ept0, Point);
+//      else if (t > 1.0)
+//        dt=c3v_dist(ept1, Point);
+//      else
+//        dt=c3v_dist(p, Point);
+//
+//      d = Min(d,dt);
+//
+//#ifdef dbgstartend
+//      dbgpln("  seg %2i %8.2f,%8.2f   %8.2f,%8.2f   %8.4f  %8.2f",seg,ept1[0],ept1[1],p[0],p[1],t, dt);
+//#endif
+      seg++;
+      memmove(ept0,ept1,sizeof(ept0));
+      more=c3c_get_pcurve_data(c,seg,&is_arc,ctr,ept1,&rad,normal,&sweep);
+      }
+
+//    if (d < DistMin)
+//      {
+//      DistMin = d;
+//      Cls = c;
+//#ifdef dbgstartend
+//      dbgpln("                                                           <<<<<<<<<");
+//#endif
+//      }
+//    }
+#ifdef dbgstartend
+  dbgpln("==================================================");
+#endif
+//  PT3 pt0,pt1;
+//  c3t_eval_pt(C3_MIN_PT(C3_CURVE_BOX(c)), c3t, pt0);
+//  c3t_eval_pt(C3_MAX_PT(C3_CURVE_BOX(c)), c3t, pt1);
+//_asm int 3;
+//  //c3a_box_init_pt(box, pt0);
+//  //c3a_box_append_pt(box, pt1);
+
+  return True;
+  }
+
+//----------------------------------------------------------------------------
+
+flag CGrfLayer::GetCurveSegs(PT3 * StartSeg, PT3 * EndSeg,C3_CURVE c)
+  {
+  PT3 pt0,pt1;
+  c3v_copy(C3_MIN_PT(C3_CURVE_BOX(c)), pt0);
+  c3v_copy(C3_MAX_PT(C3_CURVE_BOX(c)), pt1);
+_asm int 3;
+  //c3a_box_init_pt(box, pt0);
+  //c3a_box_append_pt(box, pt1);
+
+  return True;
+  }
+
+//----------------------------------------------------------------------------
 
 void CGrfLayer::Explode(C3_TRANSFORM xfrm, DXF_ENTITY insert,pBlock b)
   {
@@ -2069,6 +2166,177 @@ void CGrfLayer::GetBounds(C3_TRANSFORM c3t, C3_BOX Bounds, DML_LIST TheCurveLst,
 #endif
       }
     }
+  }
+
+//----------------------------------------------------------------------------
+
+void CGrfLayer::GetStartEnd(C3_TRANSFORM c3t, PT3 * StartSeg, PT3 * EndSeg)
+  {
+  DML_ITEM it;
+  C3_CURVE c;
+  PT3 Start[2]={{dNAN}};
+  PT3 End[2]={{dNAN}};
+
+  WALK_CURVE_LIST(CurveLst,it, c)
+    {
+    if( GetCurveSegs(Start, End,c,c3t))
+      {
+      if (Valid(Start[0][0]))
+        {
+        c3v_copy(Start[0], StartSeg[0]);
+        c3v_copy(Start[1], StartSeg[1]);
+        }
+      if (Valid(End[0][0]))
+        {
+        c3v_copy(End[0], EndSeg[0]);
+        c3v_copy(End[1], EndSeg[1]);
+        }
+      
+      //if (C3_MAX_X(StartEnd) < 1.0e30)
+      //  {
+      //  c3a_box_append(StartEnd, &box);
+      //  }
+      //else
+      //  {
+      //  c3a_box_copy(&box, StartEnd);
+      //  }
+
+#if dbgdxfgetb
+      dbgp("\nCurve Lst X:%6.0f %6.0f  Y:%6.0f %6.0f   Z:%6.0f %6.0f",C3_MIN_X(&box),C3_MAX_X(&box),C3_MIN_Y(&box), C3_MAX_Y(&box), C3_MIN_Z(&box), C3_MAX_Z(&box));
+#endif
+      }
+    }
+
+  DXF_ENTITY e;
+  WALK_ENTITY_LIST(InsertLst, it, e)
+    {
+    pBlock b;
+    b=Drawing->Blocks.Find(DXF_INSERT_BLOCK_GET(e));
+    if (b)
+      {
+      C3_TRANSFORM c3t_mem;
+      ASSIGN_ARRAY(c3t_mem, c3t, c3t_mem);
+
+      C3_TRANSFORM Imat;
+      Drawing->ConstructInsertMatrix(Imat,b,e);
+      c3t_mult(Imat,c3t_mem,c3t);
+      b->GetStartEnd(c3t, StartSeg, EndSeg);
+      ASSIGN_ARRAY(c3t, c3t_mem, c3t_mem);
+      }
+
+#if dbgdxfgetb
+    dbgp("\nInsertLst X:%6.0f %6.0f  Y:%6.0f %6.0f   Z:%6.0f %6.0f",C3_MIN_X(&box),C3_MAX_X(&box),C3_MIN_Y(&box), C3_MAX_Y(&box), C3_MIN_Z(&box), C3_MAX_Z(&box));
+    dbgp("\n : %s", DXF_INSERT_BLOCK_GET(e));
+#endif
+    }
+
+//  WALK_ENTITY_LIST(OtherLst, it, e)
+//    {
+//    if( GetEntityBox(&box,e))
+//      {
+//      /***
+//      CNM Removed because Transform is not taken into account
+//
+//      if (C3_MAX_X(StartEnd) < 1.0e30)
+//      c3a_box_append(StartEnd, &box);
+//      else
+//      c3a_box_copy(&box, StartEnd);
+//      */
+//
+//#if dbgdxfgetb
+//      dbgp("\n OtherLst X:%6.0f %6.0f  Y:%6.0f %6.0f   Z:%6.0f %6.0f",C3_MIN_X(&box),C3_MAX_X(&box),C3_MIN_Y(&box), C3_MAX_Y(&box), C3_MIN_Z(&box), C3_MAX_Z(&box));
+//#endif
+//      }
+//    }
+  }
+
+//----------------------------------------------------------------------------
+
+void CGrfLayer::GetStartEnd(C3_TRANSFORM c3t, PT3 * StartSeg, PT3 * EndSeg, DML_LIST TheCurveLst, DML_LIST TheInsertLst, DML_LIST TheOtherLst)
+  {
+  DML_ITEM it;
+  C3_CURVE c;
+  PT3 Start[2]={{dNAN}};
+  PT3 End[2]={{dNAN}};
+
+  WALK_CURVE_LIST(CurveLst,it, c)
+    {
+    if( GetCurveSegs(Start, End,c,c3t))
+      {
+      if (Valid(Start[0][0]))
+        {
+        c3v_copy(Start[0], StartSeg[0]);
+        c3v_copy(Start[1], StartSeg[1]);
+        }
+      if (Valid(End[0][0]))
+        {
+        c3v_copy(End[0], EndSeg[0]);
+        c3v_copy(End[1], EndSeg[1]);
+        }
+ 
+      //if (C3_MAX_X(StartEnd) < 1.0e30)
+      //  {
+      //  c3a_box_append(StartEnd, &box);
+      //  }
+      //else
+      //  {
+      //  c3a_box_copy(&box, StartEnd);
+      //  }
+
+#if dbgdxfgetb
+      dbgp("\nCurve Lst X:%6.0f %6.0f  Y:%6.0f %6.0f   Z:%6.0f %6.0f",C3_MIN_X(&box),C3_MAX_X(&box),C3_MIN_Y(&box), C3_MAX_Y(&box), C3_MIN_Z(&box), C3_MAX_Z(&box));
+#endif
+      }
+    }
+
+  DXF_ENTITY e;
+  WALK_ENTITY_LIST(TheInsertLst, it, e)
+    {
+    if (DX_ENTITY_ID(e)==DXF_INSERT)
+      {
+      pBlock b;
+      b=Drawing->Blocks.Find(DXF_INSERT_BLOCK_GET(e));
+      if (b)
+        {
+        C3_TRANSFORM c3t_mem;
+        ASSIGN_ARRAY(c3t_mem, c3t, c3t_mem);
+
+        C3_TRANSFORM Imat;
+        Drawing->ConstructInsertMatrix(Imat,b,e);
+        c3t_mult(Imat,c3t_mem,c3t);
+        b->GetStartEnd(c3t, StartSeg, EndSeg);
+        ASSIGN_ARRAY(c3t, c3t_mem, c3t_mem);
+        }
+      }
+    else
+      {
+      dbgp("GetStartEnd Missing code for ID %i",DX_ENTITY_ID(e));
+      }
+
+#if dbgdxfgetb
+    dbgp("\nInsertLst X:%6.0f %6.0f  Y:%6.0f %6.0f   Z:%6.0f %6.0f",C3_MIN_X(&box),C3_MAX_X(&box),C3_MIN_Y(&box), C3_MAX_Y(&box), C3_MIN_Z(&box), C3_MAX_Z(&box));
+    dbgp("\n : %s", DXF_INSERT_BLOCK_GET(e));
+#endif
+    }
+
+//  WALK_ENTITY_LIST(TheOtherLst, it, e)
+//    {
+//    if( GetEntityBox(&box,e))
+//      {
+//      /***
+//      CNM Removed because Transform is not taken into account
+//
+//      if (C3_MAX_X(StartEnd) < 1.0e30)
+//      c3a_box_append(StartEnd, &box);
+//      else
+//      c3a_box_copy(&box, StartEnd);
+//      */
+//
+//#if dbgdxfgetb
+//      dbgp("\n OtherLst X:%6.0f %6.0f  Y:%6.0f %6.0f   Z:%6.0f %6.0f",C3_MIN_X(&box),C3_MAX_X(&box),C3_MIN_Y(&box), C3_MAX_Y(&box), C3_MIN_Z(&box), C3_MAX_Z(&box));
+//#endif
+//      }
+//    }
   }
 
 //============================================================================
@@ -2563,6 +2831,30 @@ void LayerCollection::GetBounds(C3_TRANSFORM c3t, C3_BOX Bounds, DML_LIST TheCur
   CGrfLayer * l;
   WALK_LAYERS(Layers, NULL, l)
     l->GetBounds(c3t, Bounds, TheCurveLst, TheInsertLst, TheOtherLst);
+  }
+
+//----------------------------------------------------------------------------
+
+void LayerCollection::GetStartEnd(C3_TRANSFORM c3t, PT3 * StartSeg, PT3 * EndSeg)
+  {
+#if dbgdxfgetb
+  dbgp("\nLayerCollection::GetStartEnd");
+#endif
+  CGrfLayer * l;
+  WALK_LAYERS(Layers, NULL, l)
+    l->GetStartEnd(c3t, StartSeg, EndSeg);
+  }
+
+//----------------------------------------------------------------------------
+
+void LayerCollection::GetStartEnd(C3_TRANSFORM c3t, PT3 * StartSeg, PT3 * EndSeg, DML_LIST TheCurveLst, DML_LIST TheInsertLst, DML_LIST TheOtherLst)
+  {
+#if dbgdxfgetb
+  dbgp("\nLayerCollection::GetStartEnd");
+#endif
+  CGrfLayer * l;
+  WALK_LAYERS(Layers, NULL, l)
+    l->GetStartEnd(c3t, StartSeg, EndSeg, TheCurveLst, TheInsertLst, TheOtherLst);
   }
 
 //----------------------------------------------------------------------------
@@ -5271,7 +5563,7 @@ DXF_Drawing::DXF_Drawing(pGrf3D_Display pDsp_, pchar Fn, flag InitForSyscad) : L
 
   PT3 p;
   c3v_set_zero(p);
-  c3a_box_init_pt(&Bounds, p);
+  c3a_box_init_pt(&m_Bounds, p);
   SetPageSize(A4_Page);
   MakeLayerName(CurLayer, Drawing_Layer, "");
 
@@ -6639,7 +6931,7 @@ flag DXF_Drawing::GetBounds()
   {
   PT3 p;
   c3v_set(1.1e30, 1.1e30, 1.1e30, p);
-  c3a_box_init_pt(&Bounds, p);
+  c3a_box_init_pt(&m_Bounds, p);
 
   C3_TRANSFORM c3t;// = c3t_create();
 
@@ -6648,12 +6940,12 @@ flag DXF_Drawing::GetBounds()
   c3t[2][0] = c3t[2][1] = c3t[2][2] = c3t[2][3] = 0.0;
   c3t[0][0] = c3t[1][1] = c3t[2][2] = 1.0;
 
-  LayerCollection::GetBounds(c3t, &Bounds);
+  LayerCollection::GetBounds(c3t, &m_Bounds);
   //c3t_free(c3t);
 
   //double xc = (float)(0.5*(C3_MAX_X(&Bounds)+C3_MIN_X(&Bounds)));
-  double xc = (0.5*(C3_MAX_X(&Bounds)+C3_MIN_X(&Bounds)));
-  double yc = (0.5*(C3_MAX_Y(&Bounds)+C3_MIN_Y(&Bounds)));
+  double xc = (0.5*(C3_MAX_X(&m_Bounds)+C3_MIN_X(&m_Bounds)));
+  double yc = (0.5*(C3_MAX_Y(&m_Bounds)+C3_MIN_Y(&m_Bounds)));
   return (xc < 1.0e30 && yc < 1.0e30);
   }
 
@@ -6679,6 +6971,49 @@ flag DXF_Drawing::GetBounds(C3_BOX TheBounds, DML_LIST TheCurveLst, DML_LIST The
   double xc = (0.5*(C3_MAX_X(TheBounds)+C3_MIN_X(TheBounds)));
   double yc = (0.5*(C3_MAX_Y(TheBounds)+C3_MIN_Y(TheBounds)));
   return (xc < 1.0e30 && yc < 1.0e30);
+  }
+
+//----------------------------------------------------------------------------
+
+flag DXF_Drawing::GetStartEnd()
+  {
+  c3v_set(1.1e30, 1.1e30, 1.1e30, m_StartSeg[0]);
+  c3v_set(1.1e30, 1.1e30, 1.1e30, m_StartSeg[1]);
+  c3v_set(1.1e30, 1.1e30, 1.1e30, m_EndSeg[0]);
+  c3v_set(1.1e30, 1.1e30, 1.1e30, m_EndSeg[1]);
+
+  C3_TRANSFORM c3t;// = c3t_create();
+
+  c3t[0][0] = c3t[0][1] = c3t[0][2] = c3t[0][3] = 0.0;
+  c3t[1][0] = c3t[1][1] = c3t[1][2] = c3t[1][3] = 0.0;
+  c3t[2][0] = c3t[2][1] = c3t[2][2] = c3t[2][3] = 0.0;
+  c3t[0][0] = c3t[1][1] = c3t[2][2] = 1.0;
+
+  LayerCollection::GetStartEnd(c3t, m_StartSeg, m_EndSeg);
+  //c3t_free(c3t);
+
+  return (m_StartSeg[0][0]<1.1e30);
+  }
+
+//----------------------------------------------------------------------------
+
+flag DXF_Drawing::GetStartEnd(PT3 * TheStartSeg, PT3 * TheEndSeg, DML_LIST TheCurveLst, DML_LIST TheInsertLst, DML_LIST TheOtherLst)
+  {
+  c3v_set(1.1e30, 1.1e30, 1.1e30, TheStartSeg[0]);
+  c3v_set(1.1e30, 1.1e30, 1.1e30, TheStartSeg[1]);
+  c3v_set(1.1e30, 1.1e30, 1.1e30, TheEndSeg[0]);
+  c3v_set(1.1e30, 1.1e30, 1.1e30, TheEndSeg[1]);
+
+  C3_TRANSFORM c3t;// = c3t_create();
+
+  c3t[0][0] = c3t[0][1] = c3t[0][2] = c3t[0][3] = 0.0;
+  c3t[1][0] = c3t[1][1] = c3t[1][2] = c3t[1][3] = 0.0;
+  c3t[2][0] = c3t[2][1] = c3t[2][2] = c3t[2][3] = 0.0;
+  c3t[0][0] = c3t[1][1] = c3t[2][2] = 1.0;
+
+  LayerCollection::GetStartEnd(c3t, TheStartSeg, TheEndSeg,TheCurveLst, TheInsertLst, TheOtherLst);
+
+  return (TheStartSeg[0][0]<1.1e30);
   }
 
 //----------------------------------------------------------------------------
@@ -9111,82 +9446,77 @@ void DXF_Drawing::AlignSelectedInserts(pViewport vp)
 
 //---------------------------------------------------------------------------
 
-struct CSym { bool m_Circle; bool m_IsStart; bool m_Done; PT3 m_Pt; };
+const byte SymNext   = 0;
+const byte SymLine   = 1;
+const byte SymCircle = 2;
+const byte SymArc    = 3;
+const byte SymDone   = 99;
+
+struct CSym { byte m_What; /*bool m_IsStart; bool m_Done;*/ PT3 m_Pt; };
 static CSym MakeupSym[] =
   {
-    {0, 1, 0,   { -10.0,   6.5 }, },
-    {0, 0, 0,   { -10.0,   3.5 }, },
-    {0, 1, 0,   { -10.0,   5.0 }, },
-    {0, 0, 0,   {  -5.0,   5.0 }, },
-    {0, 0, 0,   {  -1.0,   1.0 }, },
-
-    {0, 1, 0,   {  -2.0,   2.6 }, },
-    {0, 0, 0,   {  -1.0,   1.0 }, },
-    {0, 0, 0,   {  -2.6,   2.0 }, },
-    {0, 0, 0,   {  -2.0,   2.6 }, },
+    { SymLine  , {  -10.0,   6.5 } },
+    { 0        , {  -10.0,   3.5 } },
+    { SymLine  , {  -10.0,   5.0 } },
+    { 0        , {   -5.0,   5.0 } },
+    { 0        , {   -1.0,   1.0 } },
+                 
+    { SymLine  , {   -2.0,   2.6 } },
+    { 0        , {   -1.0,   1.0 } },
+    { 0        , {   -2.6,   2.0 } },
+    { 0        , {   -2.0,   2.6 } },
+                 
+    { SymLine  , {   -1.9,   2.2 } },
+    { 0        , {   -1.0,   1.0 } },
+    { 0        , {   -2.2,   1.9 } },
+    { 0        , {   -1.9,   2.2 } },
     
-    {0, 1, 0,   {  -1.9,   2.2 }, },
-    {0, 0, 0,   {  -1.0,   1.0 }, },
-    {0, 0, 0,   {  -2.2,   1.9 }, },
-    {0, 0, 0,   {  -1.9,   2.2 }, },
-    
-    {0, 0, 1,                      },
+    { SymDone                      },
   };
 static CSym SpillSym[] =
   {                                                     
-    {0, 1, 0,   {     2 ,     0 }, },
-    {0, 0, 0,   {     6 ,     0 }, },
-    {0, 0, 0,   {     6 ,    -2 }, },
-    {0, 1, 0,   {     4 ,    -2 }, },
-    {0, 0, 0,   {     6 ,    -4 }, },
-    {0, 0, 0,   {     6 ,    -6 }, },
-    {0, 1, 0,   {     8 ,    -2 }, },
-    {0, 0, 0,   {     6 ,    -4 }, },
-    {0, 0, 1,                      },
-  };
+    { SymLine  , {     2 ,     0 } },
+    { 0        , {     6 ,     0 } },
+    { 0        , {     6 ,    -2 } },
+    { SymLine  , {     4 ,    -2 } },
+    { 0        , {     6 ,    -4 } },
+    { 0        , {     6 ,    -6 } },
+    { SymLine  , {     8 ,    -2 } },
+    { 0        , {     6 ,    -4 } },
+    { SymDone                      },
+  };           
 static CSym VentSym[] =
-  {
-    {0, 1, 0,   {     2 ,     0 }, },
-    {0, 0, 0,   {     6 ,     0 }, },
-    {0, 0, 0,   {     6 ,     3 }, },
-    {0, 1, 0,   {     4 ,     3 }, },
-    {0, 0, 0,   {     6 ,     5 }, },
-    {0, 0, 0,   {     8 ,     3 }, },
-    {0, 0, 1,                      },
+  {             
+    { SymLine  , {     2 ,     0 } },
+    { 0        , {     6 ,     0 } },
+    { 0        , {     6 ,     3 } },
+    { SymLine  , {     4 ,     3 } },
+    { 0        , {     6 ,     5 } },
+    { 0        , {     8 ,     3 } },
+    { SymDone                      },
   };
-static CSym TearSymH[] =
+static CSym TearSym[] =
   {
-    {0, 1, 0,   {    -1 ,    2 }, },
-    {0, 0, 0,   {    -0 ,    1 }, },
-    {0, 0, 0,   {    -1 ,   -1 }, },
-    {0, 0, 0,   {    -0 ,   -2 }, },
-    {0, 1, 0,   {     0 ,    2 }, },
-    {0, 0, 0,   {     1 ,    1 }, },
-    {0, 0, 0,   {     0 ,   -1 }, },
-    {0, 0, 0,   {     1 ,   -2 }, },
-    {0, 0, 1,                     },
+    { SymLine     , {     -3 ,   2 } },
+    { 0           , {     -2 ,   2 } },
+    { 0           , {      0 ,   0 } },
+    { 0           , {     -2 ,  -2 } },
+    { 0           , {     -3 ,  -2 } },
+    { 0           , {     -1 ,   0 } },
+    { 0           , {     -3 ,   2 } },
+
+    { SymLine     , {     -3+2 ,   2 } },
+    { 0           , {     -2+2 ,   2 } },
+    { 0           , {      0+2 ,   0 } },
+    { 0           , {     -2+2 ,  -2 } },
+    { 0           , {     -3+2 ,  -2 } },
+    { 0           , {     -1+2 ,   0 } },
+    { 0           , {     -3+2 ,   2 } },
+
+    { SymDone                     },
   };
-static CSym TearSymV[] =
-  {
-    {0, 1, 0,   {     2 ,   -1 }, },
-    {0, 0, 0,   {     1 ,   -0 }, },
-    {0, 0, 0,   {    -1 ,   -1 }, },
-    {0, 0, 0,   {    -2 ,   -0 }, },
-    {0, 1, 0,   {     2 ,    0 }, },
-    {0, 0, 0,   {     1 ,    1 }, },
-    {0, 0, 0,   {    -1 ,    0 }, },
-    {0, 0, 0,   {    -2 ,    1 }, },
-    {0, 0, 1,                     },
-  };
-//static CSym TearSym[] =
-//  {
-//    {0, 1, 0,   {    -2 ,    0 }, },
-//    {0, 0, 0,   {     0 ,    2 }, },
-//    {0, 0, 0,   {     2 ,    0 }, },
-//    {0, 0, 0,   {     0 ,   -2 }, },
-//    {0, 0, 0,   {    -2 ,    0 }, },
-//    {0, 0, 1,                     },
-//  };
+
+inline double Rad2Deg(double a) { return 180.0/PI*(a<0 ? a+2*PI:a); };
 
 DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount, LPCSTR NdTagStr, LPCSTR TagStr, DXF_ENTITY OwnerEntity)
   {
@@ -9197,15 +9527,22 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount,
   //REAL llength = 0.6*c_rad;
   Pt_3f AssocGrfPos;
 
+  REAL Rotation=0;
   Pt_3f AssTagPos;
   Pt_3f zero;
   Attr_Settings Atag(50,DXF_ATTRIB_INVIS,t_hgt,1.0,0.0,GR_DARKGRAY,Text_Left ,Text_Baseline,"STANDARD");
 
+  C3_BOX_S Bnds;         
+  PT3 StartSeg[2];         
+  PT3 EndSeg[2];         
   DML_LIST Lst=dml_create_list();
   DML_LIST EmptyLst=dml_create_list();
   dml_insert_after(Lst, NULL, OwnerEntity);
-  C3_BOX_S Bnds ;                      
-  GetBounds(&Bnds, EmptyLst, Lst, EmptyLst);
+
+  if (Type==eAG_Tear)
+    GetStartEnd(StartSeg, EndSeg, EmptyLst, Lst, EmptyLst);
+  else
+    GetBounds(&Bnds, EmptyLst, Lst, EmptyLst);
 
   dml_free_list(Lst);
   dml_free_list(EmptyLst);
@@ -9255,19 +9592,10 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount,
         }
       case eAG_Tear:
         {
-        if (1)
-          {
-          BlockName="TEARH_ASSOCGRF";
-          pSym=TearSymH;
-          AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1], pt[2]);
-          }
-        else
-          {
-          BlockName="TEARV_ASSOCGRF";
-          pSym=TearSymV;
-          AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1], pt[2]);
-          }
-
+        BlockName="TEAR_ASSOCGRF";
+        pSym=TearSym;
+        Rotation=atan2(StartSeg[1][1]-StartSeg[0][1], StartSeg[1][0]-StartSeg[0][0]);
+        AssocGrfPos.Set(StartSeg[0][0]+3*cos(Rotation), StartSeg[0][1]+3*sin(Rotation), pt[2]);
         AssTagPos.Set(0.0, 0.0, 0.0);
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;
@@ -9284,28 +9612,32 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount,
 
         AssocGrf = Add_Block(BlockName,zero.p());
         C3_CURVE cc = NULL;
-        while (!pSym->m_Done)
+        while (pSym->m_What!=SymDone)
           {
-          if (pSym->m_Circle)
+          switch (pSym->m_What)
             {
-            AssocGrf->Add_Circle(pSym->m_Pt,(pSym+1)->m_Pt,(pSym+2)->m_Pt);
-            pSym+=3;
-            }
-          else if (pSym->m_IsStart)
-            {
-            cc = AssocGrf->Add_PLine_Start(pSym->m_Pt);
-            pSym++;
-            }
-          else
-            {
-            AssocGrf->Add_PLine_Vertex(cc,pSym->m_Pt);
-            pSym++;
+            case SymLine:
+              cc = AssocGrf->Add_PLine_Start(pSym->m_Pt);
+              pSym++;
+              break;
+            case SymNext:
+              AssocGrf->Add_PLine_Vertex(cc,pSym->m_Pt);
+              pSym++;
+              break;
+            case SymCircle:
+              AssocGrf->Add_Circle(pSym->m_Pt,(pSym+1)->m_Pt[0]);
+              pSym+=2;
+              break;
+            case SymArc:
+              AssocGrf->Add_Circle(pSym->m_Pt,(pSym+1)->m_Pt,(pSym+2)->m_Pt);
+              pSym+=3;
+              break;
             }
           }
         }
       }
 
-    InsSym = Create_Insert(BlockName, AssocGrfPos, GR_LIGHTCYAN);
+    InsSym = Create_Insert(BlockName, AssocGrfPos, GR_LIGHTCYAN, Pt_3f(1,1,1), Rad2Deg(Rotation));
 
     Add_Insert_Attrib(InsSym,TagAttribStr,        (LPSTR)TagStr,        AssTagPos.p(), Atag);
     Add_Insert_Attrib(InsSym,AssocTagAttribStr,  (LPSTR)NdTagStr,      AssTagPos.p(), Atag);

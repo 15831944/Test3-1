@@ -508,6 +508,8 @@ class CGrfLayer
     flag             GetEntityBox(C3_BOX_S *box,DXF_ENTITY e,double *BiggestDim = NULL);
     flag             GetCurveBox(C3_BOX_S *box,C3_CURVE c,C3_TRANSFORM c3t,double *BiggestDim = NULL);
     flag             GetCurveBox(C3_BOX_S *box,C3_CURVE c,double *BiggestDim = NULL);
+    flag             GetCurveSegs(PT3 * StartSeg, PT3 * EndSeg,C3_CURVE c,C3_TRANSFORM c3t);
+    flag             GetCurveSegs(PT3 * StartSeg, PT3 * EndSeg,C3_CURVE c);
     void             Add(DXF_ENTITY e);
     void             Add(C3_CURVE c);
     void             Put(DXF_FILE f);
@@ -518,6 +520,8 @@ class CGrfLayer
     DML_LIST         SelectNearbyCurves(DML_LIST l,PT3 p,REAL tol);
     void             GetBounds(C3_TRANSFORM c3t, C3_BOX Bounds);
     void             GetBounds(C3_TRANSFORM c3t, C3_BOX Bounds, DML_LIST TheCurveLst, DML_LIST TheInsertLst, DML_LIST TheOtherLst);
+    void             GetStartEnd(C3_TRANSFORM c3t, PT3 * StartSeg, PT3 * EndSeg);
+    void             GetStartEnd(C3_TRANSFORM c3t, PT3 * StartSeg, PT3 * EndSeg, DML_LIST TheCurveLst, DML_LIST TheInsertLst, DML_LIST TheOtherLst);
     void             Explode(C3_TRANSFORM x, DXF_ENTITY insert, pBlock  b);
     DXF_ENTITY       ClosestInsert(PT3 Point, REAL &DistMin);
     DXF_ENTITY       ClosestEntity(PT3 Point, REAL &DistMin);
@@ -568,6 +572,8 @@ class LayerCollection
     void             Explode(C3_TRANSFORM x, DXF_ENTITY insert, pBlock  b);
     void             GetBounds(C3_TRANSFORM c3t, C3_BOX Bounds);
     void             GetBounds(C3_TRANSFORM c3t, C3_BOX Bounds, DML_LIST TheCurveLst, DML_LIST TheInsertLst, DML_LIST TheOtherLst);
+    void             GetStartEnd(C3_TRANSFORM c3t, PT3 * StartSeg, PT3 * EndSeg);
+    void             GetStartEnd(C3_TRANSFORM c3t, PT3 * StartSeg, PT3 * EndSeg, DML_LIST TheCurveLst, DML_LIST TheInsertLst, DML_LIST TheOtherLst);
     void             Clear();
     DXF_ENTITY       ClosestEntity(PT3 Point, REAL &DistMin);
     DXF_ENTITY       ClosestInsert(PT3 Point, REAL &DistMin);
@@ -747,6 +753,8 @@ class DllImportExport DXF_Drawing : public LayerCollection
 
     flag              GetBounds();
     flag              GetBounds(C3_BOX TheBounds, DML_LIST TheCurveLst, DML_LIST TheInsertLst, DML_LIST TheOtherLst);
+    flag              GetStartEnd();
+    flag              GetStartEnd(PT3 * TheStartSeg, PT3 * TheEndSeg, DML_LIST TheCurveLst, DML_LIST TheInsertLst, DML_LIST TheOtherLst);
     DXF_ENTITY        ClosestEntity(Pt_SLW pt);
     DXF_ENTITY        ClosestInsert(Pt_SLW pt);
     DXF_ENTITY        ClosestAttr(pchar AttrTag, Pt_SLW pt);
@@ -824,7 +832,9 @@ class DllImportExport DXF_Drawing : public LayerCollection
     char          * HdrInfo[N_HDR_VARS];
     char            GotHdrInfo;
 
-    C3_BOX_S        Bounds;
+    C3_BOX_S        m_Bounds;
+    PT3             m_StartSeg[2];
+    PT3             m_EndSeg[2];
     float           PageWd;
 
     dword           m_MdlAssocGrfSeqNo;
