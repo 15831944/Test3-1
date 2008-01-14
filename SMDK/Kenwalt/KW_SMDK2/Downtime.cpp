@@ -72,12 +72,13 @@ bool Downtime::PreStartCheck()
 void Downtime::EvalCtrlInitialise(eScdCtrlTasks Tasks)
 {
 	Reset();
-	for (unsigned int i = 0; i < tasks.size(); i++)
-		if (tasks.at(i)->TagToSet.IsActive)
-			if (tasks.at(i)->eCurrentState == DTRS_Running || tasks.at(i)->eCurrentState == DTRS_Off)
-				tasks.at(i)->TagToSet.DoubleSI = tasks.at(i)->dOnValue;
-			else
-				tasks.at(i)->TagToSet.DoubleSI = tasks.at(i)->dOffValue;
+	if (bOn)
+		for (unsigned int i = 0; i < tasks.size(); i++)
+			if (tasks.at(i)->TagToSet.IsActive)
+				if (tasks.at(i)->eCurrentState == DTRS_Running || tasks.at(i)->eCurrentState == DTRS_Off)
+					tasks.at(i)->TagToSet.DoubleSI = tasks.at(i)->dOnValue;
+				else
+					tasks.at(i)->TagToSet.DoubleSI = tasks.at(i)->dOffValue;
 }
 
 //---------------------------------------------------------------------------
