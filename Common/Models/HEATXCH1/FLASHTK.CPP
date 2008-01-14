@@ -347,6 +347,8 @@ flag FlashTank::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_VLE.DataXchg(DCB))
     return 1;
+  if (m_FTF.DataXchg(DCB))
+    return 1;
 
   switch (DCB.lHandle)
     {

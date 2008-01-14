@@ -2218,6 +2218,8 @@ flag CHXBase::DataXchg(DataChangeBlk & DCB)
       DCB.B=OpenStatus();// (Enabled());
       return 1;
     }
+  if (pHX && pHX->DataXchg(DCB))
+    return 1;
   return 0;//return pGSM ? pGSM->DataXchg(DCB) : 0;
   }
 

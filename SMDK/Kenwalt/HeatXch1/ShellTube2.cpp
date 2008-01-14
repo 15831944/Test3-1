@@ -401,20 +401,12 @@ void CShellTube2::BuildDataFields()
 
 }
 
-// bool CShellTube2::ExchangeDataFields()
-//   {
-//   if (m_FTC.ExchangeDataFields())
-//     return 1;
-//   switch (DX.Handle)
-//     {
-//     case 1: 
-//       if (DX.HasReqdValue)
-//         m_lOpMode=DX.Long;
-//       DX.Long=m_lOpMode;
-//       return true;
-//     }
-//   return false;
-//   }
+bool CShellTube2::ExchangeDataFields()
+  {
+  if (m_FTC.ExchangeDataFields())
+    return 1;
+  return false;
+  }
 
 //---------------------------------------------------------------------------
 

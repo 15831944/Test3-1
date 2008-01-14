@@ -273,6 +273,8 @@ flag CHXShlTube::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (CHXBlock::DataXchg(DCB))
     return 1;
+  if (m_FTC.DataXchg(DCB))
+    return 1;
 
   return 0;
   }

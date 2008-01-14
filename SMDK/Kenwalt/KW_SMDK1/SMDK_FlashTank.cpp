@@ -97,14 +97,6 @@ bool CFlashTank::ExchangeDataFields()
   {
   if (m_FTF.ExchangeDataFields())
     return 1;
-  //switch (DX.Handle)
-  //  {
-  //  case 1: 
-  //    if (DX.HasReqdValue)
-  //      m_lOpMode=DX.Long;
-  //    DX.Long=m_lOpMode;
-  //    return true;
-  //  }
   return false;
   }
 

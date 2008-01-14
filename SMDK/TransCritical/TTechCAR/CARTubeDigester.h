@@ -30,7 +30,7 @@ class CCARTubeDigester : public MBaseMethod, CSTHx
 
     virtual void    Init();
     virtual void    BuildDataFields();
-    //    virtual bool    ExchangeDataFields();
+    virtual bool    ExchangeDataFields();
     virtual bool    ConfigureJoins();
     virtual bool    EvalJoinPressures();
     virtual void    EvalProducts();

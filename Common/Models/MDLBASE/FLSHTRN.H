@@ -40,6 +40,13 @@ class DllImportExport CFT_Flash : public CMacroMdlBase
   friend class CMMFlashTrain;
   friend class MFT_Flash; // SMDK
   public:
+    CFT_Flash(FlwNode * pNd);
+
+    void        BuildDataDefn(DataDefnBlk & DDB);
+    flag        DataXchg(DataChangeBlk & DCB);
+    void        SetState(eScdMdlStateActs RqdState);
+
+  public:
     FlwNode *   m_pNd;
 
     double      m_dQVap;
@@ -64,17 +71,14 @@ class DllImportExport CFT_Flash : public CMacroMdlBase
 
     double      m_dSuctionP;    // Copy of Suction Pess in Condensors
 
+    byte        m_iMMEqpList;
+
     #if DOPBSMOOTHING  
     //CFlwNodeArray CoolLnks;
     CArray <CMSIO, CMSIO&> m_CoolLnks;
     double      m_dVapLoss;
     #endif
 
-  public:
-    CFT_Flash(FlwNode * pNd);
-
-    void        BuildDataDefn(DataDefnBlk & DDB);
-    void        SetState(eScdMdlStateActs RqdState);
   };
 
 // ==========================================================================
@@ -88,6 +92,14 @@ class DllImportExport CFT_Condenser : public CMacroMdlBase
   friend class CMMFlashTrain;
   friend class MFT_Condenser; // SMDK
   public:
+    CFT_Condenser(FlwNode * pNd);
+    void        BuildDataDefn(DataDefnBlk & DDB);
+    flag        DataXchg(DataChangeBlk & DCB);
+    void        SetState(eScdMdlStateActs RqdState);
+    double      SuctionP()                            { return m_dSuctionP; };
+    void        SetSuctionP(double P)                 { m_dSuctionP=P; };
+
+  public:
     FlwNode *   m_pNd;
 
     double      m_dQCool;
@@ -96,18 +108,14 @@ class DllImportExport CFT_Condenser : public CMacroMdlBase
     double      m_dSuctionP;
     double      m_dMinSatPress;
 
+    byte        m_iMMEqpList;
+
     #if DOPBSMOOTHING  
     //CFlwNodeArray CoolLnks;
     CArray <CMSIO, CMSIO&> CoolLnks;
     double      m_dVapLoss;
     #endif
 
-  public:
-    CFT_Condenser(FlwNode * pNd);
-    void        BuildDataDefn(DataDefnBlk & DDB);
-    void        SetState(eScdMdlStateActs RqdState);
-    double      SuctionP()                            { return m_dSuctionP; };
-    void        SetSuctionP(double P)                 { m_dSuctionP=P; };
   };
 
 // ==========================================================================
@@ -119,17 +127,18 @@ class DllImportExport CFT_Condenser : public CMacroMdlBase
 class DllImportExport CFT_Mixer : public CMacroMdlBase
   {
   public:
-    FlwNode *   m_pNd;
-    
-    flag        m_bPartOfFlashTrain;
-
-  public:
     CFT_Mixer(FlwNode * pNd);
 
     void        BuildDataDefn(DataDefnBlk & DDB);
+    flag        DataXchg(DataChangeBlk & DCB);
 
     void        Activate(CMacroMdl* pMMNd, pFlwNode pNd);
     void        Deactivate();
+
+  public:
+    FlwNode *   m_pNd;
+    
+    flag        m_bPartOfFlashTrain;
   };
 
 //=========================================================================== 
@@ -214,6 +223,8 @@ class DllImportExport CMMFlashTrain : public CMacroMdl, public TearPosBlk
     virtual void   PBPreJoinPressures();
     virtual void   PBPreEvalProducts();
     virtual void   PBPostEvalProducts();
+
+    virtual TearPosBlk * GetTearPos() { return (TearPosBlk*)this; };
 
     virtual TearVarBlk* CreateVarBlk(char * Tag, pTaggedObject pAttach);
 

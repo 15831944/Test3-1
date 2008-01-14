@@ -16,6 +16,9 @@
 static CDbgMngr dbgFlashTrain ("HeatXch1", "FlashTrain");
 #endif
 
+XID xidFlshTrn_TearTag             = MdlBsXID(6050);
+XID xidFlshTrn_MMList              = MdlBsXID(6051);
+
 //==========================================================================
 //
 //
@@ -93,6 +96,8 @@ m_pNd(pNd)
 
   m_dSuctionP=Std_P;
 
+  m_iMMEqpList = 0;
+
 #if DOPBSMOOTHING  
   m_dVapLoss=0.0;
 #endif
@@ -105,18 +110,45 @@ void CFT_Flash::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Flash_Temp",        "FlashT",   DC_T,   "C",      &m_dFlashT,   m_pNd, NAN_OK );
   DDB.Double  ("Flash_Press",       "FlashP",   DC_P,   "kPag",   &m_dFlashP,   m_pNd, NAN_OK);
 
-  dword VFlags2=(Active() ? 0 : noView);
-  DDB.Double  ("QVap",              "",         DC_Qm,  "kg/s",   &m_dQVap,     m_pNd, 0/*VFlags2*/); //steam
-  DDB.Double  ("PRqd",              "",         DC_P,   "kPag",   &m_dPRqd,     m_pNd, VFlags2);
-  DDB.Double  ("PRqdCalc",          "",         DC_P,   "kPag",   &m_dPRqdCalc, m_pNd, noView|isParm|VFlags2);
-  DDB.Double  ("dDQvDp",            "",         DC_,    "",       &m_dDQvDp,    m_pNd, /*noView|*/VFlags2);
+  dword VFlags=(Active() ? 0 : noView);
+  DDB.Double  ("QVap",              "",         DC_Qm,  "kg/s",   &m_dQVap,     m_pNd, 0/*VFlags*/); //steam
+  DDB.Double  ("PRqd",              "",         DC_P,   "kPag",   &m_dPRqd,     m_pNd, VFlags);
+  DDB.Double  ("PRqdCalc",          "",         DC_P,   "kPag",   &m_dPRqdCalc, m_pNd, noView|isParm|VFlags);
+  DDB.Double  ("dDQvDp",            "",         DC_,    "",       &m_dDQvDp,    m_pNd, /*noView|*/VFlags);
   if (Active())
     {
-    DDB.String("FlashTrain",        "",         DC_,    "",       &m_pMNd->TagRef(),  m_pNd, noFile|noSnap|VFlags2);
-    DDB.String("FlashTrainEqp",     "",         DC_,    "",       MMList(),     m_pNd, MultiLineStr|noFile|noSnap|VFlags2);
+    DDB.String("FlashTrain",        "",         DC_,    "",       &m_pMNd->TagRef(),  m_pNd, noFile|noSnap|VFlags);
+    if (m_pMNd->GetTearPos() && m_pMNd->GetTearPos()->IsTear())
+      DDB.String("FlashTearBlock",  "",         DC_,    "",       xidFlshTrn_TearTag,  m_pNd, isTag|noFile|noSnap|VFlags);
+    DDB.String("FlashTrainEqp",     "",         DC_,    "",       xidFlshTrn_MMList,   m_pNd, isTag|noFile|noSnap|VFlags, MMEqpList());
     }
   }
 
+flag CFT_Flash::DataXchg(DataChangeBlk & DCB)
+  {
+  switch (DCB.lHandle)
+    {
+    case xidFlshTrn_TearTag:
+      DCB.pC = m_pMNd->GetTearPos()->TearGetTag();
+      return 1;
+    case xidFlshTrn_MMList:
+      if (MMEqpList() && MMEqpList()->Length()>0)
+        {
+        DDBValueLstMem & Vals=*MMEqpList();
+
+        if (DCB.pC)
+          m_iMMEqpList=Vals.Find(DCB.rpC);;
+
+        m_iMMEqpList=Range(0, (int)m_iMMEqpList, Vals.Length()-1);
+        DCB.pC = Vals[m_iMMEqpList].m_pStr;
+        }
+      else
+        DCB.pC = "";
+      return 1;
+    }
+  
+  return 0;
+  }
 // --------------------------------------------------------------------------
 
 void   CFT_Flash::SetState(eScdMdlStateActs RqdState)
@@ -161,24 +193,54 @@ m_pNd(pNd)
   m_dQCond=0.0;
   m_dQCool=0.0;
   m_dMinSatPress=Std_P;
+  m_iMMEqpList=0;
 #if DOPBSMOOTHING  
   m_dVapLoss=0.0;
 #endif
-  }
+  }                                                         
 
 void CFT_Condenser::BuildDataDefn(DataDefnBlk & DDB)
   {
   dword VFlags=(Active() ? 0 : noView);
-  DDB.Double("SuctionP",      "", DC_P,    "kPa",       &m_dSuctionP,       m_pNd, isResult|VFlags);
-  DDB.Double("QRqd",          "", DC_Qm,   "kg/s",      &m_dQRqd,           m_pNd, isResult|VFlags);
-  DDB.Double("QCond",         "", DC_Qm,   "kg/s",      &m_dQCond,          m_pNd, isResult|VFlags);
-  DDB.Double("MinSatPress",   "", DC_P,    "kPa",       &m_dMinSatPress,    m_pNd, isResult|VFlags);
+  DDB.Double("SuctionP",            "",         DC_P,   "kPa",    &m_dSuctionP,       m_pNd, isResult|VFlags);
+  DDB.Double("QRqd",                "",         DC_Qm,  "kg/s",   &m_dQRqd,           m_pNd, isResult|VFlags);
+  DDB.Double("QCond",               "",         DC_Qm,  "kg/s",   &m_dQCond,          m_pNd, isResult|VFlags);
+  DDB.Double("MinSatPress",         "",         DC_P,   "kPa",    &m_dMinSatPress,    m_pNd, isResult|VFlags);
   if (Active())
     {
-    DDB.String("FlashTrain",    "", DC_,     "",        &m_pMNd->TagRef(),  m_pNd, noFile|noSnap|VFlags);
-    DDB.String("FlashTrainEqp", "", DC_,     "",        MMList(),           m_pNd, MultiLineStr|noFile|noSnap|VFlags);
+    DDB.String("FlashTrain",        "",         DC_,    "",       &m_pMNd->TagRef(),  m_pNd, noFile|noSnap|VFlags);
+    if (m_pMNd->GetTearPos() && m_pMNd->GetTearPos()->IsTear())
+      DDB.String("FlashTearBlock",  "",         DC_,    "",       xidFlshTrn_TearTag,  m_pNd, isTag|noFile|noSnap|VFlags);
+    DDB.String("FlashTrainEqp",     "",         DC_,    "",       xidFlshTrn_MMList,   m_pNd, isTag|noFile|noSnap|VFlags, MMEqpList());
     }
   };
+
+flag CFT_Condenser::DataXchg(DataChangeBlk & DCB)
+  {
+  switch (DCB.lHandle)
+    {
+    case xidFlshTrn_TearTag:
+      DCB.pC = m_pMNd->GetTearPos()->TearGetTag();
+      return 1;
+    case xidFlshTrn_MMList:
+      if (MMEqpList() && MMEqpList()->Length()>0)
+        {
+        DDBValueLstMem & Vals=*MMEqpList();
+
+        if (DCB.pC)
+          m_iMMEqpList=Vals.Find(DCB.rpC);;
+
+        m_iMMEqpList=Range(0, (int)m_iMMEqpList, Vals.Length()-1);
+        DCB.pC = Vals[m_iMMEqpList].m_pStr;
+        }
+      else
+        DCB.pC = "";
+      return 1;
+    }
+  
+  return 0;
+  }
+
 
 void CFT_Condenser::SetState(eScdMdlStateActs RqdState)
   {
@@ -358,11 +420,11 @@ CMacroMdlIO * CMMFlashTrain::ValidNd(flag fIsModel, pFlwNode pNd, int iIONo)
 flag CMMFlashTrain::ValidModel()
   {
   int NFlash=0, NCond=0;
-  for (int i=0; i<Nds.GetSize(); i++)
-    if (Nds[i].m_pNdVarTypeId)
-      if (*Nds[i].m_pNdVarTypeId==typeid(CFT_Flash))
+  for (int i=0; i<m_Nds.GetSize(); i++)
+    if (m_Nds[i].m_pNdVarTypeId)
+      if (*m_Nds[i].m_pNdVarTypeId==typeid(CFT_Flash))
         NFlash++;
-      else if (*Nds[i].m_pNdVarTypeId==typeid(CFT_Condenser))
+      else if (*m_Nds[i].m_pNdVarTypeId==typeid(CFT_Condenser))
         NCond++;
   return (NFlash>0 && NCond>0);
   }
@@ -376,9 +438,9 @@ flag CMMFlashTrain::PBInitialise()
   iIter=0;
   Strng T1, T2;
   int TagLvl=-1;
-  for (int iNd=0; iNd<Nds.GetSize(); iNd++)
+  for (int iNd=0; iNd<m_Nds.GetSize(); iNd++)
     {
-    CMacroMdlNd &Nd=Nds[iNd];
+    CMacroMdlNd &Nd=m_Nds[iNd];
     FlwNode *pFNd=Nd.m_pFNd;
 
     pFNd->fActiveInMacroMdl=true;
@@ -446,9 +508,9 @@ flag CMMFlashTrain::PBInitialise()
   if (dbgFlashTrain())
     {
     dbgpln(" -- PBInitialise %s", Tag());
-    for (int i=0; i<Nds.GetSize(); i++)
-      dbgpln(" %s %s(%i) -> %s",Nds[i].m_pNdVarTypeId ? Nds[i].m_pNdVarTypeId->name() : "      ... ", 
-              Nds[i].m_pFNd->FullObjTag(), Nds[i].m_iIONo, Nds[i].m_pFNd->Nd_Rmt(Nds[i].m_iIONo)->Tag());
+    for (int i=0; i<m_Nds.GetSize(); i++)
+      dbgpln(" %s %s(%i) -> %s",m_Nds[i].m_pNdVarTypeId ? m_Nds[i].m_pNdVarTypeId->name() : "      ... ", 
+              m_Nds[i].m_pFNd->FullObjTag(), m_Nds[i].m_iIONo, m_Nds[i].m_pFNd->Nd_Rmt(m_Nds[i].m_iIONo)->Tag());
     }
   #endif
   
@@ -472,9 +534,9 @@ void CMMFlashTrain::PBTerminate()
   {
   Flsh.SetSize(0);
   Cond.SetSize(0);
-  for (int iNd=0; iNd<Nds.GetSize(); iNd++)
+  for (int iNd=0; iNd<m_Nds.GetSize(); iNd++)
     {
-    CMacroMdlNd &Nd=Nds[iNd];
+    CMacroMdlNd &Nd=m_Nds[iNd];
     FlwNode *pFNd=Nd.m_pFNd;
 
     pFNd->fActiveInMacroMdl=false;

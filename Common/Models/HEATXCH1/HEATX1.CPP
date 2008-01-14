@@ -223,6 +223,9 @@ void CHXBlock1::BuildDataDefn(DataDefnBlk & DDB)
 
 flag CHXBlock1::DataXchg(DataChangeBlk & DCB)
   {
+  if (m_FTC.DataXchg(DCB))
+    return 1;
+
   switch (DCB.lHandle)
     {
     case xidHXRqdOpMode:

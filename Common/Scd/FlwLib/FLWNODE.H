@@ -3023,6 +3023,7 @@ typedef CSCDPtrListIter<CLinkPtrList, CLinkRec*> CLinkIter;
 
 /*#C:Class to solve Global problems
 */
+class TearVarPos; // forward
 
 struct CMacroMdlIO
   {
@@ -3065,16 +3066,18 @@ class DllImportExport CMacroMdl : public TaggedObject
 
     virtual CMacroMdlIO * ValidNd(flag fIsModel, FlwNode* pNd, int iIONo) { return NULL;};
     virtual CMacroMdlIO * ValidNd(flag fIsModel, FlwNode* pNd, int iIONo, CMacroMdlIOArray &MMNds);
-    virtual flag   ValidModel() { return true; };
-    virtual flag   PBInitialise() { return true; };
-    virtual void   PBPreJoinPressures() {};
-    virtual void   PBTerminate() {};
-    virtual void   PBPreEvalProducts() {};
-    virtual void   PBPostEvalProducts() {};
+    virtual flag   ValidModel()               { return true; };
+    virtual flag   PBInitialise()             { return true; };
+    virtual void   PBPreJoinPressures()       {};
+    virtual void   PBTerminate()              {};
+    virtual void   PBPreEvalProducts()        {};
+    virtual void   PBPostEvalProducts()       {};
+
+    virtual TearPosBlk * GetTearPos()         { return NULL; };
 
   public:
-    CMacroMdlNdArray Nds;
-    Strng           MMList;
+    CMacroMdlNdArray    m_Nds;
+    DDBValueLstMem      m_MMEqpList;
   };
 
 typedef CSCDList <CMacroMdl*, CMacroMdl*> MacroMdlList;
@@ -3095,11 +3098,12 @@ class DllImportExport CMacroMdlBase
       };
     virtual void    Activate(CMacroMdl* pMMNd, FlwNode* pNd);
     virtual void    Deactivate();
-    virtual flag    Active() { return m_fActive; };
+    virtual flag    Active()                            { return m_fActive; };
     virtual void    SetState(eScdMdlStateActs RqdState) { };
-    CMacroMdlBase *   Address() { return this; };
+    virtual TearPosBlk * GetTearPos()                   { return m_pMNd ? m_pMNd->GetTearPos() : NULL; };
+    CMacroMdlBase  *Address()                           { return this; };
 
-    Strng  *  MMList() { return m_pMNd? &m_pMNd->MMList : NULL; };
+    DDBValueLstMem *MMEqpList()                         { return m_pMNd? &m_pMNd->m_MMEqpList : NULL; };
 
   public:
     flag       m_fActive;

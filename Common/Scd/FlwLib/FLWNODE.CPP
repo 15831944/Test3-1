@@ -11976,29 +11976,23 @@ CMacroMdl::CMacroMdl(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
 
 CMacroMdl::~CMacroMdl()
   {
-  for (int i=0; i<Nds.GetSize(); i++)
-    Nds[i].m_pFNd->MacroMdlRemoveNd(Nds[i].m_iIONo);
+  for (int i=0; i<m_Nds.GetSize(); i++)
+    m_Nds[i].m_pFNd->MacroMdlRemoveNd(m_Nds[i].m_iIONo);
   };
 
 //--------------------------------------------------------------------------
 
 void CMacroMdl::AddNd(FlwNode * pNd, int iIONo, CMacroMdlIO * pMMIO)
   {
-  for (int i=0; i<Nds.GetSize();i++)
-    if (Nds[i].m_pFNd==pNd)
+  for (int i=0; i<m_Nds.GetSize();i++)
+    if (m_Nds[i].m_pFNd==pNd)
       return;
   CMacroMdlNd F = {pNd, iIONo, pMMIO, pMMIO->m_pNdVarTypeId};
-  Nds.Add(F);
+  m_Nds.Add(F);
   pNd->MacroMdlAddNd(iIONo);
 
   if (pMMIO->m_pNdVarTypeId)
-    if (MMList.Length()>0)
-      {
-      MMList+="\n";
-      MMList+=pNd->FullObjTag();
-      }
-    else
-      MMList=pNd->FullObjTag();
+    m_MMEqpList.Add(m_MMEqpList.Length(), pNd->FullObjTag());
   };
 
 //--------------------------------------------------------------------------

@@ -1554,9 +1554,9 @@ const type_info * MFT_Flash::TypeInfo()
   };
 
 
-void    MFT_Flash::BuildDataFields()                                  { m_pFlash->BuildDataDefn(*m_pCommon->m_pDDB);           };
-bool    MFT_Flash::ExchangeDataFields()                               { return 0; };//m_pFlash->DataXchg(*m_pCommon->m_pDCB)!=0;  };
-bool    MFT_Flash::ValidateDataFields()                               { return 1; };//m_pFlash->ValidateData(*m_pCommon->m_pVDB)!=0; };
+void    MFT_Flash::BuildDataFields()                                  { m_pFlash->BuildDataDefn(*m_pCommon->m_pDDB);      };
+bool    MFT_Flash::ExchangeDataFields()                               { return m_pFlash->DataXchg(*m_pCommon->m_pDCB)!=0; };
+bool    MFT_Flash::ValidateDataFields()                               { return 1; };
 void    MFT_Flash::SetState(eScdMdlStateActs RqdState)                { m_pFlash->SetState(RqdState);               };
 
 bool    MFT_Flash::getActive()                                        { return m_pFlash->Active()!=0;               };
@@ -1612,9 +1612,9 @@ const type_info * MFT_Condenser::TypeInfo()
   return &typeid(*m_pCondenser);
   };
 
-void    MFT_Condenser::BuildDataFields()                        { m_pCondenser->BuildDataDefn(*m_pCommon->m_pDDB);         };//, (LPSTR)(LPCTSTR)m_sTag); };
-bool    MFT_Condenser::ExchangeDataFields()                     { return 0;                                     };//m_pCondenser->DataXchg(*m_pCommon->m_pDCB)!=0; };
-bool    MFT_Condenser::ValidateDataFields()                     { return 1;                                     };//m_pCondenser->ValidateData(*m_pCommon->m_pVDB)!=0; };
+void    MFT_Condenser::BuildDataFields()                        { m_pCondenser->BuildDataDefn(*m_pCommon->m_pDDB);      };
+bool    MFT_Condenser::ExchangeDataFields()                     { return m_pCondenser->DataXchg(*m_pCommon->m_pDCB)!=0; };
+bool    MFT_Condenser::ValidateDataFields()                     { return 1;                                     };
 void    MFT_Condenser::SetState(eScdMdlStateActs RqdState)      { m_pCondenser->SetState(RqdState);             };
 
 bool    MFT_Condenser::getActive()                              { return m_pCondenser->Active()!=0;             };

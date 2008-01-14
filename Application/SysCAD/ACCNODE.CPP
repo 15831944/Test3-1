@@ -3167,6 +3167,20 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.m_Cnv.Index()))?0:2, "  ", false);
               }
             
+            if (d.ValLst.Length()>0)
+              {
+              if (IsFloatData(d.iType) && d.fHasNANStr)
+                {
+                for (pStrng p=d.ValLst.First(); p; p=p->Next())
+                  FldHasNANStrValue(p->Index(), p->Str());
+                }
+              else
+                {
+                for (pStrng p=d.ValLst.First(); p; p=p->Next())
+                  FldHasFixedStrValue(p->Index(), p->Str());
+                }
+              }
+
             if (HasTag)
               {
               if (GDIBlk::LowRes())

@@ -182,6 +182,8 @@ bool CKWATubeDigester::PreStartCheck()
 
 bool CKWATubeDigester::ExchangeDataFields()
 {
+  if (m_FTC.ExchangeDataFields())
+    return 1;
 	return false;
 }
 

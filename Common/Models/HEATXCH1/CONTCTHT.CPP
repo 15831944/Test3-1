@@ -266,6 +266,8 @@ flag ContactHeater::DataXchg(DataChangeBlk & DCB)
   {
   if (MN_Surge::DataXchg(DCB)) 
     return 1;
+  if (m_FTC.DataXchg(DCB))
+    return 1;
 
   switch (DCB.lHandle)
     {
