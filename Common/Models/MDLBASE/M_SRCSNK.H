@@ -83,6 +83,7 @@ class DllImportExport MN_SrcSnk : public MdlNode
 
     virtual long   NodeFlwTask(NodeFlwTasks Task);
 
+    virtual flag   OnLoad(char * pConfigName);
     virtual void   GlobalConnect();
     virtual void   GlobalDisConnect();
     virtual void   PostConnect(int IONo);

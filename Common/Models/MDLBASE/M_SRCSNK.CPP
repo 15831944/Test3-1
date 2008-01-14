@@ -9,6 +9,8 @@
 #include "m_srcsnk.h"
 #include "scd_wm.h"
 
+#include "optoff.h"
+
 //==========================================================================
 
 MN_SrcSnk::MN_SrcSnk (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
@@ -546,6 +548,30 @@ long MN_SrcSnk::NodeFlwTask(NodeFlwTasks Task)
   else
     return MdlNode::NodeFlwTask(Task);
   }
+
+//--------------------------------------------------------------------------
+
+flag MN_SrcSnk::OnLoad(char * pConfigName)
+  {
+  // this is a check abd fix for connected XPG's that have erroneously saved to to the DB 
+  if (NoProcLnkIOs() > 1)
+    {
+    if (sConnectTag.Length() > 0 && fConnectionOn)
+      {
+      for (int i=0; i<NoProcLnkIOs(); i++)
+        {
+        if (dynamic_cast<MN_SrcSnk*>(Nd_Rmt(i)))
+          {
+          LogNote(Tag(), 0, "Removing incorrectly saved connection to %s", Nd_Rmt(i)->Tag());
+          DisConnect(i);
+          break;
+          }
+        }
+      }
+    }
+
+  return MdlNode::OnLoad(pConfigName);
+  };
 
 //--------------------------------------------------------------------------
 
