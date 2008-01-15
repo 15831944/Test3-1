@@ -12,7 +12,8 @@
 #define  __M_LINK_CPP
 #include "m_link.h"
 #include "dbgmngr.h"
-//#include "optoff.h"
+
+#include "optoff.h"
 
 #define dbgMLink        (0 || WITHDEBUG)    
 
@@ -1073,12 +1074,15 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
             {
             SetNIOFBs(0,2);
             IOFB(0,0)->AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
+            IOFB(0,0)->SetFlowModeSrc(this, false);
             IOFB(0,1)->AssignFlwEqnGroup(OrificeGroup, OrificeGroup.Default(), this);
+            IOFB(0,1)->SetFlowModeSrc(this, false);
             }
           else
             {
             SetNIOFBs(0,1);
             IOFB(0,0)->AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
+            IOFB(0,0)->SetFlowModeSrc(this, false);
             }
           }
         }
@@ -1756,12 +1760,15 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
           {
           SetNIOFBs(i,2);
           IOFB(i,0)->AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
+          IOFB(i,0)->SetFlowModeSrc(this, false);
           IOFB(i,1)->AssignFlwEqnGroup(OrificeGroup, OrificeGroup.Default(), this);
+          IOFB(i,1)->SetFlowModeSrc(this, false);
           }
         else
           {
           SetNIOFBs(i,1);
           IOFB(i,0)->AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
+          IOFB(i,0)->SetFlowModeSrc(this, false);
           }
         }
 
@@ -2006,7 +2013,9 @@ void MN_Lnk::PostConnect(int IONo)
 
       IOFB(IONo,0)->AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
       IOFB(IONo,0)->SetParentFlwEqn(&m_FEP);
-      IOFB(IONo,0)->SetFlowModeSrc(this, false);
+      for (int fe=0; fe<NIOFBs(IONo); fe++)
+        IOFB(IONo,fe)->SetFlowModeSrc(this, false);
+      //IOFB(IONo,0)->SetFlowModeSrc(this, false);
 
       for (int fe=0; fe<NIOFBs_Rmt(IONo); fe++)
         IOFB_Rmt(IONo,fe)->SetFlowModeSrc(this, true);

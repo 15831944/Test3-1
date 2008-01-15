@@ -15,7 +15,7 @@
 #include "dbgmngr.h"
 #include "vlebase.h"
 
-//#include "optoff.h"
+#include "optoff.h"
 
 #if (dbgFlwEqns)
 static CDbgMngr dbgFlwEqnData          ("FlwNets", "FlwEqnData");

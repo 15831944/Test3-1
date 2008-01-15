@@ -341,7 +341,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-  if (SolveBufferedMethod())// PipeFlowMode())
+  if (FullFlowMode())//SolveBufferedMethod())// PipeFlowMode())
     {
     DDB.Text("Flow Options");
     DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (!IsXfer/* || dbgfile()*/));
@@ -386,13 +386,14 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 //      {LFM_Simple, "Simple"},
 //      {0}};
 //    DDB.Byte       ("FillMode",   "",  DC_,     "",      &iFillMode,  this, isParm, DDBFill);
-#if WITHMULTIFLWBLK
-    DDB.CheckBoxBtn("MultiFlwBlk",  "",  DC_, "",  xidMFBOn,     this, isParm);//|SetOnChange);
-#endif
+#if WITHMULTIFLWBLK 
+    DDB.CheckBoxBtn("MultiFlwBlk",  "",  DC_, "",  xidMFBOn,     this, isParm); 
+#endif 
 #if WITHTWOPHASE
-    DDB.CheckBoxBtn("TwoPhaseFlw",  "",  DC_, "",  &fTwoPhase,   this, isParm);//|SetOnChange);
+    DDB.CheckBoxBtn("TwoPhaseFlw",  "",  DC_, "",  &fTwoPhase,   this, isParm);
 #endif
 
+#if WITHPLUGFLOW
     static DDBValueLst DDBVFX[]={
       {VFFX_Off,      "Off"},
       {VFFX_PreMix,   "PreMix"},
@@ -423,7 +424,10 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.CheckBoxBtn("Vol_PresFX",       "",   DC_,  "",  xidVolPrsFX,       this, isParm|InitHidden);
     DDB.CheckBoxBtn("VolIsSmall",       "",   DC_,  "",  &fVolIsSmall,      this, isParm|InitHidden);
     DDB.CheckBoxBtn("VapLocked",        "",   DC_,  "",  &fVapLocked,       this, isParm|InitHidden);
-    DDB.CheckBox   ("IsDegFreedom",     "",   DC_,  "",  &fIsDegFree,       this, isParm|SetOnChange);
+#endif
+#if 0 /*JHGJ*/
+    DDB.CheckBox   ("IsDegFreedom",     "",   DC_,  "",  &fIsDegFree,       this, isParm|SetOnChange|InitHidden);
+#endif
     DDB.CheckBox   ("ApplyRhoH",        "",   DC_,  "",  &fAppRhoH,         this, isParm|SetOnChange);
     DDB.CheckBox   ("FindEquilRhoH",    "",   DC_,  "",  &fFindRhoH,        this, isParm|SetOnChange);
     DDB.CheckBoxBtn("OrificePlate",     "",   DC_,  "",  xidWithOP,         this, isParmStopped|SetOnChange);

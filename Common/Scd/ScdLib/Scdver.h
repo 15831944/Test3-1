@@ -8,9 +8,10 @@
 //  Compile Options
 //===========================================================================
 
+/* CNM remove some options until required */
 #define BLDDEPENDENTFILES     1
 #define WITHCOMCMD            0
-#define WITHMULTIFLWBLK       1
+#define WITHMULTIFLWBLK       0 
 #define WITHTWOPHASE          0
 #define WITH_H2O_FNS_ALWAYS   1
 
