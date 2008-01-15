@@ -747,8 +747,7 @@ namespace SysCAD.Editor
       action.Create.Add(modelLink);
       action.Create.Add(graphicLink);
 
-      state.ClientProtocol.Change(out requestId, action);
-      form1.SetButtonStates();
+      AddAction(action);
     }
 
     private void fcFlowChart_ArrowCreating(object sender, AttachConfirmArgs e)
@@ -934,8 +933,6 @@ namespace SysCAD.Editor
 
 
       AddAction(action);
-
-      form1.SetButtonStates();
 
       //if (!state.ModifyGraphicLink(out requestId,
       //  graphicLink.Guid,
@@ -1867,8 +1864,6 @@ namespace SysCAD.Editor
 
         //Boxmodified.
         AddAction(action);
-
-        form1.SetButtonStates();
       }
 
       else if (e.Box.Tag is Thing)
@@ -1936,6 +1931,7 @@ namespace SysCAD.Editor
         }
 
         DoModified(modified);
+        form1.SetButtonStates();
       }
     }
 
