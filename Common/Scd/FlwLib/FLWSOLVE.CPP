@@ -15654,8 +15654,14 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
 
 //---------------------------------------------------------------------------
 
-flag CFlwSolver::EO_EndConnect(FilingControlBlock &FCB)
+flag CFlwSolver::EO_ConnectsDone(FilingControlBlock &FCB)
   {
+  FlwNode * p=NULL;
+  while (GetObj_All(p))
+    {
+    p->OnConnectsDone(m_sLabel());
+    }
+
   for (FlwNode *p=NULL; GetObj_All(p); )
     p->ConnectDirectConnects();
 
@@ -15664,6 +15670,20 @@ flag CFlwSolver::EO_EndConnect(FilingControlBlock &FCB)
 
   return true;
   }
+
+//---------------------------------------------------------------------------
+
+flag CFlwSolver::EO_DataLoaded(FilingControlBlock &FCB)
+  {
+  FlwNode * p=NULL;
+  while (GetObj_All(p))
+    {
+    p->OnDataLoaded(m_sLabel());
+    }
+
+  return true;
+  }
+
 //---------------------------------------------------------------------------
 
 flag CFlwSolver::EO_EndLoad(FilingControlBlock &FCB)
@@ -15684,7 +15704,7 @@ flag CFlwSolver::EO_EndLoad(FilingControlBlock &FCB)
   while (GetObj_All(p))
     {
     //dbgpln("----------%s---------", p->FullObjTag());
-    p->OnLoad(m_sLabel());
+    p->OnLoadDone(m_sLabel());
 #ifdef _DEBUG
     if (_stricmp(p->Tag(), "T_125")==0)
       {

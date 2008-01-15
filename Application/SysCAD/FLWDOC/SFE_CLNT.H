@@ -263,7 +263,8 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM);
     flag           EO_LoadOtherData(FilingControlBlock &FCB);
     flag           EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM);
-    flag           EO_EndConnect(FilingControlBlock &FCB);
+    flag           EO_ConnectsDone(FilingControlBlock &FCB);
+    flag           EO_DataLoaded(FilingControlBlock &FCB);
     flag           EO_EndLoad(FilingControlBlock &FCB);
     void           EO_BeginBulkChange(); 
     void           EO_EndBulkChange(); 

@@ -99,6 +99,7 @@ void CPressBlk::Init()
   {
   P=Std_P;
   PEst=Std_P;
+  PEstNext=Std_P;
   PMn=Std_P;
 
   PGood=Std_P;

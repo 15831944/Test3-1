@@ -878,8 +878,10 @@ flag SFEFlwLib::EO_LoadOtherData(FilingControlBlock &FCB)
   { FENTER(false) pSfe->EO_LoadOtherData(FCB); FLEAVE};
 flag SFEFlwLib::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
   { FENTER(false) pSfe->EO_LoadConn(FCB, XM); FLEAVE};
-flag SFEFlwLib::EO_EndConnect(FilingControlBlock &FCB)
-  { FENTER(false) pSfe->EO_EndConnect(FCB); FLEAVE };
+flag SFEFlwLib::EO_ConnectsDone(FilingControlBlock &FCB)
+  { FENTER(false) pSfe->EO_ConnectsDone(FCB); FLEAVE };
+flag SFEFlwLib::EO_DataLoaded(FilingControlBlock &FCB)
+  { FENTER(false) pSfe->EO_DataLoaded(FCB); FLEAVE };
 flag SFEFlwLib::EO_EndLoad(FilingControlBlock &FCB)
   {
   FENTER(false) pSfe->EO_EndLoad(FCB);

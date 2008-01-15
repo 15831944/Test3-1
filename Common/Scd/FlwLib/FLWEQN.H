@@ -169,19 +169,25 @@ class CPressBlk
     void Init();
 
 
-    double    getP()                { return m_P;       };
-    double    getPEst()             { return m_PEst;    };
-    double    getPMn()              { return m_PMn;     };
-    double    getPGood()            { return m_PGood;   };
-    double    getPMax()             { return m_PMax;    };
-    double    getPMaxLim()          { return m_PMaxLim; };
-    double    getPStdyState()       { return m_PStdyStart; };
+    double    getP()                { return m_P;         };
+    double    getPEst()             { return m_PEst;      };
+    double    getPEstNext()         { return m_PEstNext;  };
+    double    getPMn()              { return m_PMn;       };
+    double    getPGood()            { return m_PGood;     };
+    double    getPMax()             { return m_PMax;        };
+    double    getPMaxLim()          { return m_PMaxLim;     };
+    double    getPStdyState()       { return m_PStdyStart;  };
 
-    void      putP(double P)        { m_P=P;        };
+    void      putP(double P)        { m_P=P;                };
     void      putPEst(double P)     
       { 
       //dbgpln("pb[%4i] PEst=%10.2f", m_iNo, m_PEst);
       m_PEst=P;     
+      };
+    void      putPEstNext(double P)     
+      { 
+      //dbgpln("pb[%4i] PEst=%10.2f", m_iNo, m_PEst);
+      m_PEstNext=P;     
       };
     void      putPMn(double P)        
       { 
@@ -195,6 +201,7 @@ class CPressBlk
 
     _declspec(property(get=getP,put=putP))                    double P; 
     _declspec(property(get=getPEst,put=putPEst))              double PEst; 
+    _declspec(property(get=getPEstNext,put=putPEstNext))      double PEstNext; 
     _declspec(property(get=getPMn,put=putPMn))                double PMn; 
     _declspec(property(get=getPGood,put=putPGood))            double PGood; 
     _declspec(property(get=getPMax,put=putPMax))              double PMax; 
@@ -203,6 +210,7 @@ class CPressBlk
 
     double  * PAdd()                { return &m_P;       };
     double  * PEstAdd()             { return &m_PEst;    };
+    double  * PEstNextAdd()         { return &m_PEstNext;    };
     double  * PMnAdd()              { return &m_PMn;     };
     double  * PGoodAdd()            { return &m_PGood;   };
     double  * PMaxAdd()             { return &m_PMax;    };
@@ -211,6 +219,7 @@ class CPressBlk
   protected:
     double    m_P;
     double    m_PEst;
+    double    m_PEstNext;
     double    m_PMn;
 
     double    m_PGood;

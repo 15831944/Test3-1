@@ -4366,7 +4366,10 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   ReadSubsData(CXM_ObjectData &ObjData, long &MdlIndex)   { return CNodeXRefMngr::ReadSubsData(ObjData, MdlIndex); };
     virtual flag   WriteSubsData(CXM_ObjectData &ObjData, long &MdlIndex)  { return CNodeXRefMngr::WriteSubsData(ObjData, MdlIndex); };
 
-    virtual flag   OnLoad(char * pConfigName);
+    virtual flag   OnConnectsDone(char * pConfigName);
+    virtual flag   OnDataLoaded(char * pConfigName);
+    virtual flag   OnLoadDone(char * pConfigName);
+    
     virtual flag   OnSave(char * pConfigName);
     virtual void   OnAppActivate(BOOL bActive);//                { };
     virtual int    FilesUsed(CFilesUsedArray & Files);//         { return 0; };

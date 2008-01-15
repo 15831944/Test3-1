@@ -1446,7 +1446,8 @@ class DllImportExport CSfeSrvrBase
     virtual flag         EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)             { return 0; };
     virtual flag         EO_LoadOtherData(FilingControlBlock &FCB)                             { return 0; };
     virtual flag         EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)                    { return 0; };
-    virtual flag         EO_EndConnect(FilingControlBlock &FCB)                                { return 0; };
+    virtual flag         EO_ConnectsDone(FilingControlBlock &FCB)                                { return 0; };
+    virtual flag         EO_DataLoaded(FilingControlBlock &FCB)                                { return 0; };
     virtual flag         EO_EndLoad(FilingControlBlock &FCB)                                   { return 0; };
     virtual void         EO_BeginBulkChange()                                                  {};
     virtual void         EO_EndBulkChange()                                                    {};

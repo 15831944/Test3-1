@@ -824,9 +824,13 @@ flag CSfeSrvr::EO_EndLoad(FilingControlBlock &FCB)
   {
   return SfeFS->EO_EndLoad(FCB); 
   };
-flag CSfeSrvr::EO_EndConnect(FilingControlBlock &FCB)                         
+flag CSfeSrvr::EO_ConnectsDone(FilingControlBlock &FCB)                         
   {
-  return SfeFS->EO_EndConnect(FCB); 
+  return SfeFS->EO_ConnectsDone(FCB); 
+  };
+flag CSfeSrvr::EO_DataLoaded(FilingControlBlock &FCB)                         
+  {
+  return SfeFS->EO_DataLoaded(FCB); 
   };
 
 void CSfeSrvr::EO_BeginBulkChange()

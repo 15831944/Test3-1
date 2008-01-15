@@ -3771,7 +3771,14 @@ flag CArchiveManager::EO_LoadOtherData(FilingControlBlock &FCB)
 
 //---------------------------------------------------------------------------
 
-flag CArchiveManager::EO_EndConnect(FilingControlBlock &FCB)
+flag CArchiveManager::EO_ConnectsDone(FilingControlBlock &FCB)
+  {
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
+flag CArchiveManager::EO_DataLoaded(FilingControlBlock &FCB)
   {
   return true;
   }

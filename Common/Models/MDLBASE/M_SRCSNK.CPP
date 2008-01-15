@@ -551,15 +551,24 @@ long MN_SrcSnk::NodeFlwTask(NodeFlwTasks Task)
 
 //--------------------------------------------------------------------------
 
-flag MN_SrcSnk::OnLoad(char * pConfigName)
+flag MN_SrcSnk::OnConnectsDone(char * pConfigName)
   {
-  // this is a check abd fix for connected XPG's that have erroneously saved to to the DB 
+
+  return MdlNode::OnConnectsDone(pConfigName);
+  };
+
+//--------------------------------------------------------------------------
+
+flag MN_SrcSnk::OnDataLoaded(char * pConfigName)
+  {
+  // this is a check to find and fix connected XPG's that have erroneously saved to the DB 
   if (NoProcLnkIOs() > 1)
     {
     if (sConnectTag.Length() > 0 && fConnectionOn)
       {
       for (int i=0; i<NoProcLnkIOs(); i++)
         {
+        FlwNode * p=Nd_Rmt(i);
         if (dynamic_cast<MN_SrcSnk*>(Nd_Rmt(i)))
           {
           LogNote(Tag(), 0, "Removing incorrectly saved connection to %s", Nd_Rmt(i)->Tag());
@@ -570,8 +579,8 @@ flag MN_SrcSnk::OnLoad(char * pConfigName)
       }
     }
 
-  return MdlNode::OnLoad(pConfigName);
-  };
+  return MdlNode::OnDataLoaded(pConfigName);
+  }
 
 //--------------------------------------------------------------------------
 

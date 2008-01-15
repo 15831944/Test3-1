@@ -10456,7 +10456,21 @@ double FlwNode::GetQm2IO(double *Rqd)
 
 //--------------------------------------------------------------------------
 
-flag FlwNode::OnLoad(pchar pConfigName)
+flag FlwNode::OnConnectsDone(pchar pConfigName)
+  {
+  return True;
+  };
+
+//--------------------------------------------------------------------------
+
+flag FlwNode::OnDataLoaded(pchar pConfigName)
+  {
+  return True;
+  };
+
+//--------------------------------------------------------------------------
+
+flag FlwNode::OnLoadDone(pchar pConfigName)
   {
   int IOsComplete=True;
   int ChkId=0;

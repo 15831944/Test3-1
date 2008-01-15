@@ -561,7 +561,8 @@ class DllImportExport CExecObj
     virtual flag   EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM) { return False;};
     virtual flag   EO_LoadOtherData(FilingControlBlock &FCB)             { return False;};
     virtual flag   EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)    { return False;};
-    virtual flag   EO_EndConnect(FilingControlBlock &FCB)                { return False;};
+    virtual flag   EO_ConnectsDone(FilingControlBlock &FCB)                { return False;};
+    virtual flag   EO_DataLoaded(FilingControlBlock &FCB)                { return False;};
     virtual flag   EO_EndLoad(FilingControlBlock &FCB)                   { return False;};
     virtual flag   EO_LoadComplete(FilingControlBlock &FCB)              { return True;};
 

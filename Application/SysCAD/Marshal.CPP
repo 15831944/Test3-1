@@ -1534,7 +1534,14 @@ flag CIOMarshal::EO_LoadOtherData(FilingControlBlock &FCB)
 
 //---------------------------------------------------------------------------
 
-flag CIOMarshal::EO_EndConnect(FilingControlBlock &FCB)
+flag CIOMarshal::EO_ConnectsDone(FilingControlBlock &FCB)
+  {
+  return true;
+  }
+
+//---------------------------------------------------------------------------
+
+flag CIOMarshal::EO_DataLoaded(FilingControlBlock &FCB)
   {
   return true;
   }

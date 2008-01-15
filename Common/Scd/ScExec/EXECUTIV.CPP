@@ -6042,7 +6042,7 @@ int CExecutive::DoLoadDBaseConnect(CLoadDBInfo & LDBI)
       }
     for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
       if (OInx<LDBI.m_LoadIt.GetSize() && LDBI.m_LoadIt[OInx])
-        Objs_Reg[OInx]->EO_EndConnect(LDBI.m_FCB);
+        Objs_Reg[OInx]->EO_ConnectsDone(LDBI.m_FCB);
     }
   return !LDBI.m_Failed;
   }
@@ -6119,7 +6119,11 @@ int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
           }
         }
       }
+    for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
+      if (OInx<LDBI.m_LoadIt.GetSize() && LDBI.m_LoadIt[OInx])
+        Objs_Reg[OInx]->EO_DataLoaded(LDBI.m_FCB);
     }
+
   LDBI.m_TagDB.sCurrTag = "";
   LDBI.m_TagDB.sCurrType = "";
   LDBI.m_TagDB.Close();

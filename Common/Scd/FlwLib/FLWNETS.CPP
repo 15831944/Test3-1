@@ -19,7 +19,7 @@
 #include "scd_wm.h"
 #include "nrecipe.h"
 
-//#include "optoff.h"
+#include "optoff.h"
 
 const double MinFxdQmDiff          = 1.0e-10;
 const double ArrayReAnalyseRatio   = 100.0;
@@ -6299,6 +6299,7 @@ flag CSubNetBlk::BuildMatrixFull(long NetCnvLoop)
             if (DoJoinFlow(*g, Lp))
               {
               double PhFrac=DoJoinOneFlow(*g) ? 1.0 : GTZ(g->m_Src.m_pFBJn->PhaseFrac(NULL, Lp));
+              //PhFrac =  Max(1e-6, PhFrac);
               switch (Lp)
                 {
                 case 0:
@@ -6398,8 +6399,8 @@ flag CSubNetBlk::BuildMatrixFull(long NetCnvLoop)
                   TstChg(P, g->m_Sum_BPrev[Lp], 1.0, BFracChg);
 
                   dbgp("%s Ins%s:{%3i,.} ",Lp?"L":"V",JoinTypeStr(g->m_LnkInx.Typ),QInx/*SigPInEqn*/);
-                  dbgp("%s ",  g->m_fFastConvergeOK?"Y":"n");
-                  dbgp("%#16.9g[%+#11.6f%%]",R, 100*RFracChg);
+                  dbgp("%s ",  g->m_fFastConvergeOK?"Fst":"   ");
+                  dbgp("R:%#16.9g[%+#11.6f%%]",R, 100*RFracChg);
                   //              dbgp(" {.,%3i} %2i",SInx,-1);
                   switch (g->m_LnkInx.Typ)
                     {
