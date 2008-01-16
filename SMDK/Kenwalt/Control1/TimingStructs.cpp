@@ -12,7 +12,9 @@ FailureTiming::FailureTiming()
 	dDowntimeStdDev = 24 * 3600;
 	dAvgUptime = 30 * 24 * 3600;
 	dUptimeStdDev = 10 * 24 * 3600;
-
+	
+	dBackedUpDowntime = 0;
+	lFailureCount = 0;
 	eFailureType = PDFType_Constant;
 	eRepairType = PDFType_Constant;
 
@@ -24,8 +26,6 @@ void FailureTiming::Reset()
 	dBackedUpDowntime = 0;
 	dNextFailure = 0;
 	dRepairsDone = 0;
-	lFailureCount = 0;
-	bG_iset = 0;
 
 	Repair();
 }
@@ -65,15 +65,6 @@ bool FailureTiming::ValidateDataFields()
 	if (eRepairType == PDFType_Exponential)
 		dUptimeStdDev = dAvgUptime;
 
-	if (dAvgDowntime != dLastAvgDowntime || dAvgUptime != dLastAvgUptime ||
-		dLastDowntimeStdDev != dDowntimeStdDev || dLastUptimeStdDev != dUptimeStdDev) //If you adjust the values, we'll reset.
-	{
-		Reset();
-		dLastAvgDowntime = dAvgDowntime;
-		dLastAvgUptime = dAvgUptime;
-		dLastDowntimeStdDev = dDowntimeStdDev;
-		dLastUptimeStdDev = dUptimeStdDev;
-	}
 	if (dAvgDowntime < 0)
 		dAvgDowntime = 0;
 	if (dAvgUptime < 0)
@@ -108,7 +99,7 @@ double FailureTiming::CalculateVariable(double dAverage, double dStdDev, PDFType
 		ret = -log(rnd) * dAverage;	//TODO: Check that this is valid (Initial testing indicates that it is.)
 		break;
 	case PDFType_Normal:			//This is derived from the approximation found on Mathworld for 1/2 * Erf(x) = 0.1x(4.4-x). http://mathworld.wolfram.com/NormalDistributionFunction.html
-		/*double dev;
+		double dev;
 		if (rnd > 0.5)				//Effectively, we're normalising this so -0.5 <= rnd <= 0.5.
 			if (rnd <= 0.98)
 				dev = 2.2 - sqrt(4.84-10*(rnd-0.5));
@@ -118,41 +109,14 @@ double FailureTiming::CalculateVariable(double dAverage, double dStdDev, PDFType
 			if (rnd <= 0.48)
 				dev = -2.2 + sqrt(4.84-10*rnd);
 			else
-				dev = -2.2 - 40 * (rnd - 0.98);*/
-		ret = dAverage + dStdDev * RndGaus();
+				dev = -2.2 - 40 * (rnd - 0.98);
+		ret = dAverage + dStdDev * dev;
 		break;
 	default:
 		ret = dAverage;				//If the PDFType is not supported.
 	}
 	return ret > 0 ? ret : 0;		//Simple failsafe for in case the function results in the event happening before the present.
 }
-
-// -- Lifted straight from Noise.CPP --
-double FailureTiming::RndGaus()
-  {//see Numerical Recipes for c (2nd Edition) - function: gasdev(long *idum)
-  double fac,rsq,v1,v2;
-
-  if (bG_iset == 0) 
-    {
-    do
-      {
-      v1 = 2.0*(double) rand() / (double) RAND_MAX-1.0;
-      v2 = 2.0*(double) rand() / (double) RAND_MAX-1.0;
-      rsq = v1*v1 + v2*v2;
-      } while (rsq >= 1.0 || rsq == 0.0);
-    fac = sqrt(-2.0 * log(rsq) / rsq);
-    dG_gset = v1*fac;
-    bG_iset = 1;
-    return v2*fac;
-    }
-  else 
-    {
-    bG_iset = 0;
-    return dG_gset;
-    }
-  }
-// -- Lifted straight from Noise.CPP --
-
 
 ScheduledTiming::ScheduledTiming()
 {

@@ -5,7 +5,9 @@
 #ifndef __TIMINGSTRUCTS_H
 #define __TIMINGSTRUCTS_H
 
-#ifndef __MD_HEADERS_H
+#if defined(Control1)
+#include "ex_headers.h"
+#else
 #include "md_headers.h"
 #endif
 
@@ -23,9 +25,6 @@ struct FailureTiming
 	FailureTiming();
     double dAvgDowntime, dDowntimeStdDev;
 	double dAvgUptime, dUptimeStdDev;
-
-	double dLastAvgDowntime, dLastAvgUptime; //If the average changes, we will recalculate the distribution.
-	double dLastDowntimeStdDev, dLastUptimeStdDev;
 	
     PDFType eFailureType;
 	PDFType eRepairType;
@@ -45,12 +44,6 @@ protected:
 	void Repair();
 	void Fail();
 	double CalculateVariable(double Average, double Dev, PDFType PDF);
-
-	//--Lifted straight from Noise.CPP--
-	double RndGaus();
-	double dG_gset;
-    bool bG_iset;
-	//--Lifted straight from Noise.CPP--
 };
 
 struct ScheduledTiming

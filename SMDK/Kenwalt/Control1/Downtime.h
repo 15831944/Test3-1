@@ -5,7 +5,9 @@
 #ifndef  __DOWNTIME_H
 #define  __DOWNTIME_H
 
-#ifndef __MD_HEADERS_H
+#if defined(Control1)
+#include "ex_headers.h"
+#else
 #include "md_headers.h"
 #endif
 
@@ -40,7 +42,6 @@ struct DowntimeVariables
 	double dOnValue, dOffValue;
 	MTagIOSubscription TagToTest;
 	double dOnThreshold;
-	double dTestValue;
 
 	DT_RunningStates eCurrentState;
 
@@ -74,7 +75,6 @@ class Downtime : public MBaseMethod
 
   protected:
     bool bOn;
-	bool bAutoReset;
 
     double dCurrentTime;
     bool bForceIntegralPeriod;

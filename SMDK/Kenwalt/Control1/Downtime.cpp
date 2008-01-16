@@ -8,8 +8,6 @@
 #include <math.h>
 //#pragma optimize("", off)
 
-#pragma warning (disable: 4018 4244)
-
 //====================================================================================
 
 static double Drw_Downtime[] = 
@@ -26,13 +24,21 @@ static double Drw_Downtime[] =
 
 //---------------------------------------------------------------------------
 
-DEFINE_CONTROL_UNIT(Downtime, "Downtime", DLL_GroupName)
+#if defined(Control1)
+DEFINE_CONTROL_UNIT_EX(Downtime, "Downtime", MDLLIBNAME)
+#else
+DEFINE_CONTROL_UNIT(Downtime, "TestDowntime", DLL_GroupName)
+#endif
 
 void Downtime_UnitDef::GetOptions()
 {
 	SetDefaultTag("DT");
 	SetDrawing("Control", Drw_Downtime);
+  #if defined(Control1)
+	SetTreeDescription("Control:Downtime");
+  #else
 	SetTreeDescription("Demo:Downtime");
+  #endif
 	SetModelSolveMode(MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_General);
   //SetModelLicense(MLicense_Standard);
@@ -47,7 +53,6 @@ Downtime::Downtime(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pU
 {
 	//default values...
 	bOn = true;
-	bAutoReset = false;
 	dCurrentTime = 0.0;
 	bForceIntegralPeriod = true;
 	bForceIntegralDowntime = false;
@@ -70,27 +75,31 @@ bool Downtime::PreStartCheck()
 //---------------------------------------------------------------------------
 
 void Downtime::EvalCtrlInitialise(eScdCtrlTasks Tasks)
-{
-	Reset();
-	if (bOn)
-		for (unsigned int i = 0; i < tasks.size(); i++)
-			if (tasks.at(i)->TagToSet.IsActive)
-				if (tasks.at(i)->eCurrentState == DTRS_Running || tasks.at(i)->eCurrentState == DTRS_Off)
-					tasks.at(i)->TagToSet.DoubleSI = tasks.at(i)->dOnValue;
-				else
-					tasks.at(i)->TagToSet.DoubleSI = tasks.at(i)->dOffValue;
-}
+  {
+  Reset();
+  if (bOn)
+    {
+    for (unsigned int i = 0; i < tasks.size(); i++)
+      {
+      if (tasks.at(i)->TagToSet.IsActive)
+	      if (tasks.at(i)->eCurrentState == DTRS_Running || tasks.at(i)->eCurrentState == DTRS_Off)
+		      tasks.at(i)->TagToSet.DoubleSI = tasks.at(i)->dOnValue;
+	      else
+		      tasks.at(i)->TagToSet.DoubleSI = tasks.at(i)->dOffValue;
+      }
+    }
+  }
 
 //---------------------------------------------------------------------------
 
 void Downtime::Reset()
-{
-	dCurrentTime = 0.0;
-	for (unsigned int i = 0; i < tasks.size(); i++)
-	{
-		tasks.at(i)->Reset();
-	}
-}
+  {
+  dCurrentTime = 0.0;
+  for (unsigned int i = 0; i < tasks.size(); i++)
+    {
+    tasks.at(i)->Reset();
+    }
+  }
 
 //---------------------------------------------------------------------------
 
@@ -121,22 +130,16 @@ void Downtime::BuildDataFields()
 		{ 0 }};
 
 		
-	vector<CString> states;
+	CString states;
 	int j = 0;
-	CString currentStates;
 	while (DD_States[j].m_pStr != 0)
 	{
 		CString temp;
 		temp.Format("%i:%s, ", DD_States[j].m_lVal, DD_States[j].m_pStr);
-		currentStates.Append(temp);
-		if (j%3 == 2)
-		{
-			states.push_back(currentStates);
-			currentStates = "";
-		}
+		states.Append(temp);
 		j++;
 	}
-	states.back().Trim(", ");
+	states.Trim(", ");
 
 	DD.CheckBox("On", "", &bOn, MF_PARAMETER);
 	DD.CheckBox("IntegralPeriod", "", &bForceIntegralPeriod, MF_PARAMETER);
@@ -145,7 +148,6 @@ void Downtime::BuildDataFields()
 	DD.Text("");
 	DD.Double("TotalTime", "", &dCurrentTime, MF_RESULT | MF_INIT_HIDDEN, MC_Time("h"));
 	DD.Button("Reset_All", "", idDX_Reset, MF_PARAMETER);
-	DD.CheckBox("Auto_Reset", "", &bAutoReset, MF_PARAMETER);
 	DD.Text("");
 	DD.Text("");
 
@@ -209,13 +211,8 @@ void Downtime::BuildDataFields()
 			DD.Text("Set Tag Not Valid");
 		if (!tasks.at(i)->TagToTest.IsActive)
 			DD.Text("Test Tag Not Valid");
-		DD.Show(tasks.at(i)->TagToTest.IsActive);
-		DD.Double("", "TagToTest_CurrentValue", &tasks.at(i)->dTestValue, MF_RESULT, TestTagCnv);
-		DD.Show();
 		DD.Long("State", "", (long*) &tasks.at(i)->eCurrentState, MF_RESULT, DD_States);
-		DD.Long("StateValue", "", (long*) &tasks.at(i)->eCurrentState, MF_RESULT);
-		for (vector<CString>::iterator it = states.begin(); it != states.end(); it++)
-			DD.Text(*it);
+		DD.Text(states);
 		DD.Double("OutputValue", "Output", idDX_OutputVal + i, MF_RESULT|MF_NO_FILING, SetTagCnv);
 		DD.Text("");
 		DD.Double("", "TtlInactiveTime", &tasks.at(i)->dTotalDowntime, MF_RESULT, MC_Time("h"));
@@ -241,13 +238,10 @@ bool Downtime::ExchangeDataFields()
 	if (DX.Handle >= idDX_SetTag && DX.Handle < idDX_SetTag + maxElements)
 	{
 		const int task = DX.Handle - idDX_SetTag;
-		CString dbg1, dbg2;
 		if (DX.HasReqdValue)
 		{
-			dbg1 = DX.String;
 			tasks.at(task)->TagToSet.Tag = DX.String;
 		}
-		dbg2 = tasks.at(task)->TagToSet.Tag;
 		DX.String = tasks.at(task)->TagToSet.Tag;
 		return true;
 	}
@@ -258,7 +252,7 @@ bool Downtime::ExchangeDataFields()
 		{
 			tasks.at(task)->TagToTest.Tag = DX.String;
 		}
-		DX.String = tasks.at(task)->TagToTest.Tag;
+		DX.String = tasks.at(task)->TagToSet.Tag;
 		return true;
 	}
 	if (DX.Handle >= idDX_OutputVal && DX.Handle < idDX_OutputVal + maxElements)
@@ -326,7 +320,6 @@ bool Downtime::ValidateDataFields()
 		else
 			tasks.at(i)->dDowntime = tasks.at(i)->dDesiredDowntime;*/
 	}
-	CheckTags();
 	return true;
 }
 
@@ -390,7 +383,6 @@ void Downtime::EvalCtrlActions(eScdCtrlTasks Tasks)
 				(*it)->eCurrentState = DTRS_Running;
 			else
 				(*it)->eCurrentState = DTRS_Off;
-			(*it)->dTestValue = (*it)->TagToTest.IsActive ? (*it)->TagToTest.DoubleSI : dNAN;
 			//In certain conditions, we will want to reset some timers:
 			if (ePreviousState == DTRS_MajorMaintenance && (*it)->eCurrentState != DTRS_MajorMaintenance)
 			{
@@ -480,7 +472,7 @@ void Downtime::SetSize(long size)
 void Downtime::SetState(MStatesToSet SS)
   {
   MBaseMethod::SetState(SS);
-  if (SS==MSS_DynStatsRunInit && bAutoReset)
+  if (SS==MSS_DynStatsRunInit)
     Reset();
   }
 
@@ -491,24 +483,17 @@ bool Downtime::CheckTags()
 	bool ret = true;
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		CString tag1 = tasks.at(i)->TagToSet.Tag;
-		CString tag2 = tasks.at(i)->TagToTest.Tag;
-		if ((tag1.Trim() != "" && !tasks.at(i)->TagToSet.IsActive) ||
-			(tag2.Trim() != "" && !tasks.at(i)->TagToTest.IsActive))
+		if ((tasks.at(i)->TagToSet.Tag != "" && !tasks.at(i)->TagToSet.IsActive) ||
+			(tasks.at(i)->TagToTest.Tag != "" && !tasks.at(i)->TagToTest.IsActive))
 		{
 			CString warning;
 			warning.Format("Task %i contains an invalid tag.", i);
-			Log.SetCondition(bOn, i, MMsg_Warning, warning);
+			Log.Message(MMsg_Warning, warning);
 			ret = false;
 		}
-		else
-			Log.ClearCondition(i);
 	}
 	return ret;
 }
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
-
 
 DowntimeVariables::DowntimeVariables(MTagIO & TagIO) : TagToSet(TagIO), TagToTest(TagIO)
 {
@@ -516,7 +501,6 @@ DowntimeVariables::DowntimeVariables(MTagIO & TagIO) : TagToSet(TagIO), TagToTes
 	dTotalDowntime = 0.0;
 	dOnValue = 1.0;
 	dOffValue = 0.0;
-	dTestValue = dNAN;
 
 	Reset();
 }
@@ -527,15 +511,13 @@ void DowntimeVariables::Reset()
 	MinorMaintenance.Reset();
 	MajorFailure.Reset();
 	MinorFailure.Reset();
-
-	dTotalDowntime = 0;
 }
 
 bool DowntimeVariables::ValidateDataFields(double deltaT, bool bForceIntegralPeriod, bool bForceIntegralDowntime)
 {
-	return MajorMaintenance.ValidateDataFields(deltaT, bForceIntegralPeriod, bForceIntegralDowntime) ||
-		MinorMaintenance.ValidateDataFields(deltaT, bForceIntegralPeriod, bForceIntegralDowntime) ||
-		MajorFailure.ValidateDataFields() ||
+	return MajorMaintenance.ValidateDataFields(deltaT, bForceIntegralPeriod, bForceIntegralDowntime) &&
+		MinorMaintenance.ValidateDataFields(deltaT, bForceIntegralPeriod, bForceIntegralDowntime) &&
+		MajorFailure.ValidateDataFields() &&
 		MinorFailure.ValidateDataFields();
 }
 
