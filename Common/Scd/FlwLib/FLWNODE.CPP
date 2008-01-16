@@ -3496,6 +3496,9 @@ m_ExtAudit(this)
 
 FlwNode::~FlwNode()
   {
+  DisConnectDirectConnects();
+  DisConnectAll();
+
   DeleteCriticalSection(&m_LockSect);
 
   Joins.SetSize(0);
@@ -3536,8 +3539,6 @@ FlwNode::~FlwNode()
     }
 
   delete m_pTagIO;
-
-  DisConnectDirectConnects();
 
   if (stricmp(Class()->Group(), FlwUnitGrp)==0)
     gs_License.BumpNodeCount(-1, FullObjTag());
@@ -7439,6 +7440,7 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
   flag IsElec=(IOAreas[LIONo].m_dwType & nc_ELnk)!=0;
   flag IsAir=(IOAreas[LIONo].m_dwType & nc_ALnk)!=0;
 
+
   IO.Clear();
   IO.m_pRmt       = R;
   //IO.m_iIONoRmt   = 0;
@@ -7451,6 +7453,7 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
   IO.m_pFBs       = new FlwBlkArray;
   IO.m_pPBs       = new CPressBlkArray;
   IO.m_pChgs      = new CTraceArray;
+
   if (pF)
     {
     IO.SetNFBs(1);
@@ -12751,6 +12754,7 @@ void CDirectFlwIO::ManageNdDirectIOs(bool AddIt)
       {
       if (Found)
         {
+        m_pNd->DoDirectDisConnect(this);
         m_pNd->m_AttachedDirectIOs.RemoveAt(dPos);
         if (dbgDIOList)
           dbgpln("DIO Remove %-10s %08x ", eTypeStr(m_eType), this);
@@ -13214,7 +13218,7 @@ flag CDirectFlwIO::DoConnect()
   if (Connd.GetCount()==0 || Connd.Find(this)==NULL)
     {
     m_RmtListPos=Connd.AddTail(this);
-    //dbgpln("+++ %i", Connd.GetCount());
+    //dbgpln("  m_RmtListPos=0x%08x", m_RmtListPos);
     }
 
   if (m_iLclDIOId<0)
@@ -13354,6 +13358,7 @@ flag CDirectFlwIO::DoDisConnect()
 
     //CList<CDirectFlwIO*, CDirectFlwIO*> &Connd=m_pArea->m_DirectIOsConnected;
     //POSITION Pos=Connd.GetCount()>0 ? Connd.Find(this) : NULL;
+    //dbgpln("  m_RmtListPos=0x%08x", m_RmtListPos);
     if (m_RmtListPos)
       {
       m_pRmt->m_DirectIOsConnected.RemoveAt(m_RmtListPos);

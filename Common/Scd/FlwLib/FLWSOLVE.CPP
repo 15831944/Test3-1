@@ -31,7 +31,7 @@
 #include <Psapi.h>
 #pragma comment(lib, "Psapi.lib")
 
-//#include "optoff.h"
+#include "optoff.h"
 
 //===========================================================================
 //temp force solver threads to zero until multi-threaded solver bug is fixed
@@ -13682,7 +13682,7 @@ int CFlwSolver::EO_DeleteTags(Strng_List & Tags)
       if (p)
         {
         dbgpln("DELETE %s %s ", pTag->Str(), p->FullObjTag());
-        p->DisConnectAll();
+        //p->DisConnectAll();
         delete p;
 
         //ask all models if they want to do anything internally for the delete tag...
