@@ -52,22 +52,44 @@ namespace SysCAD.Editor
     {
       if (Visible && ((hovered) || ((arrow.Origin.Tag as EditorNode).Hovered) || ((arrow.Destination.Tag as EditorNode).Hovered)))
       {
-        opacity += 100;
+        if (opacity == 220)
+        {
+          opacityTimer.Stop();
+          return;
+        }
+
+        opacity += 50;
         if (opacity > 220)
         {
           opacityTimer.Stop();
           opacity = 220;
+          Console.WriteLine("Shown: " + Tag);
         }
       }
       else
       {
-        opacity -= 100;
+        if (opacity == 1)
+        {
+          opacityTimer.Stop();
+          return;
+        }
+
+        opacity -= 50;
         if (opacity < 1)
         {
           opacityTimer.Stop();
           opacity = 1;
+          Console.WriteLine("Hidden:" + Tag);
         }
       }
+
+      // Play with fillcolor to cause invalidate to be called on each object.
+      (arrow.Origin.Tag as EditorNode).ModelBox.FillColor = (arrow.Origin.Tag as EditorNode).ModelBox.FillColor;
+      (arrow.Destination.Tag as EditorNode).ModelBox.FillColor = (arrow.Destination.Tag as EditorNode).ModelBox.FillColor;
+      
+      Color fillColor = arrow.FillColor;
+      arrow.FillColor = Color.Black;
+      arrow.FillColor = fillColor;
     }
 
     internal void Remove(FlowChart flowChart)
@@ -182,7 +204,7 @@ namespace SysCAD.Editor
       textBox.ZIndex = arrow.ZIndex - 10000;
 
 
-      arrow.CustomDraw = CustomDraw.Additional;
+//      arrow.CustomDraw = CustomDraw.Additional;
 
       if ((hovered) || ((arrow.Origin.Tag as EditorNode).Hovered) || ((arrow.Destination.Tag as EditorNode).Hovered))
         arrow.ZTop();

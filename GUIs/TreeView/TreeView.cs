@@ -1851,7 +1851,7 @@ namespace PureComponents.TreeView
 
 				// show it in the async call
 				if (node.TextTruncated == false)
-					m_Tooltip.Show(cursorPos.X + 20, cursorPos.Y, node.GetTooltipStyle(), tooltipText, this.TooltipPopDelay);
+					m_Tooltip.Show(cursorPos.X + 20, cursorPos.Y + 20, node.GetTooltipStyle(), tooltipText, this.TooltipPopDelay);
 				else
 				{
 					Rectangle nodeRect = this.GetNodeRect(node);

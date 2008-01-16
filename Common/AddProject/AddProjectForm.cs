@@ -22,14 +22,23 @@ namespace SysCAD
     private void browseButton_Click(object sender, EventArgs e)
     {
       folderBrowserDialog1.SelectedPath = pathTextBox.Text;
-      folderBrowserDialog1.ShowDialog();
 
-      if (Directory.Exists(folderBrowserDialog1.SelectedPath))
+      while (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
       {
-        pathTextBox.Text = folderBrowserDialog1.SelectedPath;
-        if (String.IsNullOrEmpty(nameTextBox.Text))
-          nameTextBox.Text = Path.GetFileNameWithoutExtension(folderBrowserDialog1.SelectedPath);
-        nameTextBox.Focus();
+        if (Directory.Exists(folderBrowserDialog1.SelectedPath))
+        {
+          // Just check for Project.spj at the moment, in future do full check.
+          if (Directory.GetFiles(folderBrowserDialog1.SelectedPath, "Project.spj").Length != 0)
+          {
+            pathTextBox.Text = folderBrowserDialog1.SelectedPath;
+            if (String.IsNullOrEmpty(nameTextBox.Text))
+              nameTextBox.Text = Path.GetFileNameWithoutExtension(folderBrowserDialog1.SelectedPath);
+            nameTextBox.Focus();
+            return;
+          }
+        }
+
+        MessageBox.Show("The selected folder doesn't contain a valid SysCAD project.", "Not a project folder.");
       }
     }
 

@@ -317,6 +317,7 @@ namespace SysCAD.Editor
 
         node = tvNavigation.AddNodeByPath(graphicGroup.Path + graphicGroup.Tag, graphicGroup.Guid.ToString());
         node.AllowDrop = false;
+        node.Tooltip = "";
         tvNavigation.AddSelectedNode(node);
 
         bool isVisible = true;
@@ -324,7 +325,7 @@ namespace SysCAD.Editor
           isVisible = node.Parent.IsSelected;
 
         box = flowChart.CreateBox((float)graphicGroup.X, (float)graphicGroup.Y, (float)graphicGroup.Width, (float)graphicGroup.Height);
-        box.ToolTip = graphicGroup.Tag;
+        box.ToolTip = "";// graphicGroup.Tag;
         box.Style = BoxStyle.Rectangle;
 
         // Make groups unmodifiable -- for now.
@@ -444,6 +445,7 @@ namespace SysCAD.Editor
           modelBox.RotationAngle = (float)graphicNode.Angle;
           modelBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicNode.Model";
           modelBox.Style = BoxStyle.Shape;
+          modelBox.CustomDraw = CustomDraw.Additional;
 
           //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
 
@@ -573,6 +575,7 @@ namespace SysCAD.Editor
         }
 
         Arrow arrow = flowChart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
+        arrow.CustomDraw = CustomDraw.Additional;
 
         {
           switch (modelLink.LinkClass)

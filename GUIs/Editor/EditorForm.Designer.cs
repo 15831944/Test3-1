@@ -319,6 +319,7 @@ namespace SysCAD.Editor
       this.tvNavigation.PathSeparator = "/";
       this.tvNavigation.SelectionMode = PureComponents.TreeView.SelectionMode.MultipleExtended;
       this.tvNavigation.Size = new System.Drawing.Size(131, 349);
+      this.tvNavigation.Tooltips = false;
       nodeStyle1.CheckBoxStyle = checkBoxStyle1;
       nodeStyle1.ExpandBoxStyle = expandBoxStyle1;
       nodeStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);

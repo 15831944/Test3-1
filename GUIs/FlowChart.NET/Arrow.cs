@@ -3291,6 +3291,9 @@ namespace MindFusion.FlowChartX
 			if (subordinateGroup != null && includeConnected)
 				rect = Utilities.unionRects(rect, subordinateGroup.getRepaintRect());
 
+      rect = Utilities.unionRects(rect, Origin.getBoundingRect());
+      rect = Utilities.unionRects(rect, Destination.getBoundingRect());
+
 			return rect;
 		}
 

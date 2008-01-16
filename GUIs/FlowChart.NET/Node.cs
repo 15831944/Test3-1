@@ -194,12 +194,16 @@ namespace MindFusion.FlowChartX
 				{
 					arrowRect = arrow.getRepaintRect(true);
 					repaintRect = Utilities.unionRects(repaintRect, arrowRect);
-				}
+          repaintRect = Utilities.unionRects(repaintRect, arrow.Origin.getBoundingRect());
+          repaintRect = Utilities.unionRects(repaintRect, arrow.Destination.getBoundingRect());
+        }
 				foreach (Arrow arrow in incomingArrows)
 				{
 					arrowRect = arrow.getRepaintRect(true);
 					repaintRect = Utilities.unionRects(repaintRect, arrowRect);
-				}
+          repaintRect = Utilities.unionRects(repaintRect, arrow.Origin.getBoundingRect());
+          repaintRect = Utilities.unionRects(repaintRect, arrow.Destination.getBoundingRect());
+        }
 			}
 
 			// include the group objects rectangles in the update area

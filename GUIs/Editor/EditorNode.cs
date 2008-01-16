@@ -47,7 +47,7 @@ namespace SysCAD.Editor
     {
       if (visible && (ModelBox.Selected || state.ShowModels || hovered || linkHovered))
       {
-        opacity+=100;
+        opacity += 50;
         if (opacity > 220)
         {
           opacityTimer.Stop();
@@ -56,7 +56,7 @@ namespace SysCAD.Editor
       }
       else
       {
-        opacity-=100;
+        opacity -= 50;
         if (opacity < 1)
         {
           opacityTimer.Stop();
@@ -233,18 +233,20 @@ namespace SysCAD.Editor
       ModelBox.ZIndex = GraphicBox.ZIndex + 100;
       TextBox.ZIndex = GraphicBox.ZIndex + 200;
 
-      linkHovered = false;
+      //linkHovered = false;
       foreach (Arrow arrow in ModelBox.IncomingArrows)
       {
-        arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
-        if ((arrow.Tag as EditorLink).Hovered) 
-          linkHovered = true;
+        (arrow.Tag as EditorLink).UpdateVisibility();
+        //arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
+        //if ((arrow.Tag as EditorLink).Hovered) 
+        //  linkHovered = true;
       }
       foreach (Arrow arrow in ModelBox.OutgoingArrows)
       {
-         arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
-        if ((arrow.Tag as EditorLink).Hovered) 
-          linkHovered = true;
+        (arrow.Tag as EditorLink).UpdateVisibility();
+        // arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
+        //if ((arrow.Tag as EditorLink).Hovered) 
+        //  linkHovered = true;
       }
 
       //if ((hovered) || (linkHovered))
