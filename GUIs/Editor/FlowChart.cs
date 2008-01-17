@@ -1341,126 +1341,6 @@ namespace SysCAD.Editor
           }
         }
       }
-
-      foreach (Arrow arrow in e.Box.IncomingArrows)
-      {
-        {
-          EditorLink link = arrow.Tag as EditorLink;
-          MindFusion.FlowChartX.Node node = arrow.Destination;
-          Box box = null;
-
-          if (node != null)
-            box = node as Box;
-
-          if ((box != null) && (arrow.DestAnchor != -1))
-          {
-            PointF anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(box.BoundingRect),
-              box.AnchorPattern.Points[arrow.DestAnchor].X,
-              box.AnchorPattern.Points[arrow.DestAnchor].Y,
-              box.RotationAngle).ToPointF();
-
-            PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, 0, 0, 255), 0.0F);
-            e.Graphics.DrawLines(pen, extensionPoints);
-
-            pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.Green), 0.0F);
-            SysCAD.Protocol.Rectangle anchorPointRect = new SysCAD.Protocol.Rectangle(anchorPointPos, SysCAD.Protocol.Size.Empty);
-            anchorPointRect.Inflate((double)fcFlowChart.SelHandleSize, (double)fcFlowChart.SelHandleSize);
-            e.Graphics.DrawEllipse(pen, anchorPointRect);
-          }
-
-          else
-          {
-            Color errorColor = new Color();
-
-            if (box != null)
-            {
-              errorColor = Color.Yellow;
-              PointF anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(box.BoundingRect),
-                50,
-                50,
-                box.RotationAngle).ToPointF();
-
-              PointF[] extensionPoints =
-                new PointF[] { arrow.ControlPoints[arrow.ControlPoints.Count - 1], anchorPointPos };
-
-              System.Drawing.Pen pen1 = new System.Drawing.Pen(Color.FromArgb(link.Opacity, errorColor), 0.0F);
-              e.Graphics.DrawLines(pen1, extensionPoints);
-            }
-            else
-              errorColor = Color.Red;
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
-            PointF controlPoint = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
-            SysCAD.Protocol.Rectangle controlPointRect = new SysCAD.Protocol.Rectangle(controlPoint, SysCAD.Protocol.Size.Empty);
-            controlPointRect.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
-            e.Graphics.DrawEllipse(pen, controlPointRect);
-          }
-        }
-      }
-
-      foreach (Arrow arrow in e.Box.OutgoingArrows)
-      {
-        {
-          EditorLink link = arrow.Tag as EditorLink;
-          MindFusion.FlowChartX.Node node = arrow.Origin;
-          Box box = null;
-
-          if (node != null)
-            box = node as Box;
-
-          if ((box != null) && (arrow.OrgnAnchor != -1))
-          {
-            PointF anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(box.BoundingRect),
-              box.AnchorPattern.Points[arrow.OrgnAnchor].X,
-              box.AnchorPattern.Points[arrow.OrgnAnchor].Y,
-              box.RotationAngle).ToPointF();
-
-            PointF[] extensionPoints =
-              new PointF[] { arrow.ControlPoints[0], anchorPointPos };
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, 0, 0, 255), 0.0F);
-            e.Graphics.DrawLines(pen, extensionPoints);
-
-            pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.Green), 0.0F);
-            SysCAD.Protocol.Rectangle r = new SysCAD.Protocol.Rectangle(anchorPointPos, SysCAD.Protocol.Size.Empty);
-            r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
-            e.Graphics.DrawEllipse(pen, r);
-          }
-
-          else
-          {
-            Color errorColor = new Color();
-
-            if (box != null)
-            {
-              errorColor = Color.Yellow;
-
-              PointF anchorPointPos = GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(box.BoundingRect),
-                50,
-                50,
-                box.RotationAngle).ToPointF();
-
-              PointF[] extensionPoints =
-                new PointF[] { arrow.ControlPoints[0], anchorPointPos };
-
-              System.Drawing.Pen pen1 = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.Yellow), 0.0F);
-              e.Graphics.DrawLines(pen1, extensionPoints);
-            }
-            else
-              errorColor = Color.Red;
-
-            System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
-            PointF p = arrow.ControlPoints[0];
-            SysCAD.Protocol.Rectangle r = new SysCAD.Protocol.Rectangle(p, SysCAD.Protocol.Size.Empty);
-            r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
-            e.Graphics.DrawEllipse(pen, r);
-          }
-        }
-      }
-
     }
 
     private static void fcFlowChart_GroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
@@ -1675,6 +1555,40 @@ namespace SysCAD.Editor
           PointF pt2 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
                              form1.hoverviewBox.BoundingRect,
                              link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 1].ToPointF());
+
+          ///Box box1 = form1.fcHoverview.CreateBox(pt1.X*2.0F, pt1.Y, 0.001F, 0.01F);
+          //box1.Visible = false;
+          //box1.FillColor = System.Drawing.Color.FromArgb(20, 222, 184, 136);
+          //box1.FrameColor = System.Drawing.Color.FromArgb(25, 111, 92, 68);
+          //Box box2 = form1.fcHoverview.CreateBox(pt2.X, pt2.Y, 0.001F, 0.01F);
+          //box2.Visible = false;
+          Arrow arrow1 = form1.fcHoverview.CreateArrow(pt1, pt2);
+          Arrow arrow2 = form1.fcHoverview.CreateArrow(pt2, anchorPointPos);
+          arrow1.ArrowHead = ArrowHead.Triangle;
+          arrow1.ArrowHeadSize = 2.0F;
+          arrow1.FillColor = Color.Black;
+
+          arrow2.PenColor = Color.Blue;
+
+          form1.fcHoverview.Selection.Clear();
+        }
+
+        foreach (EditorLink link in form1.hoverviewOutgoingLinks)
+        {
+          int portId = 0;
+          (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.DestinationPort + link.GraphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture), out portId);
+
+          PointF anchorPointPos = FrmFlowChart.GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(form1.hoverviewBox.BoundingRect),
+            form1.hoverviewBox.AnchorPattern.Points[portId].X,
+            form1.hoverviewBox.AnchorPattern.Points[portId].Y,
+            form1.hoverviewBox.RotationAngle).ToPointF();
+
+          PointF pt1 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
+                             form1.hoverviewBox.BoundingRect,
+                             link.GraphicLink.ControlPoints[1].ToPointF());
+          PointF pt2 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
+                             form1.hoverviewBox.BoundingRect,
+                             link.GraphicLink.ControlPoints[0].ToPointF());
 
           ///Box box1 = form1.fcHoverview.CreateBox(pt1.X*2.0F, pt1.Y, 0.001F, 0.01F);
           //box1.Visible = false;
