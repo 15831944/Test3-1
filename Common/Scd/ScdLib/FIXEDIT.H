@@ -227,6 +227,7 @@ class DllImportExport FxdEdtRow
     short         NFields, Cols, RowNo;
     FxdEdtView*   pView;
     int           fFixedPos;
+    bool          m_ApplyAdjust;
 
     FxdEdtRow(FxdEdtView* pView_);
     ~FxdEdtRow();
@@ -433,7 +434,7 @@ class DllImportExport FxdEdtBook
     void SetMarkerFlags(UCHAR nMarker);
     void SetForce1Page(int Force=True);
 
-
+    void SetAdjustFld(bool On);
     FxdEdtFld* AdjustFld(int PgNo, int RowNo, int FldNo, int WdtDelta);
 
     void FldHasFixedStrValue(int i, pchar pStrVal);
@@ -699,6 +700,8 @@ class DllImportExport FxdEdtBookRef
     void SetForce1Page(int Force=True) 
       { pView->SetForce1Page(Force); };
 
+    void SetAdjustFld(bool On) 
+      { pView->SetAdjustFld(On); };
 
     void FldHasFixedStrValue(int i, pchar pStrVal) { pView->FldHasFixedStrValue(i, pStrVal);};
     void FldHasNANStrValue(int i, pchar pStrVal) { pView->FldHasNANStrValue(i, pStrVal);};
@@ -996,6 +999,14 @@ inline void FxdEdtBook::SetFixedPosition(int Fixed)
 inline void FxdEdtBook::SetForce1Page(int Force)
   {
   fForce1Page=Force;
+  }
+
+//---------------------------------------------------------------------------
+
+inline void FxdEdtBook::SetAdjustFld(bool On) 
+  {
+  if (pPrevFld)
+    pPrevFld->pRow->m_ApplyAdjust=On;
   }
 
 // --------------------------------------------------------------------------

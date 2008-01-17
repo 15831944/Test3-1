@@ -2465,7 +2465,7 @@ int AccNodeWnd::BuildStdPageHeader()
   //SetButton(L, fAllFldsVis ? "Hide Fields" : "All Fields", Id_AllBtn, 10, 0, " ");
   SetButton(L, fAllFldsVis ? "VisFlds" : "AllFlds", Id_AllBtn, 8, 0, " ");
   SetBitmapButton2(L, GDIBlk::LowRes() ? IDB_ACCFIND_LOWRESBTN : IDB_ACCFIND_BTN, Id_FindBtn, 2, 0, " ");
-  
+
   L++;
   SetSpace(L, 1);
   if (fAllFldsVis)
@@ -2512,9 +2512,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
       WasObj=0;
     }
 
-  int FldDelta[MaxFixedPages];
-  for (int i=0; i<MaxFixedPages; i++)
-    FldDelta[i]  =-1000;
+  int FldDelta=-1000;
 
   Strng ObjRefTag;
   int  ObjRefFldNo=-1;
@@ -2522,7 +2520,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
   flag FirstFieldOnPage=0;
   flag NewObjRef=0;
   flag VisInTree[256];
-  for (i=0; i<256; i++)
+  for (int i=0; i<256; i++)
     VisInTree[i]=1;
   //int nFldsOnPage=0;
   int RqdPgLen=0;
@@ -2562,7 +2560,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
     AccNdFld & f=Flds[fi];
     AccNdData & d=f();//Data[fi];
     flag IsPage=false;
-    
+
     switch (f.iType)
       {
       case tt_Grid:
@@ -2585,17 +2583,17 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         MaxRows=SafeAtoL(pR,1);
         ColWide=SafeAtoL(pW,10);
         DefGap=SafeAtoL(pG,0);
-        
+
         if (pC==NULL)
           S=" ";
         GridTxt=S;
-        
+
         Wide=Max(Wide,MaxCols>1 ? 7:5);
         GridTxt.SetLength(Wide);
         GridTxt.LPad(Wide);
 
         ColHdrs[0].m_sTxt=GridTxt;
-        ColHdrs[0].m_Width=GridTxt.Len();
+        ColHdrs[0].m_Width=Max(4, GridTxt.Len()); // subsequent row header lengths
         ColHdrs[0].m_Just=0;
         ColHdrs[0].m_Gap=0;
         for (int ii=1; ii<sizeof(ColHdrs)/sizeof(ColHdrs[0]); ii++)
@@ -2628,7 +2626,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         int Wide=pGap-S();
         int Gap=atoi(pGap+1);
         S.SetLength(Wide);
-        ColHdrs[nColHdrs].m_Width=Wide;
+        ColHdrs[nColHdrs].m_Width=Max(ColHdrs[nColHdrs].m_Width,Wide);
         ColHdrs[nColHdrs].m_Gap=Gap;
         ColHdrs[nColHdrs].m_Just=(Just=='<'?0:Just=='>'?2:1);
         ColHdrs[nColHdrs].m_sTxt=S;
@@ -2655,9 +2653,9 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
     if (dbgBld)
       dbgpln("%4i %4i %-10s %s %s %s %3i %s %s %s %s", 
-              fi, LnNo, tt_TypeString(d.iType), 
-              d.m_fIsGridStart?"[":" ", d.m_fIsGridRowStart?">":" ", d.m_fIsGridEnd?"]":" ", d.m_iGridCol, d.m_IsLastDataCol?"Last":"    ",   
-              DoingGrid?"Dm":"  ", StartOfGrid?"Sm":"  ", d.sSymOrTag());
+      fi, LnNo, tt_TypeString(d.iType), 
+      d.m_fIsGridStart?"[":" ", d.m_fIsGridRowStart?">":" ", d.m_fIsGridEnd?"]":" ", d.m_iGridCol, d.m_IsLastDataCol?"Last":"    ",   
+      DoingGrid?"Dm":"  ", StartOfGrid?"Sm":"  ", d.sSymOrTag());
     switch (f.iType)
       {
       case tt_OptPage:
@@ -2721,6 +2719,20 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
     if (IsPage)
       {
+      // Apply FldDelta's
+      if (PgNo>=0)
+        {
+        if (FldDelta>-1000 && Pg[PgNo])
+          {
+          int fno=2;
+          for (int r=2; r<Pg[PgNo]->Rows; r++)
+            AdjustFld(PgNo, r, fno, FldDelta);
+          }
+        FldDelta=-1000;
+        }
+
+      //Now the next page
+
       NoPageYet=0;
       RqdPgLen=2;
       int l=0;
@@ -2792,7 +2804,8 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               {
               SetSpace(LnNo,1);//+d.m_iChildLvl*2);
               SetDesc(LnNo,"  ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
-  
+              SetAdjustFld(false);
+
               for (int i=0; i<=MaxCols; i++)
                 {
                 Strng Gap;
@@ -2973,10 +2986,10 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               {
               FxdEdtFld* pFld=SetDesc(LnNo,NameBuff(), -(Id_FldParms+fi), DWidth, 3, TagComStr());
               pFld->m_fUnderLine=true;
-  #if WITHEQUIPSPECS
+#if WITHEQUIPSPECS
               //pFld->m_fRmtData = (d.m_ValStatus&CTOSelectData::VS_Set)!=0;
               //pFld->m_fRmtChgd = (d.m_ValStatus&CTOSelectData::VS_Changed)!=0;
-  #endif
+#endif
 
               if (d.sFullTag())
                 SetTag(d.sFullTag());
@@ -3166,7 +3179,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               {
               f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.m_Cnv.Index()))?0:2, "  ", false);
               }
-            
+
             if (d.ValLst.Length()>0)
               {
               if (IsFloatData(d.iType) && d.fHasNANStr)
@@ -3205,8 +3218,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           if (!DoingGrid && (!d.fHasButton || d.fHasCheck || (d.ValLst.Length()>0)))
             {
             NameBuff.Trim();
-            FldDelta[PgNo]=Max(FldDelta[PgNo], (NameBuff.Length()+TagComLen+2)-NamW);
+            FldDelta=Max(FldDelta, (NameBuff.Length()+TagComLen+2)-NamW); 
+            //dbgpln("??? %2i %-20s %5i", PgNo, NameBuff(), FldDelta);
             }
+
+          SetAdjustFld(!DoingGrid);
 
           if (!DoingGrid)
             LnNo++;
@@ -3240,18 +3256,18 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         //      The code below doesn't work...???
         /*const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
         if (HasTag)
-          {
-          if (GDIBlk::LowRes())
-            {
-            SetBitmapButton1(LnNo, IDB_ACCFIND_LOWRES, Id_FldBtns+fi, 2, 0, "");
-            SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
-            }
-          else
-            {
-            SetBitmapButton1(LnNo, IDB_ACCFIND, Id_FldBtns+fi, 2, 0, "");
-            SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
-            }
-          }*/
+        {
+        if (GDIBlk::LowRes())
+        {
+        SetBitmapButton1(LnNo, IDB_ACCFIND_LOWRES, Id_FldBtns+fi, 2, 0, "");
+        SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+        }
+        else
+        {
+        SetBitmapButton1(LnNo, IDB_ACCFIND, Id_FldBtns+fi, 2, 0, "");
+        SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+        }
+        }*/
 
         LnNo++;
         FirstFieldOnPage=0;
@@ -3297,28 +3313,18 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
                 i=Data[i].iEndFld;
           NewObjRef=1;
           }
+
         break;
       case tt_NULL: break;
       }
+
     if (DoingGrid && f.fIsData)
       iGridCol++;
+
     if (d.m_fIsGridEnd)
       {
       DoingGrid=false;
       LnNo++;
-      }
-    }
-
-  if (1)
-    {
-    for (i=0; i<MaxFixedPages; i++)
-      {
-      if (FldDelta[i]>-1000 && Pg[i])
-        {
-        int fno=2;
-        for (int r=2; r<Pg[i]->Rows; r++)
-          AdjustFld(i, r, fno, FldDelta[i]);
-        }
       }
     }
 

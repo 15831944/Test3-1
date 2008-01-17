@@ -420,6 +420,7 @@ FxdEdtRow::FxdEdtRow(pFxdEdtView pView_)
   pView=pView_;
   fFixedPos=pView->fFixedPos;
   RowNo=0;
+  m_ApplyAdjust=true;
   };
 
 //---------------------------------------------------------------------------
@@ -856,7 +857,7 @@ FxdEdtFld * FxdEdtBook::AdjustFld(int PgNo, int RowNo, int FldNo, int WdtDelta)
     if (RowNo>=0 && RowNo<pPg->Rows)
       {
       FxdEdtRow* pRow=pPg->Row[RowNo];
-      if (FldNo>=0 && FldNo<pRow->NFields)
+      if (FldNo>=0 && FldNo<pRow->NFields && pRow->m_ApplyAdjust)
         {
         Fld=pRow->Field[FldNo];
         if (!Fld->IsButton || Fld->m_iCtrlType==FXWC_CHECK || Fld->m_iCtrlType==FXWC_CHECKBTN)
@@ -864,10 +865,14 @@ FxdEdtFld * FxdEdtBook::AdjustFld(int PgNo, int RowNo, int FldNo, int WdtDelta)
           if (WdtDelta>0)
             {
             }
-
+          
+          //dbgp(">>> %-30s %2i", Fld->Str(), Fld->Len);
+          
           WdtDelta=Max(WdtDelta, (int)(-(Fld->Len-1)));
           Fld->Len+=WdtDelta;
           Fld->ColN+=WdtDelta;
+
+          //dbgpln(" : %-30s %2i", Fld->Str(), Fld->Len);
 
           for (int i=FldNo+1; i<pRow->NFields; i++)
             {
