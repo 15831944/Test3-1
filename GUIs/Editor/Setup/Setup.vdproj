@@ -1017,7 +1017,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:Debug\\Editor.msi"
+        "OutputFilename" = "8:Debug\\SysCAD 9.2.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -1041,11 +1041,6 @@
                     "Name" = "8:.NET Framework 2.0"
                     "ProductCode" = "8:Microsoft.Net.Framework.2.0"
                     }
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:{511DAC48-6CBB-43a3-A64D-0182F2A9EBC2}"
-                    {
-                    "Name" = "8:.NET Framework 3.0"
-                    "ProductCode" = "8:{511DAC48-6CBB-43a3-A64D-0182F2A9EBC2}"
-                    }
                 }
             }
         }
@@ -1054,7 +1049,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Release\\Editor.msi"
+        "OutputFilename" = "8:Release\\SysCAD 9.2.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -1193,7 +1188,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.40162, Culture=neutral, PublicKeyToken=7bab251dc203bf49, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.33844, Culture=neutral, PublicKeyToken=7bab251dc203bf49, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_061F1E189AD1AD656D9CEB8B012BDD90"
@@ -1635,7 +1630,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:LogView, Version=1.0.2935.32176, Culture=neutral, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:LogView, Version=1.0.2938.33839, Culture=neutral, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_2A29AA0625CAD3DA7DECA4DDF3721AF5"
@@ -3065,7 +3060,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:StencilList, Version=1.0.2935.33289, Culture=neutral, PublicKeyToken=3ccab4638c6f1541, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:StencilList, Version=1.0.2938.33857, Culture=neutral, PublicKeyToken=3ccab4638c6f1541, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_C1561D50EF12109D3BFEA931EA865C2F"
@@ -3096,7 +3091,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Overview, Version=4.2.0.40167, Culture=neutral, PublicKeyToken=1bd7010f03a28673, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Overview, Version=4.2.0.33851, Culture=neutral, PublicKeyToken=1bd7010f03a28673, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_C6C2E1F2106B266945F5A914DD195049"
