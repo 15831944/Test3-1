@@ -22,7 +22,8 @@ namespace SysCAD.Service
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 
-        String stencilPath = "..\\BaseFiles\\Stencils";
+        String stencilPath = "..\\BaseFiles\\Stencils"; // During debug.
+        //String stencilPath = ".\\"; // Once installed.
 
         Dictionary<string, Project> projects = new Dictionary<string, Project>();
 
