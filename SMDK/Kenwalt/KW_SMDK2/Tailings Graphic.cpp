@@ -241,11 +241,17 @@ bool TailingsGraphic::ValidateDataFields()
 	{
 		if (TagIO.StartValidateDataFields())
 		{
-			FluidMassSubs.Configure(0, NULL, "FluidMassTag", MTagIO_Get);
-			SolidMassSubs.Configure(1, NULL, "SolidMassTag", MTagIO_Get);
-			ConcSubs.Configure(2, NULL, "ConcTag", MTagIO_Get);
-			VolSubs.Configure(3, NULL, "VolTag", MTagIO_Get);
-			LiquidDensitySubs.Configure(4, NULL, "LiquidDensityTag", MTagIO_Get);
+      CString name;
+      name.Format("%s.LiquidMassTag", getTag());
+			FluidMassSubs.Configure(0, NULL, name, MTagIO_Get);
+      name.Format("%s.SolidMassTag", getTag());
+			SolidMassSubs.Configure(1, NULL, name, MTagIO_Get);
+      name.Format("%s.ConcTag", getTag());
+			ConcSubs.Configure(2, NULL, name, MTagIO_Get);
+      name.Format("%s.VolTag", getTag());
+			VolSubs.Configure(3, NULL, name, MTagIO_Get);
+      name.Format("%s.LiquidDensityTag", getTag());
+			LiquidDensitySubs.Configure(4, NULL, name, MTagIO_Get);
 		}
 		TagIO.EndValidateDataFields();
 	}

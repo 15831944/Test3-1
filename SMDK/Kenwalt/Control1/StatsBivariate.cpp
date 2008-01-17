@@ -294,8 +294,11 @@ bool BivarStats::ValidateDataFields()
 	{
 		if (TagIO.StartValidateDataFields())
 		{
+			CString name;
+			name.Format("%s.Variable0", getTag());
 			tagSubs0.Configure(0, NULL, "Variable0", MTagIO_Get);
-			tagSubs1.Configure(1, NULL, "Variable1", MTagIO_Get);
+			name.Format("%s.Variable1", getTag());
+			tagSubs1.Configure(1, NULL, name, MTagIO_Get);
 		}
 		TagIO.EndValidateDataFields();
 	}

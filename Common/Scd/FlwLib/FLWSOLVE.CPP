@@ -31,7 +31,7 @@
 #include <Psapi.h>
 #pragma comment(lib, "Psapi.lib")
 
-#include "optoff.h"
+//#include "optoff.h"
 
 //===========================================================================
 //temp force solver threads to zero until multi-threaded solver bug is fixed

@@ -293,9 +293,9 @@ bool Downtime::ValidateDataFields()
 			for (unsigned int i = 0; i < tasks.size(); i++)
 			{
 				CString name;
-				name.Format("Task%iSet", i);
+				name.Format("%s.Task%iSet", getTag(), i);
 				tasks.at(i)->TagToSet.Configure(i, NULL, name, MTagIO_Set);
-				name.Format("Task%iTest", i);
+				name.Format("%s.Task%iTest", getTag(), i);
 				tasks.at(i)->TagToTest.Configure(i, NULL, name, MTagIO_Get);
 			}
 		TagIO.EndValidateDataFields();

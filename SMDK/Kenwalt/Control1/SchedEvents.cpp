@@ -234,7 +234,7 @@ bool ScheduledEvents::ValidateDataFields()
 			for (int i = 0; i < tasks.size(); i++)
 			{
 				CString name;
-				name.Format("Task%i", i);
+				name.Format("%s.Task%i", getTag(), i);
 				tasks.at(i)->tagSubs.Configure(i, NULL, name, MTagIO_Set);
 			}
 		TagIO.EndValidateDataFields();

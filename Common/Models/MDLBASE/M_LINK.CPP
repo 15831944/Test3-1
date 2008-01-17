@@ -12,8 +12,7 @@
 #define  __M_LINK_CPP
 #include "m_link.h"
 #include "dbgmngr.h"
-
-#include "optoff.h"
+//#include "optoff.h"
 
 #define dbgMLink        (0 || WITHDEBUG)    
 

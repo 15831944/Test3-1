@@ -287,11 +287,15 @@ bool CTagGetAndSetExample::ValidateDataFields()
     {                                    //only check the IO subscription tags if required and if allowed
     if (TagIO.StartValidateDataFields())
       {
-      if (m_GetSubs1.Configure(10, NULL, "GetValue1", MTagIO_Get)>0)  //try subscribe (read) to this tag
+      CString name;
+      name.Format("%s.GetValue1", getTag());
+      if (m_GetSubs1.Configure(10, NULL, name, MTagIO_Get)>0)  //try subscribe (read) to this tag
         m_dGetValueSubs1 = m_GetSubs1.DoubleSI;
-      if (m_GetSubs2.Configure(33, NULL, "GetValue2", MTagIO_Get)>0)  //try subscribe (read) to this tag
+      name.Format("%s.GetValue2", getTag());
+      if (m_GetSubs2.Configure(33, NULL, name, MTagIO_Get)>0)  //try subscribe (read) to this tag
         m_dGetValueSubs2 = m_GetSubs2.DoubleSI;
-      if (m_SetSubs1.Configure(44, NULL, "SetValue1", MTagIO_Set|MTagIO_Parm)>0) //try subscribe (write) to this tag
+      name.Format("%s.SetValue1", getTag());
+      if (m_SetSubs1.Configure(44, NULL, name, MTagIO_Set|MTagIO_Parm)>0) //try subscribe (write) to this tag
         m_dSetValueSubs1 = m_SetSubs1.DoubleSI;                         //get the initial value from the tag
       }
     TagIO.EndValidateDataFields();

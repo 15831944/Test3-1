@@ -265,7 +265,12 @@ bool SingleVarStats::ValidateDataFields()
 	if (TagIO.ValidateReqd())
 	{
 		if (TagIO.StartValidateDataFields())
-			tagSubs.Configure(0, NULL, "Variable", MTagIO_Get);
+    {
+			//tagSubs.Configure(0, NULL, "Variable", MTagIO_Get);
+      CString name;
+      name.Format("%s.Variable", getTag());
+			tagSubs.Configure(0, NULL, name, MTagIO_Get);
+    }
 		TagIO.EndValidateDataFields();
 	}
 	TagCnv = tagSubs.IsActive ? tagSubs.Cnv : MC_;
