@@ -3496,8 +3496,7 @@ m_ExtAudit(this)
 
 FlwNode::~FlwNode()
   {
-  DisConnectDirectConnects();
-  DisConnectAll();
+  DisConnectAllIOs();
 
   DeleteCriticalSection(&m_LockSect);
 
@@ -8121,10 +8120,20 @@ int FlwNode::DisConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2)
 
 //--------------------------------------------------------------------------
 
-void FlwNode::DisConnectAll()
+void FlwNode::DisConnectAllLnks()
   {
   while (NoIOs())
     DisConnect(0);
+  }
+
+//--------------------------------------------------------------------------
+
+void FlwNode::DisConnectAllIOs(bool Lnks, bool Direct)
+  {
+  if (Direct)
+    DisConnectDirectConnects();
+  if (Lnks)
+    DisConnectAllLnks();
   }
 
 //--------------------------------------------------------------------------

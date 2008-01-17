@@ -10277,7 +10277,7 @@ flag CFlwSolver::Term()
     pD1=pD;
     while (pD)
       {
-      pD->DisConnectAll();
+      pD->DisConnectAllIOs();
       GetObj_All(pD);
       }
     // Now delete all;
@@ -11674,7 +11674,7 @@ DeleteIt:
       pDel=p;
       GetObj_All(p);
       LogError(pDel->Tag(), 0, "Missing connections - Deleted");
-      pDel->DisConnectAll();
+      pDel->DisConnectAllIOs();
       delete pDel;
       }
 
@@ -12038,7 +12038,7 @@ int CFlwSolver::FE_DoDelete(char * Tag)
   FlwNode * p = (FlwNode *)FindObj(Tag);
   if (p)
     {
-    p->DisConnectAll();
+    p->DisConnectAllIOs();
     delete p;
     return 0;
     }
@@ -13784,7 +13784,7 @@ int CFlwSolver::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
   if (p)
     {
     dbgpln("DELETE %s %s ", pTag, p->FullObjTag());
-    p->DisConnectAll();
+    p->DisConnectAllIOs();
     delete p;
 
     //ask all models if they want to do anything internally for the delete tag...
@@ -13880,7 +13880,7 @@ int CFlwSolver::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
   if (p)
     {
     dbgpln("DELETE %s %s ", pTag, p->FullObjTag());
-    p->DisConnectAll();
+    p->DisConnectAllIOs();
     delete p;
 
     //ask all models if they want to do anything internally for the delete tag...
@@ -15885,7 +15885,7 @@ int CFlwSolver::DuplicateNetwork(CSArray & SelectedTags, FlwNode * pRoot)
       if (dbgDuplicate())
         dbgpln("  Delete %s ",pDel->FullObjTag());
       #endif
-      pDel->DisConnectAll();
+      pDel->DisConnectAllIOs();
       delete pDel;
       }
 

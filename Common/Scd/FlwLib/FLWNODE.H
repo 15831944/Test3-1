@@ -3634,7 +3634,9 @@ class DllImportExport FlwNode : public CTNode
     int            Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal* pT, int RqdIONo1=-1, int RqdIONo2=-1);
     CFlange*       DisConnect(int IONo);
     int            DisConnectTag(FlwNode* Root, char * Tag1, char * Tag2);
-    void           DisConnectAll();
+    
+    void           DisConnectAllLnks();
+    void           DisConnectAllIOs(bool Lnks=true, bool Direct=true);
 
     void           ReDirectIO(int IOSrc, int IODst)  { IOFlange(IOSrc)->m_pRedirectTo = IOFlange(IODst); };
 
