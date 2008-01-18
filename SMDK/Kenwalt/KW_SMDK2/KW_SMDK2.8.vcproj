@@ -526,10 +526,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\Downtime.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Filter Press.cpp"
 				>
 			</File>
@@ -657,10 +653,6 @@
 			</File>
 			<File
 				RelativePath=".\Tailings Graphic.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TimingStructs.cpp"
 				>
 			</File>
 			<File

@@ -1518,7 +1518,17 @@ namespace SysCAD.Editor
         ModelStencil modelStencil = State.ModelShape(modelNode.NodeClass);
         GraphicStencil graphicStencil = State.GraphicShape(modelNode.NodeClass);
 
-        float scale = 100.0F / (float)Math.Sqrt((float)graphicStencil.defaultSize.Width * (float)graphicStencil.defaultSize.Width + (float)graphicStencil.defaultSize.Height * (float)graphicStencil.defaultSize.Height);
+        float scale;
+        if (form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width > form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height)
+        {
+          scale = (float)(form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height);
+        }
+        else
+        {
+          scale = (float)(form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width);
+        }
+
+        //float scale = 100.0F / (float)Math.Sqrt((float)graphicStencil.defaultSize.Width * (float)graphicStencil.defaultSize.Width + (float)graphicStencil.defaultSize.Height * (float)graphicStencil.defaultSize.Height);
         form1.hoverviewBox = form1.fcHoverview.CreateBox(0.0F, 0.0F, (float)graphicStencil.defaultSize.Width * scale, (float)graphicStencil.defaultSize.Height * scale);
         form1.hoverviewBox.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
         form1.hoverviewBox.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
@@ -1576,17 +1586,17 @@ namespace SysCAD.Editor
         foreach (EditorLink link in form1.hoverviewOutgoingLinks)
         {
           int portId = 0;
-          (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.DestinationPort + link.GraphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture), out portId);
+          (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.OriginPort + link.GraphicLink.OriginPortID.ToString(CultureInfo.InvariantCulture), out portId);
 
           PointF anchorPointPos = FrmFlowChart.GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(form1.hoverviewBox.BoundingRect),
             form1.hoverviewBox.AnchorPattern.Points[portId].X,
             form1.hoverviewBox.AnchorPattern.Points[portId].Y,
             form1.hoverviewBox.RotationAngle).ToPointF();
 
-          PointF pt1 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
+          PointF pt1 = Flowchart2Hoverbox(link.Arrow.Origin.BoundingRect,
                              form1.hoverviewBox.BoundingRect,
                              link.GraphicLink.ControlPoints[1].ToPointF());
-          PointF pt2 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
+          PointF pt2 = Flowchart2Hoverbox(link.Arrow.Origin.BoundingRect,
                              form1.hoverviewBox.BoundingRect,
                              link.GraphicLink.ControlPoints[0].ToPointF());
 
@@ -1596,7 +1606,7 @@ namespace SysCAD.Editor
           //box1.FrameColor = System.Drawing.Color.FromArgb(25, 111, 92, 68);
           //Box box2 = form1.fcHoverview.CreateBox(pt2.X, pt2.Y, 0.001F, 0.01F);
           //box2.Visible = false;
-          Arrow arrow1 = form1.fcHoverview.CreateArrow(pt1, pt2);
+          Arrow arrow1 = form1.fcHoverview.CreateArrow(pt2, pt1);
           Arrow arrow2 = form1.fcHoverview.CreateArrow(pt2, anchorPointPos);
           arrow1.ArrowHead = ArrowHead.Triangle;
           arrow1.ArrowHeadSize = 2.0F;
