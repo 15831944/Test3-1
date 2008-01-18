@@ -371,6 +371,7 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
       m_dActualFlow = FeedLiqQ;
       m_dFinalP = SteamInP;
 
+      const double MinQWater = 1.0e-12;
       ClrCI(1);
       ClrCI(2);
       ClrCI(3);
@@ -393,7 +394,7 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
         DSH_FinalTempFnd FTF(SteamIn(), WaterIn(), Mixture(), *this, SteamInP, RqdProdTemp);
         FTF.SetTarget(RqdProdTemp);
         const double MaxQWater = Max(FeedLiqQ,1.0)*100.0;
-        int iRet=FTF.Start(0.001, MaxQWater);
+        int iRet=FTF.Start(MinQWater, MaxQWater);
         if (Valid(m_dFlowRqd))
           {
           FTF.SetEstimate(m_dFlowRqd, 1.0);
@@ -409,12 +410,25 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
           if (iRet==RF_BadEstimate)
             iRet = FTF.Start(0.0, MaxQWater); // Restart
           if (iRet==RF_OK)
+            {
             switch (FTF.Solve_Brent())
               {
               case RF_OK: m_dFlowRqd = FTF.Result(); Ok = true; break;
               case RF_HiLimit: m_dFlowRqd = MaxQWater; Ok = true; break;
-              case RF_LoLimit: m_dFlowRqd = 0.1; Ok = true; break;
+              case RF_LoLimit: m_dFlowRqd = MinQWater; Ok = true; break;
               }
+            }
+          else if (iRet==RF_HiLimit)
+            {
+            m_dFlowRqd = MaxQWater; 
+            Ok = true;
+            }
+          else if (iRet==RF_LoLimit)
+            {
+            m_dFlowRqd = MinQWater;
+            FTF.Function(m_dFlowRqd);
+            Ok = true;
+            }
           }
         CFlange &CoolWater=*IOFlange(IOCoolWater);
         if (CoolWater.IsMakeUpAvail())
@@ -424,13 +438,26 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
         SigmaQInPMin(Mixture(), som_ALL, Id_2_Mask(ioidSteamIn)|Id_2_Mask(ioidFeedLiq));
         const double hi = Mixture().totHf();
         Mixture().SetPress(SteamInP);
-        double VF = 1.0;
+        const double VF = 1.0;
         m_VLE.SetSatPVapFrac(Mixture(), VF, 0);
         Mixture().Set_totHf(hi);
+
+        m_dFinalT = Mixture().Temp();
+        if (m_dFinalT<RqdProdTemp-1.0)
+          {//cannot achieve temperature, likely too much water in feed!
+          //probaly only need to flash some of the water so that we end up with two phase flow;
+          //or condense some (or all) of the steam so that we end up with two phase flow or 100% water
+          //TODO
+          int xx=0;
+          }
         Fo.QCopy(Mixture());
         }
       else if (SteamInQ<UsableMass)
         {
+        m_dFlowRqd = MinQWater;
+        CFlange &CoolWater=*IOFlange(IOCoolWater);
+        if (CoolWater.IsMakeUpAvail())
+          CoolWater.SetMakeUpReqd(m_dFlowRqd);
         Fo.QCopy(QFeedLiq);
         }
       else

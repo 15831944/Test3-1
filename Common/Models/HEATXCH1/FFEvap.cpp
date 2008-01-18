@@ -7,6 +7,7 @@
 #include "sc_defs.h"
 #define  __FFEVAP_CPP
 #include "ffevap.h"
+//#include "optoff.h"
 
 //==========================================================================
 #if WithFFEvap
@@ -114,8 +115,8 @@ FFEvap::FFEvap(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   AttachIOAreas(FFEvapIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
   dShellHeatLoss = 0.0;
-  m_iMethod     = FFMeth_TRise; 
-  m_TBoilRqd    = Std_T;
+  m_iMethod     = FFMeth_TRise;//would prefer FFMeth_TBoil, but have this as TRise for backward compatability;
+  m_TBoilRqd    = C2K(105.0);
   m_TRiseRqd    = 0.0;
   dTubeMinPout  = 20.0;
   dDuty       = 0.0;
