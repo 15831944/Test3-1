@@ -1521,22 +1521,25 @@ namespace SysCAD.Editor
         float scale;
         if (form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width > form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height)
         {
-          scale = (float)(form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height);
+          scale = (float)(form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height) / 5.0F;
         }
         else
         {
-          scale = (float)(form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width);
+          scale = (float)(form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width) / 5.0F;
         }
 
-        //float scale = 100.0F / (float)Math.Sqrt((float)graphicStencil.defaultSize.Width * (float)graphicStencil.defaultSize.Width + (float)graphicStencil.defaultSize.Height * (float)graphicStencil.defaultSize.Height);
+        //float scale = 100.0F / (float)Math.Sqrt((float)graphicStencil.defaultSize.Width * (float)graphicStencil.default5Size.Width + (float)graphicStencil.defaultSize.Height * (float)graphicStencil.defaultSize.Height);
+        form1.fcHoverview.AntiAlias = SmoothingMode.AntiAlias;
+        
+
         form1.hoverviewBox = form1.fcHoverview.CreateBox(0.0F, 0.0F, (float)graphicStencil.defaultSize.Width * scale, (float)graphicStencil.defaultSize.Height * scale);
         form1.hoverviewBox.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
         form1.hoverviewBox.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
 
-        Table table = form1.fcHoverview.CreateTable(0.0F, 10.0F + (float)graphicStencil.defaultSize.Height * scale, 80.0F, 30.0F);
-        table.Caption = "Ports";
-        table.ColumnCount = 2;
-        int i = table.AddRow();
+        //Table table = form1.fcHoverview.CreateTable(0.0F, 10.0F + (float)graphicStencil.defaultSize.Height * scale, 80.0F, 30.0F);
+        //table.Caption = "Ports";
+        //table.ColumnCount = 2;
+        //int i = table.AddRow();
 
         if (modelStencil != null)
           form1.hoverviewBox.Shape = State.GetShapeTemplate(modelStencil, false, false);
@@ -1618,7 +1621,7 @@ namespace SysCAD.Editor
         }
 
         RectangleF zoomRect = form1.hoverviewBox.BoundingRect;
-        zoomRect.Inflate(form1.hoverviewBox.BoundingRect.Width * 0.4F, form1.hoverviewBox.BoundingRect.Height * 0.4F + 40.0F);
+        zoomRect.Inflate(form1.hoverviewBox.BoundingRect.Width * 0.4F, form1.hoverviewBox.BoundingRect.Height * 0.4F);
         form1.fcHoverview.ZoomToRect(zoomRect);
       }
 
