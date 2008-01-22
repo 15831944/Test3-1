@@ -35,20 +35,28 @@ using namespace std;
 #pragma comment(lib, "version.lib")
 
 #define CK_USE6134        0
-#define CK_USE6525        1
-                       
+#define CK_USE6525        0
+#define CK_USE7103        1
+
 #define USESERVERVERSION  1
 
 #if USESERVERVERSION 
+#if CK_USE7103
+#import "..\..\..\License\CrypKeyCOM7.dll" no_namespace named_guids
+static ICrypKeySDK7Ptr s_ptr;
+#elif (CK_USE6134 || CK_USE6525)
 #import "..\..\..\License\CrypKeyCOMServer.exe" no_namespace named_guids
 static ICrypKeySDKServerPtr s_ptr;
+#endif
 static CString CKErrMsgStr;
 #else
 #import "..\..\..\License\CrypKeyCOM.dll" no_namespace named_guids
 static ICrypKeySDKPtr s_ptr;
 #endif
 
-#if CK_USE6525
+#if CK_USE7103
+#include "crypkey.7103.h"
+#elif CK_USE6525
 #include "crypkey.6525.h"
 #elif CK_USE6134 
 #include "crypkey.6134.h"
@@ -67,7 +75,9 @@ static ICrypKeySDKPtr s_ptr;
 //===========================================================================
 //=== Generic Code...
 
-#if (CK_USE6134 || CK_USE6525)
+#if CK_USE7103
+const char* LicINISection = "License71";
+#elif (CK_USE6134 || CK_USE6525)
 const char* LicINISection = "License61";
 #else
 const char* LicINISection = "License";
@@ -85,42 +95,49 @@ char* CK_AppName = "SysCAD";
 
 #if !BYPASSLICENSING 
 //for syscad.exe                
-#if CK_USE6525
-
+#if CK_USE7103
+#define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
+#define CK_MASTER_KEY "3e18a68fd453fe50596abb1caa63d3840326255dc95f6a302816\
+ebb282ab2cced4f2e31475541512db18f9c2d1cefc184bd4f1f5dd1a72c2bb9683957f2d99b\
+ca8ea7417f9fadb1c5c631c3873908dff43e980488d0aa725d355128e389ef47901ce852a7b\
+a8c946a4206959ba0f31b1be4be4f6637156a4e8515ca048410f39"
+#elif (CK_USE6525)
 #define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
 #define CK_MASTER_KEY "b4135aa5ec82997f53c5efcd0567ae710af3de57c4a72a798183\
 b5ea90b391591a6c2f8863b89b2b7be27bd2553e3e2557d2bec1daad173a09bf256da1e7d92\
 b9bb0377dbc5e431d7fbb95ba17d8806560be6355949e144dc84cd8e72f2732c8aa3048874f\
 75de558a920b0454c75c047574aa890d2423bef09575995f30d05"
-
-
 #elif CK_USE6134 
-
 #define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
 #define CK_MASTER_KEY "7d1c2e0f6da99db43c7c95c71ce87456daabb10b8766eb79b8e9cea\
 b6d4dc8fc76f19b2cb190b66ca53f0decb4f9c26246841cc969ae2eb4c35f91ad1bed30d2e4\
 cb851bb9a6dbb7270d4385df5499b0f45a65f273f72542cf2d388fd1fae7d9283dadd0aa21e\
 b3656b892b302de4d71963c9c26497cec9275d03c2c5757cb9c"
-
-#else
-
+#else //crypkey 5.7
 #define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
 #define CK_MASTER_KEY "8EF9 57C4 A348 EBF4 A0F2 1089 4A9C D26F 7792 DF72 440D"
-
 #endif
 
 #define CK_COMPANYNUM 7956342
 #define CK_PASSNUM    482693111
 
-//NBNB Ensure correct version of CRP32D60.lib is used!
-#if CK_USE6525
-#pragma comment(lib, "CRP32D60.6525.lib")            
-#elif CK_USE6134 
-#pragma comment(lib, "CRP32D60.6134.lib")            
+//NB: Ensure correct version of CRP32Dxx.lib is used!
+#if CK_USE7103
+#if (_MSC_VER>=1400)
+//for VS2005 or newer
+#pragma comment(lib, "CRP32D80.7103.lib")
 #else
-#pragma comment(lib, "CRP32D60.57.lib")
+//for VS2003
+#pragma comment(lib, "CRP32D70.7103.lib")
 #endif
-
+#elif CK_USE6525
+//for VS2003 or newer
+#pragma comment(lib, "CRP32D70.6525.lib")
+#else
+#pragma comment(lib, "CRP32D60.6525.lib")
+#endif
+#else
+#pragma comment(lib, "CRP32D60.6134.lib")
 #endif
 
 //const int CK_NetworkChecktime = 900;
@@ -806,7 +823,7 @@ int MyReadyToTry(unsigned long authlevel, int numDays)
 #if BYPASSLICENSING
   return 1;
 #else
-  return readyToTry(authlevel, numDays);
+  return ReadyToTry(authlevel, numDays);
 #endif
   };
 int MyReadyToTryDays(unsigned long authlevel, int numDays, int version, int copies)
@@ -822,7 +839,7 @@ int MyReadyToTryDays(unsigned long authlevel, int numDays, int version, int copi
 #if BYPASSLICENSING
   return 100;
 #else
-  return readyToTryDays(authlevel, numDays, version, copies);
+  return ReadyToTryDays(authlevel, numDays, version, copies);
 #endif
   };
 int MyReadyToTryRuns(unsigned long authlevel, int numRuns, int version, int copies)
@@ -838,7 +855,7 @@ int MyReadyToTryRuns(unsigned long authlevel, int numRuns, int version, int copi
 #if BYPASSLICENSING
   return 100;
 #else
-  return readyToTryRuns(authlevel, numRuns, version, copies);
+  return ReadyToTryRuns(authlevel, numRuns, version, copies);
 #endif
   };
 int MyRegisterTransfer(char far *target)
@@ -1415,6 +1432,103 @@ void CTransferDlg::OnOK()
   }
 
 //===========================================================================
+
+class CBadLicLocation : public CDialog
+  {
+  DECLARE_DYNAMIC(CBadLicLocation)
+
+  public:
+    CBadLicLocation(LPCTSTR Location, CWnd* pParent = NULL);   // standard constructor
+    virtual ~CBadLicLocation();
+
+    // Dialog Data
+    enum { IDD = IDD_BADLICVERSION };
+
+  public:
+    CString m_Location; 
+    int     m_Return;
+
+  protected:
+    virtual BOOL OnInitDialog();
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
+    DECLARE_MESSAGE_MAP()
+  public:
+    afx_msg void OnBnClickedChangelocation();
+  public:
+    afx_msg void OnBnClickedContinueindemo();
+  public:
+    afx_msg void OnBnClickedCancel();
+  public:
+    CStatic m_CurLocation;
+  };
+
+//---------------------------------------------------------------------------
+IMPLEMENT_DYNAMIC(CBadLicLocation, CDialog)
+
+CBadLicLocation::CBadLicLocation(LPCTSTR Location, CWnd* pParent /*=NULL*/)
+: CDialog(CBadLicLocation::IDD, pParent)
+  {
+  m_Location = Location;
+  m_Return = LicInit_ExitReqd;
+  }
+
+//---------------------------------------------------------------------------
+
+CBadLicLocation::~CBadLicLocation()
+  {
+  }
+
+//---------------------------------------------------------------------------
+
+BOOL CBadLicLocation::OnInitDialog()
+  {
+  CDialog::OnInitDialog();
+  m_CurLocation.SetWindowText(m_Location);
+  return TRUE;
+  };
+
+//---------------------------------------------------------------------------
+
+void CBadLicLocation::DoDataExchange(CDataExchange* pDX)
+  {
+  CDialog::DoDataExchange(pDX);
+  DDX_Control(pDX, IDC_STATICCURLOC, m_CurLocation);
+  }
+
+//---------------------------------------------------------------------------
+
+BEGIN_MESSAGE_MAP(CBadLicLocation, CDialog)
+  ON_BN_CLICKED(ID_CHANGELOCATION, &CBadLicLocation::OnBnClickedChangelocation)
+  ON_BN_CLICKED(ID_CONTINUEINDEMO, &CBadLicLocation::OnBnClickedContinueindemo)
+  ON_BN_CLICKED(IDCANCEL, &CBadLicLocation::OnBnClickedCancel)
+END_MESSAGE_MAP()
+
+//---------------------------------------------------------------------------
+
+void CBadLicLocation::OnBnClickedChangelocation()
+  {
+  m_Return = LicInit_ChgLoc;
+  OnOK();
+  }
+
+//---------------------------------------------------------------------------
+
+void CBadLicLocation::OnBnClickedContinueindemo()
+  {
+  m_Return = LicInit_GoDemo;
+  OnOK();
+  }
+
+//---------------------------------------------------------------------------
+
+void CBadLicLocation::OnBnClickedCancel()
+  {
+  m_Return = LicInit_ExitReqd;
+  OnCancel();
+  }
+
+//===========================================================================
 //
 //
 //
@@ -1450,7 +1564,9 @@ CLicense::~CLicense()
 
 int CLicense::CheckLicenseVersionOK(LPCTSTR SysCADEXEPath)
   {
-#if (CK_USE6134 || CK_USE6525)
+#if CK_USE7103
+  const int ReqdSysCADEXEVersion = 3;
+#elif (CK_USE6134 || CK_USE6525)
   const int ReqdSysCADEXEVersion = 2;
 #else
   const int ReqdSysCADEXEVersion = 1;
@@ -1630,7 +1746,7 @@ ReTry:
     }
   if (!FileExists(LongPath))
     {
-    Error("Specified license file (or folder) not found!\n\n%s\n\nCheck license location!", LongPath);
+    PromptError("License file syscad.exe not found at specified folder!\n\n%s\n\nCheck license location!", LongPath);
     return LicInit_ExitReqd;
     }
   if (GetShortPathName(LongPath, ShortPath, sizeof(ShortPath))<1)
@@ -1667,7 +1783,10 @@ ReTry:
   int err = -1;
   if (m_bUseCOM)
     {                 
-#if (CK_USE6134 || CK_USE6525)
+AfxMessageBox("Use COM");
+#if CK_USE7103
+    s_ptr.CreateInstance ("CrypKey.SDK7");
+#elif (CK_USE6134 || CK_USE6525)
     s_ptr.CreateInstance ("CrypKey.SDKServer");
 #else
     s_ptr.CreateInstance ("CrypKey.SDK");
@@ -1685,13 +1804,29 @@ ReTry:
 //char ww[1024];
 //sprintf(ww, "InitCrypkey:%g seconds", W4.Secs());
 //AfxMessageBox(ww);
+char aa[1024];
+sprintf(aa, "InitCrypkey err:%d", err);
+AfxMessageBox(aa);
   m_bDidInitCrypkey = 1;
 
-  if (err==-209)
+#if CK_USE7103
+  if (err==INIT_NGN_FILE_NOT_FOUND)
     {
-    Error("Missing license file CRP32001.NGN from application folder.");
+    PromptError("Missing license file CRP32002.NGN from SysCAD license folder.");
     return LicInit_ExitReqd;
     }
+  else if (err==INIT_DRIVER_FAILED_OR_BUSY)
+    {
+    PromptError("Crypkey service is not running (or busy or failed).");
+    return LicInit_ExitReqd;
+    }
+#elif (CK_USE6134 || CK_USE6525)
+  if (err==-209)
+    {
+    PromptError("Missing license file CRP32001.NGN from SysCAD license folder.");
+    return LicInit_ExitReqd;
+    }
+#endif
 
 #if CK_SCDCOMLIC
   if (err==CKGeneralNetworkNoCKServe)
@@ -1738,23 +1873,23 @@ ReTry:
     }
   else if (Ver==50) //Ver 5.0 : Sept 1999
     {//version 5.0 is old but should work...
-    //Error("Old Crypkey version (%d)", Ver);
-    //return FALSE;
+    Error("Old Crypkey version (%d) not supported", Ver);
+    return LicInit_ExitReqd;
     }
   else if (Ver==52) //Ver 5.2 : August 2000
     {//version 5.2 should work...
-    //Error("Old Crypkey version (%d)", Ver);
-    //return FALSE;
+    Error("Old Crypkey version (%d) not supported", Ver);
+    return LicInit_ExitReqd;
     }
   else if (Ver==55) //Ver 5.5 : November 2000
     {//version 5.5 should work...
-    //Error("Old Crypkey version (%d)", Ver);
-    //return FALSE;
+    Error("Old Crypkey version (%d) not supported", Ver);
+    return LicInit_ExitReqd;
     }
   else if (Ver==56) //Ver 5.6 : July 2001
     {//version 5.6 should work...
-    //Error("Old Crypkey version (%d)", Ver);
-    //return FALSE;
+    Error("Old Crypkey version (%d) not supported", Ver);
+    return LicInit_ExitReqd;
     }
   else if (Ver==57) //Ver 5.7 : December 2002
     {//version 5.7 should work...
@@ -1766,11 +1901,21 @@ ReTry:
     //Error("Old Crypkey version (%d)", Ver);
     //return FALSE;
     }
-#if CK_USE6134 
-  else if (Ver!=61) //Ver 6.1 : May 2006
-    {//expect version 6.1
+  else if (Ver==61) //Ver 6.1 : May 2006
+    {//version 6.1 should work...
+    //Error("Old Crypkey version (%d)", Ver);
+    //return FALSE;
+    }
+#if CK_USE7103
+  else if (Ver==65) //Ver 6.5 : August 2006
+    {//version 6.5 should work...
+    //Error("Old Crypkey version (%d)", Ver);
+    //return FALSE;
+    }
+  else if (Ver!=71) //Ver 7.1 : January 2008 
+    {//expect version 7.1
     Error("Incorrect Crypkey version (%d)", Ver);
-    return FALSE;
+    return LicInit_ExitReqd;
     }
 #elif CK_USE6525
   else if (Ver!=65) //Ver 6.5 : August 2006 
@@ -1778,6 +1923,8 @@ ReTry:
     Error("Incorrect Crypkey version (%d)", Ver);
     return LicInit_ExitReqd;
     }
+#else
+  should be 6525 or 7103
 #endif
 #endif
   m_bDidInitCrypkey = 1;
@@ -2585,6 +2732,23 @@ void CLicense::SetAcademicMode()
 
 //---------------------------------------------------------------------------
 
+void CLicense::PromptError(char * fmt, ...)
+  {
+  char Buff[2048];
+  va_list argptr;
+  va_start(argptr, fmt);
+  vsprintf(Buff, fmt, argptr);
+  va_end(argptr);
+  if (1 || m_bEmbedded)
+    {
+    LogError("License", LF_DoAfxMsgBox, "%s", Buff);
+    }
+  else
+    AfxMessageBox(Buff);
+  }
+
+//---------------------------------------------------------------------------
+
 void CLicense::Error(char * fmt, ...)
   {
   char Buff[2048];
@@ -2855,10 +3019,13 @@ BOOL CLicense::NetworkUsersInfo()
   int err;
   if (m_bUseCOM)
     {
-
+    #if CK_USE7103
+    ICrypKeySDK7FloatRecordPtr ptrFloat;
+    ptrFloat.CreateInstance ("CrypKey.SDK7FloatRecord");
+    #else
     ICrypKeySDKFloatRecordServerPtr ptrFloat;
     ptrFloat.CreateInstance ("CrypKey.SDKFloatRecordServer");
-    //printf ("\nptrFloat:%x\n", ptrFloat);
+    #endif
 
     // check FloatingLicenseSnapshot  (0.03)
     long nEntries;
@@ -2869,14 +3036,16 @@ BOOL CLicense::NetworkUsersInfo()
     for (int i=0; i<nEntries;i++)
       {
       //CComBSTR cbName = "Test";
-
-
-    //ptrFloat->put_strComputerName (cbName);
+      //ptrFloat->put_strComputerName (cbName);
+      #if CK_USE7103
+      err = s_ptr->FloatingLicenseGetRecord (i, (ICrypKeySDK7FloatRecord *) ptrFloat);
+      #else
       err = s_ptr->FloatingLicenseGetRecord (i, (ICrypKeySDKFloatRecordServer *) ptrFloat);
+      #endif
       //cbError.Empty ();
       //cbError.AppendBSTR (ptr->GetLastError ());
-    //strError = cbError;
-    //printf ("\nReturn from FloatingLicenseGetRecord: (%d) %s\n", nError, (LPCTSTR) strError);
+      //strError = cbError;
+      //printf ("\nReturn from FloatingLicenseGetRecord: (%d) %s\n", nError, (LPCTSTR) strError);
 
       if (ptrFloat != NULL)
         {
@@ -2927,8 +3096,13 @@ BOOL CLicense::NetworkUsersInfo(char* Buff)
   int err;
   if (m_bUseCOM)
     {
+    #if CK_USE7103
+    ICrypKeySDK7FloatRecordPtr ptrFloat;
+    ptrFloat.CreateInstance ("CrypKey.SDK7FloatRecord");
+    #else
     ICrypKeySDKFloatRecordServerPtr ptrFloat;
     ptrFloat.CreateInstance ("CrypKey.SDKFloatRecordServer");
+    #endif
 
     long nEntries;
     err= s_ptr->FloatingLicenseTakeSnapshot (&nEntries);
@@ -2937,14 +3111,16 @@ BOOL CLicense::NetworkUsersInfo(char* Buff)
     for (int i=0; i<nEntries;i++)
       {
       //CComBSTR cbName = "Test";
-
-
-    //ptrFloat->put_strComputerName (cbName);
+      //ptrFloat->put_strComputerName (cbName);
+      #if CK_USE7103
+      err = s_ptr->FloatingLicenseGetRecord (i, (ICrypKeySDK7FloatRecord *) ptrFloat);
+      #else
       err = s_ptr->FloatingLicenseGetRecord (i, (ICrypKeySDKFloatRecordServer *) ptrFloat);
+      #endif
       //cbError.Empty ();
       //cbError.AppendBSTR (ptr->GetLastError ());
-    //strError = cbError;
-    //printf ("\nReturn from FloatingLicenseGetRecord: (%d) %s\n", nError, (LPCTSTR) strError);
+      //strError = cbError;
+      //printf ("\nReturn from FloatingLicenseGetRecord: (%d) %s\n", nError, (LPCTSTR) strError);
 
       if (ptrFloat != NULL)
         {
@@ -3158,7 +3334,7 @@ BOOL CLicenseInfoDlg::OnInitDialog()
     }
   SetDlgItemText(IDC_CK_TXT_DYNUNITS, Buff);
 
-  if (gs_License.MaxHistSizeAllowed()==CK_InfiniteHistSize)//gs_License.AllowFullHist())
+  /*if (gs_License.MaxHistSizeAllowed()==CK_InfiniteHistSize)//gs_License.AllowFullHist())
     sprintf(Buff, "Limit on historian size : None");
   else
     {
@@ -3167,7 +3343,7 @@ BOOL CLicenseInfoDlg::OnInitDialog()
     }
   SetDlgItemText(IDC_CK_TXT_HISTSIZE, Buff);
   sprintf(Buff, "Limits on number of trend and graphics windows : %s", (gs_License.DemoMode() || gs_License.TrialMode()) ? "Yes" : "None");
-  SetDlgItemText(IDC_CK_TXT_WNDLIMITS, Buff);
+  SetDlgItemText(IDC_CK_TXT_WNDLIMITS, Buff);*/
   if (gs_License.DemoMode())
     sprintf(Buff, "Demo mode");
   else

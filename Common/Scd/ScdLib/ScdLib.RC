@@ -294,10 +294,10 @@ BEGIN
     PUSHBUTTON      "&Browse...",IDC_CK_BROWSE,155,64,50,14
 END
 
-IDD_CK_LICENSEINFODLG DIALOG  0, 0, 252, 250
+IDD_CK_LICENSEINFODLG DIALOGEX 0, 0, 252, 250
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "SysCAD License Information"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "(Last Date)",IDC_CK_TXT_DATE,5,5,245,8
     LTEXT           "(No copies)",IDC_CK_TXT_COPIES,5,18,245,8
@@ -305,9 +305,7 @@ BEGIN
     LTEXT           "(Time restrictions)",IDC_CK_TXT_TIME,5,44,245,8
     LTEXT           "(No ProBal units allowed)",IDC_CK_TXT_PROBALUNITS,5,57,245,8
     LTEXT           "(No Dynamic units allowed)",IDC_CK_TXT_DYNUNITS,5,70,245,8
-    LTEXT           "(Historian size)",IDC_CK_TXT_HISTSIZE,5,85,245,8
-    LTEXT           "(Window limits)",IDC_CK_TXT_WNDLIMITS,5,98,245,8
-    CONTROL         "List2",IDC_CK_OPTIONSLIST,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,5,110,245,105
+    CONTROL         "List2",IDC_CK_OPTIONSLIST,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,5,84,245,131
     LTEXT           "(Level)",IDC_CK_TXT_LEVEL,5,220,130,8
     RTEXT           "(StandAlone)",IDC_CK_TXT_STANDALONE,130,220,120,8
     LTEXT           "(Location)",IDC_CK_TXT_LOCATION,5,230,190,8

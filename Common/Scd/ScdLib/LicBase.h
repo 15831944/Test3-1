@@ -23,9 +23,9 @@
 #ifdef _DEBUG
 #define BYPASSLICENSING         01
 #elif  _RELEASE
-#define BYPASSLICENSING         01 //MUST ALWAYS BE OFF
+#define BYPASSLICENSING         0 //MUST ALWAYS BE OFF
 #else
-#define BYPASSLICENSING         1
+#define BYPASSLICENSING         0
 #endif
 #define ALLOWCNMVERSION         0
 //----------------------------------
@@ -212,6 +212,7 @@ class DllImportExport CLicense
     inline char*    GetAppPath()       { return (m_sAppPath.GetLength()==0 ? NULL : (char*)(const char*)m_sAppPath); };
     inline void     SetEmbedded(bool On) { m_bEmbedded=On; }
     void            Error(char * fmt, ...);
+    void            PromptError(char * fmt, ...);
   protected:
     long            Challenge32(long companyNum, long passNumDiv2, long random1, long random2);
     int             UpdateCrypkeyINI(char* path);
