@@ -8,7 +8,9 @@
 
 #if CK_LICENSINGON
 #include "resource.h"
-#if CK_USE6525
+#if CK_USE7103
+#include "crypkey.7103.h"
+#elif CK_USE6525
 #include "crypkey.6525.h"
 #elif CK_USE6134 
 #include "crypkey.6134.h"
@@ -32,27 +34,27 @@ char* CK_AppName = "SysCAD";
 #define CK_PASSNUM    984534120  //you can use them in your tests if you need to
 */
 
-#if CK_USE6525
-
+#if (CK_USE7103)
+#define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
+#define CK_MASTER_KEY "3e18a68fd453fe50596abb1caa63d3840326255dc95f6a302816\
+ebb282ab2cced4f2e31475541512db18f9c2d1cefc184bd4f1f5dd1a72c2bb9683957f2d99b\
+ca8ea7417f9fadb1c5c631c3873908dff43e980488d0aa725d355128e389ef47901ce852a7b\
+a8c946a4206959ba0f31b1be4be4f6637156a4e8515ca048410f39"
+#elif (CK_USE6525)
 #define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
 #define CK_MASTER_KEY "b4135aa5ec82997f53c5efcd0567ae710af3de57c4a72a798183\
 b5ea90b391591a6c2f8863b89b2b7be27bd2553e3e2557d2bec1daad173a09bf256da1e7d92\
 b9bb0377dbc5e431d7fbb95ba17d8806560be6355949e144dc84cd8e72f2732c8aa3048874f\
 75de558a920b0454c75c047574aa890d2423bef09575995f30d05"
-
 #elif CK_USE6134 
-
 #define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
 #define CK_MASTER_KEY "7d1c2e0f6da99db43c7c95c71ce87456daabb10b8766eb79b8e9cea\
 b6d4dc8fc76f19b2cb190b66ca53f0decb4f9c26246841cc969ae2eb4c35f91ad1bed30d2e4\
 cb851bb9a6dbb7270d4385df5499b0f45a65f273f72542cf2d388fd1fae7d9283dadd0aa21e\
 b3656b892b302de4d71963c9c26497cec9275d03c2c5757cb9c"
-
 #else
-
 #define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
 #define CK_MASTER_KEY "8EF9 57C4 A348 EBF4 A0F2 1089 4A9C D26F 7792 DF72 440D"
-
 #endif
 
 #define CK_COMPANYNUM 7956342
@@ -65,10 +67,18 @@ const int CK_TrialVerNo = 1;          //Trial license version number
 const int CK_NumDefinedLevels = 2; //number of bits to be used for level
 const int CK_NumDefinedOpts = 30;
 
-#if CK_USE6525
-#pragma comment(lib, "CRP32M60.6525.lib")            
+#if CK_USE7103
+#if (_MSC_VER>=1400)
+//for VS2005
+#pragma comment(lib, "CRP32M80.7103.lib")
+#else
+//for VS2003
+#pragma comment(lib, "CRP32M70.7103.lib")
+#endif
+#elif CK_USE6525
+#pragma comment(lib, "CRP32M60.6525.lib")
 #elif CK_USE6134 
-#pragma comment(lib, "CRP32M60.6134.lib")            
+#pragma comment(lib, "CRP32M60.6134.lib")
 #else
 #pragma comment(lib, "CRP32M60.57.lib")
 #endif
@@ -92,19 +102,19 @@ CK_OptionDetails CK_OptionNames[CK_NoOfOptions] =
   {  3, "Solver Mode: Electrical", false },
   {  6, "Full License (No=runtime only)", true },
   {  7, "Academic License", false },
-  {  8, "Application COM Interface", true },
+  {  8, "Application COM Interface", false },//true },
   {  9, "COM Specie Properties", false },//true },
   { 10, "Marshal (OPC Client)", true },
   { 11, "OPC Server", true },
   { 14, "Models: Heat Exchange", true },
-  { 15, "Models: Heat Exchange Extra", true },
+  { 15, "Models: Power Plant", true },
   { 16, "Models: Size Distribution", true },
   { 17, "Models: Alumina", true },
   { 18, "Models: Electrical", false },
   { 19, "Models: SMDK Runtime", true },
   { 22, "Client: Alcan", false },
   { 23, "Client: Gijima MineServe", false },
-  { 24, "Client: QAL", false },
+  { 24, "Client: RTA/QAL", false },
   { 25, "Client: RioTinto", false },
   { 26, "Client: Custom Models", false },
   {  4, "Unused", false },
@@ -859,7 +869,7 @@ BOOL CLicense::IssueTrial(int NoOfDays, BOOL Prompt)
     }
   CWaitCursor Wait;
   DWORD OpLevel = GetTrialOptions();
-  int ret = readyToTryDays(OpLevel, NoOfDays, CK_TrialVerNo, 1);
+  int ret = ReadyToTryDays(OpLevel, NoOfDays, CK_TrialVerNo, 1);
   if (ret)
     {
     Error("Issue Trial License failed!\nReturned %d : %s", ret, ExplainErr(EXP_RTT_ERR, ret));
