@@ -1783,7 +1783,6 @@ ReTry:
   int err = -1;
   if (m_bUseCOM)
     {                 
-AfxMessageBox("Use COM");
 #if CK_USE7103
     s_ptr.CreateInstance ("CrypKey.SDK7");
 #elif (CK_USE6134 || CK_USE6525)
@@ -1804,9 +1803,9 @@ AfxMessageBox("Use COM");
 //char ww[1024];
 //sprintf(ww, "InitCrypkey:%g seconds", W4.Secs());
 //AfxMessageBox(ww);
-char aa[1024];
-sprintf(aa, "InitCrypkey err:%d", err);
-AfxMessageBox(aa);
+//char aa[1024];
+//sprintf(aa, "InitCrypkey err:%d", err);
+//AfxMessageBox(aa);
   m_bDidInitCrypkey = 1;
 
 #if CK_USE7103
