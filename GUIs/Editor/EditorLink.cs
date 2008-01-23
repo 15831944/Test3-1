@@ -22,6 +22,8 @@ namespace SysCAD.Editor
 
     private int opacity;
 
+    private static int threadCheck = 0;
+
     public String Tag
     {
       get { return graphicLink.Tag; }
@@ -48,48 +50,29 @@ namespace SysCAD.Editor
       //debugLog = new System.IO.StreamWriter("c:\\" + guid.ToString() + " - " + tag + ".log");
     }
 
+ 
     private void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
     {
       if (Visible && ((hovered) || ((arrow.Origin.Tag as EditorNode).Hovered) || ((arrow.Destination.Tag as EditorNode).Hovered)))
       {
-        if (opacity == 220)
-        {
-          opacityTimer.Stop();
-          return;
-        }
-
         opacity += 50;
-        if (opacity > 220)
+        if (opacity > 170)
         {
           opacityTimer.Stop();
           opacity = 220;
-          Console.WriteLine("Shown: " + Tag);
         }
       }
       else
       {
-        if (opacity == 1)
-        {
-          opacityTimer.Stop();
-          return;
-        }
-
         opacity -= 50;
-        if (opacity < 1)
+        if (opacity < 51)
         {
           opacityTimer.Stop();
           opacity = 1;
-          Console.WriteLine("Hidden:" + Tag);
         }
       }
 
-      // Play with fillcolor to cause invalidate to be called on each object.
-      (arrow.Origin.Tag as EditorNode).ModelBox.FillColor = (arrow.Origin.Tag as EditorNode).ModelBox.FillColor;
-      (arrow.Destination.Tag as EditorNode).ModelBox.FillColor = (arrow.Destination.Tag as EditorNode).ModelBox.FillColor;
-      
-      Color fillColor = arrow.FillColor;
-      arrow.FillColor = Color.Black;
-      arrow.FillColor = fillColor;
+    arrow.Invalidate();
     }
 
     internal void Remove(FlowChart flowChart)

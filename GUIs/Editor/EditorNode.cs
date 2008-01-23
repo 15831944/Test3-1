@@ -20,6 +20,8 @@ namespace SysCAD.Editor
     private Box modelBox;
     private Box textBox;
 
+    private static int threadCheck = 0;
+
     private PureComponents.TreeView.Node node;
 
     private bool selected = false;
@@ -44,35 +46,35 @@ namespace SysCAD.Editor
     }
 
     public void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
-    {
-      if (visible && (ModelBox.Selected || state.ShowModels || hovered || linkHovered))
       {
-        opacity += 50;
-        if (opacity > 220)
+      if (visible && (ModelBox.Selected || state.ShowModels || hovered || linkHovered))
         {
+        opacity += 50;
+        if (opacity > 170)
+          {
           opacityTimer.Stop();
           opacity = 220;
+          }
         }
-      }
       else
-      {
-        opacity -= 50;
-        if (opacity < 1)
         {
+        opacity -= 50;
+        if (opacity < 51)
+          {
           opacityTimer.Stop();
           opacity = 1;
+          }
         }
+
+        ModelBox.FillColor = Color.FromArgb(opacity, 222, 184, 136);
+        ModelBox.FrameColor = Color.FromArgb(opacity, 111, 92, 68);
+
+        GraphicBox.FillColor = Color.FromArgb(220 - opacity, GraphicBox.FillColor);
+        GraphicBox.FrameColor = Color.FromArgb(255 - opacity, GraphicBox.FrameColor);
+
+        foreach (AnchorPoint anchorPoint in ModelBox.AnchorPattern.Points)
+          anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
       }
-
-      ModelBox.FillColor = Color.FromArgb(opacity, System.Drawing.Color.FromArgb(220, 222, 184, 136));
-      ModelBox.FrameColor = Color.FromArgb(opacity, System.Drawing.Color.FromArgb(255, 111, 92, 68));
-
-      GraphicBox.FillColor = Color.FromArgb(220 - opacity, GraphicBox.FillColor);
-      GraphicBox.FrameColor = Color.FromArgb(255 - opacity, GraphicBox.FrameColor);
-
-      foreach (AnchorPoint anchorPoint in ModelBox.AnchorPattern.Points)
-        anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
-    }
 
     public override string ToString()
     {

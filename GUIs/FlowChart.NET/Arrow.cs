@@ -5544,6 +5544,12 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
+    public void Invalidate()
+      {
+      flowChart.setDirty();
+      flowChart.invalidate(getRepaintRect(false));
+      }
+
 		/// <summary>
 		/// Type of custom drawing
 		/// </summary>
