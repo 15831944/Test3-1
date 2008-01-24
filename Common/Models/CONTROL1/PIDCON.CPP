@@ -309,6 +309,8 @@ PIDControl::PIDControl(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   for (int i=0; i<3; i++)
     m_StateLine[i] = "";
   m_StateLine[0] = "OK";
+
+  SetCount(1); //default to 1 PID
   }
 
 //--------------------------------------------------------------------------
@@ -561,7 +563,9 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   DDB.CheckBoxBtn("On",     "",               DC_, "", &bOn,        this, isParmStopped, DDBYesNo);
   DDB.CheckBoxBtn("ShowCnv",      "",         DC_, "", &bWithCnvComment, this, isParmStopped, DDBYesNo);
-  DDB.Long("No_of_PIDs", "Number_of_PIDs", DC_, "", idmPIDCount, this, isParmStopped/*|AffectsStruct*/);
+  
+  //DDB.Long("No_of_PIDs", "Number_of_PIDs", DC_, "", idmPIDCount, this, isParmStopped/*|AffectsStruct*/);
+  DDB.Long("No_of_PIDs", "Number_of_PIDs", DC_, "", idmPIDCount, this, isParmStopped|(DDB.ForFileSnpScn() ? SetOnChange : 0));
   DDB.Text("");
 
   if (PIDCOUNT)

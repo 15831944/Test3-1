@@ -2843,6 +2843,9 @@ byte GSIOThermal::Mode(GSModel * Mdl)
 //
 //
 //--------------------------------------------------------------------------
+#if WITHTHERMAL 
+#define UseGMT_CorrectionMethod 0
+#endif
 
 void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
   {
@@ -2864,16 +2867,10 @@ void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
   DDB.Visibility(NSHM_All,  m_bAllowHX);
   DDB.Double     ("PowerInput",       "", DC_Pwr, "kW",   &m_PowerIn,      this, 0);
   DDB.Visibility();
-  DDB.Text("Temperature change limits:");
-  DDB.Double     ("FinalT.Min",       "", DC_T,   "C",    &m_FinalTempMin, this, isParm);
-  DDB.Double     ("FinalT.Max",       "", DC_T,   "C",    &m_FinalTempMax, this, isParm);
-  DDB.CheckBoxBtn("ChangeT.Limit",    "", DC_,    "",     &m_ChangeTst,    this, isParm|SetOnChange);
-  DDB.Visibility(NSHM_All,  m_ChangeTst);
-  DDB.Double     ("ChangeT.MaxDrop",  "", DC_dT, "C",    &m_ChangeNeg,    this, isParm);
-  DDB.Double     ("ChangeT.MaxRise",  "", DC_dT, "C",    &m_ChangePos,    this, isParm);
-  DDB.Visibility();
+  #if UseGMT_CorrectionMethod
   DDB.Text("");
   DDB.Byte       ("CorrectionMethod", "", DC_,   "",     &m_eCorrection,    this, isParm, DDBCorrect);
+  #endif
   DDB.Text("");
 
   Strng T, Tt, Ts;
@@ -2931,6 +2928,16 @@ void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
       }
     }
   DDB.EndArray();
+  DDB.Visibility();
+  DDB.Text("");
+  DDB.Text("Temperature change limits:");
+  DDB.Double     ("FinalT.Min",       "", DC_T,   "C",    &m_FinalTempMin, this, isParm);
+  DDB.Double     ("FinalT.Max",       "", DC_T,   "C",    &m_FinalTempMax, this, isParm);
+  DDB.CheckBoxBtn("ChangeT.Limit",    "", DC_,    "",     &m_ChangeTst,    this, isParm|SetOnChange);
+  DDB.Visibility(NSHM_All,  m_ChangeTst);
+  DDB.Double     ("ChangeT.MaxDrop",  "", DC_dT, "C",    &m_ChangeNeg,    this, isParm);
+  DDB.Double     ("ChangeT.MaxRise",  "", DC_dT, "C",    &m_ChangePos,    this, isParm);
+  DDB.Visibility();
   }
 
 //--------------------------------------------------------------------------
