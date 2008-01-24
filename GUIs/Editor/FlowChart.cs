@@ -2175,12 +2175,15 @@ namespace SysCAD.Editor
 
     internal void Undo()
     {
-      state.ClientProtocol.Undo(out requestId);
+    fcFlowChart.Selection.Clear();
+    state.ClientProtocol.Undo(out requestId);
     }
 
     internal void Redo()
     {
-      state.ClientProtocol.Redo(out requestId);
+    fcFlowChart.Selection.Clear();
+    state.ClientProtocol.Redo(out requestId);
+
     }
 
     internal void DeleteSelection()

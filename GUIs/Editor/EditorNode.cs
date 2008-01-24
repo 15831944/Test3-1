@@ -66,6 +66,8 @@ namespace SysCAD.Editor
           }
         }
 
+      try
+        {
         ModelBox.FillColor = Color.FromArgb(opacity, 222, 184, 136);
         ModelBox.FrameColor = Color.FromArgb(opacity, 111, 92, 68);
 
@@ -74,6 +76,12 @@ namespace SysCAD.Editor
 
         foreach (AnchorPoint anchorPoint in ModelBox.AnchorPattern.Points)
           anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
+        }
+      catch
+        {
+        int i = 0;
+        i++;
+        }
       }
 
     public override string ToString()
