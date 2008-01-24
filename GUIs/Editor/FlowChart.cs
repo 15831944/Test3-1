@@ -408,7 +408,7 @@ namespace SysCAD.Editor
         ModelNode modelNode;
         if (state.ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
         {
-          state.CreateNode(graphicNode);
+          state.CreateNode(modelNode, graphicNode);
         }
         else
         {
@@ -421,7 +421,7 @@ namespace SysCAD.Editor
         ModelLink modelLink;
         if (state.ClientProtocol.model.Links.TryGetValue(graphicLink.ModelGuid, out modelLink))
         {
-          state.CreateLink(modelLink, graphicLink);
+          //state.CreateLink(modelLink, graphicLink);
         }
         else
         {
@@ -1512,25 +1512,27 @@ namespace SysCAD.Editor
 
       }
 
-      if (editorNode != null)
+    if (editorNode != null)
       {
-        ModelNode modelNode = editorNode.modelNode;
+      ModelNode modelNode = editorNode.modelNode;
+      if (modelNode != null)
+        {
         ModelStencil modelStencil = State.ModelShape(modelNode.NodeClass);
         GraphicStencil graphicStencil = State.GraphicShape(modelNode.NodeClass);
 
         float scale;
         if (form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width > form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height)
-        {
+          {
           scale = (float)(form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height) / 5.0F;
-        }
+          }
         else
-        {
+          {
           scale = (float)(form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width) / 5.0F;
-        }
+          }
 
         //float scale = 100.0F / (float)Math.Sqrt((float)graphicStencil.defaultSize.Width * (float)graphicStencil.default5Size.Width + (float)graphicStencil.defaultSize.Height * (float)graphicStencil.defaultSize.Height);
         form1.fcHoverview.AntiAlias = SmoothingMode.AntiAlias;
-        
+
 
         form1.hoverviewBox = form1.fcHoverview.CreateBox(0.0F, 0.0F, (float)graphicStencil.defaultSize.Width * scale, (float)graphicStencil.defaultSize.Height * scale);
         form1.hoverviewBox.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
@@ -1553,7 +1555,7 @@ namespace SysCAD.Editor
         form1.hoverviewBox.Style = BoxStyle.Shape;
 
         foreach (EditorLink link in form1.hoverviewIncomingLinks)
-        {
+          {
           int portId = 0;
           (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.DestinationPort + link.GraphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture), out portId);
 
@@ -1584,10 +1586,10 @@ namespace SysCAD.Editor
           arrow2.PenColor = Color.Blue;
 
           form1.fcHoverview.Selection.Clear();
-        }
+          }
 
         foreach (EditorLink link in form1.hoverviewOutgoingLinks)
-        {
+          {
           int portId = 0;
           (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.OriginPort + link.GraphicLink.OriginPortID.ToString(CultureInfo.InvariantCulture), out portId);
 
@@ -1618,11 +1620,12 @@ namespace SysCAD.Editor
           arrow2.PenColor = Color.Blue;
 
           form1.fcHoverview.Selection.Clear();
-        }
+          }
 
         RectangleF zoomRect = form1.hoverviewBox.BoundingRect;
         zoomRect.Inflate(form1.hoverviewBox.BoundingRect.Width * 0.4F, form1.hoverviewBox.BoundingRect.Height * 0.4F);
         form1.fcHoverview.ZoomToRect(zoomRect);
+        }
       }
 
       if ((hoverBox != null) && (hoverBox.AnchorPattern != null))
@@ -1873,41 +1876,53 @@ namespace SysCAD.Editor
 
       if (e.Box.Tag is EditorNode)
       {
-        Box modelBox = (e.Box.Tag as EditorNode).ModelBox;
-        Box textBox = (e.Box.Tag as EditorNode).TextBox;
+      Box modelBox = (e.Box.Tag as EditorNode).ModelBox;
+      Box graphicBox = (e.Box.Tag as EditorNode).GraphicBox;
+      Box textBox = (e.Box.Tag as EditorNode).TextBox;
+
 
         GraphicNode newGraphicNode = state.GraphicItem((e.Box.Tag as EditorNode).Guid).Clone();
-        newGraphicNode.BoundingRect = new SysCAD.Protocol.Rectangle(modelBox.BoundingRect);
-        newGraphicNode.Angle = modelBox.RotationAngle;
+        if (modelBox != null)
+          {
+          newGraphicNode.BoundingRect = new SysCAD.Protocol.Rectangle(modelBox.BoundingRect);
+          newGraphicNode.Angle = modelBox.RotationAngle;
+                
+          ArrowCollection incomingArrows = modelBox.IncomingArrows.Clone();
+
+          foreach (Arrow arrow in incomingArrows)
+            {
+            GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
+
+            if (newGraphicLink != null)
+              {
+              newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
+              action.Modify.Add(newGraphicLink);
+              }
+            }
+
+          ArrowCollection outgoingArrows = modelBox.OutgoingArrows.Clone();
+
+          foreach (Arrow arrow in outgoingArrows)
+            {
+            GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
+
+            if (newGraphicLink != null)
+              {
+              newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
+              action.Modify.Add(newGraphicLink);
+              }
+            }
+          }
+        else
+          {
+          newGraphicNode.BoundingRect = new SysCAD.Protocol.Rectangle(graphicBox.BoundingRect);
+          newGraphicNode.Angle = graphicBox.RotationAngle;
+          }
+
         newGraphicNode.TagArea = new SysCAD.Protocol.Rectangle(textBox.BoundingRect);
         newGraphicNode.TagAngle = textBox.RotationAngle;
         action.Modify.Add(newGraphicNode);
 
-        ArrowCollection incomingArrows = modelBox.IncomingArrows.Clone();
-
-        foreach (Arrow arrow in incomingArrows)
-        {
-          GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
-
-          if (newGraphicLink != null)
-          {
-            newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
-            action.Modify.Add(newGraphicLink);
-          }
-        }
-
-        ArrowCollection outgoingArrows = modelBox.OutgoingArrows.Clone();
-
-        foreach (Arrow arrow in outgoingArrows)
-        {
-          GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
-
-          if (newGraphicLink != null)
-          {
-            newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
-            action.Modify.Add(newGraphicLink);
-          }
-        }
 
         //Boxmodified.
         AddAction(action);
@@ -2019,11 +2034,15 @@ namespace SysCAD.Editor
       //  }
       //}
 
-      if (e.Box.Tag is EditorNode)
+    if (e.Box.Tag is EditorNode)
       {
+      Box modelBox = (e.Box.Tag as EditorNode).ModelBox;
+      if (modelBox != null)
+        {
         Box graphicBox = (e.Box.Tag as EditorNode).GraphicBox;
         //graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
         graphicBox.RotationAngle = (e.Box.Tag as EditorNode).ModelBox.RotationAngle;
+        }
       }
     }
 

@@ -406,9 +406,7 @@ namespace SysCAD.Editor
         {
           if (item.GraphicBox.Selected)
           {
-            item.ModelBox.Selected = true;
-            item.GraphicBox.Selected = false;
-            item.TextBox.Selected = false;
+            item.Selected = true;
           }
         }
 

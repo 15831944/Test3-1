@@ -428,9 +428,6 @@ namespace SysCAD.Editor
           else
             graphicBox.Shape = ShapeTemplate.FromId("Decision2");
 
-          graphicBox.EnabledHandles = Handles.None;
-          graphicBox.HandlesStyle = HandlesStyle.Invisible;
-
           if (graphicNode.FillColor.IsEmpty)
             graphicNode.FillColor = graphicBox.FillColor;
 
@@ -475,20 +472,18 @@ namespace SysCAD.Editor
 
           modelBox.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
           modelBox.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
+
+          graphicBox.EnabledHandles = Handles.None;
+          graphicBox.HandlesStyle = HandlesStyle.Invisible;
         }
 
-        if (textBox != null && graphicBox != null && modelBox != null)
+        if (textBox != null && graphicBox != null)
         {
-          textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
 
-          graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
-
-          editorNode.ModelBox = modelBox;
           editorNode.GraphicBox = graphicBox;
           editorNode.TextBox = textBox;
           editorNode.Visible = ShowTags && isVisible;
 
-          modelBox.Tag = editorNode;
           graphicBox.Tag = editorNode;
           textBox.Tag = editorNode;
 
@@ -497,6 +492,21 @@ namespace SysCAD.Editor
           treeViewNode.Tag = editorNode;
 
           editorNode.UpdateVisibility();
+        }
+
+      if (modelBox != null)
+        {
+        textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
+
+        graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
+
+        editorNode.ModelBox = modelBox;
+
+        modelBox.Tag = editorNode;
+        }
+      else if (graphicBox != null)
+        {
+        textBox.AttachTo(graphicBox, AttachToNode.BottomCenter);
         }
       }
     }

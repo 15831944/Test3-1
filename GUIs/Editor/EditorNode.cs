@@ -47,19 +47,29 @@ namespace SysCAD.Editor
 
     internal void SetOpacity(int opacity)
       {
+      if (ModelBox != null)
+        {
         ModelBox.FillColor = Color.FromArgb(opacity, 222, 184, 136);
         ModelBox.FrameColor = Color.FromArgb(opacity, 111, 92, 68);
+
+        foreach (AnchorPoint anchorPoint in ModelBox.AnchorPattern.Points)
+          anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
+        }
 
         GraphicBox.FillColor = Color.FromArgb(220 - opacity, GraphicBox.FillColor);
         GraphicBox.FrameColor = Color.FromArgb(255 - opacity, GraphicBox.FrameColor);
 
-        foreach (AnchorPoint anchorPoint in ModelBox.AnchorPattern.Points)
-          anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
       }
 
     public void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
       {
-      if (visible && (ModelBox.Selected || state.ShowModels || hovered || linkHovered))
+      if (ModelBox == null)
+        {
+        opacityTimer.Stop();
+        opacity = 1;
+        }
+
+      if (visible && (Selected || state.ShowModels || hovered || linkHovered))
         {
         opacity += 50;
         if (opacity > 170)
@@ -194,10 +204,13 @@ namespace SysCAD.Editor
       {
         visible = value;
 
-        foreach (Arrow arrow in ModelBox.IncomingArrows)
-          (arrow.Tag as EditorLink).UpdateVisibility();
-        foreach (Arrow arrow in ModelBox.OutgoingArrows)
-          (arrow.Tag as EditorLink).UpdateVisibility();
+        if (ModelBox != null)
+          {
+          foreach (Arrow arrow in ModelBox.IncomingArrows)
+            (arrow.Tag as EditorLink).UpdateVisibility();
+          foreach (Arrow arrow in ModelBox.OutgoingArrows)
+            (arrow.Tag as EditorLink).UpdateVisibility();
+          }
 
         UpdateVisibility();
       }
@@ -209,6 +222,22 @@ namespace SysCAD.Editor
       set
       {
         selected = value;
+        if (ModelBox != null)
+          {
+          ModelBox.Selected = value;
+          GraphicBox.Selected = false;
+          TextBox.Selected = false;
+          }
+        else if (GraphicBox != null)
+          {
+          GraphicBox.Selected = value;
+          TextBox.Selected = false;
+          }
+        else
+          {
+          TextBox.Selected = value;
+          }
+
         UpdateVisibility();
       }
     }
@@ -230,38 +259,38 @@ namespace SysCAD.Editor
     }
 
     internal void UpdateVisibility()
-    {
+      {
       Int64 requestId;
 
-      ModelBox.Visible = visible;
+      if (ModelBox != null) ModelBox.Visible = visible;
       GraphicBox.Visible = visible && state.ShowGraphics;
       TextBox.Visible = visible && graphicNode.TagVisible && state.ShowTags;
 
-      ModelBox.ZIndex = GraphicBox.ZIndex + 100;
+      if (ModelBox != null) 
+        {
+        ModelBox.ZIndex = GraphicBox.ZIndex + 100;
+        //linkHovered = false;
+        foreach (Arrow arrow in ModelBox.IncomingArrows)
+          {
+          (arrow.Tag as EditorLink).UpdateVisibility();
+          //arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
+          //if ((arrow.Tag as EditorLink).Hovered) 
+          //  linkHovered = true;
+          }
+        foreach (Arrow arrow in ModelBox.OutgoingArrows)
+          {
+          (arrow.Tag as EditorLink).UpdateVisibility();
+          // arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
+          //if ((arrow.Tag as EditorLink).Hovered) 
+          //  linkHovered = true;
+          }
+
+        ModelBox.CustomDraw = CustomDraw.Additional;
+        }
+
       TextBox.ZIndex = GraphicBox.ZIndex + 200;
 
-      //linkHovered = false;
-      foreach (Arrow arrow in ModelBox.IncomingArrows)
-      {
-        (arrow.Tag as EditorLink).UpdateVisibility();
-        //arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
-        //if ((arrow.Tag as EditorLink).Hovered) 
-        //  linkHovered = true;
-      }
-      foreach (Arrow arrow in ModelBox.OutgoingArrows)
-      {
-        (arrow.Tag as EditorLink).UpdateVisibility();
-        // arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
-        //if ((arrow.Tag as EditorLink).Hovered) 
-        //  linkHovered = true;
-      }
-
-      //if ((hovered) || (linkHovered))
-        ModelBox.CustomDraw = CustomDraw.Additional;
-      //else
-      //  ModelBox.CustomDraw = CustomDraw.None;
-
       opacityTimer.Start();
-    }
+      }
   }
 }

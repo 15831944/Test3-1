@@ -15,7 +15,7 @@ namespace SysCAD.Service
     /// The main entry point for the application.
     /// </summary>
     [STAThread]
-    static int Main()
+    static int Main(string[] args)
     {
       //try
       //{
@@ -31,7 +31,13 @@ namespace SysCAD.Service
           Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
         }
 
-        foreach (string projectString in Properties.Service.Default.projects)
+      if (args.Length == 2)
+        {
+        Project project = new Project(args[1], args[0]);
+        projects.Add(project.Path, project);
+        }
+      
+      foreach (string projectString in Properties.Service.Default.projects)
         {
           string[] projectStrings = projectString.Split('\t');
           Project project = new Project(projectStrings[0], projectStrings[1]);
