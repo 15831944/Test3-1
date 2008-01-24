@@ -20,8 +20,6 @@ namespace SysCAD.Editor
     private Box modelBox;
     private Box textBox;
 
-    private static int threadCheck = 0;
-
     private PureComponents.TreeView.Node node;
 
     private bool selected = false;
@@ -45,6 +43,20 @@ namespace SysCAD.Editor
       opacityTimer.Elapsed += new ElapsedEventHandler(opacityTimer_Elapsed);
     }
 
+    private delegate void SetOpacityDelegate(int opacity);
+
+    internal void SetOpacity(int opacity)
+      {
+        ModelBox.FillColor = Color.FromArgb(opacity, 222, 184, 136);
+        ModelBox.FrameColor = Color.FromArgb(opacity, 111, 92, 68);
+
+        GraphicBox.FillColor = Color.FromArgb(220 - opacity, GraphicBox.FillColor);
+        GraphicBox.FrameColor = Color.FromArgb(255 - opacity, GraphicBox.FrameColor);
+
+        foreach (AnchorPoint anchorPoint in ModelBox.AnchorPattern.Points)
+          anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
+      }
+
     public void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
       {
       if (visible && (ModelBox.Selected || state.ShowModels || hovered || linkHovered))
@@ -66,22 +78,7 @@ namespace SysCAD.Editor
           }
         }
 
-      try
-        {
-        ModelBox.FillColor = Color.FromArgb(opacity, 222, 184, 136);
-        ModelBox.FrameColor = Color.FromArgb(opacity, 111, 92, 68);
-
-        GraphicBox.FillColor = Color.FromArgb(220 - opacity, GraphicBox.FillColor);
-        GraphicBox.FrameColor = Color.FromArgb(255 - opacity, GraphicBox.FrameColor);
-
-        foreach (AnchorPoint anchorPoint in ModelBox.AnchorPattern.Points)
-          anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
-        }
-      catch
-        {
-        int i = 0;
-        i++;
-        }
+      state.FlowChart.BeginInvoke(new SetOpacityDelegate(SetOpacity), new object[] { opacity });
       }
 
     public override string ToString()
