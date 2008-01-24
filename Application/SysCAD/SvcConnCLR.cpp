@@ -664,7 +664,7 @@ ref class CSvcConnectCLRThread
     void Changed(Int64 eventId, Int64 requestId, SysCAD::Protocol::Actioned ^actioned)
       {
 			if (actioned->Created != nullptr)
-				//PKH!!! -- this throws an exception: ProcessCreatedList(eventId, requestId, created);
+				ProcessCreatedList(eventId, requestId, actioned->Created);
 
 			if (actioned->Modified != nullptr)
 		    ProcessModifiedList(eventId, requestId, actioned->Modified);
@@ -673,7 +673,7 @@ ref class CSvcConnectCLRThread
 	      ProcessDeletedList(eventId, requestId, actioned->Deleted);
       }
 
-    void ProcessCreatedList(Int64 eventId, Int64 requestId, List<Guid> ^ created)
+    void ProcessCreatedList(Int64 eventId, Int64 requestId, Collection<Guid> ^ created)
       {
       for each (Guid ^ guid in created )
         {

@@ -408,7 +408,7 @@ namespace SysCAD.Editor
         ModelNode modelNode;
         if (state.ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
         {
-          state.CreateNode(modelNode, graphicNode);
+          state.CreateNode(graphicNode);
         }
         else
         {

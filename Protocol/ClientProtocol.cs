@@ -492,33 +492,49 @@ namespace SysCAD.Protocol
     }
 
     public void ServiceGraphicChanged(Int64 eventId, Int64 requestId, Actioned actioned)
-    {
+      {
       if (actioned.Created != null)
-      {
+        {
         foreach (Guid guid in actioned.Created)
-        {
-          graphic.Create(serviceGraphic.graphic.Get(guid));
+          {
+          Item item = serviceGraphic.Get(guid);
+
+          if (item is GraphicItem)
+            graphic.Create(item as GraphicItem);
+
+          if (item is ModelItem)
+            model.Create(item as ModelItem);
+          }
+
+        if (actioned.Modified != null)
+          {
+          foreach (Guid guid in actioned.Modified)
+            {
+            Item item = serviceGraphic.Get(guid);
+
+            if (item is GraphicItem)
+              graphic.Modify(item as GraphicItem);
+
+          if (item is ModelItem)
+            model.Modify(item as ModelItem);
+            }
+          }
+
+        if (actioned.Deleted != null)
+          {
+          foreach (Guid guid in actioned.Deleted)
+            {
+            if (graphic.Get(guid) != null)
+              graphic.Delete(guid);
+
+            if (model.Get(guid) != null)
+              model.Delete(guid);
+            }
+          }
+
+        OnChanged(eventId, requestId, actioned);
         }
       }
-
-      if (actioned.Modified != null)
-      {
-        foreach (Guid guid in actioned.Modified)
-        {
-          graphic.Modify(serviceGraphic.graphic.Get(guid));
-        }
-      }
-
-      if (actioned.Deleted != null)
-      {
-        foreach (Guid guid in actioned.Deleted)
-        {
-          graphic.Delete(guid);
-        }
-      }
-
-      OnChanged(eventId, requestId, actioned);
-    }
 
     public void ServiceGraphicStep(Int64 eventId, Int64 step, DateTime time)
     {

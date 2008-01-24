@@ -54,5 +54,16 @@ namespace SysCAD.Protocol
       if (links.ContainsKey(guid))
         links.Remove(guid);
     }
+
+  internal ModelItem Get(Guid guid)
+    {
+    if (nodes.ContainsKey(guid))
+      return nodes[guid];
+
+    if (links.ContainsKey(guid))
+      return links[guid];
+
+    return null;
+    }
   }
 }

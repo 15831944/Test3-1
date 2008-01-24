@@ -179,5 +179,25 @@ namespace SysCAD.Protocol
     {
       renounceHandler(clientName);
     }
+
+  public Item Get(Guid guid)
+    {
+    if (graphic.Groups.ContainsKey(guid))
+      return graphic.Groups[guid];
+
+    if (model.Nodes.ContainsKey(guid))
+      return model.Nodes[guid];
+
+    if (graphic.Nodes.ContainsKey(guid))
+      return graphic.Nodes[guid];
+
+    if (model.Links.ContainsKey(guid))
+      return model.Links[guid];
+
+    if (graphic.Links.ContainsKey(guid))
+      return graphic.Links[guid];
+
+    return null;
+    }
   }
 }

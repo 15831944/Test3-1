@@ -344,6 +344,11 @@ namespace SysCAD.Editor
 
     public bool creatingNode = false; // Allows us to turn off some notifications during the creation process (specifically selectionChanged.)
 
+    internal void CreateNode(GraphicNode graphicNode)
+      {
+      CreateNode(null, graphicNode);
+      }
+
     internal void CreateNode(ModelNode modelNode, GraphicNode graphicNode)
     {
       if (flowChart.InvokeRequired)
@@ -368,18 +373,13 @@ namespace SysCAD.Editor
         if (treeViewNode.Parent != null) // if we're not root, make visibility same as parent.
           isVisible = treeViewNode.Parent.IsSelected;
 
-        ModelStencil modelStencil = ModelShape(modelNode.NodeClass);
+        ModelStencil modelStencil;
         GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
 
         if (GraphicShape(graphicNode.Shape) == null)
         // can't use graphicStencil because the above GraphicShape call will find a stencil even if the shape doesn't exist.
         {
           clientProtocol.LogMessage(out requestId, "GraphicStencil not found in library for shape \'" + graphicNode.Shape + "\'", SysCAD.Log.MessageType.Warning);
-        }
-
-        if (modelStencil == null)
-        {
-          clientProtocol.LogMessage(out requestId, "ModelStencil not found in library for shape \'" + modelNode.NodeClass + "\'", SysCAD.Log.MessageType.Error);
         }
 
         Box textBox = null, graphicBox = null, modelBox = null;
@@ -440,6 +440,7 @@ namespace SysCAD.Editor
 
         creatingNode = false; // we want any events to happen for the last created piece.
 
+        if (modelNode != null)
         {
           modelBox = flowChart.CreateBox((float)graphicNode.X, (float)graphicNode.Y, (float)graphicNode.Width, (float)graphicNode.Height);
           modelBox.RotationAngle = (float)graphicNode.Angle;
@@ -448,6 +449,14 @@ namespace SysCAD.Editor
           modelBox.CustomDraw = CustomDraw.Additional;
 
           //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
+
+          modelStencil = ModelShape(modelNode.NodeClass);
+
+          if (modelStencil == null)
+            {
+            clientProtocol.LogMessage(out requestId, "ModelStencil not found in library for shape \'" + modelNode.NodeClass + "\'", SysCAD.Log.MessageType.Error);
+            }
+
 
           if (modelStencil != null)
           {

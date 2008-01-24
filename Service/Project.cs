@@ -269,44 +269,47 @@ namespace SysCAD.Service
       //!!!if (engineClientServiceProtocol.Change(eventId, requestId, modelCreate, modelModify, modelDelete))
       //!!!{
 
-      foreach (ModelItem modelItem in modelCreate)
+    Actioned actioned = new Actioned();
+
+    foreach (ModelItem modelItem in modelCreate)
       {
         model.Create(modelItem);
-      }
+        actioned.Created.Add(modelItem.Guid);
+        }
 
       foreach (ModelItem modelItem in modelModify)
       {
         model.Modify(modelItem);
-      }
+        actioned.Modified.Add(modelItem.Guid);
+        }
 
       foreach (Guid guid in modelDelete)
       {
         model.Delete(guid);
-      }
-
-      Actioned graphicActioned = new Actioned();
+        actioned.Deleted.Add(guid);
+        }
 
       foreach (GraphicItem graphicItem in graphicCreate)
       {
         graphic.Create(graphicItem);
-        graphicActioned.Created.Add(graphicItem.Guid);
+        actioned.Created.Add(graphicItem.Guid);
       }
 
       foreach (GraphicItem graphicItem in graphicModify)
       {
         graphic.Modify(graphicItem);
-        graphicActioned.Modified.Add(graphicItem.Guid);
+        actioned.Modified.Add(graphicItem.Guid);
       }
 
       foreach (Guid guid in graphicDelete)
       {
         graphic.Delete(guid);
-        graphicActioned.Deleted.Add(guid);
+        actioned.Deleted.Add(guid);
       }
 
       { // Do Change here.
         eventId++;
-        clientClientServiceProtocol.DoChanged(eventId, requestId, graphicActioned);
+        clientClientServiceProtocol.DoChanged(eventId, requestId, actioned);
       }
 
       return true;
