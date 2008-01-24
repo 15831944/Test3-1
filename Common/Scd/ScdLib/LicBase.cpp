@@ -14,7 +14,6 @@
 #include "scdctrls.h"
 //#include "msgwnd.h"
 #include "resource.h"
-#include "badliclocation.h"
 //#include "optoff.h"
 
 #include "..\..\utils\DemoDat\crc32static.h"
@@ -121,6 +120,7 @@ b3656b892b302de4d71963c9c26497cec9275d03c2c5757cb9c"
 #define CK_COMPANYNUM 7956342
 #define CK_PASSNUM    482693111
 
+#if !BYPASSLICENSING  
 //NB: Ensure correct version of CRP32Dxx.lib is used!
 #if CK_USE7103
 #if (_MSC_VER>=1400)
@@ -139,6 +139,7 @@ b3656b892b302de4d71963c9c26497cec9275d03c2c5757cb9c"
 #else
 #pragma comment(lib, "CRP32D60.6134.lib")
 #endif
+#endif     
 
 //const int CK_NetworkChecktime = 900;
 const int CK_NetworkChecktime = 600; //seconds
