@@ -376,11 +376,6 @@ namespace SysCAD.Editor
         ModelStencil modelStencil;
         GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
 
-        if (GraphicShape(graphicNode.Shape) == null)
-        // can't use graphicStencil because the above GraphicShape call will find a stencil even if the shape doesn't exist.
-        {
-          clientProtocol.LogMessage(out requestId, "GraphicStencil not found in library for shape \'" + graphicNode.Shape + "\'", SysCAD.Log.MessageType.Warning);
-        }
 
         Box textBox = null, graphicBox = null, modelBox = null;
 
@@ -417,11 +412,18 @@ namespace SysCAD.Editor
           textBox.Text = graphicNode.Tag;
         }
 
+        if (graphicNode.Shape != null)
         {
           graphicBox = flowChart.CreateBox((float)graphicNode.X, (float)graphicNode.Y, (float)graphicNode.Width, (float)graphicNode.Height);
           graphicBox.RotationAngle = (float)graphicNode.Angle;
           graphicBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicNode.Model";
           graphicBox.Style = BoxStyle.Shape;
+
+          if (GraphicShape(graphicNode.Shape) == null)
+          // can't use graphicStencil because the above GraphicShape call will find a stencil even if the shape doesn't exist.
+          {
+            clientProtocol.LogMessage(out requestId, "GraphicStencil not found in library for shape \'" + graphicNode.Shape + "\'", SysCAD.Log.MessageType.Warning);
+          }
 
           if (graphicStencil != null)
             graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
@@ -1595,8 +1597,29 @@ namespace SysCAD.Editor
         Box modelBox = editorNode.ModelBox;
         Box textBox = editorNode.TextBox;
 
-        if ((graphicBox != null) && (modelBox != null) && (textBox != null))
-        {
+        if (textBox != null)
+          {
+          textBox.BoundingRect = graphicNode.TagArea;
+          textBox.RotationAngle = (float)graphicNode.TagAngle;
+          }
+
+        if (graphicBox != null)
+          {
+          graphicBox.BoundingRect = graphicNode.BoundingRect;
+          graphicBox.RotationAngle = (float)graphicNode.Angle;
+          graphicBox.FillColor = graphicNode.FillColor;
+
+            {
+            GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
+
+            if (graphicStencil != null)
+              graphicBox.Shape = State.GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
+            else
+              graphicBox.Shape = ShapeTemplate.FromId("Decision2");
+            }
+          }
+        if (modelBox != null)
+          {
           modelBox.BoundingRect = graphicNode.BoundingRect;
           modelBox.RotationAngle = (float)graphicNode.Angle;
 
@@ -1609,27 +1632,14 @@ namespace SysCAD.Editor
 
           modelBox.AnchorPattern = GetAnchorPattern(modelStencil, editorNode);
 
-          graphicBox.BoundingRect = graphicNode.BoundingRect;
-          graphicBox.RotationAngle = (float)graphicNode.Angle;
-          graphicBox.FillColor = graphicNode.FillColor;
-
-          {
-            GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
-
-            if (graphicStencil != null)
-              graphicBox.Shape = State.GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
-            else
-              graphicBox.Shape = ShapeTemplate.FromId("Decision2");
           }
 
-          textBox.BoundingRect = graphicNode.TagArea;
-          textBox.RotationAngle = (float)graphicNode.TagAngle;
-        }
-        else
-        {
-          clientProtocol.LogMessage(out requestId, "ModifyNode: One of the *boxes missing for GraphicNode \'" + graphicNode.Guid + ", " + graphicNode.Tag + "\'", SysCAD.Log.MessageType.Error);
-          return;
-        }
+        //if (
+        //else
+        //{
+        //  clientProtocol.LogMessage(out requestId, "ModifyNode: One of the *boxes missing for GraphicNode \'" + graphicNode.Guid + ", " + graphicNode.Tag + "\'", SysCAD.Log.MessageType.Error);
+        //  return;
+        //}
       }
     }
 

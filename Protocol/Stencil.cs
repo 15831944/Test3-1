@@ -31,6 +31,9 @@ namespace SysCAD.Protocol
 
     public static implicit operator String(Shape shape)
     {
+    if (shape == null)
+      return "";
+    else
       return shape.str;
     }
 

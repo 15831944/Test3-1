@@ -421,7 +421,7 @@ namespace SysCAD.Editor
         ModelLink modelLink;
         if (state.ClientProtocol.model.Links.TryGetValue(graphicLink.ModelGuid, out modelLink))
         {
-          state.CreateLink(modelLink, graphicLink);
+          //state.CreateLink(modelLink, graphicLink);
         }
         else
         {
