@@ -234,15 +234,19 @@ CSvcConnect::~CSvcConnect()
 {
 }
 
-bool CSvcConnect::Startup(LPCSTR configPath)
+void CSvcConnect::Startup()
 {
   m_GrfGrpsNames.InitHashTable(101);
   m_GrfGrpsGuids.InitHashTable(101);
 
   m_pCLR = new CSvcConnectCLR;
-  return m_pCLR->Startup(this, configPath);
-
+  m_pCLR->Startup(this);
 };
+
+bool CSvcConnect::ConfigSetup()
+{
+  return m_pCLR->ConfigSetup(this);
+}
 
 void CSvcConnect::Shutdown()
 {

@@ -18,7 +18,8 @@ class CSvcConnectCLR
   public:
     ~CSvcConnectCLR(void);
 
-    bool Startup(CSvcConnect * pConn, LPCSTR configPath);
+    void Startup(CSvcConnect * pConn);
+    bool ConfigSetup(CSvcConnect * pConn);
     void Shutdown();
 
     bool PrepareForExport(LPCSTR projectName, LPCSTR projectPath);

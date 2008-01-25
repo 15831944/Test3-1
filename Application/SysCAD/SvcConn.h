@@ -59,7 +59,8 @@ class CSvcConnect
   public:
     ~CSvcConnect();
 
-    bool Startup(LPCSTR configPath);
+    void Startup();
+    bool ConfigSetup();
     void Shutdown();
     //void Initialise();
     //void Terminate();

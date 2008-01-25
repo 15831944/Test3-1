@@ -104,7 +104,7 @@ ref class CSvcConnectCLRThread
           ChannelServices::UnregisterChannel(channel);
       };
 
-    bool Startup(String^ configPath)
+    void Startup()
       {
         
       LogNote("CSvcConnectCLRThread", 0, "Startup");
@@ -118,7 +118,10 @@ ref class CSvcConnectCLRThread
       tcpProps["port"] = "0";
       TcpChannel^ tcpChannel = gcnew TcpChannel(tcpProps, clientProv, serverProv);
       ChannelServices::RegisterChannel(tcpChannel, false);
+    }
 
+    bool ConfigSetup()
+    {
       config = gcnew Config;
       clientProtocol = gcnew ClientProtocol;
       engineProtocol = gcnew EngineProtocol;
@@ -164,7 +167,7 @@ ref class CSvcConnectCLRThread
         }
 
       return success;  
-      };
+    };
 
 
 
@@ -902,20 +905,25 @@ CSvcConnectCLR::~CSvcConnectCLR(void)
   {
   }
 
-bool CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR configPath)
+void CSvcConnectCLR::Startup(CSvcConnect * pConn)
   {
-  String^ configPathString = gcnew String(configPath);
-
   LogNote("CSvcConnectCLR", 0, "Startup");
 
   m_pConn =  pConn;
   //m_pSrvr->Initialise();
 
   CSvcConnectCLRThreadGlbl::gs_SrvrThread = gcnew CSvcConnectCLRThread(m_pConn);//.Startup("");
-  return CSvcConnectCLRThreadGlbl::gs_SrvrThread->Startup(configPathString);   
+
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Startup();   
 
   //System::Threading::S
   };
+
+bool CSvcConnectCLR::ConfigSetup(CSvcConnect * pConn)
+{
+  return CSvcConnectCLRThreadGlbl::gs_SrvrThread->ConfigSetup();   
+
+  }
 
   bool CSvcConnectCLR::PrepareForExport(LPCSTR projectName, LPCSTR projectPath)
   {
