@@ -299,8 +299,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_COMMAND(ID_DELETEDEBUGFILE, OnDeleteDebugFile)
   ON_COMMAND(ID_SCD10_EXPORT, &CMainFrame::OnScd10Export)
   ON_COMMAND(ID_SCD10_ATTACH, &CMainFrame::OnScd10Attach)
+  ON_COMMAND(ID_FILE_ATTACHPROJECT, &CMainFrame::OnScd10Attach)
   ON_UPDATE_COMMAND_UI(ID_SCD10_EXPORT, &CMainFrame::OnUpdateScd10Export)
   ON_UPDATE_COMMAND_UI(ID_SCD10_ATTACH, &CMainFrame::OnUpdateScd10Attach)
+  ON_UPDATE_COMMAND_UI(ID_FILE_ATTACHPROJECT, &CMainFrame::OnUpdateScd10Attach)
   END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------

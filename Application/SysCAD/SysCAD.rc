@@ -394,7 +394,7 @@ END
 // Menu
 //
 
-IDR_MAINFRAME MENU 
+IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -430,6 +430,8 @@ BEGIN
         MENUITEM "&New Project",                ID_PROJECT_NEW
         MENUITEM "Open &Project",               ID_PROJECT_OPEN
         MENUITEM "Open Project (Alt C&fg)",     ID_PROJECT_LOADALTCFG
+        MENUITEM SEPARATOR
+        MENUITEM "Attach Project ...",              ID_FILE_ATTACHPROJECT
         MENUITEM SEPARATOR
         POPUP "Snapshots/Scenarios ..."
         BEGIN
@@ -532,7 +534,7 @@ BEGIN
     END
 END
 
-IDR_VISIOGRF MENU 
+IDR_VISIOGRF MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -575,6 +577,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Delete Project ...",          ID_PROJECT_DELETE
         MENUITEM "&Zip Project ...",            ID_PROJECT_ZIP
+        MENUITEM SEPARATOR
+        MENUITEM "Attach Project ...",              ID_FILE_ATTACHPROJECT
         MENUITEM SEPARATOR
         POPUP "Snapshots/Scenarios ..."
         BEGIN
@@ -723,7 +727,7 @@ BEGIN
     END
 END
 
-IDR_VISIOGRF_CNTR_IP MENU 
+IDR_VISIOGRF_CNTR_IP MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -767,6 +771,8 @@ BEGIN
         MENUITEM "Delete Project ...",          ID_PROJECT_DELETE
         MENUITEM "&Zip Project ...",            ID_PROJECT_ZIP
         MENUITEM SEPARATOR
+        MENUITEM "Attach Project ...",              ID_FILE_ATTACHPROJECT
+        MENUITEM SEPARATOR
         POPUP "Snapshots/Scenarios ..."
         BEGIN
             MENUITEM "&Load SnapShot ...\tCtrl+F5", ID_FILE_LOADSNAPSHOT
@@ -800,7 +806,7 @@ BEGIN
     END
 END
 
-IDR_TRENDVIEW MENU 
+IDR_TRENDVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -844,6 +850,10 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Delete Project ...",          ID_PROJECT_DELETE
         MENUITEM "&Zip Project ...",            ID_PROJECT_ZIP
+        MENUITEM SEPARATOR
+        MENUITEM "Attach Project ...",              ID_FILE_ATTACHPROJECT
+        MENUITEM SEPARATOR
+        MENUITEM "Attach Project ...",              ID_FILE_ATTACHPROJECT
         MENUITEM SEPARATOR
         POPUP "Snapshots/Scenarios ..."
         BEGIN
@@ -1018,7 +1028,7 @@ BEGIN
     END
 END
 
-IDR_CTRENDVIEW MENU 
+IDR_CTRENDVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -1062,6 +1072,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Delete Project ...",          ID_PROJECT_DELETE
         MENUITEM "&Zip Project ...",            ID_PROJECT_ZIP
+        MENUITEM SEPARATOR
+        MENUITEM "Attach Project ...",              ID_FILE_ATTACHPROJECT
         MENUITEM SEPARATOR
         POPUP "Snapshots/Scenarios ..."
         BEGIN
@@ -1236,7 +1248,7 @@ BEGIN
     END
 END
 
-IDR_GRFVIEW MENU 
+IDR_GRFVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -1279,6 +1291,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Delete Project ...",          ID_PROJECT_DELETE
         MENUITEM "&Zip Project ...",            ID_PROJECT_ZIP
+        MENUITEM SEPARATOR
+        MENUITEM "Attach Project ...",              ID_FILE_ATTACHPROJECT
         MENUITEM SEPARATOR
         POPUP "Snapshots/Scenarios ..."
         BEGIN
@@ -1505,7 +1519,7 @@ BEGIN
     END
 END
 
-IDR_PRJVIEW MENU 
+IDR_PRJVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -1546,6 +1560,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Delete Project ...",          ID_PROJECT_DELETE
         MENUITEM "&Zip Project ...",            ID_PROJECT_ZIP
+        MENUITEM SEPARATOR
+        MENUITEM "Attach Project ...",              ID_FILE_ATTACHPROJECT
         MENUITEM SEPARATOR
         POPUP "Snapshots/Scenarios ..."
         BEGIN
@@ -1691,7 +1707,7 @@ BEGIN
     END
 END
 
-IDR_MDICLIENT_MENU MENU 
+IDR_MDICLIENT_MENU MENU
 BEGIN
     POPUP "Stopped"
     BEGIN
@@ -1726,7 +1742,7 @@ BEGIN
     END
 END
 
-IDR_WNDLIST_TMPL MENU 
+IDR_WNDLIST_TMPL MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -1766,6 +1782,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Delete Project ...",          ID_PROJECT_DELETE
         MENUITEM "&Zip Project ...",            ID_PROJECT_ZIP
+        MENUITEM SEPARATOR
+        MENUITEM "Attach Project ...",              ID_FILE_ATTACHPROJECT
         MENUITEM SEPARATOR
         POPUP "Snapshots/Scenarios ..."
         BEGIN
@@ -4136,7 +4154,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS 
+IDR_MAINFRAME ACCELERATORS
 BEGIN
     "A",            ID_PROJECT_OPTIONS,     VIRTKEY, CONTROL, NOINVERT
     "A",            ID_FILE_SAVE_AS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
@@ -4225,7 +4243,7 @@ BEGIN
     "W",            ID_WNDW_SELECT,         VIRTKEY, CONTROL, NOINVERT
 END
 
-IDR_SYSCADTYPE_CNTR_IP ACCELERATORS 
+IDR_SYSCADTYPE_CNTR_IP ACCELERATORS
 BEGIN
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
@@ -4277,23 +4295,23 @@ IDC_SELECTTEXT          CURSOR                  "res\\SelectText.cur"
 IDD_ANALYSEDESIGN DLGINIT
 BEGIN
     IDC_SAVEDANALYSES, 0x403, 4, 0
-0x4241, 0x0043, 
+0x4241, 0x0043,
     IDC_SAVEDANALYSES, 0x403, 4, 0
-0x4544, 0x0046, 
+0x4544, 0x0046,
     IDC_SAVEDANALYSES, 0x403, 4, 0
-0x484a, 0x0047, 
+0x484a, 0x0047,
     IDC_SAVEDANALYSES, 0x403, 4, 0
-0x686b, 0x0067, 
+0x686b, 0x0067,
     IDC_SAVEDANALYSES, 0x403, 7, 0
-0x3536, 0x3634, 0x3435, "\000" 
+0x3536, 0x3634, 0x3435, "\000"
     IDC_SAVEDANALYSES, 0x403, 7, 0
-0x6a6b, 0x6b68, 0x686a, "\000" 
+0x6a6b, 0x6b68, 0x686a, "\000"
     IDC_SAVEDANALYSES, 0x403, 7, 0
-0x6b70, 0x6c6a, 0x6a6b, "\000" 
+0x6b70, 0x6c6a, 0x6a6b, "\000"
     IDC_SAVEDANALYSES, 0x403, 9, 0
-0x3b6c, 0x6a6b, 0x6c6b, 0x6a6b, "\000" 
+0x3b6c, 0x6a6b, 0x6c6b, 0x6a6b, "\000"
     IDC_SAVEDANALYSES, 0x403, 5, 0
-0x6c6b, 0x686a, "\000" 
+0x6c6b, 0x686a, "\000"
     0
 END
 
@@ -4304,7 +4322,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_PRJGRFTAGSDLG, DIALOG
     BEGIN
@@ -4423,12 +4441,12 @@ END
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDP_FAILED_TO_CREATE    "Failed to create object.  Make sure the object is entered in the system registry."
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDW_TIMEBASE            "Time Base "
     IDW_STARTTIME           "Start Time"
@@ -4439,12 +4457,12 @@ BEGIN
     IDR_VISIOGRF            "Visio Graphics\nVsg_\nVisio Graphics\nVisio Graphics(*.scv)\n.scv\nSysCAD.VisioGraphicsDocument\nSysCAD Visio Graphics Document\n"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDP_BUSY                "Server is still busy."
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "SysCAD 9.1 © Kenwalt (Build Trunk)"
     IDR_INSVIEW             "Instrument\nIns_\nInstrument\nInstrument(*.sci)\n.sci\nSysCAD Instrument\n SysCAD Instrument\n"
@@ -4455,14 +4473,14 @@ BEGIN
     IDS_MAINFRAMECLASS      "SYSCADMAINFRAME"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_APP_TITLE       "SysCAD"
     AFX_IDS_IDLEMESSAGE     "Ready"
     AFX_IDS_HELPMODEMESSAGE "Select an object on which to get Help"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_INDICATOR_EXT        "EXT"
     ID_INDICATOR_CAPS       "CAP"
@@ -4472,7 +4490,7 @@ BEGIN
     ID_INDICATOR_REC        "REC"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_GRF_ZoomOut          "Zoom graphics out\nZoom out"
     ID_GRF_ZoomRight        "Pan graphics right\nMove right"
@@ -4484,7 +4502,7 @@ BEGIN
     ID_GRF_CopyBitmap       "Copy window graphics as a bitmap to the clipboard"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_HELP_MODELS          "Models help\nModels help"
     ID_HELP_PGMLANGUAGE     "Programable module language (for General controllers) help\nPGM help"
@@ -4494,7 +4512,7 @@ BEGIN
     ID_FILE_SAVELAYOUT      "Save positions and arrangement of windows\nSave layout"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_INDICATOR_0          "_______________"
     ID_INDICATOR_1          "_______________"
@@ -4505,7 +4523,7 @@ BEGIN
     ID_INDICATOR_6          "______"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
     ID_FILE_OPEN            "Open an existing document\nOpen"
@@ -4518,12 +4536,12 @@ BEGIN
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint preview"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_PRINT_MULTIPLE  "Print Multiple Pages\nPrint Multiple"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
@@ -4533,7 +4551,7 @@ BEGIN
     ID_HELP                 "Display help for current task or command"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_MRU_FILE1       "Open this document"
     ID_FILE_MRU_FILE2       "Open this document"
@@ -4553,13 +4571,13 @@ BEGIN
     ID_FILE_MRU_FILE16      "Open this document"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_NEXT_PANE            "Switch to the next window pane"
     ID_PREV_PANE            "Switch back to the previous window pane"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_WINDOW_NEW           "Open another window for the active document"
     ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window"
@@ -4569,7 +4587,7 @@ BEGIN
     ID_WINDOW_SPLIT         "Split the active window into panes"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_EDIT_CLEAR           "Erase the selection"
     ID_EDIT_CLEAR_ALL       "Erase everything"
@@ -4586,25 +4604,25 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_OLE_INSERT_NEW       "Insert new embedded object\nNew Object"
     ID_OLE_EDIT_LINKS       "Edit linked objects\nEdit Links"
     ID_OLE_EDIT_CONVERT     "Convert object to different type\nConvert Object"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_OLE_VERB_FIRST       "Activate embedded or linked object"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_SCSIZE          "Change the window size"
     AFX_IDS_SCMOVE          "Change the window position"
@@ -4615,14 +4633,14 @@ BEGIN
     AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
     AFX_IDS_MDICHILD        "Activate this window"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_TREND_START          "Scroll to Start of Historian\nTrend to Start"
     ID_TREND_END            "Scroll to End of Historian\nTrend to End"
@@ -4640,27 +4658,27 @@ BEGIN
     ID_TREND_SLOTS          "Configure slot, including filter and compression algotithms\nConfigure slot"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_SCREENSAVER     "Starts screen cycles (screen saver)\nCycles"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_TIMEBASE        "\nTimebase"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_TREND_SCROLL_BACKWARD "Scroll backward in the Historian\nBackward"
-    ID_TREND_SCROLL_BACKWARDFAST 
+    ID_TREND_SCROLL_BACKWARDFAST
                             "Scroll backward a page in the Historian\nBackward fast"
     ID_TREND_SCROLL_FORWARD "Scroll forward in the Historian\nForward"
-    ID_TREND_SCROLL_FORWARDFAST 
+    ID_TREND_SCROLL_FORWARDFAST
                             "Scroll forward a page in the Historian\nForward fast"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_SAVESCENARIO    "Save scenario\nSave Scenario"
     ID_FILE_SAVESNAPSHOT    "Save snap-shot of project\nSave SnapShot"
@@ -4677,7 +4695,7 @@ BEGIN
     ID_PROJECT_OPTIONS      "Set general and project options\nOptions"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_EXPLORER        "Open Project Explorer"
     ID_ACTIONS_RUN_STEADY   "Run Dynmaic to Steady state\nSteady State"
@@ -4691,7 +4709,7 @@ BEGIN
     ID_OFFLINE_HOME         "Offine home page for SysCAD Documentation\nOffline Help"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_PROJECT_SAVEALL      "Save all project documents\nSave All"
     ID_PROJECT_SAVEAS       "Save all project files to a new project"
@@ -4701,7 +4719,7 @@ BEGIN
     ID_PROJECT_RESETSTATS   "Apply 'DynStatsRunInit' to all models"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FIND_TAG             "Find tag in grapfics or trends\nFind Tag"
     ID_FIND_NEXT            "Search again for for tag in grapfics or trends\nFind Next"
@@ -4714,7 +4732,7 @@ BEGIN
     ID_WNDW_TILE            "Arrange windows as non-overlapping tiles"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_CK_LIC_NETUSERS      "List network users of floating licenses"
     ID_CK_LIC_AUTH          "Enter or update license authorization\nLicense Authorization"
@@ -4729,7 +4747,7 @@ BEGIN
     ID_CK_LIC_RESETSERVICE  "Reset licensing service (try stop and start driver)"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_GRF_Insert           "Insert a unit (model) into a flowsheet\nInsert Unit"
     ID_GRF_Connect          "Insert a link between two units on a flowsheet\nInsert Link"
@@ -4740,7 +4758,7 @@ BEGIN
     ID_GRF_AlterEntity      "Change scale or rotation of entities\nScale/Rotate"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_GRF_InsertGroup      "Insert a Group into a flowsheet\nInsert Group "
     ID_GRF_CreateGroup      "Create a Group from a parts of a flowsheet\nCreate Group"
@@ -4748,7 +4766,7 @@ BEGIN
     ID_GRF_InsertText       "Insert Text\nInsert Text"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_GRF_UpdateText       "UpdateText\nUpdate Text"
     ID_GRF_ChangeUnit       "Change the graphics symbol associated with a unit Symbol\nChange Symbol"
@@ -4759,7 +4777,7 @@ BEGIN
     ID_GRF_Break            "Next point is a line break\nBreak"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_ACTIONS_START        "Start execution of SysCAD\nRun"
     ID_ACTIONS_STOP         "Stop execution of SysCAD\nStop"
@@ -4772,7 +4790,7 @@ BEGIN
     ID_OPTIONS_CMDSCRIPTS   "Execute or configure command scripts\nCommand Scripts"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_ACTIONS_DYNAMICSETUP "Edit Dynamic options\nDynamic Options"
     ID_ACTIONS_PROBALSETUP  "Edit ProBal options\nProBal Options"
@@ -4787,7 +4805,7 @@ BEGIN
     ID_ACTIONS_SOLVENET     "Solve for flows\nSolve Net"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_GRF_ExplodeSymbol    "Explode symbol does NOT delete the attached model (unit or link), but the the graphics entity and the model are separated\nExplode Symbol"
     ID_GRF_ExplodeUnit      "Explode deletes attached model (unit or link) but NOT the graphics\nExplode"
@@ -4802,28 +4820,28 @@ BEGIN
     ID_GRF_MoveEntity       "Change the position of a graphics entity\nMove Entity"
     ID_GRF_MoveLink         "Redraw the graphics associated with a link\nRedraw Link"
     ID_GRF_Redraw           "Redraw graphics\nRedraw"
-    ID_GRF_RefreshAllAnnotation 
+    ID_GRF_RefreshAllAnnotation
                             "Update values in all annotation blocks on all the graphics pages\nRefresh All Annotation"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_OPTIONS_COMPARE      "Compare tag values between snapshots, scenarios or current values\nCompare"
     ID_OPTIONS_DDE          "DDE tag information, options and statistics\nDDE options"
-    ID_OPTIONS_OPCSERVEROPTIONS 
+    ID_OPTIONS_OPCSERVEROPTIONS
                             "OPC Server tag information, options and statistics\nOPC options"
     ID_OPTIONS_DRIVER       "Driver tag information, options and statistics\nDriver options"
     ID_OPTIONS_REPORTS      "Generate or configure SysCAD reports\nReports"
     ID_OPTIONS_ARCHIVE      "Archive\nArchive"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_HELP_UserDocs        "Model documentation\nModel Help"
     IDR_PRJVIEW             "Project\nPrj_\nProject\nProjects(*.spj)\n.spj\nSysCAD Project\n SysCAD Project\n"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_DISK_SPACE_UNAVAIL  "Unavailable"
     IDS_DISK_SPACE          "%lu KB Free"
@@ -4832,13 +4850,13 @@ BEGIN
     IDS_PHYSICAL_MEM        "%lu KB Free"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
     IDS_OPENFILELOCAL       "Open Using Local Data"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_GRF_CLear            "Clear all selected entities\nClear"
     ID_GRF_ConfigLayers     "Hide and show layers or change layer colours\nLayers"
@@ -4858,9 +4876,9 @@ BEGIN
     ID_GRF_Esc              "Cancel\nCancel"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
-    ID_GRF_RefreshAnnotation 
+    ID_GRF_RefreshAnnotation
                             "Update values in all annotation blocks on current graphics page\nRefresh Annotation"
     ID_GRF_RotateMinus      "\nRotate -"
     ID_GRF_RotatePlus       "\nRotate +"
@@ -4879,12 +4897,12 @@ BEGIN
     ID_GRF_ZoomLeft         "Pan graphics left\nMove left"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDR_WNDLIST_TMPL        "\nWndList\nWndLis\nWndLis Files (*.wnd)\n.wnd\nWndList.Document\nWndLis Document"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_WNDW_ARRANGE         "Arrange icons at the bottom of the window"
 END
@@ -5132,7 +5150,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_NEUTRALEDITTAG, DIALOG
     BEGIN
@@ -5213,18 +5231,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"

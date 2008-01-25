@@ -6693,6 +6693,21 @@ void CProject::Attach2Scd10()
   if (!m_pSvc)
     {
     m_pSvc = new CSvcConnect;
+    if (!m_pSvc->Startup("XXXXX"))//CfgFiles()))
+      {
+      CFlwNodeDefinitionList Defns;
+      //if (m_pSvc->RequestItemDefinitions(FlwUnitGrp, Defns)>0)
+      //  {
+      //  int xxx=0;
+      //  };
+
+      // Temporary
+      //m_pSvc->Export2Scd10(PrjName(), CfgFiles());
+
+      // CNM Removed - temp
+      //m_pSvc->Save();
+      }
+
     m_pSvc->Attach2Scd10();
     }
   }

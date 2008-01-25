@@ -1783,7 +1783,7 @@
 #define ID_FILE_DUMMYDELETE             30166
 #define ID_FILE_DUMMYMODIFY             30167
 #define ID_FILE_DUMMYINSERT             30168
-#define ID_MENU_CLEANUP_REQD                   30169
+#define ID_MENU_CLEANUP_REQD            30169
 #define ID_HELP_MODELS                  30170
 #define ID_HELP_PGMLANGUAGE             30171
 #define ID_HELP_SYSCAD                  30172
@@ -2049,6 +2049,7 @@
 #define ID_SCD10_IMPORT                 30537
 #define ID_SCD10_EXPORT                 30538
 #define ID_SCD10_ATTACH                 30539
+#define ID_FILE_ATTACHPROJECT           30540
 #define IDS_OPENFILELOCAL               61446
 
 // Next default values for new objects
@@ -2056,7 +2057,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        25600
-#define _APS_NEXT_COMMAND_VALUE         30540
+#define _APS_NEXT_COMMAND_VALUE         30541
 #define _APS_NEXT_CONTROL_VALUE         25774
 #define _APS_NEXT_SYMED_VALUE           25603
 #endif

@@ -82,6 +82,7 @@ namespace SysCAD.Protocol
       {
         serviceGraphic = Activator.GetObject(typeof(BaseProtocol), url.ToString()) as ClientServiceProtocol;
         Name = serviceGraphic.Name; // Force a test of the connection.
+        Path = serviceGraphic.Path;
 
         serviceGraphicPermissionsChangedHandler = new ClientServiceProtocol.PermissionsChangedHandler(ServiceGraphicPermissionsChanged);
         serviceGraphicStepHandler = new ClientServiceProtocol.StepHandler(ServiceGraphicStep);

@@ -60,6 +60,7 @@ namespace SysCAD.Protocol
     public delegate void RenounceHandler(String clientName);
 
     public ClientServiceProtocol(String name,
+      String path,
       LoadHandler loadHandler, 
       SaveHandler saveHandler, 
       Graphic graphic,
@@ -75,6 +76,7 @@ namespace SysCAD.Protocol
       RenounceHandler renounceHandler)
     {
       this.Name = name;
+      this.Path = path;
 
       this.graphic = graphic;
       this.model = model;

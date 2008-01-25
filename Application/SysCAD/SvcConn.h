@@ -72,10 +72,14 @@ class CSvcConnect
     void Save();
 
     void LogMessage(DWORD Type, LPCSTR Msg);
+
     //------------------------------------------------------------------------
 
-    void OnCreateGroup(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
-      const CRectangleF & boundingRect);
+    void DoAttachProject(/*__int64 eventId, __int64 requestId, LPCSTR guid,*/ LPCSTR tag, LPCSTR path);
+
+    //------------------------------------------------------------------------
+
+    void OnCreateGroup(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, const CRectangleF & boundingRect);
 
     //------------------------------------------------------------------------
     // Items

@@ -163,7 +163,7 @@ ref class CSvcConnectCLRThread
         success = config->TestUrl(gcnew Uri("ipc://SysCAD.Service/Global"));
         }
 
-      return success;      
+      return success;  
       };
 
 
@@ -290,11 +290,27 @@ ref class CSvcConnectCLRThread
 
     void Attach2Scd10()
     {
+      //config = gcnew SysCAD::Protocol::Config();
 
       AttachProjectForm^ attachProjectForm = gcnew AttachProjectForm();
       if (attachProjectForm->ShowDialog() == DialogResult::OK)
       {
-        // Deal with the fact, load the project.
+      attachProjectForm->ClientProtocol->Connect("SysCAD9.1\nConnection: Client");
+      attachProjectForm->Config->Syncxxx();
+
+      config = attachProjectForm->Config;
+      clientProtocol = attachProjectForm->ClientProtocol;
+
+
+      //... now load 9
+      //attachProjectForm->
+      m_pConn->DoAttachProject(ToCString(clientProtocol->Name), ToCString(clientProtocol->Path));
+
+      //    turf 9 grfs
+      // load grfs from 10                 
+      // check model list consistent
+      int xx=0;
+
       }
     };
 
@@ -847,7 +863,8 @@ ref class CSvcConnectCLRThread
       else if (Type & LogFlag_Warning)  T=SysCAD::Log::MessageType::Warning;
       else /*if(Type & LogFlag_Error)*/ T=SysCAD::Log::MessageType::Error;
 
-      clientProtocol->LogMessage(requestId, gcnew String(Msg), T);
+      if (clientProtocol != nullptr)
+        clientProtocol->LogMessage(requestId, gcnew String(Msg), T);
       };
 
   protected:
@@ -896,7 +913,6 @@ bool CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR configPath)
 
   CSvcConnectCLRThreadGlbl::gs_SrvrThread = gcnew CSvcConnectCLRThread(m_pConn);//.Startup("");
   return CSvcConnectCLRThreadGlbl::gs_SrvrThread->Startup(configPathString);   
-
 
   //System::Threading::S
   };

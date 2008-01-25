@@ -36,12 +36,13 @@ namespace SysCAD.Protocol
     private AnnounceHandler announceHandler;
     private RenounceHandler renounceHandler;
 
-    public EngineServiceProtocol(String name,
+    public EngineServiceProtocol(String name, String path,
       Graphic graphic, Model model,
       LogMessageHandler logMessageHandler, StateChangedHandler stateChangedHandler, RequestPortInfoHandler requestPortInfoHandler,
       AnnounceHandler announceHandler, RenounceHandler renounceHandler)
     {
       this.Name = name;
+      this.Path = path;
 
       this.graphic = graphic;
       this.model = model;

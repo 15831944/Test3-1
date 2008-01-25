@@ -25,6 +25,7 @@ namespace SysCAD.Protocol
     public Model model;
 
     private String name;
+    private String path;
 
     //[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
     public override Object InitializeLifetimeService()
@@ -36,6 +37,12 @@ namespace SysCAD.Protocol
     {
       get { return name; }
       protected set { name = value; }
+    }
+
+    public String Path
+    {
+      get { return path; }
+      protected set { path = value; }
     }
   }
 }

@@ -479,6 +479,10 @@ void CSvcConnect::LogMessage(DWORD Type, LPCSTR Msg)
   m_pCLR->LogMessage(Type, Msg);
 };
 
+void CSvcConnect::DoAttachProject(/*__int64 eventId, __int64 requestId, LPCSTR guid,*/ LPCSTR tag, LPCSTR path)
+  {
+  };
+
 //========================================================================
 
 void CSvcConnect::OnCreateGroup(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 

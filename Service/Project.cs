@@ -1049,6 +1049,7 @@ namespace SysCAD.Service
       ClientServiceProtocol.RenounceHandler clientRenounce = new ClientServiceProtocol.RenounceHandler(ClientRenounce);
 
       clientClientServiceProtocol = new ClientServiceProtocol(name,
+                                                              path,
                                                               clientLoad,
                                                               clientSave,
                                                               graphic,
@@ -1074,6 +1075,7 @@ namespace SysCAD.Service
       EngineServiceProtocol.RenounceHandler engineRenounce = new EngineServiceProtocol.RenounceHandler(EngineRenounce);
 
       engineClientServiceProtocol = new EngineServiceProtocol(name,
+                                                              path,
                                                               graphic,
                                                               model,
                                                               engineLogMessage,
