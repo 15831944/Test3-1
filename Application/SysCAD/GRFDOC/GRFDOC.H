@@ -56,6 +56,7 @@ class CGrfDoc : public DocRoot
     virtual BOOL WriteDocument(const char* pszPathName, FILE* pFile);
 
     BOOL         FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    BOOL         FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
     void         FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options);
     void         SetCursor(DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options);
     flag         Pan(DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options);

@@ -32,8 +32,8 @@ extern "C"
 #include "wndslct.h"
 //#include "optoff.h"
 
-#define dbgAdd            01
-#define dbgTime           0
+#define dbgAdd            0
+#define dbgTime           01
 #define dbgDumpAll        0
 #define dbgHoldLockUpdate 0
 
@@ -910,7 +910,7 @@ void CExploreScd::GetRawTags()
         pTag->m_InUse=true;
         pTag->m_ModelOK=true;
 #if dbgAdd
-        dbgpln("Tag  InUse %s", pTag->m_sTag);
+        dbgpln("Explorer:Tag  InUse %s", pTag->m_sTag);
 #endif
         }
       else
@@ -936,7 +936,7 @@ void CExploreScd::GetRawTags()
         pTag->m_ModelOK=true;
 
 #if dbgAdd   
-        dbgpln("Tag  New   %-25s %s", m_Classes[iClass]->m_sClassId, pTag->m_sTag);
+        dbgpln("Explorer:Tag  New   %-25s %s", m_Classes[iClass]->m_sClassId, pTag->m_sTag);
 #endif
         m_Tags.Add(pTag);
         m_TagMap.SetAt(pTag->m_sTag, pTag);
@@ -972,7 +972,7 @@ void CExploreScd::GetRawFlows()
         pFlow->m_iFlowType=UnPackConnectFlowType(pRawFlow->Index());
         pFlow->m_iUseStatus=UnPackConnectUseStatus(pRawFlow->Index());
 #if dbgAdd
-        dbgpln("Flow  InUse %4i %4i %s", pFlow->m_iFlowType, pFlow->m_iUseStatus, pFlow->m_sTag);
+        dbgpln("Explorer:Flow  InUse %4i %4i %s", pFlow->m_iFlowType, pFlow->m_iUseStatus, pFlow->m_sTag);
 #endif
         }
       else
@@ -999,7 +999,7 @@ void CExploreScd::GetRawFlows()
         pFlow->m_ModelOK=true;
 
 #if dbgAdd   
-        dbgpln("Flow  New   %4i %4i %s", pFlow->m_iFlowType, pFlow->m_iUseStatus, pFlow->m_sTag);
+        dbgpln("Explorer:Flow  New   %4i %4i %s", pFlow->m_iFlowType, pFlow->m_iUseStatus, pFlow->m_sTag);
 #endif
         m_Flows.Add(pFlow);
         m_FlowMap.SetAt(pFlow->m_sTag, pFlow);
@@ -1037,7 +1037,7 @@ void CExploreScd::GetRawTears()
         //pTear->m_iUseStatus=UnPackConnectUseStatus(pRawTear->Index());
 #if dbgAdd
         //dbgpln("Tear  InUse %4i %4i %s", pTear->m_iTearType, pTear->m_iUseStatus, pTear->m_sTag);
-        dbgpln("Tear  %s", pTear->m_sTag);
+        dbgpln("Explorer:Tear  %s", pTear->m_sTag);
 #endif
         }
       else
@@ -1065,7 +1065,7 @@ void CExploreScd::GetRawTears()
 
 #if dbgAdd   
         //dbgpln("Tear  New   %4i %4i %s", pTear->m_iTearType, pTear->m_iUseStatus, pTear->m_sTag);
-        dbgpln("Tear  New   %s", pTear->m_sTag);
+        dbgpln("Explorer:Tear  New   %s", pTear->m_sTag);
 #endif
         m_Tears.Add(pTear);
         m_TearMap.SetAt(pTear->m_sTag, pTear);
@@ -1122,7 +1122,7 @@ void CExploreScd::GetRawPages(bool ChangesOK)
       {
       pPg->m_InUse=true;
 #if dbgAdd   
-      dbgpln("Page InUse %s", pPg->m_sPageId);
+      dbgpln("Explorer:Page InUse %s", pPg->m_sPageId);
 #endif
       }
     else
@@ -1154,7 +1154,7 @@ void CExploreScd::GetRawPages(bool ChangesOK)
       pPage->m_InUse=true;
 
 #if dbgAdd   
-      dbgpln("Page New   %s", pPage->m_sPageId);
+      dbgpln("Explorer:Page New   %s", pPage->m_sPageId);
 #endif
       m_Pages.Add(pPage);
       m_PageMap.SetAt(pPage->m_sPageId, pPage);
@@ -1193,7 +1193,7 @@ void CExploreScd::FindTagPages()
             for (Strng * pTagLst=pPage->m_GrfTagList.First(); pTagLst; pTagLst=pPage->m_GrfTagList.Next())
               {
 #if dbgAdd   
-              dbgp("Find %s", pTagLst->Str());
+              dbgp("Explorer:Find %s", pTagLst->Str());
 #endif
               CXTTag *pTag;
               CXTFlow *pFlow;
@@ -1209,7 +1209,7 @@ void CExploreScd::FindTagPages()
                   pPage->m_TagHs.Add(pTH);
                   pPage->m_TagHMap.SetAt(pTag, pTH);
 #if dbgAdd   
-                  dbgp("Add Tag2Page %-25s << %s", pPage->m_sPageId, pTag->m_sTag);
+                  dbgp("Explorer:Add Tag2Page %-25s << %s", pPage->m_sPageId, pTag->m_sTag);
 #endif
                   }
 
@@ -1221,7 +1221,7 @@ void CExploreScd::FindTagPages()
                   pTag->m_Pages.Add(pPH);
                   pTag->m_PHMap.SetAt(pPage, pPH);
 #if dbgAdd   
-                  dbgp("Add Page2Tag %-25s << %s", pTag->m_sTag, pPage->m_sPageId);
+                  dbgp("Explorer:Add Page2Tag %-25s << %s", pTag->m_sTag, pPage->m_sPageId);
 #endif
                   }
                 }
@@ -1252,7 +1252,7 @@ void CExploreScd::FindTagPages()
                 pTag->m_ModelOK=false;
 
 #if dbgAdd   
-                dbgp("Tag  NoMdl%-25s %s", m_Classes[iClass]->m_sClassId, pTag->m_sTag);
+                dbgp("Explorer:Tag  NoMdl%-25s %s", m_Classes[iClass]->m_sClassId, pTag->m_sTag);
 #endif
                 m_Tags.Add(pTag);
                 m_TagMap.SetAt(pTag->m_sTag, pTag);
@@ -1304,7 +1304,7 @@ void CExploreScd::RemoveUnusedItems()
         }
 
 #if dbgAdd   
-      dbgpln("Tag   Remov %s", pTag->m_sTag);
+      dbgpln("Explorer:Tag   Remov %s", pTag->m_sTag);
 #endif
 
       m_TagMap.RemoveKey(pTag->m_sTag);
@@ -1343,7 +1343,7 @@ void CExploreScd::RemoveUnusedItems()
       //  }
 
 #if dbgAdd   
-      dbgpln("Flow  Remov %s", pFlow->m_sTag);
+      dbgpln("Explorer:Flow  Remov %s", pFlow->m_sTag);
 #endif
 
       m_FlowMap.RemoveKey(pFlow->m_sTag);
@@ -1382,7 +1382,7 @@ void CExploreScd::RemoveUnusedItems()
       //  }
 
 #if dbgAdd   
-      dbgpln("Tear  Remov %s", pTear->m_sTag);
+      dbgpln("Explorer:Tear  Remov %s", pTear->m_sTag);
 #endif
 
       m_TearMap.RemoveKey(pTear->m_sTag);
@@ -1421,7 +1421,7 @@ void CExploreScd::RemoveUnusedItems()
         }
 
 #if dbgAdd   
-      dbgpln("Page  Remov %s", pPage->m_sPageId);
+      dbgpln("Explorer:Page  Remov %s", pPage->m_sPageId);
 #endif
 
 
@@ -1507,7 +1507,7 @@ void CExploreScd::BuildTags()
   CStopWatch SW;
   SW.Start();
 #if dbgAdd
-  dbgpln("BuildTags  ====================================");
+  dbgpln("Explorer:BuildTags  ====================================");
 #endif
 
   CWaitMsgCursor WaitMsg("Updating Explorer");
@@ -1527,42 +1527,42 @@ void CExploreScd::BuildTags()
   ClearTags();
 
 #if dbgTime
-  dbgpln("A:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer A :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   GetRawTags();
 #if dbgTime
-  dbgpln("B:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer B :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   GetRawFlows();
 #if dbgTime
-  dbgpln("B1:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer B1:%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   GetRawTears();
 #if dbgTime
-  dbgpln("B2:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer B2:%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   GetRawPages(true);
 #if dbgTime
-  dbgpln("D:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer D :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   FindTagPages();
 #if dbgTime
-  dbgpln("E:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer E :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   SortAll();
 #if dbgTime
-  dbgpln("F:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer F :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   SetFilter();
 #if dbgTime
-  dbgpln("G:%10.3f", SW.Lap()*1e3);          
+  dbgpln("Explorer:Timer G :%10.3f (ms)", SW.Lap()*1e3);          
 #endif
 
   for (int i=0; i<m_Pages.GetCount(); i++)
@@ -1595,7 +1595,7 @@ void CExploreScd::BuildTags()
   UpdateFlowBranches(false);
 
 #if dbgTime
-  dbgpln("H:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer H :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
 #if dbgDumpAll
@@ -1606,7 +1606,7 @@ void CExploreScd::BuildTags()
   FinaliseHeaders();
 
 #if dbgTime
-  dbgpln("J:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer J :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   UpdateData(FALSE);
@@ -1618,7 +1618,7 @@ void CExploreScd::BuildTags()
 #endif
 
 #if dbgAdd
-  dbgpln("Done       ====================================");
+  dbgpln("Explorer:Timer Done       ====================================");
 #endif
   };
 
@@ -1630,7 +1630,7 @@ void CExploreScd::ReBuildTags()
   CStopWatch SW;
   SW.Start();
 #if dbgAdd
-  dbgpln("RebuildTags====================================");
+  dbgpln("Explorer:RebuildTags====================================");
 #endif
 
   CWaitMsgCursor WaitMsg("Updating Explorer");
@@ -1649,47 +1649,47 @@ void CExploreScd::ReBuildTags()
     m_Pages[i]->m_InUse=false;
 
 #if dbgTime
-  dbgpln("A:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer A :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   GetRawTags();
 #if dbgTime
-  dbgpln("B:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer B :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   GetRawFlows();
 #if dbgTime
-  dbgpln("B1:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer B1:%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   GetRawTears();
 #if dbgTime
-  dbgpln("B2:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer B2:%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   GetRawPages(true);//false);
 #if dbgTime
-  dbgpln("D:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer D :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   RemoveUnusedItems();
 #if dbgTime
-  dbgpln("d:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer d :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   FindTagPages();
 #if dbgTime
-  dbgpln("E:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer E :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   SortAll();
 #if dbgTime
-  dbgpln("F:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer F :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   SetFilter();
 #if dbgTime
-  dbgpln("G:%10.3f", SW.Lap()*1e3);          
+  dbgpln("Explorer:Timer G :%10.3f (ms)", SW.Lap()*1e3);          
 #endif
 
   for (int i=0; i<m_Pages.GetCount(); i++)
@@ -1748,7 +1748,7 @@ void CExploreScd::ReBuildTags()
 
 
 #if dbgTime
-  dbgpln("H:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer H :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
 #if dbgDumpAll
@@ -1759,7 +1759,7 @@ void CExploreScd::ReBuildTags()
   FinaliseHeaders();
 
 #if dbgTime
-  dbgpln("J:%10.3f", SW.Lap()*1e3);
+  dbgpln("Explorer:Timer J :%10.3f (ms)", SW.Lap()*1e3);
 #endif
 
   UpdateData(FALSE);
@@ -1771,7 +1771,7 @@ void CExploreScd::ReBuildTags()
 #endif
 
 #if dbgAdd
-  dbgpln("Done       ====================================");
+  dbgpln("Explorer:Timer Done       ====================================");
 #endif
 
   };
@@ -1940,7 +1940,7 @@ bool CExploreScd::LoadTagTree(bool DoKbdTest)
 void CExploreScd::AddTagToTree(CXTTag *pTag, CXTTag * pPrev)
   {
 #if dbgAdd   
-  dbgp("Add  Tag  Tree  %-25s", pTag->m_sTag);
+  dbgp("Explorer:Add  Tag  Tree  %-25s", pTag->m_sTag);
 #endif
   if (!pTag->m_hTreeItem)
     {
@@ -2001,7 +2001,7 @@ void CExploreScd::RemoveTagFromTree(CXTTag * pTag)
   if (pTag->m_hTreeItem)
     {
 #if dbgAdd   
-    dbgpln("Rem  Tag  Tree %#08x %s", pTag->m_hTreeItem, pTag->m_sTag);
+    dbgpln("Explorer:Rem  Tag  Tree %#08x %s", pTag->m_hTreeItem, pTag->m_sTag);
 #endif
     m_Tree.DeleteItem(pTag->m_hTreeItem);
     m_HTagMap.RemoveKey(pTag->m_hTreeItem);
@@ -2010,7 +2010,7 @@ void CExploreScd::RemoveTagFromTree(CXTTag * pTag)
   if (pTag->m_hClassItem)
     {
 #if dbgAdd   
-    dbgpln("Rem  Tag  Class %s", pTag->m_sTag);
+    dbgpln("Explorer:Rem  Tag  Class %s", pTag->m_sTag);
 #endif
     m_Tree.DeleteItem(pTag->m_hClassItem);
     pTag->m_hClassItem=NULL;
@@ -2066,7 +2066,7 @@ void CExploreScd::UpdateFlowBranches(bool AtStart)
 void CExploreScd::AddFlowToTree(CXTFlow *pFlow, CXTFlow * pPrev)
   {
 #if dbgAdd   
-  dbgp("Add  Flow  Tree  %-25s", pFlow->m_sTag);
+  dbgp("Explorer:Add  Flow  Tree  %-25s", pFlow->m_sTag);
 #endif
 
   if (pFlow->m_hTreeItem && pFlow->m_hTreeItem!=pFlow->ReqdParentItem())
@@ -2133,7 +2133,7 @@ void CExploreScd::RemoveFlowFromTree(CXTFlow * pFlow)
   if (pFlow->m_hTreeItem)
     {
 #if dbgAdd   
-    dbgpln("Rem  Flow  Tree %#08x %s", pFlow->m_hTreeItem, pFlow->m_sTag);
+    dbgpln("Explorer:Rem  Flow  Tree %#08x %s", pFlow->m_hTreeItem, pFlow->m_sTag);
 #endif
     m_Tree.DeleteItem(pFlow->m_hTreeItem);
     //m_HFlowMap.RemoveKey(pFlow->m_hTreeItem);
@@ -2168,7 +2168,7 @@ void CExploreScd::RemoveFlowFromTree(CXTFlow * pFlow)
 void CExploreScd::AddTearToTree(CXTTear *pTear, CXTTear * pPrev)
   {
 #if dbgAdd   
-  dbgp("Add  Tear  Tree  %-25s", pTear->m_sTag);
+  dbgp("Explorer:Add  Tear  Tree  %-25s", pTear->m_sTag);
 #endif
 
   if (pTear->m_hTreeItem && pTear->m_hTreeItem!=pTear->ReqdParentItem())
@@ -2200,7 +2200,7 @@ void CExploreScd::RemoveTearFromTree(CXTTear * pTear)
   if (pTear->m_hTreeItem)
     {
 #if dbgAdd   
-    dbgpln("Rem  Tear  Tree %#08x %s", pTear->m_hTreeItem, pTear->m_sTag);
+    dbgpln("Explorer:Rem  Tear  Tree %#08x %s", pTear->m_hTreeItem, pTear->m_sTag);
 #endif
     m_Tree.DeleteItem(pTear->m_hTreeItem);
     //m_HTearMap.RemoveKey(pTear->m_hTreeItem);

@@ -677,6 +677,13 @@ ref class CSvcConnectCLRThread
       {
       for each (Guid ^ guid in created )
         {
+
+        GraphicGroup ^GGrp;
+        if (clientProtocol->graphic->Groups->TryGetValue(*guid, GGrp))
+          {
+          m_pConn->OnCreateGroup(eventId, requestId, ToCString(GGrp->Guid.ToString()), ToCString(GGrp->Tag), ToCString(GGrp->Path), CRectangleF(GGrp->BoundingRect->Left, GGrp->BoundingRect->Top, GGrp->BoundingRect->Width, GGrp->BoundingRect->Height)); 
+  				}
+
         ModelNode ^ MNd;
         if (engineProtocol->model->Nodes->TryGetValue(*guid, MNd))
           {

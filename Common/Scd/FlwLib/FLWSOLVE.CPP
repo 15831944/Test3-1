@@ -37,9 +37,10 @@
 //temp force solver threads to zero until multi-threaded solver bug is fixed
 #define FORCERQDTHREADS    0
 // Allow (in Dynamic) Ctrl aspects of models to run multithreaded.
-#define ALLOWCTRLTHREADING 0
+#define ALLOWCTRLTHREADING  0
 
-#define WithRestartPGM 0
+#define WithRestartPGM      0
+#define dbgCreateClasses    0
 
 //#define ClearSolutionOnStop    01
 #define MOVEDYNSTATS   1
@@ -11692,7 +11693,7 @@ DeleteIt:
         if (p->HeatMethod()==0)
           LogWarning(Tag(), 0, "No Allowed HeatMethod %s", ClassId());
     
-        dbgpln("XXXXX %s", p->FullObjTag());
+        //dbgpln("XXXXX %s", p->FullObjTag());
         //p->SetFlowMode(p->FlowMode()); // update FlowMode requirements
         //double t0=SW.Secs();
         p->GlobalConnect();
@@ -15459,7 +15460,9 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
         if ((pObj==NULL) && (FCB.Type()==TOF_DBase))
           {
           // Prevent any other FlwSolvers Etc being created
+#if dbgCreateClasses
           dbgp(">>>>>>>>> %-20s %-30s", pItem->Class(), pItem->SymOrTag());
+#endif
 
           if (_stricmp(pItem->Class(), CFlangeClass.ClassId())==0)
             goto Done;
@@ -15498,10 +15501,14 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
           if (_stricmp(pItem->Class(), IOObjectClass.ClassId())==0)
             goto Done;
 #endif
+#if dbgCreateClasses
           dbgp(" Insert!");
+#endif
           pObj=InsertNode(this, pItem->Class(), pItem->SubClass(), pItem->PrimaryCfg(), pItem->SymOrTag(), NULL, TOA_Free);//pchar TypIdIn, pchar TagIn)
 Done:;
+#if dbgCreateClasses
           dbgpln("");
+#endif
           }
 
         if (IsPBClass && !NetProbalMethod())

@@ -1079,6 +1079,13 @@ flag Grf3D_Display::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTI
 
 //---------------------------------------------------------------------------
 
+flag Grf3D_Display::FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  return Vp1->Drw->FindGuid(Guid, pLastMatchingInsert, pLastMatchingAttr);
+  }
+
+//---------------------------------------------------------------------------
+
 void Grf3D_Display::Open(CDC* pDC, CRect * pDspRect)
   {
   Sect.Lock();

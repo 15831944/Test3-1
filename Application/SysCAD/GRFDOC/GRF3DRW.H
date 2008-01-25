@@ -503,6 +503,7 @@ class CGrfLayer
     void             CollectTags(Strng_List & TagList);
     void             CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagInfoArray & GTIA);
     flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    flag             FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
     flag             PutModelAssocGrfsChanges(CMdlAssocGrfArray & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsFound);   
     
     flag             GetEntityBox(C3_BOX_S *box,DXF_ENTITY e,double *BiggestDim = NULL);
@@ -599,7 +600,9 @@ class LayerCollection
 
 
     DXF_ENTITY       Create_Insert(pchar Typ, Pt_3f Pt,int Color = -1, Pt_3f Scl = Pt_3f(1.0,1.0,1.0), REAL Rot = 0.0,
-                                pchar TagValue = (pchar)NULL, pchar AssocTagValue =  (char*)NULL, Pt_3f TagPt = Pt_3f(0.0,0.0,0.0),
+                                   pchar Guid = (pchar)NULL, 
+                                   pchar TagValue = (pchar)NULL, 
+                                   pchar AssocTagValue =  (char*)NULL, Pt_3f TagPt = Pt_3f(0.0,0.0,0.0),
                                 Attr_Settings &Set = Attr_Settings (50,0,1.5,1.0,0.0,GR_DARKGRAY,Text_Cntrd,Text_Baseline,"STANDARD"));
 
     //DXF_ENTITY       Create_Insert(pchar Typ, PT3 Pt, int Color, PT3 Scl, REAL Rot );
@@ -644,6 +647,7 @@ class LayerCollection
     void             ChangeTag(pchar pOldTag, pchar pNewTag);
     void             CollectTags(Strng_List & TagList);
     flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    flag             FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
     flag             PutModelAssocGrfsChanges(CMdlAssocGrfArray & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsFound);   
 
   public:
@@ -738,6 +742,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
     void              CollectTagInfo(bool AllInserts, CGrfTagInfoArray & GTIA);
     void              CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA);
     flag              FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    flag              FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
     flag              UpdateModelAssocGrfs();   
 
     DML_LIST          SelectNearbyCurves(PT3 p,REAL tol);
@@ -1004,6 +1009,7 @@ class DllImportExport Grf3D_Display
     flag            ChangeTag(pchar pOldTag, pchar pNewTag);
     void            CollectTags(Strng_List & TagList);
     flag            FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    flag            FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
 
     void            SetCursImgBase();
     void            SetCursImgBase(Pt_3i Pt);

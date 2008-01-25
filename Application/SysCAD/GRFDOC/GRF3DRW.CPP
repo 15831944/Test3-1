@@ -748,6 +748,46 @@ flag CGrfLayer::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &
   return false;
   }
 
+//----------------------------------------------------------------------------
+
+flag CGrfLayer::FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  DML_ITEM it;
+  DXF_ENTITY e;
+  //dbgpln("=========");
+  WALK_ENTITY_LIST(InsertLst, it, e)
+    {
+    DML_LIST l1 = DXF_INSERT_ATTRS(e);
+    if (l1)
+      {
+      DML_ITEM it1;
+      DXF_ENTITY e1;
+      WALK_ENTITY_LIST(l1, it1, e1)
+        {
+        //dbgpln("%-30s : %s ",
+        //       DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
+        //       DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
+
+        if (!EntityIsHidden(e) && DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),GuidAttribStr))
+          {
+          if (stricmp(DXF_ATTRIB_VALUE_GET(e1), Guid)==0)
+            {
+            if (pLastMatchingInsert==e)
+              pLastMatchingInsert=NULL;
+            else
+              {
+              pLastMatchingInsert=e;
+              pLastMatchingAttr=e1;
+              return true;          
+              }
+            }
+          }
+        }
+      }
+    }
+  return false;
+  }
+
 //---------------------------------------------------------------------------
  
 flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsX)
@@ -1783,7 +1823,7 @@ flag CGrfLayer::GetCurveBox(C3_BOX_S *box,C3_CURVE c,double *BiggestDim)
 
 flag CGrfLayer::GetCurveSegs(PT3 * StartSeg, PT3 * EndSeg,C3_CURVE c,C3_TRANSFORM c3t)
   {
-  DML_ITEM it;
+  //DML_ITEM it;
   //C3_CURVE Cls = NULL;
   //C3_CURVE c;
   //DistMin = 1.0e38;
@@ -2503,6 +2543,19 @@ flag LayerCollection::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_EN
   WALK_LAYERS(Layers,NULL, l)
     {
     if (l->FindTag(Tag, pLastMatchingInsert, pLastMatchingAttr))
+      return true;
+    }
+  return false;
+  }
+
+//----------------------------------------------------------------------------
+
+flag LayerCollection::FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  CGrfLayer * l = NULL;
+  WALK_LAYERS(Layers,NULL, l)
+    {
+    if (l->FindGuid(Guid, pLastMatchingInsert, pLastMatchingAttr))
       return true;
     }
   return false;
@@ -3381,7 +3434,7 @@ DXF_ENTITY LayerCollection::Add_Insert_Attrib(DXF_ENTITY Insert, pchar Tag, pcha
 //----------------------------------------------------------------------------
 
 DXF_ENTITY LayerCollection::Create_Insert(pchar Typ, Pt_3f Pt_,int Color, Pt_3f Scl_, REAL Rot,
-                                          pchar TagValue, pchar AssocTagValue, Pt_3f TagPt_, Attr_Settings &Set)
+                                          pchar Guid, pchar TagValue, pchar AssocTagValue, Pt_3f TagPt_, Attr_Settings &Set)
   {
   PT3 Pt,Scl,TagPt;
 
@@ -3432,7 +3485,7 @@ DXF_ENTITY LayerCollection::Create_Insert(pchar Typ, Pt_3f Pt_,int Color, Pt_3f 
         {
         DXF_ENTITY t = Add_Insert_Attrib(Insert, TagAttribStr, TagValue, Ptt, Set);
         Attr_Settings AGuid(50,DXF_ATTRIB_INVIS,1.0,1.0,0.0,GR_DARKGRAY,Text_Left ,Text_Baseline,"STANDARD");
-        Add_Insert_Attrib(Insert, GuidAttribStr, (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), Ptt, AGuid);
+        Add_Insert_Attrib(Insert, GuidAttribStr, Guid ? Guid : (pchar)(LPCSTR)TaggedObject::CreateGuidStr(), Ptt, AGuid);
         }
       if( AssocTagValue)
         {
@@ -4586,6 +4639,20 @@ flag DXF_Drawing::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY
   while (pLay)
     {
     if (pLay->FindTag(Tag, pLastMatchingInsert, pLastMatchingAttr))
+      return true;
+    pLay = pLay->Nxt;
+    }
+  return NULL;
+  }
+
+// ---------------------------------------------------------------------------
+
+flag DXF_Drawing::FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  CGrfLayer * pLay = Layers;
+  while (pLay)
+    {
+    if (pLay->FindGuid(Guid, pLastMatchingInsert, pLastMatchingAttr))
       return true;
     pLay = pLay->Nxt;
     }

@@ -889,8 +889,8 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
   // TO Fix
   CString Shape = ExtractShape(ClassId);//Symbol);
 
-  FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(SrcTag, NULL);
-  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(DstTag, NULL);
+  //FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(SrcTag, NULL);
+  //FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(DstTag, NULL);
 
   DO_ENTRY_GTP("GCBCreateLink", "NULL-Guid", Tag, MakePath(Prj, Page));
 
@@ -932,6 +932,14 @@ void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid,
   // !!! tagArea not handled as yet.
 
   ON_ENTRY_GT("OnCreateLinkG", Guid, tag);
+
+#if WITHDBGLINES
+  if (dbgConnect())
+    {
+    dbgpln(" Src:%s", OriginGuid);                                 
+    dbgpln(" Dst:%s", DestinationGuid);                                 
+    }
+#endif
 
   try
   {

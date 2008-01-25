@@ -2180,7 +2180,7 @@ void GrfCmdBlk::DoInsert()
             else
 #endif
               {
-              CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), DoAddModel?CB->ATag():NULL, NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
+              CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->m_sGuid(), DoAddModel?CB->ATag():NULL, NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
               if (CB->e)
                 {
                 Strng TheGuid;
@@ -2396,7 +2396,7 @@ void GrfCmdBlk::DoChangeUnit()
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
 
             CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), 
-              CB->ATag(), AssocTag(),
+              (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), CB->ATag(), AssocTag(),
               CB->Pt.World, CB->Scl, CB->Rotate, True, Tag_Attr_Set);
             
             pDsp->Draw(CB->e, -1);
@@ -2698,7 +2698,9 @@ void GrfCmdBlk::DoChangeUnit()
 
             //pDsp->Show_Dig_Point(Pt1);
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
-            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->Scl, CB->Rotate, True, Tag_Attr_Set);
+            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(),
+                                   (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), 
+                                   CB->ATag(), NULL, CB->Pt.World, CB->Scl, CB->Rotate, True, Tag_Attr_Set);
             pDsp->Draw(CB->e, -1);
 
             pDsp->Vp1->ClearAllEntity();
@@ -3335,7 +3337,7 @@ bool GrfCmdBlk::DoInsertNodeGrf(CInsertBlk* CB, bool SkipTagTest)
 
   Tag_Attr_Set.Flags = HideTag ? DXF_ATTRIB_INVIS : 0;
 
-  CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
+  CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->m_sGuid(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
   if (CB->e)
     {
     if (CB->m_Rect.Width()>0)
@@ -3450,7 +3452,7 @@ bool GrfCmdBlk::DoInsertLinkGrf(CConnectBlk* CB, bool SkipTagTest)
   if (OK)
     {
     Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
-    CB->e = AddLink(NULL, CB->ATag(), CB->SrcTag(), CB->SrcIO(), CB->DstTag(), CB->DstIO(), ArrowScale, CB->Verts, CB->NVerts, Tag_Attr_Set);
+    CB->e = AddLink(NULL, (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), CB->ATag(), CB->SrcTag(), CB->SrcIO(), CB->DstTag(), CB->DstIO(), ArrowScale, CB->Verts, CB->NVerts, Tag_Attr_Set);
     pDsp->Draw(CB->e, GR_WHITE);
     pWnd->Invalidate();
     }
@@ -5628,7 +5630,7 @@ void GrfCmdBlk::DoConstructTie()
                 Pt_3f Scl(1.0, 1.0, 1.0);
                 float Rotate = (float)0.0;
                 Tag_Attr_Set.Flags = DXF_ATTRIB_INVIS; // Force It Off
-                DXF_ENTITY pEnt = AddUnitDrawing("", GrfSymb(), AClass(), ATag(), NULL, Pos, Scl, Rotate, True, Tag_Attr_Set);
+                DXF_ENTITY pEnt = AddUnitDrawing("", GrfSymb(), AClass(), (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), ATag(), NULL, Pos, Scl, Rotate, True, Tag_Attr_Set);
                 Like = pEnt;
                 if (pEnt)
                   {
@@ -11140,7 +11142,7 @@ void GrfCmdBlk::DoCfgLayers()
 
 //===========================================================================
 
-DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* ModelTyp, char* Tag, char* AssocTag, Pt_3f Pt, Pt_3f Scl, float Rotate, flag CompleteBlock, Attr_Settings &ASet, Pt_3f * TagPt)
+DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* ModelTyp, char* Guid, char* Tag, char* AssocTag, Pt_3f Pt, Pt_3f Scl, float Rotate, flag CompleteBlock, Attr_Settings &ASet, Pt_3f * TagPt)
   {
   if (DrawTyp_==NULL)
     DrawTyp_="??";
@@ -11233,7 +11235,7 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
       Scl.X, Scl.Y, Pt.X, Pt.Y, Ptt.X, Ptt.Y, (LPCTSTR)DrawBlockName, Tag);
     #endif
 
-    DXF_ENTITY e = pDrw->Create_Insert(DXF_BLOCK_NAME_GET(b->Def), Pt, GR_LIGHTGREEN, Scl, Rotate, Tag, AssocTag, Ptt, TagAttSet);
+    DXF_ENTITY e = pDrw->Create_Insert(DXF_BLOCK_NAME_GET(b->Def), Pt, GR_LIGHTGREEN, Scl, Rotate, Guid, Tag, AssocTag, Ptt, TagAttSet);
     if (AssocTag)
           pDrw->GetBounds();
     return e;
@@ -11270,7 +11272,7 @@ int GrfCmdBlk::AddUnitModel(char* ModelTyp, char* Tag, pchar pGuidStr)
 
 //---------------------------------------------------------------------------
 
-DXF_ENTITY GrfCmdBlk::AddLink(pchar Typ, pchar Tag,
+DXF_ENTITY GrfCmdBlk::AddLink(pchar Typ, pchar Guid, pchar Tag,
            pchar SrcTag, pchar SrcOut,
            pchar DstTag, pchar DstIn,
            double ArrowScale,
@@ -11351,7 +11353,7 @@ DXF_ENTITY GrfCmdBlk::AddLink(pchar Typ, pchar Tag,
       Link = b->Add_PLine_Start(ptmp.p());
     }
 
-  newinsert = pDrw->Create_Insert(nm, pti, GR_WHITE/*GR_LIGHTCYAN*/, sc, 0.0, Tag, NULL, ptt, ASet);
+  newinsert = pDrw->Create_Insert(nm, pti, GR_WHITE/*GR_LIGHTCYAN*/, sc, 0.0, Guid, Tag, NULL, ptt, ASet);
 
   if (Typ)
     {
@@ -11430,7 +11432,8 @@ DXF_ENTITY GrfCmdBlk::AddLinkDrawing(CLineDrawHelper & LDH)
   Attr_Settings SetMem=Tag_Attr_Set;
   Tag_Attr_Set.Size*=LDH.m_TagScale.X;
   Tag_Attr_Set.Rot=LDH.TagRotation();
-  DXF_ENTITY newinsert = pDrw->Create_Insert(nm, LDH.m_InsertPt, GR_WHITE/*GR_LIGHTCYAN*/, sc, LDH.TagRotation(), (LPTSTR)LDH.Tag(), (LPTSTR)LDH.AssocTag(), ptt, Tag_Attr_Set);
+  DXF_ENTITY newinsert = pDrw->Create_Insert(nm, LDH.m_InsertPt, GR_WHITE/*GR_LIGHTCYAN*/, sc, LDH.TagRotation(), 
+    NULL, (LPTSTR)LDH.Tag(), (LPTSTR)LDH.AssocTag(), ptt, Tag_Attr_Set);
   DXF_ENTITY_THICKNESS(newinsert) = LDH.LineWidth();
   Tag_Attr_Set=SetMem;
   LDH.SetAssocTag("");
@@ -11745,7 +11748,7 @@ void GrfCmdBlk::Do3DImport()
         Pos[0]=x0;
         Pos[1]=y0;
         Pos[2]=z0;
-        pEnt = AddUnitDrawing("", (char*)(const char*)AClass, (char*)(const char*)AClass, (char*)(const char*)ATag, NULL, Pos, Scl, Rotate, True, Tag_Attr_Set);
+        pEnt = AddUnitDrawing("", (char*)(const char*)AClass, (char*)(const char*)AClass, (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), (char*)(const char*)ATag, NULL, Pos, Scl, Rotate, True, Tag_Attr_Set);
         if (pEnt)
           {
           pDsp->Draw(pEnt, -1);
@@ -11881,7 +11884,7 @@ void GrfCmdBlk::Do3DImport()
 
         if (pEn0 && pEn1)
           {
-          pEnt = AddLink((char*)(const char*)AClass, (char*)(const char*)ATag, (char*)(const char*)SrcTag,
+          pEnt = AddLink((char*)(const char*)AClass, (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), (char*)(const char*)ATag, (char*)(const char*)SrcTag,
                          (char*)(const char*)ASrcIO, (char*)(const char*)DstTag, (char*)(const char*)ADstIO,
                          ArrowScale, CB->Verts, CB->NVerts, Tag_Attr_Set);
           if (pEnt)

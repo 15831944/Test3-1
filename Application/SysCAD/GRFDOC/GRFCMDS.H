@@ -458,13 +458,13 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     //void           DoShutDown();
     //void           DoDebug();
 
-    DXF_ENTITY     AddUnitDrawing(pchar TagBase,pchar DrawTyp, pchar ModelTyp, pchar Tag, pchar AssocTag,
+    DXF_ENTITY     AddUnitDrawing(pchar TagBase,pchar DrawTyp, pchar ModelTyp, char* Guid, pchar Tag, pchar AssocTag,
                                   Pt_3f Pt, Pt_3f Scl, float Rotate,
                                   flag CompleteBlock,
                                   Attr_Settings &ASet = Attr_Settings (50,0,1.5,1.0,0.0,GR_DARKGRAY,Text_Cntrd,Text_Baseline,"STANDARD"),
                                   Pt_3f * TagPt = NULL);
     int            AddUnitModel(pchar ModelTyp, pchar Tag, pchar pGuidStr=NULL);
-    DXF_ENTITY     AddLink(pchar Typ, pchar Tag,
+    DXF_ENTITY     AddLink(pchar Typ, char* Guid, pchar Tag,
                          pchar SrcTag, pchar SrcOut,
                          pchar DstTag, pchar DstIn,
                          double ArrowScale,

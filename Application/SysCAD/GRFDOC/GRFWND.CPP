@@ -591,8 +591,21 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
 
     CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
 
-    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
-    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+
+    //Strng SrcTag, DstTag;
+    //flag SrcLnk, DstLnk;
+
+    //if(!gs_pSfeSrvr->FE_FindNodeInfoFromGuid((LPSTR)OriginGuid, SrcTag, SrcLnk) ||
+    //   !gs_pSfeSrvr->FE_FindNodeInfoFromGuid((LPSTR)DestinationGuid, DstTag, DstLnk))
+    //  {
+    //  return EOSC_DONE;
+    //  }
+
+    DXF_ENTITY eInsert, eAttrib;
+    if (!Dsp.FindGuid((LPSTR)OriginGuid, eInsert, eAttrib) && !Dsp.FindGuid((LPSTR)DestinationGuid, eInsert, eAttrib))
+      {
+      return EOSC_DONE;
+      }
 
     CLineDrawHelper LDH;
     LDH.SetLineMethod(LDM_Direct); //todo user option

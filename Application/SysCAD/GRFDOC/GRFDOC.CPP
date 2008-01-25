@@ -309,6 +309,13 @@ BOOL CGrfDoc::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pL
 
 //---------------------------------------------------------------------------
 
+BOOL CGrfDoc::FindGuid(LPSTR Guid, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  return GCB.pDrw->FindGuid(Guid, pLastMatchingInsert, pLastMatchingAttr);
+  }
+
+//---------------------------------------------------------------------------
+
 void CGrfDoc::FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options)
   {
 
