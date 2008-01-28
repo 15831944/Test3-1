@@ -699,8 +699,6 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     int            ClearSelectedNodes();
     int            BuildSelectedNodeList(Strng_List & List);
 
-
-
   protected:
     static void    GetSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int& SplitCount);
     static void    PutSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int& SplitCount);
@@ -848,6 +846,9 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     void           SvcSave();
     void           Export2Scd10();
     void           Attach2Scd10();
+
+    void           Remove9Graphics();
+
 
     CSvcConnect  & getSvc()                 { return *m_pSvc; };
     bool           getSvcActive()           { return m_pSvc!=NULL; };

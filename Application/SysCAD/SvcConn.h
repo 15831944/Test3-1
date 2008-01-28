@@ -73,10 +73,12 @@ class CSvcConnect
     void Save();
 
     void LogMessage(DWORD Type, LPCSTR Msg);
+    void dbgPrintLn(LPCSTR Fmt, LPCSTR S0=NULL, LPCSTR S1=NULL, LPCSTR S2=NULL, LPCSTR S3=NULL, LPCSTR S4=NULL);
 
     //------------------------------------------------------------------------
 
-    void DoAttachProject(/*__int64 eventId, __int64 requestId, LPCSTR guid,*/ LPCSTR tag, LPCSTR path);
+    void DoOpenProject(LPCSTR tag, LPCSTR path);
+    void Remove9Graphics();
 
     //------------------------------------------------------------------------
 
@@ -97,6 +99,11 @@ class CSvcConnect
     static CGrfDoc      * FindGrfDoc(LPCSTR PageName);
     static CGrfWnd      * FindGrfWnd(LPCSTR PageName);
     static CString        ExtractShape(LPCSTR Symbol);
+
+    // Groups ----------------------------------------------------------------
+    // Operations
+    void GCBCreateGroup(LPCSTR Guid, LPCSTR Prj, LPCSTR Page, const CRectangleF & boundingRect);
+    //void GCBDeleteGroup(DXF_ENTITY eEntity, LPCSTR Tag);
 
     // Items -----------------------------------------------------------------
     // Operations

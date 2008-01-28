@@ -6613,7 +6613,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 
 
 #if SYSCAD10
-    m_pSvc = NULL;
+    //m_pSvc = NULL;
 #endif
 
     gs_ProjectOpenFlag++;
@@ -6688,7 +6688,6 @@ void CProject::Export2Scd10()
     }
   }
 
-
 void CProject::Attach2Scd10()
   {
   if (!m_pSvc)
@@ -6696,22 +6695,31 @@ void CProject::Attach2Scd10()
     m_pSvc = new CSvcConnect;
     m_pSvc->Startup();
 
-      CFlwNodeDefinitionList Defns;
-      //if (m_pSvc->RequestItemDefinitions(FlwUnitGrp, Defns)>0)
-      //  {
-      //  int xxx=0;
-      //  };
-
-      // Temporary
-      //m_pSvc->Export2Scd10(PrjName(), CfgFiles());
-
-      // CNM Removed - temp
-      //m_pSvc->Save();
-
     m_pSvc->Attach2Scd10();
     }
   }
 
+void CProject::Remove9Graphics()
+  {
+  dbgpln("CProject::Remove9Graphics()");
+
+  POSITION PosT = ScdApp()->GetFirstDocTemplatePosition();
+  while (PosT)
+    {
+    CDocTemplate* pTempl = ScdApp()->GetNextDocTemplate(PosT);
+    POSITION PosD = pTempl->GetFirstDocPosition();
+    while (PosD)
+      {
+      CDocument* pDoc = pTempl->GetNextDoc(PosD);
+      if (pDoc->IsKindOf(RUNTIME_CLASS(CGrfDoc)))
+        {
+        ((CGrfDoc*)pDoc)->OnCloseDocument();
+        }
+      }
+    }
+  };
+
+//---------------------------------------------------------------------------
 
 #endif
 
