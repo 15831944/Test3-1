@@ -2452,6 +2452,7 @@ int COleReportMngr::DoAutomation()
     Examples[3].Set("%s,B3,\"R2\")", OleKeys[3]);
     SendInfo("Search...");
     Strng CellNm;
+    bool FoundOneReport = false;
     for (int pass=0; pass<2; pass++)
       {
       for (short i=1; i<=Count; i++)
@@ -2463,8 +2464,7 @@ int COleReportMngr::DoAutomation()
           lpDispatch = WkSheet.Columns();
           R1.AttachDispatch(lpDispatch, TRUE);
           LPDISPATCH lpDis = R1.Find(pass==0 ? (char*)OleReportCommonKey : (char*)OleReportAutoKey);
-          //if (!lpDis)
-            //lpDis = R1.Find((char*)OleReportAutoKey);
+          //LogNote("Search", 0, "%s: Count:%d (%s)", pass==0 ? (char*)OleReportCommonKey : (char*)OleReportAutoKey, i, WkSheetNames[i-1]());
           short FirstRow = 0;
           short FirstCol = 0;
           while (lpDis)
@@ -2515,6 +2515,7 @@ int COleReportMngr::DoAutomation()
             int ReportFnErr = 0;
             if (OK)
               {
+              FoundOneReport = true;
               if (SearchTypes==2)
                 {
                 OffsetFnErr = R.ParseOffsetFn(Fn(), &WkSheet, RRow, RCol);
@@ -2647,7 +2648,14 @@ int COleReportMngr::DoAutomation()
     delete pExcel;
     pExcel = NULL;
     sw.Stop(); 
-    LogNote(OLEServerDesc(), 0, "Finished generating tag values report %s (Time:%s)", sFileName(), sw.MinSecDesc(cs));
+    if (FoundOneReport)
+      {
+      LogNote(OLEServerDesc(), 0, "Finished generating tag values report %s (Tags:%d,  Time:%s)", sFileName(), TtlTagFoundCnt, sw.MinSecDesc(cs));
+      }
+    else
+      {
+      LogWarning(OLEServerDesc(), 0, "Unable to find any report keywords (eg \"%s\" or \"%s\") in %s.", OleReportKey, OleReportListKey, sFileName());
+      }
     DoneBeep();
     }
   catch( COleDispatchException* e )
@@ -4126,6 +4134,7 @@ int COleSetTagsMngr::DoAutomation()
     LPDISPATCH lpDispatch;
     ORange R1,R2;
 
+    bool FoundOneReport = false;
     for (int SearchTypes=0; SearchTypes<3; SearchTypes++)
       {
       SendInfo("Search...");
@@ -4140,6 +4149,7 @@ int COleSetTagsMngr::DoAutomation()
       for (short i=1; i<=Count; i++)
       if (UserWkSheets[i-1])
         {
+        //LogNote("Search", 0, "%s: Count:%d (%s)", OleKey, i, WkSheetNames[i-1]());
         lpDispatch = WkBook.Worksheets(i);
         WkSheet.AttachDispatch(lpDispatch, TRUE);
         lpDispatch = WkSheet.Columns();
@@ -4149,6 +4159,8 @@ int COleSetTagsMngr::DoAutomation()
         short FirstCol = 0;
         while (lpDis)
           {
+          //LogNote("Found", 0, "%s: Count:%d (%s)", OleKey, i, WkSheetNames[i-1]());
+          FoundOneReport = true;
           CExcelSetTags R(this, &WkBook);
           R.bIsTagList = (SearchTypes!=0);
           R.bIsTagOffsetList = (SearchTypes==2);
@@ -4287,7 +4299,14 @@ int COleSetTagsMngr::DoAutomation()
     delete pExcel;
     pExcel = NULL;
     sw.Stop(); 
-    LogNote(OLEServerDesc(), 0, "Finished processing tag sets in %s (Time:%s)", sFileName(), sw.MinSecDesc(cs));
+    if (FoundOneReport)
+      {
+      LogNote(OLEServerDesc(), 0, "Finished processing tag sets in %s (Tags:%d,  Time:%s)", sFileName(), TtlTagFoundCnt, sw.MinSecDesc(cs));
+      }
+    else
+      {
+      LogWarning(OLEServerDesc(), 0, "Unable to find any process tag keywords (eg \"%s\" or \"%s\") in %s.", OleSetTagsKey, OleSetTagListKey, sFileName());
+      }
     DoneBeep();
     }
   catch( COleDispatchException* e )

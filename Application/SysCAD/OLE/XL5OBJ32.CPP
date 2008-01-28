@@ -27,8 +27,7 @@
 #include "sc_defs.h"
 #include "xl5obj32.h"
 #include "ole_base.h"
-
-#pragma optimize("", off)
+//#include "optoff.h"
 
 //===========================================================================
 
@@ -331,9 +330,25 @@ LPDISPATCH ORange::Find(char* pWhat)
   {
   LPDISPATCH lpDispatch;
   COleVariant What(pWhat);
-  static BYTE parms[] = VTS_VARIANT;
-  InvokeHelper(0x18e, DISPATCH_METHOD, VT_DISPATCH, (void*)&lpDispatch, parms, &What);
+  if (1)
+    {//KGA Jan2008: changed the find function to use XlPart and MatchCase=false because state of previous Excel find may be wrong
+    VARIANT argNULL;
+    VariantInit(&argNULL); 
+    V_VT(&argNULL) = VT_ERROR; 
+    V_ERROR(&argNULL) = DISP_E_PARAMNOTFOUND;
+    OVariant LookAt((unsigned char)2); //xlWhole==1; xlPart==2
+    BOOL bMatchCase = false;
+    OVariant MatchCase(bMatchCase);
+    static BYTE parms[] = VTS_VARIANT VTS_VARIANT VTS_VARIANT VTS_VARIANT;
+    InvokeHelper(0x18e, DISPATCH_METHOD, VT_DISPATCH, (void*)&lpDispatch, parms, &What, &argNULL, &argNULL, &LookAt, &argNULL, &argNULL, &MatchCase);
+    //Cells.Find(What:="SysCAD_", After:=ActiveCell, LookIn:=xlFormulas, LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, MatchCase:=False, SearchFormat:=False).Activate
+    }
+  else
+    {
+    static BYTE parms[] = VTS_VARIANT;
+    InvokeHelper(0x18e, DISPATCH_METHOD, VT_DISPATCH, (void*)&lpDispatch, parms, &What);
     //, &After, &LookIn, &LookAt, &SearchOrder, &SearchDirection, &MatchCase);
+    }
   return lpDispatch;
   }
 
