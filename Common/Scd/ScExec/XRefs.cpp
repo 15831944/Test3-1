@@ -697,7 +697,7 @@ bool CXRefItem::SetNearXRefValue()
           double d2=IsOneShotBtn ? 0 : m_TAB.GetDouble();
           if (!Finite(d1) && !Finite(d2))
             goto TheSame;
-          bool BothFinite=(Finite(d1) && Finite(d2));
+          const bool BothFinite=(Finite(d1) && Finite(d2));
           if (BothFinite)
             {
             if (InRange((double)-FLT_MAX, d1, (double)FLT_MAX) && InRange((double)-FLT_MAX, d2, (double)FLT_MAX))
@@ -725,7 +725,7 @@ bool CXRefItem::SetNearXRefValue()
                   d1, m_sRefTag(), m_sRmtTag());
           #endif
           POPIN("CXRefItem::SetNearXRefValue");
-          if (!IsOneShotBtn && LogXRefResets && fabs(d1-d2)>1.0e-6*Max(fabs(d1), fabs(d2)))
+          if (!IsOneShotBtn && LogXRefResets && BothFinite && fabs(d1-d2)>1.0e-6*Max(fabs(d1), fabs(d2)))
             {
             if (m_TAB.CnvIndex()>0)
               {
