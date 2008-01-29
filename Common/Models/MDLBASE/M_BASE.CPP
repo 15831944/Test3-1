@@ -51,10 +51,10 @@ CSurgeControl::CSurgeControl()
   m_bEnabled        = false;
   m_bOn             = true;
   m_iType           = SC_Level;
-  m_dLevelSPT       = 0.5;         //kg
+  m_dLevelSPT       = 0.5;         //frac
   m_dMassSPT        = 0;           //kg
   m_dVolumeSPT      = 0;           //m^3
-  m_iStreamIndex    = -1;
+  m_iStreamIndex    = -2;
   m_dQmCalc         = 0;           //kg/s
 
   m_dQmMin          = 0;           //kg/s
@@ -76,16 +76,16 @@ CSurgeControl::CSurgeControl()
 void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd)
   {
   DDBValueLstMem DDBSt;
-  DDBSt.Add(-1, " ");
+  DDBSt.Add(-1, "-");
   int i;
   for (i=0; i<pNd->NoProcessIOs(); i++)
     {
     //if (pNd->IO_Out(i))
       {
-      if (m_iStreamIndex<0 && pNd->IOId_Rmt(i)==0)
-        m_iStreamIndex = i; //default to a reasonable stream
-      DDBSt.Add(i, pNd->Nd_Rmt(i)->Tag(), pNd->IOId_Rmt(i)==0?0:MDD_Hidden);
-      //DDBSt.Add(i, pNd->Nd_Rmt(i)->Tag(), pNd->IO_OutGEZ(i)?0:MDD_Hidden);
+      if (m_iStreamIndex<-1 && !DDB.ForFiling() && pNd->IOId_Rmt(i)==0)
+        m_iStreamIndex = i; //default to a reasonable stream (first time in)
+      const dword flags = pNd->IOId_Rmt(i)==0 ? 0 : MDD_Hidden; //pNd->IO_OutGEZ(i)?0:MDD_Hidden;
+      DDBSt.Add(i, pNd->Nd_Rmt(i)->Tag(), flags);
       }
     }
   static DDBValueLst DDBType[]=
@@ -96,7 +96,7 @@ void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd)
       {0},
     };
 
-  DDB.Visibility(m_bEnabled ? SM_DynBoth:0);
+  DDB.Visibility(m_bEnabled ? SM_DynBoth : 0);
   //DDB.Text("Level control...");
   if (DDB.BeginStruct(pNd, (char*)Tag))//.Text("Level control...");
     {
@@ -1474,7 +1474,7 @@ void MdlNode::DistributeSlurry(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & 
   SpConduit   & ContentFlw  = HO.ContentFlw();
   SpConduit   & VapourFlw   = HO.VapourFlw();
 
-  int iLvlCtrl=pControl ? pControl->StreamIndex() : -1;
+  const int iLvlCtrl=pControl ? pControl->StreamIndex() : -1;
   Contents.SetCI(7, pControl && pControl->m_iStreamIndex<0 && pControl->m_bOn && pControl->m_bEnabled);
   
   bool DoneIt[MaxIOList];
@@ -1696,12 +1696,15 @@ void MdlNode::DistributeSlurry(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & 
           switch (pControl->m_iType)
             {
             case SC_Level:
+              pControl->m_dLevelSPT = Range(0.0, pControl->m_dLevelSPT, 1.0); //force range to be valid
               VolFlwRetCtrl=Contents.ShapeVolume()*GEZ(pControl->m_dLevelSPT-IORelFracHgt_Flng(iLvlCtrl))/ICGetTimeInc();
               break;
             case SC_Mass:
+              pControl->m_dMassSPT = Max(0.0, pControl->m_dMassSPT); //cannot test for maximum
               VolFlwRetCtrl=GEZ(pControl->m_dMassSPT/GTZ(ContentFlw.Rho(som_SL))-Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo))/ICGetTimeInc();
               break;
             case SC_Volume:
+              pControl->m_dVolumeSPT = Max(0.0, pControl->m_dVolumeSPT); //cannot test for maximum
               VolFlwRetCtrl=GEZ(pControl->m_dVolumeSPT-Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo))/ICGetTimeInc();
               break;
             }
