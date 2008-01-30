@@ -19,7 +19,7 @@ const DWORD BEO_StateSemantics  = 0x00000001;
 const DWORD BEO_WithMakeups     = 0x00000002;
 const DWORD BEO_WithBleeds      = 0x00000004;
 
-class DllImportExport CBlockEvaluator
+class DllImportExport CBlockEvaluator : public CBlockEvalStateSemantics
   {
   friend class CBlockEvalBase;
 
@@ -54,10 +54,9 @@ class DllImportExport CBlockEvaluator
     void              BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs=DDB_RqdPage);
     flag              DataXchg(DataChangeBlk & DCB);
     flag              ValidateData(ValidateDataBlk & VDB, bool AllowStateSemantics);
-    //int               DefBlkSeqNo(byte SeqID);
-    //int               BlkSeqNo(byte SeqID);
-    //void              SetBlkSeqNo(byte SeqID, byte No);
     void              BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence, LPCSTR StateName);
+
+    virtual bool      StateSemanticsOn(); // override of CBlockEvalStateSemantics::StateSemanticsOn
 
     void              SortBlocks();
 
@@ -88,8 +87,6 @@ class DllImportExport CBlockEvaluator
   protected:
     FlwNode         * m_pNd;
     int               m_nBlocks;
-    //int               m_nBEInSeq;
-    //byte              m_BEInSeq[MaxBEBlocks+1];
     CBlockEvalBase  * m_Blks[MaxBEBlocks+1];
 
 
@@ -103,8 +100,6 @@ class DllImportExport CBlockEvaluator
     CArray <CBleedBase*, CBleedBase*> m_pBleeds;
 
     DWORD             m_Options;
-    bool              m_bAllowStateSemantics;
-    //bool              m_bIsSurgeType;
 
     Strng             m_sBlkSeqFeed;
     Strng             m_sBlkSeqState;

@@ -12,7 +12,7 @@ CBlockEvalBase::CBlockEvalBase(byte BEId, int Index, LPTSTR Name, bool DefinesSt
   m_iBlkSeqNo               = 0;
   m_iDefBlkSeqNo            = 255;      
   m_bDefinesStateSemantics  = DefinesStateSemantics;
-  m_bAllowStateSemantics    = false;
+  m_pBlkStateSemantics      = NULL;
   m_pOnOffValLst            = NULL;
   }
 
@@ -20,27 +20,21 @@ CBlockEvalBase::~CBlockEvalBase(void)
   {
   }
 
-//void CBlockEvalBase::BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence, LPCSTR StateName)
-//  {
-//  ValLst->Empty();
-//  ValLst->Add(BlkEval_Off, "Off");
-//  ValLst->Add(BlkEval_On, "On");
-//  for (int i=0; i<NInSequence; i++)
-//    ValLst->Add(BlkEval_First+i, SeqNames[i]);
-//  if (StateName && m_bHasStateSemantics)
-//    ValLst->Add(BlkEval_State, (LPSTR)StateName);
-//  };
+bool CBlockEvalBase::StateSemanticsOn()
+  { 
+  bool On = m_bDefinesStateSemantics && m_bUsingStateSemantics && (BlkSeqNo()>=BlkEval_State); 
+  if (On && m_pBlkStateSemantics)
+    return m_pBlkStateSemantics->StateSemanticsOn();
+  return false;
+  };
 
 void CBlockEvalBase::SetOnOffValLst(DDBValueLstMem  * ValLst/*, DDBValueLstMem  * StateValLst*/)
   {
   m_pOnOffValLst = ValLst; 
-  /*m_pOnOffStateValLst = StateValLst;*/
   };
 
 DDBValueLst * CBlockEvalBase::GetOnOffValLst(/*bool WithState*/)
   {
-  //DDBValueLstMem * Lst = WithState ? m_pOnOffStateValLst : m_pOnOffValLst;
-  //return Lst ? Lst->Item(0) : &DDBOnOff[0]; 
   return m_pOnOffValLst ? m_pOnOffValLst->Item(0) : &DDBOnOff[0]; 
   };
 
@@ -79,7 +73,6 @@ byte CBlockEvalBase::BlkSeqNo(bool ForSort)
 LPTSTR CBlockEvalBase::Name()
   {
   return m_sName();
-  //return Strng(Names[m_BEId]);
   }
 
 

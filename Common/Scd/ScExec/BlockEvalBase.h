@@ -27,6 +27,22 @@ const byte BEId_Bleed        = 7;
 
 class CBlockEvaluator; // forward
 
+class DllImportExport CBlockEvalStateSemantics
+  {
+  friend class CBlockEvaluator;
+  friend class CBlockEvalBase;
+  public:
+    CBlockEvalStateSemantics(bool AllowStateSemantics)
+      {
+      m_bAllowStateSemantics = AllowStateSemantics;
+      }
+
+    virtual bool      StateSemanticsOn() { return m_bAllowStateSemantics; };
+
+  protected:
+    bool              m_bAllowStateSemantics;
+  };
+
 class DllImportExport CBlockEvalBase
   {
   friend class CBlockEvaluator;
@@ -34,8 +50,6 @@ class DllImportExport CBlockEvalBase
     CBlockEvalBase(byte BEId, int Index, LPTSTR Name, bool DefinesStateSemantics);
   public:
     virtual ~CBlockEvalBase(void);
-
-    //static void       BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence, LPCSTR StateName);
 
     byte              BEId()                       { return m_BEId; };
     int               Index()                      { return m_Index; };
@@ -47,10 +61,10 @@ class DllImportExport CBlockEvalBase
     void              SetDefBlkSeqNo(byte SeqNo)   { m_iDefBlkSeqNo=SeqNo; };
 
 
-    void              SetOnOffValLst(DDBValueLstMem  * ValLst/*, DDBValueLstMem * StateValLst*/);
-    DDBValueLst     * GetOnOffValLst(/*bool WithState=false*/);
+    void              SetOnOffValLst(DDBValueLstMem  * ValLst);
+    DDBValueLst     * GetOnOffValLst();
 
-    bool              StateSemanticsOn()           { return m_bAllowStateSemantics && m_bDefinesStateSemantics && m_bUsingStateSemantics && (BlkSeqNo()>=BlkEval_State); };
+    bool              StateSemanticsOn();
     void              Open(byte L);
     byte              OpenStatus(flag Enabled);
 
@@ -62,16 +76,14 @@ class DllImportExport CBlockEvalBase
 
 
   protected:
-    //CBlockEvaluator * m_pEvaluator;
     byte              m_iBlkSeqNo;
     byte              m_iDefBlkSeqNo;
     byte              m_BEId;
     int               m_Index;
     bool              m_bDefinesStateSemantics;
     bool              m_bUsingStateSemantics;
-    bool              m_bAllowStateSemantics;
+    CBlockEvalStateSemantics * m_pBlkStateSemantics;
     DDBValueLstMem  * m_pOnOffValLst;
-    //DDBValueLstMem  * m_pOnOffStateValLst;
     Strng             m_sName;
 
   };
