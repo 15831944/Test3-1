@@ -218,7 +218,21 @@ namespace SysCAD.Editor
 
     public bool Selected
     {
-      get { return selected; }
+    get
+      {
+      if (ModelBox != null)
+        {
+        return ModelBox.Selected || GraphicBox.Selected || TextBox.Selected;
+        }
+      else if (GraphicBox != null)
+        {
+        return GraphicBox.Selected || TextBox.Selected;
+        }
+      else
+        {
+        return TextBox.Selected;
+        }
+      }
       set
       {
         selected = value;

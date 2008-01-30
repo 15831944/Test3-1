@@ -544,6 +544,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\Downtime.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\EventsCon.cpp"
 				>
 			</File>
@@ -644,6 +648,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\TimingStructs.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Transmitter.cpp"
 				>
 			</File>
@@ -662,6 +670,10 @@
 			</File>
 			<File
 				RelativePath=".\CtrlLink.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\Downtime.h"
 				>
 			</File>
 			<File
@@ -722,6 +734,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\SMDK\Kenwalt\Control1\TimingStructs.h"
 				>
 			</File>
 			<File

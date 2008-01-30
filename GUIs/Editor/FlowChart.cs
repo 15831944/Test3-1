@@ -412,7 +412,7 @@ namespace SysCAD.Editor
         }
         else
         {
-          state.ClientProtocol.LogMessage(out requestId, "ModelNode missing for GraphcLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
+          state.ClientProtocol.LogMessage(out requestId, "ModelNode missing for GraphicLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
         }
       }
 
@@ -421,11 +421,11 @@ namespace SysCAD.Editor
         ModelLink modelLink;
         if (state.ClientProtocol.model.Links.TryGetValue(graphicLink.ModelGuid, out modelLink))
         {
-          //state.CreateLink(modelLink, graphicLink);
+          state.CreateLink(modelLink, graphicLink);
         }
         else
         {
-          state.ClientProtocol.LogMessage(out requestId, "ModelLink missing for GraphcLink (Tag: " + graphicLink.Tag + ", Guid: " + graphicLink.Guid + ")", SysCAD.Log.MessageType.Error);
+          state.ClientProtocol.LogMessage(out requestId, "ModelLink missing for GraphicLink (Tag: " + graphicLink.Tag + ", Guid: " + graphicLink.Guid + ")", SysCAD.Log.MessageType.Error);
         }
       }
 
@@ -1825,34 +1825,39 @@ namespace SysCAD.Editor
     {
       if (modified != null)
       {
-        foreach (Guid guid in modified)
+      foreach (Guid guid in modified)
         {
-          GraphicNode graphicNode = null;
-          GraphicLink graphicLink = null;
+        GraphicNode graphicNode = null;
 
-          if (state.ClientProtocol.graphic.Nodes.TryGetValue(guid, out graphicNode))
+        if (state.ClientProtocol.graphic.Nodes.TryGetValue(guid, out graphicNode))
           {
-            ModelNode modelNode;
-            if (state.ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
+          ModelNode modelNode;
+          if (state.ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
             {
-              state.ModifyNode(modelNode, graphicNode);
+            state.ModifyNode(modelNode, graphicNode);
             }
-            else
+          else
             {
-              state.ClientProtocol.LogMessage(out requestId, "Modify: ModelNode missing for GraphcLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
+            state.ClientProtocol.LogMessage(out requestId, "Modify: ModelNode missing for GraphcLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
             }
           }
 
-          if (state.ClientProtocol.graphic.Links.TryGetValue(guid, out graphicLink))
+        }
+
+      foreach (Guid guid in modified)
+        {
+        GraphicLink graphicLink = null;
+
+        if (state.ClientProtocol.graphic.Links.TryGetValue(guid, out graphicLink))
           {
-            ModelLink modelLink;
-            if (state.ClientProtocol.model.Links.TryGetValue(graphicLink.ModelGuid, out modelLink))
+          ModelLink modelLink;
+          if (state.ClientProtocol.model.Links.TryGetValue(graphicLink.ModelGuid, out modelLink))
             {
-              state.ModifyLink(modelLink, graphicLink);
+            state.ModifyLink(modelLink, graphicLink);
             }
-            else
+          else
             {
-              state.ClientProtocol.LogMessage(out requestId, "Modify: ModelLink missing for GraphcLink (Tag: " + graphicLink.Tag + ", Guid: " + graphicLink.Guid + ")", SysCAD.Log.MessageType.Error);
+            state.ClientProtocol.LogMessage(out requestId, "Modify: ModelLink missing for GraphcLink (Tag: " + graphicLink.Tag + ", Guid: " + graphicLink.Guid + ")", SysCAD.Log.MessageType.Error);
             }
           }
         }

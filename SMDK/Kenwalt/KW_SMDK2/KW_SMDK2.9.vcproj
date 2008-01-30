@@ -522,10 +522,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\Downtime.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Filter Press.cpp"
 				>
 			</File>
@@ -656,10 +652,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TimingStructs.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TubeDigester.cpp"
 				>
 			</File>
@@ -672,10 +664,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
-			<File
-				RelativePath=".\Downtime.h"
-				>
-			</File>
 			<File
 				RelativePath=".\Filter Press.h"
 				>
@@ -714,10 +702,6 @@
 			</File>
 			<File
 				RelativePath=".\Tailings Graphic.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TimingStructs.h"
 				>
 			</File>
 		</Filter>

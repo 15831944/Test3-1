@@ -211,7 +211,7 @@ ref class CSvcConnectCLRThread
         This is where import goes
         */
 
-        clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
+        //clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
 
         ////////////////////////////////
         ////////////////////////////////
@@ -303,6 +303,21 @@ ref class CSvcConnectCLRThread
 
         config = attachProjectForm->Config;
         clientProtocol = attachProjectForm->ClientProtocol;
+
+
+        // Connect to graphic data.
+
+        engineProtocol = gcnew EngineProtocol();
+        engineProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Engine/" + clientProtocol->Name));
+        engineProtocol->Connect("SysCAD9.1\nConnection: Engine");
+
+        // This will allow the editor to create/delete in addition to modify after the project loads.
+        __int64 requestId;
+        engineProtocol->ChangeState(requestId, SysCAD::Protocol::EngineBaseProtocol::RunState::Edit);
+
+        engineProtocol->PortInfoRequested += gcnew EngineProtocol::PortInfoRequestedHandler(this, &CSvcConnectCLRThread::PortInfoRequested);
+
+        //clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
 
         // now load 9
         m_pConn->DoOpenProject(ToCString(clientProtocol->Name), ToCString(clientProtocol->Path));

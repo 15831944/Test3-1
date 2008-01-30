@@ -408,6 +408,7 @@ namespace SysCAD.Editor
           {
             item.Selected = true;
           }
+          item.UpdateVisibility();
         }
 
         if (frmFlowChart.FlowChart.ActiveObject is Arrow)

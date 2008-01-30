@@ -1597,12 +1597,6 @@ namespace SysCAD.Editor
         Box modelBox = editorNode.ModelBox;
         Box textBox = editorNode.TextBox;
 
-        if (textBox != null)
-          {
-          textBox.BoundingRect = graphicNode.TagArea;
-          textBox.RotationAngle = (float)graphicNode.TagAngle;
-          }
-
         if (graphicBox != null)
           {
           graphicBox.BoundingRect = graphicNode.BoundingRect;
@@ -1633,7 +1627,14 @@ namespace SysCAD.Editor
           modelBox.AnchorPattern = GetAnchorPattern(modelStencil, editorNode);
 
           }
+        if (textBox != null)
+          {
+          textBox.BoundingRect = graphicNode.TagArea;
+          textBox.RotationAngle = (float)graphicNode.TagAngle;
+          }
 
+
+        editorNode.UpdateVisibility();
         //if (
         //else
         //{
