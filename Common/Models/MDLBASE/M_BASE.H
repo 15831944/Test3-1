@@ -61,7 +61,7 @@ class DllImportExport CSurgeControl
     CSurgeControl();
     //void DoEvalCtrl(FlwNode* pNd);
     //void CalcIOOut(FlwNode* pNd);
-    void      BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd);
+    void      BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd, bool Closed);
     int       StreamIndex() { return (m_bEnabled && m_bOn) ? m_iStreamIndex : -1; };
     void      StartStep();
 
@@ -72,6 +72,7 @@ class DllImportExport CSurgeControl
     double    m_dLevelSPT;      //Frac
     double    m_dMassSPT;       //kg
     double    m_dVolumeSPT;     //m^3
+    double    m_dPressSPT;      //kPa
     short     m_iStreamIndex;
 
     double    m_dQmCalc;        //kg/s
@@ -231,7 +232,7 @@ class DllImportExport MdlNode : public FlwNode
     virtual void   EvalProductsInit_Node(EvalProductsInitTasks Task, IDMask IOIds);
     virtual void   EvalProductsInit_Link(EvalProductsInitTasks Task);
 
-    virtual void   EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
+    virtual void   EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL, SpConduit *pQFeed=NULL);
     void           TranslateFilters(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & HgtOrdInfo);
     void           DistributeSlurry(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
     void           DistributeVapours(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);

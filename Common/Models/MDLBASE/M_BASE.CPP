@@ -54,7 +54,8 @@ CSurgeControl::CSurgeControl()
   m_dLevelSPT       = 0.5;         //frac
   m_dMassSPT        = 0;           //kg
   m_dVolumeSPT      = 0;           //m^3
-  m_iStreamIndex    = -2;
+  m_dPressSPT       = StdPress();
+  m_iStreamIndex    = -1;
   m_dQmCalc         = 0;           //kg/s
 
   m_dQmMin          = 0;           //kg/s
@@ -73,7 +74,7 @@ CSurgeControl::CSurgeControl()
 
 //--------------------------------------------------------------------------
 
-void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd)
+void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd, bool Closed)
   {
   DDBValueLstMem DDBSt;
   DDBSt.Add(-1, "-");
@@ -109,6 +110,9 @@ void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd)
     DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_iType==SC_Volume);
     DDB.Double  ("",   "SPT.Volume",  DC_Vol,  "m^3",    &m_dVolumeSPT,     pNd, isParm);
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+
+    DDB.Double  ("",   "SPT.Press",   DC_P,    "kPaG",    &m_dPressSPT,     pNd, isParm);
+
     //if (iStreamIndex>=0)
     DDB.Short   ("",   "Stream",      DC_ ,       "",         &m_iStreamIndex,   pNd, isParmStopped, DDBSt());
 
@@ -2053,7 +2057,7 @@ void MdlNode::DistributeVentsSpills(flag InLine, flag InEvalProdSurge, CHgtOrdIn
 
 //--------------------------------------------------------------------------
 
-void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & HO, CSurgeControl *pControl)
+void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & HO, CSurgeControl *pControl, SpConduit *pQFeed)
   {
 #if dbgDerivs
   long dbg1=dbgDerivsSrg1(FullObjTag()) || fDoDbgBrk && dbgDerivsSrg1DbgBrk(FullObjTag());
@@ -2090,8 +2094,23 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
     }
 #endif
 
-  if (InLine)
+  if (1)//InLine)
     {
+    if (pQFeed)
+      {
+      double FeedEntRate=1.0; 
+      ContentFlw.QAddF(*pQFeed, som_SL, 1.0);
+      ContentFlw.QAddF(*pQFeed, som_Gas, FeedEntRate);
+      VapourFlw.QAddF(*pQFeed, som_Gas, 1.0-FeedEntRate);
+#if dbgDerivs
+      if (dbgso)
+        dbgpln("ConduitFlw     %15.6f %15.6f %15.6f kg/s @ EntRate %6s  %s", 
+        pQFeed->QMass(som_Sol), pQFeed->QMass(som_Liq), pQFeed->QMass(som_Gas),
+        "", "QFeed"/*IOEntrainRateG(iIONo)*100, IODesc_Self(iIONo)->m_pName*/);
+#endif
+      }
+    else
+      {
     for (int iIONo= 0; iIONo< NoMaterialIOs(); iIONo++)
       {
       if (IOQm_In(iIONo)>0.0)
@@ -2106,6 +2125,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
           IOEntrainRateG(iIONo)*100, IODesc_Self(iIONo)->m_pName);
 #endif
         }
+      }
       }
 
 #if dbgDerivs

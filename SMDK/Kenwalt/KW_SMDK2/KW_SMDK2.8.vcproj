@@ -669,10 +669,6 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath=".\Downtime.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Filter Press.h"
 				>
 			</File>
@@ -710,10 +706,6 @@
 			</File>
 			<File
 				RelativePath=".\Tailings Graphic.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TimingStructs.h"
 				>
 			</File>
 		</Filter>

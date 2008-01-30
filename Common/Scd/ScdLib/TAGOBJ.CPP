@@ -2206,6 +2206,32 @@ void DataDefnBlk::DumpAllChecks()
 //
 //===========================================================================
 
+CString CObjectCountBlk::ToString()
+  {
+  CString S;
+  S.Format("Sys:%i Nodes:%i Lnks:%i Flngs:%i Conns:%i" ,
+    m_nSystemCount, m_nNodeCount, m_nLinkCount, m_nFlangeCount, m_nConnCount);
+  return S;
+  };
+
+CString CObjectCountBlk::ToStringOf(CObjectCountBlk & Of)
+  {
+  CString S;
+  S.Format("Sys:%i/%i Nodes:%i/%i Lnks:%i/%i Flngs:%i/%i Conns:%i/%i" ,
+    m_nSystemCount, Of.m_nSystemCount,
+    m_nNodeCount,   Of.m_nNodeCount,  
+    m_nLinkCount,   Of.m_nLinkCount,  
+    m_nFlangeCount, Of.m_nFlangeCount,  
+    m_nConnCount, Of.m_nConnCount);
+  return S;
+  };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 FilingControlBlock::FilingControlBlock(char * Root, char * Label, TOFilingTypes Type)
   {
   sRoot=Root;

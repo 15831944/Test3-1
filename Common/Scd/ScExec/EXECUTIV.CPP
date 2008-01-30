@@ -5693,11 +5693,13 @@ int  CExecutive::DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPr
   FilingControlBlock FCB(pRoot, DefaultCfgLabel, TOF_DBase);
   if (pOldPrjFiles)
     FCB.SetSaveAs(pOldPrjFiles);
-  int nObjs=0;
-  int nCons=0;
+  //int nObjs=0;
+  //int nCons=0;
   Strng Fn;
   Fn.Set("%sOther.dat", pRoot);
 
+  m_ObjCounts.Clear();
+  int n=0;
   HANDLE H=CreateFile(Fn(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
   if (H!=INVALID_HANDLE_VALUE)
     {
@@ -5730,9 +5732,13 @@ int  CExecutive::DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPr
         // l1-=GetTickCount();
         while (r->EO_SaveDefinedData(FCB, Tag, XM))
           {
-          int n=nObjs+1;
+          n++;
+          //int n=nObjs+1;
           if ((n%Min(n,10))==0)
-            CDlgBusy::SetLine(3, "Saving Object : %i", n);
+            {
+            CDlgBusy::SetLine(3, "Saving %s" , FCB.m_Counts.ToString());
+            //CDlgBusy::SetLine(3, "Saving Object : %i", n);
+            }
           DWORD StartPos, EndPos;
           // l1+=GetTickCount();
           #if dbgExecutive
@@ -5748,7 +5754,7 @@ int  CExecutive::DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPr
             if (pPItem)//!pData->List.EndOfList(/*pPItem*/))
               {
               TagDB.SaveObject("Node", pData);
-              nObjs++;
+              //nObjs++;
               }
             }
 
@@ -5778,7 +5784,7 @@ int  CExecutive::DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPr
             }
           XM.Clear();
           }
-        CDlgBusy::SetLine(3, "Saving Object : %i", nObjs);
+        //CDlgBusy::SetLine(3, "Saving Object : %i", nObjs);
 
         WrtOK&=SetEndOfFile(H);
         }
@@ -5810,22 +5816,26 @@ int  CExecutive::DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPr
 
           n++;
           if ((n%Min(n,10))==0)
-            CDlgBusy::SetLine(3, "Saving Connection: %i", n);
+            {
+            //CDlgBusy::SetLine(3, "Saving Connection: %i", n);
+            CDlgBusy::SetLine(3, "Saving %s", FCB.m_Counts.ToString());
+            }
           while (XM.MsgAvail())
             {
             CXM_ObjectData* pObjData=XM.ObjectData();
             TagDB.SaveObject("Conn", pObjData);
             }
 
-          nCons++;
+          //nCons++;
           XM.Clear();
           }
-        CDlgBusy::SetLine(3, "Saving Connection: %i", nCons);
+//        CDlgBusy::SetLine(3, "Saving Connection: %i", nCons);
         r->EO_EndSave(FCB);
         }
       }
 
-    CDlgBusy::SetLine(3, "Saved %i objects (and %i connections)", nObjs, nCons);
+//    CDlgBusy::SetLine(3, "Saved %i objects (and %i connections)", nObjs, nCons);
+//    CDlgBusy::SetLine(3, "Saved %s", FCB.m_Counts.ToString());
 
     SSFileRecType eType=SS_End;
     WrtOK&=WriteFile(H, &eType, sizeof(eType), &nBytesWritten, NULL);
@@ -5853,7 +5863,8 @@ int  CExecutive::DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPr
   SaveTime.Stop();
   double SaveSecs = SaveTime.Secs();
   const long SaveMin = (long)floor(SaveSecs/60.0);
-  LogNote("DataBase", 0, "%i Objects Saved (%d:%02d)", nObjs, SaveMin, (long)floor(SaveSecs-(60.0*(double)SaveMin)));
+  //LogNote("DataBase", 0, "%i Objects Saved (%d:%02d)", nObjs, SaveMin, (long)floor(SaveSecs-(60.0*(double)SaveMin)));
+  LogNote("DataBase", 0, "Saved %s (Time:%d:%02d)" , FCB.m_Counts.ToString(), SaveMin, (long)floor(SaveSecs-(60.0*(double)SaveMin)));
 
   return SvDBFmt;
   };
@@ -5915,6 +5926,8 @@ int CExecutive::DoLoadDBaseOpen(CLoadDBInfo & LDBI)
   LDBI.m_TagDB.FindRevisionNo(DBRev_MostRecent);
   LDBI.m_TagDB.StartLoadSequence("Node");
 
+  m_ObjCounts.Clear();
+
   return !LDBI.m_Failed;
   }
 
@@ -5925,7 +5938,6 @@ int CExecutive::DoLoadDBaseCreate(CLoadDBInfo & LDBI)
   STARTPROGRESS;
   
   int n=0;
-  LDBI.m_nObjs=0;
   for (int OInx=0; !LDBI.m_Cancelled && OInx<Objs_Reg.GetSize(); OInx++)
     {
     CExecObj * r=Objs_Reg[OInx];
@@ -5935,6 +5947,8 @@ int CExecutive::DoLoadDBaseCreate(CLoadDBInfo & LDBI)
 
       CXMsgLst XM;
       CStopWatch Elapsed, LOSW, TLOSW;
+
+      LDBI.m_FCB.m_Counts.Clear();
 
       Elapsed.Start();
       TLOSW.Start();
@@ -5951,7 +5965,7 @@ int CExecutive::DoLoadDBaseCreate(CLoadDBInfo & LDBI)
         n++;
         if ((n%Min(n,10))==0)
           {
-          CDlgBusy::SetLine(3, "Creating Object :%i" ,n);
+          CDlgBusy::SetLine(3, "Building %s" , LDBI.m_FCB.m_Counts.ToString());
           XFlushAppMsgQ();
           }
         LDBI.m_Cancelled=CDlgBusy::IsCancelled();
@@ -5962,7 +5976,6 @@ int CExecutive::DoLoadDBaseCreate(CLoadDBInfo & LDBI)
 
         if (!r->EO_LoadDefinedData(LDBI.m_FCB, XM))
           LDBI.m_Failed=true;
-        LDBI.m_nObjs++;
         #if dbgStats
         //if ((n%10)==0)
           dbgpln("Create TmElapsed %i, %10.5f/Obj",n,Elapsed.Secs()/Max(1,n));
@@ -5972,10 +5985,13 @@ int CExecutive::DoLoadDBaseCreate(CLoadDBInfo & LDBI)
         }
       TLOSW.Stop();
       LOSW.Stop();
-      CDlgBusy::SetLine(3,"Creating Object :%i",n);
+      //CDlgBusy::SetLine(3, "Created %s" , LDBI.m_FCB.m_Counts.ToString());
+      m_ObjCounts=LDBI.m_FCB.m_Counts;
 
-      dbgpln("EO_LoadDB %-15s Create    %8.3g = %8.5g/Obj [LO:%8.3f]",
-             r->sName(),Elapsed.Secs(),Elapsed.Secs()/Max(1L,LDBI.m_nObjs), LOSW.Secs());
+      //dbgpln("EO_LoadDB %-15s Creation System:%2i  Nodes:%3i  Links:%3i" ,
+      //  r->sName(),LDBI.m_FCB.m_Counts.m_nSystemCount ,LDBI.m_FCB.m_Counts.m_nNodeCount ,LDBI.m_FCB.m_Counts.m_nLinkCount,
+      //  Elapsed.Secs(),Elapsed.Secs()/Max(1L,LDBI.m_nObjs), LOSW.Secs());
+
       Elapsed.ReStart();
 
       LDBI.m_FCB.SetCreateObj(false);
@@ -6017,7 +6033,8 @@ int CExecutive::DoLoadDBaseConnect(CLoadDBInfo & LDBI)
             n++;
             if ((n%Min(n,10))==0)
               {
-              CDlgBusy::SetLine(3,"Creating Connection :%i",n);
+              //CDlgBusy::SetLine(3,"Creating Connection :%i",n);
+              CDlgBusy::SetLine(3, "Building %s" , LDBI.m_FCB.m_Counts.ToString());
               XFlushAppMsgQ();
               }
             LDBI.m_Cancelled=CDlgBusy::IsCancelled();
@@ -6034,12 +6051,16 @@ int CExecutive::DoLoadDBaseConnect(CLoadDBInfo & LDBI)
           }
         TLOSW.Stop();
         LOSW.Stop();
-        CDlgBusy::SetLine(3, "Creating Connection :%i", n);
+        CDlgBusy::SetLine(3, "Building %s" , LDBI.m_FCB.m_Counts.ToString());
+        //CDlgBusy::SetLine(3, "Creating Connection :%i", n);
 
         dbgpln("EO_LoadDB %-15s Connect   %8.3g = %8.5g/Obj [LO:%8.3f]",r->sName(),Elapsed.Secs(),Elapsed.Secs()/Max(1,n), LOSW.Secs());
         Elapsed.ReStart();
         }
       }
+
+    m_ObjCounts=LDBI.m_FCB.m_Counts;
+
     for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
       if (OInx<LDBI.m_LoadIt.GetSize() && LDBI.m_LoadIt[OInx])
         Objs_Reg[OInx]->EO_ConnectsDone(LDBI.m_FCB);
@@ -6052,6 +6073,11 @@ int CExecutive::DoLoadDBaseConnect(CLoadDBInfo & LDBI)
 int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
   {
   STARTPROGRESS;
+
+  long ConnMem=LDBI.m_FCB.m_Counts.m_nConnCount;
+  LDBI.m_FCB.m_Counts.Clear();
+  LDBI.m_FCB.m_Counts.m_nConnCount=ConnMem;
+
   if (!LDBI.m_Failed)
     {
     LDBI.m_TagDB.StartLoadSequence("Node");
@@ -6065,6 +6091,7 @@ int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
           {
           CXMsgLst XM;
           CStopWatch Elapsed, LOSW, TLOSW;
+
 
           TLOSW.ReStart();
           LOSW.ReStart();
@@ -6080,10 +6107,9 @@ int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
               n++;
               if ((n%Min(n,10))==0)
                 {
-                CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
+                CDlgBusy::SetLine(3, "Loading %s", LDBI.m_FCB.m_Counts.ToStringOf(m_ObjCounts));
                 XFlushAppMsgQ();
                 }
-  //else CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
               LDBI.m_Cancelled=CDlgBusy::IsCancelled();
               #if dbgExecutive
               if (dbgDBMsgs())
@@ -6107,7 +6133,8 @@ int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
           TLOSW.Stop();
           LOSW.Stop();
           //TLOSW.Stop();
-          CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
+          CDlgBusy::SetLine(3, "Loading %s", LDBI.m_FCB.m_Counts.ToStringOf(m_ObjCounts));
+
           dbgpln("EO_LoadDB %-15s Load      %8.3g = %8.5g/Obj [LO:%8.3f][TLO:%8.3f]",r->sName(), Elapsed.Secs(), Elapsed.Secs()/Max(1,n), LOSW.Secs(), TLOSW.Secs());
           }
         catch (...)
@@ -6278,7 +6305,8 @@ int CExecutive::DoLoadDBaseClose(CLoadDBInfo & LDBI)
   if (LDBI.m_AllLoaded)
     {
     long LoadMin = (long)floor(LoadSecs/60.0);
-    LogNote("DataBase", 0, "%i Objects Loaded (%d:%02d)", LDBI.m_nObjs, LoadMin, (long)floor(LoadSecs-(60.0*(double)LoadMin)));
+    //LogNote("DataBase", 0, "%i Objects Loaded (%d:%02d)", LDBI.m_nObjs, LoadMin, (long)floor(LoadSecs-(60.0*(double)LoadMin)));
+    LogNote("DataBase", 0, "Loaded %s (Time:%d:%02d)" , LDBI.m_FCB.m_Counts.ToString(), LoadMin, (long)floor(LoadSecs-(60.0*(double)LoadMin)));
     }
 
   CDlgBusy::Close();

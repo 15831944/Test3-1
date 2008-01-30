@@ -15100,6 +15100,12 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
         //pData->SetSize();
         XM.PackMsg(pData);
         m_pSaveNode->ClearDDBLists();
+        if (dynamic_cast<CFlwSolver*>(m_pSaveNode))
+          FCB.m_Counts.m_nSystemCount++;
+        else if (m_pSaveNode->m_dwType&(nc_MLnk|nc_ALnk|nc_ELnk|nc_HLnk))
+          FCB.m_Counts.m_nLinkCount++;
+        else
+          FCB.m_Counts.m_nNodeCount++;
         return true;
         }
       m_iSaveWhat++;
@@ -15115,6 +15121,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
           pC->GetDefinedData(Tag(), pData->List, Opts, NULL);
           XM.PackMsg(pData);
           pC->ClearDDBLists();
+          FCB.m_Counts.m_nFlangeCount++;
           return true;
           }
         }
@@ -15130,6 +15137,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       else
         XM.Clear();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
     case SW_DYN:
       if (NetDynamicMethod())
@@ -15142,6 +15150,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       else
         XM.Clear();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
     case SW_SDB:
       Tag=SDBObj.Tag();
@@ -15149,6 +15158,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       SDBObj.ClearDDBLists();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
 #if WithTearObject
     case SW_TEAROBJ:
@@ -15157,6 +15167,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       TearObj.ClearDDBLists();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
 #endif
 #if WITHCHANGEOBJ
@@ -15166,6 +15177,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       ChgObj.ClearDDBLists();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
 #endif
     case SW_TOLOBJ:
@@ -15174,6 +15186,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       TolObj.ClearDDBLists();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
     case SW_TEARS:
       if (m_pSaveTear)
@@ -15185,6 +15198,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
           pT->GetDefinedData(Tag(), pData->List, Opts, NULL);
           XM.PackMsg(pData);
           pT->ClearDDBLists();
+          FCB.m_Counts.m_nSystemCount++;
           return true;
           }
         }
@@ -15200,6 +15214,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       CtrlObj.ClearDDBLists();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
 #endif
 #if WITHORDEROBJ
@@ -15209,6 +15224,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       OrderObj.ClearDDBLists();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
 #endif
     case SW_POWER:
@@ -15217,6 +15233,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       PwrObj.ClearDDBLists();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
 #if WITHIOOBJ
     case SW_IO:
@@ -15225,6 +15242,7 @@ flag CFlwSolver::EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLs
       XM.PackMsg(pData);
       IOObj.ClearDDBLists();
       m_iSaveWhat++;
+      FCB.m_Counts.m_nSystemCount++;
       return true;
 #endif
     default:
@@ -15343,6 +15361,7 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
 
           //CXM_ObjectData *pOD= new CXM_ObjectData(0, 0, &List);
 
+          FCB.m_Counts.m_nConnCount++;
           XM.PackMsg(pOD);
           }
         }
@@ -15445,6 +15464,7 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
           CPkDataIter Iter;
           DWORD dwOptions=TABOpt_ForFile|TABOpt_AllInfo;
           pObj->PutDefinedData(pItem->SymOrTag(), pData->List, Iter, dwOptions, NULL);
+          FCB.m_Counts.m_nSystemCount++;
           }
         else if (m_bMustCreateObjsFromFile && FCB.CreateObj())
           {
@@ -15465,7 +15485,10 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
 #endif
 
           if (_stricmp(pItem->Class(), CFlangeClass.ClassId())==0)
+            {
+            FCB.m_Counts.m_nFlangeCount++;
             goto Done;
+            }
           if (_stricmp(pItem->Class(), CDirectLinkClass.ClassId())==0)
             goto Done;
 
@@ -15505,6 +15528,7 @@ flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
           dbgp(" Insert!");
 #endif
           pObj=InsertNode(this, pItem->Class(), pItem->SubClass(), pItem->PrimaryCfg(), pItem->SymOrTag(), NULL, TOA_Free);//pchar TypIdIn, pchar TagIn)
+
 Done:;
 #if dbgCreateClasses
           dbgpln("");
@@ -15524,6 +15548,49 @@ Done:;
               {
               TAB.PutDefinedData(pData->List);
               TAB.ClearDDBLists();
+
+
+              if (dynamic_cast<CFlange*>(pObj))
+                FCB.m_Counts.m_nFlangeCount++;
+              else if (dynamic_cast<CFlwSolver*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+              //else if (dynamic_cast<CArea*>(pObj) && stricmp(pObj->m_sTag(), "PlantArea")==0)
+              //  FCB.m_Counts.m_nSystemCount++;
+              else if (dynamic_cast<FlwSlvPB*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+              else if (dynamic_cast<FlwSlvDyn*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+              else if (dynamic_cast<SDBObject*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+              else if (dynamic_cast<TearObject*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+#if WITHCTRLOBJ
+              else if (dynamic_cast<CtrlObject*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+#endif
+#if WITHCHANGEOBJ
+              else if (dynamic_cast<ChgObject*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+#endif
+              else if (dynamic_cast<TolObject*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+#if WITHORDEROBJ
+              else if (dynamic_cast<OrderObject*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+#endif
+              else if (dynamic_cast<PwrObject*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+#if WITHIOOBJ
+              else if (dynamic_cast<IOObject*>(pObj))
+                FCB.m_Counts.m_nSystemCount++;
+#endif
+              else if (dynamic_cast<FlwNode*>(pObj))
+                {
+                if (dynamic_cast<FlwNode*>(pObj)->m_dwType&(nc_MLnk|nc_ALnk|nc_ELnk|nc_HLnk))
+                  FCB.m_Counts.m_nLinkCount++;
+                else
+                  FCB.m_Counts.m_nNodeCount++;
+                }
               //Loaded=true;
               }
             }
@@ -15531,6 +15598,8 @@ Done:;
         else if ((_stricmp(pItem->Class(), CFlangeClass.ClassId())==0) || 
                  (_stricmp(pItem->Class(), CDirectLinkClass.ClassId())==0))
           {
+          //FCB.m_Counts.m_nFlangeCount++;
+
           // this will be created on the fly - makeups etc - ie ignore for now!
           }
         else if ((_stricmp(pItem->Class(), "TbPID")==0) ||
@@ -15644,6 +15713,7 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
         }
 
       ConnectTag(m_pRoot, pSrc, pDst, SIONo, DIONo, pConnectTag, UseStatus);
+      FCB.m_Counts.m_nConnCount++;
       #if dbgTraceMemState1
             dbgMemoryState("Connect       ");
       #endif

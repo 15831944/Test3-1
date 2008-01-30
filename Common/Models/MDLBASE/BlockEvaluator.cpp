@@ -153,7 +153,7 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
   if (DoIt)
     {
     DDB.String("", "EvalSeq.Feed", DC_, "", &m_sBlkSeqFeed, m_pNd, 0); 
-    if (m_bAllowStateSemantics)
+    if (StateSemanticsOn())
       DDB.String("", "EvalSeq.Content", DC_, "", &m_sBlkSeqState, m_pNd, 0); 
     if (m_Options&BEO_WithMakeups)
       DDB.Long("Makeups", "", DC_, "", xidNMakeups, m_pNd, isParmStopped|SetOnChange); 
@@ -417,7 +417,7 @@ void CBlockEvaluator::BuildOnOffValLst(DDBValueLstMem  * ValLst, int NInSequence
   ValLst->Add(BlkEval_On, "On");
   for (int i=0; i<NInSequence; i++)
     ValLst->Add(BlkEval_First+i, SeqNames[i]);
-  if (StateName && m_bAllowStateSemantics)
+  if (StateName && StateSemanticsOn())
     ValLst->Add(BlkEval_State, Strng("On-", StateName)());
   };
 

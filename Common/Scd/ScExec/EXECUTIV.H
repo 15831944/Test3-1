@@ -1004,7 +1004,6 @@ class CLoadDBInfo
       m_AllLoaded = false;
       m_Cancelled = false;
       m_Failed    = false;
-      m_nObjs     = 0;
       };
 
   public:
@@ -1020,7 +1019,6 @@ class CLoadDBInfo
     flag                  m_AllLoaded;
     flag                  m_Cancelled;
     flag                  m_Failed;
-    long                  m_nObjs;
     CArray <flag, flag>   m_LoadIt;
   };
 
@@ -1390,6 +1388,8 @@ class DllImportExport CExecutive : public ConditionBlk
 
     DEFINE_CI(CExecutive, ConditionBlk, 2);
     char *         CBTag() { return "Executive"; };
+
+    CObjectCountBlk m_ObjCounts;
 
 #if dbgKeepMsgHistory
     MsgHistoryRec MsgHistory[MaxMsgHistory];

@@ -1635,7 +1635,7 @@ flag CReactionBlock::UsingStateSemantics() { return m_RctBase->m_bUsingStateSema
 flag CReactionBlock::ValidateData(ValidateDataBlk & VDB)
   {
   flag RetOK=true;
-  if (fOn)
+  if (fOn && m_RctBase->fEnabled)
     {
     if (LoadForDynamic() != UsingStateSemantics())
       {

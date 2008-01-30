@@ -609,7 +609,7 @@ void Washer::EvalProducts(CNodeEvalIndex & NEI)
       EvalProducts_SurgeLevel(SolveInlineMethod(), false, ContentHgtOrd);
 
       if (NoProcessJoins()>=1)
-        Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, &m_QProd, NULL, NULL, NULL);
+        Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, &m_QProdSrg, NULL, NULL, NULL);
 
       UFSolids = IOConduit(IOWithId_Self(ioidUF))->MassFrac(som_Sol);
       OFSolids = IOConduit(IOWithId_Self(ioidOF))->MassFrac(som_Sol);

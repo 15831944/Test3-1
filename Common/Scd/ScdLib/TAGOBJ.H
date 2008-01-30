@@ -149,6 +149,34 @@ enum TOFilingTypes {TOF_DBase, TOF_SnapShot, TOF_Scenario};
 
 typedef char TABTag[MaxTABTagLen];
 
+class DllImportExport CObjectCountBlk 
+  {
+  public:
+    CObjectCountBlk()
+      {
+      Clear();
+      }
+    
+    void Clear()
+      {
+      m_nNodeCount    = 0;
+      m_nLinkCount    = 0;
+      m_nConnCount    = 0;
+      m_nFlangeCount  = 0;
+      m_nSystemCount  = 0;
+      };
+
+    CString ToString();
+    CString ToStringOf(CObjectCountBlk & Of);
+
+  public:
+    long           m_nNodeCount;
+    long           m_nLinkCount;
+    long           m_nConnCount;
+    long           m_nFlangeCount;
+    long           m_nSystemCount;
+  };
+
 class DllImportExport FilingControlBlock
   {
   protected:
@@ -166,6 +194,9 @@ class DllImportExport FilingControlBlock
     byte           bSaveAs:1,
                    bFarCopy:1,
                    bCreateObj:1;
+
+  public:
+    CObjectCountBlk m_Counts;
 
   public:
     FilingControlBlock(char * Root, char * Label, TOFilingTypes Type);

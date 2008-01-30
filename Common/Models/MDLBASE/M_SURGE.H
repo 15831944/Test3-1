@@ -75,7 +75,7 @@ class DllImportExport MN_Surge : public MdlNode
     virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual void   EvalDerivs(CNodeEvalIndex & NEI);
     virtual void   ODEOperate(CODEDataBlock & ODB);
-    virtual void   EvalIntegral(CNodeEvalIndex & NEI);
+    virtual void   EvalIntegral(CNodeEvalIndex & NEI, SpConduit * pQFeed);
     virtual void   ConvergeStates(CConvergeStateBlk &CSB);
     virtual void   EvalDiscrete();
     virtual void   DumpDerivs();
@@ -137,7 +137,8 @@ class DllImportExport MN_Surge : public MdlNode
     //CSpCOptionPtr <SpConduit>    m_QFeed;
     //CSpCOptionPtr <SpConduit>    m_QProd;
     SpConduit       m_QFeed;
-    SpConduit       m_QProd;
+    SpConduit       m_QProdSrg;
+    SpConduit       m_QProdHx;
 
     CHgtOrdInfo     ContentHgtOrd;
     SpContainer     Contents;   //The object which contains the material within the surge unit.

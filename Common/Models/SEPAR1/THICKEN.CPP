@@ -197,7 +197,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   if (SolveInlineMethod())
     {
     DDB.Text    ("");
-    m_SrgCtrl.BuildDataDefn(DDB, "LCtrl", this);
+    m_SrgCtrl.BuildDataDefn(DDB, "LCtrl", this, Contents.Closed()!=0);
     }
 
   DDB.Visibility();
@@ -587,7 +587,8 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       //  }
 
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(SolveInlineMethod(), false, ContentHgtOrd, /*&m_QFeed,*/ &m_SrgCtrl);
+      m_QProdSrg.QCopy(m_QFeed);
+      EvalProducts_SurgeLevel(SolveInlineMethod(), false, ContentHgtOrd, /*&m_QFeed,*/ &m_SrgCtrl, &m_QProdSrg);
 
       //if (NoProcessJoins()>=1)
       //  Xfer_EvalProducts(0, Joins[0].Pressure(), &QSigmaOut, NULL, NULL, NULL);
@@ -605,7 +606,7 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       m_ActUFSolRec = UFSolidsQm/GTZ(UFSolidsQm+OFSolidsQm);
 
       if (SolveInlineMethod())
-        EvalIntegral(NEI);
+        EvalIntegral(NEI, &m_QProdSrg);
 #if dbgShowEval
       if (fDoDbgBrk)
         {

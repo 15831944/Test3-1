@@ -522,7 +522,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
 
   if (SolveInlineMethod())
-    m_SrgCtrl.BuildDataDefn(DDB, "LCtrl", this);
+    m_SrgCtrl.BuildDataDefn(DDB, "LCtrl", this, Contents.Closed()!=0);
 
   DDB.Visibility();
   DDB.Text    ("");
@@ -563,7 +563,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   if (NetProbalMethod())
     {
     DDB.Visibility(NM_Probal|SM_All|HM_All, m_bShowQProd);
-    DDB.Object(&m_QProd, this, NULL, NULL, DDB_RqdPage);
+    DDB.Object(&m_QProdSrg, this, NULL, NULL, DDB_RqdPage);
     DDB.Visibility();
     }
 

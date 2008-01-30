@@ -178,7 +178,13 @@ class CSieveSeriesHelper
 class CSizeDistHelper
   {
   public:
-    CSizeDistHelper() {};
+    CSizeDistHelper() 
+      {
+      dTopSize = 1e-3;
+      dBottomSize = 1e-6;
+      dTopSizeDisplay = 1e-3;
+      dBottomSizeDisplay = 1e-6;
+      };
     CSizeDistHelper(char* pName, char* pSieveSeriesName) { Name=pName; SieveSeriesName=pSieveSeriesName; };
     void SetDefaultTopBottom(CSieveSeriesHelper* pSeries);
 
