@@ -6,11 +6,11 @@
 #define CK_USE7103       01
 
 #if (CK_USE7103)
-#define KWA_VERINFO_V0   3        /* Major Version */
-#define KWA_VERINFO_V1   0        /* Minor Version */
+#define KWA_VERINFO_V0   2        /* Major Version */
+#define KWA_VERINFO_V1   2        /* Minor Version */
 #define KWA_VERINFO_V2   0         
 #define KWA_VERINFO_V3   0         
-#define KWA_VERINFO_VS   "3.0\0"
+#define KWA_VERINFO_VS   "2.2\0"
 #elif (CK_USE6134 || CK_USE6525)
 #define KWA_VERINFO_V0   2        /* Major Version */
 #define KWA_VERINFO_V1   1        /* Minor Version */
@@ -48,11 +48,11 @@ Revision History
 1) First release of syscad.exe license utility for SysCAD9.1
 2) Using CrypKey 6.1
 
-2.x : ???
+2.1 : ???
 --------------------------
 1) Upgrade to CrypKey 6.5
 
-3.0 : 22 January 2008
+2.2 : 30 January 2008
 --------------------------
 1) Upgrade to CrypKey 7.1
 */

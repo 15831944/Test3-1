@@ -17,7 +17,7 @@
 const int CK_WarnDays = 21;            //no of days to give clear warning before license expires
 const int CK_UrgentWarnDays = 7;       //no of days to give urgent warning (dialog) before license expires
 #if CK_ALLOWDEMOMODE
-const int CK_NoOfTrialDays = 12;       //Number of days trial license lasts for
+const int CK_NoOfTrialDays = 10;       //Number of days trial license lasts for
 #else
 const int CK_NoOfTrialDays = 45;       //Number of days trial license lasts for
 #endif
