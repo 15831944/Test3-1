@@ -167,7 +167,10 @@ class DllImportExport CObjectCountBlk
       };
 
     CString ToString();
+    CString ToStringFull();
     CString ToStringOf(CObjectCountBlk & Of);
+    CString ToStringSummaryOf(CObjectCountBlk & Of);
+    long TotalCount() { return m_nNodeCount+m_nLinkCount+m_nConnCount+m_nFlangeCount+m_nSystemCount; };
 
   public:
     long           m_nNodeCount;

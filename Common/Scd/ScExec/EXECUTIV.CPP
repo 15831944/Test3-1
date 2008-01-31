@@ -5864,7 +5864,7 @@ int  CExecutive::DoSaveDBase(long DBFmt, DWORD DBOpts, char* pRoot, char* pOldPr
   double SaveSecs = SaveTime.Secs();
   const long SaveMin = (long)floor(SaveSecs/60.0);
   //LogNote("DataBase", 0, "%i Objects Saved (%d:%02d)", nObjs, SaveMin, (long)floor(SaveSecs-(60.0*(double)SaveMin)));
-  LogNote("DataBase", 0, "Saved %s (Time:%d:%02d)" , FCB.m_Counts.ToString(), SaveMin, (long)floor(SaveSecs-(60.0*(double)SaveMin)));
+  LogNote("DataBase", 0, "Saved %s (Time:%d:%02d)" , FCB.m_Counts.ToStringFull(), SaveMin, (long)floor(SaveSecs-(60.0*(double)SaveMin)));
 
   return SvDBFmt;
   };
@@ -5901,8 +5901,8 @@ int CExecutive::DoLoadDBaseOpen(CLoadDBInfo & LDBI)
   LDBI.m_Cancelled  = false;
 
   CDlgBusy::Open("", true);
-  CDlgBusy::SetLine(1, "Loading : %s", LDBI.m_RtFolder());
-  CDlgBusy::SetLine(3, "Open database...");
+  CDlgBusy::SetLine(0, "Loading : %s", LDBI.m_RtFolder());
+  CDlgBusy::SetLine(2, "Open database...");
   CStopWatch OpenSW;
   OpenSW.Start();
 
@@ -5965,7 +5965,8 @@ int CExecutive::DoLoadDBaseCreate(CLoadDBInfo & LDBI)
         n++;
         if ((n%Min(n,10))==0)
           {
-          CDlgBusy::SetLine(3, "Building %s" , LDBI.m_FCB.m_Counts.ToString());
+          CDlgBusy::SetLine(2, "Building Objects %d" , LDBI.m_FCB.m_Counts.TotalCount());
+          CDlgBusy::SetLine(3, "%s" , LDBI.m_FCB.m_Counts.ToStringFull());
           XFlushAppMsgQ();
           }
         LDBI.m_Cancelled=CDlgBusy::IsCancelled();
@@ -6034,7 +6035,8 @@ int CExecutive::DoLoadDBaseConnect(CLoadDBInfo & LDBI)
             if ((n%Min(n,10))==0)
               {
               //CDlgBusy::SetLine(3,"Creating Connection :%i",n);
-              CDlgBusy::SetLine(3, "Building %s" , LDBI.m_FCB.m_Counts.ToString());
+              CDlgBusy::SetLine(2, "Building Objects %d" , LDBI.m_FCB.m_Counts.TotalCount());
+              CDlgBusy::SetLine(3, "%s" , LDBI.m_FCB.m_Counts.ToStringFull());
               XFlushAppMsgQ();
               }
             LDBI.m_Cancelled=CDlgBusy::IsCancelled();
@@ -6051,7 +6053,8 @@ int CExecutive::DoLoadDBaseConnect(CLoadDBInfo & LDBI)
           }
         TLOSW.Stop();
         LOSW.Stop();
-        CDlgBusy::SetLine(3, "Building %s" , LDBI.m_FCB.m_Counts.ToString());
+        CDlgBusy::SetLine(2, "Building Objects %d" , LDBI.m_FCB.m_Counts.TotalCount());
+        CDlgBusy::SetLine(3, "%s" , LDBI.m_FCB.m_Counts.ToStringFull());
         //CDlgBusy::SetLine(3, "Creating Connection :%i", n);
 
         dbgpln("EO_LoadDB %-15s Connect   %8.3g = %8.5g/Obj [LO:%8.3f]",r->sName(),Elapsed.Secs(),Elapsed.Secs()/Max(1,n), LOSW.Secs());
@@ -6107,7 +6110,8 @@ int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
               n++;
               if ((n%Min(n,10))==0)
                 {
-                CDlgBusy::SetLine(3, "Loading %s", LDBI.m_FCB.m_Counts.ToStringOf(m_ObjCounts));
+                CDlgBusy::SetLine(2, "Loading %s", LDBI.m_FCB.m_Counts.ToStringSummaryOf(m_ObjCounts));
+                CDlgBusy::SetLine(3, "%s", LDBI.m_FCB.m_Counts.ToStringOf(m_ObjCounts));
                 XFlushAppMsgQ();
                 }
               LDBI.m_Cancelled=CDlgBusy::IsCancelled();
@@ -6133,7 +6137,8 @@ int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
           TLOSW.Stop();
           LOSW.Stop();
           //TLOSW.Stop();
-          CDlgBusy::SetLine(3, "Loading %s", LDBI.m_FCB.m_Counts.ToStringOf(m_ObjCounts));
+          CDlgBusy::SetLine(2, "Loaded %s   (%d Nodes and Links)", LDBI.m_FCB.m_Counts.ToStringSummaryOf(m_ObjCounts), LDBI.m_FCB.m_Counts.m_nNodeCount+LDBI.m_FCB.m_Counts.m_nLinkCount);
+          CDlgBusy::SetLine(3, "%s", LDBI.m_FCB.m_Counts.ToStringFull());
 
           dbgpln("EO_LoadDB %-15s Load      %8.3g = %8.5g/Obj [LO:%8.3f][TLO:%8.3f]",r->sName(), Elapsed.Secs(), Elapsed.Secs()/Max(1,n), LOSW.Secs(), TLOSW.Secs());
           }
@@ -6148,7 +6153,9 @@ int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
       }
     for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
       if (OInx<LDBI.m_LoadIt.GetSize() && LDBI.m_LoadIt[OInx])
+        {
         Objs_Reg[OInx]->EO_DataLoaded(LDBI.m_FCB);
+        }
     }
 
   LDBI.m_TagDB.sCurrTag = "";
@@ -6163,12 +6170,10 @@ int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
 int CExecutive::DoLoadDBaseLoadOther(CLoadDBInfo & LDBI)
   {
   STARTPROGRESS;
-
   //CStopWatch LoadTime;
  // LoadTime.Start();
 
-
-  CDlgBusy::SetLine(1, "Loading : %s", LDBI.m_RtFolder());
+  CDlgBusy::SetLine(0, "Loading : %s", LDBI.m_RtFolder());
   if (!LDBI.m_Failed && !LDBI.m_Cancelled)
     {
 //    if (pCallBack)
@@ -6306,7 +6311,7 @@ int CExecutive::DoLoadDBaseClose(CLoadDBInfo & LDBI)
     {
     long LoadMin = (long)floor(LoadSecs/60.0);
     //LogNote("DataBase", 0, "%i Objects Loaded (%d:%02d)", LDBI.m_nObjs, LoadMin, (long)floor(LoadSecs-(60.0*(double)LoadMin)));
-    LogNote("DataBase", 0, "Loaded %s (Time:%d:%02d)" , LDBI.m_FCB.m_Counts.ToString(), LoadMin, (long)floor(LoadSecs-(60.0*(double)LoadMin)));
+    LogNote("DataBase", 0, "Loaded %d objects (%s)  Time:%d:%02d" , LDBI.m_FCB.m_Counts.TotalCount(), LDBI.m_FCB.m_Counts.ToStringFull(), LoadMin, (long)floor(LoadSecs-(60.0*(double)LoadMin)));
     }
 
   CDlgBusy::Close();
@@ -8386,23 +8391,36 @@ int CExecutive::DoMergeA(CMergeProjectsInfo& MPI)
 int CExecutive::DoMergeB(CMergeProjectsInfo& MPI)
   {
   //change required tags in merged project...
-  CDlgBusy::SetLine(3, "Changing tags in imported project");
-  for (int i=0; i<MPI.PostChangeTags.GetSize(); i++)
+  const int ImpCnt = MPI.PostChangeTags.GetSize();
+  if (ImpCnt>0)
     {
-    int Err = ChangeTag(MPI.PostChangeTags[i](), MPI.PostNewTags[i]());
-    //ASSERT(Err==EOCT_DONE);
-    if (Err!=EOCT_DONE)
-      LogError("Merge", LF_Exclamation, "B: Change tag failed  %s --> %s", MPI.PostChangeTags[i](), MPI.PostNewTags[i]());
-    }
-  CDlgBusy::SetLine(3, "Changing tags in current project");
-  for (i=0; i<MPI.PreTempTags.GetSize(); i++)
-    {
-    if (MPI.PreNewTags[i].XStrICmp(PlantAreaTag)!=0) // Skip PlantArea - It was not changed to Temp
+    CDlgBusy::SetLine(3, "Changed 0 of %d tags in imported project", ImpCnt);
+    for (int i=0; i<ImpCnt; i++)
       {
-      int Err = ChangeTag(MPI.PreTempTags[i](), MPI.PreNewTags[i]());
-      //ASSERT(Err==EOCT_DONE);
+      int Err = ChangeTag(MPI.PostChangeTags[i](), MPI.PostNewTags[i]());
+      if ((i%10)==0)
+        CDlgBusy::SetLine(3, "Changed %d of %d tags in imported project", i, ImpCnt);
       if (Err!=EOCT_DONE)
-        LogError("Merge", LF_Exclamation, "C: Change tag failed  %s --> %s", MPI.PreTempTags[i](), MPI.PreNewTags[i]());
+        LogError("Merge", LF_Exclamation, "B: Change tag failed  %s --> %s", MPI.PostChangeTags[i](), MPI.PostNewTags[i]());
+      }
+    }
+
+  const int CurCnt = MPI.PreTempTags.GetSize();
+  if (CurCnt>0)
+    {
+    if (ImpCnt>0)
+      CDlgBusy::SetLine(2, "Changed %d tags in imported project", ImpCnt);
+    CDlgBusy::SetLine(3, "Changed 0 of %d tags in current project", CurCnt);
+    for (int i=0; i<MPI.PreTempTags.GetSize(); i++)
+      {
+      if (MPI.PreNewTags[i].XStrICmp(PlantAreaTag)!=0) // Skip PlantArea - It was not changed to Temp
+        {
+        int Err = ChangeTag(MPI.PreTempTags[i](), MPI.PreNewTags[i]());
+        if ((i%10)==0)
+          CDlgBusy::SetLine(3, "Changed %d of %d tags in imported project", i, CurCnt);
+        if (Err!=EOCT_DONE)
+          LogError("Merge", LF_Exclamation, "C: Change tag failed  %s --> %s", MPI.PreTempTags[i](), MPI.PreNewTags[i]());
+        }
       }
     }
   return 0;

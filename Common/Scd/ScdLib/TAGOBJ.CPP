@@ -2209,20 +2209,58 @@ void DataDefnBlk::DumpAllChecks()
 CString CObjectCountBlk::ToString()
   {
   CString S;
-  S.Format("Sys:%i Nodes:%i Lnks:%i Flngs:%i Conns:%i" ,
-    m_nSystemCount, m_nNodeCount, m_nLinkCount, m_nFlangeCount, m_nConnCount);
+  S.Format("Nodes:%i Lnks:%i Sys:%i Flngs:%i Conns:%i" ,
+    m_nNodeCount, m_nLinkCount, m_nSystemCount, m_nFlangeCount, m_nConnCount);
+  return S;
+  };
+
+CString CObjectCountBlk::ToStringFull()
+  {
+  CString S;
+  S.Format("Nodes:%i  Links:%i  System:%i  Flanges:%i  Connections:%i" ,
+    m_nNodeCount, m_nLinkCount, m_nSystemCount, m_nFlangeCount, m_nConnCount);
+  return S;
+  };
+
+CString CObjectCountBlk::ToStringSummaryOf(CObjectCountBlk & Of)
+  {
+  CString S;
+  S.Format("Objects %i of %i", TotalCount(), Of.TotalCount());
   return S;
   };
 
 CString CObjectCountBlk::ToStringOf(CObjectCountBlk & Of)
   {
+  CString S1,S2,S3,S4,S5;
+  if (m_nNodeCount<Of.m_nNodeCount)
+    S1.Format("Nodes:%i/%i", m_nNodeCount, Of.m_nNodeCount);
+  else
+    S1.Format("Nodes:%i", m_nNodeCount);
+  if (m_nLinkCount<Of.m_nLinkCount)
+    S2.Format("Links:%i/%i", m_nLinkCount, Of.m_nLinkCount);
+  else
+    S2.Format("Links:%i", m_nLinkCount);
+  if (m_nSystemCount<Of.m_nSystemCount)
+    S3.Format("Sys:%i/%i", m_nSystemCount, Of.m_nSystemCount);
+  else
+    S3.Format("System:%i", m_nSystemCount);
+  if (m_nFlangeCount<Of.m_nFlangeCount)
+    S4.Format("Flngs:%i/%i", m_nFlangeCount, Of.m_nFlangeCount);
+  else
+    S4.Format("Flanges:%i", m_nFlangeCount);
+  if (m_nConnCount<Of.m_nConnCount)
+    S5.Format("Conns:%i/%i", m_nConnCount, Of.m_nConnCount);
+  else
+    S5.Format("Connections:%i", m_nConnCount);
+
   CString S;
-  S.Format("Sys:%i/%i Nodes:%i/%i Lnks:%i/%i Flngs:%i/%i Conns:%i/%i" ,
-    m_nSystemCount, Of.m_nSystemCount,
+  S.Format("%s %s %s %s %s", S1, S2, S3, S4, S5);
+  /*S.Format("Nodes:%i/%i Lnks:%i/%i Sys:%i/%i Flngs:%i/%i Conns:%i/%i" ,
     m_nNodeCount,   Of.m_nNodeCount,  
     m_nLinkCount,   Of.m_nLinkCount,  
+    m_nSystemCount, Of.m_nSystemCount,
     m_nFlangeCount, Of.m_nFlangeCount,  
-    m_nConnCount, Of.m_nConnCount);
+    m_nConnCount, Of.m_nConnCount);*/
   return S;
   };
 
