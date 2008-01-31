@@ -91,7 +91,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				OutputFile="..\..\..\Bin\ScdMdl.dll"
-				LinkIncremental="1"
+				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\ScdMdl.def"
 				GenerateDebugInformation="true"

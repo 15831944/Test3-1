@@ -176,7 +176,7 @@ ref class CSvcConnectCLRThread
       {
       config->Syncxxx();
 
-      config->AddProjectAnyway(projectName, projectPath);
+      config->RemoteAddProjectAnyway(projectName, projectPath);
 
       bool clientSuccess = false;
       bool engineSuccess = false;

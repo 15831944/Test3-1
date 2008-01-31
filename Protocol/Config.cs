@@ -29,13 +29,12 @@ namespace SysCAD.Protocol
     public delegate void AddProjectAnywayHandler(string name, string path);
 
     public AddProjectHandler addProject;
-    public AddProjectAnywayHandler addProjectAnyway
-      ;
+    public AddProjectAnywayHandler addProjectAnyway;
 
-    public void Setup(string stencilPath, Config.AddProjectHandler addProject, Config.AddProjectAnywayHandler addProjectAnywayHandler)
+    public void Setup(string stencilPath, Config.AddProjectHandler addProject, Config.AddProjectAnywayHandler addProjectAnyway)
     {
       this.addProject = addProject;
-      this.addProjectAnyway = addProjectAnywayHandler;
+      this.addProjectAnyway = addProjectAnyway;
 
       CreateDummyModelStencil(stencilPath + "\\Example.ModelStencil");
       CreateDummyGraphicStencil(stencilPath + "\\Example.GraphicStencil");
@@ -67,7 +66,7 @@ namespace SysCAD.Protocol
             //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
             //LogNote("Srvr : 0 : " + iStencil++ + " : " + System.IO.Path.GetFileNameWithoutExtension(fullpath));
           }
-          catch (Exception e)
+          catch (Exception)
           {
             //Message("Error '" + e.Message + "' loading ModelStencil: " + fullpath, MessageType.Error);
           }
@@ -348,12 +347,12 @@ namespace SysCAD.Protocol
       ProjectList = remoteConfig.ProjectList;
     }
 
-    public bool AddProject(string name, string path)
+    public bool RemoteAddProject(string name, string path)
     {
       return remoteConfig.addProject(name, path);
     }
 
-    public void AddProjectAnyway(string name, string path)
+    public void RemoteAddProjectAnyway(string name, string path)
     {
       remoteConfig.addProjectAnyway(name, path);
     }

@@ -129,7 +129,7 @@ namespace SysCAD
       if (addProjectForm.ShowDialog(this) == DialogResult.OK)
       {
         config.Syncxxx();
-        config.AddProject(addProjectForm.projectName, addProjectForm.projectPath);
+        config.RemoteAddProject(addProjectForm.projectName, addProjectForm.projectPath);
         RefreshProjectList();
       }
     }
