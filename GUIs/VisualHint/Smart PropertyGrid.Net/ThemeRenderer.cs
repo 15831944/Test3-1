@@ -1973,7 +1973,7 @@ namespace Skybound.Windows.Forms
 	
 	#region enum ThemeDrawFlags
 	/// <summary>
-	/// Specifies internal theme part drawing options for the <see cref="ThemeRenderer.Draw"/> method.
+  /// Specifies internal theme part drawing options for the <see cref="ThemeRenderer.Draw(System.Drawing.Graphics, int, System.Drawing.Rectangle)"/> method.
 	/// </summary>
 	enum ThemeDrawFlags
 	{
@@ -2296,15 +2296,15 @@ namespace Skybound.Windows.Forms
 		/// <summary>Does not add padding to the bounding rectangle.</summary>
 		NoPadding = 0x10000000,
 		/// <summary>
-		/// Turns off processing of prefix characters. Typically, the ampersand (&&) mnemonic-prefix character is interpreted as a directive to underscore the
-		/// character that follows, and the double-ampersand (&&) mnemonic-prefix characters as a directive to print a single ampersand. By specifying NoPrefix,
+		/// Turns off processing of prefix characters. Typically, the ampersand (&amp;) mnemonic-prefix character is interpreted as a directive to underscore the
+		/// character that follows, and the double-ampersand (&amp;) mnemonic-prefix characters as a directive to print a single ampersand. By specifying NoPrefix,
 		/// this processing is turned off.
 		/// </summary>
 		NoPrefix = 0x800,
 		/// <summary>Removes the center of trimmed lines and replaces it with an ellipsis.</summary>
 		PathEllipsis = 0x4000,
 		/// <summary>
-		/// Applies to Windows 2000 or Windows XP only: Draws only an underline at the position of the character following the ampersand (&&) prefix character. Does
+		/// Applies to Windows 2000 or Windows XP only: Draws only an underline at the position of the character following the ampersand (&amp;) prefix character. Does
 		/// not draw any other characters in the string.
 		/// </summary>
 		PrefixOnly = 0x200000,

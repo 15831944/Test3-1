@@ -147,7 +147,7 @@ ref class CSvcConnectCLRThread
           proc->Start();
           //proc->WaitForExit();
           }
-        catch (Exception ^e)
+        catch (Exception^)
           {
           // Handle this exception here, basically means the app didn't exist.
           }
@@ -636,7 +636,7 @@ ref class CSvcConnectCLRThread
         action->Create->Add(MLnk);
         action->Create->Add(GLnk);
         }
-      catch (Exception ^e)
+      catch (Exception^)
         {
         }
       };

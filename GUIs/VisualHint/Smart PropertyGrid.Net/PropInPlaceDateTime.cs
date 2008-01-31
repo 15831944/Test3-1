@@ -28,7 +28,7 @@ namespace VisualHint.SmartPropertyGrid
 
         private IntPtr _closeByClickOnWindow;
 
-        private bool _calendarClosedByKey = false;
+        //private bool _calendarClosedByKey = false;
 
         private bool _justVisible = false;
 
@@ -306,7 +306,7 @@ namespace VisualHint.SmartPropertyGrid
             _ownerPropertyEnum.Property.InPlaceCtrlInAction = null;
             _ownerPropertyEnum.Property.ParentGrid.OnInPlaceCtrlFinishedEdition();
 
-            _calendarClosedByKey = false;
+            //_calendarClosedByKey = false;
 
             RecreateHandle();  // To fix the native DateTimePicker focus bug
 

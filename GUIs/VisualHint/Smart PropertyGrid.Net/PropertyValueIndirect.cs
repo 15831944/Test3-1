@@ -352,7 +352,7 @@ namespace VisualHint.SmartPropertyGrid
 
         private enum TriStateBool { tsFalse, tsTrue, tsUndefined };
 
-        private TriStateBool _readonlyByPropertyDescriptor = TriStateBool.tsUndefined;
+        //private TriStateBool _readonlyByPropertyDescriptor = TriStateBool.tsUndefined;
 
         public override bool IsReadOnly(PropertyEnumerator selfEnum)
         {

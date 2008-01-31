@@ -28,13 +28,14 @@ namespace SysCAD.Protocol
     public delegate bool AddProjectHandler(string name, string path);
     public delegate void AddProjectAnywayHandler(string name, string path);
 
-    public AddProjectHandler addProjectHandler;
-    public AddProjectAnywayHandler addProjectAnywayHandler;
+    public AddProjectHandler addProject;
+    public AddProjectAnywayHandler addProjectAnyway
+      ;
 
-    public void Setup(string stencilPath, Config.AddProjectHandler addProjectHandler, Config.AddProjectAnywayHandler addProjectAnywayHandler)
+    public void Setup(string stencilPath, Config.AddProjectHandler addProject, Config.AddProjectAnywayHandler addProjectAnywayHandler)
     {
-      this.addProjectHandler = addProjectHandler;
-      this.addProjectAnywayHandler = addProjectAnywayHandler;
+      this.addProject = addProject;
+      this.addProjectAnyway = addProjectAnywayHandler;
 
       CreateDummyModelStencil(stencilPath + "\\Example.ModelStencil");
       CreateDummyGraphicStencil(stencilPath + "\\Example.GraphicStencil");
@@ -349,12 +350,12 @@ namespace SysCAD.Protocol
 
     public bool AddProject(string name, string path)
     {
-      return remoteConfig.addProjectHandler(name, path);
+      return remoteConfig.addProject(name, path);
     }
 
     public void AddProjectAnyway(string name, string path)
     {
-      remoteConfig.addProjectAnywayHandler(name, path);
+      remoteConfig.addProjectAnyway(name, path);
     }
 
     public void Syncxxx()

@@ -560,7 +560,8 @@
 			MinFrameworkVersion="131072"
 		/>
 		<ProjectReference
-			ReferencedProjectIdentifier="{0B1AE425-3BEB-4FBA-861A-FDA90420FB16}"
+			ReferencedProjectIdentifier="{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}"
+			RelativePathToProject=".\Common\AttachProject\AttachProject.csproj"
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"
@@ -571,20 +572,6 @@
 			RelativePath="System.Drawing.dll"
 			AssemblyName="System.Drawing, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
 			MinFrameworkVersion="131072"
-		/>
-		<AssemblyReference
-			RelativePath="..\..\Bin\LogView.dll"
-			AssemblyName="LogView, Version=1.0.2895.28817, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
-			MinFrameworkVersion="131072"
-		/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}"
-		/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}"
-		/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
 		/>
 		<AssemblyReference
 			RelativePath="System.Windows.Forms.dll"

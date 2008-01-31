@@ -274,7 +274,7 @@ namespace SysCAD.Editor
 
     internal void UpdateVisibility()
       {
-      Int64 requestId;
+      //Int64 requestId;
 
       if (ModelBox != null) ModelBox.Visible = visible;
       GraphicBox.Visible = visible && state.ShowGraphics;

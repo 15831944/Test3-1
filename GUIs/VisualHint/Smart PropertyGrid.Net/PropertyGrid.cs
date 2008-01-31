@@ -2022,7 +2022,7 @@ namespace VisualHint.SmartPropertyGrid
         /// This method saves in a hastable the states (expanded / selected) of all the properties in the grid.
         /// </summary>
         /// <remarks>Call this method, then <see cref="SelectedObject"/> or <see cref="SelectedObjects"/>, then
-        /// <see cref="RestorePropertiesStates"/>. This is very convenient when selecting a new target instance that
+        /// <see cref="RestorePropertiesStates(object)"/>. This is very convenient when selecting a new target instance that
         /// has a lot of resembling properties with the previous one.
         /// </remarks>
         /// <returns>The hashtable of all saved states.</returns>
@@ -2036,7 +2036,7 @@ namespace VisualHint.SmartPropertyGrid
         /// </summary>
         /// <param name="propEnum">A reference to the property on which to begin the backup.</param>
         /// <remarks>Call this method, then <see cref="SelectedObject"/> or <see cref="SelectedObjects"/>, then
-        /// <see cref="RestorePropertiesStates"/>. This is very convenient when selecting a new target instance that
+        /// <see cref="RestorePropertiesStates(object)"/>. This is very convenient when selecting a new target instance that
         /// has a lot of resembling properties with the previous one.
         /// </remarks>
         /// <returns>The hashtable of all saved states.</returns>
@@ -2048,8 +2048,8 @@ namespace VisualHint.SmartPropertyGrid
         /// <summary>
         /// This method restores some previously saved states (expanded / selected) of all the properties in the grid.
         /// </summary>
-        /// <param name="states">The object returned by <see cref="SavePropertiesStates"/>.</param>
-        /// <remarks>Call <see cref="SavePropertiesStates"/>, then <see cref="SelectedObject"/> or
+        /// <param name="states">The object returned by <see cref="SavePropertiesStates()"/>.</param>
+        /// <remarks>Call <see cref="SavePropertiesStates()"/>, then <see cref="SelectedObject"/> or
         /// <see cref="SelectedObjects"/>, then this method. This is very convenient when selecting a new target
         /// instance that has a lot of resembling properties with the previous one.
         /// </remarks>
@@ -2062,8 +2062,8 @@ namespace VisualHint.SmartPropertyGrid
         /// This method restores some previously saved states (expanded / selected) of some properties in the grid.
         /// </summary>
         /// <param name="propEnum">A reference to the property on which to begin the restoration.</param>
-        /// <param name="propertiesStates">The object returned by <see cref="SavePropertiesStates"/>.</param>
-        /// <remarks>Call <see cref="SavePropertiesStates"/>, then <see cref="SelectedObject"/> or
+        /// <param name="propertiesStates">The object returned by <see cref="SavePropertiesStates()"/>.</param>
+        /// <remarks>Call <see cref="SavePropertiesStates()"/>, then <see cref="SelectedObject"/> or
         /// <see cref="SelectedObjects"/>, then this method. This is very convenient when selecting a new target
         /// instance that has a lot of resembling properties with the previous one.
         /// </remarks>

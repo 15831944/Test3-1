@@ -22,7 +22,7 @@ namespace SysCAD.Editor
 
     private int opacity;
 
-    private static int threadCheck = 0;
+    //private static int threadCheck = 0;
 
     public String Tag
     {

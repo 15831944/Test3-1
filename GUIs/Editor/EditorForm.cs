@@ -73,7 +73,7 @@ namespace SysCAD.Editor
       Dispose(false);
     }
 
-    protected void Dispose(bool disposing)
+    override protected void Dispose(bool disposing)
     {
       if (disposing)
       {
@@ -90,7 +90,7 @@ namespace SysCAD.Editor
       base.Dispose(disposing);
     }
 
-    public void Dispose()
+    new public void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
