@@ -702,7 +702,7 @@ class DllImportExport SpContainer : public SpModelOwner
       M=MArray();
       double VScl=0.0;
       if (m_dVapEntrained>0.0)
-        VScl=m_dVapEntrained/pModel->Mass(som_Gas);
+        VScl=Min(1.0, m_dVapEntrained/GTZ(pModel->Mass(som_Gas)));
       M.Mult(som_Gas, VScl);
       }
     double         SLEVDensity()
