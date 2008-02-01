@@ -8,12 +8,13 @@
 #define  __NODEDRAW_CPP
 #include "sc_defs.h"
 #include "nodedraw.h"
+#include "msglog.h"
 //#include "tagobj.h"
 
 //===========================================================================
 
 #define SpaceForName(Nm) ((strlen((char *)(Nm))/sizeof(double))+1)
-    
+
 //---------------------------------------------------------------------------
 
 NodeGrfInfo::NodeGrfInfo()
@@ -36,15 +37,15 @@ NodeGrfInfo::~NodeGrfInfo()
 
 /**
 void NodeGrfInfo::TstScl()
-  {
-  if (Buff[Pos]<= DD_CodeHi)
-    return ;
-  if (Buff[Pos]==DD_Scale)
-    {
-    Pos++;
-    Scl=Buff[Pos++]/1000.0;
-    }
-  };
+{
+if (Buff[Pos]<= DD_CodeHi)
+return ;
+if (Buff[Pos]==DD_Scale)
+{
+Pos++;
+Scl=Buff[Pos++]/1000.0;
+}
+};
 **/
 
 //---------------------------------------------------------------------------
@@ -192,10 +193,10 @@ void NodeGrfInfo::ExportToFile(NodeGrfInfo* pNGI, char* TextFilename)
 
   char *pIOPt,*pVar,*pType;
   double XMn, XMx, YMn, YMx, X, Y, XRng, YRng, Xoffset, Yoffset, YMax2;
-  #define DORANGE(X,Y) { XMn=Min(XMn,X);XMx=Max(XMx,X);YMn=Min(YMn,Y);YMx=Max(YMx,Y); };
-  #define INITRANGE() { XMn=1e10; XMx=-XMn; YMn=XMn; YMx=XMx; XRng=YRng=0.0; };
-  #define XFerX(X_) (X_+Xoffset)
-  #define XFerY(Y_) (YMax2 - (Y_+Yoffset))
+#define DORANGE(X,Y) { XMn=Min(XMn,X);XMx=Max(XMx,X);YMn=Min(YMn,Y);YMx=Max(YMx,Y); };
+#define INITRANGE() { XMn=1e10; XMx=-XMn; YMn=XMn; YMx=XMx; XRng=YRng=0.0; };
+#define XFerX(X_) (X_+Xoffset)
+#define XFerY(Y_) (YMax2 - (Y_+Yoffset))
   long Pos1,Pos2;
   long Code2=-99;
   CString Symbol;
@@ -439,11 +440,11 @@ void NodeGrfInfo::ExportToFile(NodeGrfInfo* pNGI, char* TextFilename)
               //todo: get the class and list all the available ports...
               /*TagObjClass* pClass = TagObjClass::FindClassName((LPSTR)(LPCSTR)Symbol);
               if (pClass)
-                {
-                RequestModelIOInfoArray Info;
-                CFlwSolver::RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
-                for each...
-                }*/
+              {
+              RequestModelIOInfoArray Info;
+              CFlwSolver::RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
+              for each...
+              }*/
               sprintf(Buff, "TextArea,%g,%g,%g,%g\n", XMn2, YMx2+0.5, XRng, 3.0);
               fwrite(Buff, sizeof(char), strlen(Buff), f2);
               sprintf(Buff, "XMin,%g\nXMax,%g\nYMin,%g\nYMax,%g\n", XMn2, XMx2, YMn2, YMx2);
@@ -470,6 +471,201 @@ void NodeGrfInfo::ExportToFile(NodeGrfInfo* pNGI, char* TextFilename)
     }
   fclose(f);
   fclose(f2);
+  }
+
+//---------------------------------------------------------------------------
+
+void NodeGrfInfo::ExportToFile10(NodeGrfInfo* pNGI, char* Path)
+  {
+  if (!pNGI)
+    return;
+
+  //Strng DefSymbols;
+  //DefSymbols = PrjFiles();
+  //DefSymbols += "DefaultSymbols9.txt";
+  //Strng DefSymbols2;
+  //DefSymbols2 = PrjFiles();
+  //DefSymbols2 += "DefaultSymbols10.txt";
+
+  FILE *f=NULL;
+  //FILE* f = fopen(DefSymbols(), "wt");
+  //if (!f)
+  //  return;
+  //FILE* f2 = fopen(DefSymbols2(), "wt");
+  //if (!f2)
+  //  return;
+
+  NodeGrfInfo* pNGI2 = pNGI;
+
+  char *pIOPt,*pVar,*pType;
+  double XMn, XMx, YMn, YMx, X, Y, XRng, YRng;//, Xoffset, Yoffset, YMax2;
+#define DORANGE(X,Y) { XMn=Min(XMn,X);XMx=Max(XMx,X);YMn=Min(YMn,Y);YMx=Max(YMx,Y); };
+#define INITRANGE() { XMn=1e10; XMx=-XMn; YMn=XMn; YMx=XMx; XRng=YRng=0.0; };
+//#define XFerX(X_) (X_+Xoffset)
+//#define XFerY(Y_) (YMax2 - (Y_+Yoffset))
+  //long Pos1,Pos2;
+  //long Code2=-99;
+  CString Symbol;
+  //TagObjClass* pClass;
+
+  bool FoundEnd = false;
+  //char Buff[4096];
+  for (long Code=pNGI->GetLVal(TRUE); Code != DD_EndList; Code=pNGI->GetLVal())
+    {
+    switch (Code)
+      {
+      case DD_Name:
+        {
+        INITRANGE();
+        Symbol = pNGI->GetPChar();
+        CString DrwGrp;
+        int iColon=Symbol.Find(':');
+        if (iColon>0)
+          {
+          DrwGrp=Symbol.Left(iColon);
+          Symbol=Symbol.Right(Symbol.GetLength()-iColon-1);
+          }
+
+        CString Fn;
+        if (DrwGrp.GetLength()>0)
+          Fn.Format("%s(%s)%s.Default.TxtSym", Path, DrwGrp, Symbol);
+        else
+          Fn.Format("%s%s.Default.TxtSym", Path, Symbol);
+
+        int i=Fn.Find('*');
+        if (i>0)
+          Fn.SetAt(i, ',');
+
+        if (f)
+          fclose(f);
+        f = fopen(Fn, "wt");
+        if (f)
+          {
+          fprintf(f, "Symbol,%s\n", Symbol);
+          fprintf(f, "Group,%s\n", DrwGrp.GetLength()>0 ? DrwGrp : "");
+          }
+        else
+          {
+          LogError("ExportToFile10", 0, "File %s not opened for write", Fn);
+          return;
+          }
+        break;
+        }
+      case DD_Poly:
+        {
+        fprintf(f, "MDrw_Poly, ");
+        while (pNGI2->GetCoOrd(X,Y))
+          {
+          fprintf(f, "%g,%g, ", X, Y);
+          DORANGE(X, Y);
+          }
+        fprintf(f, "\n");
+        break;
+        }
+      case DD_Arc:
+        {
+        fprintf(f, "MDrw_Arc, ");
+        if (pNGI2->GetCoOrd(X,Y))
+          {
+          fprintf(f, " %g,%g, ", X, Y);
+          double Rad=pNGI2->GetLength();
+          DORANGE(X+Rad, Y+Rad);
+          DORANGE(X-Rad, Y-Rad);
+          fprintf(f, "%g, ", Rad);
+          double S=0,E=360;
+          pNGI2->GetPair(S,E); //???
+          }
+        fprintf(f, "\n");
+        break;
+        }
+      case DD_Arc3:
+        {
+        fprintf(f, "MDrw_Arc3, ");
+        while (pNGI2->GetCoOrd(X,Y))
+          {
+          fprintf(f, "%g,%g, ", X, Y);
+          DORANGE(X, Y);
+          }
+        fprintf(f, "\n");
+        break;
+        }
+      case DD_TagPos:
+        {
+        fprintf(f, "MDrw_TagPos, ");
+        if (pNGI2->GetCoOrd(X,Y))
+          {
+          fprintf(f, "%g,%g, ", X, Y);
+          }
+        fprintf(f, "\n");
+        break;
+        }
+      case DD_ValuePos:
+        {
+        fprintf(f, "MDrw_ValuePos, ");
+        if (pNGI2->GetCoOrd(X,Y))
+          {
+          fprintf(f, "%g,%g, ", X, Y);
+          }
+        fprintf(f, "\n");
+        break;
+        }
+      case DD_Scale:
+        fprintf(f, "Scale,%g\n", pNGI2->GetDVal()/1000.0);
+        break;
+      case DD_In:
+      case DD_Out:
+        pIOPt=pNGI2->GetPChar();
+        while (pNGI2->GetCoOrd(X,Y))
+          {
+          DORANGE(X, Y);
+          }
+        break;
+      case DD_Dynm:
+        pVar  = pNGI2->GetAChar();
+        pType = pNGI2->GetAChar();
+        while (pNGI2->GetCoOrd(X,Y))
+          {
+          DORANGE(X, Y);
+          }
+        break;
+      case DD_End:
+        {
+        //const double XMn2 = XFerX(XMn);
+        //const double XMx2 = XFerX(XMx);
+        //const double YMn2 = XFerY(YMx);
+        //const double YMx2 = XFerY(YMn);
+        XRng = XMx-XMn;
+        YRng = YMx-YMn;
+        fprintf(f, "MDrw_End\n");
+        //todo: get the class and list all the available ports...
+        /*TagObjClass* pClass = TagObjClass::FindClassName((LPSTR)(LPCSTR)Symbol);
+        if (pClass)
+        {
+        RequestModelIOInfoArray Info;
+        CFlwSolver::RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
+        for each...
+        }*/
+        fprintf(f, "TextArea,%g,%g,%g,%g\n", XMn, YMx+0.5, XRng, 3.0);
+        fprintf(f, "XMin,%g\nXMax,%g\nYMin,%g\nYMax,%g\n", XMn, XMx, YMn, YMx);
+        fprintf(f, "Width,%g\nHeight,%g\n", XRng, YRng);
+        fprintf(f, "InsertX,%g\nInsertY,%g\n\n", 0.0, 0.0);
+        pNGI2->SetScale(1.0);
+        FoundEnd = true;
+        break;
+        }
+      default: ;
+      }
+    }
+  //Pos2 = pNGI2->Pos;
+
+  //pNGI->Pos = Pos1;
+  //INITRANGE();
+  //pNGI->SetScale(1.0);
+  //break;
+  //  default: ;
+
+  if (f)
+    fclose(f);
   }
 
 //===========================================================================

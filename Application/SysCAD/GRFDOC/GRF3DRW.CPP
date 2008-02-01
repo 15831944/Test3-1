@@ -1268,6 +1268,112 @@ void CGrfLayer::PrintEntities(pViewport vp, FILE *fp)
 
 //----------------------------------------------------------------------------
 
+void CGrfLayer::ExportEntities10(C3_BOX Bnds, FILE *fp)
+  {
+  DML_ITEM it;
+  C3_CURVE c;
+  DXF_ENTITY e;
+
+  // General entity info
+  //fprintf(fp,"      CGrfLayer %s Flags:%d Color:%d LineType:%s\n",
+  //  DXF_LAYER_NAME_GET (Def),
+  //  DXF_LAYER_FLAGS(Def),
+  //  DXF_LAYER_COLOR(Def),
+  //  DXF_LAYER_LTYPE_GET(Def));
+
+#define RANGEPT(Bnds, Pt) {                       \
+      Bnds->minpt[0]=Min(Bnds->minpt[0], Pt[0]);  \
+      Bnds->minpt[1]=Min(Bnds->minpt[1], Pt[1]);  \
+      Bnds->maxpt[0]=Max(Bnds->maxpt[0], Pt[0]);  \
+      Bnds->maxpt[1]=Max(Bnds->maxpt[1], Pt[1]);  \
+    }
+#define RANGEX(Bnds, Val) {                     \
+      Bnds->minpt[0]=Min(Bnds->minpt[0], Val);  \
+      Bnds->maxpt[0]=Max(Bnds->maxpt[0], Val);  \
+    }
+#define RANGEY(Bnds, Val) {                     \
+      Bnds->minpt[1]=Min(Bnds->minpt[1], Val);  \
+      Bnds->maxpt[1]=Max(Bnds->maxpt[1], Val);  \
+    }
+//  Bnds.minp
+//      fprintf(fp,"MDrw_Poly, %g,%g, %g,%g\n",  C3_CURVE_LINE(c)->pt[0][0], C3_CURVE_LINE(c)->pt[0][1], C3_CURVE_LINE(c)->pt[1][0], C3_CURVE_LINE(c)->pt[1][1]);
+
+  WALK_ENTITY_LIST(InsertLst, it, e)
+    {
+    fprintf(fp,"            Insert type:%d name:%-20s addr:%x Segment %x\n",e->entity_id,DXF_INSERT_BLOCK_GET(e),e,it->pKenwalta);
+    }
+  WALK_CURVE_LIST(CurveLst, it, c)
+    {
+    //fprintf(fp,"            Curve addr:%x  Segment %x\n",c,it->pKenwalta);
+    
+    if (C3_CURVE_IS_ARC(c))
+      {
+      REAL Rad;
+      PT3 Ctr;
+      c3c_get_arc_radius ( c, &Rad);
+      c3c_get_arc_center ( c, Ctr); 
+      RANGEX(Bnds, Ctr[0]+Rad);
+      RANGEX(Bnds, Ctr[0]-Rad);
+      RANGEY(Bnds, Ctr[1]+Rad);
+      RANGEY(Bnds, Ctr[1]-Rad);
+      fprintf(fp,"MDrw_Arc %g,%g,%g\n", Ctr[0], Ctr[1], Rad);
+      }
+    else if (C3_CURVE_IS_BEZIER(c))
+      fprintf(fp,"            BEZIER\n");
+    else if (C3_CURVE_IS_ELLIPSE(c))
+      fprintf(fp,"            ELLIPSE\n");
+    else if (C3_CURVE_IS_EXT_ARC(c))
+      {
+      //REAL Rad;
+      //PT3 Ctr;
+      //c3c_get_arc_radius ( c, &Rad);
+      //c3c_get_arc_center ( c, Ctr); 
+      //RANGEX(Bnds, Ctr[0]+Rad);
+      //RANGEX(Bnds, Ctr[0]-Rad);
+      //RANGEY(Bnds, Ctr[1]+Rad);
+      //RANGEY(Bnds, Ctr[1]-Rad);
+      fprintf(fp,"EXT_ARC\n");
+      }
+    else if (C3_CURVE_IS_LINE(c))
+      {
+      //Bnds->minpt[0]=Min(Bnds->minpt[0], Pt[0]);
+      //Bnds->minpt[1]=Min(Bnds->minpt[1], Pt[1]);
+      //Bnds->maxpt[0]=Max(Bnds->maxpt[0], Pt[0]);
+      //Bnds->maxpt[1]=Max(Bnds->maxpt[1], Pt[1]);
+
+      RANGEPT(Bnds, C3_CURVE_LINE(c)->pt[0]);
+      RANGEPT(Bnds, C3_CURVE_LINE(c)->pt[1]);
+      fprintf(fp,"MDrw_Poly, %g,%g, %g,%g\n",  C3_CURVE_LINE(c)->pt[0][0], C3_CURVE_LINE(c)->pt[0][1], C3_CURVE_LINE(c)->pt[1][0], C3_CURVE_LINE(c)->pt[1][1]);
+      }
+    else if (C3_CURVE_IS_PCURVE(c))
+      {
+      //fprintf(fp,"PCURVE\n");
+      BOOLEAN is_arc;
+      PT3 ctr, ept0, ept1, normal;
+      REAL rad, sweep;
+      c3c_ept0(c,ept0);
+      fprintf(fp,"MDrw_PCurve S %3i,  %g,%g,\n", 0, ept0[0],ept0[1]);
+      for (int i=0; c3c_get_pcurve_data ( c, i, &is_arc, ctr, ept1, &rad, normal, &sweep); i++)
+        {
+        if (is_arc)
+          fprintf(fp,"MDrw_PCurve A %3i, %g,%g, %g,%g, %g, %g,%g,%g, %g,\n", i+1, ept1[0],ept1[1], ctr[0], ctr[1], rad, normal[0],normal[1],normal[2], sweep);
+        else
+          fprintf(fp,"MDrw_PCurve P %3i, %g,%g,\n", i+1, ept1[0],ept1[1]);
+        }
+
+      }
+    else
+      fprintf(fp,"            ?????\n");
+
+    }
+  WALK_ENTITY_LIST(OtherLst, it, e)
+    {
+    //fprintf(fp,"            Entity type:%d  addr:%x Segment %x\n",e->entity_id,e,it->pKenwalta);
+    }
+  }
+
+//----------------------------------------------------------------------------
+
 DXF_ENTITY CGrfLayer::Find_Tagged_Insert(pchar Val)
   {
   DML_ITEM it;
@@ -2839,6 +2945,15 @@ void LayerCollection::PrintEntities(pViewport vp, FILE *fp)
   CGrfLayer * l;
   WALK_LAYERS(Layers, NULL, l)
     l->PrintEntities(vp, fp);
+  }
+
+//----------------------------------------------------------------------------
+
+void LayerCollection::ExportEntities10(C3_BOX Bnds, FILE *fp)
+  {
+  CGrfLayer * l;
+  WALK_LAYERS(Layers, NULL, l)
+    l->ExportEntities10(Bnds, fp);
   }
 
 //----------------------------------------------------------------------------
@@ -5453,6 +5568,47 @@ void BlockCollection::PrintEntities(pViewport vp, FILE *fp)
 
 // ---------------------------------------------------------------------------
 
+void BlockCollection::ExportEntities10(C3_BOX Bnds, FILE *fp)
+  {
+  pBlock b = NULL;
+  WALK_BLOCKS(Blocks, b)
+    {
+    //(void)fprintf(fp,"Block Name %s\n",DXF_BLOCK_NAME_GET(b->Def));
+    (void)fprintf(fp,"Symbol,%s\n",DXF_BLOCK_NAME_GET(b->Def));
+    C3_BOX_S Bnds;
+    Bnds.maxpt[0]=-1e30;
+    Bnds.maxpt[1]=-1e30;
+    Bnds.minpt[0]=1e30;
+    Bnds.minpt[1]=1e30;
+    b->ExportEntities10(&Bnds,fp);
+    double XMn=Bnds.minpt[0];
+    double YMn=Bnds.minpt[1];
+    double XMx=Bnds.maxpt[0];
+    double YMx=Bnds.maxpt[1];
+
+    double XRng=XMx-XMn;
+    double YRng=YMx-YMn;
+
+    fprintf(fp, "MDrw_End\n");
+    fprintf(fp, "TextArea,%g,%g,%g,%g\n", XMn, YMx+0.5, XRng, 3.0);
+    fprintf(fp, "XMin,%g\nXMax,%g\nYMin,%g\nYMax,%g\n", XMn, XMx, YMn, YMx);
+    fprintf(fp, "Width,%g\nHeight,%g\n", XRng, YRng);
+    fprintf(fp, "InsertX,%g\nInsertY,%g\n\n", 0.0, 0.0);
+//    XMin,-2
+//XMax,2
+//YMin,-2
+//YMax,2
+//Width,4
+//Height,4
+//InsertX,0
+//InsertY,0
+
+    }
+  return;
+  }
+
+// ---------------------------------------------------------------------------
+
 void BlockCollection::SetDiscColor(DML_LIST llist,int on)
   {
   pBlock b = NULL;
@@ -6091,6 +6247,7 @@ int DXF_Drawing::SaveSymbols(pchar FnPath, pchar DocGUID)
 
   return 0;
   }
+
 // start change
 //----------------------------------------------------------------------------
 
@@ -6756,6 +6913,24 @@ BOOL DXF_Drawing::PrintEntities(pViewport vp, pchar fn)
     Blocks.PrintEntities(vp,fp);
     fprintf(fp," Done printing blocks ***********************************\n");
     LayerCollection::PrintEntities(vp,fp);
+    fclose(fp);
+    return True;
+    }
+  return False;
+  }
+
+//----------------------------------------------------------------------------
+
+BOOL DXF_Drawing::ExportEntities10(C3_BOX Bnds, pchar fn)
+  {
+  FILE* fp = fopen(fn, "w");
+  if (fp)
+    {
+    CWaitCursor Wait;
+    //fprintf(fp," Starting printing blocks ***********************************\n");
+    Blocks.ExportEntities10(Bnds,fp);
+    //fprintf(fp," Done printing blocks ***********************************\n");
+    LayerCollection::ExportEntities10(Bnds,fp);
     fclose(fp);
     return True;
     }
@@ -10255,6 +10430,319 @@ flag DXF_Drawing::GetNodeGrfIOs(pNodeGrfInfo pNGI, pchar NodeName, long ReqdIOs,
   return IOL.Length()>0;
   }
 
+//----------------------------------------------------------------------------
+//
+//
+//
+//----------------------------------------------------------------------------
+
+//void DXF_Drawing::Export(DXF_ENTITY e, FILE * hFile, pViewport vp, C3_BOX box, int color, int Lvl, CGrfLayer * pLay, CGrfLayer * iLay, DML_ITEM item)
+//  {
+//  DWORD CW = FPP_DisableExceptions();
+//  int Ocolor=-1;
+//
+//  if (DXF_ENTITY_IS_INSERT(e))
+//    {
+//    bool Hidden=EntityIsHidden(e);
+//
+//    if (Hidden)
+//      {
+//      if (item->pKenwalta != NULL)
+//        {
+//        CEntInView* p = ((CEntInView*)(item->pKenwalta));
+//        }
+//      }
+//    else 
+//      {
+//
+//      pBlock b;
+//      b = Blocks.Find(DXF_INSERT_BLOCK_GET(e));
+//      if (b)
+//        {
+//        pchar entitytag = Find_Attr_Value(e, "TAG");
+//        int RqdColor= (color>=0 ? color : entitytag==NULL ? Ocolor : -1);
+//
+//#if dbgdxfdraw
+//        dbgpln("  %*s Draw Block %s @ %g,%g,%g * %g,%g,%g %i [%i]%s",Lvl," ",
+//          DXF_BLOCK_NAME_GET(b->Def),
+//          DXF_INSERT_PT(e)[0],DXF_INSERT_PT(e)[1],DXF_INSERT_PT(e)[2],
+//          DXF_INSERT_X_SCALE(e), DXF_INSERT_Y_SCALE(e), DXF_INSERT_Z_SCALE(e),
+//          DXF_ENTITY_COLOR(e),
+//          RqdColor, entitytag);
+//#endif
+//
+//        VP_TRANSFORM vpt;
+//        C3_TRANSFORM Imat,Imat_i;
+//        ConstructInsertMatrix(Imat, b, e);
+//        //SetGfxLayer(color, Lvl, pLay, iLay, (pchar)DXF_ENTITY_LAYER_GET(e), (int)DXF_ENTITY_COLOR(e), DXF_ENTITY_THICKNESS(e));
+//
+//        vpi_get_transform(vp->vp, vpt);
+//        //vp3_append_transform(vp->vp, c3t_r1);
+//        vp3_append_transform(vp->vp, Imat);
+//        C3_BOX_S boxt;
+//        //c3t_inverse(c3t_r1, c3t_r1_i);
+//        c3t_inverse(Imat, Imat_i);
+//        PT3 mn, mx;
+//        //c3t_eval_pt(C3_MIN_PT(box), c3t_r1_i, mn);
+//        //c3t_eval_pt(C3_MAX_PT(box), c3t_r1_i, mx);
+//
+//        c3t_eval_pt(C3_MIN_PT(box), Imat_i, mn);
+//        c3t_eval_pt(C3_MAX_PT(box), Imat_i, mx);
+//
+//        c3v_set(Min(mn[0], mx[0]), Min(mn[1], mx[1]), Min(mn[2], mx[2]), C3_MIN_PT(&boxt));
+//        c3v_set(Max(mn[0], mx[0]), Max(mn[1], mx[1]), Max(mn[2], mx[2]), C3_MAX_PT(&boxt));
+//
+//#if dbgBlk
+//        if (Lvl == 1)
+//          dbgpln("  %*s Blkdbg opening insert segment for %s",Lvl," ",DXF_INSERT_BLOCK_GET(e));
+//        dbgpln("         Blkdbg INSERT");
+//#endif
+//
+//        b->Export(hFile, vp, &boxt, color, Lvl+1, iLay);
+//        vpi_set_transform(vp->vp, vpt);
+//
+//        DML_LIST l1 = DXF_INSERT_ATTRS(e);
+//        DML_ITEM it1;
+//        DXF_ENTITY e1;
+//        if (l1)
+//          {
+//          WALK_ENTITY_LIST(l1, it1, e1)
+//            {
+//            Export(e1, hFile, vp, &boxt, color, Lvl+1, pLay, iLay, item);
+//            }
+//          }
+//        }
+//      else
+//        {
+//#if dbgBlk
+//        pchar iblk=DXF_INSERT_BLOCK_GET(e);
+//        pchar entitytag = Find_Attr_Value(e, "TAG");
+//        dbgpln("  %*s Blkdbg MISSING Block %s %s",Lvl," ",iblk,entitytag);
+//#endif
+//        }
+//#if dbgBlk
+//      if (Lvl==1)
+//        dbgpln("  %*s Blkdbg closing insert segment",Lvl," ");
+//#endif
+//      }
+//    }
+//  else if (DXF_ENTITY_IS_TEXT(e))
+//    {
+////#if dbgBlk
+////    if (Lvl==1)
+////      dbgpln("  %*s Blkdbg opening text segment",Lvl," ");
+////    dbgpln("         Blkdbg TEXT");
+////#endif
+////    SetGfxLayer(color, Lvl, pLay, iLay, (pchar)DXF_ENTITY_LAYER_GET(e), (int)DXF_ENTITY_COLOR(e), DXF_ENTITY_THICKNESS(e));
+////    if (Lvl==1)
+////      ini_vector_buffer();
+////    dxf_text_to_viewport(e, StyleLst, vp->vp);
+////    if (Lvl==1)
+////      {
+////      int RqdColor= (color>=0 ? color : Ocolor);
+////      CEntInView* l = new CEntInView(item, e, (C3_CURVE)NULL, vp, false, RqdColor, -1, -1, DXF_ENTITY_THICKNESS(e), NULL);
+////      if (!l->NumPoint())
+////        {
+////        delete l;
+////        l = NULL;
+////        item->pKenwalta = NULL;
+////        }
+////      else
+////        {
+////        item->pKenwalta = (void*)l;
+////        vp->AddDisplaySegment(l);
+////        l->Qdisplay();
+////        }
+////      }
+////#if dbgBlk
+////    if (Lvl==1)
+////      dbgpln("  %*s Blkdbg closing text segment", Lvl," ");
+////#endif
+//    }
+//  else if (DXF_ENTITY_IS_ATTRIB(e))// && item->pKenwalta == NULL)
+//    {
+////    if ((DXF_ATTRIB_AFLAGS(e) & DXF_ATTRIB_INVIS) == 0)
+////      {
+////#if dbgBlk
+////      if (Lvl==1)
+////        dbgpln("  %*s Blkdbg opening attrib segment",Lvl," ");
+////      dbgpln("         Blkdbg ATTRIB");
+////#endif
+////      SetGfxLayer(color, Lvl, pLay, iLay, (pchar)DXF_ENTITY_LAYER_GET(e), (int)DXF_ENTITY_COLOR(e), DXF_ENTITY_THICKNESS(e));
+////      if (Lvl==1)
+////        ini_vector_buffer();
+////      dxf_attrib_to_viewport(e, StyleLst, vp->vp);
+////      if (Lvl==1)
+////        {
+////        int RqdColor= (color>=0 ? color : Ocolor);
+////        CEntInView* l = new CEntInView(item, e, (C3_CURVE)NULL, vp, false, RqdColor, -1, -1, DXF_ENTITY_THICKNESS(e), NULL);
+////        if (!l->NumPoint())
+////          {
+////          delete l;
+////          l = NULL;
+////          item->pKenwalta = NULL;
+////          }
+////        else
+////          {
+////          item->pKenwalta = (void*)l;
+////          vp->AddDisplaySegment(l);
+////          l->Qdisplay();
+////          }
+////        }
+////
+////#if dbgBlk
+////      if (Lvl==1)
+////        dbgpln("  %*s Blkdbg closing attrib segment",Lvl," ");
+////#endif
+////      }
+//    }
+//
+//  FPP_RestoreExceptions(CW);
+//  }
+//
+////----------------------------------------------------------------------------
+//
+//void DXF_Drawing::Export(C3_CURVE c, FILE * hFile, pViewport vp, C3_BOX box, int color, int Lvl,CGrfLayer * pLay,CGrfLayer * iLay,DML_ITEM item)
+//  {
+//  DWORD CW=FPP_DisableExceptions();
+//
+////dbgpln("DXF_Drawing::Draw");
+//
+//#if dbgcolor
+//  if( pLay && iLay )
+//    {
+//    pchar elay = C3_CURVE_LAYER_GET(c);
+//    int   ecol = c->color;
+//    pchar play = DXF_LAYER_NAME_GET(pLay->Def);
+//    int   pcol = DXF_LAYER_COLOR(pLay->Def);
+//    pchar ilay = DXF_LAYER_NAME_GET(iLay->Def);
+//    int   icol = DXF_LAYER_COLOR(iLay->Def);
+//
+//    TRACE("Curve Drawer has EntityLay (%s %d) InsertLay (%s %d) EntityInfo (%s %d) Color=%d Level=%d",play,pcol,ilay,icol,elay,ecol,color,Lvl);
+//    }
+//  else
+//    {
+//    TRACE("Curve Drawer has NULL CGrfLayer");
+//    }
+//#endif
+//#if dbgdxfdraw
+//  pchar s;
+//  if (C3_CURVE_IS_LINE(c)) s = "LINE";
+//  else if (C3_CURVE_IS_ARC(c)) s = "ARC";
+//  else if (C3_CURVE_IS_PCURVE(c)) s = "PCURVE";
+//  else if (C3_CURVE_IS_ELLIPSE(c)) s = "ELLIPSE";
+//  else if (C3_CURVE_IS_SPLINE(c)) s = "SPLINE";
+//  else s = "????";
+//  dbgpln("  %*s Draw Curve %s %g,%g,%g  %g,%g,%g",Lvl," ",s,
+//    C3_CURVE_X_MIN(c), C3_CURVE_Y_MIN(c), C3_CURVE_Z_MIN(c),
+//    C3_CURVE_X_MAX(c), C3_CURVE_Y_MAX(c), C3_CURVE_Z_MAX(c));
+//  s = (c3a_box_overlap(box, C3_CURVE_BOX(c)) ? "Y" : "n");
+//  dbgpln("  %*s InBox[%s]  %g,%g,%g  %g,%g,%g",Lvl," ",s,
+//    C3_MIN_X(box), C3_MIN_Y(box), C3_MIN_Z(box),
+//    C3_MAX_X(box), C3_MAX_Y(box), C3_MAX_Z(box));
+//#endif
+//
+//  int Ocolor=-1;
+//  if (color==-1 && gs_pPrj->ShowStatus())
+//    if (GrfHelper.iShowMdlStatusUnKnown)
+//      Ocolor=GR_MDLSTATUS_UNKNOWN;
+//
+//  if (color != -1 && item->pKenwalta)
+//    {
+//    CEntInView* l = (CEntInView*)(item->pKenwalta);
+//    item->pKenwalta = (void *)l->EntityInvalidate();
+//    }
+//
+//
+//  if( item->pKenwalta == NULL )
+//    {
+//    SetGfxLayer(color , Lvl , pLay , iLay , C3_CURVE_LAYER_GET(c) , (int)c->m_Color, c->m_Thickness);
+//#if dbgBlk
+//    if( Lvl == 1 )
+//      dbgpln("  %*s Blkdbg opening curve segment",Lvl," ");
+//    dbgpln("         Blkdbg CURVE");
+//#endif
+//    if( Lvl == 1 )
+//      ini_vector_buffer();
+//    v3d_curve ( c, NULL, NULL ,vp->vp);
+//    if( Lvl == 1 )
+//      {
+//      CEntInView* l = new CEntInView(item,(DXF_ENTITY)NULL,c,vp, false, Ocolor, -1, -1, c->m_Thickness, NULL);
+//      if( !l->NumPoint() )
+//        {
+//        delete l;
+//        l = NULL;
+//        item->pKenwalta = NULL;
+//        }
+//      else
+//        {
+//        item->pKenwalta = (void *)l;
+//        vp->AddDisplaySegment(l);
+//        l->Qdisplay();
+//        }
+//      }
+//
+//#if dbgBlk
+//    if( Lvl == 1 )
+//      dbgpln("  %*s Blkdbg closing curve segment",Lvl," ");
+//#endif
+//
+//    if( vp->Curseg_level != -1 && vp->Curseg_level != vp->Curseg_offset.GetLen() )
+//      {
+//      // if( _stricmp(DXF_LAYER_NAME(pLay->Def),LayerNames[Drawing_Layer]) == 0 )
+//      //   {
+//      vp->Curseg_offset[vp->Curseg_level] = get_buffer_offset();
+//      vp->Curseg_level += 1;
+//      //   }
+//      }
+//
+//    }
+//  if( item->pKenwalta )
+//    {
+//    CEntInView* l = (CEntInView*)(item->pKenwalta);
+//    l->Qdisplay();
+//    }
+//
+//  FPP_RestoreExceptions(CW);
+//  }
+//
+////----------------------------------------------------------------------------
+//
+//void DXF_Drawing::Export(FILE * hFile, pViewport vp, /*ZoomTypes ZoomType, C3_BOX ZoomBoxIn,*/ C3_BOX SubRgn, pchar LayName)
+//  {
+//  DWORD CW=FPP_DisableExceptions();
+//#if dbgdxfdraw
+//  ////dbgfileflush(1);
+//#endif
+//
+//  PT3 v1;
+//  REAL w;
+//  REAL h;
+//  vp3_get_ctr(vp->vp, v1);
+//  vpi_get_wh(vp->vp, &w, &h);
+//
+//  C3_BOX_S ZoomBox;
+//  c3v_set(v1[0]+(C3_MIN_X(SubRgn)-0.5)*w, v1[1]+(C3_MIN_Y(SubRgn)-0.5)*h, -1e10,C3_MIN_PT(&ZoomBox));
+//  c3v_set(v1[0]+(C3_MAX_X(SubRgn)+0.5)*w, v1[1]+(C3_MAX_Y(SubRgn)+0.5)*h, 1e10,C3_MAX_PT(&ZoomBox));
+//
+//  // dump_vp(vp);
+//
+//  //UpdateModelAssocGrfs();
+//
+//  LayerCollection::Export(vp, &ZoomBox, -1,1,NULL);
+//
+//#if dbgdxfdraw
+//  //dbgpln("DXF_Drawing::Draw Mem Used [%li]", MemUsed());
+//  //dbgfileflush(0);
+//#endif
+//  FPP_RestoreExceptions(CW);
+//  }
+
+//----------------------------------------------------------------------------
+//
+//
+//
+//----------------------------------------------------------------------------
 //===========================================================================
 
 void Big_Curs(HDC my_HDC, int x0, int y0)

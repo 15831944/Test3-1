@@ -178,7 +178,7 @@
 				ProgramDataBaseFileName=".\RDb8/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				CompileAs="0"
 			/>
 			<Tool
@@ -288,7 +288,7 @@
 				ProgramDataBaseFileName=".\Dbg8/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				CompileAs="0"
 			/>
 			<Tool
@@ -493,7 +493,7 @@
 				PrecompiledHeaderThrough="stdafx.h"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 				CompileAs="0"
 			/>
 			<Tool
@@ -574,7 +574,7 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\LogView.dll"
-			AssemblyName="LogView, Version=1.0.2887.12811, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
+			AssemblyName="LogView, Version=1.0.2952.28500, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{84E71746-0BE4-4E11-AB5D-9574D9E75D3B}"

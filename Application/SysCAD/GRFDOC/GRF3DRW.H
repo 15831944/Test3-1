@@ -529,6 +529,7 @@ class CGrfLayer
     C3_CURVE         ClosestCurve(PT3 Point, REAL &DistMin);
     void             EntityInvalidate(DXF_ENTITY e = NULL,C3_CURVE c = NULL);
     void             PrintEntities(pViewport vp,FILE *fp);
+    void             ExportEntities10(C3_BOX Bnds, FILE *fp);
     DXF_ENTITY       Find_Tagged_Insert(pchar pVal);
     void             SetDiscColor(DML_LIST dlay = NULL,int on= NULL);
 
@@ -639,6 +640,7 @@ class LayerCollection
     flag             Exists(DXF_ENTITY e);
     flag             Exists(C3_CURVE c);
     void             PrintEntities(Viewport * vp,FILE *fp);
+    void             ExportEntities10(C3_BOX Bnds, FILE *fp);
     DXF_ENTITY       Find_Tagged_Insert(pchar pVal);
     void             EntityInvalidate(DXF_ENTITY e = NULL,C3_CURVE c = NULL);
     void             SetDiscColor(DML_LIST dlay = NULL,int on= NULL);
@@ -695,6 +697,7 @@ class BlockCollection
     pBlock           FindByIndex(int index);
     int              FindUnique(pchar CoreName, int NoFindRet=0);
     void             PrintEntities(Viewport * vp,FILE *fp);
+    void             ExportEntities10(C3_BOX Bnds, FILE *fp);
     void             EntityInvalidate(DXF_ENTITY e = NULL,C3_CURVE c = NULL);
     void             SetDiscColor(DML_LIST dlay=NULL,int on=NULL);
     pBlock           Append(DXF_BLOCK block);
@@ -725,6 +728,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
     void              ConstructInsertMatrix(C3_TRANSFORM Imat,pBlock b,DXF_ENTITY e);
     void              EntityInvalidate(DXF_ENTITY e = NULL,C3_CURVE c = NULL);
     BOOL              PrintEntities(Viewport * vp, pchar file_name);
+    BOOL              ExportEntities10(C3_BOX Bnds, pchar fn);
     flag              CleanupDXF(pchar fn);
     void              SetDiscColor(DML_LIST dlay = NULL,int on = NULL);
 

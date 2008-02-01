@@ -849,6 +849,8 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
 
     void           Remove9Graphics();
 
+    void           ExportScd9Symbols();
+    int            ExportScd9SymbolsInPath(LPCSTR SrcPath, LPCSTR OutPath, LPCSTR Group);
 
     CSvcConnect  & getSvc()                 { return *m_pSvc; };
     bool           getSvcActive()           { return m_pSvc!=NULL; };

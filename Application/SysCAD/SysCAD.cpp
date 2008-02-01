@@ -3447,6 +3447,7 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
   bForegroundWnd = true;
   bMinimiseWnd = false;
   bNoClosePrompt = false;
+  bForScd10 = false;
   nAutoRunWait =  0;
 #if (WITHLOCALCOPY)
   bAllowLocalCopy = true;
@@ -3670,6 +3671,10 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
             if (AfxGetMainWnd())
               LogWarning("SysCAD", 0, "Additional project file '%s' ignored", p);
           }
+        }
+      else if (Option=="/scd10")
+        {
+        bForScd10 = true;
         }
       else
         {

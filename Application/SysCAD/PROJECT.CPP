@@ -70,6 +70,7 @@ extern "C"
   }
 
 #include "SvcConn.h"
+#include "grf3drw.h"
 
 //#include "optoff.h"
 
@@ -6618,6 +6619,10 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 
     gs_ProjectOpenFlag++;
 
+    if (ScdApp()->m_CLH.bForScd10)
+      {
+      ExportScd9Symbols();
+      }
 
     CDlgBusy::Close();
     }
@@ -6718,6 +6723,80 @@ void CProject::Remove9Graphics()
       }
     }
   };
+
+//---------------------------------------------------------------------------
+
+int CProject::ExportScd9SymbolsInPath(LPCSTR SrcPath, LPCSTR OutPath, LPCSTR Group)
+  {
+  int nAdded=0;
+
+  WIN32_FIND_DATA fdd;
+  Strng SrchPath;
+  SrchPath.Set("%s*.*", SrcPath);
+  HANDLE hFolders=FindFirstFile(SrchPath(), &fdd);
+
+  flag AllFolders = (hFolders==INVALID_HANDLE_VALUE);
+  while (!AllFolders)
+    {
+    Strng Name, Ext;
+    Name.FnName(fdd.cFileName);
+    Ext.FnExt(fdd.cFileName);
+    if ((fdd.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_HIDDEN)) == FILE_ATTRIBUTE_DIRECTORY)
+      {
+      if (fdd.cFileName[0] != '.')
+        {
+        Strng SPath, OPath;
+        SPath.Set("%s%s\\", SrcPath, fdd.cFileName);
+        nAdded+=ExportScd9SymbolsInPath(SPath(), OutPath, fdd.cFileName);
+        }
+      }
+    else
+      {
+      if (Ext.XStrICmp(".dxf")==0)
+        {
+        Strng Err;
+
+        Strng OutFn;             
+        OutFn.Set("%s(%s)%s.TxtSym", OutPath, Group, Name());
+
+        //FILE * h=fopen(OutFn(), "wt");
+        //if (h)
+        //  {
+
+          DXF_Drawing Dwg(NULL, "Dummy", true);
+          Block * b = Dwg.LoadFromLib((LPSTR)SrcPath, Name(), Name());
+          //DXF_ENTITY e = NULL;//Dwg.Create_Insert(DXF_BLOCK_NAME_GET(b->Def), Pt_3f(0,0,0)/*, GR_LIGHTGREEN, Scl, Rotate, Guid, Tag, AssocTag, Ptt, TagAttSet*/);
+          //Dwg.GetBounds();
+          //Dwg.m_Bounds;
+          ///...........
+
+          //Viewport Vp(;
+          if (Dwg.ExportEntities10(/*&Vp*/NULL, OutFn()/*, e*/))
+            nAdded++;
+          //fclose(h);
+          //}
+        }
+      }
+    AllFolders = !FindNextFile(hFolders, &fdd);
+    }
+  return nAdded;
+  }
+
+void CProject::ExportScd9Symbols()
+  {
+  //all dxf symbols...
+  int nAdded=0;
+
+  Strng SymPath(BaseGrfSymbolFiles());
+
+  Strng OutPath(BaseCfgFiles());
+  OutPath+="SymbolUpdates\\";
+
+  nAdded=ExportScd9SymbolsInPath(BaseGrfSymbolFiles(), OutPath(), "");
+
+  NodeGrfInfo * pNGI=gs_pPrj->GetNodeDrawings();
+  NodeGrfInfo::ExportToFile10(pNGI, OutPath());
+  }
 
 //---------------------------------------------------------------------------
 
