@@ -1295,12 +1295,10 @@ void CGrfLayer::ExportEntities10(C3_BOX Bnds, FILE *fp)
       Bnds->minpt[1]=Min(Bnds->minpt[1], Val);  \
       Bnds->maxpt[1]=Max(Bnds->maxpt[1], Val);  \
     }
-//  Bnds.minp
-//      fprintf(fp,"MDrw_Poly, %g,%g, %g,%g\n",  C3_CURVE_LINE(c)->pt[0][0], C3_CURVE_LINE(c)->pt[0][1], C3_CURVE_LINE(c)->pt[1][0], C3_CURVE_LINE(c)->pt[1][1]);
 
   WALK_ENTITY_LIST(InsertLst, it, e)
     {
-    fprintf(fp,"            Insert type:%d name:%-20s addr:%x Segment %x\n",e->entity_id,DXF_INSERT_BLOCK_GET(e),e,it->pKenwalta);
+    //fprintf(fp,"            Insert type:%d name:%-20s addr:%x Segment %x\n",e->entity_id,DXF_INSERT_BLOCK_GET(e),e,it->pKenwalta);
     }
   WALK_CURVE_LIST(CurveLst, it, c)
     {
@@ -1324,23 +1322,10 @@ void CGrfLayer::ExportEntities10(C3_BOX Bnds, FILE *fp)
       fprintf(fp,"            ELLIPSE\n");
     else if (C3_CURVE_IS_EXT_ARC(c))
       {
-      //REAL Rad;
-      //PT3 Ctr;
-      //c3c_get_arc_radius ( c, &Rad);
-      //c3c_get_arc_center ( c, Ctr); 
-      //RANGEX(Bnds, Ctr[0]+Rad);
-      //RANGEX(Bnds, Ctr[0]-Rad);
-      //RANGEY(Bnds, Ctr[1]+Rad);
-      //RANGEY(Bnds, Ctr[1]-Rad);
       fprintf(fp,"EXT_ARC\n");
       }
     else if (C3_CURVE_IS_LINE(c))
       {
-      //Bnds->minpt[0]=Min(Bnds->minpt[0], Pt[0]);
-      //Bnds->minpt[1]=Min(Bnds->minpt[1], Pt[1]);
-      //Bnds->maxpt[0]=Max(Bnds->maxpt[0], Pt[0]);
-      //Bnds->maxpt[1]=Max(Bnds->maxpt[1], Pt[1]);
-
       RANGEPT(Bnds, C3_CURVE_LINE(c)->pt[0]);
       RANGEPT(Bnds, C3_CURVE_LINE(c)->pt[1]);
       fprintf(fp,"MDrw_Poly, %g,%g, %g,%g\n",  C3_CURVE_LINE(c)->pt[0][0], C3_CURVE_LINE(c)->pt[0][1], C3_CURVE_LINE(c)->pt[1][0], C3_CURVE_LINE(c)->pt[1][1]);
@@ -1352,24 +1337,39 @@ void CGrfLayer::ExportEntities10(C3_BOX Bnds, FILE *fp)
       PT3 ctr, ept0, ept1, normal;
       REAL rad, sweep;
       c3c_ept0(c,ept0);
+      RANGEPT(Bnds, ept0);
+      RANGEY(Bnds, ept0[1]);
       fprintf(fp,"MDrw_PCurve S %3i,  %g,%g,\n", 0, ept0[0],ept0[1]);
       for (int i=0; c3c_get_pcurve_data ( c, i, &is_arc, ctr, ept1, &rad, normal, &sweep); i++)
         {
         if (is_arc)
+          {
+          RANGEPT(Bnds, ept1);
+          //RANGEX(Bnds, Ctr[0]+Rad);
+          //RANGEX(Bnds, Ctr[0]-Rad);
+          //RANGEY(Bnds, Ctr[1]+Rad);
+          //RANGEY(Bnds, Ctr[1]-Rad);
           fprintf(fp,"MDrw_PCurve A %3i, %g,%g, %g,%g, %g, %g,%g,%g, %g,\n", i+1, ept1[0],ept1[1], ctr[0], ctr[1], rad, normal[0],normal[1],normal[2], sweep);
+          }
         else
+          {
+          RANGEPT(Bnds, ept1);
           fprintf(fp,"MDrw_PCurve P %3i, %g,%g,\n", i+1, ept1[0],ept1[1]);
+          }
         }
 
       }
     else
       fprintf(fp,"            ?????\n");
-
     }
   WALK_ENTITY_LIST(OtherLst, it, e)
     {
     //fprintf(fp,"            Entity type:%d  addr:%x Segment %x\n",e->entity_id,e,it->pKenwalta);
     }
+
+#undef RANGEPT(Bnds, Pt)
+#undef RANGEX(Bnds, Val)
+#undef RANGEY(Bnds, Val)
   }
 
 //----------------------------------------------------------------------------
