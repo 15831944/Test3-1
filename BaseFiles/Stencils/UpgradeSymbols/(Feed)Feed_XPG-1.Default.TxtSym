@@ -1,0 +1,15 @@
+Symbol,Feed_XPG-1
+Group,Feed
+MDrw_Poly, -10,3, 7,3, 10,0, 7,-3, -10,-3, -7,0, -10,3, 
+MDrw_TagPos, 0,-6.5, 
+MDrw_End
+TextArea,-10,3.5,20,3
+XMin,-10
+XMax,10
+YMin,-3
+YMax,3
+Width,20
+Height,6
+InsertX,0
+InsertY,0
+

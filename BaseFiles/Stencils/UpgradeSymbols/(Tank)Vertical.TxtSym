@@ -1,0 +1,16 @@
+Symbol,Vertical
+MDrw_Poly, -4.59428,7.11428, -4.59428,-7.21716
+MDrw_Poly, 4.96002,7.11428, 4.96002,-7.21716
+MDrw_Arc 0.182873,4.56647,5.4141
+MDrw_Arc 0.182873,-4.66935,5.4141
+MDrw_End
+TextArea,-5.23123,10.4806,10.8282,3
+XMin,-5.23123
+XMax,5.59698
+YMin,-10.0835
+YMax,9.98057
+Width,10.8282
+Height,20.064
+InsertX,0
+InsertY,0
+

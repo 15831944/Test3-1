@@ -1,0 +1,18 @@
+Symbol,Fixed Drainage Panel
+MDrw_Poly, 0.04,8.66, 0.04,11.16
+MDrw_Poly, 0.04,11.16, -7.46,11.16
+MDrw_Poly, -7.46,11.16, -7.46,3.66
+MDrw_Poly, -7.46,3.66, 5.04,-6.34
+MDrw_Poly, 5.04,-6.34, 5.04,-11.34
+MDrw_Poly, -7.46,6.16, 5.04,-3.84
+MDrw_End
+TextArea,-7.46,11.66,12.5,3
+XMin,-7.46
+XMax,5.04
+YMin,-11.34
+YMax,11.16
+Width,12.5
+Height,22.5
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,26 @@
+Symbol,Thickener
+MDrw_Poly, -23.75,3.75, 23.75,3.75
+MDrw_Poly, 23.75,-1.25, -23.75,-1.25
+MDrw_Poly, -23.75,-1.25, -23.75,3.75
+MDrw_Poly, -23.75,-1.25, 0,-6.25
+MDrw_Poly, -10,2.5, -10,5
+MDrw_Poly, -10,5, 10,5
+MDrw_Poly, 10,2.5, -10,2.5
+MDrw_Poly, -23.75,0, -21.25,0
+MDrw_Poly, -21.25,0, -21.25,2.5
+MDrw_Poly, 23.75,-1.25, 0,-6.25
+MDrw_Poly, 23.75,-1.25, 23.75,3.75
+MDrw_Poly, 23.75,0, 21.25,0
+MDrw_Poly, 21.25,0, 21.25,2.5
+MDrw_Poly, 10,2.5, 10,5
+MDrw_End
+TextArea,-23.75,5.5,47.5,3
+XMin,-23.75
+XMax,23.75
+YMin,-6.25
+YMax,5
+Width,47.5
+Height,11.25
+InsertX,0
+InsertY,0
+

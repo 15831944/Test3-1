@@ -1,0 +1,20 @@
+Symbol,4 Way Valve Control
+MDrw_Poly, -2.5,2.5, -2.5,-2.5
+MDrw_Poly, 2.5,2.5, 2.5,-2.5
+MDrw_Poly, -2.5,-2.5, 2.5,-2.5
+MDrw_Poly, -2.5,2.5, 2.5,2.5
+MDrw_Arc 0,0,1.875
+MDrw_Poly, 0,7.5, 0,2.5
+MDrw_Poly, -2.5,7.5, 2.5,7.5
+MDrw_Arc -4.25059e-031,7.5,2.5
+MDrw_End
+TextArea,-2.5,10.5,5,3
+XMin,-2.5
+XMax,2.5
+YMin,-2.5
+YMax,10
+Width,5
+Height,12.5
+InsertX,0
+InsertY,0
+

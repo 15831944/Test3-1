@@ -1,0 +1,17 @@
+Symbol,FlshTank-1
+Group,Tank
+MDrw_Poly, -5.5,9.4, -5.5,-7.2, 0,-12.7, 5.5,-7.2, 5.5,9.4, 
+MDrw_Poly, -5.5,-3.8, 5.5,-3.8, 
+MDrw_Arc3, -5.5,9.4, 0,12.7, 5.5,9.4, 
+MDrw_TagPos, 0,-16.2, 
+MDrw_End
+TextArea,-5.5,13.2,11,3
+XMin,-5.5
+XMax,5.5
+YMin,-12.7
+YMax,12.7
+Width,11
+Height,25.4
+InsertX,0
+InsertY,0
+

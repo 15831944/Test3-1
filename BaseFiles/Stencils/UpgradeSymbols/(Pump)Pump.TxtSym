@@ -1,0 +1,16 @@
+Symbol,Pump
+MDrw_Poly, -0.490173,-3.96777, 4.50983,-3.96777
+MDrw_Arc -0.490173,0.0322269,4
+MDrw_Poly, -0.490173,-1.96777, 4.50983,-1.96777
+MDrw_Poly, 4.50983,-1.96777, 4.50983,-3.96777
+MDrw_End
+TextArea,-4.49017,4.53223,9,3
+XMin,-4.49017
+XMax,4.50983
+YMin,-3.96777
+YMax,4.03223
+Width,9
+Height,8
+InsertX,0
+InsertY,0
+

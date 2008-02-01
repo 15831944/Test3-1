@@ -1,0 +1,17 @@
+Symbol,Classif
+Group,WasherDecanter
+MDrw_Poly, -6,1, -6,9, 6,9, 6,1, 2.7,-13, -2.7,-13, -6,1, 6,1, 
+MDrw_Poly, -2,9, -2,13, 2,13, 2,9, 
+MDrw_Poly, -6,6, -8,6, -8,4, -6,4, 
+MDrw_TagPos, 0,-16.5, 
+MDrw_End
+TextArea,-8,13.5,14,3
+XMin,-8
+XMax,6
+YMin,-13
+YMax,13
+Width,14
+Height,26
+InsertX,0
+InsertY,0
+

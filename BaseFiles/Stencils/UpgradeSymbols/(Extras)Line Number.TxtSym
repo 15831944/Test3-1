@@ -1,0 +1,16 @@
+Symbol,Line Number
+MDrw_Poly, -15,-1.875, 15,-1.875
+MDrw_Poly, 15,1.875, -15,1.875
+MDrw_Arc 15.5469,1.24342e-016,1.95313
+MDrw_Arc -15.5469,-1.25145e-017,1.95313
+MDrw_End
+TextArea,-17.5,2.45313,35,3
+XMin,-17.5
+XMax,17.5
+YMin,-1.95313
+YMax,1.95313
+Width,35
+Height,3.90625
+InsertX,0
+InsertY,0
+

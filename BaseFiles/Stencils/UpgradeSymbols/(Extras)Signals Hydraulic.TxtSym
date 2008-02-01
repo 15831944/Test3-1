@@ -1,0 +1,14 @@
+Symbol,Signals Hydraulic
+MDrw_Poly, 0,0, 0,2.5
+MDrw_Poly, 2.5,0, 0,0
+MDrw_End
+TextArea,0,3,2.5,3
+XMin,0
+XMax,2.5
+YMin,0
+YMax,2.5
+Width,2.5
+Height,2.5
+InsertX,0
+InsertY,0
+

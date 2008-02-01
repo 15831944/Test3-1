@@ -1,0 +1,16 @@
+Symbol,AngledBottom
+MDrw_Poly, -7.47322,8.94426, -7.47322,-11.0557
+MDrw_Poly, 7.52678,-14.7351, 7.52678,8.94426
+MDrw_Poly, -7.47322,-11.0557, 7.52678,-14.7351
+MDrw_Poly, -7.47322,8.94426, 7.52678,8.94426
+MDrw_End
+TextArea,-7.47322,9.44426,15,3
+XMin,-7.47322
+XMax,7.52678
+YMin,-14.7351
+YMax,8.94426
+Width,15
+Height,23.6793
+InsertX,0
+InsertY,0
+

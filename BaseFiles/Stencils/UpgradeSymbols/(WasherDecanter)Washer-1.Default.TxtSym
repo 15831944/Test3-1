@@ -1,0 +1,16 @@
+Symbol,Washer-1
+Group,WasherDecanter
+MDrw_Poly, -25,5.7, -25,2.7, -22,2.7, -22,5.7, 22,5.7, 22,2.7, 25,2.7, 25,5.7, 25,2.7, 22,2.7, 22,1.7, 0,-7.5, -22,1.7, -22,2.7, -22,1.7, 22,1.7, 
+MDrw_Poly, -9,7.5, -9,3.9, 9,3.9, 9,7.5, -9,7.5, 
+MDrw_TagPos, 0,-11, 
+MDrw_End
+TextArea,-25,8,50,3
+XMin,-25
+XMax,25
+YMin,-7.5
+YMax,7.5
+Width,50
+Height,15
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,17 @@
+Symbol,Steam Trap
+MDrw_Poly, -5,5, 0,0
+MDrw_Poly, 0,0, 5,5
+MDrw_Poly, 5,5, 6.25,5
+MDrw_Poly, -5,5, -6.25,5
+MDrw_Poly, 0,0, 0,-5
+MDrw_End
+TextArea,-6.25,5.5,12.5,3
+XMin,-6.25
+XMax,6.25
+YMin,-5
+YMax,5
+Width,12.5
+Height,10
+InsertX,0
+InsertY,0
+

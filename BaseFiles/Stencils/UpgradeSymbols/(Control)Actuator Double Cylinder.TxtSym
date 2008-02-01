@@ -1,0 +1,18 @@
+Symbol,Actuator Double Cylinder
+MDrw_Poly, 0,-2.5, 0,3.125
+MDrw_Poly, -1.875,1.25, 1.875,1.25
+MDrw_Poly, 1.875,1.25, 1.875,5
+MDrw_Poly, 1.875,5, -1.875,5
+MDrw_Poly, -1.875,5, -1.875,1.25
+MDrw_Poly, -1.875,3.125, 1.875,3.125
+MDrw_End
+TextArea,-1.875,5.5,3.75,3
+XMin,-1.875
+XMax,1.875
+YMin,-2.5
+YMax,5
+Width,3.75
+Height,7.5
+InsertX,0
+InsertY,0
+

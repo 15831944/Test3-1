@@ -1,0 +1,16 @@
+Symbol,Logic Characterize
+MDrw_Poly, -3.15,2.48, 3.1,2.48
+MDrw_Poly, 3.1,2.48, 3.1,-2.52
+MDrw_Poly, 3.1,-2.52, -3.15,-2.52
+MDrw_Poly, -3.15,-2.52, -3.15,2.48
+MDrw_End
+TextArea,-3.15,2.98,6.25,3
+XMin,-3.15
+XMax,3.1
+YMin,-2.52
+YMax,2.48
+Width,6.25
+Height,5
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,15 @@
+Symbol,Square Tank
+MDrw_Poly, -10.7803,9.98448, -10.7803,-9.88735
+MDrw_Poly, 10.898,9.98448, 10.898,-9.88735
+MDrw_Poly, -10.7803,-9.88735, 10.898,-9.88735
+MDrw_End
+TextArea,-10.7803,10.4845,21.6784,3
+XMin,-10.7803
+XMax,10.898
+YMin,-9.88735
+YMax,9.98448
+Width,21.6784
+Height,19.8718
+InsertX,0
+InsertY,0
+

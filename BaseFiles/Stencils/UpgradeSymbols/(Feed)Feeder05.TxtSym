@@ -1,0 +1,17 @@
+Symbol,Feeder05
+MDrw_Poly, -11.5,4.375, -11.5,-4.375
+MDrw_Poly, -11.5,-4.375, 9.75,-4.375
+MDrw_Poly, -11.5,4.375, 9.75,4.375
+MDrw_Poly, 9.75,-4.375, 13.5,0
+MDrw_Poly, 13.5,0, 9.75,4.375
+MDrw_End
+TextArea,-11.5,4.875,25,3
+XMin,-11.5
+XMax,13.5
+YMin,-4.375
+YMax,4.375
+Width,25
+Height,8.75
+InsertX,0
+InsertY,0
+

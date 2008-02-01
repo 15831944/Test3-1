@@ -1,0 +1,14 @@
+Symbol,LT_E
+MDrw_Arc 10,0,5
+MDrw_Poly, 0,0, 5,0
+MDrw_End
+TextArea,0,5.5,15,3
+XMin,0
+XMax,15
+YMin,-5
+YMax,5
+Width,15
+Height,10
+InsertX,0
+InsertY,0
+

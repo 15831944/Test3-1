@@ -1,0 +1,15 @@
+Symbol,Turbine
+Group,HeatTransfer
+MDrw_Poly, -4,4, -4,-4, 4,-8, 4,8, -4,4, 
+MDrw_TagPos, 0,-11.5, 
+MDrw_End
+TextArea,-4,8.5,8,3
+XMin,-4
+XMax,4
+YMin,-8
+YMax,8
+Width,8
+Height,16
+InsertX,0
+InsertY,0
+

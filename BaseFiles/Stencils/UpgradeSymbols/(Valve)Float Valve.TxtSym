@@ -1,0 +1,19 @@
+Symbol,Float Valve
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, -3.75,-1.875, 3.75,1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, -3.75,1.875
+MDrw_Poly, 0,0, 0,5
+MDrw_Arc -3.75,3.75,0.75
+MDrw_Poly, 0,5, -3.03849,3.98717
+MDrw_End
+TextArea,-4.5,5.5,8.25,3
+XMin,-4.5
+XMax,3.75
+YMin,-1.875
+YMax,5
+Width,8.25
+Height,6.875
+InsertX,0
+InsertY,0
+

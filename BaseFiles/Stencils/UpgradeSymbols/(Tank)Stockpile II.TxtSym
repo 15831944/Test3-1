@@ -1,0 +1,16 @@
+Symbol,Stockpile II
+MDrw_Poly, -17.469,-6.70837, -10.3935,9.83062
+MDrw_Poly, 10.3935,9.83062, -10.3935,9.83062
+MDrw_Poly, 17.469,-6.70837, -17.469,-6.70837
+MDrw_Poly, 17.469,-6.70837, 10.3935,9.83062
+MDrw_End
+TextArea,-17.469,10.3306,34.938,3
+XMin,-17.469
+XMax,17.469
+YMin,-6.70837
+YMax,9.83062
+Width,34.938
+Height,16.539
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,20 @@
+Symbol,Double Deck Horiz Vibrating Screen
+MDrw_Poly, -0.0191917,-10.658, 12.4808,4.342
+MDrw_Poly, 12.4808,4.342, -12.5192,4.342
+MDrw_Poly, 12.4808,4.342, 12.4808,9.342
+MDrw_Poly, 12.4808,9.342, -12.5192,9.342
+MDrw_Poly, -12.5192,4.342, -12.5192,9.342
+MDrw_Poly, -0.0191917,-10.658, -12.5192,4.342
+MDrw_Poly, 12.4808,6.217, -12.5192,6.217
+MDrw_Poly, 12.4808,7.467, -12.5192,7.467
+MDrw_End
+TextArea,-12.5192,9.842,25,3
+XMin,-12.5192
+XMax,12.4808
+YMin,-10.658
+YMax,9.342
+Width,25
+Height,20
+InsertX,0
+InsertY,0
+

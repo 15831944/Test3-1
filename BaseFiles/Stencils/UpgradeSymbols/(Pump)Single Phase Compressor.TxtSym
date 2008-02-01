@@ -1,0 +1,24 @@
+Symbol,Single Phase Compressor
+MDrw_Poly, -3.18,-0.64, 3.07,-0.64
+MDrw_Poly, 3.07,1.86, 3.07,0.61
+MDrw_Poly, 3.07,-1.89, 6.82,-1.89
+MDrw_Poly, 6.82,-1.89, 6.82,1.86
+MDrw_Poly, 6.82,1.86, 3.07,1.86
+MDrw_Poly, -3.18,0.61, 3.07,0.61
+MDrw_Poly, 3.07,-0.64, 3.07,-1.89
+MDrw_Poly, -3.18,-1.89, -6.93,-1.89
+MDrw_Poly, -6.93,1.86, -3.18,1.86
+MDrw_Poly, -6.93,-1.89, -6.93,1.86
+MDrw_Poly, -3.18,-0.64, -3.18,-1.89
+MDrw_Poly, -3.18,1.86, -3.18,0.61
+MDrw_End
+TextArea,-6.93,2.36,13.75,3
+XMin,-6.93
+XMax,6.82
+YMin,-1.89
+YMax,1.86
+Width,13.75
+Height,3.75
+InsertX,0
+InsertY,0
+

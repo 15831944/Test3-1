@@ -1,0 +1,14 @@
+Symbol,CBBSurge
+Group,Tank
+MDrw_Poly, -10,-9, -10,9, 10,9, 10,-9, -10,-9, 
+MDrw_End
+TextArea,-10,9.5,20,3
+XMin,-10
+XMax,10
+YMin,-9
+YMax,9
+Width,20
+Height,18
+InsertX,0
+InsertY,0
+

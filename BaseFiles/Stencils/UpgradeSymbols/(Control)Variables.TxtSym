@@ -1,0 +1,15 @@
+Symbol,Variables
+MDrw_Arc 0,-5.04,5
+MDrw_Arc 0,4.96,5
+MDrw_Poly, 0,-10.04, 0,9.96
+MDrw_End
+TextArea,-5,10.46,10,3
+XMin,-5
+XMax,5
+YMin,-10.04
+YMax,9.96
+Width,10
+Height,20
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,22 @@
+Symbol,Water Separator
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 5,1.875, 5,-1.875
+MDrw_Poly, -5,1.875, -5,-1.875
+MDrw_Poly, -1.25,1.25, -1.25,-1.25
+MDrw_Poly, 1.25,-1.25, 1.25,1.25
+MDrw_Arc -2.12529e-031,1.25,1.25
+MDrw_Arc -7.14347e-032,-1.25,1.25
+MDrw_Poly, -1.25,-1.25, 1.25,-1.25
+MDrw_Poly, 1.25,1.25, -1.25,1.25
+MDrw_End
+TextArea,-5,3,10,3
+XMin,-5
+XMax,5
+YMin,-2.5
+YMax,2.5
+Width,10
+Height,5
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,23 @@
+Symbol,SolvExtr-1
+Group,Tank
+MDrw_Poly, -30,6, -30,-5, 28,-5, 28,5, -17,5, -17,-5, -17,6, -30,6, 
+MDrw_Poly, -23,10, -24,10, -24,-2, -26,-2, -26,-4, -21,-4, -21,-2, -23,-2, -23,10, 
+MDrw_Poly, -23,-2, -24,-2, 
+MDrw_Poly, -25,-2, -25,-4, 
+MDrw_Poly, -24,-2, -24,-4, 
+MDrw_Poly, -23,-2, -23,-4, 
+MDrw_Poly, -22,-2, -22,-4, 
+MDrw_Poly, 28,2, 30,2, 30,5, 
+MDrw_Poly, 28,-5, 30,-5, 30,-3, 28,-3, 
+MDrw_TagPos, 0,-8.5, 
+MDrw_End
+TextArea,-30,10.5,60,3
+XMin,-30
+XMax,30
+YMin,-5
+YMax,10
+Width,60
+Height,15
+InsertX,0
+InsertY,0
+

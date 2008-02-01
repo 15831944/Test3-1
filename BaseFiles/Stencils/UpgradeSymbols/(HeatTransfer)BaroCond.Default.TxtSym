@@ -1,0 +1,18 @@
+Symbol,BaroCond
+Group,HeatTransfer
+MDrw_Poly, -7,-3.9, -7,-10.8, 7,-10.8, 7,-3.9, 
+MDrw_Poly, -1.4,-7.4, -1.4,3.1, -2.8,4.5, -2.8,10.1, -2.1,10.8, 2.1,10.8, 2.8,10.1, 2.8,4.5, 1.4,3.1, 1.4,-7.4, 
+MDrw_Poly, -7,-5.3, -1.4,-5.3, 
+MDrw_Poly, 7,-5.3, 1.4,-5.3, 
+MDrw_TagPos, 0,-14.3, 
+MDrw_End
+TextArea,-7,11.3,14,3
+XMin,-7
+XMax,7
+YMin,-10.8
+YMax,10.8
+Width,14
+Height,21.6
+InsertX,0
+InsertY,0
+

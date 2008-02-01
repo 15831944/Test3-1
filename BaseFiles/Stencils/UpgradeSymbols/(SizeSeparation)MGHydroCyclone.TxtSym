@@ -1,0 +1,26 @@
+Symbol,MGHydroCyclone
+MDrw_Poly, -11,6, 22.5,6
+MDrw_Poly, -11,-6, 22.5,-6
+MDrw_Poly, -22,-6, -11,-6
+MDrw_Poly, -22,6, -11,6
+MDrw_Arc 18.8938,-8.60285e-016,7.00032
+MDrw_Poly, 20.8689,6, 20.8689,-6
+MDrw_Poly, -13,8, -13,-8
+MDrw_Poly, -11.0506,-8, -11.0506,8
+MDrw_Poly, -13,-8, -11.0506,-8
+MDrw_Poly, -11.0506,8, -13,8
+MDrw_Poly, -24,8, -24,-8
+MDrw_Poly, -22.0506,-8, -22.0506,8
+MDrw_Poly, -24,-8, -22.0506,-8
+MDrw_Poly, -22.0506,8, -24,8
+MDrw_End
+TextArea,-24,8.5,49.8941,3
+XMin,-24
+XMax,25.8941
+YMin,-8
+YMax,8
+Width,49.8941
+Height,16
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,19 @@
+Symbol,Tank-1
+Group,Tank
+MDrw_Poly, -7,9, -7,-9, 
+MDrw_Poly, 7,-9, 7,9, 
+MDrw_Arc3, -7,-9, 0,-12, 7,-9, 
+MDrw_Arc3, 7,9, 0,12, -7,9, 
+MDrw_Arc3, 7,9, 0,6, -7,9, 
+MDrw_TagPos, 0,-15.5, 
+MDrw_End
+TextArea,-7,12.5,14,3
+XMin,-7
+XMax,7
+YMin,-12
+YMax,12
+Width,14
+Height,24
+InsertX,0
+InsertY,0
+

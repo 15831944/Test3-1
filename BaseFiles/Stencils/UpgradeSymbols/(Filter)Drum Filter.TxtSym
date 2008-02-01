@@ -1,0 +1,16 @@
+Symbol,Drum Filter
+MDrw_Arc 0.182873,2.36729,7.5
+MDrw_Poly, -11.3171,0.367289, 0.182873,-9.13271
+MDrw_Poly, 11.6829,-1.63271, 0.182873,-9.13271
+MDrw_Poly, 7.41129,0.367289, 11.6829,-1.63271
+MDrw_End
+TextArea,-11.3171,10.3673,23,3
+XMin,-11.3171
+XMax,11.6829
+YMin,-9.13271
+YMax,9.86729
+Width,23
+Height,19
+InsertX,0
+InsertY,0
+

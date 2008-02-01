@@ -1,0 +1,15 @@
+Symbol,Area-1
+Group,Tank
+MDrw_Poly, 6,6, 9,4, 7,2, 11,0, 9,-2, 10,-4, 8,-6, -8,-6, -11,-4, -9,-2, -8,0, -10,2, -11,4, -8,6, 6,6, 
+MDrw_TagPos, 0,-9.5, 
+MDrw_End
+TextArea,-11,6.5,22,3
+XMin,-11
+XMax,11
+YMin,-6
+YMax,6
+Width,22
+Height,12
+InsertX,0
+InsertY,0
+

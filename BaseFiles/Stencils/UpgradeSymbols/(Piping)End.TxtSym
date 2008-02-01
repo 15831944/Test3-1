@@ -1,0 +1,15 @@
+Symbol,End
+MDrw_Poly, 1.80672,2.53282, 1.80672,-2.46718
+MDrw_Poly, 1.80672,2.53282, -1.94328,0.0328185
+MDrw_Poly, -1.94328,0.0328185, 1.80672,-2.46718
+MDrw_End
+TextArea,-1.94328,3.03282,3.75,3
+XMin,-1.94328
+XMax,1.80672
+YMin,-2.46718
+YMax,2.53282
+Width,3.75
+Height,5
+InsertX,0
+InsertY,0
+

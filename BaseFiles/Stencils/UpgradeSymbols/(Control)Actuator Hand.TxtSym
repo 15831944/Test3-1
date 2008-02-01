@@ -1,0 +1,14 @@
+Symbol,Actuator Hand
+MDrw_Poly, 0,-1.87, 0,1.88
+MDrw_Poly, -1.25,1.88, 1.25,1.88
+MDrw_End
+TextArea,-1.25,2.38,2.5,3
+XMin,-1.25
+XMax,1.25
+YMin,-1.87
+YMax,1.88
+Width,2.5
+Height,3.75
+InsertX,0
+InsertY,0
+

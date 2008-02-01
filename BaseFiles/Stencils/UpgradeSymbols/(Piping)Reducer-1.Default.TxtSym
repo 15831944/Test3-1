@@ -1,0 +1,15 @@
+Symbol,Reducer-1
+Group,Piping
+MDrw_Poly, -4,3, -4,-3, 4,-1, 4,1, -4,3, 
+MDrw_TagPos, 0,-6.5, 
+MDrw_End
+TextArea,-4,3.5,8,3
+XMin,-4
+XMax,4
+YMin,-3
+YMax,3
+Width,8
+Height,6
+InsertX,0
+InsertY,0
+

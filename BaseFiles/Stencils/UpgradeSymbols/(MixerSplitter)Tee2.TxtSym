@@ -1,0 +1,20 @@
+Symbol,Tee2
+MDrw_Poly, -5.937,2.5, 5.938,2.5
+MDrw_Poly, 5.938,2.5, 5.938,-2.5
+MDrw_Poly, 5.938,-2.5, 2.5,-2.5
+MDrw_Poly, 2.5,-2.5, 2.5,-5.937
+MDrw_Poly, 2.5,-5.937, -2.5,-5.937
+MDrw_Poly, -2.5,-5.937, -2.5,-2.5
+MDrw_Poly, -2.5,-2.5, -5.937,-2.5
+MDrw_Poly, -5.937,-2.5, -5.937,2.5
+MDrw_End
+TextArea,-5.937,3,11.875,3
+XMin,-5.937
+XMax,5.938
+YMin,-5.937
+YMax,2.5
+Width,11.875
+Height,8.437
+InsertX,0
+InsertY,0
+

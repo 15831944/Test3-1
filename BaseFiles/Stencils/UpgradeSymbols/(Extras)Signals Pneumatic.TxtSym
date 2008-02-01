@@ -1,0 +1,14 @@
+Symbol,Signals Pneumatic
+MDrw_Poly, 1.25,1.25, -1.25,0
+MDrw_Poly, 1.25,0, -1.25,-1.25
+MDrw_End
+TextArea,-1.25,1.75,2.5,3
+XMin,-1.25
+XMax,1.25
+YMin,-1.25
+YMax,1.25
+Width,2.5
+Height,2.5
+InsertX,0
+InsertY,0
+

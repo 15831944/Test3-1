@@ -1,0 +1,17 @@
+Symbol,Stop Check Valve
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, -3.75,1.875
+MDrw_Poly, -1.51393,3.55205, 0.722136,2.43402
+MDrw_Poly, -0.395898,2.99303, -1.51393,0.756966
+MDrw_End
+TextArea,-3.75,4.05205,7.5,3
+XMin,-3.75
+XMax,3.75
+YMin,-1.875
+YMax,3.55205
+Width,7.5
+Height,5.42705
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,15 @@
+Symbol,Valve_NR-1
+Group,Valve
+MDrw_Poly, 3.6,2.7, 3.6,-2.7, -3.6,2.7, -3.6,-2.7, 0,0, 
+MDrw_TagPos, 0,-7.1, 
+MDrw_End
+TextArea,-3.6,3.2,7.2,3
+XMin,-3.6
+XMax,3.6
+YMin,-2.7
+YMax,2.7
+Width,7.2
+Height,5.4
+InsertX,0
+InsertY,0
+

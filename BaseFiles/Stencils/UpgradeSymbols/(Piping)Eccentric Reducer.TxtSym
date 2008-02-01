@@ -1,0 +1,16 @@
+Symbol,Eccentric Reducer
+MDrw_Poly, -2.51306,-1.24455, -2.51306,0.00544617
+MDrw_Poly, 2.48694,-1.24455, 2.48694,1.25545
+MDrw_Poly, 2.48694,1.25545, -2.51306,0.00544617
+MDrw_Poly, -2.51306,-1.24455, 2.48694,-1.24455
+MDrw_End
+TextArea,-2.51306,1.75545,5,3
+XMin,-2.51306
+XMax,2.48694
+YMin,-1.24455
+YMax,1.25545
+Width,5
+Height,2.5
+InsertX,0
+InsertY,0
+

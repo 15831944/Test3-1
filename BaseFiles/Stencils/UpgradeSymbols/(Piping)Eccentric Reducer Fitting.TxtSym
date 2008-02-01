@@ -1,0 +1,16 @@
+Symbol,Eccentric Reducer Fitting
+MDrw_Poly, -2.49908,-1.21718, -2.49908,0.0328185
+MDrw_Poly, 2.50092,-1.21718, 2.50092,1.28282
+MDrw_Poly, 2.50092,1.28282, -2.49908,0.0328185
+MDrw_Poly, -2.49908,-1.21718, 2.50092,-1.21718
+MDrw_End
+TextArea,-2.49908,1.78282,5,3
+XMin,-2.49908
+XMax,2.50092
+YMin,-1.21718
+YMax,1.28282
+Width,5
+Height,2.5
+InsertX,0
+InsertY,0
+

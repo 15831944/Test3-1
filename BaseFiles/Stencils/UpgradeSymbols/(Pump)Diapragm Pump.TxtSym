@@ -1,0 +1,27 @@
+Symbol,Diapragm Pump
+MDrw_Poly, 2.5,-4.42, -2.5,-4.42
+MDrw_Poly, 1.25,-6.92, -1.25,-6.92
+MDrw_Poly, -0.625,-4.42, -0.625,5.58
+MDrw_Poly, -1.875,5.58, 1.875,5.58
+MDrw_Poly, 1.875,5.58, 1.875,9.33
+MDrw_Poly, 1.875,9.33, -1.875,9.33
+MDrw_Poly, -1.875,9.33, -1.875,5.58
+MDrw_Poly, 1.25,-6.92, 2.5,-4.42
+MDrw_Poly, -1.25,-6.92, -2.5,-4.42
+MDrw_Arc 1.77776,-9.20734,3.53867
+MDrw_PCurve S   0,  4.375,-8.17,
+MDrw_PCurve P   1, 5.625,-8.17,
+MDrw_PCurve P   2, 5,-10.67,
+MDrw_PCurve P   3, 4.375,-8.17,
+MDrw_Poly, 0.625,-4.42, 0.625,5.58
+MDrw_End
+TextArea,-2.5,9.83,8.125,3
+XMin,-2.5
+XMax,5.625
+YMin,-12.746
+YMax,9.33
+Width,8.125
+Height,22.076
+InsertX,0
+InsertY,0
+

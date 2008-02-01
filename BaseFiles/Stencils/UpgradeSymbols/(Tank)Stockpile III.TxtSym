@@ -1,0 +1,16 @@
+Symbol,Stockpile III
+MDrw_Poly, -17.469,-6.70837, -3.14491,10.3624
+MDrw_Poly, 3.14491,10.3624, -3.14491,10.3624
+MDrw_Poly, 17.469,-6.70837, 3.14491,10.3624
+MDrw_Poly, 17.469,-6.70837, -17.469,-6.70837
+MDrw_End
+TextArea,-17.469,10.8624,34.938,3
+XMin,-17.469
+XMax,17.469
+YMin,-6.70837
+YMax,10.3624
+Width,34.938
+Height,17.0708
+InsertX,0
+InsertY,0
+

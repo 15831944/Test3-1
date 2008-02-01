@@ -1,0 +1,18 @@
+Symbol,BallMill
+MDrw_Arc 0,0,20
+MDrw_Arc -10,-13.75,2.5
+MDrw_Arc -5,-16.25,2.5
+MDrw_Arc 5,-16.25,2.5
+MDrw_Arc 10,-13.75,2.5
+MDrw_Arc 0,-17.5,2.5
+MDrw_End
+TextArea,-20,20.5,40,3
+XMin,-20
+XMax,20
+YMin,-20
+YMax,20
+Width,40
+Height,40
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,22 @@
+Symbol,Two Basket Strainer
+MDrw_Poly, -3.75,1.875, 3.75,1.875
+MDrw_Poly, -3.75,-1.875, 3.75,-1.875
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, -5,1.875, -5,-1.875
+MDrw_Poly, -6.25,1.875, -6.25,-1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 5,1.875, 5,-1.875
+MDrw_Poly, 6.25,1.875, 6.25,-1.875
+MDrw_Arc 0,3.125,1.25
+MDrw_Arc 0,-3.125,1.25
+MDrw_End
+TextArea,-6.25,4.875,12.5,3
+XMin,-6.25
+XMax,6.25
+YMin,-4.375
+YMax,4.375
+Width,12.5
+Height,8.75
+InsertX,0
+InsertY,0
+

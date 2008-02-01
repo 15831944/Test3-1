@@ -1,0 +1,19 @@
+Symbol,Single Deck Inclined Vibrating Screen
+MDrw_Poly, 0,-10.08, 12.5,2.42
+MDrw_Poly, 12.5,2.42, -12.5,4.92
+MDrw_Poly, 12.5,2.42, 12.5,7.42
+MDrw_Poly, 12.5,7.42, -12.5,9.92
+MDrw_Poly, -12.5,4.92, -12.5,9.92
+MDrw_Poly, 0,-10.08, -12.5,4.92
+MDrw_Poly, 12.5,4.92, -12.5,7.42
+MDrw_End
+TextArea,-12.5,10.42,25,3
+XMin,-12.5
+XMax,12.5
+YMin,-10.08
+YMax,9.92
+Width,25
+Height,20
+InsertX,0
+InsertY,0
+

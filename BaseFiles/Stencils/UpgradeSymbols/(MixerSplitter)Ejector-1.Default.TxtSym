@@ -1,0 +1,16 @@
+Symbol,Ejector-1
+Group,MixerSplitter
+MDrw_Poly, -5,2, -1,2, -1,-2, -5,-2, -5,2, 
+MDrw_Poly, -1,1, 5,2, 5,-2, -1,-1, 
+MDrw_TagPos, 0,-5.5, 
+MDrw_End
+TextArea,-5,2.5,10,3
+XMin,-5
+XMax,5
+YMin,-2
+YMax,2
+Width,10
+Height,4
+InsertX,0
+InsertY,0
+

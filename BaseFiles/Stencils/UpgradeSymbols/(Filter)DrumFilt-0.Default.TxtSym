@@ -1,0 +1,16 @@
+Symbol,DrumFilt-0
+Group,Filter
+MDrw_Arc,  0,0, 6.4, 
+MDrw_Poly, -9.6,-1.6, 0,-9.6, 9.6,-3.2, 6.4,-1.6, 
+MDrw_TagPos, 0,-13.1, 
+MDrw_End
+TextArea,-9.6,6.9,19.2,3
+XMin,-9.6
+XMax,9.6
+YMin,-9.6
+YMax,6.4
+Width,19.2
+Height,16
+InsertX,0
+InsertY,0
+

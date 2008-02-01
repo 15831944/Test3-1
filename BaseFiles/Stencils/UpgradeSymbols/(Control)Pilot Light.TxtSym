@@ -1,0 +1,17 @@
+Symbol,Pilot Light
+MDrw_Arc 0,0,5
+MDrw_Poly, -6.25,6.25, -4.41942,4.41942
+MDrw_Poly, 6.25,6.25, 4.41942,4.41942
+MDrw_Poly, -4.41942,-4.41942, -6.25,-6.25
+MDrw_Poly, 4.41942,-4.41942, 6.25,-6.25
+MDrw_End
+TextArea,-6.25,6.75,12.5,3
+XMin,-6.25
+XMax,6.25
+YMin,-6.25
+YMax,6.25
+Width,12.5
+Height,12.5
+InsertX,0
+InsertY,0
+

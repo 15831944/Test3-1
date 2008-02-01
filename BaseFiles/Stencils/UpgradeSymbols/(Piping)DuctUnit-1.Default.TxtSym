@@ -1,0 +1,15 @@
+Symbol,DuctUnit-1
+Group,Piping
+MDrw_Poly, -10,10, 10,10, 10,-10, -10,-10, -10,10, 
+MDrw_TagPos, 0,-13.5, 
+MDrw_End
+TextArea,-10,10.5,20,3
+XMin,-10
+XMax,10
+YMin,-10
+YMax,10
+Width,20
+Height,20
+InsertX,0
+InsertY,0
+

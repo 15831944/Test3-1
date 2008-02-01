@@ -1,0 +1,21 @@
+Symbol,Agitator
+MDrw_Poly, 0,-6.25, 0,5
+MDrw_Poly, -1.875,5, 1.875,5
+MDrw_Poly, 1.875,5, 1.875,8.75
+MDrw_Poly, 1.875,8.75, -1.875,8.75
+MDrw_Poly, -1.875,8.75, -1.875,5
+MDrw_Arc -1.25,-7.1875,1.5625
+MDrw_Arc -1.25,-5.3125,1.5625
+MDrw_Arc 1.25,-5.3125,1.5625
+MDrw_Arc 1.25,-7.1875,1.5625
+MDrw_End
+TextArea,-2.8125,9.25,5.625,3
+XMin,-2.8125
+XMax,2.8125
+YMin,-8.75
+YMax,8.75
+Width,5.625
+Height,17.5
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,17 @@
+Symbol,Damper
+MDrw_Poly, 1.86,-1.89, 1.86,1.86
+MDrw_Poly, 1.86,1.86, -1.89,1.86
+MDrw_Poly, -1.89,1.86, -1.89,-1.89
+MDrw_Poly, -1.89,-1.89, 1.86,-1.89
+MDrw_Poly, 1.86,1.86, -1.89,-1.89
+MDrw_End
+TextArea,-1.89,2.36,3.75,3
+XMin,-1.89
+XMax,1.86
+YMin,-1.89
+YMax,1.86
+Width,3.75
+Height,3.75
+InsertX,0
+InsertY,0
+

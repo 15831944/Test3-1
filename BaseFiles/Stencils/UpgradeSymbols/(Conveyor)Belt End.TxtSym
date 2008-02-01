@@ -1,0 +1,15 @@
+Symbol,Belt End
+MDrw_Arc -0.008302,-0.017033,2
+MDrw_Poly, -0.008302,1.98338, 5.19276,1.98338
+MDrw_Poly, -0.008302,-2.01744, 5.19276,-2.01744
+MDrw_End
+TextArea,-2.0083,2.48338,7.20106,3
+XMin,-2.0083
+XMax,5.19276
+YMin,-2.01744
+YMax,1.98338
+Width,7.20106
+Height,4.00082
+InsertX,0
+InsertY,0
+

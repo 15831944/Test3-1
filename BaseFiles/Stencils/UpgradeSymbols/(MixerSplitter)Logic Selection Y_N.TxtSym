@@ -1,0 +1,18 @@
+Symbol,Logic Selection Y_N
+MDrw_Poly, -7.25,-1.71683, 0.75,4.28317
+MDrw_Poly, 0.75,4.28317, 8.75,-1.71683
+MDrw_Poly, 8.75,-1.71683, 0.75,-7.71683
+MDrw_Poly, 0.75,-7.71683, -7.25,-1.71683
+MDrw_Poly, 8.75,-1.71683, 14.75,-1.71683
+MDrw_Poly, 0.75,-7.71683, 0.75,-13.7168
+MDrw_End
+TextArea,-7.25,4.78317,22,3
+XMin,-7.25
+XMax,14.75
+YMin,-13.7168
+YMax,4.28317
+Width,22
+Height,18
+InsertX,0
+InsertY,0
+

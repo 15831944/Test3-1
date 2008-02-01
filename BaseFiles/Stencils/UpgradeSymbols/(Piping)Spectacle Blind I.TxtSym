@@ -1,0 +1,16 @@
+Symbol,Spectacle Blind I
+MDrw_Poly, -0.005,-3.78, -0.005,2.47
+MDrw_Arc -0.005,4.345,0.625
+MDrw_Poly, -0.63,-0.03, -0.63,-3.78
+MDrw_Poly, 0.62,-0.03, 0.62,-3.78
+MDrw_End
+TextArea,-0.63,5.47,1.25,3
+XMin,-0.63
+XMax,0.62
+YMin,-3.78
+YMax,4.97
+Width,1.25
+Height,8.75
+InsertX,0
+InsertY,0
+

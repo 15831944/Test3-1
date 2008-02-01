@@ -1,0 +1,16 @@
+Symbol,Directional Arrow I
+MDrw_PCurve S   0,  0.61,0.625,
+MDrw_PCurve P   1, 0.61,-0.625,
+MDrw_PCurve P   2, -1.89,0,
+MDrw_PCurve P   3, 0.61,0.625,
+MDrw_End
+TextArea,-1.89,1.125,2.5,3
+XMin,-1.89
+XMax,0.61
+YMin,-0.625
+YMax,0.625
+Width,2.5
+Height,1.25
+InsertX,0
+InsertY,0
+

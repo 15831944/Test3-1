@@ -1,0 +1,16 @@
+Symbol,Pump-1
+Group,Pump
+MDrw_Arc,  0,0, 4, 
+MDrw_Poly, 0,-4, 5,-4, 5,-2, 0,-2, 
+MDrw_TagPos, 0,-7.5, 
+MDrw_End
+TextArea,-4,4.5,9,3
+XMin,-4
+XMax,5
+YMin,-4
+YMax,4
+Width,9
+Height,8
+InsertX,0
+InsertY,0
+

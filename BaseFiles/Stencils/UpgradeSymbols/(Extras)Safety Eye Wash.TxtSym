@@ -1,0 +1,37 @@
+Symbol,Safety Eye Wash
+MDrw_Poly, -2.5,-2.52, 2.5,-2.52
+MDrw_Poly, 2.5,-2.52, 5,-0.02
+MDrw_Poly, -2.5,-2.52, -5,-0.02
+MDrw_Arc 0.625,1.23,0.05
+MDrw_Arc 0.626766,1.85323,0.05
+MDrw_Arc 2.5,-0.02,0.05
+MDrw_Arc 1.25,-0.02,0.05
+MDrw_Arc 1.89953,0.580468,0.05
+MDrw_Arc 1.25,1.23,0.05
+MDrw_Arc 0.977886,0.524228,0.05
+MDrw_Arc 0,0.494413,0.05
+MDrw_Arc 0,-0.02,0.05
+MDrw_Arc -1.25,-0.02,0.05
+MDrw_Arc 0,1.23,0.05
+MDrw_Arc 0,2.48,0.05
+MDrw_Arc 0,1.68726,0.05
+MDrw_Arc 0.357533,1.76493,0.05
+MDrw_Arc -0.357533,1.76493,0.05
+MDrw_Arc -0.625,1.23,0.05
+MDrw_Arc -0.977886,0.524228,0.05
+MDrw_Arc -1.25,1.23,0.05
+MDrw_Arc -0.626766,1.85323,0.05
+MDrw_Arc -2.5,-0.02,0.05
+MDrw_Arc -1.89953,0.580468,0.05
+MDrw_Poly, 0,2.48, 0,4.98
+MDrw_End
+TextArea,-5,5.48,10,3
+XMin,-5
+XMax,5
+YMin,-2.52
+YMax,4.98
+Width,10
+Height,7.5
+InsertX,0
+InsertY,0
+

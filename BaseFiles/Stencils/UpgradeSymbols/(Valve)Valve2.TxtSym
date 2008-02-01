@@ -1,0 +1,22 @@
+Symbol,Valve2
+MDrw_Poly, -2.5,2.5, -2.5,-2.5
+MDrw_Poly, 2.5,2.5, 2.5,-2.5
+MDrw_Poly, 0,0, 0,5
+MDrw_Poly, -2.5,5, 2.5,5
+MDrw_Poly, -2.5,10, -2.5,5
+MDrw_Poly, -2.5,10, 2.5,10
+MDrw_Poly, 2.5,10, 2.5,10
+MDrw_Poly, 2.5,10, 2.5,5
+MDrw_Arc 0,0,0.375
+MDrw_Poly, -1.73276,1.79095, 1.73276,-1.6875
+MDrw_End
+TextArea,-2.5,10.5,5,3
+XMin,-2.5
+XMax,2.5
+YMin,-2.5
+YMax,10
+Width,5
+Height,12.5
+InsertX,0
+InsertY,0
+

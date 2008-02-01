@@ -1,0 +1,14 @@
+Symbol,Cap
+MDrw_Poly, -1.25,2.5, -1.25,-2.5
+MDrw_Arc -1.25,0,2.5
+MDrw_End
+TextArea,-3.75,3,5,3
+XMin,-3.75
+XMax,1.25
+YMin,-2.5
+YMax,2.5
+Width,5
+Height,5
+InsertX,0
+InsertY,0
+

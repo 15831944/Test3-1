@@ -1,0 +1,16 @@
+Symbol,CntrfgMB
+Group,Filter
+MDrw_Poly, -10,-5, 0,-5, 10,-2, 10,2, 0,5, -10,5, -10,-5, 
+MDrw_Poly, 0,-5, 0,5, 
+MDrw_TagPos, 0,-8.5, 
+MDrw_End
+TextArea,-10,5.5,20,3
+XMin,-10
+XMax,10
+YMin,-5
+YMax,5
+Width,20
+Height,10
+InsertX,0
+InsertY,0
+

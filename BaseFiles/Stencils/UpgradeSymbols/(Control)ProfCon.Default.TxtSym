@@ -1,0 +1,16 @@
+Symbol,ProfCon
+Group,Control
+MDrw_Poly, -3.2,-3.2, -3.2,3.2, 3.2,3.2, 3.2,-3.2, -3.2,-3.2, 
+MDrw_Poly, -3.2,0, -2.4,0, -2.4,1.6, -0.8,1.6, -0.8,-1.6, 0,-1.6, 0,-0.8, 1.6,-0.8, 1.6,0, 2.4,0, 2.4,2.4, 3.2,2.4, 
+MDrw_TagPos, 0,-7.5, 
+MDrw_End
+TextArea,-3.2,3.7,6.4,3
+XMin,-3.2
+XMax,3.2
+YMin,-3.2
+YMax,3.2
+Width,6.4
+Height,6.4
+InsertX,0
+InsertY,0
+

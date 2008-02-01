@@ -1,0 +1,18 @@
+Symbol,Angle Valve
+MDrw_Poly, -1.875,-3.75, 1.875,-3.75
+MDrw_Poly, 1.875,-3.75, 0,0
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, 0,0
+MDrw_Poly, 0,0, -1.875,-3.75
+MDrw_Poly, 0,0, 3.75,1.875
+MDrw_End
+TextArea,-1.875,2.375,5.625,3
+XMin,-1.875
+XMax,3.75
+YMin,-3.75
+YMax,1.875
+Width,5.625
+Height,5.625
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,17 @@
+Symbol,CoolTwr
+Group,HeatTransfer
+MDrw_Poly, -14,-15, -14,-8, 14,-8, 14,-15, -14,-15, 
+MDrw_Poly, 9,-9, 7,15, -1,15, -3,-9, 
+MDrw_Poly, -8,-9, -8,13, -1,13, 
+MDrw_TagPos, 0,-18.5, 
+MDrw_End
+TextArea,-14,15.5,28,3
+XMin,-14
+XMax,14
+YMin,-15
+YMax,15
+Width,28
+Height,30
+InsertX,0
+InsertY,0
+

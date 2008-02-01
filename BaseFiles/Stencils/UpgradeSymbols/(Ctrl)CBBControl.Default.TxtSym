@@ -1,0 +1,14 @@
+Symbol,CBBControl
+Group,Ctrl
+MDrw_Poly, -8,-8, -8,8, 8,8, 8,-8, -8,-8, 
+MDrw_End
+TextArea,-8,8.5,16,3
+XMin,-8
+XMax,8
+YMin,-8
+YMax,8
+Width,16
+Height,16
+InsertX,0
+InsertY,0
+

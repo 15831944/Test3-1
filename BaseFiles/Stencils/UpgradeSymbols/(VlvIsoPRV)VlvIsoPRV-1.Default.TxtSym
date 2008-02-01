@@ -1,0 +1,18 @@
+Symbol,VlvIsoPRV-1
+Group,VlvIsoPRV
+MDrw_Poly, -4,1, -4,-5, 0,-2, 4,1, 4,-5, -4,1, 
+MDrw_Poly, -2,2, 2,2, 
+MDrw_Arc3, 2,2, 0,4, -2,2, 
+MDrw_Poly, 0,-2, 0,5, 4,5, 0,-2, 
+MDrw_TagPos, 0,-8.5, 
+MDrw_End
+TextArea,-4,5.5,8,3
+XMin,-4
+XMax,4
+YMin,-5
+YMax,5
+Width,8
+Height,10
+InsertX,0
+InsertY,0
+

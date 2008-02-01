@@ -1,0 +1,20 @@
+Symbol,Check Valve I
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, -3.75,1.875
+MDrw_Poly, 2.5,2.5, -2.5,2.5
+MDrw_PCurve S   0,  0,1.875,
+MDrw_PCurve P   1, 0,3.125,
+MDrw_PCurve P   2, 2.5,2.5,
+MDrw_PCurve P   3, 0,1.875,
+MDrw_End
+TextArea,-3.75,3.625,7.5,3
+XMin,-3.75
+XMax,3.75
+YMin,-1.875
+YMax,3.125
+Width,7.5
+Height,5
+InsertX,0
+InsertY,0
+

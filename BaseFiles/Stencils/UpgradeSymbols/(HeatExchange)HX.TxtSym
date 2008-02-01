@@ -1,0 +1,18 @@
+Symbol,HX
+MDrw_Poly, -4.5,0, -8.5,0
+MDrw_Poly, -4.5,-3.5, -4.5,0
+MDrw_Poly, -4.5,-3.5, 4.5,3.5
+MDrw_Arc 0,0,8.5
+MDrw_Poly, 4.5,3.5, 4.5,0
+MDrw_Poly, 4.5,0, 8.5,0
+MDrw_End
+TextArea,-8.5,9,17,3
+XMin,-8.5
+XMax,8.5
+YMin,-8.5
+YMax,8.5
+Width,17
+Height,17
+InsertX,0
+InsertY,0
+

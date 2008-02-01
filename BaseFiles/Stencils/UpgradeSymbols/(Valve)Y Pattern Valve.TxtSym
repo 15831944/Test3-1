@@ -1,0 +1,18 @@
+Symbol,Y Pattern Valve
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, -3.75,-1.875, 3.75,1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, -3.75,1.875
+MDrw_Poly, 0,0, -1.875,3.2476
+MDrw_Poly, -2.95753,2.6226, -0.792468,3.8726
+MDrw_End
+TextArea,-3.75,4.3726,7.5,3
+XMin,-3.75
+XMax,3.75
+YMin,-1.875
+YMax,3.8726
+Width,7.5
+Height,5.7476
+InsertX,0
+InsertY,0
+

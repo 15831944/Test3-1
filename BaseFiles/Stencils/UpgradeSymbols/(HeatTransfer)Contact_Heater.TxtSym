@@ -1,0 +1,16 @@
+Symbol,Contact_Heater
+MDrw_Arc 0.00404917,-10.0514,3
+MDrw_Arc 0.00404917,9.94856,3
+MDrw_Poly, 3.00405,9.94856, 3.00405,-10.0514
+MDrw_Poly, -2.99595,-10.0514, -2.99595,9.94856
+MDrw_End
+TextArea,-2.99595,13.4486,6,3
+XMin,-2.99595
+XMax,3.00405
+YMin,-13.0514
+YMax,12.9486
+Width,6
+Height,26
+InsertX,0
+InsertY,0
+

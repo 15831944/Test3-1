@@ -1,0 +1,20 @@
+Symbol,Pick Up Point
+MDrw_Poly, 10,-5, 10,7.32051
+MDrw_Poly, -2.88675,5, -5.7735,0
+MDrw_Poly, -5.7735,0, -2.88675,-5
+MDrw_Poly, -2.88675,-5, 2.88675,-5
+MDrw_Poly, 2.88675,-5, 10,7.32051
+MDrw_Poly, 5.7735,0, 2.88675,5
+MDrw_Poly, 2.88675,5, -2.88675,5
+MDrw_Poly, 11.25,7.32051, -6.25,7.32051
+MDrw_End
+TextArea,-6.25,7.82051,17.5,3
+XMin,-6.25
+XMax,11.25
+YMin,-5
+YMax,7.32051
+Width,17.5
+Height,12.3205
+InsertX,0
+InsertY,0
+

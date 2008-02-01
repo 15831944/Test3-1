@@ -1,0 +1,23 @@
+Symbol,ScheduledEvents
+Group,Control
+MDrw_Poly, -3.2,-3.2, -3.2,3.2, 3.2,3.2, 3.2,-3.2, -3.2,-3.2, 
+MDrw_Poly, -3.2,0.8, 0.8,0.8, 0.8,-1.76, 2,-1.76, 2,0.8, 3.2,0.8, 
+MDrw_Poly, 2,2.88, 2,2.64, 
+MDrw_Poly, 2,2.4, 2,2.16, 
+MDrw_Poly, 2,1.92, 2,1.68, 
+MDrw_Poly, 2,1.44, 2,1.2, 
+MDrw_Poly, 2,-2, 2,-2.24, 
+MDrw_Poly, 2,-2.48, 2,-2.72, 
+MDrw_Poly, 2,-2.96, 2,-3.2, 
+MDrw_TagPos, 0,-6.7, 
+MDrw_End
+TextArea,-3.2,3.7,6.4,3
+XMin,-3.2
+XMax,3.2
+YMin,-3.2
+YMax,3.2
+Width,6.4
+Height,6.4
+InsertX,0
+InsertY,0
+

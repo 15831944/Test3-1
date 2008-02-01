@@ -1,0 +1,26 @@
+Symbol,FFEvap
+Group,HeatTransfer
+MDrw_Poly, -4,11, -4,-11, 
+MDrw_Poly, 4,11, 4,-11, 
+MDrw_Poly, -4,8, 4,8, 
+MDrw_Poly, -4,-5, 4,-5, 
+MDrw_Poly, -3,8, -3,-5, 
+MDrw_Poly, -2,8, -2,-5, 
+MDrw_Poly, -1,8, -1,-5, 
+MDrw_Poly, 1,8, 1,-5, 
+MDrw_Poly, 2,8, 2,-5, 
+MDrw_Poly, 3,8, 3,-5, 
+MDrw_Arc3, -4,11, 0,13, 4,11, 
+MDrw_Arc3, -4,-11, 0,-13, 4,-11, 
+MDrw_TagPos, 0,-16.5, 
+MDrw_End
+TextArea,-4,13.5,8,3
+XMin,-4
+XMax,4
+YMin,-13
+YMax,13
+Width,8
+Height,26
+InsertX,0
+InsertY,0
+

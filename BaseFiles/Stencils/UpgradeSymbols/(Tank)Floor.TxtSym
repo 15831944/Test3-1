@@ -1,0 +1,21 @@
+Symbol,Floor
+MDrw_Poly, -20,-0.42, 20,-0.42
+MDrw_Poly, -19,0.58, 19,0.58
+MDrw_Poly, -20,1.58, -20,-0.42
+MDrw_Poly, -20,1.58, -19,1.58
+MDrw_Poly, -19,1.58, -19,0.58
+MDrw_Poly, 19,0.58, 19,1.58
+MDrw_Poly, 19,1.58, 19,1.58
+MDrw_Poly, 19,1.58, 20,1.58
+MDrw_Poly, 20,1.58, 20,-0.42
+MDrw_End
+TextArea,-20,2.08,40,3
+XMin,-20
+XMax,20
+YMin,-0.42
+YMax,1.58
+Width,40
+Height,2
+InsertX,0
+InsertY,0
+

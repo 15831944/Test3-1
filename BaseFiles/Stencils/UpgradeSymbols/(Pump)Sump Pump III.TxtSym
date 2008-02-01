@@ -1,0 +1,26 @@
+Symbol,Sump Pump III
+MDrw_Poly, -1.562,-3.438, 1.562,-3.438
+MDrw_Poly, 1.562,-3.438, 1.562,-2.812
+MDrw_Poly, 1.562,-2.812, -1.562,-2.812
+MDrw_Poly, -1.562,-2.812, -1.562,-3.438
+MDrw_Poly, 0,-2.812, 0,2.812
+MDrw_Poly, -0.625,2.812, 0.625,2.812
+MDrw_Poly, 0.625,2.812, 0.625,5
+MDrw_Poly, 0.625,5, -0.625,5
+MDrw_Poly, -0.625,5, -0.625,2.812
+MDrw_Poly, -6.25,-2.5, -2.5,-3.75
+MDrw_Poly, -2.5,-3.75, -2.5,-4.375
+MDrw_Poly, -2.5,-4.375, 2.5,-4.375
+MDrw_Poly, 2.5,-4.375, 2.5,-3.75
+MDrw_Poly, 6.25,-2.5, 2.5,-3.75
+MDrw_End
+TextArea,-6.25,5.5,12.5,3
+XMin,-6.25
+XMax,6.25
+YMin,-4.375
+YMax,5
+Width,12.5
+Height,9.375
+InsertX,0
+InsertY,0
+

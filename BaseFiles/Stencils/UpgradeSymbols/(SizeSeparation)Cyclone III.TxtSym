@@ -1,0 +1,25 @@
+Symbol,Cyclone III
+MDrw_Poly, -5,6.25, 5,6.25
+MDrw_Poly, 5,6.25, 5,13.75
+MDrw_Poly, 5,13.75, -5,13.75
+MDrw_Poly, -5,13.75, -5,6.25
+MDrw_Poly, -1,-13.75, -5,6.25
+MDrw_Poly, 5,6.25, 1,-13.75
+MDrw_Poly, 1.25,13.75, 1.25,15
+MDrw_Poly, -1.25,13.75, -1.25,15
+MDrw_Poly, 2,15, -2,15
+MDrw_Poly, -5,10.625, -6.25,10.625
+MDrw_Poly, -5,9.375, -6.25,9.375
+MDrw_Poly, -6.25,11.05, -6.25,8.95
+MDrw_Poly, 1,-13.75, -1,-13.75
+MDrw_End
+TextArea,-6.25,15.5,11.25,3
+XMin,-6.25
+XMax,5
+YMin,-13.75
+YMax,15
+Width,11.25
+Height,28.75
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,17 @@
+Symbol,FlotationCell
+Group,Tank
+MDrw_Poly, 8,4, 8,-6, -8,-6, -8,4, 8,4, 
+MDrw_Poly, 7,4, 7,6, -7,6, -7,4, 
+MDrw_Poly, 8,2.5, 0,-6, -8,2.5, 
+MDrw_TagPos, 0,-7.5, 
+MDrw_End
+TextArea,-8,6.5,16,3
+XMin,-8
+XMax,8
+YMin,-6
+YMax,6
+Width,16
+Height,12
+InsertX,0
+InsertY,0
+

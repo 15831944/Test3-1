@@ -1,0 +1,16 @@
+Symbol,Hose Connection
+MDrw_Poly, -1.25,6.22, -1.25,3.72
+MDrw_Poly, -1.25,3.72, 1.25,3.72
+MDrw_Poly, 1.25,3.72, 1.25,6.22
+MDrw_Poly, 0,3.72, 0,-3.78
+MDrw_End
+TextArea,-1.25,6.72,2.5,3
+XMin,-1.25
+XMax,1.25
+YMin,-3.78
+YMax,6.22
+Width,2.5
+Height,10
+InsertX,0
+InsertY,0
+

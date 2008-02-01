@@ -1,0 +1,16 @@
+Symbol,Pinch Valve
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Arc -2.35251e-015,9.47321,8.47321
+MDrw_Arc -8.22451e-016,-9.47321,8.47321
+MDrw_End
+TextArea,-8.47321,18.4464,16.9464,3
+XMin,-8.47321
+XMax,8.47321
+YMin,-17.9464
+YMax,17.9464
+Width,16.9464
+Height,35.8929
+InsertX,0
+InsertY,0
+

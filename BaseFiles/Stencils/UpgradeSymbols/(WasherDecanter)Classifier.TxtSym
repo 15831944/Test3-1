@@ -1,0 +1,17 @@
+Symbol,Classifier
+MDrw_Poly, -11,10, 11,10
+MDrw_Poly, -11,-3, -11,10
+MDrw_Poly, 11,-3, 11,10
+MDrw_Poly, -11,-3, 0,-10
+MDrw_Poly, 0,-10, 11,-3
+MDrw_End
+TextArea,-11,10.5,22,3
+XMin,-11
+XMax,11
+YMin,-10
+YMax,10
+Width,22
+Height,20
+InsertX,0
+InsertY,0
+

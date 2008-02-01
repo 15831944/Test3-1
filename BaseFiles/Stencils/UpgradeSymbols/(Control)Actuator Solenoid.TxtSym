@@ -1,0 +1,17 @@
+Symbol,Actuator Solenoid
+MDrw_Poly, 0,-2.52, 0,1.23
+MDrw_Poly, -1.875,1.23, 1.875,1.23
+MDrw_Poly, 1.875,1.23, 1.875,4.98
+MDrw_Poly, 1.875,4.98, -1.875,4.98
+MDrw_Poly, -1.875,4.98, -1.875,1.23
+MDrw_End
+TextArea,-1.875,5.48,3.75,3
+XMin,-1.875
+XMax,1.875
+YMin,-2.52
+YMax,4.98
+Width,3.75
+Height,7.5
+InsertX,0
+InsertY,0
+

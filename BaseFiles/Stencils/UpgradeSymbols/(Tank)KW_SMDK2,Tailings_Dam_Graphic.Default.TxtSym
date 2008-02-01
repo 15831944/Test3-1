@@ -1,0 +1,14 @@
+Symbol,KW_SMDK2*Tailings_Dam_Graphic
+Group,Tank
+MDrw_Poly, -2,2, 2,2, 2,-2, -2,-2, -2,2, 
+MDrw_End
+TextArea,-2,2.5,4,3
+XMin,-2
+XMax,2
+YMin,-2
+YMax,2
+Width,4
+Height,4
+InsertX,0
+InsertY,0
+

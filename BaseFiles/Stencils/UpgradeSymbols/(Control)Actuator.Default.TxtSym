@@ -1,0 +1,15 @@
+Symbol,Actuator
+Group,Control
+MDrw_Arc,  0,0, 1.8, 
+MDrw_TagPos, 0,-5.3, 
+MDrw_End
+TextArea,-1.8,2.3,3.6,3
+XMin,-1.8
+XMax,1.8
+YMin,-1.8
+YMax,1.8
+Width,3.6
+Height,3.6
+InsertX,0
+InsertY,0
+

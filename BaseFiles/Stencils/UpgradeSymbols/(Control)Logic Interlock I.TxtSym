@@ -1,0 +1,16 @@
+Symbol,Logic Interlock I
+MDrw_Poly, -5,0, 0,3.75
+MDrw_Poly, 0,3.75, 5,0
+MDrw_Poly, 5,0, 0,-3.75
+MDrw_Poly, 0,-3.75, -5,0
+MDrw_End
+TextArea,-5,4.25,10,3
+XMin,-5
+XMax,5
+YMin,-3.75
+YMax,3.75
+Width,10
+Height,7.5
+InsertX,0
+InsertY,0
+

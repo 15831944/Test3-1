@@ -1,0 +1,24 @@
+Symbol,Sieve Bend Left
+MDrw_Poly, 10,20, 10,15
+MDrw_Poly, 10,15, 6.25,15
+MDrw_Poly, 6.25,15, 4.698,8.466
+MDrw_Poly, 10,20, 3.75,20
+MDrw_Poly, 3.75,20, 3.75,8.438
+MDrw_Poly, 2.5,8.75, 7.5,7.5
+MDrw_Poly, 7.5,7.5, 8.75,5
+MDrw_Poly, -6.25,-13.75, 8.75,5
+MDrw_Poly, -9.326,-12.761, -6.25,-13.75
+MDrw_Poly, -11.404,-8.63, 2.5,8.75
+MDrw_Poly, -11.404,-8.63, -9.326,-12.761
+MDrw_Arc -25.1081,16.3948,30.8426
+MDrw_End
+TextArea,-55.9507,47.7374,65.9507,3
+XMin,-55.9507
+XMax,10
+YMin,-14.4479
+YMax,47.2374
+Width,65.9507
+Height,61.6852
+InsertX,0
+InsertY,0
+

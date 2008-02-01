@@ -1,0 +1,22 @@
+Symbol,4 Way Plug Valve
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, -3.75,-1.875, 3.75,1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, -3.75,1.875
+MDrw_Poly, 1.875,3.75, -1.875,-3.75
+MDrw_Poly, 1.875,-3.75, -1.875,3.75
+MDrw_Poly, -1.875,-3.75, 1.875,-3.75
+MDrw_Poly, -1.875,3.75, 1.875,3.75
+MDrw_Poly, 0,0, -3.53553,3.53553
+MDrw_Poly, -3.53553,3.53553, -1.76777,5.3033
+MDrw_End
+TextArea,-3.75,5.8033,7.5,3
+XMin,-3.75
+XMax,3.75
+YMin,-3.75
+YMax,5.3033
+Width,7.5
+Height,9.0533
+InsertX,0
+InsertY,0
+

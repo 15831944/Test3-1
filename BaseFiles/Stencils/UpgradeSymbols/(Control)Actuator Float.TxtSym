@@ -1,0 +1,15 @@
+Symbol,Actuator Float
+MDrw_Poly, 0,-2.5, 0,2.5
+MDrw_Arc -3.75,1.25,0.75
+MDrw_Poly, 0,2.5, -3.03849,1.48717
+MDrw_End
+TextArea,-4.5,3,4.5,3
+XMin,-4.5
+XMax,0
+YMin,-2.5
+YMax,2.5
+Width,4.5
+Height,5
+InsertX,0
+InsertY,0
+

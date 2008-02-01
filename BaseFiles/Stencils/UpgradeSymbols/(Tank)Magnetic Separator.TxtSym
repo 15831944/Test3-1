@@ -1,0 +1,27 @@
+Symbol,Magnetic Separator
+MDrw_Arc 0,0,5
+MDrw_Poly, -5,-10, -10,-10
+MDrw_Poly, -10,-10, -10,0
+MDrw_Poly, -10,0, 10,0
+MDrw_Poly, 10,2.5, 10,-10
+MDrw_Poly, 10,-10, 5,-10
+MDrw_Poly, 10,2.5, 12.5,2.5
+MDrw_Poly, 12.5,2.5, 12.5,-2.5
+MDrw_Poly, 12.5,-2.5, 10,-2.5
+MDrw_Poly, 5,-10, 5,-5.59
+MDrw_Poly, -5,-5.59, -5,-10
+MDrw_Arc -1.37484e-015,6.21725e-015,7.5
+MDrw_Arc 1.9984e-015,4.44089e-016,3.75
+MDrw_Arc 4.44089e-016,0,3.75
+MDrw_Poly, 0,6.25, 0,-8.75
+MDrw_End
+TextArea,-10,8,22.5,3
+XMin,-10
+XMax,12.5
+YMin,-10
+YMax,7.5
+Width,22.5
+Height,17.5
+InsertX,0
+InsertY,0
+

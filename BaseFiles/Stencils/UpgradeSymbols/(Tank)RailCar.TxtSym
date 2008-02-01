@@ -1,0 +1,24 @@
+Symbol,RailCar
+MDrw_Poly, 21.1844,6, -20.6844,6
+MDrw_Arc -14.2614,-4.12511e-015,9.23859
+MDrw_Poly, 21.1844,-6, -20.6844,-6
+MDrw_Arc -20.6844,-4.75,1.25
+MDrw_Arc -20.6844,4.75,1.25
+MDrw_Arc 14.7614,-1.98395e-015,9.23859
+MDrw_Arc 21.1844,-4.75,1.25
+MDrw_Arc 21.1844,4.75,1.25
+MDrw_Arc -18,-8,2
+MDrw_Arc -14,-8,2
+MDrw_Arc 14,-8,2
+MDrw_Arc 18,-8,2
+MDrw_End
+TextArea,-23.5,9.73859,47.5,3
+XMin,-23.5
+XMax,24
+YMin,-10
+YMax,9.23859
+Width,47.5
+Height,19.2386
+InsertX,0
+InsertY,0
+

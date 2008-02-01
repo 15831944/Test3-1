@@ -1,0 +1,19 @@
+Symbol,Water Drain
+MDrw_Poly, 0,5, 5,0
+MDrw_Poly, 5,0, 0,-5
+MDrw_Poly, 0,-5, -5,0
+MDrw_Poly, -5,0, 0,5
+MDrw_Poly, 0,-3.5, 3.5,0
+MDrw_Poly, -3.5,0, 0,-3.5
+MDrw_Poly, 2.5,-1, -2.5,-1
+MDrw_End
+TextArea,-5,5.5,10,3
+XMin,-5
+XMax,5
+YMin,-5
+YMax,5
+Width,10
+Height,10
+InsertX,0
+InsertY,0
+

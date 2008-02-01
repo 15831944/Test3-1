@@ -1,0 +1,15 @@
+Symbol,CCD-1
+Group,WasherDecanter
+MDrw_Poly, 0,-7, -16,0, -16,3, 16,3, 16,0, 0,-7, -20,-7, -20,7, 20,7, 20,-7, 0,-7, 
+MDrw_TagPos, 0,-10.5, 
+MDrw_End
+TextArea,-20,7.5,40,3
+XMin,-20
+XMax,20
+YMin,-7
+YMax,7
+Width,40
+Height,14
+InsertX,0
+InsertY,0
+

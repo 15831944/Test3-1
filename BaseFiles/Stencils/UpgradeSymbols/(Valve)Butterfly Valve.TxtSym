@@ -1,0 +1,16 @@
+Symbol,Butterfly Valve
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, -2.75,-1.375, 2.75,1.375
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Arc -0.00779873,-0.0102467,0.979177
+MDrw_End
+TextArea,-3.75,2.375,7.5,3
+XMin,-3.75
+XMax,3.75
+YMin,-1.875
+YMax,1.875
+Width,7.5
+Height,3.75
+InsertX,0
+InsertY,0
+

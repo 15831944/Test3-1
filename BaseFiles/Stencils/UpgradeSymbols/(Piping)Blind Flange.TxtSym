@@ -1,0 +1,14 @@
+Symbol,Blind Flange
+MDrw_Poly, 0,1.875, 0,-1.875
+MDrw_Poly, 1.25,1.875, 1.25,-1.875
+MDrw_End
+TextArea,0,2.375,1.25,3
+XMin,0
+XMax,1.25
+YMin,-1.875
+YMax,1.875
+Width,1.25
+Height,3.75
+InsertX,0
+InsertY,0
+

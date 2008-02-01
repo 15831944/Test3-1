@@ -1,0 +1,20 @@
+Symbol,ShellTube2
+Group,HeatExchange
+MDrw_Poly, -6,7, -4,7, -4,-7, -6,-7, -6,7, 
+MDrw_Poly, 6,7, 4,7, 4,-7, 6,-7, 6,7, 
+MDrw_Poly, -4,6, 4,6, 
+MDrw_Poly, -4,-6, 4,-6, 
+MDrw_Arc3, -6,6, -10,0, -6,-6, 
+MDrw_Arc3, 6,6, 10,0, 6,-6, 
+MDrw_TagPos, 0,-10.5, 
+MDrw_End
+TextArea,-10,7.5,20,3
+XMin,-10
+XMax,10
+YMin,-7
+YMax,7
+Width,20
+Height,14
+InsertX,0
+InsertY,0
+

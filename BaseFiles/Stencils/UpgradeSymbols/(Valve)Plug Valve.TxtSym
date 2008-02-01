@@ -1,0 +1,18 @@
+Symbol,Plug Valve
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, -3.75,-1.875, 3.75,1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, -3.75,1.875
+MDrw_Poly, 0,0, 0,3.75
+MDrw_Poly, 0,3.75, 2.5,3.75
+MDrw_End
+TextArea,-3.75,4.25,7.5,3
+XMin,-3.75
+XMax,3.75
+YMin,-1.875
+YMax,3.75
+Width,7.5
+Height,5.625
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,16 @@
+Symbol,LogWasher
+MDrw_Poly, -12.5,-9.84573, -12.5,1.18804
+MDrw_Poly, 12.5,-1.18804, 12.5,9.84573
+MDrw_Poly, -12.5,1.18804, 12.5,9.84573
+MDrw_Poly, -12.5,-9.84573, 12.5,-1.18804
+MDrw_End
+TextArea,-12.5,10.3457,25,3
+XMin,-12.5
+XMax,12.5
+YMin,-9.84573
+YMax,9.84573
+Width,25
+Height,19.6915
+InsertX,0
+InsertY,0
+

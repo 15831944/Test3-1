@@ -1,0 +1,14 @@
+Symbol,CBBTransfer
+Group,Tank
+MDrw_Poly, -8,-7, -8,7, 8,7, 8,-7, -8,-7, 
+MDrw_End
+TextArea,-8,7.5,16,3
+XMin,-8
+XMax,8
+YMin,-7
+YMax,7
+Width,16
+Height,14
+InsertX,0
+InsertY,0
+

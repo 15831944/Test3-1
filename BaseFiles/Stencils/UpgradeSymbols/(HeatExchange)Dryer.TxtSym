@@ -1,0 +1,28 @@
+Symbol,Dryer
+MDrw_Poly, -12.5,7.5, 12.5,7.5
+MDrw_Poly, 12.5,7.5, 12.5,-7.5
+MDrw_Poly, 12.5,-7.5, -12.5,-7.5
+MDrw_Poly, -12.5,-7.5, -12.5,7.5
+MDrw_Poly, -10,5.625, -10,3.75
+MDrw_Poly, -10,3.75, 10,3.75
+MDrw_Poly, 10,3.75, 10,5.625
+MDrw_Poly, -10,2.5, -10,0.625
+MDrw_Poly, -10,0.625, 10,0.625
+MDrw_Poly, -10,-0.625, -10,-2.5
+MDrw_Poly, -10,-2.5, 10,-2.5
+MDrw_Poly, -10,-3.75, -10,-5.625
+MDrw_Poly, -10,-5.625, 10,-5.625
+MDrw_Poly, 10,0.625, 10,2.5
+MDrw_Poly, 10,-2.5, 10,-0.625
+MDrw_Poly, 10,-5.625, 10,-3.75
+MDrw_End
+TextArea,-12.5,8,25,3
+XMin,-12.5
+XMax,12.5
+YMin,-7.5
+YMax,7.5
+Width,25
+Height,15
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,18 @@
+Symbol,Restriction Valve
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, -3.75,-1.875, 3.75,1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, -3.75,1.875
+MDrw_Poly, -1.25,1.875, -1.25,-1.875
+MDrw_Poly, 1.25,1.875, 1.25,-1.875
+MDrw_End
+TextArea,-3.75,2.375,7.5,3
+XMin,-3.75
+XMax,3.75
+YMin,-1.875
+YMax,1.875
+Width,7.5
+Height,3.75
+InsertX,0
+InsertY,0
+

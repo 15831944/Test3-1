@@ -1,0 +1,21 @@
+Symbol,Pump_Centrif_ArrowL
+MDrw_Poly, 0.025329,-0.003021, 5.99862,-0.003021
+MDrw_Arc -8.92623e-031,-3.4315e-017,6
+MDrw_Arc -8.92623e-031,3.4315e-017,6
+MDrw_Poly, 4.24264,-4.24264, 6,-6
+MDrw_Poly, 6,-6, -6,-6
+MDrw_Poly, -6,-6, -4.24264,-4.24264
+MDrw_Poly, 0.025323,-0.023528, 2.27532,0.538972
+MDrw_Poly, 2.27532,0.538972, 2.27532,-0.586028
+MDrw_Poly, 2.27532,-0.586028, 0.025323,-0.023528
+MDrw_End
+TextArea,-6,6.5,12,3
+XMin,-6
+XMax,6
+YMin,-6
+YMax,6
+Width,12
+Height,12
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,47 @@
+Symbol,Hoist I
+MDrw_Poly, -11.875,11.25, 13.125,11.25
+MDrw_Poly, -11.875,8.75, 13.125,8.75
+MDrw_Poly, -4.375,7.5, -4.375,12.5
+MDrw_Poly, -4.375,12.5, 4.375,12.5
+MDrw_Poly, 4.375,12.5, 4.375,7.5
+MDrw_Poly, 4.375,7.5, 0.625,5
+MDrw_Poly, -4.375,7.5, -0.625,5
+MDrw_Poly, -6.875,5, 6.875,5
+MDrw_Poly, 6.875,5, 6.875,0
+MDrw_Poly, 6.875,0, -6.875,0
+MDrw_Poly, -6.875,0, -6.875,5
+MDrw_Poly, -3.125,5, -3.125,0
+MDrw_Poly, -3.75,5, -3.75,0
+MDrw_Poly, -2.5,5, -2.5,0
+MDrw_Poly, -1.25,5, -1.25,0
+MDrw_Poly, -1.875,5, -1.875,0
+MDrw_Poly, -0.625,5, -0.625,0
+MDrw_Poly, 0.625,5, 0.625,0
+MDrw_Poly, 0,5, 0,0
+MDrw_Poly, 1.25,5, 1.25,0
+MDrw_Poly, 2.5,5, 2.5,0
+MDrw_Poly, 1.875,5, 1.875,0
+MDrw_Poly, 3.125,5, 3.125,0
+MDrw_Poly, 3.75,5, 3.75,0
+MDrw_Arc -2.8125,10,0.9375
+MDrw_Arc 2.8125,10,0.9375
+MDrw_Poly, 0,0, 0,-1.25
+MDrw_Arc 0,-2.5,1.25
+MDrw_Arc -0.018,-3.945,0.457
+MDrw_Poly, 0.365,-3.696, 5,-8.75
+MDrw_Poly, -0.395,-3.686, -5,-8.75
+MDrw_Poly, -5,-8.75, 5,-8.75
+MDrw_Poly, 5,-8.75, 5,-18.75
+MDrw_Poly, 5,-18.75, -5,-18.75
+MDrw_Poly, -5,-18.75, -5,-8.75
+MDrw_End
+TextArea,-11.875,13,25,3
+XMin,-11.875
+XMax,13.125
+YMin,-18.75
+YMax,12.5
+Width,25
+Height,31.25
+InsertX,0
+InsertY,0
+

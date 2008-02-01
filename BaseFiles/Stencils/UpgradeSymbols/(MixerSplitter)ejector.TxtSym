@@ -1,0 +1,22 @@
+Symbol,ejector
+MDrw_Poly, 0.5,-9.5, -0.5,-9.5
+MDrw_Poly, -0.5,-9.5, -1,-7
+MDrw_Poly, -1,-1, -2,-1
+MDrw_Poly, -2,-1, -2,1
+MDrw_Poly, -2,1, -1,1
+MDrw_Poly, -1,1, -1,2
+MDrw_Poly, -1,2, 1,2
+MDrw_Poly, 1,2, 1,-7
+MDrw_Poly, -1,-7, -1,-1
+MDrw_Poly, 1,-7.00968, 0.5,-9.5
+MDrw_End
+TextArea,-2,2.5,3,3
+XMin,-2
+XMax,1
+YMin,-9.5
+YMax,2
+Width,3
+Height,11.5
+InsertX,0
+InsertY,0
+

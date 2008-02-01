@@ -1,0 +1,16 @@
+Symbol,GenStats
+Group,Control
+MDrw_Poly, -3,-3, -3,3, 3,3, 3,-3, -3,-3, 
+MDrw_Poly, -2,-2, -2,2, 2,2, 2,-2, -2,-2, 
+MDrw_TagPos, 0,-6.5, 
+MDrw_End
+TextArea,-3,3.5,6,3
+XMin,-3
+XMax,3
+YMin,-3
+YMax,3
+Width,6
+Height,6
+InsertX,0
+InsertY,0
+

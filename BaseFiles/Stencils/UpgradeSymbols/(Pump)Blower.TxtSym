@@ -1,0 +1,16 @@
+Symbol,Blower
+MDrw_Poly, -0.490173,-3.94273, 4.50983,-3.94273
+MDrw_Arc -0.490173,0.0572659,4
+MDrw_Poly, -0.490173,-1.94273, 4.50983,-1.94273
+MDrw_Poly, 4.50983,-1.94273, 4.50983,-3.94273
+MDrw_End
+TextArea,-4.49017,4.55727,9,3
+XMin,-4.49017
+XMax,4.50983
+YMin,-3.94273
+YMax,4.05727
+Width,9
+Height,8
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,29 @@
+Symbol,FlashTank3
+MDrw_PCurve S   0,  -6,7.5,
+MDrw_PCurve P   1, -9,4.5,
+MDrw_PCurve P   2, -9,-7.5,
+MDrw_PCurve P   3, 0,-16.5,
+MDrw_PCurve P   4, 9,-7.5,
+MDrw_PCurve P   5, 9,4.5,
+MDrw_PCurve P   6, 6,7.5,
+MDrw_PCurve P   7, 6,10.5,
+MDrw_PCurve A   8, 0,16.5, 4.48245e-006,10.5, 6, 0,-0,1, 1.5708,
+MDrw_PCurve A   9, -6,10.5, -4.48245e-006,10.5, 6, 0,0,1, 1.5708,
+MDrw_PCurve P  10, -6,7.5,
+MDrw_PCurve S   0,  9,-16.5,
+MDrw_PCurve P   1, 0,-7.5,
+MDrw_PCurve P   2, 0,-4.5,
+MDrw_PCurve S   0,  3,-4.5,
+MDrw_PCurve P   1, 0,-1.5,
+MDrw_PCurve P   2, -3,-4.5,
+MDrw_End
+TextArea,-9,17,18,3
+XMin,-9
+XMax,9
+YMin,-16.5
+YMax,16.5
+Width,18
+Height,33
+InsertX,0
+InsertY,0
+

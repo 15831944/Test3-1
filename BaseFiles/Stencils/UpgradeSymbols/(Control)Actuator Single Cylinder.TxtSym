@@ -1,0 +1,18 @@
+Symbol,Actuator Single Cylinder
+MDrw_Poly, 0,-1.89, 0,1.86
+MDrw_Poly, -1.875,1.86, 1.875,1.86
+MDrw_Poly, 1.875,1.86, 1.875,5.61
+MDrw_Poly, 1.875,5.61, -1.875,5.61
+MDrw_Poly, -1.875,5.61, -1.875,1.86
+MDrw_Poly, -1.875,3.735, 1.875,3.735
+MDrw_End
+TextArea,-1.875,6.11,3.75,3
+XMin,-1.875
+XMax,1.875
+YMin,-1.89
+YMax,5.61
+Width,3.75
+Height,7.5
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,22 @@
+Symbol,Downtime
+Group,Control
+MDrw_Poly, -4,4, 4,4, 4,-4, -4,-4, -4,4, 
+MDrw_Poly, -4,1, 1,1, 1,-2.2, 2.5,-2.2, 2.5,1, 4,1, 
+MDrw_Poly, 2.5,3.6, 2.5,3.3, 
+MDrw_Poly, 2.5,3, 2.5,2.7, 
+MDrw_Poly, 2.5,2.4, 2.5,2.1, 
+MDrw_Poly, 2.5,1.8, 2.5,1.5, 
+MDrw_Poly, 2.5,-2.5, 2.5,-2.8, 
+MDrw_Poly, 2.5,-3.1, 2.5,-3.4, 
+MDrw_Poly, 2.5,-3.7, 2.5,-4, 
+MDrw_End
+TextArea,-4,4.5,8,3
+XMin,-4
+XMax,4
+YMin,-4
+YMax,4
+Width,8
+Height,8
+InsertX,0
+InsertY,0
+

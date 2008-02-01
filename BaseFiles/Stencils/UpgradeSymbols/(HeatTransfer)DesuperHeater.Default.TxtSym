@@ -1,0 +1,15 @@
+Symbol,DesuperHeater
+Group,HeatTransfer
+MDrw_Poly, 8,3, 2,1, 1,1, 1,2, -1,2, -1,1, -2,1, -8,3, -8,-3, -2,-1, 2,-1, 8,-3, 8,3, 
+MDrw_TagPos, 0,-6.5, 
+MDrw_End
+TextArea,-8,3.5,16,3
+XMin,-8
+XMax,8
+YMin,-3
+YMax,3
+Width,16
+Height,6
+InsertX,0
+InsertY,0
+

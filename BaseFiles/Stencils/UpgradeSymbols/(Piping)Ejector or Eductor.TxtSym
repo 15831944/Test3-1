@@ -1,0 +1,26 @@
+Symbol,Ejector or Eductor
+MDrw_Poly, -4.97597,-3.09218, -4.97597,0.657819
+MDrw_Poly, 7.52403,-2.46718, 7.52403,0.0328189
+MDrw_Poly, -4.97597,0.657819, -2.47597,0.657819
+MDrw_Poly, -4.97597,-3.09218, -2.47597,-3.09218
+MDrw_Arc 3.33132,13.262,13.8777
+MDrw_Arc 3.33132,-15.6963,13.8777
+MDrw_PCurve S   0,  -7.47597,-1.84218,
+MDrw_PCurve P   1, -7.47597,-0.592181,
+MDrw_PCurve P   2, -4.97597,-1.21718,
+MDrw_PCurve P   3, -7.47597,-1.84218,
+MDrw_PCurve S   0,  -4.35097,3.15782,
+MDrw_PCurve P   1, -3.10097,3.15782,
+MDrw_PCurve P   2, -3.72597,0.657819,
+MDrw_PCurve P   3, -4.35097,3.15782,
+MDrw_End
+TextArea,-10.5463,27.6397,27.7553,3
+XMin,-10.5463
+XMax,17.209
+YMin,-29.574
+YMax,27.1397
+Width,27.7553
+Height,56.7137
+InsertX,0
+InsertY,0
+

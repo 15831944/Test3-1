@@ -1,0 +1,18 @@
+Symbol,BeltFilt-1
+Group,Filter
+MDrw_Arc,  -16,2, 2, 
+MDrw_Poly, -16,4, 16,4, 
+MDrw_Arc,  16,2, 2, 
+MDrw_Poly, 16,0, 0,-4, -16,0, 
+MDrw_TagPos, 0,-7.5, 
+MDrw_End
+TextArea,-18,4.5,36,3
+XMin,-18
+XMax,18
+YMin,-4
+YMax,4
+Width,36
+Height,8
+InsertX,0
+InsertY,0
+

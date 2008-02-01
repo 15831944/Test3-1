@@ -1,0 +1,22 @@
+Symbol,Drain Valve
+MDrw_Poly, -1.875,-3.75, 1.875,-3.75
+MDrw_Poly, 1.875,-3.75, -1.875,3.75
+MDrw_Poly, -1.875,3.75, 1.875,3.75
+MDrw_Poly, 1.875,3.75, -1.875,-3.75
+MDrw_Poly, 1.875,3.75, 1.875,-3.75
+MDrw_Poly, 0,-3.75, 0,-7.5
+MDrw_PCurve S   0,  -0.625,-5,
+MDrw_PCurve P   1, 0.625,-5,
+MDrw_PCurve P   2, 0,-7.5,
+MDrw_PCurve P   3, -0.625,-5,
+MDrw_End
+TextArea,-1.875,4.25,3.75,3
+XMin,-1.875
+XMax,1.875
+YMin,-7.5
+YMax,3.75
+Width,3.75
+Height,11.25
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,22 @@
+Symbol,VacuumPump
+MDrw_Poly, -6.25,8.75, -6.25,6.25
+MDrw_Poly, 6.25,6.25, 6.25,8.75
+MDrw_Poly, -6.25,8.75, 6.25,8.75
+MDrw_Poly, 6.25,6.25, -6.25,6.25
+MDrw_Poly, 5.10417,-7.5, -5.10417,-7.5
+MDrw_Arc -5,1.38778e-016,7.50072
+MDrw_Arc 5,-1.38778e-017,7.50072
+MDrw_Poly, -5,8.75, -5,11.25
+MDrw_Poly, -5,11.25, 5,11.25
+MDrw_Poly, 5,11.25, 5,8.75
+MDrw_End
+TextArea,-12.5007,11.75,25.0014,3
+XMin,-12.5007
+XMax,12.5007
+YMin,-7.50072
+YMax,11.25
+Width,25.0014
+Height,18.7507
+InsertX,0
+InsertY,0
+

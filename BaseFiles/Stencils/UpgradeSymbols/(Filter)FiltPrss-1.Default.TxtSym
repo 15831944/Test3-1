@@ -1,0 +1,15 @@
+Symbol,FiltPrss-1
+Group,Filter
+MDrw_Poly, -10,-4, -10,6, -8,6, -8,-4, -6,-4, -6,6, -4,6, -4,-4, -2,-4, -2,6, 0,6, 0,-4, 2,-4, 2,6, 4,6, 4,-4, 6,-4, 6,6, 8,6, 8,-4, 10,-4, 10,6, -10,6, -10,-4, 10,-4, 0,-6, -10,-4, 
+MDrw_TagPos, 0,-9.5, 
+MDrw_End
+TextArea,-10,6.5,20,3
+XMin,-10
+XMax,10
+YMin,-6
+YMax,6
+Width,20
+Height,12
+InsertX,0
+InsertY,0
+

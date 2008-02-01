@@ -1,0 +1,17 @@
+Symbol,Logic Root Extraction
+MDrw_Poly, -2.5,2.5, 2.5,2.5
+MDrw_Poly, 2.5,2.5, 2.5,-2.5
+MDrw_Poly, 2.5,-2.5, -2.5,-2.5
+MDrw_Poly, -2.5,-2.5, -2.5,2.5
+MDrw_Poly, 1.35614,0.860009, 2.04263,0.860009
+MDrw_End
+TextArea,-2.5,3,5,3
+XMin,-2.5
+XMax,2.5
+YMin,-2.5
+YMax,2.5
+Width,5
+Height,5
+InsertX,0
+InsertY,0
+

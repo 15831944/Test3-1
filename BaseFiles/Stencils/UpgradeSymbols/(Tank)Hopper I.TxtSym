@@ -1,0 +1,33 @@
+Symbol,Hopper I
+MDrw_Poly, -10,15, 10,15
+MDrw_Poly, 10,15, 10,10
+MDrw_Poly, 10,10, -10,10
+MDrw_Poly, -10,10, -10,15
+MDrw_Poly, -7.5,-7.5, -7.5,-10
+MDrw_Poly, -7.5,-10, 7.5,-10
+MDrw_Poly, 7.5,-10, 7.5,-7.5
+MDrw_Poly, 7.5,-7.5, -7.5,-7.5
+MDrw_Poly, -0.625,-10, -0.625,-11.25
+MDrw_Poly, 0.625,-10, 0.625,-11.25
+MDrw_Poly, -10,10, -2.5,-6.25
+MDrw_Poly, 10,10, 2.5,-6.25
+MDrw_Poly, 2.5,-6.25, -2.5,-6.25
+MDrw_Poly, -2.5,-6.25, -6.25,-7.5
+MDrw_Poly, 2.5,-6.25, 6.25,-7.5
+MDrw_Poly, -2.5,-11.25, 2.5,-11.25
+MDrw_Poly, -2.5,-11.25, -5,-15
+MDrw_Poly, -5,-15, -5,-22.5
+MDrw_Poly, -5,-22.5, 5,-22.5
+MDrw_Poly, 5,-22.5, 5,-15
+MDrw_Poly, 5,-15, 2.5,-11.25
+MDrw_End
+TextArea,-10,15.5,20,3
+XMin,-10
+XMax,10
+YMin,-22.5
+YMax,15
+Width,20
+Height,37.5
+InsertX,0
+InsertY,0
+

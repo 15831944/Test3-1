@@ -1,0 +1,29 @@
+Symbol,FAN COOLER II
+MDrw_Poly, 0,0, 3.53186,2.78855
+MDrw_Arc 0,0,4.5
+MDrw_Poly, -5,5, 5,5
+MDrw_Poly, -5,-5, 5,-5
+MDrw_Poly, -5,-5, -5,5
+MDrw_Poly, 5,-5, 5,5
+MDrw_Poly, 1.61807,3.33207, 0,0
+MDrw_Poly, 1.61807,3.33207, 3.53186,2.78855
+MDrw_Poly, -3.33207,1.61807, -2.78855,3.53186
+MDrw_Poly, -3.33207,1.61807, 0,0
+MDrw_Poly, 0,0, -2.78855,3.53186
+MDrw_Poly, -1.61807,-3.33207, -3.53186,-2.78855
+MDrw_Poly, -1.61807,-3.33207, 0,0
+MDrw_Poly, 0,0, -3.53186,-2.78855
+MDrw_Poly, 3.33207,-1.61807, 2.78855,-3.53186
+MDrw_Poly, 3.33207,-1.61807, 0,0
+MDrw_Poly, 0,0, 2.78855,-3.53186
+MDrw_End
+TextArea,-5,5.5,10,3
+XMin,-5
+XMax,5
+YMin,-5
+YMax,5
+Width,10
+Height,10
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,16 @@
+Symbol,Constriction Reducer
+MDrw_Poly, 2.48,2.5, -2.52,1.25
+MDrw_Poly, 2.48,-2.5, -2.52,-1.25
+MDrw_Poly, -2.52,-1.25, -2.52,1.25
+MDrw_Poly, 2.48,2.5, 2.48,-2.5
+MDrw_End
+TextArea,-2.52,3,5,3
+XMin,-2.52
+XMax,2.48
+YMin,-2.5
+YMax,2.5
+Width,5
+Height,5
+InsertX,0
+InsertY,0
+

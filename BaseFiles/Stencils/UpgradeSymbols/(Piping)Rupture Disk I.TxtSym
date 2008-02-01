@@ -1,0 +1,24 @@
+Symbol,Rupture Disk I
+MDrw_Poly, -3.75,1.875, -3.75,-1.875
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, -3.75,1.875, 3.75,1.875
+MDrw_Poly, -3.75,-1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, 0,1.875
+MDrw_Poly, 0,1.875, -3.75,-1.875
+MDrw_Poly, 0,1.875, 0,7.5
+MDrw_Poly, 0,-1.875, 0,-7.5
+MDrw_PCurve S   0,  0.625,5,
+MDrw_PCurve P   1, -0.625,5,
+MDrw_PCurve P   2, 0,7.5,
+MDrw_PCurve P   3, 0.625,5,
+MDrw_End
+TextArea,-3.75,8,7.5,3
+XMin,-3.75
+XMax,3.75
+YMin,-7.5
+YMax,7.5
+Width,7.5
+Height,15
+InsertX,0
+InsertY,0
+

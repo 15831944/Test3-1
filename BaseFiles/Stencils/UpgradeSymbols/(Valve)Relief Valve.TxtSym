@@ -1,0 +1,27 @@
+Symbol,Relief Valve
+MDrw_Poly, 3.75,1.875, 3.75,-1.875
+MDrw_Poly, 3.75,-1.875, 0,0
+MDrw_Poly, 0,0, 3.75,1.875
+MDrw_Poly, 0,0, -1.875,-3.75
+MDrw_Poly, 1.875,-3.75, 0,0
+MDrw_Poly, -1.875,-3.75, 1.875,-3.75
+MDrw_Poly, 0,1.5, 0,0
+MDrw_Poly, -0.5,4.25, 0,4.5
+MDrw_Poly, 0.5,3.75, -0.5,4.25
+MDrw_Poly, 0.5,2.75, -0.5,3.25
+MDrw_Poly, -0.5,2.25, 0.5,2.75
+MDrw_Poly, 0,6, 0,4.5
+MDrw_Poly, -0.5,3.25, 0.5,3.75
+MDrw_Poly, 0.5,1.75, -0.5,2.25
+MDrw_Poly, 0,1.5, 0.5,1.75
+MDrw_End
+TextArea,-1.875,6.5,5.625,3
+XMin,-1.875
+XMax,3.75
+YMin,-3.75
+YMax,6
+Width,5.625
+Height,9.75
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,15 @@
+Symbol,Cup Feeder
+MDrw_Poly, 1.26,2.5, 1.26,-2.5
+MDrw_Poly, 1.26,2.5, -1.24,2.5
+MDrw_Poly, 1.26,-2.5, -1.24,-2.5
+MDrw_End
+TextArea,-1.24,3,2.5,3
+XMin,-1.24
+XMax,1.26
+YMin,-2.5
+YMax,2.5
+Width,2.5
+Height,5
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,17 @@
+Symbol,ContctHt-1
+Group,HeatTransfer
+MDrw_Poly, -6,8.4, -6,-8.4, 6,-8.4, 6,8.4, -6,8.4, 
+MDrw_Arc3, -6,8.4, 0,12, 6,8.4, 
+MDrw_Arc3, -6,-8.4, 0,-12, 6,-8.4, 
+MDrw_TagPos, 0,-15.5, 
+MDrw_End
+TextArea,-6,12.5,12,3
+XMin,-6
+XMax,6
+YMin,-12
+YMax,12
+Width,12
+Height,24
+InsertX,0
+InsertY,0
+

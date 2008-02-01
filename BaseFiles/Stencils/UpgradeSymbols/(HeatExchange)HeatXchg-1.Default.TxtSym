@@ -1,0 +1,16 @@
+Symbol,HeatXchg-1
+Group,HeatExchange
+MDrw_Poly, -6,-6, -6,6, 6,6, 6,-6, -6,-6, 
+MDrw_Poly, -5,-6, -5,-3, -4,3, -3,-3, -2,3, -1,-3, 0,3, 1,-3, 2,3, 3,-3, 4,3, 5,-3, 5,-6, 
+MDrw_TagPos, 0,-9.5, 
+MDrw_End
+TextArea,-6,6.5,12,3
+XMin,-6
+XMax,6
+YMin,-6
+YMax,6
+Width,12
+Height,12
+InsertX,0
+InsertY,0
+
