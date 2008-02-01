@@ -218,7 +218,6 @@ namespace DXF2GS
           Message("Zero height", args[1], path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");
       }
 
-      Console.WriteLine();
       Console.WriteLine("Done.");
       Console.ReadKey(false);
     }
