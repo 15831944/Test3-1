@@ -297,12 +297,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_UPDATE_COMMAND_UI(ID_FILE_IMPORT, OnUpdateFileImport)
   ON_UPDATE_COMMAND_UI(ID_FILE_EXPORT, OnUpdateFileExport)
   ON_COMMAND(ID_DELETEDEBUGFILE, OnDeleteDebugFile)
-  ON_COMMAND(ID_SCD10_EXPORT, &CMainFrame::OnScd10Export)
-  ON_COMMAND(ID_SCD10_ATTACH, &CMainFrame::OnScd10Attach)
-  ON_COMMAND(ID_FILE_ATTACHPROJECT, &CMainFrame::OnScd10Attach)
-  ON_UPDATE_COMMAND_UI(ID_SCD10_EXPORT, &CMainFrame::OnUpdateScd10Export)
-  ON_UPDATE_COMMAND_UI(ID_SCD10_ATTACH, &CMainFrame::OnUpdateScd10Attach)
-  ON_UPDATE_COMMAND_UI(ID_FILE_ATTACHPROJECT, &CMainFrame::OnUpdateScd10Attach)
+  ON_COMMAND(ID_FILE_UPGRADEPROJECT_SCD10, &CMainFrame::OnScd10Upgrade)
+  ON_UPDATE_COMMAND_UI(ID_FILE_UPGRADEPROJECT_SCD10, &CMainFrame::OnUpdateScd10Upgrade)
+  ON_COMMAND(ID_FILE_ATTACHPROJECT_SCD10, &CMainFrame::OnScd10Attach)
+  ON_UPDATE_COMMAND_UI(ID_FILE_ATTACHPROJECT_SCD10, &CMainFrame::OnUpdateScd10Attach)
   END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
@@ -327,6 +325,7 @@ CToolBarMngr MainTBMngr;
 //---------------------------------------------------------------------------
 
 inline flag EnablePrjOK() { return gs_pPrj && gs_pPrj->pPrjDoc; };
+inline flag EnablePrjIs10Prj() { return gs_pPrj && gs_pPrj->pPrjDoc && gs_pPrj->m_IsScd10Prj; };
 inline flag EnableFiling() { return EnablePrjOK() && XFiling(); };
 inline flag EnableNotFiling() { return !XFiling(); };
 inline flag EnableBusy() { return EnablePrjOK() && XBusy(); }; //starting, running, paused, or stopping
@@ -4371,17 +4370,17 @@ LRESULT CMainFrame::OnChkLicense(WPARAM wParam, LPARAM lParam)
 //===========================================================================
 
 
-void CMainFrame::OnScd10Export()
+void CMainFrame::OnScd10Upgrade()
   {
 #if SYSCAD10
-  gs_pPrj->Export2Scd10();
+  gs_pPrj->Upgrade2Scd10();
 #endif
   }
 
-void CMainFrame::OnUpdateScd10Export(CCmdUI *pCmdUI)
+void CMainFrame::OnUpdateScd10Upgrade(CCmdUI *pCmdUI)
   {
 #if SYSCAD10
-  pCmdUI->Enable(true);//EnablePrjOK() && !EnableNotStopped());
+  pCmdUI->Enable(EnablePrjOK() && !EnablePrjIs10Prj() && EnableNotBusy());
 #else
   pCmdUI->Enable(false);
 #endif
@@ -4401,7 +4400,7 @@ void CMainFrame::OnScd10Attach()
 void CMainFrame::OnUpdateScd10Attach(CCmdUI *pCmdUI)
   {
 #if SYSCAD10
-  pCmdUI->Enable(true);//EnablePrjOK() && !EnableNotStopped());
+  pCmdUI->Enable(!EnablePrjOK());
 #else
   pCmdUI->Enable(false);
 #endif

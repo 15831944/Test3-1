@@ -2046,10 +2046,8 @@
 #define ID_PROJECT_STATUSCOLOURS        30535
 #define ID_PROJECT_EDIT_COLOURS         30535
 #define ID_IMPORTSCD10_XXX              30536
-#define ID_SCD10_IMPORT                 30537
-#define ID_SCD10_EXPORT                 30538
-#define ID_SCD10_ATTACH                 30539
-#define ID_FILE_ATTACHPROJECT           30540
+#define ID_FILE_ATTACHPROJECT_SCD10           30540
+#define ID_FILE_UPGRADEPROJECT_SCD10          30541
 #define IDS_OPENFILELOCAL               61446
 
 // Next default values for new objects
@@ -2057,7 +2055,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        25600
-#define _APS_NEXT_COMMAND_VALUE         30541
+#define _APS_NEXT_COMMAND_VALUE         30542
 #define _APS_NEXT_CONTROL_VALUE         25774
 #define _APS_NEXT_SYMED_VALUE           25603
 #endif

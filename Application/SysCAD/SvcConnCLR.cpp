@@ -211,7 +211,7 @@ ref class CSvcConnectCLRThread
         This is where import goes
         */
 
-        //clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
+        clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
 
         ////////////////////////////////
         ////////////////////////////////
@@ -787,20 +787,23 @@ ref class CSvcConnectCLRThread
         {
 
         GraphicGroup ^GGrp;
+        ModelNode ^ MNd;
+        GraphicNode ^GNd;
+        ModelLink ^ MLnk;
+        GraphicLink ^GLnk;
+
         if (clientProtocol->graphic->Groups->TryGetValue(*guid, GGrp))
           {
           m_pConn->OnCreateGroup(eventId, requestId, ToCString(GGrp->Guid.ToString()), ToCString(GGrp->Tag), ToCString(GGrp->Path), CRectangleF(GGrp->BoundingRect->Left, GGrp->BoundingRect->Top, GGrp->BoundingRect->Width, GGrp->BoundingRect->Height)); 
           }
 
-        ModelNode ^ MNd;
-        if (engineProtocol->model->Nodes->TryGetValue(*guid, MNd))
+        else if (clientProtocol->model->Nodes->TryGetValue(*guid, MNd))
           {
           m_pConn->OnCreateNodeM(eventId, requestId, ToCString(MNd->Guid.ToString()), ToCString(MNd->Tag),  
             ToCString(MNd->NodeClass));
           }
 
-        GraphicNode ^GNd;
-        if (clientProtocol->graphic->Nodes->TryGetValue(*guid, GNd))
+        else if (clientProtocol->graphic->Nodes->TryGetValue(*guid, GNd))
           {
           ModelNode ^MNd;
           if (clientProtocol->model->Nodes->TryGetValue(GNd->ModelGuid, MNd))
@@ -816,15 +819,13 @@ ref class CSvcConnectCLRThread
             }
           }
 
-        ModelLink ^ MLnk;
-        if (engineProtocol->model->Links->TryGetValue(*guid, MLnk))
+        else if (clientProtocol->model->Links->TryGetValue(*guid, MLnk))
           {
           m_pConn->OnCreateLinkM(eventId, requestId, ToCString(MLnk->Guid.ToString()), ToCString(MLnk->Tag), ToCString(MLnk->LinkClass), 
             ToCString(MLnk->Origin.ToString()), ToCString(MLnk->Destination.ToString()), ToCString(MLnk->OriginPort), ToCString(MLnk->DestinationPort));
           }
 
-        GraphicLink ^GLnk;
-        if (clientProtocol->graphic->Links->TryGetValue(*guid, GLnk))
+        else if (clientProtocol->graphic->Links->TryGetValue(*guid, GLnk))
           {
 
           CPointFList Pts;

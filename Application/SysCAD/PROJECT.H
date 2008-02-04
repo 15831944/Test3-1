@@ -385,6 +385,8 @@ class DllImportExport CProjectSettings
 
   public:
 
+    long          m_IsScd10Prj;
+
     long          m_NetMode;
 
     long          m_PBNodeMode;
@@ -844,7 +846,7 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
 #if SYSCAD10
     void           SvcLoad();
     void           SvcSave();
-    void           Export2Scd10();
+    void           Upgrade2Scd10();
     void           Attach2Scd10();
 
     void           Remove9Graphics();

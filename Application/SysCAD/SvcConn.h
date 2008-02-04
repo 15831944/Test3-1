@@ -67,7 +67,7 @@ class CSvcConnect
 
     //bool RequestItemDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
 
-    void Export2Scd10(LPCSTR projectPath, LPCSTR configPath);
+    void Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath);
     void Attach2Scd10();
     void Load();
     void Save();

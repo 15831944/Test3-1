@@ -348,9 +348,9 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     afx_msg void OnFileExport();
     afx_msg void OnUpdateFileExport(CCmdUI *pCmdUI);
     afx_msg void OnDeleteDebugFile();
-    afx_msg void OnScd10Export();
+    afx_msg void OnScd10Upgrade();
+    afx_msg void OnUpdateScd10Upgrade(CCmdUI *pCmdUI);
     afx_msg void OnScd10Attach();
-    afx_msg void OnUpdateScd10Export(CCmdUI *pCmdUI);
     afx_msg void OnUpdateScd10Attach(CCmdUI *pCmdUI);
 };
 

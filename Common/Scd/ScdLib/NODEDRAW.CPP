@@ -475,6 +475,8 @@ void NodeGrfInfo::ExportToFile(NodeGrfInfo* pNGI, char* TextFilename)
 
 //---------------------------------------------------------------------------
 
+static inline double Deg2Rad(double x) { return x*PI/180; };
+
 void NodeGrfInfo::ExportToFile10(NodeGrfInfo* pNGI, char* Path)
   {
   if (!pNGI)
@@ -574,6 +576,8 @@ void NodeGrfInfo::ExportToFile10(NodeGrfInfo* pNGI, char* Path)
           fprintf(f, "%g, ", Rad);
           double S=0,E=360;
           pNGI2->GetPair(S,E); //???
+          fprintf(f, "%g,%g, ", X+Rad*cos(Deg2Rad(S)), X+Rad*sin(Deg2Rad(S)));
+          fprintf(f, "%g,%g, ", X+Rad*cos(Deg2Rad(E)), X+Rad*sin(Deg2Rad(E)));
           }
         fprintf(f, "\n");
         break;

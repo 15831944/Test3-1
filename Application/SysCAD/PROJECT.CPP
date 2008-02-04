@@ -1316,6 +1316,8 @@ void CProjectSettings::ClearSettings()
   m_bToolTips=1;
   m_bFlyBys=1;
 
+  m_IsScd10Prj=0;
+
   //_asm int 3; // these must be fixed
   m_NetMode=NM_Probal;
 
@@ -1452,8 +1454,10 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
 
   CProfINIFile PrjCfg(sModelCfg());
 
+  m_IsScd10Prj = PF.RdInt("General", "IsSysCAD10Project", m_IsScd10Prj);
+    
   PrjFileVerNo=PF.RdInt("General", "PrjFileVersion", PrjFileVerNo);
-
+  
   if (PrjFileVerNo>=100)
     {
     m_NetMode     = GetDefNetMode (PF.RdStr("Modes", "NetMode",           PrjCfg.RdStr("Modes", "Default_NetMode", "ProBal")));
@@ -1819,9 +1823,13 @@ flag CProjectSettings::WriteSettings(CProfINIFile & PF, bool FullSave)
   if (GetComputerName(CompBuff, &Sz))
     strcpy(CompBuff, "?????");
 
+  PF.WrInt("General", "IsSysCAD10Project", m_IsScd10Prj);
+
   PF.WrInt("General", "PrjFileVersion", LatestPrjFileVer);
   PF.WrInt("General", "PrjFileVersionOriginal", OrigPrjFileVerNo());
+  
   PF.WrStr("LastSaveInfo", "SysCADVersion", FullVersion());
+
 
   if (FullSave)
     {
@@ -6668,7 +6676,7 @@ void CProject::SvcSave()
   m_pSvc->Save();
   }
 
-void CProject::Export2Scd10()
+void CProject::Upgrade2Scd10()
   {
   if (!m_pSvc)
     {
@@ -6683,13 +6691,15 @@ void CProject::Export2Scd10()
       //  };
 
       // Temporary
-      //m_pSvc->Export2Scd10(PrjName(), CfgFiles());
+      //m_pSvc->Upgrade2Scd10(PrjName(), CfgFiles());
 
       // CNM Removed - temp
       //m_pSvc->Save();
       }
-		m_pSvc->Export2Scd10(PrjName(), PrjFiles());
+		m_pSvc->Upgrade2Scd10(PrjName(), PrjFiles());
     m_pSvc->Save();
+
+    m_IsScd10Prj=true;
     }
   }
 

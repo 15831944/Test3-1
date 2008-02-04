@@ -271,7 +271,7 @@ void CSvcConnect::Shutdown()
   };
 
 
-void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
+void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
   {
   m_Ctrl.m_bExportBusy = true;
   //m_pCLR->Export(projectPath, configPath);
@@ -313,7 +313,7 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
       CGetExistingItems::CGroupIndex Inx;
       if (!GI.m_TagMap.Lookup(I.m_sTag, Inx))
         {
-        LogError("Export2Scd10", 0, "Tag Not in Graphics %s", I.m_sTag);
+        LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", I.m_sTag);
         continue;
         };
 
@@ -358,7 +358,7 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
           0.0, 
           CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
           -GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible,
-          0, false, false);
+          COLORREF(0), false, false);
 
         DO_EXIT_GG("DoCreateNodeE", ModelGuid, GraphicGuid);
         }
@@ -389,13 +389,13 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
         if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(0)->Tag(), SInx))
           SrcGrfGuid = Grp.m_GTIA[SInx.m_iGTIA].m_sGuid();
         else
-          LogError("Export2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(0)->Tag());
+          LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(0)->Tag());
 
         CGetExistingItems::CGroupIndex DInx;
         if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(1)->Tag(), DInx))
           DstGrfGuid = Grp.m_GTIA[DInx.m_iGTIA].m_sGuid();
         else
-          LogError("Export2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(1)->Tag());
+          LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(1)->Tag());
 
         if (dbgConnect())                                                              
           {                                                                            
@@ -424,8 +424,8 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
           SrcGrfGuid, DstGrfGuid, 
           SrcPort, DstPort, 
           CtrlPts,
-          CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), true,
-          -GTI.m_Tag.m_Rotation);
+          CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), 
+          -GTI.m_Tag.m_Rotation, true);
 
 
         DO_EXIT_G("DoCreateLinkE", ModelGuid);
@@ -1219,36 +1219,48 @@ void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkG
   ON_ENTRY_GT("OnModifyLinkG", LinkGuid, Tag);
 
 
-  FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
-  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+//  FlwNode * pSrc = NULL;//gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
+//  FlwNode * pDst = NULL;//gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+////
+//  if (gs_pPrj->FindNodeInfoFromGuid((((LPSTR)Tag, Guid))
+//  if (!pSrc)
+//    LogError(Tag, 0, "Link %s(%s) Src %s not Found", Tag, LinkGuid, OriginGuid);
+//  
+//  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+//  if (!pDst)
+//    LogError(Tag, 0, "Link %s(%s) Dst %s not Found", Tag, LinkGuid, DestinationGuid);
 
-  CRectangleF boundingRect;
-  POSITION Pos=ControlPoints.GetHeadPosition();
-  if (Pos)
+  if (1)//pSrc && pDst)
     {
-    boundingRect.Set(ControlPoints.GetNext(Pos));
-    while (Pos)
-      boundingRect.Include(ControlPoints.GetNext(Pos), false);
-    }
 
-  CsGrfGroup * pGrp=CSvcConnect::GetContainingGroup(boundingRect);
+    CRectangleF boundingRect;
+    POSITION Pos=ControlPoints.GetHeadPosition();
+    if (Pos)
+      {
+      boundingRect.Set(ControlPoints.GetNext(Pos));
+      while (Pos)
+        boundingRect.Include(ControlPoints.GetNext(Pos), false);
+      }
 
-  m_Ctrl.ClrXObjArray();
-  //m_Ctrl.SetXObjArray(gs_pTheSFELib);
-  if (pGrp)
-    {
-    CString GroupName=pGrp->m_Name;
-    m_Ctrl.SetXObjArray(FindGrfWnd(GroupName));
-    }
+    CsGrfGroup * pGrp=CSvcConnect::GetContainingGroup(boundingRect);
 
-  int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), ControlPoints, tagArea, tagAngle);
-  if (RetCode!=EOSC_DONE)
-    {
-    LogError(Tag, 0, "Link not modified");
-    //DeletesFailedCnt++;
-    }
-  else
-    {
+    m_Ctrl.ClrXObjArray();
+    //m_Ctrl.SetXObjArray(gs_pTheSFELib);
+    if (pGrp)
+      {
+      CString GroupName=pGrp->m_Name;
+      m_Ctrl.SetXObjArray(FindGrfWnd(GroupName));
+      }
+
+    int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, "Src", "Dst", /*pSrc->Tag(), pDst->Tag(),*/ ControlPoints, tagArea, tagAngle);
+    if (RetCode!=EOSC_DONE)
+      {
+      LogError(Tag, 0, "Link not modified");
+      //DeletesFailedCnt++;
+      }
+    else
+      {
+      }
     }
 
   ON_EXIT("OnModifyLinkG");

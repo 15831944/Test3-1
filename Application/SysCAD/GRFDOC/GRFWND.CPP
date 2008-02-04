@@ -680,52 +680,60 @@ int CGrfWnd::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
 
     CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
 
-    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
-    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+    //FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
+    //FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
 
-    DXF_ENTITY eInsert, eAttrib;
-    if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
+    DXF_ENTITY eSrc, eAttSrc;
+    DXF_ENTITY eDst, eAttDst;
+    if (Dsp.FindGuid((LPSTR)OriginGuid, eSrc, eAttSrc) && Dsp.FindGuid((LPSTR)DestinationGuid, eDst, eAttDst))
       {
-      Dsp.Open();
+      LPSTR SrcTag = Find_Attr_Value(eSrc, TagAttribStr);
+      LPSTR DstTag = Find_Attr_Value(eDst, TagAttribStr);
 
-      if (eInsert)
+      DXF_ENTITY eInsert, eAttrib;
+      if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
         {
-        GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+        Dsp.Open();
 
-        LPSTR BlockName = DXF_INSERT_BLOCK_GET(eInsert);
-
-        Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
-        GCB.pDrw->Delete(eInsert);
-
-        CLineDrawHelper LDH;
-        LDH.SetLineMethod(LDM_Direct); //todo user option
-        LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
-        LDH.SetArrowScale(2.5); //todo user option
-        LDH.SetShowTag(false); //todo user option
-
-        LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
-        LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
-        LDH.InitPoints();
-
-        CRectangleF boundingRect;
-        POSITION Pos=ControlPoints.GetHeadPosition();
-        while (Pos)
+        if (eInsert)
           {
-          CPointF &pt=ControlPoints.GetNext(Pos);
-          Pt_3f Pt3(pt.X()-PageRct.Left(), PageRct.Top()-pt.Y(), 0.0);
+          GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
 
-          LDH.AddPoint(Pt3, LPT_Line);
+          LPSTR BlockName = DXF_INSERT_BLOCK_GET(eInsert);
+
+          Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+          GCB.pDrw->Delete(eInsert);
+
+          CLineDrawHelper LDH;
+          LDH.SetLineMethod(LDM_Direct); //todo user option
+          LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
+          LDH.SetArrowScale(2.5); //todo user option
+          LDH.SetShowTag(false); //todo user option
+
+          LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
+          LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
+          LDH.InitPoints();
+
+          CRectangleF boundingRect;
+          POSITION Pos=ControlPoints.GetHeadPosition();
+          while (Pos)
+            {
+            CPointF &pt=ControlPoints.GetNext(Pos);
+            Pt_3f Pt3(pt.X()-PageRct.Left(), PageRct.Top()-pt.Y(), 0.0);
+
+            LDH.AddPoint(Pt3, LPT_Line);
+            }
+
+          if (pGDoc!=NULL)
+            {
+            //todo check if parms are legal!!!
+            pGDoc->GCB.DoInsertLinkGrf(LDH, SrcTag, DstTag, true);
+            }
           }
 
-        if (pGDoc!=NULL)
-          {
-          //todo check if parms are legal!!!
-          pGDoc->GCB.DoInsertLinkGrf(LDH, (LPSTR)OriginTag, (LPSTR)DestinationTag, true);
-          }
+        Dsp.Close();
+        return EOSC_DONE; 
         }
-
-      Dsp.Close();
-      return EOSC_DONE; 
       }
     }
 #endif
