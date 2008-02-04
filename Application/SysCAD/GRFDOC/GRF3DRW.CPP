@@ -1307,14 +1307,15 @@ void CGrfLayer::ExportEntities10(C3_BOX Bnds, FILE *fp)
     if (C3_CURVE_IS_ARC(c))
       {
       REAL Rad;
-      PT3 Ctr;
+      PT3 Ctr, Pt0, Pt1, d_vec;
       c3c_get_arc_radius ( c, &Rad);
       c3c_get_arc_center ( c, Ctr); 
+      c3c_get_arc_pts_d ( c, Pt0, Pt1, d_vec ) ;
       RANGEX(Bnds, Ctr[0]+Rad);
       RANGEX(Bnds, Ctr[0]-Rad);
       RANGEY(Bnds, Ctr[1]+Rad);
       RANGEY(Bnds, Ctr[1]-Rad);
-      fprintf(fp,"MDrw_Arc %g,%g,%g\n", Ctr[0], Ctr[1], Rad);
+      fprintf(fp,"MDrw_Arc %g,%g, %g, %g,%g, %g,%g,\n", Ctr[0], Ctr[1], Rad, Pt0[0], Pt0[1], Pt1[0], Pt1[1]);
       }
     else if (C3_CURVE_IS_BEZIER(c))
       fprintf(fp,"            BEZIER\n");
@@ -1367,9 +1368,9 @@ void CGrfLayer::ExportEntities10(C3_BOX Bnds, FILE *fp)
     //fprintf(fp,"            Entity type:%d  addr:%x Segment %x\n",e->entity_id,e,it->pKenwalta);
     }
 
-#undef RANGEPT(Bnds, Pt)
-#undef RANGEX(Bnds, Val)
-#undef RANGEY(Bnds, Val)
+#undef RANGEPT
+#undef RANGEX
+#undef RANGEY
   }
 
 //----------------------------------------------------------------------------

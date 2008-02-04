@@ -6789,8 +6789,10 @@ void CProject::ExportScd9Symbols()
 
   Strng SymPath(BaseGrfSymbolFiles());
 
-  Strng OutPath(BaseCfgFiles());
-  OutPath+="SymbolUpdates\\";
+  Strng OutPath(BaseCfgFiles()), E;
+  OutPath+="Stencils\\UpgradeSymbols\\";
+
+  FnCreatePath(OutPath(), E);
 
   nAdded=ExportScd9SymbolsInPath(BaseGrfSymbolFiles(), OutPath(), "");
 
