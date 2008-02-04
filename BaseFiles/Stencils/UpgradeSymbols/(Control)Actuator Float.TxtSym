@@ -1,6 +1,6 @@
 Symbol,Actuator Float
 MDrw_Poly, 0,-2.5, 0,2.5
-MDrw_Arc -3.75,1.25,0.75
+MDrw_Arc -3.75,1.25, 0.75, -3,1.25, -4.2,0.65,
 MDrw_Poly, 0,2.5, -3.03849,1.48717
 MDrw_End
 TextArea,-4.5,3,4.5,3

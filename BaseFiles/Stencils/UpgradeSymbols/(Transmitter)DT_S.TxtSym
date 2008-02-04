@@ -1,5 +1,5 @@
 Symbol,DT_S
-MDrw_Arc 0,-10,5
+MDrw_Arc 0,-10, 5, 5,-10, -3,-14,
 MDrw_Poly, 0,0, 0,-5
 MDrw_End
 TextArea,-5,0.5,10,3

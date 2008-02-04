@@ -1,6 +1,6 @@
 Symbol,Actuator Rotary Motor
 MDrw_Poly, 0,-2.52, 0,1.23
-MDrw_Arc 0,3.105,1.875
+MDrw_Arc 0,3.105, 1.875, 1.875,3.105, -1.125,1.605,
 MDrw_End
 TextArea,-1.875,5.48,3.75,3
 XMin,-1.875

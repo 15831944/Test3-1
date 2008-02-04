@@ -1,6 +1,6 @@
 Symbol,Control Panel
-MDrw_Arc 0,-5.04,5
-MDrw_Arc 0,4.96,5
+MDrw_Arc 0,-5.04, 5, 5,-5.04, -3,-9.04,
+MDrw_Arc 0,4.96, 5, 5,4.96, -3,0.96,
 MDrw_Poly, 0,-10.04, 0,9.96
 MDrw_End
 TextArea,-5,10.46,10,3

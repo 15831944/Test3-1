@@ -1,6 +1,6 @@
 Symbol,Spectacle Blind I
 MDrw_Poly, -0.005,-3.78, -0.005,2.47
-MDrw_Arc -0.005,4.345,0.625
+MDrw_Arc -0.005,4.345, 0.625, 0.62,4.345, -0.38,3.845,
 MDrw_Poly, -0.63,-0.03, -0.63,-3.78
 MDrw_Poly, 0.62,-0.03, 0.62,-3.78
 MDrw_End
