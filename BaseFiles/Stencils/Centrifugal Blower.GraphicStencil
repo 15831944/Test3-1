@@ -71,36 +71,36 @@
 <y2>100</y2>
 </a1:Line>
 <a1:Arc id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>20.833333333333336</h>
-<s>360</s>
-<w>62.5</w>
-<x>37.500099999999996</x>
-<y>72.916666666666657</y>
+<a>233.13009868722642</a>
+<h>20.833334333333358</h>
+<s>-106.26019737445287</s>
+<w>62.500003000000085</w>
+<x>37.50009699999984</x>
+<y>72.916666166666644</y>
 </a1:Arc>
 <a1:Arc id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>20.833333333333336</h>
-<s>360</s>
-<w>62.5</w>
-<x>9.9999999996214228E-05</x>
-<y>72.916666666666657</y>
+<a>53.130106021086007</a>
+<h>20.833332333333352</h>
+<s>253.73978795782796</s>
+<w>62.499997000000064</w>
+<x>9.9999999942923523E-05</x>
+<y>72.916667166666656</y>
 </a1:Arc>
 <a1:Arc id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>20.833333333333336</h>
-<s>360</s>
-<w>62.5</w>
+<a>53.130106021086092</a>
+<h>20.833332333333352</h>
+<s>253.73978795782784</s>
+<w>62.499997000000064</w>
 <x>9.9999999996214228E-05</x>
-<y>56.25</y>
+<y>56.2500005</y>
 </a1:Arc>
 <a1:Arc id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>20.833333333333336</h>
-<s>360</s>
-<w>62.5</w>
-<x>37.500099999999996</x>
-<y>56.25</y>
+<a>233.13009868722628</a>
+<h>20.833334333333358</h>
+<s>-106.26019737445262</s>
+<w>62.500003000000085</w>
+<x>37.500096999999926</x>
+<y>56.24999949999998</y>
 </a1:Arc>
 <a1:Line id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>50.000095999999992</x1>

@@ -91,16 +91,37 @@ namespace DXF2GS
                   Double xc = Double.Parse(words[1]);
                   Double yc = -Double.Parse(words[2]);
                   Double r = Double.Parse(words[3]);
-                  graphicStencil.Decorations.Add(
-                    new Arc(
-                      ((xc - r) - xMin) / (xMax - xMin) * 100.0,
-                      ((yc - r) - yMin) / (yMax - yMin) * 100.0,
-                      (2.0 * r) / (xMax - xMin) * 100.0,
-                      (2.0 * r) / (yMax - yMin) * 100.0,
-                      0.0,
-                      360.0
-                    )
-                  );
+                  Double x1 = Double.Parse(words[4]);
+                  Double y1 = -Double.Parse(words[5]);
+                  Double x2 = Double.Parse(words[6]);
+                  Double y2 = -Double.Parse(words[7]);
+                  
+                  Double a1 = Math.Atan2(y1 - yc, x1 - xc);
+                  Double a2 = Math.Atan2(y2 - yc, x2 - xc);
+
+                  if (Math.Abs(a1 - a2) < 0.001)
+                  {
+                    graphicStencil.Decorations.Add(
+                      new Arc(
+                        ((xc - r) - xMin) / (xMax - xMin) * 100.0,
+                        ((yc - r) - yMin) / (yMax - yMin) * 100.0,
+                        (2.0 * r) / (xMax - xMin) * 100.0,
+                        (2.0 * r) / (yMax - yMin) * 100.0,
+                        0.0,
+                        360.0
+                      )
+                    );
+                  }
+                  else
+                  {
+                    graphicStencil.Decorations.Add(
+                      Arc3(
+                      x1, y1,
+                      x2, y2,
+                      xc, yc, r,
+                      xMin, xMax, yMin, yMax)
+                    );
+                  }
                 }
                 break;
 
@@ -141,18 +162,12 @@ namespace DXF2GS
                     Double yc = -Double.Parse(words[6]);
                     Double r = Double.Parse(words[7]);
                     
-                    Double a1 = Math.Atan2(oldPt.Y - yc, oldPt.X - xc);
-                    Double a2 = Math.Atan2(y2 - yc, x2 - xc);
-                    Double a3 = (a1 + a2) / 2.0;
-
-                    Double x3 = xc + r * Math.Cos(a3);
-                    Double y3 = yc + r * Math.Sin(a3);
 
                     graphicStencil.Decorations.Add(
                       Arc3(
                       oldPt.X, oldPt.Y,
                       x2, y2,
-                      x3, y3,
+                      xc, yc, r,
                       xMin, xMax, yMin, yMax)
                     );
                     break;
@@ -228,6 +243,21 @@ namespace DXF2GS
       Console.WriteLine("!!!!!!!!!!! " + message + ": " + line);
       Console.WriteLine(oldPath + " ---> " + newPath);
       Console.ReadKey(false);
+    }
+
+    private static Arc Arc3(Double x1, Double y1, Double x2, Double y2, Double xc, Double yc, Double r, Double xMin, Double xMax, Double yMin, Double yMax)
+    {
+      Double a1 = Math.Atan2(y1 - yc, x1 - xc);
+      Double a2 = Math.Atan2(y2 - yc, x2 - xc);
+
+      while (a2 <= a1)
+        a2 += 2.0 * Math.PI;
+
+      Double a3 = (a1 + a2) / 2.0;
+      Double xm = xc + r * Math.Cos(a3);
+      Double ym = yc + r * Math.Sin(a3);
+
+      return Arc3(x1, y1, xm, ym, x2, y2, xMin, xMax, yMin, yMax);
     }
 
     private static Arc Arc3(Double x1, Double y1, Double x2, Double y2, Double x3, Double y3, Double xMin, Double xMax, Double yMin, Double yMax)

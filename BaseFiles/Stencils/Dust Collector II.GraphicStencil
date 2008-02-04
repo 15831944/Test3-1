@@ -63,12 +63,12 @@
 <y2>28.907023764697904</y2>
 </a1:Line>
 <a1:Arc id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>16.745465934054167</h>
-<s>360</s>
-<w>30.311949839938755</w>
-<x>37.312996456363514</x>
-<y>4.8688988862695854</y>
+<a>183.25617951181667</a>
+<h>16.745443912719939</h>
+<s>117.13794001678511</s>
+<w>30.311909977830343</w>
+<x>37.312990972752011</x>
+<y>4.8689049265199351</y>
 </a1:Arc>
 <a1:Line id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>53.70477341077433</x1>
@@ -125,12 +125,12 @@
 <y2>95.411773313655829</y2>
 </a1:Line>
 <a1:Arc id="ref-21" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>4.5882623771122244</h>
-<s>360</s>
-<w>8.3054827841289018</w>
-<x>26.404388036269776</x>
-<y>95.411666241351668</y>
+<a>0.00062424098211977253</a>
+<h>4.5883721422150341</h>
+<s>126.86619790267025</s>
+<w>8.3056814763781155</w>
+<x>26.404157041290244</x>
+<y>95.411586363504313</y>
 </a1:Arc>
 <a1:Line id="ref-22" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>27.248077165349237</x1>
@@ -193,12 +193,12 @@
 <y2>95.411773313655829</y2>
 </a1:Line>
 <a1:Arc id="ref-32" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>4.5882623771122244</h>
-<s>360</s>
-<w>8.3054827841289018</w>
-<x>72.699688922340428</x>
-<y>95.411666241351668</y>
+<a>0.00047476116856159933</a>
+<h>4.5883527729173084</h>
+<s>126.86627400988593</s>
+<w>8.3056464148764881</w>
+<x>72.699492988751444</x>
+<y>95.411602033569679</y>
 </a1:Arc>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

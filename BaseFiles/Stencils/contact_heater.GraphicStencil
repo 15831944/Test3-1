@@ -38,20 +38,20 @@
 <SOAP-ENC:Array id="ref-9" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
 <a1:Arc id="ref-10" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
+<a>179.99999999999778</a>
 <h>23.076923076923077</h>
-<s>360</s>
+<s>-179.99999999999557</s>
 <w>100</w>
-<x>-1.3833333330678007E-05</x>
-<y>76.923076923076934</y>
+<x>1.1102230246251565E-13</x>
+<y>76.923076923076479</y>
 </a1:Arc>
 <a1:Arc id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
+<a>359.99999999999784</a>
 <h>23.076923076923077</h>
-<s>360</s>
+<s>-179.99999999999568</s>
 <w>100</w>
-<x>-1.3833333330678007E-05</x>
-<y>0.00015384615384716173</y>
+<x>7.4014868308343759E-15</x>
+<y>0.00015384615428441881</y>
 </a1:Arc>
 <a1:Line id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>100</x1>

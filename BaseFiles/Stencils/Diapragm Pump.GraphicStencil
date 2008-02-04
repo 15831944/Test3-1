@@ -102,12 +102,12 @@
 <y2>62.284834209095848</y2>
 </a1:Line>
 <a1:Arc id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>32.058978075738359</h>
-<s>360</s>
-<w>87.105723076923084</w>
-<x>9.096492307692305</x>
-<y>67.941067222322886</y>
+<a>24.41461339701425</a>
+<h>32.05900447058842</h>
+<s>247.16000678980447</s>
+<w>87.105794792948927</w>
+<x>9.096473028331852</x>
+<y>67.9410388868081</y>
 </a1:Arc>
 <a1:Line id="ref-20" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>84.615384615384613</x1>

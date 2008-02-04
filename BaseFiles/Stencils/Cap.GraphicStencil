@@ -42,9 +42,9 @@
 <y2>100</y2>
 </a1:Line>
 <a1:Arc id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
+<a>90</a>
 <h>100</h>
-<s>360</s>
+<s>180</s>
 <w>100</w>
 <x>0</x>
 <y>0</y>

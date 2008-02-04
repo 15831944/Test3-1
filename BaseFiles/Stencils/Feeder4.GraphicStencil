@@ -77,12 +77,12 @@
 <y2>51.250004107963868</y2>
 </a1:Line>
 <a1:Arc id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>99.688123383516228</h>
-<s>360</s>
-<w>14.625689056921051</w>
-<x>4.8215815546905939E-05</x>
-<y>0.16327020214468313</y>
+<a>270.56672076023392</a>
+<h>99.688226199677672</h>
+<s>-181.847520787645</s>
+<w>14.62570414153852</w>
+<x>3.310918933129829E-05</x>
+<y>0.1631948805672806</y>
 </a1:Arc>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

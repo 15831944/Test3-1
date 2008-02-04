@@ -48,12 +48,12 @@
 <SOAP-ENC:Array id="ref-9" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
 <a1:Arc id="ref-10" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
+<a>90.000000000000625</a>
 <h>15.384142026399189</h>
-<s>360</s>
+<s>179.99999999999875</s>
 <w>16.666666666666664</w>
-<x>50</x>
-<y>82.692840220300909</y>
+<x>50.000000000000085</x>
+<y>82.6928402203009</y>
 </a1:Arc>
 <a1:Line id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>58.333333333333336</x1>
@@ -68,9 +68,9 @@
 <y2>98.076982246700112</y2>
 </a1:Line>
 <a1:Arc id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
+<a>270</a>
 <h>15.384142026399189</h>
-<s>360</s>
+<s>-180</s>
 <w>16.666666666666664</w>
 <x>33.333333333333329</x>
 <y>82.692840220300909</y>
@@ -82,12 +82,12 @@
 <y2>99.99692317159473</y2>
 </a1:Line>
 <a1:Arc id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>19.230177532998987</h>
-<s>360</s>
-<w>20.833333333333336</w>
-<x>29.166666666666668</x>
-<y>80.769822467001021</y>
+<a>227.87882372469318</a>
+<h>19.230177494466055</h>
+<s>-137.87882355745711</s>
+<w>20.83333329158804</w>
+<x>29.166666717943691</x>
+<y>80.769822505533938</y>
 </a1:Arc>
 <a1:Line id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>37.5</x1>
@@ -132,12 +132,12 @@
 <y2>83.252822990061844</y2>
 </a1:Line>
 <a1:Arc id="ref-23" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>19.230177532998987</h>
-<s>360</s>
-<w>20.833333333333336</w>
-<x>50</x>
-<y>80.769822467001021</y>
+<a>89.999999832764246</a>
+<h>19.230177494466059</h>
+<s>222.12117644254241</s>
+<w>20.833333291588044</w>
+<x>49.999999990468332</x>
+<y>80.769822505533924</y>
 </a1:Arc>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

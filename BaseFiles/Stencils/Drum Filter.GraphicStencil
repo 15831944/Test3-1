@@ -38,12 +38,12 @@
 <SOAP-ENC:Array id="ref-9" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
 <a1:Arc id="ref-10" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>78.94736842105263</h>
-<s>360</s>
-<w>65.217391304347828</w>
-<x>17.391186956521736</x>
-<y>0</y>
+<a>359.99998341615463</a>
+<h>78.947356995687684</h>
+<s>-233.13006918646525</s>
+<w>65.217381866002881</w>
+<x>17.391183351389795</x>
+<y>1.7138050725930642E-05</y>
 </a1:Arc>
 <a1:Line id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>0</x1>

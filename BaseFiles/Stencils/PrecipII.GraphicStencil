@@ -113,20 +113,20 @@
 <y2>47.142689434364996</y2>
 </a1:Line>
 <a1:Arc id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>5.281618914703226</h>
-<s>360</s>
-<w>7.1109033172956293</w>
-<x>33.259257048686756</x>
-<y>41.861078729168369</y>
+<a>270.00017811448805</a>
+<h>5.2816353337419573</h>
+<s>-180.0003562289761</s>
+<w>7.1109254230550309</w>
+<x>33.259234942996073</x>
+<y>41.861054100635805</y>
 </a1:Arc>
 <a1:Arc id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>5.281618914703226</h>
-<s>360</s>
-<w>7.1109033172956293</w>
-<x>59.797566822843606</x>
-<y>41.861078729168369</y>
+<a>90.000178114488534</a>
+<h>5.2816353337419724</h>
+<s>179.9996437710229</s>
+<w>7.1109254230550523</w>
+<x>59.797566822774904</x>
+<y>41.861054100635776</y>
 </a1:Arc>
 <a1:Line id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>41.841550583977991</x1>

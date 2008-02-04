@@ -89,36 +89,36 @@
 <y2>100</y2>
 </a1:Line>
 <a1:Arc id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>55.555555555555557</h>
-<s>360</s>
-<w>16.6433659543306</w>
+<a>90.000000000000071</a>
+<h>55.555555555555571</h>
+<s>179.99999999999989</s>
+<w>16.643365954330605</w>
 <x>83.3566340456694</x>
-<y>44.444444444444443</y>
+<y>44.444444444444756</y>
 </a1:Arc>
 <a1:Arc id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>33.333333333333329</h>
-<s>360</s>
-<w>9.9860195725983623</w>
-<x>3.3286731908661209</x>
-<y>11.111111111111111</y>
+<a>269.99999999999909</a>
+<h>33.333333333333286</h>
+<s>-179.99999999999821</s>
+<w>9.986019572598348</w>
+<x>3.3286731908662035</x>
+<y>11.11111111111043</y>
 </a1:Arc>
 <a1:Arc id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>33.843777777777781</h>
-<s>360</s>
-<w>10.13893881898675</w>
-<x>86.608847613341325</x>
-<y>55.55566666666666</y>
+<a>90.000169294369513</a>
+<h>33.84387777792552</h>
+<s>179.99966141126095</s>
+<w>10.13896877708973</w>
+<x>86.608847613319185</x>
+<y>55.555566666592362</y>
 </a1:Arc>
 <a1:Arc id="ref-20" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>55.555555555555557</h>
-<s>360</s>
-<w>16.6433659543306</w>
-<x>0</x>
-<y>0</y>
+<a>270.00000000000023</a>
+<h>55.5555555555556</h>
+<s>-180.00000000000046</s>
+<w>16.643365954330619</w>
+<x>-4.139037972106302E-14</x>
+<y>-3.9474596431116676E-14</y>
 </a1:Arc>
 <a1:Line id="ref-21" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>0</x1>
