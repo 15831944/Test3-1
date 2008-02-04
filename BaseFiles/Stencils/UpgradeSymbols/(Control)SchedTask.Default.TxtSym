@@ -1,6 +1,6 @@
 Symbol,SchedTask
 Group,Control
-MDrw_Arc,  0,0, 3.2, 
+MDrw_Arc,  0,0, 3.2, 3.2,0, 3.2,-2.06789e-014, 
 MDrw_Poly, 0,2.4, 0,0, 1.6,0, 
 MDrw_TagPos, 0,-6.7, 
 MDrw_End

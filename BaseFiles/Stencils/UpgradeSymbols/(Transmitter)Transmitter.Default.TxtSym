@@ -1,6 +1,6 @@
 Symbol,Transmitter
 Group,Transmitter
-MDrw_Arc,  0,0, 1.8, 
+MDrw_Arc,  0,0, 1.8, 1.8,0, 1.8,-1.16319e-014, 
 MDrw_TagPos, 0,-5.3, 
 MDrw_End
 TextArea,-1.8,2.3,3.6,3

@@ -1,6 +1,6 @@
 Symbol,DrumFilt-0
 Group,Filter
-MDrw_Arc,  0,0, 6.4, 
+MDrw_Arc,  0,0, 6.4, 6.4,0, 6.4,-4.13579e-014, 
 MDrw_Poly, -9.6,-1.6, 0,-9.6, 9.6,-3.2, 6.4,-1.6, 
 MDrw_TagPos, 0,-13.1, 
 MDrw_End

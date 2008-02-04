@@ -1,8 +1,8 @@
 Symbol,BeltFilt-1
 Group,Filter
-MDrw_Arc,  -16,2, 2, 
+MDrw_Arc,  -16,2, 2, -14,-16, -14,-16, 
 MDrw_Poly, -16,4, 16,4, 
-MDrw_Arc,  16,2, 2, 
+MDrw_Arc,  16,2, 2, 18,16, 18,16, 
 MDrw_Poly, 16,0, 0,-4, -16,0, 
 MDrw_TagPos, 0,-7.5, 
 MDrw_End

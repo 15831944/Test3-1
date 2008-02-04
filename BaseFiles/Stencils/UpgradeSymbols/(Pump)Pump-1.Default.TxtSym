@@ -1,6 +1,6 @@
 Symbol,Pump-1
 Group,Pump
-MDrw_Arc,  0,0, 4, 
+MDrw_Arc,  0,0, 4, 4,0, 4,-2.58487e-014, 
 MDrw_Poly, 0,-4, 5,-4, 5,-2, 0,-2, 
 MDrw_TagPos, 0,-7.5, 
 MDrw_End

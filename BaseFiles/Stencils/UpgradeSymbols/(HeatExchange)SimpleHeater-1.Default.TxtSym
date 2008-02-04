@@ -1,6 +1,6 @@
 Symbol,SimpleHeater-1
 Group,HeatExchange
-MDrw_Arc,  0,0, 5, 
+MDrw_Arc,  0,0, 5, 5,0, 5,-3.23109e-014, 
 MDrw_Poly, -5,0, -3,0, -3,-2, 3,2, 3,0, 5,0, 
 MDrw_TagPos, 0,-8.5, 
 MDrw_End
