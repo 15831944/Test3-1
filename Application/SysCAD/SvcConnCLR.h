@@ -22,7 +22,7 @@ class CSvcConnectCLR
     bool ConfigSetup(CSvcConnect * pConn);
     void Shutdown();
 
-    bool PrepareForExport(LPCSTR projectName, LPCSTR projectPath);
+    bool PrepareForUpgrade(LPCSTR projectName, LPCSTR projectPath);
 
     void Attach2Scd10();
 

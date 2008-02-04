@@ -583,13 +583,11 @@ int CSfeSrvr::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
 int CSfeSrvr::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                               LPCSTR model, 
                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                              LPCSTR OriginTag, LPCSTR DestinationTag, 
                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
   {
   return SfeFS->EO_SCModifyLinkG(Ctrl, pTag, ItemGuid, /*path,*/
                                 model, 
                                 OriginGuid, DestinationGuid, 
-                                OriginTag, DestinationTag, 
                                 ControlPoints, tagArea, tagAngle) ;
   };
 

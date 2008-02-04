@@ -172,7 +172,7 @@ ref class CSvcConnectCLRThread
 
 
 
-    bool PrepareForExport(String^ projectName, String^ projectPath)
+    bool PrepareForUpgrade(String^ projectName, String^ projectPath)
       {
       config->Syncxxx();
 
@@ -1010,7 +1010,7 @@ void CSvcConnectCLR::Startup(CSvcConnect * pConn)
   };
 
 //<<<<<<< .mine
-//bool CSvcConnectCLR::PrepareForExport(LPCSTR projectName, LPCSTR projectPath)
+//bool CSvcConnectCLR::PrepareForUpgrade(LPCSTR projectName, LPCSTR projectPath)
 //=======
 bool CSvcConnectCLR::ConfigSetup(CSvcConnect * pConn)
   {
@@ -1018,12 +1018,12 @@ bool CSvcConnectCLR::ConfigSetup(CSvcConnect * pConn)
 
   }
 
-bool CSvcConnectCLR::PrepareForExport(LPCSTR projectName, LPCSTR projectPath)
+bool CSvcConnectCLR::PrepareForUpgrade(LPCSTR projectName, LPCSTR projectPath)
 //>>>>>>> .r3251
   {
   String^ projectNameString = gcnew String(projectName);
   String^ projectPathString = gcnew String(projectPath);
-  return CSvcConnectCLRThreadGlbl::gs_SrvrThread->PrepareForExport(projectNameString, projectPathString);   
+  return CSvcConnectCLRThreadGlbl::gs_SrvrThread->PrepareForUpgrade(projectNameString, projectPathString);   
   };
 
 void CSvcConnectCLR::Attach2Scd10()

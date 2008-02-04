@@ -1402,7 +1402,6 @@ class DllImportExport CSfeSrvrBase
     virtual int          EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                          LPCSTR model, 
                                          LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                                         LPCSTR OriginTag, LPCSTR DestinationTag, 
                                          CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) { return EOSC_DONE; };
     virtual int          EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                          LPCSTR model, 

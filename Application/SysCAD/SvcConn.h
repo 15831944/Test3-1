@@ -184,7 +184,7 @@ inline CSvcExecCtrl & PrjSvcCtrl() { return gs_pPrj->m_pSvc->m_Ctrl; };
 //
 //========================================================================
 
-class CGetExistingItems
+class CExistingItems
   {
   public:
 
@@ -255,9 +255,12 @@ class CGetExistingItems
 
       };
 
-    CGetExistingItems();
-    ~CGetExistingItems();
-    
+    CExistingItems();
+    ~CExistingItems();
+
+    bool        Get();
+
+  public:
     int               m_nPages;
 
     CList<CGroup*, CGroup*>                           m_Groups; 

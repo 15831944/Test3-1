@@ -277,9 +277,11 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
   //m_pCLR->Export(projectPath, configPath);
 
 
-  if (m_pCLR->PrepareForExport(projectPath, configPath))
+  if (m_pCLR->PrepareForUpgrade(projectPath, configPath))
     {
-    CGetExistingItems GI;
+    CExistingItems GI;
+
+    GI.Get();
 
     int PrevPage=-1;
     CString Path;
@@ -287,7 +289,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
     POSITION Pos=GI.m_Groups.GetHeadPosition();
     while (Pos)
       {
-      CGetExistingItems::CGroup & Grp=*GI.m_Groups.GetNext(Pos);
+      CExistingItems::CGroup & Grp=*GI.m_Groups.GetNext(Pos);
 
       CString GrpGuid = TaggedObject::CreateGuidStr(); // where should this come from
 
@@ -304,20 +306,20 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
     Pos=GI.m_Items.GetHeadPosition();
     while (Pos)
       {
-      CGetExistingItems::CItem & I = *GI.m_Items.GetNext(Pos);
+      CExistingItems::CItem & I = *GI.m_Items.GetNext(Pos);
       if (I.m_sTag.CompareNoCase("PlantArea")==0)
         continue;
 
       CNodeListItem & N = *I.m_pNLItem;
 
-      CGetExistingItems::CGroupIndex Inx;
+      CExistingItems::CGroupIndex Inx;
       if (!GI.m_TagMap.Lookup(I.m_sTag, Inx))
         {
         LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", I.m_sTag);
         continue;
         };
 
-      CGetExistingItems::CGroup & Grp = *Inx.m_pGrp;
+      CExistingItems::CGroup & Grp = *Inx.m_pGrp;
       CGrfTagInfo               & GTI =Grp.m_GTIA[Inx.m_iGTIA];
 
       CString Symbol = GTI.m_sSymbol();
@@ -385,13 +387,13 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         CString DstGrfGuid = "Grf GUID Fetch Failed";
         CString DstPort    = pNode->IODesc_Rmt(1)->IOName();
 
-        CGetExistingItems::CGroupIndex SInx;
+        CExistingItems::CGroupIndex SInx;
         if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(0)->Tag(), SInx))
           SrcGrfGuid = Grp.m_GTIA[SInx.m_iGTIA].m_sGuid();
         else
           LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(0)->Tag());
 
-        CGetExistingItems::CGroupIndex DInx;
+        CExistingItems::CGroupIndex DInx;
         if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(1)->Tag(), DInx))
           DstGrfGuid = Grp.m_GTIA[DInx.m_iGTIA].m_sGuid();
         else
@@ -1218,49 +1220,33 @@ void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkG
   {
   ON_ENTRY_GT("OnModifyLinkG", LinkGuid, Tag);
 
-
-//  FlwNode * pSrc = NULL;//gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
-//  FlwNode * pDst = NULL;//gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
-////
-//  if (gs_pPrj->FindNodeInfoFromGuid((((LPSTR)Tag, Guid))
-//  if (!pSrc)
-//    LogError(Tag, 0, "Link %s(%s) Src %s not Found", Tag, LinkGuid, OriginGuid);
-//  
-//  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
-//  if (!pDst)
-//    LogError(Tag, 0, "Link %s(%s) Dst %s not Found", Tag, LinkGuid, DestinationGuid);
-
-  if (1)//pSrc && pDst)
+  CRectangleF boundingRect;
+  POSITION Pos=ControlPoints.GetHeadPosition();
+  if (Pos)
     {
+    boundingRect.Set(ControlPoints.GetNext(Pos));
+    while (Pos)
+      boundingRect.Include(ControlPoints.GetNext(Pos), false);
+    }
 
-    CRectangleF boundingRect;
-    POSITION Pos=ControlPoints.GetHeadPosition();
-    if (Pos)
-      {
-      boundingRect.Set(ControlPoints.GetNext(Pos));
-      while (Pos)
-        boundingRect.Include(ControlPoints.GetNext(Pos), false);
-      }
+  CsGrfGroup * pGrp=CSvcConnect::GetContainingGroup(boundingRect);
 
-    CsGrfGroup * pGrp=CSvcConnect::GetContainingGroup(boundingRect);
+  m_Ctrl.ClrXObjArray();
+  //m_Ctrl.SetXObjArray(gs_pTheSFELib);
+  if (pGrp)
+    {
+    CString GroupName=pGrp->m_Name;
+    m_Ctrl.SetXObjArray(FindGrfWnd(GroupName));
+    }
 
-    m_Ctrl.ClrXObjArray();
-    //m_Ctrl.SetXObjArray(gs_pTheSFELib);
-    if (pGrp)
-      {
-      CString GroupName=pGrp->m_Name;
-      m_Ctrl.SetXObjArray(FindGrfWnd(GroupName));
-      }
-
-    int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, "Src", "Dst", /*pSrc->Tag(), pDst->Tag(),*/ ControlPoints, tagArea, tagAngle);
-    if (RetCode!=EOSC_DONE)
-      {
-      LogError(Tag, 0, "Link not modified");
-      //DeletesFailedCnt++;
-      }
-    else
-      {
-      }
+  int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, ControlPoints, tagArea, tagAngle);
+  if (RetCode!=EOSC_DONE)
+    {
+    LogError(Tag, 0, "Link not modified");
+    //DeletesFailedCnt++;
+    }
+  else
+    {
     }
 
   ON_EXIT("OnModifyLinkG");
@@ -1312,7 +1298,15 @@ static struct CPageSizeInfo {LPCSTR Nm; float Scl;} s_PgInfo[]=
   };
 
 
-CGetExistingItems::CGetExistingItems()
+CExistingItems::CExistingItems()
+  {
+  m_nPages=0;
+
+  m_PageMap.InitHashTable(201);
+  m_TagMap.InitHashTable(20001);
+  };
+
+bool CExistingItems::Get()
   {
   m_nPages=0;
 
@@ -1411,11 +1405,12 @@ CGetExistingItems::CGetExistingItems()
     dbgpln("Item %s", I.m_sTag);
 
     }
+  return true;
   }
 
 //------------------------------------------------------------------------
 
-CGetExistingItems::~CGetExistingItems()
+CExistingItems::~CExistingItems()
   {
   while (m_Groups.GetCount())
     delete m_Groups.RemoveTail();

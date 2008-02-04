@@ -692,7 +692,6 @@ int SFEFlwLib::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
 int SFEFlwLib::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                               LPCSTR OriginTag, LPCSTR DestinationTag, 
                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
   {
   //SetLoadAllModelStatus();
@@ -700,7 +699,6 @@ int SFEFlwLib::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
   IENTER(false) pSfe->EO_SCModifyLinkG(Ctrl, pTag, ItemGuid, /*path,*/
                                    model, 
                                    OriginGuid, DestinationGuid, 
-                                   OriginTag, DestinationTag, 
                                    ControlPoints, tagArea, tagAngle) ;
   //CExploreScd::RefreshIt(false);
   ILEAVE
