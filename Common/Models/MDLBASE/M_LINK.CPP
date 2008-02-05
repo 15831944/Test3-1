@@ -3505,8 +3505,9 @@ void MN_Lnk::EvalDiscrete()
       const int iIn  = (IOQmEst_In(0)>0.0 ? 0 : 1);
       if (IOFlange(iIn)->TearType()!=TT_Break && !TestCISet(7) && !TestCISet(8))
         {
-        if (1)
-          {//fix for #656...
+        if (m_PFI.Method==VFFX_Off)
+          {
+          //fix for #656...
           double NetQm = 0.0;
           for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
             {
@@ -3519,7 +3520,8 @@ void MN_Lnk::EvalDiscrete()
           const bool MassErr = (fabs(v1)>ATol2 || fabs(v2)>ATol2) && !ConvergedVV(v1, v2, ATol1, 1e-3); //try remove error reporting for 'zero' flow
           //const bool MassErr = !ConvergedVV(IOConduit(0)->QMass()+RBSrc, IOConduit(1)->QMass()+RBSnk+m_QmSpilt, 1e-6, 1e-3);
           SetCI(6, MassErr);
-          /*todo:option to pause solver when link mass balance occurs similar to spills
+#if TODO
+          //todo:option to pause solver when link mass balance occurs similar to spills
           if (MassErr)
             {
             Strng ErrMsg;
@@ -3535,25 +3537,8 @@ void MN_Lnk::EvalDiscrete()
               gs_FSIdleRequested=true;
               ExecObj()->XIdle();
               }
-            }*/
-          }
-        else
-          {
-          double RBSrc=0.0, RBSnk=0.0;
-          if (m_RB.Enabled())
-            {
-            RBSrc=m_RB.MsSumSrc()->Mass();
-            RBSnk=m_RB.MsSumSnk()->Mass();
             }
-          double QmMU = 0.0; //TODO:get the sum of all makeup blocks
-          double QmBL = 0.0; //TODO:get the sum of all bleed blocks
-          const double v1 = IOConduit(0)->QMass()+RBSrc+QmMU;
-          const double v2 = IOConduit(1)->QMass()+RBSnk+m_QmSpilt+QmBL;
-          const double ATol1 = 1.0e-5;
-          const double ATol2 = 1.0e-4;
-          const bool MassErr = (fabs(v1)>ATol2 || fabs(v2)>ATol2) && !ConvergedVV(v1, v2, ATol1, 1e-3); //try remove error reporting for 'zero' flow
-          //const bool MassErr = !ConvergedVV(IOConduit(0)->QMass()+RBSrc-m_QmSpilt, IOConduit(1)->QMass()+RBSnk, 1e-6, 1e-3);
-          SetCI(6, MassErr);
+#endif 
           }
         }
       }

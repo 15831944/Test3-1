@@ -16,6 +16,8 @@
 
 #define dbgSetZs         0
 
+#define WITHPLUGFLOW     1
+
 //==========================================================================
 //
 //
@@ -393,6 +395,14 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.CheckBoxBtn("TwoPhaseFlw",  "",  DC_, "",  &fTwoPhase,   this, isParm);
 #endif
 
+#if 0 /*JHGJ*/
+    DDB.CheckBox   ("IsDegFreedom",     "",   DC_,  "",  &fIsDegFree,       this, isParm|SetOnChange|InitHidden);
+#endif
+    DDB.CheckBox   ("ApplyRhoH",        "",   DC_,  "",  &fAppRhoH,         this, isParm|SetOnChange);
+    DDB.CheckBox   ("FindEquilRhoH",    "",   DC_,  "",  &fFindRhoH,        this, isParm|SetOnChange);
+    DDB.CheckBoxBtn("OrificePlate",     "",   DC_,  "",  xidWithOP,         this, isParmStopped|SetOnChange);
+    }
+
 #if WITHPLUGFLOW
     static DDBValueLst DDBVFX[]={
       {VFFX_Off,      "Off"},
@@ -425,13 +435,6 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.CheckBoxBtn("VolIsSmall",       "",   DC_,  "",  &fVolIsSmall,      this, isParm|InitHidden);
     DDB.CheckBoxBtn("VapLocked",        "",   DC_,  "",  &fVapLocked,       this, isParm|InitHidden);
 #endif
-#if 0 /*JHGJ*/
-    DDB.CheckBox   ("IsDegFreedom",     "",   DC_,  "",  &fIsDegFree,       this, isParm|SetOnChange|InitHidden);
-#endif
-    DDB.CheckBox   ("ApplyRhoH",        "",   DC_,  "",  &fAppRhoH,         this, isParm|SetOnChange);
-    DDB.CheckBox   ("FindEquilRhoH",    "",   DC_,  "",  &fFindRhoH,        this, isParm|SetOnChange);
-    DDB.CheckBoxBtn("OrificePlate",     "",   DC_,  "",  xidWithOP,         this, isParmStopped|SetOnChange);
-    }
 
   DDB.Visibility();
   

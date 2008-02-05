@@ -1580,7 +1580,7 @@ BOOL CSysCADApp::DoInitInstance()
 #if _RELEASE
   LoadStdProfileSettings(8);  // Load standard INI file options (including MRU)
 #else
-  LoadStdProfileSettings(25);  // Load standard INI file options (including MRU)
+  LoadStdProfileSettings(9);  // Load standard INI file options (including MRU)
 #endif
 
   // Allow longer filenames in MRU

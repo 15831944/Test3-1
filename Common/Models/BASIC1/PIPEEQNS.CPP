@@ -190,7 +190,9 @@ double FE_Darcy::dP_Vel_Fn(double VVolFrac, double Vel, double QmL, double QmV, 
   else
     m_iFlwType=FTMix;
 
-  double DPl,DPv,DP;
+  double DPl=0.0;
+  double DPv=0.0;
+  double DP=0.0;
   double Diam=m_PhD.Diam();
   //ViscMeas= FE.MeanViscosity(pProps);
   //DensMeas= Rho;
@@ -211,7 +213,7 @@ double FE_Darcy::dP_Vel_Fn(double VVolFrac, double Vel, double QmL, double QmV, 
     DPl = 0.5 * m_PhD.KFact() * SG * m_dResMagnFac * Age_Fac * Pow(Vel,pwrFac);
     }
 
-  if (m_iFlwType!=FTLiq)
+  if (m_iFlwType!=FTLiq && Length>1e-3)
     {
     //compress flow Eqn 1.7 CRANE
     double P1=((FE.QmSign()>0) ? FE.FlngPress() : FE.NodePress())*1000;

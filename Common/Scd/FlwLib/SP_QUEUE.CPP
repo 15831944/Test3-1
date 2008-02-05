@@ -257,7 +257,7 @@ void SpQSection::Spill(CSpPlugFlow* pQ, double Frac)
   if (QmToSpill>1.0e-6)//only complain for "significant" spill
     {
     if (gs_SpillOption & SpillReports_Cnds)
-      pQ->SetCI(3, true);
+      pQ->SetCI(3, "W\tSpill Attempted %g kg/s", QmToSpill);
     if (gs_SpillOption & SpillReports_Msgs)
       LogWarning(pQ->FullObjTag(), 0, "Spill excess");
     if (!gs_FSIdleRequested && (gs_SpillOption & SpillReports_Idle) && (gs_SpillOption & SpillReports_Units))
@@ -1876,7 +1876,7 @@ flag SpQueue::CIStrng(int No, pchar & pS)
     {
     case  1: pS="W\tSlow Speed";             return 1;
     case  2: pS="W\tSlow Speed - Stopped";   return 1;
-    case  3: pS="W\tSpill Cccurred";         return 1;
+    case  3: pS="W\tSpill Occurred";         return 1;
     default:
       return SpModelOwner::CIStrng(No, pS);
     }
@@ -2499,6 +2499,7 @@ flag CSpPlugFlow::CIStrng(int No, pchar & pS)
     {
     case  1: pS="W\tSlow Speed";             return 1;
     case  2: pS="W\tSlow Speed - Stopped";   return 1;
+    case  3: pS="W\tSpill Attempted";        return 1;
     default:
       return SpModelOwner::CIStrng(No, pS);
     }

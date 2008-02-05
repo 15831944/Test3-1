@@ -769,8 +769,8 @@ void CFlwBlkData::ResetData(flag Complete)
   m_nResTHist           = 0;
   m_iResTIndex          = 0;
   m_iNetLoop            = 1000;
-  m_Vel                 = dNAN;
-  m_VelSonic            = dNAN;
+  m_Vel                 = 0.0;//dNAN;
+  m_VelSonic            = 0.0;//dNAN;
   m_MomentScl           = 1.0;
   m_Regulation          = 1.0;
   m_pUserValues         = NULL;
