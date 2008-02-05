@@ -1512,119 +1512,119 @@ namespace SysCAD.Editor
 
       }
 
-    if (editorNode != null)
+      if (editorNode != null)
       {
-      ModelNode modelNode = editorNode.modelNode;
-      if (modelNode != null)
+        ModelNode modelNode = editorNode.modelNode;
+        if (modelNode != null)
         {
-        ModelStencil modelStencil = State.ModelShape(modelNode.NodeClass);
-        GraphicStencil graphicStencil = State.GraphicShape(modelNode.NodeClass);
+          ModelStencil modelStencil = State.ModelShape(modelNode.NodeClass);
+          GraphicStencil graphicStencil = State.GraphicShape(modelNode.NodeClass);
 
-        float scale;
-        if (form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width > form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height)
+          float scale;
+          if (form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width > form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height)
           {
-          scale = (float)(form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height) / 5.0F;
+            scale = (float)(form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height) / 5.0F;
           }
-        else
+          else
           {
-          scale = (float)(form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width) / 5.0F;
-          }
-
-        //float scale = 100.0F / (float)Math.Sqrt((float)graphicStencil.defaultSize.Width * (float)graphicStencil.default5Size.Width + (float)graphicStencil.defaultSize.Height * (float)graphicStencil.defaultSize.Height);
-        form1.fcHoverview.AntiAlias = SmoothingMode.AntiAlias;
-
-
-        form1.hoverviewBox = form1.fcHoverview.CreateBox(0.0F, 0.0F, (float)graphicStencil.defaultSize.Width * scale, (float)graphicStencil.defaultSize.Height * scale);
-        form1.hoverviewBox.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
-        form1.hoverviewBox.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
-
-        //Table table = form1.fcHoverview.CreateTable(0.0F, 10.0F + (float)graphicStencil.defaultSize.Height * scale, 80.0F, 30.0F);
-        //table.Caption = "Ports";
-        //table.ColumnCount = 2;
-        //int i = table.AddRow();
-
-        if (modelStencil != null)
-          form1.hoverviewBox.Shape = State.GetShapeTemplate(modelStencil, false, false);
-        else
-          form1.hoverviewBox.Shape = ShapeTemplate.FromId("Decision2");
-
-        form1.hoverviewBox.AnchorPattern = State.GetAnchorPattern(modelStencil, editorNode);
-
-        form1.hoverviewBox.Tag = editorNode;
-        form1.hoverviewBox.Visible = true;
-        form1.hoverviewBox.Style = BoxStyle.Shape;
-
-        foreach (EditorLink link in form1.hoverviewIncomingLinks)
-          {
-          int portId = 0;
-          (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.DestinationPort + link.GraphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture), out portId);
-
-          PointF anchorPointPos = FrmFlowChart.GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(form1.hoverviewBox.BoundingRect),
-            form1.hoverviewBox.AnchorPattern.Points[portId].X,
-            form1.hoverviewBox.AnchorPattern.Points[portId].Y,
-            form1.hoverviewBox.RotationAngle).ToPointF();
-
-          PointF pt1 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
-                             form1.hoverviewBox.BoundingRect,
-                             link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 2].ToPointF());
-          PointF pt2 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
-                             form1.hoverviewBox.BoundingRect,
-                             link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 1].ToPointF());
-
-          ///Box box1 = form1.fcHoverview.CreateBox(pt1.X*2.0F, pt1.Y, 0.001F, 0.01F);
-          //box1.Visible = false;
-          //box1.FillColor = System.Drawing.Color.FromArgb(20, 222, 184, 136);
-          //box1.FrameColor = System.Drawing.Color.FromArgb(25, 111, 92, 68);
-          //Box box2 = form1.fcHoverview.CreateBox(pt2.X, pt2.Y, 0.001F, 0.01F);
-          //box2.Visible = false;
-          Arrow arrow1 = form1.fcHoverview.CreateArrow(pt1, pt2);
-          Arrow arrow2 = form1.fcHoverview.CreateArrow(pt2, anchorPointPos);
-          arrow1.ArrowHead = ArrowHead.Triangle;
-          arrow1.ArrowHeadSize = 2.0F;
-          arrow1.FillColor = Color.Black;
-
-          arrow2.PenColor = Color.Blue;
-
-          form1.fcHoverview.Selection.Clear();
+            scale = (float)(form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width) / 5.0F;
           }
 
-        foreach (EditorLink link in form1.hoverviewOutgoingLinks)
+          //float scale = 100.0F / (float)Math.Sqrt((float)graphicStencil.defaultSize.Width * (float)graphicStencil.default5Size.Width + (float)graphicStencil.defaultSize.Height * (float)graphicStencil.defaultSize.Height);
+          form1.fcHoverview.AntiAlias = SmoothingMode.AntiAlias;
+
+
+          form1.hoverviewBox = form1.fcHoverview.CreateBox(0.0F, 0.0F, (float)graphicStencil.defaultSize.Width * scale, (float)graphicStencil.defaultSize.Height * scale);
+          form1.hoverviewBox.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
+          form1.hoverviewBox.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
+
+          //Table table = form1.fcHoverview.CreateTable(0.0F, 10.0F + (float)graphicStencil.defaultSize.Height * scale, 80.0F, 30.0F);
+          //table.Caption = "Ports";
+          //table.ColumnCount = 2;
+          //int i = table.AddRow();
+
+          if (modelStencil != null)
+            form1.hoverviewBox.Shape = State.GetShapeTemplate(modelStencil, false, false);
+          else
+            form1.hoverviewBox.Shape = ShapeTemplate.FromId("Decision2");
+
+          form1.hoverviewBox.AnchorPattern = State.GetAnchorPattern(modelStencil, editorNode);
+
+          form1.hoverviewBox.Tag = editorNode;
+          form1.hoverviewBox.Visible = true;
+          form1.hoverviewBox.Style = BoxStyle.Shape;
+
+          foreach (EditorLink link in form1.hoverviewIncomingLinks)
           {
-          int portId = 0;
-          (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.OriginPort + link.GraphicLink.OriginPortID.ToString(CultureInfo.InvariantCulture), out portId);
+            int portId = 0;
+            (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.DestinationPort + link.GraphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture), out portId);
 
-          PointF anchorPointPos = FrmFlowChart.GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(form1.hoverviewBox.BoundingRect),
-            form1.hoverviewBox.AnchorPattern.Points[portId].X,
-            form1.hoverviewBox.AnchorPattern.Points[portId].Y,
-            form1.hoverviewBox.RotationAngle).ToPointF();
+            PointF anchorPointPos = FrmFlowChart.GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(form1.hoverviewBox.BoundingRect),
+              form1.hoverviewBox.AnchorPattern.Points[portId].X,
+              form1.hoverviewBox.AnchorPattern.Points[portId].Y,
+              form1.hoverviewBox.RotationAngle).ToPointF();
 
-          PointF pt1 = Flowchart2Hoverbox(link.Arrow.Origin.BoundingRect,
-                             form1.hoverviewBox.BoundingRect,
-                             link.GraphicLink.ControlPoints[1].ToPointF());
-          PointF pt2 = Flowchart2Hoverbox(link.Arrow.Origin.BoundingRect,
-                             form1.hoverviewBox.BoundingRect,
-                             link.GraphicLink.ControlPoints[0].ToPointF());
+            PointF pt1 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
+                               form1.hoverviewBox.BoundingRect,
+                               link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 2].ToPointF());
+            PointF pt2 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
+                               form1.hoverviewBox.BoundingRect,
+                               link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 1].ToPointF());
 
-          ///Box box1 = form1.fcHoverview.CreateBox(pt1.X*2.0F, pt1.Y, 0.001F, 0.01F);
-          //box1.Visible = false;
-          //box1.FillColor = System.Drawing.Color.FromArgb(20, 222, 184, 136);
-          //box1.FrameColor = System.Drawing.Color.FromArgb(25, 111, 92, 68);
-          //Box box2 = form1.fcHoverview.CreateBox(pt2.X, pt2.Y, 0.001F, 0.01F);
-          //box2.Visible = false;
-          Arrow arrow1 = form1.fcHoverview.CreateArrow(pt2, pt1);
-          Arrow arrow2 = form1.fcHoverview.CreateArrow(pt2, anchorPointPos);
-          arrow1.ArrowHead = ArrowHead.Triangle;
-          arrow1.ArrowHeadSize = 2.0F;
-          arrow1.FillColor = Color.Black;
+            ///Box box1 = form1.fcHoverview.CreateBox(pt1.X*2.0F, pt1.Y, 0.001F, 0.01F);
+            //box1.Visible = false;
+            //box1.FillColor = System.Drawing.Color.FromArgb(20, 222, 184, 136);
+            //box1.FrameColor = System.Drawing.Color.FromArgb(25, 111, 92, 68);
+            //Box box2 = form1.fcHoverview.CreateBox(pt2.X, pt2.Y, 0.001F, 0.01F);
+            //box2.Visible = false;
+            Arrow arrow1 = form1.fcHoverview.CreateArrow(pt1, pt2);
+            Arrow arrow2 = form1.fcHoverview.CreateArrow(pt2, anchorPointPos);
+            arrow1.ArrowHead = ArrowHead.Triangle;
+            arrow1.ArrowHeadSize = 2.0F;
+            arrow1.FillColor = Color.Black;
 
-          arrow2.PenColor = Color.Blue;
+            arrow2.PenColor = Color.Blue;
 
-          form1.fcHoverview.Selection.Clear();
+            form1.fcHoverview.Selection.Clear();
           }
 
-        RectangleF zoomRect = form1.hoverviewBox.BoundingRect;
-        zoomRect.Inflate(form1.hoverviewBox.BoundingRect.Width * 0.4F, form1.hoverviewBox.BoundingRect.Height * 0.4F);
-        form1.fcHoverview.ZoomToRect(zoomRect);
+          foreach (EditorLink link in form1.hoverviewOutgoingLinks)
+          {
+            int portId = 0;
+            (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.OriginPort + link.GraphicLink.OriginPortID.ToString(CultureInfo.InvariantCulture), out portId);
+
+            PointF anchorPointPos = FrmFlowChart.GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(form1.hoverviewBox.BoundingRect),
+              form1.hoverviewBox.AnchorPattern.Points[portId].X,
+              form1.hoverviewBox.AnchorPattern.Points[portId].Y,
+              form1.hoverviewBox.RotationAngle).ToPointF();
+
+            PointF pt1 = Flowchart2Hoverbox(link.Arrow.Origin.BoundingRect,
+                               form1.hoverviewBox.BoundingRect,
+                               link.GraphicLink.ControlPoints[1].ToPointF());
+            PointF pt2 = Flowchart2Hoverbox(link.Arrow.Origin.BoundingRect,
+                               form1.hoverviewBox.BoundingRect,
+                               link.GraphicLink.ControlPoints[0].ToPointF());
+
+            ///Box box1 = form1.fcHoverview.CreateBox(pt1.X*2.0F, pt1.Y, 0.001F, 0.01F);
+            //box1.Visible = false;
+            //box1.FillColor = System.Drawing.Color.FromArgb(20, 222, 184, 136);
+            //box1.FrameColor = System.Drawing.Color.FromArgb(25, 111, 92, 68);
+            //Box box2 = form1.fcHoverview.CreateBox(pt2.X, pt2.Y, 0.001F, 0.01F);
+            //box2.Visible = false;
+            Arrow arrow1 = form1.fcHoverview.CreateArrow(pt2, pt1);
+            Arrow arrow2 = form1.fcHoverview.CreateArrow(pt2, anchorPointPos);
+            arrow1.ArrowHead = ArrowHead.Triangle;
+            arrow1.ArrowHeadSize = 2.0F;
+            arrow1.FillColor = Color.Black;
+
+            arrow2.PenColor = Color.Blue;
+
+            form1.fcHoverview.Selection.Clear();
+          }
+
+          RectangleF zoomRect = form1.hoverviewBox.BoundingRect;
+          zoomRect.Inflate(form1.hoverviewBox.BoundingRect.Width * 0.4F, form1.hoverviewBox.BoundingRect.Height * 0.4F);
+          form1.fcHoverview.ZoomToRect(zoomRect);
         }
       }
 
@@ -1825,41 +1825,14 @@ namespace SysCAD.Editor
     {
       if (modified != null)
       {
-      foreach (Guid guid in modified)
+        foreach (Guid guid in modified)
         {
-        GraphicNode graphicNode = null;
-
-        if (state.ClientProtocol.graphic.Nodes.TryGetValue(guid, out graphicNode))
-          {
-          ModelNode modelNode;
-          if (state.ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
-            {
-            state.ModifyNode(modelNode, graphicNode);
-            }
-          else
-            {
-            state.ClientProtocol.LogMessage(out requestId, "Modify: ModelNode missing for GraphcLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
-            }
-          }
-
+          state.ModifyNode(guid);
         }
 
-      foreach (Guid guid in modified)
+        foreach (Guid guid in modified)
         {
-        GraphicLink graphicLink = null;
-
-        if (state.ClientProtocol.graphic.Links.TryGetValue(guid, out graphicLink))
-          {
-          ModelLink modelLink;
-          if (state.ClientProtocol.model.Links.TryGetValue(graphicLink.ModelGuid, out modelLink))
-            {
-            state.ModifyLink(modelLink, graphicLink);
-            }
-          else
-            {
-            state.ClientProtocol.LogMessage(out requestId, "Modify: ModelLink missing for GraphcLink (Tag: " + graphicLink.Tag + ", Guid: " + graphicLink.Guid + ")", SysCAD.Log.MessageType.Error);
-            }
-          }
+          state.ModifyLink(guid);
         }
       }
     }
@@ -1881,48 +1854,48 @@ namespace SysCAD.Editor
 
       if (e.Box.Tag is EditorNode)
       {
-      Box modelBox = (e.Box.Tag as EditorNode).ModelBox;
-      Box graphicBox = (e.Box.Tag as EditorNode).GraphicBox;
-      Box textBox = (e.Box.Tag as EditorNode).TextBox;
+        Box modelBox = (e.Box.Tag as EditorNode).ModelBox;
+        Box graphicBox = (e.Box.Tag as EditorNode).GraphicBox;
+        Box textBox = (e.Box.Tag as EditorNode).TextBox;
 
 
         GraphicNode newGraphicNode = state.GraphicItem((e.Box.Tag as EditorNode).Guid).Clone();
         if (modelBox != null)
-          {
+        {
           newGraphicNode.BoundingRect = new SysCAD.Protocol.Rectangle(modelBox.BoundingRect);
           newGraphicNode.Angle = modelBox.RotationAngle;
-                
+
           ArrowCollection incomingArrows = modelBox.IncomingArrows.Clone();
 
           foreach (Arrow arrow in incomingArrows)
-            {
+          {
             GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
 
             if (newGraphicLink != null)
-              {
+            {
               newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
               action.Modify.Add(newGraphicLink);
-              }
             }
+          }
 
           ArrowCollection outgoingArrows = modelBox.OutgoingArrows.Clone();
 
           foreach (Arrow arrow in outgoingArrows)
-            {
+          {
             GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
 
             if (newGraphicLink != null)
-              {
+            {
               newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
               action.Modify.Add(newGraphicLink);
-              }
             }
           }
+        }
         else
-          {
+        {
           newGraphicNode.BoundingRect = new SysCAD.Protocol.Rectangle(graphicBox.BoundingRect);
           newGraphicNode.Angle = graphicBox.RotationAngle;
-          }
+        }
 
         newGraphicNode.TagArea = new SysCAD.Protocol.Rectangle(textBox.BoundingRect);
         newGraphicNode.TagAngle = textBox.RotationAngle;
@@ -2039,14 +2012,14 @@ namespace SysCAD.Editor
       //  }
       //}
 
-    if (e.Box.Tag is EditorNode)
+      if (e.Box.Tag is EditorNode)
       {
-      Box modelBox = (e.Box.Tag as EditorNode).ModelBox;
-      if (modelBox != null)
+        Box modelBox = (e.Box.Tag as EditorNode).ModelBox;
+        if (modelBox != null)
         {
-        Box graphicBox = (e.Box.Tag as EditorNode).GraphicBox;
-        //graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
-        graphicBox.RotationAngle = (e.Box.Tag as EditorNode).ModelBox.RotationAngle;
+          Box graphicBox = (e.Box.Tag as EditorNode).GraphicBox;
+          //graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
+          graphicBox.RotationAngle = (e.Box.Tag as EditorNode).ModelBox.RotationAngle;
         }
       }
     }
@@ -2199,14 +2172,14 @@ namespace SysCAD.Editor
 
     internal void Undo()
     {
-    fcFlowChart.Selection.Clear();
-    state.ClientProtocol.Undo(out requestId);
+      fcFlowChart.Selection.Clear();
+      state.ClientProtocol.Undo(out requestId);
     }
 
     internal void Redo()
     {
-    fcFlowChart.Selection.Clear();
-    state.ClientProtocol.Redo(out requestId);
+      fcFlowChart.Selection.Clear();
+      state.ClientProtocol.Redo(out requestId);
 
     }
 

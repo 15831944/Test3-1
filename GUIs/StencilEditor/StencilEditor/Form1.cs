@@ -95,9 +95,9 @@ namespace StencilEditor
         Parse(graphicStencil.Elements, elementTextBox);
         Parse(graphicStencil.Decorations, decorationTextBox);
 
-        SysCAD.Protocol.Rectangle textArea = graphicStencil.TextArea;
-        ParseTextArea(ref textArea, textAreaTextBox);
-        graphicStencil.TextArea = textArea;
+        SysCAD.Protocol.Rectangle tagArea = graphicStencil.TagArea;
+        ParseTagArea(ref tagArea, tagAreaTextBox);
+        graphicStencil.TagArea = tagArea;
 
         UpdateStencil(graphicStencil);
 
@@ -108,7 +108,7 @@ namespace StencilEditor
       }
     }
 
-    private bool ParseTextArea(ref SysCAD.Protocol.Rectangle rectangleF, TextBox textBox)
+    private bool ParseTagArea(ref SysCAD.Protocol.Rectangle rectangleF, TextBox textBox)
     {
       if (textBox.Text.Length > 0)
       {
@@ -158,7 +158,7 @@ namespace StencilEditor
         }
       }
     }
-    
+
     private bool ParseAnchor(string atom, ArrayList arrayList)
     {
       atom = atom.Remove(0, 6);
@@ -410,7 +410,7 @@ namespace StencilEditor
       atom = atom.Remove(0, 6);
       string[] atoms = atom.Split(charSplitArray, StringSplitOptions.RemoveEmptyEntries);
 
-       if (atoms.Length != 8)
+      if (atoms.Length != 8)
       {
         toolStripStatusLabel1.Text = "Incorrect number of parameters (x1, y1, x2, y2, x3, y3, x4, y4): " + atom;
         toolStripStatusLabel1.BackColor = Color.Yellow;
@@ -449,7 +449,7 @@ namespace StencilEditor
 
       Transform(sx, sy, dx, dy, elementTextBox);
       Transform(sx, sy, dx, dy, decorationTextBox);
-      Transform(sx, sy, dx, dy, textAreaTextBox);
+      Transform(sx, sy, dx, dy, tagAreaTextBox);
       Transform(sx, sy, dx, dy, anchorTextBox);
     }
 
@@ -806,7 +806,7 @@ namespace StencilEditor
       double textMinY = double.MaxValue;
       double textMaxY = double.MinValue;
 
-      UpdateStencil(graphicStencil.TextArea, ref textMinX, ref textMinY, ref textMaxX, ref textMaxY);
+      UpdateStencil(graphicStencil.TagArea, ref textMinX, ref textMinY, ref textMaxX, ref textMaxY);
 
       ScaleStencil(graphicStencil.Elements, minX, minY, maxX, maxY);
       ScaleStencil(graphicStencil.Decorations, minX, minY, maxX, maxY);
@@ -818,7 +818,7 @@ namespace StencilEditor
       graphicStencil.defaultSize = new SysCAD.Protocol.Size((maxX - minX), (maxY - minY));
 
       box1.BoundingRect = rect;
-      
+
 
       {
         GraphicStencil stencil = graphicStencil;
@@ -998,7 +998,7 @@ namespace StencilEditor
 
       ScaleStencil(modelStencil.Elements, minX, minY, maxX, maxY);
       ScaleStencil(modelStencil.Decorations, minX, minY, maxX, maxY);
-      
+
       ScaleStencil(modelStencil.Anchors, minX, minY, maxX, maxY);
 
       double scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
@@ -1311,9 +1311,9 @@ namespace StencilEditor
     private void UpdateStencil(RectangleF rectangleF, ref double minX, ref double minY, ref double maxX, ref double maxY)
     {
       if (rectangleF.Left < minX) minX = rectangleF.Left;
-      if (rectangleF.Top  < minY) minY = rectangleF.Top;
+      if (rectangleF.Top < minY) minY = rectangleF.Top;
 
-      if (rectangleF.Right  > maxX) maxX = rectangleF.Right;
+      if (rectangleF.Right > maxX) maxX = rectangleF.Right;
       if (rectangleF.Bottom > maxY) maxY = rectangleF.Bottom;
 
       if (maxX == minX) maxX += 0.01F;
@@ -1438,7 +1438,7 @@ namespace StencilEditor
     {
       elementTextBox.Text = "";
       decorationTextBox.Text = "";
-      textAreaTextBox.Text = "";
+      tagAreaTextBox.Text = "";
 
       Text = "*Untitled*";
 
@@ -1514,7 +1514,7 @@ namespace StencilEditor
                 x1 = bezier.x1;
 
               if (mirrorY)
-                y1 = 100.0- bezier.y1;
+                y1 = 100.0 - bezier.y1;
               else
                 y1 = bezier.y1;
 
@@ -1818,89 +1818,29 @@ namespace StencilEditor
 
         this.elementTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
         this.decorationTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
-        this.textAreaTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
+        this.tagAreaTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
         this.anchorTextBox.TextChanged -= new System.EventHandler(this.textBox_TextChanged);
 
         toolStripComboBoxModelGroup.Text = "";
 
         elementTextBox.Text = "";
         decorationTextBox.Text = "";
-        textAreaTextBox.Text = "";
+        tagAreaTextBox.Text = "";
 
         {
           SoapFormatter sf;
           Stream stream = null;
 
-          try
-          {
-            sf = new SoapFormatter();
-            stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
+          sf = new SoapFormatter();
+          stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
 
-            graphicStencil = (GraphicStencil)sf.Deserialize(stream);
-            stream.Close();
+          graphicStencil = (GraphicStencil)sf.Deserialize(stream);
+          stream.Close();
 
-            Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
-            Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
-            Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
-          }
-          catch
-          {
-            if (stream != null) stream.Close();
-            try
-            {
-              String stencilString;
+          Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
+          Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
+          Generate(graphicStencil.TagArea, graphicStencil.defaultSize, tagAreaTextBox);
 
-              // This code creates an empty GraphicStencil1 file to help create the Replace strings below.
-              {
-                SoapFormatter sf1 = new SoapFormatter();
-                Stream stream1 = new StreamWriter(filename + ".GraphicStencil1.new").BaseStream;
-                GraphicStencil1 graphicStencil1 = new GraphicStencil1();
-                graphicStencil1.Elements = new ArrayList();
-                graphicStencil1.Elements.Add(new Arc(1.0F, 2.0F, 1.0F, 2.0F, 1.0F, 2.0F));
-
-                sf1.Serialize(stream1, graphicStencil1);
-                stream1.Close();
-              }
-
-              {
-                sf = new SoapFormatter();
-                StreamReader streamReader = new StreamReader(baseName + ".GraphicStencil");
-                stencilString = streamReader.ReadToEnd();
-
-                //stencilString = stencilString.Replace(
-                //    "http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8",
-                //    "http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Stencils1%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull"
-                //    );
-                stencilString = stencilString.Replace("GraphicStencil", "GraphicStencil1");
-                streamReader.Close();
-
-                StreamWriter streamWriter = new StreamWriter(filename + ".GraphicStencil1");
-                streamWriter.Write(stencilString);
-                streamWriter.Close();
-              }
-
-              {
-                sf = new SoapFormatter();
-                stream = new StreamReader(baseName + ".GraphicStencil1").BaseStream;
-
-                GraphicStencil1 graphicStencil1 = (GraphicStencil1)sf.Deserialize(stream);
-                stream.Close();
-
-                graphicStencil.Elements = graphicStencil1.Elements;
-                graphicStencil.Decorations = graphicStencil1.Decorations;
-                graphicStencil.defaultSize = new SysCAD.Protocol.Size(graphicStencil1.defaultSize);
-                graphicStencil.fillMode = graphicStencil1.fillMode;
-                graphicStencil.groupName = graphicStencil1.groupName;
-                graphicStencil.TextArea = new SysCAD.Protocol.Rectangle(0.0, graphicStencil.defaultSize.Height * 1.1, graphicStencil.defaultSize.Width, 5.0);
-                Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
-                Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
-                Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
-              }
-            }
-            catch
-            {
-            }
-          }
           if (stream != null) stream.Close();
         }
 
@@ -1908,77 +1848,16 @@ namespace StencilEditor
           SoapFormatter sf;
           Stream stream = null;
 
-          try
-          {
-            sf = new SoapFormatter();
-            stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
+          sf = new SoapFormatter();
+          stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
 
-            graphicStencil = (GraphicStencil)sf.Deserialize(stream);
-            stream.Close();
+          graphicStencil = (GraphicStencil)sf.Deserialize(stream);
+          stream.Close();
 
-            if (elementTextBox.Text == "")
-              Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
-            if (decorationTextBox.Text == "")
-              Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
-          }
-          catch
-          {
-            if (stream != null) stream.Close();
-            try
-            {
-              String stencilString;
-
-              // This code creates an empty GraphicStencil1 file to help create the Replace strings below.
-              {
-                SoapFormatter sf1 = new SoapFormatter();
-                Stream stream1 = new StreamWriter(filename + ".GraphicStencil1.new").BaseStream;
-                GraphicStencil1 graphicStencil1 = new GraphicStencil1();
-                graphicStencil1.Elements = new ArrayList();
-                graphicStencil1.Elements.Add(new Arc(1.0F, 2.0F, 1.0F, 2.0F, 1.0F, 2.0F));
-
-                sf1.Serialize(stream1, graphicStencil1);
-                stream1.Close();
-              }
-
-              {
-                sf = new SoapFormatter();
-                StreamReader streamReader = new StreamReader(baseName + ".GraphicStencil");
-                stencilString = streamReader.ReadToEnd();
-
-                //stencilString = stencilString.Replace(
-                //    "http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8",
-                //    "http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Stencils1%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull"
-                //    );
-                stencilString = stencilString.Replace("GraphicStencil", "GraphicStencil1");
-                streamReader.Close();
-
-                StreamWriter streamWriter = new StreamWriter(filename + ".GraphicStencil1");
-                streamWriter.Write(stencilString);
-                streamWriter.Close();
-              }
-
-              {
-                sf = new SoapFormatter();
-                stream = new StreamReader(baseName + ".GraphicStencil1").BaseStream;
-
-                GraphicStencil1 graphicStencil1 = (GraphicStencil1)sf.Deserialize(stream);
-                stream.Close();
-
-                graphicStencil.Elements = graphicStencil1.Elements;
-                graphicStencil.Decorations = graphicStencil1.Decorations;
-                graphicStencil.defaultSize = new SysCAD.Protocol.Size(graphicStencil1.defaultSize);
-                graphicStencil.fillMode = graphicStencil1.fillMode;
-                graphicStencil.groupName = graphicStencil1.groupName;
-                graphicStencil.TextArea = new SysCAD.Protocol.Rectangle(0.0, graphicStencil.defaultSize.Height * 1.1, graphicStencil.defaultSize.Width, 5.0);
-                Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
-                Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
-                Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
-              }
-            }
-            catch
-            {
-            }
-        }
+          if (elementTextBox.Text == "")
+            Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
+          if (decorationTextBox.Text == "")
+            Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
         }
 
 
@@ -1990,15 +1869,15 @@ namespace StencilEditor
         Parse(graphicStencil.Elements, elementTextBox);
         Parse(graphicStencil.Decorations, decorationTextBox);
 
-        SysCAD.Protocol.Rectangle textArea = graphicStencil.TextArea;
-        ParseTextArea(ref textArea, textAreaTextBox);
-        graphicStencil.TextArea = textArea;
+        SysCAD.Protocol.Rectangle textArea = graphicStencil.TagArea;
+        ParseTagArea(ref textArea, tagAreaTextBox);
+        graphicStencil.TagArea = textArea;
 
         UpdateStencil(graphicStencil);
 
         this.elementTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
         this.decorationTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
-        this.textAreaTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+        this.tagAreaTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
         this.anchorTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
       }
     }
@@ -2147,13 +2026,13 @@ namespace StencilEditor
       {
         {
           SoapFormatter sf = new SoapFormatter();
-          Stream stream = new StreamWriter(filename+".GraphicStencil").BaseStream;
+          Stream stream = new StreamWriter(filename + ".GraphicStencil").BaseStream;
           sf.Serialize(stream, graphicStencil);
           stream.Close();
         }
         {
           SoapFormatter sf = new SoapFormatter();
-          Stream stream = new StreamWriter(filename+".ModelStencil").BaseStream;
+          Stream stream = new StreamWriter(filename + ".ModelStencil").BaseStream;
           sf.Serialize(stream, modelStencil);
           stream.Close();
         }
@@ -2172,7 +2051,7 @@ namespace StencilEditor
       if (tabControl1.SelectedTab == anchorTabPage)
         anchorTextBox.Cut();
       else if (tabControl1.SelectedTab == textAreaTabPage)
-        textAreaTextBox.Cut();
+        tagAreaTextBox.Cut();
       else if (tabControl1.SelectedTab == elementTabPage)
         elementTextBox.Cut();
       else if (tabControl1.SelectedTab == decorationTabPage)
@@ -2184,7 +2063,7 @@ namespace StencilEditor
       if (tabControl1.SelectedTab == anchorTabPage)
         anchorTextBox.Copy();
       else if (tabControl1.SelectedTab == textAreaTabPage)
-        textAreaTextBox.Copy();
+        tagAreaTextBox.Copy();
       else if (tabControl1.SelectedTab == elementTabPage)
         elementTextBox.Copy();
       else if (tabControl1.SelectedTab == decorationTabPage)
@@ -2196,7 +2075,7 @@ namespace StencilEditor
       if (tabControl1.SelectedTab == anchorTabPage)
         anchorTextBox.Paste();
       else if (tabControl1.SelectedTab == textAreaTabPage)
-        textAreaTextBox.Paste();
+        tagAreaTextBox.Paste();
       else if (tabControl1.SelectedTab == elementTabPage)
         elementTextBox.Paste();
       else if (tabControl1.SelectedTab == decorationTabPage)
@@ -2208,7 +2087,7 @@ namespace StencilEditor
       if (tabControl1.SelectedTab == anchorTabPage)
         anchorTextBox.SelectAll();
       else if (tabControl1.SelectedTab == textAreaTabPage)
-        textAreaTextBox.SelectAll();
+        tagAreaTextBox.SelectAll();
       else if (tabControl1.SelectedTab == elementTabPage)
         elementTextBox.SelectAll();
       else if (tabControl1.SelectedTab == decorationTabPage)
@@ -2220,7 +2099,7 @@ namespace StencilEditor
       if (tabControl1.SelectedTab == anchorTabPage)
         anchorTextBox.Undo();
       else if (tabControl1.SelectedTab == textAreaTabPage)
-        textAreaTextBox.Undo();
+        tagAreaTextBox.Undo();
       else if (tabControl1.SelectedTab == elementTabPage)
         elementTextBox.Undo();
       else if (tabControl1.SelectedTab == decorationTabPage)
@@ -2236,12 +2115,12 @@ namespace StencilEditor
       tempText += elementTextBox.Text + "\r\n";
 
       tempText += "Decoration:\r\n";
-      
+
       tempText += decorationTextBox.Text + "\r\n";
 
       tempText += "Text Area:\r\n";
 
-      tempText += textAreaTextBox.Text + "\r\n";
+      tempText += tagAreaTextBox.Text + "\r\n";
 
       tempText += "Anchors:\r\n";
 

@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using MindFusion.FlowChartX;
-using System.Drawing;
-using SysCAD.Protocol;
-using SysCAD;
 using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Drawing.Drawing2D;
-
 //using System.Windows;
 //using System.Windows.Controls;
 
@@ -18,8 +14,12 @@ using System.Drawing.Drawing2D;
 //using System.Windows.Media.Animation;
 //using System.Windows.Shapes;
 using System.IO;
-using System.Xml;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
+using MindFusion.FlowChartX;
+using SysCAD;
+using SysCAD.Protocol;
 
 namespace SysCAD.Editor
 {
@@ -35,8 +35,8 @@ namespace SysCAD.Editor
     private delegate void CreateThingDelegate(GraphicThing graphicThing);
 
     private delegate void ModifyGroupDelegate(GraphicGroup graphicGroup);
-    private delegate void ModifyNodeDelegate(ModelNode modelNode, GraphicNode graphicNode);
-    private delegate void ModifyLinkDelegate(ModelLink modelLink, GraphicLink graphicLink);
+    private delegate void ModifyNodeDelegate(Guid guid);
+    private delegate void ModifyLinkDelegate(Guid guid);
     private delegate void ModifyThingDelegate(GraphicThing graphicThing);
 
     private delegate void DeleteNodeDelegate(Guid guid);
@@ -345,9 +345,9 @@ namespace SysCAD.Editor
     public bool creatingNode = false; // Allows us to turn off some notifications during the creation process (specifically selectionChanged.)
 
     internal void CreateNode(GraphicNode graphicNode)
-      {
+    {
       CreateNode(null, graphicNode);
-      }
+    }
 
     internal void CreateNode(ModelNode modelNode, GraphicNode graphicNode)
     {
@@ -452,9 +452,9 @@ namespace SysCAD.Editor
           modelStencil = ModelShape(modelNode.NodeClass);
 
           if (modelStencil == null)
-            {
+          {
             clientProtocol.LogMessage(out requestId, "ModelStencil not found in library for shape \'" + modelNode.NodeClass + "\'", SysCAD.Log.MessageType.Error);
-            }
+          }
 
 
           if (modelStencil != null)
@@ -496,19 +496,19 @@ namespace SysCAD.Editor
           editorNode.UpdateVisibility();
         }
 
-      if (modelBox != null)
+        if (modelBox != null)
         {
-        textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
+          textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
 
-        graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
+          graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
 
-        editorNode.ModelBox = modelBox;
+          editorNode.ModelBox = modelBox;
 
-        modelBox.Tag = editorNode;
+          modelBox.Tag = editorNode;
         }
-      else if (graphicBox != null)
+        else if (graphicBox != null)
         {
-        textBox.AttachTo(graphicBox, AttachToNode.BottomCenter);
+          textBox.AttachTo(graphicBox, AttachToNode.BottomCenter);
         }
       }
     }
@@ -1577,105 +1577,150 @@ namespace SysCAD.Editor
       clientProtocol.PortInfoRequested -= portInfoRequestedHandler;
     }
 
-    internal void ModifyNode(ModelNode modelNode, GraphicNode graphicNode)
+    internal void ModifyNode(Guid guid)
     {
       if (flowChart.InvokeRequired)
       {
-        flowChart.BeginInvoke(new ModifyNodeDelegate(ModifyNode), new object[] { modelNode, graphicNode });
+        flowChart.BeginInvoke(new ModifyNodeDelegate(ModifyNode), new object[] { guid });
       }
       else
       {
-        EditorNode editorNode = null;
+        GraphicNode graphicNode;
 
-        if (!editorNodes.TryGetValue(graphicNode.Guid, out editorNode))
+        if (ClientProtocol.graphic.Nodes.TryGetValue(guid, out graphicNode))
         {
-          clientProtocol.LogMessage(out requestId, "ModifyNode: EditorNode not found in library for GraphicNode \'" + graphicNode.Guid + ", " + graphicNode.Tag + "\'", SysCAD.Log.MessageType.Error);
-          return;
-        }
-
-        Box graphicBox = editorNode.GraphicBox;
-        Box modelBox = editorNode.ModelBox;
-        Box textBox = editorNode.TextBox;
-
-        if (graphicBox != null)
+          ModelNode modelNode;
+          if (ClientProtocol.model.Nodes.TryGetValue(graphicNode.ModelGuid, out modelNode))
           {
-          graphicBox.BoundingRect = graphicNode.BoundingRect;
-          graphicBox.RotationAngle = (float)graphicNode.Angle;
-          graphicBox.FillColor = graphicNode.FillColor;
-
-            {
-            GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
-
-            if (graphicStencil != null)
-              graphicBox.Shape = State.GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
-            else
-              graphicBox.Shape = ShapeTemplate.FromId("Decision2");
-            }
+            ModifyNode(modelNode, graphicNode);
           }
-        if (modelBox != null)
-          {
-          modelBox.BoundingRect = graphicNode.BoundingRect;
-          modelBox.RotationAngle = (float)graphicNode.Angle;
-
-          ModelStencil modelStencil = ModelStencil(modelNode.NodeClass);
-
-          if (modelStencil != null)
-            modelBox.Shape = State.GetShapeTemplate(modelStencil, graphicNode.MirrorX, graphicNode.MirrorY);
           else
-            modelBox.Shape = ShapeTemplate.FromId("Decision2");
-
-          modelBox.AnchorPattern = GetAnchorPattern(modelStencil, editorNode);
-
-          }
-        if (textBox != null)
           {
-          textBox.BoundingRect = graphicNode.TagArea;
-          textBox.RotationAngle = (float)graphicNode.TagAngle;
+            ClientProtocol.LogMessage(out requestId, "Modify: ModelNode missing for GraphcLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
           }
-
-
-        editorNode.UpdateVisibility();
-        //if (
-        //else
-        //{
-        //  clientProtocol.LogMessage(out requestId, "ModifyNode: One of the *boxes missing for GraphicNode \'" + graphicNode.Guid + ", " + graphicNode.Tag + "\'", SysCAD.Log.MessageType.Error);
-        //  return;
-        //}
+        }
       }
     }
 
-    internal void ModifyLink(ModelLink modelLink, GraphicLink graphicLink)
+    internal void ModifyLink(Guid guid)
     {
       if (flowChart.InvokeRequired)
       {
-        flowChart.BeginInvoke(new ModifyLinkDelegate(ModifyLink), new object[] { modelLink, graphicLink });
+        flowChart.BeginInvoke(new ModifyNodeDelegate(ModifyNode), new object[] { guid });
       }
       else
       {
-        EditorLink editorLink = null;
+        GraphicLink graphicLink;
 
-        if (!editorLinks.TryGetValue(graphicLink.Guid, out editorLink))
+        if (ClientProtocol.graphic.Links.TryGetValue(guid, out graphicLink))
         {
-          clientProtocol.LogMessage(out requestId, "ModifyLink: EditorLink not found in library for GraphicLink \'" + graphicLink.Guid + ", " + graphicLink.Tag + "\'", SysCAD.Log.MessageType.Error);
-          return;
+          ModelLink modelLink;
+          if (ClientProtocol.model.Links.TryGetValue(graphicLink.ModelGuid, out modelLink))
+          {
+            ModifyLink(modelLink, graphicLink);
+          }
+          else
+          {
+            ClientProtocol.LogMessage(out requestId, "Modify: ModelLink missing for GraphcLink (Tag: " + graphicLink.Tag + ", Guid: " + graphicLink.Guid + ")", SysCAD.Log.MessageType.Error);
+          }
         }
+      }
+    }
 
-        Arrow arrow = editorLink.Arrow;
-        Box text = editorLink.TextBox;
+    private void ModifyNode(ModelNode modelNode, GraphicNode graphicNode)
+    {
+      EditorNode editorNode = null;
 
-        if ((arrow != null) && (text != null))
+      if (!editorNodes.TryGetValue(graphicNode.Guid, out editorNode))
+      {
+        clientProtocol.LogMessage(out requestId, "ModifyNode: EditorNode not found in library for GraphicNode \'" + graphicNode.Guid + ", " + graphicNode.Tag + "\'", SysCAD.Log.MessageType.Error);
+        return;
+      }
+
+      Box graphicBox = editorNode.GraphicBox;
+      Box modelBox = editorNode.ModelBox;
+      Box textBox = editorNode.TextBox;
+
+      if (graphicBox != null)
+      {
+        graphicBox.BoundingRect = graphicNode.BoundingRect;
+        graphicBox.RotationAngle = (float)graphicNode.Angle;
+        graphicBox.FillColor = graphicNode.FillColor;
+
         {
-          State.SetControlPoints(arrow, graphicLink.ControlPoints);
+          GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
 
-          text.BoundingRect = graphicLink.TagArea;
-          text.RotationAngle = (float)graphicLink.TagAngle;
+          if (graphicStencil != null)
+            graphicBox.Shape = State.GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
+          else
+            graphicBox.Shape = ShapeTemplate.FromId("Decision2");
         }
+      }
+      if (modelBox != null)
+      {
+        modelBox.BoundingRect = graphicNode.BoundingRect;
+        modelBox.RotationAngle = (float)graphicNode.Angle;
+
+        ModelStencil modelStencil = ModelStencil(modelNode.NodeClass);
+
+        if (modelStencil != null)
+          modelBox.Shape = State.GetShapeTemplate(modelStencil, graphicNode.MirrorX, graphicNode.MirrorY);
         else
-        {
-          clientProtocol.LogMessage(out requestId, "ModifyLink: One of the objects missing for GraphicNode \'" + graphicLink.Guid + ", " + graphicLink.Tag + "\'", SysCAD.Log.MessageType.Error);
-          return;
-        }
+          modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
+        modelBox.AnchorPattern = GetAnchorPattern(modelStencil, editorNode);
+
+      }
+      if (textBox != null)
+      {
+        textBox.BoundingRect = graphicNode.TagArea;
+        textBox.RotationAngle = (float)graphicNode.TagAngle;
+      }
+
+
+      foreach (Arrow arrow in editorNode.IncomingArrows)
+      {
+        ModifyLink((arrow.Tag as EditorLink).Guid);
+      }
+
+      foreach (Arrow arrow in editorNode.OutgoingArrows)
+      {
+        ModifyLink((arrow.Tag as EditorLink).Guid);
+      }
+
+      editorNode.UpdateVisibility();
+      //if (
+      //else
+      //{
+      //  clientProtocol.LogMessage(out requestId, "ModifyNode: One of the *boxes missing for GraphicNode \'" + graphicNode.Guid + ", " + graphicNode.Tag + "\'", SysCAD.Log.MessageType.Error);
+      //  return;
+      //}
+    }
+
+    private void ModifyLink(ModelLink modelLink, GraphicLink graphicLink)
+    {
+      EditorLink editorLink = null;
+
+      if (!editorLinks.TryGetValue(graphicLink.Guid, out editorLink))
+      {
+        clientProtocol.LogMessage(out requestId, "ModifyLink: EditorLink not found in library for GraphicLink \'" + graphicLink.Guid + ", " + graphicLink.Tag + "\'", SysCAD.Log.MessageType.Error);
+        return;
+      }
+
+      Arrow arrow = editorLink.Arrow;
+      Box text = editorLink.TextBox;
+
+      if ((arrow != null) && (text != null))
+      {
+        State.SetControlPoints(arrow, graphicLink.ControlPoints);
+
+        text.BoundingRect = graphicLink.TagArea;
+        text.RotationAngle = (float)graphicLink.TagAngle;
+      }
+      else
+      {
+        clientProtocol.LogMessage(out requestId, "ModifyLink: One of the objects missing for GraphicNode \'" + graphicLink.Guid + ", " + graphicLink.Tag + "\'", SysCAD.Log.MessageType.Error);
+        return;
       }
     }
   }

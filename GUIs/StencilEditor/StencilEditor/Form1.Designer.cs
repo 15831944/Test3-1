@@ -42,7 +42,7 @@ namespace StencilEditor
       this.decorationTabPage = new System.Windows.Forms.TabPage();
       this.decorationTextBox = new System.Windows.Forms.TextBox();
       this.textAreaTabPage = new System.Windows.Forms.TabPage();
-      this.textAreaTextBox = new System.Windows.Forms.TextBox();
+      this.tagAreaTextBox = new System.Windows.Forms.TextBox();
       this.anchorTabPage = new System.Windows.Forms.TabPage();
       this.anchorTextBox = new System.Windows.Forms.TextBox();
       this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -292,7 +292,7 @@ namespace StencilEditor
       // 
       // textAreaTabPage
       // 
-      this.textAreaTabPage.Controls.Add(this.textAreaTextBox);
+      this.textAreaTabPage.Controls.Add(this.tagAreaTextBox);
       this.textAreaTabPage.Location = new System.Drawing.Point(4, 22);
       this.textAreaTabPage.Name = "textAreaTabPage";
       this.textAreaTabPage.Padding = new System.Windows.Forms.Padding(3);
@@ -303,13 +303,13 @@ namespace StencilEditor
       // 
       // textAreaTextBox
       // 
-      this.textAreaTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textAreaTextBox.Location = new System.Drawing.Point(3, 3);
-      this.textAreaTextBox.Multiline = true;
-      this.textAreaTextBox.Name = "textAreaTextBox";
-      this.textAreaTextBox.Size = new System.Drawing.Size(461, 466);
-      this.textAreaTextBox.TabIndex = 0;
-      this.textAreaTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+      this.tagAreaTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.tagAreaTextBox.Location = new System.Drawing.Point(3, 3);
+      this.tagAreaTextBox.Multiline = true;
+      this.tagAreaTextBox.Name = "textAreaTextBox";
+      this.tagAreaTextBox.Size = new System.Drawing.Size(461, 466);
+      this.tagAreaTextBox.TabIndex = 0;
+      this.tagAreaTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
       // 
       // anchorTabPage
       // 
@@ -919,7 +919,7 @@ namespace StencilEditor
     private System.Windows.Forms.ToolStripSeparator toolStripSeparator17;
     private System.Windows.Forms.ToolStripLabel toolStripLabel4;
     private System.Windows.Forms.TabPage textAreaTabPage;
-    private System.Windows.Forms.TextBox textAreaTextBox;
+    private System.Windows.Forms.TextBox tagAreaTextBox;
     private System.Windows.Forms.TabPage anchorTabPage;
     private System.Windows.Forms.TextBox anchorTextBox;
     private System.Windows.Forms.StatusStrip statusStrip1;

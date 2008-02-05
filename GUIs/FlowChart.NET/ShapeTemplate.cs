@@ -782,7 +782,7 @@ namespace MindFusion.FlowChartX
 			get { return decorations; }
 		}
 
-		public ElementTemplate[] TextArea
+		public ElementTemplate[] TagArea
 		{
 			get { return textArea; }
 		}
