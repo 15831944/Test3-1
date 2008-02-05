@@ -374,7 +374,7 @@
 					throw new ArgumentNullException("inValue");
 
 				// could also be NumberFormatInfo.InvariantInfo
-				NumberFormatInfo info = NumberFormatInfo.CurrentInfo;
+				NumberFormatInfo info = NumberFormatInfo.InvariantInfo;
 
 				// Is it one of the special symbols for NaN and such...
 				string trimmedValue = inValue.Trim();
@@ -402,7 +402,7 @@
 					{
 						// the string is not in the form of a fraction
 						// hopefully it is double or integer, do we see a decimal point?
-						int decimalPos = inValue.IndexOf(info.CurrencyDecimalSeparator);
+						int decimalPos = inValue.IndexOf(".");
 
 						if (decimalPos > -1)
 							return new Fraction(Convert.ToDouble(inValue));
@@ -1313,7 +1313,7 @@
 			private static string IndeterminateTypeName(long numerator)
 			{
 				// could also be NumberFormatInfo.InvariantInfo
-				System.Globalization.NumberFormatInfo info = NumberFormatInfo.CurrentInfo;
+				System.Globalization.NumberFormatInfo info = NumberFormatInfo.InvariantInfo;
 
 				switch (NormalizeIndeterminate(numerator))
 				{

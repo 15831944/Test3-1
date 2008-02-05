@@ -2207,7 +2207,7 @@ namespace Reaction_Editor
         private void numHX_TextChanged(object sender, EventArgs e)
         {
             if (m_HX != null)
-                try { m_HX.Value = DoubleParser.Parse(numHX.Text); }
+                try { m_HX.Value = double.Parse(numHX.Text); }
                 catch { }
             //ChangeOccured();
         }

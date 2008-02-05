@@ -79,7 +79,7 @@ namespace Reaction_Editor
                 {
                     Element elem = new Element();
                     elem.AtmoicNo = int.Parse(m.Groups["AtmNo"].Value);
-                    elem.AtomicMass = DoubleParser.Parse(m.Groups["AtmWt"].Value);
+                    elem.AtomicMass = double.Parse(m.Groups["AtmWt"].Value);
                     elem.Name = elem.Symbol = m.Groups["Sym"].Value;
                     if (Element.AddElement(elem))
                         elementCount++;
