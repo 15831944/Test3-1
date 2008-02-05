@@ -8,7 +8,7 @@ namespace Reaction_Editor
     public static class DoubleParser
     {
         private static Regex doubleRegex = new Regex(
-            @"^\s*(?<Whole>\d*)(\.(?<Fraction>\d*)?(e(?<Exponent>\d+)?\s*",
+            @"^\s*(?<Whole>\d*)(\.(?<Fraction>\d*))?(e(?<Exponent>\d+))?\s*",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
         public static double Parse(string input)
         {
