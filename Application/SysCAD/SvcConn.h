@@ -108,8 +108,8 @@ class CSvcConnect
     // Items -----------------------------------------------------------------
     // Operations
     void GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
-    void GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR Tag);
-    void GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
+    void GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GrfGuid);
+    void GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GrfGuid, Pt_3f Delta);
 
     // CallBack's
     void OnCreateNodeM(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR model);

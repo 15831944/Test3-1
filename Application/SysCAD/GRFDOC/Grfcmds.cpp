@@ -329,6 +329,17 @@ static LPCSTR Scd10GetTag(DXF_ENTITY e)
   return NULL;
   }
 
+static LPCSTR Scd10GetGrfGuid(DXF_ENTITY e)
+  {
+  LPCSTR pGuid;
+  if (DXF_ENTITY_IS_INSERT(e) && (pGuid = Find_Attr_Value(e, GuidAttribStr)))
+    {
+    //if (Find_Attr_Value(e, GuidAttribStr)==NULL) // is not an AssocTag
+    return pGuid;
+    }
+  return NULL;
+  }
+
 static LPCSTR Scd10GetInsertName(DXF_ENTITY e)
   {
   if (DXF_ENTITY_IS_INSERT(e))
@@ -6025,13 +6036,15 @@ void GrfCmdBlk::DoMoveEntity()
 
                   gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
 
-                  LPCSTR pTag = Scd10GetTag(Like);
-                  if (pTag)
+                  LPCSTR pGrfGuid= Scd10GetGrfGuid(Like);
+                  if (pGrfGuid)
                     {
                     SCD10ENTER;
-                    gs_pPrj->Svc.GCBModifyNodePosition((CGrfDoc*)pDoc, Like, pTag, Delta);
+                    gs_pPrj->Svc.GCBModifyNodePosition((CGrfDoc*)pDoc, Like, pGrfGuid, Delta);
                     SCD10LEAVE;
                     }
+                  else
+                    LogError("MoveNode", 0, "Guid does not exist");
                   }
                 else
 #endif

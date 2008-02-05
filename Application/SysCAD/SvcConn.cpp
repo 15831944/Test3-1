@@ -359,7 +359,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           CRectangleF(boxX, boxY, boxW, boxH),
           0.0, 
           CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
-          -GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible,
+          -GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible!=0,
           COLORREF(0), false, false);
 
         DO_EXIT_GG("DoCreateNodeE", ModelGuid, GraphicGuid);
@@ -798,22 +798,22 @@ void CSvcConnect::OnDeleteNodeM(__int64 eventId, __int64 requestId, LPCSTR Guid)
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR Tag)
+void CSvcConnect::GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GrfGuid)
   {
 
-  Strng ModelGuid, GraphicGuid;
-  if (gs_pPrj->GetNodeGuid((LPSTR)Tag, ModelGuid))
-    {
-    DO_ENTRY_GT("GCBDeleteNode", ModelGuid(), Tag);
+  //Strng ModelGuid, GraphicGuid;
+  //if (gs_pPrj->GetNodeGuid((LPSTR)Tag, ModelGuid))
+  //  {
+  //  DO_ENTRY_GT("GCBDeleteNode", ModelGuid(), Tag);
 
-    __asm int 3; // what about GraphicGuid ???
-    m_pCLR->DoDeleteNode(m_lRequestIdRet, ModelGuid(), GraphicGuid());
+  //  __asm int 3; // what about GraphicGuid ???
+  //  m_pCLR->DoDeleteNode(m_lRequestIdRet, ModelGuid(), GraphicGuid());
 
-    DO_EXIT("GCBDeleteNode");
-    }
-  else
-    {
-    }
+  //  DO_EXIT("GCBDeleteNode");
+  //  }
+  //else
+  //  {
+  //  }
   }
 
 //------------------------------------------------------------------------
@@ -856,27 +856,27 @@ void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid)
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta)
+void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GrfGuid, Pt_3f Delta)
   {
   //LPSTR Tag="?Tag?";
 
-  Strng Guid;
-  if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
-    {
-    DO_ENTRY_GT("GCBModifyItem", Guid(), Tag);
+  //Strng Guid;
+  //if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
+  //  {
+    DO_ENTRY_GT("GCBModifyItem", GrfGuid, "");//Tag);
 
     CRectangleF boundingRect;
     bool MirrorX=false;
     bool MirrorY=false;
     Delta.Y=-Delta.Y; // Y is inverted
 
-    //m_pCLR->DoModifyItemPosition(m_lRequestIdRet, Guid(), Delta);
+    m_pCLR->DoModifyNodePosition(m_lRequestIdRet, GrfGuid, Delta);
 
     DO_EXIT("GCBModifyItem");
-    }
-  else
-    {
-    }
+  //  }
+  //else
+  //  {
+  //  }
   };
 
 //------------------------------------------------------------------------

@@ -3447,7 +3447,8 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
   bForegroundWnd = true;
   bMinimiseWnd = false;
   bNoClosePrompt = false;
-  bForScd10 = false;
+  b10ExpSyms = false;
+  b10Upgrade = false;
   nAutoRunWait =  0;
 #if (WITHLOCALCOPY)
   bAllowLocalCopy = true;
@@ -3672,9 +3673,13 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
               LogWarning("SysCAD", 0, "Additional project file '%s' ignored", p);
           }
         }
-      else if (Option=="/scd10")
+      else if (Option=="/10.expsyms")
         {
-        bForScd10 = true;
+        b10ExpSyms = true;
+        }
+      else if (Option=="/10.upgrade")
+        {
+        b10Upgrade = true;
         }
       else
         {

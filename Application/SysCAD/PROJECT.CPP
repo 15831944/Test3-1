@@ -6627,9 +6627,16 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 
     gs_ProjectOpenFlag++;
 
-    if (ScdApp()->m_CLH.bForScd10)
+    if (ScdApp()->m_CLH.b10ExpSyms)
       {
       ExportScd9Symbols();
+      }
+
+    if (ScdApp()->m_CLH.b10Upgrade)
+      {
+      Upgrade2Scd10();
+
+      //ExportScd9Symbols();
       }
 
     CDlgBusy::Close();
@@ -6680,6 +6687,9 @@ void CProject::Upgrade2Scd10()
   {
   if (!m_pSvc)
     {
+    CDlgBusy::Open("");
+    CDlgBusy::SetLine(2, "Upgrading Project to SysCAD 10 format");
+
     m_pSvc = new CSvcConnect;
     m_pSvc->Startup();
     if (!m_pSvc->ConfigSetup())
@@ -6700,6 +6710,8 @@ void CProject::Upgrade2Scd10()
     m_pSvc->Save();
 
     m_IsScd10Prj=true;
+
+    CDlgBusy::Close();
     }
   }
 
@@ -6794,6 +6806,8 @@ int CProject::ExportScd9SymbolsInPath(LPCSTR SrcPath, LPCSTR OutPath, LPCSTR Gro
 
 void CProject::ExportScd9Symbols()
   {
+  CDlgBusy::Open("");
+  CDlgBusy::SetLine(2, "Exporting Graphics Symbols to SysCAD 10 format");
   //all dxf symbols...
   int nAdded=0;
 
@@ -6808,6 +6822,8 @@ void CProject::ExportScd9Symbols()
 
   NodeGrfInfo * pNGI=gs_pPrj->GetNodeDrawings();
   NodeGrfInfo::ExportToFile10(pNGI, OutPath());
+
+  CDlgBusy::Close();
   }
 
 //---------------------------------------------------------------------------

@@ -520,28 +520,33 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
-    //void DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta)
-    //  {
-    //  //SysCAD::Protocol::Rectangle^ TA(tagArea.Left(), tagArea.Bottom(), tagArea.Width(), tagArea.Height());
-    //  
-
-    //  Guid itemGuid(gcnew String(ItemGuid));
-    //  GraphicItem ^ Item;
-    //  if (clientProtocol->graphicItems->TryGetValue(itemGuid, Item))
-    //    {
-
-    //    SysCAD::Protocol::Rectangle^ BR=Item->BoundingRect;
-    //    BR->X+=(float)Delta.X;
-    //    BR->Y+=(float)Delta.Y;
-    //    //(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+    void DoModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
+      {
+      //SysCAD::Protocol::Rectangle^ TA(tagArea.Left(), tagArea.Bottom(), tagArea.Width(), tagArea.Height());
 
 
-    //    clientProtocol->ModifyItem(requestId, itemGuid, Item->Tag, Item->Path, 
-    //	Item->Model, Item->Shape, BR, Item->Angle, Item->TextArea, Item->TextAngle, 
-    //      Color::Empty, Drawing2D::FillMode::Alternate, Item->MirrorX, Item->MirrorY);
-    //    }
+      Guid graphicGuid(gcnew String(GraphicGuid));
+      GraphicNode ^ GNd;
+      if (clientProtocol->graphic->Nodes->TryGetValue(graphicGuid, GNd))
+        {
 
-    //  };
+        GraphicNode ^ newGNd = GNd->Clone();
+        newGNd->BoundingRect->X += (float)Delta.X;
+        newGNd->BoundingRect->Y += (float)Delta.Y;
+        //(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+
+        //clientProtocol->MModifyNode(requestId, GraphicGuid, GNd->Tag, GNd->Path, 
+        //  GNd->Model, GNd->Shape, BR, GNd->Angle, GNd->TextArea, GNd->TextAngle, 
+        //  Color::Empty, Drawing2D::FillMode::Alternate, GNd->MirrorX, Node->MirrorY);
+
+        SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
+
+        action->Modify->Add(newGNd);
+        //action->Modify->Add(Guid(gcnew String(ModelGuid)));
+
+        clientProtocol->Change(requestId, action);
+        }
+      };
 
     //void DoModifyItem(__int64 & requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
     //  LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, 
@@ -1065,11 +1070,11 @@ void CSvcConnectCLR::DoDeleteNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR 
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteNode(requestId, ModelGuid, GraphicGuid);
   };
 
-//void CSvcConnectCLR::DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta)
-//  {
-//  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyItemPosition(requestId, ItemGuid, Delta);
-//  }
-//
+void CSvcConnectCLR::DoModifyNodePosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta)
+  {
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyNodePosition(requestId, ItemGuid, Delta);
+  }
+
 //========================================================================
 
 void CSvcConnectCLR::AddCreateLink(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid, LPCSTR Tag, LPCSTR Path, 
