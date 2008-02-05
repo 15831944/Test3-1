@@ -701,7 +701,7 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
       //else
       //  Cd=IOConduit(i);
 
-      double EntRate=1.0;
+      double EntRate=0.0;
       //double FracAboveSurface = (IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
       //if (IOQm_In(i)>0)
       //  {
