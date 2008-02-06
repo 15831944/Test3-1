@@ -163,6 +163,7 @@ class CInsertBlk
       m_EntInVw=NULL;
       m_pOldTags=NULL;
       m_pNewTags=NULL;
+      m_TagVisible=true;
       };
 
   public :
@@ -183,6 +184,7 @@ class CInsertBlk
     DXF_ENTITY    m_Entity;
     CEntInView    *m_EntInVw;
     CRectangleF   m_Rect;
+    bool          m_TagVisible;
 
     //CRectangleF   m_BoundRct;
   };

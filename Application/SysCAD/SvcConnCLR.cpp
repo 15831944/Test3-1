@@ -362,7 +362,7 @@ ref class CSvcConnectCLRThread
             CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), 
             float(GNd->Angle), 
             CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height),
-            float(GNd->TagAngle),
+            float(GNd->TagAngle), GNd->TagVisible,
             RGB(GNd->FillColor.R, GNd->FillColor.G, GNd->FillColor.B), 
             GNd->MirrorX, GNd->MirrorY);
           }
@@ -382,7 +382,7 @@ ref class CSvcConnectCLRThread
           ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString()),
           Pts, 
           CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height),
-          float(GLnk->TagAngle));
+          float(GLnk->TagAngle), GLnk->TagVisible);
 
         }
       }
@@ -533,6 +533,8 @@ ref class CSvcConnectCLRThread
         GraphicNode ^ newGNd = GNd->Clone();
         newGNd->BoundingRect->X += (float)Delta.X;
         newGNd->BoundingRect->Y += (float)Delta.Y;
+        newGNd->TagArea->X += (float)Delta.X;
+        newGNd->TagArea->Y += (float)Delta.Y;
         //(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
 
         //clientProtocol->MModifyNode(requestId, GraphicGuid, GNd->Tag, GNd->Path, 
@@ -818,7 +820,7 @@ ref class CSvcConnectCLRThread
               CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), 
               float(GNd->Angle), 
               CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height),
-              float(GNd->TagAngle),
+              float(GNd->TagAngle), GNd->TagVisible,
               RGB(GNd->FillColor.R, GNd->FillColor.G, GNd->FillColor.B), 
               GNd->MirrorX, GNd->MirrorY);
             }
@@ -842,7 +844,7 @@ ref class CSvcConnectCLRThread
             ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString()),
             Pts, 
             CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height),
-            float(GLnk->TagAngle));
+            float(GLnk->TagAngle), GLnk->TagVisible);
           }
         }
       }
@@ -868,7 +870,7 @@ ref class CSvcConnectCLRThread
               CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), 
               float(GNd->Angle), 
               CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height),
-              float(GNd->TagAngle),
+              float(GNd->TagAngle), GNd->TagVisible,
               RGB(GNd->FillColor.R, GNd->FillColor.G, GNd->FillColor.B), 
               GNd->MirrorX, GNd->MirrorY);
             }
@@ -894,7 +896,7 @@ ref class CSvcConnectCLRThread
             ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString()),
             Pts, 
             CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height),
-            float(GLnk->TagAngle));
+            float(GLnk->TagAngle), GLnk->TagVisible);
           }
         }
       }

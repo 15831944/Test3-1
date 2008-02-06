@@ -613,12 +613,12 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
 
     int            EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                                  float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY);
     int            EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
     int            EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                                  float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY);
     int            EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model);
     int            EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid);
@@ -628,12 +628,14 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
                                    LPCSTR model, 
                                    LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                    LPCSTR OriginTag, LPCSTR DestinationTag, 
-                                   CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) ;
+                                   CPointFList & ControlPoints, 
+                                   const CRectangleF & tagArea, float tagAngle, bool tagVisible) ;
     int            EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
     int            EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                    LPCSTR model, 
                                    LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                                   CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) ;
+                                   CPointFList & ControlPoints, 
+                                   const CRectangleF & tagArea, float tagAngle, bool tagVisible) ;
     int            EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                    LPCSTR model, 
                                    LPCSTR OriginGuid, LPCSTR DestinationGuid, 

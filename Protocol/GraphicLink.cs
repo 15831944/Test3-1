@@ -51,6 +51,7 @@ namespace SysCAD.Protocol
 
       this.tagArea = tagArea;
       this.tagAngle = tagAngle;
+      this.tagVisible = tagVisible;
     }
 
     // Norm-1 distance between the closest side of the rectangle to the point.

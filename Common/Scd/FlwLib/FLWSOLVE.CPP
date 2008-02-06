@@ -13719,7 +13719,7 @@ int CFlwSolver::EO_DeleteTagsDone(Strng_List & Tags)
   
 int CFlwSolver::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                               float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
                                bool mirrorX, bool mirrorY) 
   {
   return EOSC_DONE;
@@ -13736,7 +13736,7 @@ int CFlwSolver::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
 
 int CFlwSolver::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path, 
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                               float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
                                bool mirrorX, bool mirrorY) 
   {
   return EOSC_NOTFOUND;
@@ -13817,7 +13817,8 @@ int CFlwSolver::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
                                  LPCSTR model, 
                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                  LPCSTR OriginTag, LPCSTR DestinationTag, 
-                                 CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
+                                 CPointFList & ControlPoints, 
+                                 const CRectangleF & tagArea, float tagAngle, bool tagVisible) 
   {
   return EOSC_DONE;
   };
@@ -13830,7 +13831,8 @@ int CFlwSolver::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
 int CFlwSolver::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
+                               CPointFList & ControlPoints, 
+                               const CRectangleF & tagArea, float tagAngle, bool tagVisible) 
   {
   return EOSC_NOTFOUND;
   };

@@ -118,12 +118,12 @@ class CSvcConnect
 
     void OnCreateNodeG(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
       LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-      float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+      float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
       bool mirrorX, bool mirrorY);
     void OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR guid);
     void OnModifyNodeG(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
       LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-      float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+      float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
       bool mirrorX, bool mirrorY);
 
     // Links -----------------------------------------------------------------
@@ -135,19 +135,19 @@ class CSvcConnect
     //void GCBDoModifyLinkPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
     void GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, /*LPCSTR ClassId, 
                       LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort, */
-                      CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle);
+                      CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible);
 
 
     // CallBack's
     void OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle);
+                      CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible);
     void OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR guid);
     void OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle);
+                      CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible);
     
     void OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 

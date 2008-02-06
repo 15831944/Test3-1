@@ -619,10 +619,10 @@ int  SFEFlwLib::EO_DeleteTagsDone(Strng_List & Tags)
 
 int SFEFlwLib::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                              float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                              float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
                               bool mirrorX, bool mirrorY)
   {
-  IENTER(false) pSfe->EO_SCInsertNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, Colour, mirrorX, mirrorY);
+  IENTER(false) pSfe->EO_SCInsertNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, tagVisible, Colour, mirrorX, mirrorY);
   ILEAVE
   };
 int SFEFlwLib::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
@@ -632,10 +632,10 @@ int SFEFlwLib::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
   };
 int SFEFlwLib::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                              float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                              float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
                               bool mirrorX, bool mirrorY)
   {
-  IENTER(false) pSfe->EO_SCModifyNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, Colour, mirrorX, mirrorY);
+  IENTER(false) pSfe->EO_SCModifyNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, tagVisible, Colour, mirrorX, mirrorY);
   ILEAVE
   };
 
@@ -667,7 +667,8 @@ int SFEFlwLib::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
-                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
+                               CPointFList & ControlPoints, 
+                               const CRectangleF & tagArea, float tagAngle, bool tagVisible) 
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
@@ -675,7 +676,8 @@ int SFEFlwLib::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
                                    model, 
                                    OriginGuid, DestinationGuid, 
                                    OriginTag, DestinationTag, 
-                                   ControlPoints, tagArea, tagAngle) ;
+                                   ControlPoints, 
+                                   tagArea, tagAngle, tagVisible) ;
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -692,14 +694,15 @@ int SFEFlwLib::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
 int SFEFlwLib::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle) 
+                               CPointFList & ControlPoints, 
+                               const CRectangleF & tagArea, float tagAngle, bool tagVisible) 
   {
   //SetLoadAllModelStatus();
   //SetLoadAllModelAssocGrfs();
   IENTER(false) pSfe->EO_SCModifyLinkG(Ctrl, pTag, ItemGuid, /*path,*/
                                    model, 
                                    OriginGuid, DestinationGuid, 
-                                   ControlPoints, tagArea, tagAngle) ;
+                                   ControlPoints, tagArea, tagAngle, tagVisible) ;
   //CExploreScd::RefreshIt(false);
   ILEAVE
   };

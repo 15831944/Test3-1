@@ -3346,7 +3346,7 @@ bool GrfCmdBlk::DoInsertNodeGrf(CInsertBlk* CB, bool SkipTagTest)
     }
   pDsp->Open();
 
-  Tag_Attr_Set.Flags = HideTag ? DXF_ATTRIB_INVIS : 0;
+  Tag_Attr_Set.Flags = HideTag && !CB->m_TagVisible ? DXF_ATTRIB_INVIS : 0;
 
   CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->m_sGuid(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
   if (CB->e)
@@ -4418,7 +4418,7 @@ void GrfCmdBlk::DoMoveLink()
               }
 
             CRectangleF TA(0.0, 0.0, 0.0, 0.0);
-            gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints, TA, 0.0);
+            gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints, TA, 0.0, !bFlag1);
             SCD10LEAVE;
             }
           else

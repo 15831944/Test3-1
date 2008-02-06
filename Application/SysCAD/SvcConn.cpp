@@ -684,7 +684,7 @@ void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
 void CSvcConnect::OnCreateNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, LPCSTR path, 
                                 LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect,
-                                float angle, const CRectangleF & tagArea, float tagAngle, COLORREF FillColor, 
+                                float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF FillColor, 
                                 bool mirrorX, bool mirrorY)
   {
 
@@ -705,7 +705,7 @@ void CSvcConnect::OnCreateNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid,
 
     m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
 
-    int RetCode = gs_Exec.SCInsertNodeG(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, tagArea, tagAngle, FillColor, mirrorX, mirrorY);
+    int RetCode = gs_Exec.SCInsertNodeG(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, tagArea, tagAngle, tagVisible, FillColor, mirrorX, mirrorY);
 
 
     if (RetCode!=EOSC_DONE)
@@ -883,7 +883,7 @@ void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCST
 
 void CSvcConnect::OnModifyNodeG(__int64 eventId, __int64 requestId, LPCSTR ItemGuid, LPCSTR tag, LPCSTR path, 
                                 LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                                float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
                                 bool mirrorX, bool mirrorY)
   {
   ON_ENTRY_GT("OnModifyNodeG", ItemGuid, tag);
@@ -891,7 +891,7 @@ void CSvcConnect::OnModifyNodeG(__int64 eventId, __int64 requestId, LPCSTR ItemG
   CString PageName=CSvcConnect::ExtractPageName(path);
   m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
 
-  int RetCode = gs_Exec.SCModifyNodeG(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, Colour, mirrorX, mirrorY);
+  int RetCode = gs_Exec.SCModifyNodeG(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, tagVisible, Colour, mirrorX, mirrorY);
   if (RetCode!=EOSC_DONE)
     {
     LogError(tag, 0, "Model not modified");
@@ -979,7 +979,7 @@ void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid,
                                 LPCSTR ClassId, 
                                 LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                 CPointFList & ControlPoints,
-                                const CRectangleF & tagArea, float tagAngle)
+                                const CRectangleF & tagArea, float tagAngle, bool tagVisible)
   {
   // !!! tagArea not handled as yet.
 
@@ -1020,7 +1020,7 @@ void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid,
     int RetCode = gs_Exec.SCInsertLinkG(m_Ctrl, tag, Guid, /*path,*/ ClassId, 
       OriginGuid, DestinationGuid, 
       pSrc?pSrc->Tag():"", pDst?pDst->Tag():"",
-      ControlPoints, tagArea, tagAngle);
+      ControlPoints, tagArea, tagAngle, tagVisible);
 
     if (RetCode!=EOSC_DONE)
       {
@@ -1175,9 +1175,9 @@ void CSvcConnect::OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid)
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, /*LPCSTR ClassId, 
-                                                                                       LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort,*/ 
-                                                                                       CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
+void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag,
+                                   /*LPCSTR ClassId, LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort,*/ 
+                                   CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible)
   {
 
   Strng Guid;
@@ -1216,7 +1216,7 @@ void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCST
 void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                                 LPCSTR ClassId, 
                                 LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
+                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible)
   {
   ON_ENTRY_GT("OnModifyLinkG", LinkGuid, Tag);
 
@@ -1239,7 +1239,7 @@ void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkG
     m_Ctrl.SetXObjArray(FindGrfWnd(GroupName));
     }
 
-  int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, ControlPoints, tagArea, tagAngle);
+  int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, ControlPoints, tagArea, tagAngle, tagVisible);
   if (RetCode!=EOSC_DONE)
     {
     LogError(Tag, 0, "Link not modified");

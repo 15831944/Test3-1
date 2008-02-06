@@ -400,7 +400,7 @@ int CGrfWnd::EO_DeleteTags(Strng_List & Tags)
 
 int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                            float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
                             bool mirrorX, bool mirrorY) 
   {
 #if SYSCAD10         
@@ -431,6 +431,7 @@ int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
     CB.ASymbol=shape;
     CB.m_sGuid=ItemGuid;
     CB.m_Rect=boundingRect;
+
     //if (m_bExportBusy)
     //  {
     pGDoc->GCB.DoInsertNodeGrf(&CB);
@@ -476,7 +477,7 @@ int CGrfWnd::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 int CGrfWnd::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & tagArea, float tagAngle, COLORREF Colour, 
+                            float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   { 
 #if SYSCAD10         
@@ -580,7 +581,8 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
-                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
+                               CPointFList & ControlPoints, 
+                               const CRectangleF & tagArea, float tagAngle, bool tagVisible)
   {
 #if SYSCAD10         
   if (gs_pPrj->SvcActive)
@@ -611,7 +613,7 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
     LDH.SetLineMethod(LDM_Direct); //todo user option
     LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
     LDH.SetArrowScale(2.5); //todo user option
-    LDH.SetShowTag(false); //todo user option
+    LDH.SetShowTag(tagVisible); //todo user option
 
     LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
     LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
@@ -668,7 +670,7 @@ int CGrfWnd::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
 int CGrfWnd::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
+                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible)
   {
 #if SYSCAD10         
   if (gs_pPrj->SvcActive)
