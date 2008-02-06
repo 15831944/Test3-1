@@ -1556,6 +1556,8 @@ namespace SysCAD.Editor
 
           foreach (EditorLink link in form1.hoverviewIncomingLinks)
           {
+            Arrow arrow = state.Arrow(link.Guid);
+              
             int portId = 0;
             (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.DestinationPort + link.GraphicLink.DestinationPortID.ToString(CultureInfo.InvariantCulture), out portId);
 
@@ -1566,10 +1568,10 @@ namespace SysCAD.Editor
 
             PointF pt1 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
                                form1.hoverviewBox.BoundingRect,
-                               link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 2].ToPointF());
+                               arrow.ControlPoints[arrow.ControlPoints.Count - 2]);
             PointF pt2 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
                                form1.hoverviewBox.BoundingRect,
-                               link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 1].ToPointF());
+                               arrow.ControlPoints[arrow.ControlPoints.Count - 1]);
 
             ///Box box1 = form1.fcHoverview.CreateBox(pt1.X*2.0F, pt1.Y, 0.001F, 0.01F);
             //box1.Visible = false;
@@ -1590,6 +1592,8 @@ namespace SysCAD.Editor
 
           foreach (EditorLink link in form1.hoverviewOutgoingLinks)
           {
+            Arrow arrow = state.Arrow(link.Guid);
+
             int portId = 0;
             (editorNode.ModelBox.Tag as EditorNode).anchorTagToInt.TryGetValue(link.ModelLink.OriginPort + link.GraphicLink.OriginPortID.ToString(CultureInfo.InvariantCulture), out portId);
 
@@ -1600,10 +1604,10 @@ namespace SysCAD.Editor
 
             PointF pt1 = Flowchart2Hoverbox(link.Arrow.Origin.BoundingRect,
                                form1.hoverviewBox.BoundingRect,
-                               link.GraphicLink.ControlPoints[1].ToPointF());
+                               arrow.ControlPoints[1]);
             PointF pt2 = Flowchart2Hoverbox(link.Arrow.Origin.BoundingRect,
                                form1.hoverviewBox.BoundingRect,
-                               link.GraphicLink.ControlPoints[0].ToPointF());
+                               arrow.ControlPoints[0]);
 
             ///Box box1 = form1.fcHoverview.CreateBox(pt1.X*2.0F, pt1.Y, 0.001F, 0.01F);
             //box1.Visible = false;
