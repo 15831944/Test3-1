@@ -39,7 +39,7 @@
 #define IDD_BUSYDLG                     11031
 #define IDD_FNOPTDLG                    11032
 #define IDOKALL                         11033
-#define IDD_SIMPLE_STRING_DLG           11034
+//#define IDD_SIMPLE_STRING_DLG           11034
 #define IDC_TXT_NAME                    11035
 #define IDC_STRINGEDIT                  11036
 #define IDD_CNVFMT                      11037

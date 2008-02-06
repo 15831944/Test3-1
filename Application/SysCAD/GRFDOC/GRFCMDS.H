@@ -186,6 +186,7 @@ class CInsertBlk
     CRectangleF   m_Rect;
     bool          m_TagVisible;
 
+    Pt_3f         m_TagPt;
     //CRectangleF   m_BoundRct;
   };
 

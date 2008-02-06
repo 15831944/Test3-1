@@ -81,7 +81,6 @@ class DllImportExport CBlockEvalBase
     byte              m_BEId;
     int               m_Index;
     bool              m_bDefinesStateSemantics;
-    bool              m_bUsingStateSemantics;
     CBlockEvalStateSemantics * m_pBlkStateSemantics;
     DDBValueLstMem  * m_pOnOffValLst;
     Strng             m_sName;

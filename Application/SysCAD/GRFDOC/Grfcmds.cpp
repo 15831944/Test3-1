@@ -3347,7 +3347,7 @@ bool GrfCmdBlk::DoInsertNodeGrf(CInsertBlk* CB, bool SkipTagTest)
   pDsp->Open();
 
   Tag_Attr_Set.Flags = HideTag && !CB->m_TagVisible ? DXF_ATTRIB_INVIS : 0;
-
+  Tag_InsertPt.Set(CB->m_TagPt.X-CB->Pt.World.X, CB->m_TagPt.Y-CB->Pt.World.Y, CB->m_TagPt.Z-CB->Pt.World.Z);
   CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->m_sGuid(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
   if (CB->e)
     {
@@ -11441,7 +11441,7 @@ DXF_ENTITY GrfCmdBlk::AddLinkDrawing(CLineDrawHelper & LDH)
   Pt_3f sc(1.0,1.0,1.0);//LDH.m_TagScale.X, LDH.m_TagScale.Y, LDH.m_TagScale.Z);
   REAL s = 2.5;
   //Pt_3f ptt(LDH.m_InsertPt.X-LDH.m_TagPt.X, LDH.m_InsertPt.Y-LDH.m_TagPt.Y, LDH.m_InsertPt.Z-LDH.m_TagPt.Z);
-  Pt_3f ptt(LDH.m_TagPt.X, LDH.m_TagPt.Y, LDH.m_TagPt.Z);
+  Pt_3f ptt(LDH.m_TagPt.X-LDH.m_InsertPt.X, LDH.m_TagPt.Y-LDH.m_InsertPt.Y, LDH.m_TagPt.Z-LDH.m_InsertPt.Z);
   Attr_Settings SetMem=Tag_Attr_Set;
   Tag_Attr_Set.Size*=LDH.m_TagScale.X;
   Tag_Attr_Set.Rot=LDH.TagRotation();

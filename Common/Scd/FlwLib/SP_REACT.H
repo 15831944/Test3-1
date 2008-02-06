@@ -467,6 +467,8 @@ class DllImportExport CReactionBlock : public TaggedObject
     Strng          m_LoadError;
 
     double         m_DynRateScale;
+    flag           m_bUsingStateSemantics;
+
 
     CConvergeStateBlk *m_pCSB;
 

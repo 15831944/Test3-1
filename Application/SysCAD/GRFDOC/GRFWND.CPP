@@ -431,6 +431,8 @@ int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
     CB.ASymbol=shape;
     CB.m_sGuid=ItemGuid;
     CB.m_Rect=boundingRect;
+    CB.m_TagPt.X=tagArea.MidX();
+    CB.m_TagPt.Y=PageRct.Top()-tagArea.Top();
 
     //if (m_bExportBusy)
     //  {
@@ -615,7 +617,7 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
     LDH.SetArrowScale(2.5); //todo user option
     LDH.SetShowTag(tagVisible); //todo user option
 
-    LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
+    LDH.SetTag(pTag, tagArea.MidX(), PageRct.Top()-tagArea.Top(), 0.0);
     LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
     LDH.InitPoints();
 

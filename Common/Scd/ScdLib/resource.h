@@ -61,6 +61,7 @@
 #define IDD_CK_TRANSFERDLG              20152
 #define IDD_CK_LICENSEINFODLG           20153
 #define IDD_CK_LOCATIONDLG              20154
+#define IDR_MAINFRAME                   21001
 #define IDC_CK_APPPATH                  21075
 #define IDC_CK_APP_VERSION              21076
 #define IDC_CK_TRIAL                    21077

@@ -112,12 +112,12 @@ void CBlockEvaluator::AddBlk(CBlockEvalBase *p, int DefSeqNo)
   {
   if (p)
     {
-    if (0)
-      dbgpln("AddBlk %3i %s", m_nBlocks, m_pNd->FullObjTag());
     p->m_pBlkStateSemantics=this;
     p->SetOnOffValLst(p->StateSemanticsOn() ? &m_OnOffStateValLst : &m_OnOffValLst);
     p->SetDefBlkSeqNo(DefSeqNo);
     m_Blks[m_nBlocks++]=p;
+    if (0)
+      dbgpln("AddBlk %3i %s %s", m_nBlocks, p->StateSemanticsOn()?"On":"  ", m_pNd->FullObjTag());
     }
   };
 
@@ -441,6 +441,15 @@ void CBlockEvaluator::SortBlocks()
   {
   BuildOnOffValLst(&m_OnOffValLst, m_nBlocks, NULL);
   BuildOnOffValLst(&m_OnOffStateValLst, m_nBlocks, "Content");
+  
+  for (int b=0 ; b<m_nBlocks; b++)
+    {
+    m_Blks[b]->SetOnOffValLst(m_Blks[b]->StateSemanticsOn() ? &m_OnOffStateValLst : &m_OnOffValLst);
+    if (0)
+      {
+      dbgpln("SetOnOff =============== %i %s %s", b, m_Blks[b]->StateSemanticsOn()?"On":"  ", m_pNd->FullObjTag());
+      }
+    }
 
   int i;
   for (i=1 ; i<m_nBlocks; )
@@ -461,9 +470,8 @@ void CBlockEvaluator::SortBlocks()
     {
     dbgpln("SortBlks =============== %s", m_pNd->FullObjTag());
     for (i=0 ; i<m_nBlocks; i++)
-      dbgpln("  Seq: %-6s %i %s %5i", m_Blks[i]->Name(), m_Blks[i]->OpenStatus(m_Blks[i]->Enabled()), m_Blks[i]->Enabled()?"En":"Da", m_Blks[i]->BlkSeqNo(true));
+      dbgpln("  Seq: %-6s %i %s %5i", m_Blks[i]->Name(), m_Blks[i]->OpenStatus(m_Blks[i]->Enabled()), m_Blks[i]->Enabled()?"En":"  ", m_Blks[i]->BlkSeqNo(true));
     }
-
 
 #if DISABLESIMULTANEOUS
   if (1)

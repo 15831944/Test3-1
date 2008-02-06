@@ -4,6 +4,8 @@
 #define __BLOCKEVALBASE_CPP
 #include "BlockEvalBase.h"
 
+#include "optoff.h"
+
 CBlockEvalBase::CBlockEvalBase(byte BEId, int Index, LPTSTR Name, bool DefinesStateSemantics) : \
   m_sName(Name) 
   {
@@ -22,7 +24,7 @@ CBlockEvalBase::~CBlockEvalBase(void)
 
 bool CBlockEvalBase::StateSemanticsOn()
   { 
-  bool On = m_bDefinesStateSemantics && m_bUsingStateSemantics && (BlkSeqNo()>=BlkEval_State); 
+  bool On = m_bDefinesStateSemantics && (BlkSeqNo()>=BlkEval_State); 
   if (On && m_pBlkStateSemantics)
     return m_pBlkStateSemantics->StateSemanticsOn();
   return false;

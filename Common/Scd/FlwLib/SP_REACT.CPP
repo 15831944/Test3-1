@@ -14,7 +14,7 @@
 #include "sr_vcs.h"
 #include "sq_lock.h"
 #include "scd_wm.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 _declspec(dllimport) int SpModelExDbgOn;
 
@@ -304,6 +304,8 @@ void CReactionBlock::Clear(flag fClearMsg, flag ClearAll)
 
   m_DynRateScale       = 1.0;
   
+  m_bUsingStateSemantics = false;
+
   bReloadReqd          = false;
 
   for (int i=1; i<=MaxRctCIs; i++)
@@ -1628,7 +1630,7 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
 
 //---------------------------------------------------------------------------
 
-flag CReactionBlock::UsingStateSemantics() { return m_RctBase->m_bUsingStateSemantics!=0; };
+flag CReactionBlock::UsingStateSemantics() { return m_bUsingStateSemantics; };
 
 //static int LoadAttempted=0;
 
@@ -1792,14 +1794,7 @@ flag CReactionBlock::SetRCTName(pchar pRCTName)
 
 flag CReactionBlock::Load(flag UsingStateSemantics, pchar pRCTName, flag KeepState)
   {
-  //if (LoadAttempted)
-  //  return False;
-  //LoadAttempted=true;
   
-  m_RctBase->m_bUsingStateSemantics=UsingStateSemantics!=0;
-  //m_RctBase->m_bHasStateSemantics=UsingStateSemantics!=0;
-  //m_bIs//m_RctBase->m_bCanBeSurge=bIsSurgeType;
-
   // Save the current values
   CXM_ObjectData CurrentData(0);
   if (KeepState)
@@ -1808,6 +1803,9 @@ flag CReactionBlock::Load(flag UsingStateSemantics, pchar pRCTName, flag KeepSta
   MyTagsHaveChanged();
 
   Clear(true, false);
+
+  m_bUsingStateSemantics=UsingStateSemantics;
+
   iReactionState=RBS_Error;
 
   if (pRCTName)
