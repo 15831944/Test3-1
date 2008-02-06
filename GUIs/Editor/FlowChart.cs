@@ -1910,6 +1910,18 @@ namespace SysCAD.Editor
         AddAction(action);
       }
 
+      else if (e.Box.Tag is EditorLink)
+      {
+        Box tagArea = e.Box;
+        GraphicLink newLink = state.GraphicLink((e.Box.Tag as EditorLink).Guid).Clone();
+
+        newLink.TagArea = new SysCAD.Protocol.Rectangle(tagArea.BoundingRect);
+        newLink.TagAngle = tagArea.RotationAngle;
+        action.Modify.Add(newLink);
+
+        AddAction(action);
+      }
+
       else if (e.Box.Tag is Thing)
       {
         //GraphicThing graphicThing = state.GraphicThing((e.Box.Tag as Thing).Guid);

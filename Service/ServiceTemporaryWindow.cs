@@ -212,6 +212,7 @@ namespace SysCAD.Service
 
     public void LogMessage(String message, MessageType messageType)
     {
+
       logView.Message(message, messageType);
     }
 

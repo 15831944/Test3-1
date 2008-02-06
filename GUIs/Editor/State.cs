@@ -695,6 +695,7 @@ namespace SysCAD.Editor
         editorLink.UpdateVisibility();
 
         arrow.Tag = editorLink;
+        textBox.Tag = editorLink;
 
         editorLinks.Add(editorLink.Guid, editorLink);
 
