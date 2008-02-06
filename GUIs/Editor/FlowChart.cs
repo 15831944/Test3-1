@@ -1852,7 +1852,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChartBoxModified(object sender, BoxMouseArgs e)
+    private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
       SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
 
@@ -1866,34 +1866,37 @@ namespace SysCAD.Editor
         GraphicNode newGraphicNode = state.GraphicItem((e.Box.Tag as EditorNode).Guid).Clone();
         if (modelBox != null)
         {
-          newGraphicNode.BoundingRect = new SysCAD.Protocol.Rectangle(modelBox.BoundingRect);
-          newGraphicNode.Angle = modelBox.RotationAngle;
+            newGraphicNode.BoundingRect = new SysCAD.Protocol.Rectangle(modelBox.BoundingRect);
+            newGraphicNode.Angle = modelBox.RotationAngle;
 
-          ArrowCollection incomingArrows = modelBox.IncomingArrows.Clone();
-
-          foreach (Arrow arrow in incomingArrows)
-          {
-            GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
-
-            if (newGraphicLink != null)
+            if (textBox != e.Box.Tag)
             {
-              newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
-              action.Modify.Add(newGraphicLink);
+                ArrowCollection incomingArrows = modelBox.IncomingArrows.Clone();
+
+                foreach (Arrow arrow in incomingArrows)
+                {
+                    GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
+
+                    if (newGraphicLink != null)
+                    {
+                        newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
+                        action.Modify.Add(newGraphicLink);
+                    }
+                }
+
+                ArrowCollection outgoingArrows = modelBox.OutgoingArrows.Clone();
+
+                foreach (Arrow arrow in outgoingArrows)
+                {
+                    GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
+
+                    if (newGraphicLink != null)
+                    {
+                        newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
+                        action.Modify.Add(newGraphicLink);
+                    }
+                }
             }
-          }
-
-          ArrowCollection outgoingArrows = modelBox.OutgoingArrows.Clone();
-
-          foreach (Arrow arrow in outgoingArrows)
-          {
-            GraphicLink newGraphicLink = state.GraphicLink((arrow.Tag as EditorLink).Guid).Clone();
-
-            if (newGraphicLink != null)
-            {
-              newGraphicLink.ControlPoints = State.GetControlPoints(arrow.ControlPoints);
-              action.Modify.Add(newGraphicLink);
-            }
-          }
         }
         else
         {
@@ -1992,7 +1995,7 @@ namespace SysCAD.Editor
       form1.SetButtonStates();
     }
 
-    private void fcFlowChartBoxModifying(object sender, BoxConfirmArgs e)
+    private void fcFlowChart_BoxModifying(object sender, BoxConfirmArgs e)
     {
       //foreach (Arrow arrow in e.Box.IncomingArrows)
       //{
