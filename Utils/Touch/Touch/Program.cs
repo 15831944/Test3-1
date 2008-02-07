@@ -36,7 +36,7 @@ namespace Touch
         foreach (DirectoryInfo subDirectoryInfo in directoryInfo.GetDirectories())
         {
           //new Thread(delegate() { DoTouch(subDirectoryInfo, now); }).Start();
-          DoTouch(subDirectoryInfo, now);
+          //DoTouch(subDirectoryInfo, now); // decided to not touch the folders.
           Touch(subDirectoryInfo, now);
         }
         foreach (FileInfo fileInfo in directoryInfo.GetFiles())
