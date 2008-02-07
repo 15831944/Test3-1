@@ -412,7 +412,7 @@ namespace SysCAD.Editor
         }
         else
         {
-          state.ClientProtocol.LogMessage(out requestId, "ModelNode missing for GraphicLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
+          state.ClientProtocol.LogMessage(out requestId, "ModelNode missing for graphicLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
         }
       }
 
@@ -425,7 +425,7 @@ namespace SysCAD.Editor
         }
         else
         {
-          state.ClientProtocol.LogMessage(out requestId, "ModelLink missing for GraphicLink (Tag: " + graphicLink.Tag + ", Guid: " + graphicLink.Guid + ")", SysCAD.Log.MessageType.Error);
+          state.ClientProtocol.LogMessage(out requestId, "ModelLink missing for graphicLink (Tag: " + graphicLink.Tag + ", Guid: " + graphicLink.Guid + ")", SysCAD.Log.MessageType.Error);
         }
       }
 
@@ -2090,7 +2090,7 @@ namespace SysCAD.Editor
         else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold / 10.0)
           arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Auto;
 
-        //GraphicLink graphicLink = (arrow.Tag as EditorLink).GraphicLink as GraphicLink;
+        //graphicLink graphicLink = (arrow.Tag as EditorLink).graphicLink as graphicLink;
 
         //EditorNode originItem = arrow.Origin.Tag as EditorNode;
         //EditorNode destinationItem = arrow.Destination.Tag as EditorNode;
@@ -2272,6 +2272,20 @@ namespace SysCAD.Editor
           }
         }
       }
+    }
+
+    public void PropertyGridLinkModified(GraphicLink graphicLink)
+    {
+      SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
+      action.Modify.Add(graphicLink);
+      AddAction(action);
+    }
+
+    public void PropertyGridNodeModified(GraphicNode graphicNode)
+    {
+      SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
+      action.Modify.Add(graphicNode);
+      AddAction(action);
     }
   }
 }

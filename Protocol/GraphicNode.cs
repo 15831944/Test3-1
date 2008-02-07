@@ -80,6 +80,30 @@ namespace SysCAD.Protocol
       set { tagArea = value; }
     }
 
+    public Double TagAreaX
+    {
+      get { return tagArea.X; }
+      set { tagArea.X = value; }
+    }
+
+    public Double TagAreaY
+    {
+      get { return tagArea.Y; }
+      set { tagArea.Y = value; }
+    }
+
+    public Double TagAreaWidth
+    {
+      get { return tagArea.Width; }
+      set { tagArea.Width = value; }
+    }
+
+    public Double TagAreaHeight
+    {
+      get { return tagArea.Height; }
+      set { tagArea.Height = value; }
+    }
+
     public Boolean TagVisible
     {
       get { return tagVisible; }

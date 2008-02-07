@@ -134,6 +134,9 @@ namespace SysCAD.Editor
 
         frmFlowChart.FlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
+        graphicPropertyGrid.LinkModified += frmFlowChart.PropertyGridLinkModified;
+        graphicPropertyGrid.NodeModified += frmFlowChart.PropertyGridNodeModified;
+
         {
           Dictionary<String, Bitmap> modelThumbnails = new Dictionary<String, Bitmap>();
           //Dictionary<String, Bitmap> graphicThumbnails = new Dictionary<String, Bitmap>();
@@ -879,7 +882,7 @@ namespace SysCAD.Editor
             //frmFlowChart.State.newElementSelectionList.Add(guid);
             //}
 
-            //foreach (GraphicLink graphicLink in pasteData.graphicLinks.Values)
+            //foreach (graphicLink graphicLink in pasteData.graphicLinks.Values)
             //{
             //  List<SysCAD.Protocol.Point> newControlPoints = new List<SysCAD.Protocol.Point>();
             //  foreach (SysCAD.Protocol.Point point in graphicLink.ControlPoints)
@@ -892,7 +895,7 @@ namespace SysCAD.Editor
             //  //frmFlowChart.NewGraphicLink(out guid, graphicLink);
             //  frmFlowChart.State.newElementSelectionList.Add(guid);
 
-            //  //GraphicLink newGraphicLink = new GraphicLink(graphicLink.Tag);
+            //  //graphicLink newGraphicLink = new graphicLink(graphicLink.Tag);
 
             //  //newGraphicLink.Destination = graphicLink.Destination;
             //  //newGraphicLink.Origin = graphicLink.Origin;
@@ -1019,16 +1022,16 @@ namespace SysCAD.Editor
     //      System.Drawing.Pen pen = new System.Drawing.Pen(Color.FromArgb(link.Opacity, Color.Blue), 0.0F);
 
     //      PointF anchorPointPos = FrmFlowChart.GetRelativeAnchorPosition(new SysCAD.Protocol.Rectangle(hoverviewBox.BoundingRect),
-    //hoverviewBox.AnchorPattern.Points[link.GraphicLink.DestinationPortID].X,
-    //hoverviewBox.AnchorPattern.Points[link.GraphicLink.DestinationPortID].Y,
+    //hoverviewBox.AnchorPattern.Points[link.graphicLink.DestinationPortID].X,
+    //hoverviewBox.AnchorPattern.Points[link.graphicLink.DestinationPortID].Y,
     //hoverviewBox.RotationAngle).ToPointF();
 
     //      PointF pt1 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
     //                         hoverviewBox.BoundingRect,
-    //                         link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 2].ToPointF());
+    //                         link.graphicLink.ControlPoints[link.graphicLink.ControlPoints.Count - 2].ToPointF());
     //      PointF pt2 = Flowchart2Hoverbox(link.Arrow.Destination.BoundingRect,
     //                         hoverviewBox.BoundingRect,
-    //                         link.GraphicLink.ControlPoints[link.GraphicLink.ControlPoints.Count - 2].ToPointF());
+    //                         link.graphicLink.ControlPoints[link.graphicLink.ControlPoints.Count - 2].ToPointF());
 
     //      Box box1 = fcHoverview.CreateBox(pt1.X, pt1.Y, 0.001F, 0.01F);
     //      Box box2 = fcHoverview.CreateBox(pt2.X, pt2.Y, 0.001F, 0.01F);

@@ -34,6 +34,9 @@ namespace SysCAD.Editor
     //PropertyEnumerator itemGraphicPath;
     PropertyEnumerator itemGraphicShape;
 
+    PropertyEnumerator itemGraphicTag;
+    PropertyEnumerator itemGraphicTagBoungingRect;
+
     PropertyEnumerator itemModel;
     //PropertyEnumerator itemModelGuid;
     //PropertyEnumerator itemModelClass;
@@ -54,7 +57,13 @@ namespace SysCAD.Editor
     //PropertyEnumerator linkModelOriginPort;
     //PropertyEnumerator linkModelDestinationPort;
 
-    State state;// = null;
+    State state;
+
+    public delegate void LinkChangedHandler(GraphicLink graphicLink);
+    public event LinkChangedHandler LinkModified;
+
+    public delegate void NodeChangedHandler(GraphicNode graphicNode);
+    public event NodeChangedHandler NodeModified;
 
     protected override void OnPropertyButtonClicked(PropertyButtonClickedEventArgs e)
     {
@@ -81,6 +90,12 @@ namespace SysCAD.Editor
 
       if (graphicNode != null)
       {
+        NodeModified(graphicNode);
+        //SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
+        //action.Modify.Add(graphicNode);
+
+        ////state.f AddAction(action);
+        //state.ModifyNode(graphicNode.Guid);
         //state.ModifyGraphicItem(out requestId, graphicNode.Guid, graphicNode.Tag, graphicNode.Path,
         //  graphicNode.Model, graphicNode.Shape, graphicNode.BoundingRect, graphicNode.Angle, graphicNode.TagArea,
         //  graphicNode.TagAngle, graphicNode.FillColor, graphicNode.FillMode, graphicNode.MirrorX, graphicNode.MirrorY);
@@ -88,6 +103,8 @@ namespace SysCAD.Editor
 
       if (graphicLink != null)
       {
+        LinkModified(graphicLink);
+        //state.ModifyLink(graphicLink.Guid);
         //state.ModifyGraphicLink(out requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID,
         //  graphicLink.Origin, graphicLink.Destination,
         //  graphicLink.OriginPort, graphicLink.OriginPortID, graphicLink.DestinationPort, graphicLink.DestinationPortID,
@@ -142,6 +159,22 @@ namespace SysCAD.Editor
 
       itemGraphicShape = AppendProperty(itemGraphic, id++, "Shape", graphicNode, "Shape", "");
       itemGraphicShape.Property.Feel = GetRegisteredFeel(PropertyGrid.FeelButton);
+
+      itemGraphicTag = AppendSubCategory(itemGraphic, id++, "Tag");
+      itemGraphicTagBoungingRect = AppendProperty(itemGraphicTag, id++, "Bounding Rectangle", graphicNode, "TagArea", "");
+      //itemGraphicBoungingRectLeft = 
+      AppendProperty(itemGraphicTagBoungingRect, id++, "Left", graphicNode, "TagAreaX", "");
+      //itemGraphicBoungingRectTop = 
+      AppendProperty(itemGraphicTagBoungingRect, id++, "Top", graphicNode, "TagAreaY", "");
+      //itemGraphicBoungingRectWidth = 
+      AppendProperty(itemGraphicTagBoungingRect, id++, "Width", graphicNode, "TagAreaWidth", "");
+      //itemGraphicBoungingRectHeight = 
+      AppendProperty(itemGraphicTagBoungingRect, id++, "Height", graphicNode, "TagAreaHeight", "");
+      ExpandProperty(itemGraphicTagBoungingRect, false);
+      //itemGraphicAngle = 
+      AppendProperty(itemGraphicTag, id++, "Angle", graphicNode, "TagAngle", "");
+      AppendProperty(itemGraphicTag, id++, "Visible", graphicNode, "TagVisible", "");
+      ExpandProperty(itemGraphicTag, false);
 
       itemGraphicFill = AppendSubCategory(itemGraphic, id++, "Fill");
       //itemGraphicFillColor = 

@@ -1597,7 +1597,7 @@ namespace SysCAD.Editor
           }
           else
           {
-            ClientProtocol.LogMessage(out requestId, "Modify: ModelNode missing for GraphcLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
+            ClientProtocol.LogMessage(out requestId, "Modify: ModelNode missing for GraphcNode (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
           }
         }
       }
@@ -1676,6 +1676,7 @@ namespace SysCAD.Editor
       {
         textBox.BoundingRect = graphicNode.TagArea;
         textBox.RotationAngle = (float)graphicNode.TagAngle;
+        // We're only rotating the boundingbox, not the action text.
       }
 
 
@@ -1704,7 +1705,7 @@ namespace SysCAD.Editor
 
       if (!editorLinks.TryGetValue(graphicLink.Guid, out editorLink))
       {
-        clientProtocol.LogMessage(out requestId, "ModifyLink: EditorLink not found in library for GraphicLink \'" + graphicLink.Guid + ", " + graphicLink.Tag + "\'", SysCAD.Log.MessageType.Error);
+        clientProtocol.LogMessage(out requestId, "ModifyLink: EditorLink not found in library for graphicLink \'" + graphicLink.Guid + ", " + graphicLink.Tag + "\'", SysCAD.Log.MessageType.Error);
         return;
       }
 
