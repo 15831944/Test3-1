@@ -4335,7 +4335,6 @@ Global
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{F09AA2D0-252D-4879-B00E-3D6FAF2E1D98}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4425,7 +4424,6 @@ Global
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4515,7 +4513,6 @@ Global
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -6558,6 +6555,7 @@ Global
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release_Dbg|Any CPU.ActiveCfg = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release_Dbg|Any CPU.Build.0 = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release_Dbg|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release_Dbg|Mixed Platforms.Build.0 = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release_Dbg|Win32.ActiveCfg = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release_DbgCLR Full|Any CPU.Build.0 = Release|Any CPU
@@ -6652,6 +6650,7 @@ Global
 		{317F8980-564D-423D-945F-D7A9F4A8043D}.Release_Dbg|Any CPU.ActiveCfg = Release|Any CPU
 		{317F8980-564D-423D-945F-D7A9F4A8043D}.Release_Dbg|Any CPU.Build.0 = Release|Any CPU
 		{317F8980-564D-423D-945F-D7A9F4A8043D}.Release_Dbg|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{317F8980-564D-423D-945F-D7A9F4A8043D}.Release_Dbg|Mixed Platforms.Build.0 = Release|Any CPU
 		{317F8980-564D-423D-945F-D7A9F4A8043D}.Release_Dbg|Win32.ActiveCfg = Release|Any CPU
 		{317F8980-564D-423D-945F-D7A9F4A8043D}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release|Any CPU
 		{317F8980-564D-423D-945F-D7A9F4A8043D}.Release_DbgCLR Full|Any CPU.Build.0 = Release|Any CPU
@@ -7030,6 +7029,7 @@ Global
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_Dbg|Any CPU.ActiveCfg = Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_Dbg|Any CPU.Build.0 = Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_Dbg|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_Dbg|Mixed Platforms.Build.0 = Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_Dbg|Win32.ActiveCfg = Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release_DbgCLR Full|Any CPU.Build.0 = Release|Any CPU

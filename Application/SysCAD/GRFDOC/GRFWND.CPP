@@ -583,7 +583,7 @@ int CGrfWnd::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 //---------------------------------------------------------------------------
 
-int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGuid,
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
@@ -616,6 +616,7 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
       }
 
     CLineDrawHelper LDH;
+    LDH.SetGuid(GraphicGuid);
     LDH.SetLineMethod(LDM_Direct); //todo user option
     LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
     LDH.SetArrowScale(2.5); //todo user option
@@ -712,6 +713,7 @@ int CGrfWnd::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
           GCB.pDrw->Delete(eInsert);
 
           CLineDrawHelper LDH;
+          LDH.SetGuid(ItemGuid);
           LDH.SetLineMethod(LDM_Direct); //todo user option
           LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
           LDH.SetArrowScale(2.5); //todo user option

@@ -501,12 +501,12 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
-    void DoDeleteNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid)
+    void DoDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)
       {
       SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
 
       action->Delete->Add(Guid(gcnew String(GraphicGuid)));
-      action->Delete->Add(Guid(gcnew String(ModelGuid)));
+      //action->Delete->Add(Guid(gcnew String(ModelGuid)));
 
       clientProtocol->Change(requestId, action);
       };
@@ -706,10 +706,16 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
-    //void DoDeleteLink(__int64 & requestId, LPCSTR LinkGuid)
-    //  {
-    //  clientProtocol->DeleteLink(requestId, Guid(gcnew String(LinkGuid)));
-    //  };
+    void DoDeleteLink(__int64 & requestId, LPCSTR GraphicGuid)
+      {
+      SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
+
+      action->Delete->Add(Guid(gcnew String(GraphicGuid)));
+      //action->Delete->Add(Guid(gcnew String(ModelGuid)));
+
+      clientProtocol->Change(requestId, action);
+      //clientProtocol->DeleteLink(requestId, Guid(gcnew String(GraphicGuid)));
+      };
 
     //void LinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
     //  {
@@ -1107,9 +1113,9 @@ void CSvcConnectCLR::AddCreateNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR
     ClassId, Symbol, boundingRect, Angle, tagArea, tagAngle, tagVisible, FillColor, MirrorX, MirrorY);
   };
 
-void CSvcConnectCLR::DoDeleteNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid)
+void CSvcConnectCLR::DoDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)
   {
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteNode(requestId, ModelGuid, GraphicGuid);
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteNode(requestId, GraphicGuid);
   };
 
 void CSvcConnectCLR::DoModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
@@ -1139,10 +1145,10 @@ void CSvcConnectCLR::AddCreateLink(__int64 & requestId, LPCSTR ModelGuid, LPCSTR
     ControlPoints, tagArea, tagAngle, tagVisible);
   };
 
-//void CSvcConnectCLR::DoDeleteLink(__int64 & requestId, LPCSTR ItemGuid)
-//  {
-//  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteLink(requestId, ItemGuid);
-//  };
+void CSvcConnectCLR::DoDeleteLink(__int64 & requestId, LPCSTR GraphicGuid)
+  {
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteLink(requestId, GraphicGuid);
+  };
 //
 //
 //void CSvcConnectCLR::DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, 

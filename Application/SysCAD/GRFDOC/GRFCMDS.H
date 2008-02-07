@@ -103,6 +103,8 @@ class CLineDrawHelper
     void            SetShowDigPoints(bool ShowDigPoints) { m_bShowDigPoint = ShowDigPoints; };
     double          LineWidth() { return m_LineWidth; };
     void            SetLineWidth(double LineWidth) { m_LineWidth = LineWidth; };
+    LPCTSTR         Guid() { return m_sGuid(); };
+    void            SetGuid(LPCTSTR Guid) { m_sGuid = Guid; };
     LPCTSTR         Tag() { return m_sTag(); };
     void            SetTag(LPCTSTR Tag) { m_sTag = Tag; };
     void            SetTag(LPCTSTR Tag, double X, double Y, double Z) { m_sTag = Tag; m_TagPt.X=X; m_TagPt.Y=Y; m_TagPt.Z=Z; };
@@ -130,6 +132,7 @@ class CLineDrawHelper
     Grf3D_Display   * m_pDsp;
     DXF_Drawing     * m_pDrw;
     Strng             m_sTag;
+    Strng             m_sGuid;
     Strng             m_sAssocTag;
     bool              m_bShowTag;
     double            m_TagRotation;

@@ -7860,18 +7860,21 @@ void GrfCmdBlk::DoDelete()
           if (gs_pPrj->SvcActive)
             {
             if (DelMdl)
-              {
-              LPCSTR pTag = Scd10GetTag(e);
-              if (pTag)
+              { 
+              LPCSTR pGrfGuid= Scd10GetGrfGuid(e);
+              //    if (pGrfGuid)
+
+              //LPCSTR pTag = Scd10GetTag(e);
+              if (pGrfGuid)
                 {
                 CMdlValueSet::Clear();
                 SCD10ENTER;
 
                 LPCTSTR InsName=Scd10GetInsertName(e);
                 if (InsName && strstr(InsName, "LNKBLK"))
-                  gs_pPrj->Svc.GCBDeleteLink(e, pTag);
+                  gs_pPrj->Svc.GCBDeleteLink(e, pGrfGuid);
                 else
-                  gs_pPrj->Svc.GCBDeleteNode(e, pTag);
+                  gs_pPrj->Svc.GCBDeleteNode(e, pGrfGuid);
                 SCD10LEAVE;
                 }
               }
@@ -11469,7 +11472,7 @@ DXF_ENTITY GrfCmdBlk::AddLinkDrawing(CLineDrawHelper & LDH)
   Tag_Attr_Set.Size*=LDH.m_TagScale.X;
   Tag_Attr_Set.Rot=LDH.TagRotation();
   DXF_ENTITY newinsert = pDrw->Create_Insert(nm, LDH.m_InsertPt, GR_WHITE/*GR_LIGHTCYAN*/, sc, LDH.TagRotation(), 
-    NULL, (LPTSTR)LDH.Tag(), (LPTSTR)LDH.AssocTag(), ptt, Tag_Attr_Set);
+    (LPTSTR)LDH.Guid(), (LPTSTR)LDH.Tag(), (LPTSTR)LDH.AssocTag(), ptt, Tag_Attr_Set);
   DXF_ENTITY_THICKNESS(newinsert) = LDH.LineWidth();
   Tag_Attr_Set=SetMem;
   LDH.SetAssocTag("");

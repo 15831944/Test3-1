@@ -392,7 +392,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         CString DstGrfGuid = "Grf GUID Fetch Failed";
         CString DstPort    = pNode->IODesc_Rmt(1)->IOName();
 
-        DO_ENTRY_GGTPSM("DoCreateLinkE", "", ModelGuid, GraphicGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle),"","");
+        DO_ENTRY_GGTPSM("DoCreateLinkE", GraphicGuid, ModelGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle),"","");
 
         CExistingItems::CGroupIndex SInx;
         if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(0)->Tag(), SInx))
@@ -807,16 +807,14 @@ void CSvcConnect::OnDeleteNodeM(__int64 eventId, __int64 requestId, LPCSTR Guid)
 
 void CSvcConnect::GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GraphicGuid)
   {
-
   //Strng ModelGuid, GraphicGuid;
   //if (gs_pPrj->GetNodeGuid((LPSTR)Tag, ModelGuid))
   //  {
-  //  DO_ENTRY_GT("GCBDeleteNode", ModelGuid(), Tag);
+  DO_ENTRY_GT("GCBDeleteNode", GraphicGuid, "");
 
-  //  __asm int 3; // what about GraphicGuid ???
-  //  m_pCLR->DoDeleteNode(m_lRequestIdRet, ModelGuid(), GraphicGuid());
+  m_pCLR->DoDeleteNode(m_lRequestIdRet, GraphicGuid);
 
-  //  DO_EXIT("GCBDeleteNode");
+  DO_EXIT("GCBDeleteNode");
   //  }
   //else
   //  {
@@ -1089,21 +1087,21 @@ void CSvcConnect::OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid,
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR Tag)
+void CSvcConnect::GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR GraphicGuid)
   {
 
-  Strng Guid;
-  if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
-    {
-    DO_ENTRY_GT("GCBDeleteLink", Guid(), Tag);
+  //Strng Guid;
+  //if (gs_pPrj->GetNodeTaGuid((LPSTR)Tag, Guid))
+  //  {
+    DO_ENTRY_GT("GCBDeleteLink", GraphicGuid, "");
 
-    //m_pCLR->DoDeleteLink(m_lRequestIdRet, Guid());
+    m_pCLR->DoDeleteLink(m_lRequestIdRet, GraphicGuid);
 
     DO_EXIT("GCBDeleteLink");
-    }
-  else
-    {
-    }
+  //  }
+  //else
+  //  {
+  //  }
   }
 
 //------------------------------------------------------------------------
