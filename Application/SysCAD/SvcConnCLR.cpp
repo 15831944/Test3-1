@@ -317,7 +317,7 @@ ref class CSvcConnectCLRThread
 
         engineProtocol->PortInfoRequested += gcnew EngineProtocol::PortInfoRequestedHandler(this, &CSvcConnectCLRThread::PortInfoRequested);
 
-        //clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
+        clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
 
         // now load 9
         m_pConn->DoOpenProject(ToCString(clientProtocol->Name), ToCString(clientProtocol->Path));
