@@ -522,9 +522,6 @@ ref class CSvcConnectCLRThread
 
     void DoModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
       {
-      //SysCAD::Protocol::Rectangle^ TA(tagArea.Left(), tagArea.Bottom(), tagArea.Width(), tagArea.Height());
-
-
       Guid graphicGuid(gcnew String(GraphicGuid));
       GraphicNode ^ GNd;
       if (clientProtocol->graphic->Nodes->TryGetValue(graphicGuid, GNd))
@@ -535,18 +532,61 @@ ref class CSvcConnectCLRThread
         newGNd->BoundingRect->Y += (float)Delta.Y;
         newGNd->TagArea->X += (float)Delta.X;
         newGNd->TagArea->Y += (float)Delta.Y;
-        //(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
-
-        //clientProtocol->MModifyNode(requestId, GraphicGuid, GNd->Tag, GNd->Path, 
-        //  GNd->Model, GNd->Shape, BR, GNd->Angle, GNd->TextArea, GNd->TextAngle, 
-        //  Color::Empty, Drawing2D::FillMode::Alternate, GNd->MirrorX, Node->MirrorY);
 
         SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
 
         action->Modify->Add(newGNd);
-        //action->Modify->Add(Guid(gcnew String(ModelGuid)));
 
         clientProtocol->Change(requestId, action);
+        }
+      };
+
+    void DoModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, float tagHeight, double tagAngle, bool tagVisible)
+      {
+      Guid graphicGuid(gcnew String(GraphicGuid));
+
+      GraphicNode ^ GNd;
+      if (clientProtocol->graphic->Nodes->TryGetValue(graphicGuid, GNd))
+        {
+        GraphicNode ^ newGNd = GNd->Clone();
+
+        float OldW = newGNd->TagArea->Width;
+        float NewW = OldW * tagHeight/newGNd->TagArea->Height;
+        newGNd->TagArea->X += (float)Delta.X-0.5*(NewW-OldW);
+        newGNd->TagArea->Y += (float)Delta.Y;
+        newGNd->TagArea->Width = NewW;
+        newGNd->TagArea->Height = tagHeight;
+        newGNd->TagAngle = tagAngle;
+        newGNd->TagVisible = tagVisible;
+
+        SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
+
+        action->Modify->Add(newGNd);
+
+        clientProtocol->Change(requestId, action);
+        return;
+        }
+
+      GraphicLink ^ LNd;
+      if (clientProtocol->graphic->Links->TryGetValue(graphicGuid, LNd))
+        {
+        GraphicLink ^ newLNd = LNd->Clone();
+
+        float OldW = newLNd->TagArea->Width;
+        float NewW = OldW * tagHeight/newLNd->TagArea->Height;
+        newLNd->TagArea->X += (float)Delta.X-0.5*(NewW-OldW);
+        newLNd->TagArea->Y += (float)Delta.Y;
+        newLNd->TagArea->Width = NewW;
+        newLNd->TagArea->Height = tagHeight;
+        newLNd->TagAngle = tagAngle;
+        newLNd->TagVisible = tagVisible;
+
+        SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
+
+        action->Modify->Add(newLNd);
+
+        clientProtocol->Change(requestId, action);
+        return;
         }
       };
 
@@ -1072,9 +1112,14 @@ void CSvcConnectCLR::DoDeleteNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR 
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteNode(requestId, ModelGuid, GraphicGuid);
   };
 
-void CSvcConnectCLR::DoModifyNodePosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta)
+void CSvcConnectCLR::DoModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
   {
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyNodePosition(requestId, ItemGuid, Delta);
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyNodePosition(requestId, GraphicGuid, Delta);
+  }
+
+void CSvcConnectCLR::DoModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, float tagHeight, double tagAngle, bool tagVisible)
+  {
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyTagG(requestId, GraphicGuid, Delta, tagHeight, tagAngle, tagVisible);
   }
 
 //========================================================================

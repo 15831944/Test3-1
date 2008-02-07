@@ -9339,21 +9339,41 @@ void GrfCmdBlk::DoUpdateTags()
               if (pEnt && pEnt->EntityPtr())
                 {
                 Ins = pEnt->EntityPtr();
-                TAtt = FirstAttr(Ins, 1);
+                TAtt = Find_Attr(Ins, TagAttribStr);// FirstAttr(Ins, 1);
                 if (TAtt)
                   {
-                  Delta.X = pDsp->CurrentPt.World.X - Insert_BasePt(Ins)[0];
-                  Delta.Y = pDsp->CurrentPt.World.Y - Insert_BasePt(Ins)[1];
-                  pDsp->Draw(Ins, GrfHelper.GR_BACKGROUND);
-                  MoveAttrs(Ins, 1, Delta);
-                  pDrw->EntityInvalidate(Ins, NULL);
-                  pDsp->Draw(Ins, -1);
-                  pDsp->Vp1->ClearAllEntity();
-                  pDsp->Vp1->ClrSelectionAllList();
-                  CEntInView* p = GetClosestEntity(Pt1, Ins);
-                  if (p)
-                    pDsp->Vp1->SelectEntity(p);
-                  //pWnd->Invalidate();
+                  Delta.X = pDsp->CurrentPt.World.X - DXF_ATTRIB_PT(TAtt)[0];// Insert_BasePt(Ins)[0];
+                  Delta.Y = pDsp->CurrentPt.World.Y - DXF_ATTRIB_PT(TAtt)[1];// Insert_BasePt(Ins)[1];
+#if SYSCAD10         
+                  DXF_ENTITY GAtt = Find_Attr(Ins, GuidAttribStr);// FirstAttr(Ins, 1);
+                  if (gs_pPrj->SvcActive && GAtt)
+                    {
+                    //Delta.X = pDsp->CurrentPt.World.X - DXF_ATTRIB_PT(TAtt)[0];// Insert_BasePt(Ins)[0];
+                    //Delta.Y = pDsp->CurrentPt.World.Y - DXF_ATTRIB_PT(TAtt)[1];// Insert_BasePt(Ins)[1];
+                    SCD10ENTER;
+                    //What about Symbol only ??????????
+                    gs_pPrj->Svc.GCBModifyTagG((CGrfDoc*)pDoc, TAtt, Find_Attr_Value(Ins, GuidAttribStr),  
+                      Delta, DXF_ATTRIB_HEIGHT(TAtt), DXF_ATTRIB_ROT_ANG(TAtt), (DXF_ATTRIB_AFLAGS(TAtt)&DXF_ATTRIB_INVIS)==0);
+
+                    SCD10LEAVE;
+                    }
+                  else
+#endif
+                    {
+                    //Delta.X = pDsp->CurrentPt.World.X - DXF_ATTRIB_PT(TAtt)[0];// Insert_BasePt(Ins)[0];
+                    //Delta.Y = pDsp->CurrentPt.World.Y - DXF_ATTRIB_PT(TAtt)[1];// Insert_BasePt(Ins)[1];
+                    pDsp->Draw(Ins, GrfHelper.GR_BACKGROUND);
+                    MoveAttrs(Ins, 1, Delta);
+                    pDrw->EntityInvalidate(Ins, NULL);
+                    pDsp->Draw(Ins, -1);
+                    pDsp->Vp1->ClearAllEntity();
+                    pDsp->Vp1->ClrSelectionAllList();
+                    CEntInView* p = GetClosestEntity(Pt1, Ins);
+
+                    if (p)
+                      pDsp->Vp1->SelectEntity(p);
+                    //pWnd->Invalidate();
+                    }
                   }
                 }
               }
@@ -9366,7 +9386,7 @@ void GrfCmdBlk::DoUpdateTags()
               if (p && p->EntityPtr())
                 {
                 Ins = p->EntityPtr();
-                TAtt = FirstAttr(Ins, 1);
+                TAtt = Find_Attr(Ins, TagAttribStr);// FirstAttr(Ins, 1);
                 if (TAtt)
                   {
                   pDsp->Vp1->SelectEntity(p);
@@ -11440,7 +11460,10 @@ DXF_ENTITY GrfCmdBlk::AddLinkDrawing(CLineDrawHelper & LDH)
 
   Pt_3f sc(1.0,1.0,1.0);//LDH.m_TagScale.X, LDH.m_TagScale.Y, LDH.m_TagScale.Z);
   REAL s = 2.5;
+
+
   //Pt_3f ptt(LDH.m_InsertPt.X-LDH.m_TagPt.X, LDH.m_InsertPt.Y-LDH.m_TagPt.Y, LDH.m_InsertPt.Z-LDH.m_TagPt.Z);
+  //Pt_3f ptt(LDH.m_TagPt.X/*-LDH.m_InsertPt.X*/, LDH.m_TagPt.Y/*-LDH.m_InsertPt.Y*/, LDH.m_TagPt.Z/*-LDH.m_InsertPt.Z*/);
   Pt_3f ptt(LDH.m_TagPt.X-LDH.m_InsertPt.X, LDH.m_TagPt.Y-LDH.m_InsertPt.Y, LDH.m_TagPt.Z-LDH.m_InsertPt.Z);
   Attr_Settings SetMem=Tag_Attr_Set;
   Tag_Attr_Set.Size*=LDH.m_TagScale.X;

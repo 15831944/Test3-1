@@ -40,7 +40,8 @@ class CSvcConnectCLR
                       bool MirrorX, bool MirrorY);
     void DoDeleteNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid);
 
-    void DoModifyNodePosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta);
+    void DoModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta);
+    void DoModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, float tagHeight, double tagAngle, bool tagVisible);
 
     //----------------------------------------------------------------------------------
     //Links

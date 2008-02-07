@@ -59,6 +59,12 @@ static bool dbgConnect() { return 1; }
   dbgpln("%-30s  >>> %7s %7s %s  %-20s  %s  %s  %s", Method, "", "", Guid, Tag, Path, Shape, Model);               \
   dbgindent(2);                                                                                                    \
   }
+#define DO_ENTRY_GGTPSM(Method, GrfGuid, MdlGuid, Tag, Path, Shape, Model)                                                      \
+  if (dbgConnect())                                                                                                  \
+  {                                                                                                                \
+  dbgpln("%-30s  >>> %7s %7s %s  %s  %-20s  %s  %s  %s", Method, "", "", GrfGuid, MdlGuid, Tag, Path, Shape, Model);               \
+  dbgindent(2);                                                                                                    \
+  }
 
 #define DO_EXIT(Method)                                                                                            \
   if (dbgConnect())                                                                                                  \
@@ -342,7 +348,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
         CString ModelGuid = pNode->Guid();
 
-        DO_ENTRY_GTPSM("DoCreateNodeE", ModelGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
+        DO_ENTRY_GGTPSM("DoCreateNodeE", GraphicGuid, ModelGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
 
         float boxW = float(int(GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X));
         float boxH = float(int(GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y));
@@ -370,7 +376,6 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         CString Shape    = ExtractShape(Symbol);
         CString Model    = N.m_sClass;
 
-        DO_ENTRY_GTP("DoCreateLinkE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle));
 
         CLinePointsArray  LPA;
 
@@ -386,6 +391,8 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         CString DstMdlGuid = pNode->Nd_Rmt(1)->Guid();
         CString DstGrfGuid = "Grf GUID Fetch Failed";
         CString DstPort    = pNode->IODesc_Rmt(1)->IOName();
+
+        DO_ENTRY_GGTPSM("DoCreateLinkE", "", ModelGuid, GraphicGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle),"","");
 
         CExistingItems::CGroupIndex SInx;
         if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(0)->Tag(), SInx))
@@ -798,7 +805,7 @@ void CSvcConnect::OnDeleteNodeM(__int64 eventId, __int64 requestId, LPCSTR Guid)
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GrfGuid)
+void CSvcConnect::GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GraphicGuid)
   {
 
   //Strng ModelGuid, GraphicGuid;
@@ -856,27 +863,28 @@ void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid)
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GrfGuid, Pt_3f Delta)
+void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta)
   {
-  //LPSTR Tag="?Tag?";
+  DO_ENTRY_GT("GCBModifyNodePosition", GraphicGuid, "");//Tag);
 
-  //Strng Guid;
-  //if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
-  //  {
-    DO_ENTRY_GT("GCBModifyItem", GrfGuid, "");//Tag);
+  Delta.Y=-Delta.Y; // Y is inverted
 
-    CRectangleF boundingRect;
-    bool MirrorX=false;
-    bool MirrorY=false;
-    Delta.Y=-Delta.Y; // Y is inverted
+  m_pCLR->DoModifyNodePosition(m_lRequestIdRet, GraphicGuid, Delta);
 
-    m_pCLR->DoModifyNodePosition(m_lRequestIdRet, GrfGuid, Delta);
+  DO_EXIT("GCBModifyNodePosition");
+  };
 
-    DO_EXIT("GCBModifyItem");
-  //  }
-  //else
-  //  {
-  //  }
+//------------------------------------------------------------------------
+
+void CSvcConnect::GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, float tagHeight, float tagAngle, bool tagVisible)
+  {
+  DO_ENTRY_GT("GCBModifyTagG", GraphicGuid, "");//Tag);
+
+  Delta.Y=-Delta.Y; // Y is inverted
+
+  m_pCLR->DoModifyTagG(m_lRequestIdRet, GraphicGuid, Delta, tagHeight, tagAngle, tagVisible);
+
+  DO_EXIT("GCBModifyTagG");
   };
 
 //------------------------------------------------------------------------

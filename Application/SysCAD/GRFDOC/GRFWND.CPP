@@ -433,6 +433,7 @@ int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
     CB.m_Rect=boundingRect;
     CB.m_TagPt.X=tagArea.MidX();
     CB.m_TagPt.Y=PageRct.Top()-tagArea.Top();
+    CB.m_TagVisible=tagVisible;
 
     //if (m_bExportBusy)
     //  {
@@ -525,6 +526,9 @@ int CGrfWnd::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
           CB.ATagBase="XX_";//MInfo.TagInitialID();
           CB.ASymbol=shape;
           CB.m_sGuid=ItemGuid;
+          CB.m_TagPt.X=tagArea.MidX();
+          CB.m_TagPt.Y=PageRct.Top()-tagArea.Top();
+          CB.m_TagVisible=tagVisible;
           //CB.m_Rect=boundingRect;
           //if (m_bExportBusy)
           //  {
@@ -711,9 +715,11 @@ int CGrfWnd::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
           LDH.SetLineMethod(LDM_Direct); //todo user option
           LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
           LDH.SetArrowScale(2.5); //todo user option
-          LDH.SetShowTag(false); //todo user option
+          //LDH.SetShowTag(false); //todo user option
 
-          LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
+          LDH.SetTag(pTag, tagArea.MidX(), PageRct.Top()-tagArea.Top(), 0.0);
+          LDH.SetShowTag(tagVisible);
+
           LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
           LDH.InitPoints();
 

@@ -60,20 +60,19 @@ END
 // Dialog
 //
 
-IDD_BUSYDLG DIALOGEX 0, 0, 260, 100
+IDD_BUSYDLG DIALOGEX 0, 0, 260, 110
 STYLE DS_SETFONT | DS_3DLOOK | WS_CHILD | WS_BORDER
 EXSTYLE WS_EX_TOPMOST
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_APPICON,"Button",BS_OWNERDRAW | WS_DISABLED,5,5,40,40
-    CONTROL         "",IDC_LOGO,"Button",BS_OWNERDRAW | WS_DISABLED,235,28,20,20
-    LTEXT           "(Full version)",IDC_FULLVERSION,51,5,209,8
-    LTEXT           "(Update)",IDC_UPDATE,51,15,178,8
-    LTEXT           "(Copyright)",IDC_COPYRIGHT,51,25,178,8
-    LTEXT           "(Company)",IDC_COMPANY,51,35,179,8
-    LTEXT           "Process Optimization and Control Consultants",IDC_STATIC,51,45,176,8
+    LTEXT           "(Full version)",IDC_FULLVERSION,42,5,218,8
+    LTEXT           "(Update)",IDC_UPDATE,42,15,216,8
+    LTEXT           "(Copyright)",IDC_COPYRIGHT,42,25,207,8
+    LTEXT           "(Company)",IDC_COMPANY,42,35,207,8
+    CTEXT           "Innovative Software for Process Plant Simulation",IDC_STATIC,42,45,158,8
     CONTROL         "",IDC_PICT,"Static",SS_BLACKRECT,0,57,259,1
-    CTEXT           "",IDC_TEXT,0,59,260,40
+    CTEXT           "",IDC_TEXT,0,64,260,40
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,18,20,20
 END
 
 IDD_FNOPTDLG DIALOGEX 0, 0, 251, 170
@@ -149,6 +148,15 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\MAINFRAME.ico"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

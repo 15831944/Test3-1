@@ -1474,6 +1474,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RES\MAINFRAME.ico"
+				>
+			</File>
+			<File
 				RelativePath=".\RES\ScdLib.RC2"
 				>
 			</File>
