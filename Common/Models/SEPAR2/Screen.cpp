@@ -383,8 +383,8 @@ double ScreenBlk::Distribution(double Topsize, double Lowersize, SpConduit &QFd)
 
 double ScreenBlk::OverSize(SpConduit &QFd)
   {
-  double Q = Distribution(1e100,ht, QFd); // %Oversize in feed to Screen
-  if (Q <= 87)
+  const double Q = Distribution(1e100, ht, QFd); // %Oversize in feed to Screen
+  if (Q <= 87.0)
     return 1.6 - 0.012 * Q;
   else
     return 4.275 + 0.0425 * Q;
@@ -394,8 +394,9 @@ double ScreenBlk::OverSize(SpConduit &QFd)
 
 double ScreenBlk::NearSize(SpConduit &QFd)
   {
-  double Xn = Distribution(ht*1.25,ht*0.75, QFd); // % Nearsize in feed to Screen
-  double t = 1.0 - Xn/100.0;
+  const double Xn = Distribution(ht*1.25, ht*0.75, QFd); // % Nearsize in feed to Screen
+  //const double t = 1.0 - Xn/100.0;
+  const double t = Max(0.0, 1.0 - Xn/100.0); //KGA 02/08 protect from crash for t<0.0
   return 0.844 * Pow(t,3.453);
   }
 
@@ -403,15 +404,15 @@ double ScreenBlk::NearSize(SpConduit &QFd)
 
 double ScreenBlk::HalfSize(SpConduit &QFd)
   {
-  double R = Distribution(ht/2.0,0.0, QFd); // % Halfsize in feed to Screen
+  const double R = Distribution(ht/2.0, 0.0, QFd); // % Halfsize in feed to Screen
   double C=1.0;
   if (R <= 30.0)
     C = 0.012 * R + 0.7;
-  if ((R > 30.0) && (R < 55.0))
+  else if (R < 55.0)
     C = 0.1528 * Pow(R,0.564);
-  if ((R >= 55.0) && (R < 80.0))
+  else if (R < 80.0)
     C = 0.0061 * Pow(R,1.37);
-  if (R >= 80.0)
+  else //if (R >= 80.0)
     C = 0.05 * R - 1.5;
   return C;
   }
