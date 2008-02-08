@@ -30,7 +30,7 @@ namespace SVNAutomate
         proc.StartInfo.FileName = "C:\\Program Files\\Subversion\\bin\\svn.exe";
         proc.StartInfo.Arguments = argument;
         proc.Start();
-        proc.WaitForExit(10000);
+        proc.WaitForExit(100000);
 
         output = proc.StandardOutput.ReadToEnd();
         string error = proc.StandardError.ReadToEnd();
@@ -78,7 +78,7 @@ namespace SVNAutomate
       {
         filePath = Path.GetFullPath(fileName);
       }
-      catch (Exception e)
+      catch (Exception)
       {
         Console.WriteLine("Filename can't be mapped to full path: " + fileName);
         return 1;

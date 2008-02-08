@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MindFusion.FlowChartX.FlowChart">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <NestedTypes>
+      <Class Name="MindFusion.FlowChartX.FlowChart.DocInfoVer1" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FlowChart.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="MindFusion.FlowChartX.FlowChart.DocInfoVer2" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FlowChart.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>f//7///3/2////7///+b/v//9v//f7/v/////////78=</HashCode>
+      <FileName>FlowChart.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Tahoma" Size="8.25" />
+</ClassDiagram>

@@ -780,7 +780,9 @@ namespace SysCAD.Editor
     {
       frmFlowChart.FixDocExtents();
 
-      frmFlowChart.FlowChart.ZoomIn();
+      RectangleF rect = frmFlowChart.FlowChart.ClientToDoc(frmFlowChart.FlowChart.ClientRectangle);
+      rect.Inflate(rect.Width / 10.0F, rect.Height / 10.0F);
+      frmFlowChart.FlowChart.ZoomToRect(rect);
 
       frmFlowChart.SetSizes();
     }
