@@ -781,7 +781,7 @@ namespace SysCAD.Editor
       frmFlowChart.FixDocExtents();
 
       RectangleF rect = frmFlowChart.FlowChart.ClientToDoc(frmFlowChart.FlowChart.ClientRectangle);
-      rect.Inflate(rect.Width / 10.0F, rect.Height / 10.0F);
+      rect.Inflate(-rect.Width / 10.0F, -rect.Height / 10.0F);
       frmFlowChart.FlowChart.ZoomToRect(rect);
 
       frmFlowChart.SetSizes();
@@ -791,7 +791,9 @@ namespace SysCAD.Editor
     {
       frmFlowChart.FixDocExtents();
 
-      frmFlowChart.FlowChart.ZoomOut();
+      RectangleF rect = frmFlowChart.FlowChart.ClientToDoc(frmFlowChart.FlowChart.ClientRectangle);
+      rect.Inflate(rect.Width / 10.0F, rect.Height / 10.0F);
+      frmFlowChart.FlowChart.ZoomToRect(rect);
 
       frmFlowChart.SetSizes();
     }
@@ -799,11 +801,13 @@ namespace SysCAD.Editor
     private void ViewZoomToSelected()
     {
       frmFlowChart.ZoomToSelected();
+      frmFlowChart.SetSizes();
     }
 
     private void ViewZoomToVisible()
     {
       frmFlowChart.ZoomToVisible();
+      frmFlowChart.SetSizes();
     }
 
     public ActiproSoftware.UIStudio.Bar.BarManager BarManager1
