@@ -303,7 +303,7 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     Strng               AText;
     Strng               AVar, ATag, TagBase, AClass, AUnitId, ASymbol, ALayer;
     Strng               m_sGroupLibrary, m_sGroupName;
-    Strng               SrcTag, DstTag, SrcIO, DstIO, SrcTS, DstTS;
+    Strng               SrcTag, DstTag, SrcIO, DstIO, SrcTS, DstTS, SrcGrfGuid, DstGrfGuid, SrcMdlGuid, DstMdlGuid;
     Strng_List          SrcIOs, DstIOs, VarReq, VLbReq, TagReq, TLbReq, FmtReq, CvsReq, MinReq, MaxReq, ColReq;
     int                 nEntSelects;
     eScdTagFixupRules   m_iFixupRule;
@@ -376,7 +376,7 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     bool           DoInsertLink(CConnectBlk* CB);
     bool           DoChangeNodeGuid(pchar Tag, pchar Guid);
     flag           GetConnsForUnit(char* Tag, flag Inputs, dword RqdClass, Strng &IOTag, CSArray &IONames, CSArray &IODescs, CIOClassArray &IOClass, CSArray &IODefaultTSs, Pt_3f *pDigOff, Pt_3f *pDrwScl);
-    CEntInView*    GetClosest(Pt_SLW CurrentPt, flag FindNode, flag FindLink, flag FindDirectLink, Strng& Tag);
+    CEntInView*    GetClosest(Pt_SLW CurrentPt, flag FindNode, flag FindLink, flag FindDirectLink, Strng& Tag, Strng& GrfGuid, Strng& MdlGuid);
     CEntInView*    GetClosest(Pt_SLW CurrentPt, flag FindInsert);
     CEntInView*    GetClosest(Pt_SLW CurrentPt, BOOL& AlreadySelected, flag FindInsert);
     CEntInView*    GetClosestText(Pt_SLW CurrentPt);

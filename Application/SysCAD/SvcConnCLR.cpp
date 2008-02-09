@@ -96,7 +96,7 @@ ref class CSvcConnectCLRThread
       {
       // There could be sharing problems - when importing and editing simultaneously -  unlikely
       m_pConn = pConn;
-      action = gcnew SysCAD::Protocol::Action();
+      m_Action = gcnew SysCAD::Protocol::Action();
       };
     ~CSvcConnectCLRThread()
       {
@@ -317,7 +317,7 @@ ref class CSvcConnectCLRThread
 
         engineProtocol->PortInfoRequested += gcnew EngineProtocol::PortInfoRequestedHandler(this, &CSvcConnectCLRThread::PortInfoRequested);
 
-        clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
+        //clientProtocol->Changed += gcnew ClientProtocol::ChangedHandler(this, &CSvcConnectCLRThread::Changed);
 
         // now load 9
         m_pConn->DoOpenProject(ToCString(clientProtocol->Name), ToCString(clientProtocol->Path));
@@ -422,7 +422,7 @@ ref class CSvcConnectCLRThread
       Grp->Path = gcnew String(Path);
       Grp->BoundingRect = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
 
-      action->Create->Add(Grp);
+      m_Action->Create->Add(Grp);
       }
 
 
@@ -458,8 +458,8 @@ ref class CSvcConnectCLRThread
       //List<Item^>  ^Modify;// = gcnew List<Item^>;
       //List<Guid>   ^Delete;// = gcnew List<Guid>;  
 
-      action->Create->Add(MNd);
-      action->Create->Add(GNd);
+      m_Action->Create->Add(MNd);
+      m_Action->Create->Add(GNd);
 
       }
 
@@ -619,7 +619,7 @@ ref class CSvcConnectCLRThread
 
     //void ItemPathModified(Int64 eventId, Int64 requestId, Guid guid, String^ path)
     //  {
-    //  }
+    //  }                                
 
     // ====================================================================
     //
@@ -680,8 +680,8 @@ ref class CSvcConnectCLRThread
         //List<Item^>  ^Modify;// = gcnew List<Item^>;
         //List<Guid>   ^Delete;// = gcnew List<Guid>;  
 
-        action->Create->Add(MLnk);
-        action->Create->Add(GLnk);
+        m_Action->Create->Add(MLnk);
+        m_Action->Create->Add(GLnk);
         }
       catch (Exception^)
         {
@@ -812,7 +812,9 @@ ref class CSvcConnectCLRThread
 
     bool ProcessChangeLists(Int64 requestId)
       {
-      return clientProtocol->Change(requestId, action);
+      bool Ret=clientProtocol->Change(requestId, m_Action);
+      m_Action->Clear();
+      return Ret;
       }
 
 
@@ -1020,7 +1022,7 @@ ref class CSvcConnectCLRThread
 
     CSvcConnect   * m_pConn;
 
-    SysCAD::Protocol::Action ^action;
+    SysCAD::Protocol::Action ^m_Action;
     //Collection<Item^>  ^m_Create;// = gcnew Collection<Item^>; 
     //Collection<Item^>  ^m_Modify;// = gcnew Collection<Item^>;
     //Collection<Guid>   ^m_Delete;// = gcnew Collection<Guid>;  

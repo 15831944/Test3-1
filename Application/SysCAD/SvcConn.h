@@ -112,7 +112,9 @@ class CSvcConnect
     void GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta);
    
     void GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR ClassId, 
-                      LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort, 
+                      LPCSTR SrcGrfGuid, LPCSTR DstGrfGuid, 
+                      LPCSTR SrcMdlGuid, LPCSTR DstMdlGuid, 
+                      LPCSTR SrcPort, LPCSTR DstPort, 
                       CPointFList & ControlPoints);//, const CRectangleF & tagArea);
     void GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR GraphicGuid);
     void GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, 

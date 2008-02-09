@@ -239,11 +239,14 @@ namespace SysCAD.Service
                         pointC = graphicLink.ControlPoints[i];
                         i++;
                         }
+                      if (i < graphicLink.ControlPoints.Count)
+                      {
                       newControlPoints.Add(pointA);
                       pointA = pointB;
                       pointB = pointC;
                       pointC = graphicLink.ControlPoints[i];
                       i++;
+                      }
                       }
                     newControlPoints.Add(pointA);
                     newControlPoints.Add(pointB);

@@ -2185,7 +2185,8 @@ void GrfCmdBlk::DoInsert()
               {
               SCD10ENTER;
               //What about Symbol only ??????????
-              gs_pPrj->Svc.GCBCreateNode((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
+              gs_pPrj->Svc.GCBCreateNode((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
+
               SCD10LEAVE;
               }
             else
@@ -3720,7 +3721,7 @@ flag GrfCmdBlk::GetConnsForUnit(char *Tag, flag Inputs, dword RqdClass, Strng &I
 
 //---------------------------------------------------------------------------
 
-CEntInView* GrfCmdBlk::GetClosest(Pt_SLW CurrentPt, flag FindNode, flag FindLink, flag FindDirectLink, Strng& Tag)
+CEntInView* GrfCmdBlk::GetClosest(Pt_SLW CurrentPt, flag FindNode, flag FindLink, flag FindDirectLink, Strng& Tag, Strng& GrfGuid, Strng& MdlGuid)
   {
   const int MaxCnt = 8;
   CEntInView* EntList[MaxCnt];
@@ -3734,7 +3735,8 @@ CEntInView* GrfCmdBlk::GetClosest(Pt_SLW CurrentPt, flag FindNode, flag FindLink
       {
       DXF_ENTITY e = p->EntityPtr();
       Tag = Find_Attr_Value(e, TagAttribStr);
-      if (Tag())
+      GrfGuid = Find_Attr_Value(e, GuidAttribStr);
+      if (Tag() && gs_pPrj->GetNodeGuid(Tag(), MdlGuid))
         {
         int RetCode = CheckEntity(Tag());
         const flag IsNode = (RetCode==1);
@@ -4028,7 +4030,8 @@ void GrfCmdBlk::DoConnect()
           pDsp->Vp1->ClearAllEntity();
           pDsp->Vp1->ClrSelectionAllList();
           Strng TmpTag;
-          CEntInView* p = GetClosest(pDsp->CurrentPt, true, false, false, TmpTag);
+          Strng GrfGuid, MdlGuid;
+          CEntInView* p = GetClosest(pDsp->CurrentPt, true, false, false, TmpTag, GrfGuid, MdlGuid);
           if (p)
             {
             pDsp->Vp1->SelectEntity(p);
@@ -4042,6 +4045,8 @@ void GrfCmdBlk::DoConnect()
             if (Modifier==MID_SNd)
               {
               SrcTag = TmpTag;
+              SrcGrfGuid = GrfGuid;
+              SrcMdlGuid = MdlGuid;
               SrcIO = "O";
               GetConnsForUnit(SrcTag(), False, nc_MLnk|nc_CLnk|nc_ELnk|nc_ALnk, SrcIO, SrcIONames, SrcIODescs, SrcIOClass, SrcTermStrips, &Off, &Scl);
               if (SrcIONames.GetCount())
@@ -4065,6 +4070,8 @@ void GrfCmdBlk::DoConnect()
             else
               {
               DstTag = TmpTag;
+              DstGrfGuid = GrfGuid;
+              DstMdlGuid = MdlGuid;
               DstIO="I";
               GetConnsForUnit(DstTag(), True, iSrcIOIndex>=0?SrcIOClass[iSrcIOIndex]:0, DstIO, DstIONames, DstIODescs, DstIOClass, DstTermStrips, &Off, &Scl);
               if (DstIONames.GetCount())
@@ -4198,7 +4205,32 @@ void GrfCmdBlk::DoConnect()
               float PtY = int(TheLDH.VertWorld(i).Y) + 0.5f; // needs to be x.5mm to meet grid in 10.
               ControlPoints.AddTail(CPointF(PtX, PtY));
               }
-            gs_pPrj->Svc.GCBCreateLink((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), ATag(), AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(), ControlPoints);
+
+  //CString ModelGuid  = pNode->Guid();
+  //CString SrcMdlGuid = pNode->Nd_Rmt(0)->Guid();
+  //CString SrcGrfGuid = "Grf GUID Fetch Failed";
+  //CString SrcPort    = pNode->IODesc_Rmt(0)->IOName();
+  //CString DstMdlGuid = pNode->Nd_Rmt(1)->Guid();
+  //CString DstGrfGuid = "Grf GUID Fetch Failed";
+  //CString DstPort    = pNode->IODesc_Rmt(1)->IOName();
+
+  //DO_ENTRY_GGTPSM("DoCreateLinkE", GraphicGuid, ModelGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle),"","");
+
+  //CExistingItems::CGroupIndex SInx;
+  //if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(0)->Tag(), SInx))
+  //  SrcGrfGuid = Grp.m_GTIA[SInx.m_iGTIA].m_sGuid();
+  //else
+  //  LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(0)->Tag());
+
+  //CExistingItems::CGroupIndex DInx;
+  //if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(1)->Tag(), DInx))
+  //  DstGrfGuid = Grp.m_GTIA[DInx.m_iGTIA].m_sGuid();
+  //else
+  //  LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(1)->Tag());
+
+            gs_pPrj->Svc.GCBCreateLink((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), ATag(), AClass(), 
+              SrcGrfGuid(), DstGrfGuid(), SrcMdlGuid(), DstMdlGuid(), 
+              SrcIO(), DstIO(), ControlPoints);
             SCD10LEAVE;
             }
           else
@@ -4354,7 +4386,8 @@ void GrfCmdBlk::DoMoveLink()
         CWaitCursor Wait;
         pDsp->Vp1->ClearAllEntity();
         pDsp->Vp1->ClrSelectionAllList();
-        CEntInView* p = GetClosest(pDsp->CurrentPt, false , true, true, LnkTag);
+        Strng GrfGuid, MdlGuid;
+        CEntInView* p = GetClosest(pDsp->CurrentPt, false , true, true, LnkTag, GrfGuid, MdlGuid);
         if (p && p->EntityPtr())
           {
           ActivateGWnd();
@@ -5329,8 +5362,8 @@ void GrfCmdBlk::DoConstructLink()
           {
           pDsp->Vp1->ClearAllEntity();
           pDsp->Vp1->ClrSelectionAllList();
-          Strng TmpTag;
-          CEntInView* p = GetClosest(pDsp->CurrentPt, true, false, false, TmpTag);
+          Strng TmpTag, GrfGuid, MdlGuid;
+          CEntInView* p = GetClosest(pDsp->CurrentPt, true, false, false, TmpTag, GrfGuid, MdlGuid);
           flag ConnOK = False;
           if (p)
             {

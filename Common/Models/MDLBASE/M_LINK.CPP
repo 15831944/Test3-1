@@ -3667,7 +3667,7 @@ int MN_Lnk::ModelAssocGrfsUpdate(int & Count)
   { 
   int Chgs=0;
 
-  if (!IOFlange(0)->IsTear())
+  if (NoFlwIOs()==0 || !IOFlange(0)->IsTear())
     return Chgs; 
   
   if (m_AssocGrf.m_Items.GetCount()<Count+1)

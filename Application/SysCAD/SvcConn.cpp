@@ -673,12 +673,19 @@ void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
   //CString Shape = ExtractShape(ClassId);//Symbol);
   CString Shape = ExtractShape(Symbol);
 
-  DO_ENTRY_GTP("GCBCreateNode", "NULL-Guid", Tag, MakePath(Prj, Page));
-
   CString ModelGuid = TaggedObject::CreateGuidStr();
   CString GraphicGuid = TaggedObject::CreateGuidStr();
 
-  m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CRectangleF(0.0, 0.0, 0.0, 0.0), 0.0, true, 0, false, false); // !!! tagArea not used.
+  DO_ENTRY_GGTPSM("GCBCreateNode", GraphicGuid, ModelGuid, Tag, MakePath(Prj, Page), Shape, ClassId);
+
+  CRectangleF textBox(boundingRect.MidX(), boundingRect.Top(), 2.0f*strlen(Tag), 3.0f);
+
+  m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, textBox, 0.0, true, 0, false, false); // !!! tagArea not used.
+
+  if (!m_pCLR->ProcessChangeLists(m_lRequestIdRet))
+    {
+    LogError(NETSERVERNAME, 0, "GCBCreateNode:CreateChangelist not processed!");
+    }
 
   DO_EXIT_GG("GCBCreateNode", ModelGuid, GraphicGuid);
   };
@@ -936,7 +943,9 @@ void CSvcConnect::OnModifyNodeM(__int64 eventId, __int64 requestId, LPCSTR ItemG
 //========================================================================
 
 void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR ClassId, 
-                                LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort, 
+                                LPCSTR SrcGrfGuid, LPCSTR DstGrfGuid, 
+                                LPCSTR SrcMdlGuid, LPCSTR DstMdlGuid, 
+                                LPCSTR SrcPort, LPCSTR DstPort, 
                                 CPointFList & ControlPoints)//, const CRectangleF & tagArea)
   {
   double Width=20;
@@ -945,7 +954,34 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
   CRectangleF PageRct = GetPageRect(Page);
   //CRectangleF boundingRect(Pt.x()-0.5*Width,PageRct.Top()-Pt.y()-0.5*Height,Width, Height);
   // TO Fix
-  CString Shape = ExtractShape(ClassId);//Symbol);
+  //CString Shape = ExtractShape(ClassId);//Symbol);
+
+  CString ModelGuid = TaggedObject::CreateGuidStr();
+  CString GraphicGuid = TaggedObject::CreateGuidStr();
+
+
+
+  //CString ModelGuid  = pNode->Guid();
+  //CString SrcMdlGuid = pNode->Nd_Rmt(0)->Guid();
+  //CString SrcGrfGuid = "Grf GUID Fetch Failed";
+  //CString SrcPort    = pNode->IODesc_Rmt(0)->IOName();
+  //CString DstMdlGuid = pNode->Nd_Rmt(1)->Guid();
+  //CString DstGrfGuid = "Grf GUID Fetch Failed";
+  //CString DstPort    = pNode->IODesc_Rmt(1)->IOName();
+
+  //DO_ENTRY_GGTPSM("DoCreateLinkE", GraphicGuid, ModelGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle),"","");
+
+  //CExistingItems::CGroupIndex SInx;
+  //if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(0)->Tag(), SInx))
+  //  SrcGrfGuid = Grp.m_GTIA[SInx.m_iGTIA].m_sGuid();
+  //else
+  //  LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(0)->Tag());
+
+  //CExistingItems::CGroupIndex DInx;
+  //if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(1)->Tag(), DInx))
+  //  DstGrfGuid = Grp.m_GTIA[DInx.m_iGTIA].m_sGuid();
+  //else
+  //  LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(1)->Tag());
 
   //FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(SrcTag, NULL);
   //FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(DstTag, NULL);
@@ -961,20 +997,19 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
     Pt.Set(PageRct.Left()+Pt.X(),PageRct.Top()-Pt.Y());
     }
 
-  //float textBoxW = int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength());
-  //float textBoxH = int(GTI.m_Tag.m_YScale * 5.0);
-  //float textBoxX = int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5; // needs to be x.5mm to meet grid in 10.
-  //float textBoxY = int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5; // needs to be x.5mm to meet grid in 10.
-  float textBoxW = 0.0;
-  float textBoxH = 0.0;
-  float textBoxX = 0.0;
-  float textBoxY = 0.0;
+  CRectangleF textBox;//boundingRect.MidX(), boundingRect.Top(), 2.0*strlen(Tag), 3.0f);
 
+                                
+  m_pCLR->AddCreateLink(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, 
+          SrcGrfGuid, DstGrfGuid, 
+          SrcMdlGuid, DstMdlGuid, 
+          SrcPort, DstPort,
+          ControlPoints, textBox, 0.0, false);
 
-  //m_pCLR->DoCreateLink(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, 
-  //  pSrc?pSrc->Guid():"?", pDst?pDst->Guid():"?", SrcPort, DstPort, ControlPoints,
-  //  CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
-  //0.0);
+  if (!m_pCLR->ProcessChangeLists(m_lRequestIdRet))
+    {
+    LogError(NETSERVERNAME, 0, "GCBCreateLink:CreateChangelist not processed!");
+    }
 
   DO_EXIT_G("GCBCreateLink", GuidRet);
   };
@@ -1149,6 +1184,7 @@ void CSvcConnect::OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid)
   Strng Tag;
   flag IsLink;
   Strng_List Pages;
+  _asm int 3; // to fix grf/mdl guids
   if (gs_pPrj->FindNodeInfoFromGuid((LPSTR)Guid, Tag, IsLink))
     {
     if (IsLink)
