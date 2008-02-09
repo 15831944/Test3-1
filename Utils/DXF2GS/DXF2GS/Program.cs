@@ -148,7 +148,7 @@ namespace DXF2GS
                     graphicStencil.Decorations.Add(
                       new Line(
                         (oldPt.X - xMin) / (xMax - xMin) * 100.0,
-                        (-oldPt.Y - yMin) / (yMax - yMin) * 100.0,
+                        (oldPt.Y - yMin) / (yMax - yMin) * 100.0,
                         (Double.Parse(words[3]) - xMin) / (xMax - xMin) * 100.0,
                         (-Double.Parse(words[4]) - yMin) / (yMax - yMin) * 100.0
                       )

@@ -88,37 +88,37 @@
 <a1:Line id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>11.062139483269863</x1>
 <x2>11.062139483269863</x2>
-<y1>44.605659655427168</y1>
+<y1>51.1020793917519</y1>
 <y2>48.89802816603396</y2>
 </a1:Line>
 <a1:Line id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>11.062139483269863</x1>
 <x2>20.069428181284295</x2>
-<y1>46.809710881145122</y1>
+<y1>48.89802816603396</y1>
 <y2>50.000052897271729</y2>
 </a1:Line>
 <a1:Line id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>20.069428181284295</x1>
 <x2>11.062139483269863</x2>
-<y1>45.707686149907346</y1>
+<y1>50.000052897271729</y1>
 <y2>51.1020793917519</y2>
 </a1:Line>
 <a1:Line id="ref-20" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>22.321250355787907</x1>
 <x2>26.824894704795121</x2>
-<y1>53.421871611268536</y1>
+<y1>42.285867435910546</y1>
 <y2>42.285867435910546</y2>
 </a1:Line>
 <a1:Line id="ref-21" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>26.824894704795121</x1>
 <x2>24.573072530291515</x2>
-<y1>53.421871611268536</y1>
+<y1>42.285867435910546</y1>
 <y2>46.693975177073618</y2>
 </a1:Line>
 <a1:Line id="ref-22" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>24.573072530291515</x1>
 <x2>22.321250355787907</x2>
-<y1>49.013763870105457</y1>
+<y1>46.693975177073618</y1>
 <y2>42.285867435910546</y2>
 </a1:Line>
 </SOAP-ENV:Body>

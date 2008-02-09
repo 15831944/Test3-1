@@ -392,19 +392,19 @@
 <a1:Line id="ref-60" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>95.237891592621949</x1>
 <x2>96.428418694466473</x2>
-<y1>91.887019626162072</y1>
+<y1>21.428571428571431</y1>
 <y2>19.047673875426835</y2>
 </a1:Line>
 <a1:Line id="ref-61" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>96.428418694466473</x1>
 <x2>94.047693456541978</x2>
-<y1>94.267917179306664</y1>
+<y1>19.047673875426835</y1>
 <y2>19.047673875426835</y2>
 </a1:Line>
 <a1:Line id="ref-62" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>94.047693456541978</x1>
 <x2>95.237891592621949</x2>
-<y1>94.267917179306664</y1>
+<y1>19.047673875426835</y1>
 <y2>21.428571428571431</y2>
 </a1:Line>
 </SOAP-ENV:Body>

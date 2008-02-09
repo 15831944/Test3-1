@@ -81,19 +81,19 @@
 <a1:Line id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>33.333333333333329</x1>
 <x2>66.666666666666657</x2>
-<y1>-11.111111111111111</y1>
+<y1>77.777777777777786</y1>
 <y2>77.777777777777786</y2>
 </a1:Line>
 <a1:Line id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>66.666666666666657</x1>
 <x2>50</x2>
-<y1>-11.111111111111111</y1>
+<y1>77.777777777777786</y1>
 <y2>100</y2>
 </a1:Line>
 <a1:Line id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>50</x1>
 <x2>33.333333333333329</x2>
-<y1>-33.333333333333329</y1>
+<y1>100</y1>
 <y2>77.777777777777786</y2>
 </a1:Line>
 </SOAP-ENV:Body>

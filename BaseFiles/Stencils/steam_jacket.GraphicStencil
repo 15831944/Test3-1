@@ -62,19 +62,19 @@
 <a1:Line id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>28.571428571428577</x1>
 <x2>42.857108571428576</x2>
-<y1>100.66592000000001</y1>
+<y1>0</y1>
 <y2>0</y2>
 </a1:Line>
 <a1:Line id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>42.857108571428576</x1>
 <x2>35.714285714285722</x2>
-<y1>100.66592000000001</y1>
+<y1>0</y1>
 <y2>39.999984</y2>
 </a1:Line>
 <a1:Line id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>35.714285714285722</x1>
 <x2>28.571428571428577</x2>
-<y1>60.665935999999995</y1>
+<y1>39.999984</y1>
 <y2>0</y2>
 </a1:Line>
 <a1:Line id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
@@ -110,25 +110,25 @@
 <a1:Line id="ref-21" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>64.285714285714292</x1>
 <x2>78.571428571428569</x2>
-<y1>70.66592</y1>
+<y1>30</y1>
 <y2>30</y2>
 </a1:Line>
 <a1:Line id="ref-22" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>78.571428571428569</x1>
 <x2>78.571428571428569</x2>
-<y1>70.66592</y1>
+<y1>30</y1>
 <y2>39.999984</y2>
 </a1:Line>
 <a1:Line id="ref-23" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>78.571428571428569</x1>
 <x2>64.285714285714292</x2>
-<y1>60.665935999999995</y1>
+<y1>39.999984</y1>
 <y2>39.999984</y2>
 </a1:Line>
 <a1:Line id="ref-24" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>64.285714285714292</x1>
 <x2>64.285714285714292</x2>
-<y1>60.665935999999995</y1>
+<y1>39.999984</y1>
 <y2>30</y2>
 </a1:Line>
 </SOAP-ENV:Body>
