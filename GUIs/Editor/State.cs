@@ -966,7 +966,7 @@ namespace SysCAD.Editor
     internal GraphicStencil GraphicShape(String stencilName)
     {
       GraphicStencil graphicStencil;
-      config.GraphicStencils.TryGetValue(stencilName, out graphicStencil);
+      config.GraphicStencils.TryGetValue(stencilName.ToLower(), out graphicStencil);
       return graphicStencil;
     }
 

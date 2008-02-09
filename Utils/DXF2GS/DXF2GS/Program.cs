@@ -25,6 +25,7 @@ namespace DXF2GS
       foreach (String path in Directory.GetFiles(args[0], "*.TxtSym"))
       {
         GraphicStencil graphicStencil = new GraphicStencil();
+        graphicStencil.Tag = Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].Replace('_', ' ');
         graphicStencil.Elements = new ArrayList();
         graphicStencil.Decorations = new ArrayList();
         graphicStencil.defaultSize = new Size(0.0, 0.0);
@@ -221,10 +222,12 @@ namespace DXF2GS
         }
 
         SoapFormatter sf = new SoapFormatter();
-        StreamWriter streamWriter = new StreamWriter(args[1] + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil");
+        StreamWriter streamWriter = new StreamWriter(args[1] + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].ToLower().Replace(' ', '_') + ".GraphicStencil");
         Stream stream = streamWriter.BaseStream;
         sf.Serialize(stream, graphicStencil);
         stream.Close();
+
+        Console.WriteLine(args[1] + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].ToLower().Replace(' ', '_') + ".GraphicStencil");
 
         if (xMin == xMax)
           Message("Zero width", args[1], path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");

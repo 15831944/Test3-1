@@ -89,8 +89,8 @@ namespace SysCAD.Protocol
           stream.Close();
 
 
-          graphicStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
-          GraphicStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), graphicStencil);
+          //graphicStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
+          GraphicStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath).ToLower().Replace(' ', '_'), graphicStencil);
           //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
           //LogNote("Srvr : 0 : " + iStencil++ + " : " + System.IO.Path.GetFileNameWithoutExtension(fullpath));
         }
