@@ -167,6 +167,7 @@ long SetOcc(long x) { return (x<<8 & 0xff00); }
 long SetIndex(long x) { return (x<<16 & 0xffff0000); }
 
 struct CfgItem { DWORD IdCtrl; byte CtrlType; char * Name; char * SctName; flag IsDbl; double DblDef; char * StrDef; char * Comment; flag Invert; };
+
 static CfgItem CfgItemsC[]=
   {
     {IDC_CFGDESC,         0, "Description",        "General", false,             0, "",         NULL},
@@ -201,29 +202,19 @@ static CfgItem CfgItemsC[]=
 #else                                   
     {IDC_DEFSPMDL,    1, "Default_SpModel",       "General",  false,             0, MassWtMnSpModelName, NULL},
 #endif
-    {IDC_H2OASAQ,     2, "H2O_As_Aqueous",        "General",  false,             0, "",         NULL},
+    {IDC_H2OASAQ,     2, "H2O_As_Aqueous",        "General",  false,             0, "", NULL},
     {0, NULL},
   };
+
 static CfgItem CfgItemsO[]=
   {
-  //    {IDC_CFGDESC    , 0, "Description",            false,             0, "", NULL},
-  //    {IDC_STDTEMP    , 0, "Std_Temp",                true,         Std_T, "", "C"},
-  //    {IDC_STDPRESS   , 0, "Std_Press",               true,         Std_P, "", "kPa"},
-  //    {IDC_NORMTEMP   , 0, "Norm_Temp",               true,        Norm_T, "", "C"},
-  //    {IDC_NORMPRESS  , 0, "Norm_Press",              true,        Norm_P, "", "kPa"},
-  //    {IDC_MINTEMP    , 0, "Minimum_Temp",            true,    C_2_K(0.0), "", "C" },
-  //    {IDC_MAXTEMP    , 0, "Maximum_Temp",            true, C_2_K(1000.0), "", "C" },
-  //    {IDC_MINPRESS   , 0, "Minimum_Press",           true,          50.0, "", "kPa"},
-  //    {IDC_MAXPRESS   , 0, "Maximum_Press",           true,         350.0, "", "kPa"},
-  //    //{IDC_ATMOSPRESS , 0, "Atmospheric_Press",      false,             0, "101.287, -11.836e-3, 0.47931-6", NULL},
-  //    {IDC_DEFSPMDL   , 1, "Default_SpModel",        false,             0, "Mass Wt Mean", NULL},
-    {IDC_STDFNS4H2O    , 2, "UseStdFns4H2O",           "General", false,             1, "", NULL},
+    {IDC_STDFNS4H2O    , 2, "UseStdFns4H2O",           "General", false, 1, "", NULL, false},
 #if WITHDEFAULTSPDB
-    {IDC_CONFIGDB      , 2, "SearchDefaultSpecieDB",   "General", false,             0, "", NULL},
+    {IDC_CONFIGDB      , 2, "SearchDefaultSpecieDB",   "General", false, 0, "", NULL, false},
 #endif
-    {IDC_TAGSNUMSTART  , 2, "NumericStartingTagsBad",  "General", false,             1, "", NULL, true},
+    {IDC_TAGSNUMSTART  , 2, "NumericStartingTagsBad",  "General", false, 1, "", NULL, true},
 #if WithNumericTags
-    {IDC_TAGSNUMERIC   , 2, "NumericTagsBad",          "General", false,             1, "", NULL, true},
+    {IDC_TAGSNUMERIC   , 2, "NumericTagsBad",          "General", false, 1, "", NULL, true},
 #endif
     {0, NULL},
   };
@@ -2341,28 +2332,6 @@ BOOL CMdlCfgOpt::OnInitDialog()
   //GetDlgItem(IDC_TAGSNUMERIC)->ShowWindow(SW_HIDE);
 #endif
 
-  //int iSel;
-  //S=Cfg.RdStr("General", CfgItemsO[iFC].Name, CfgItemsO[iFC].StrDef);
-  //S.Trim();
-  //if (S.Length()==0)
-  //  S=NoneString;
-  //iSel=((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->SelectString(-1, S());
-  //if (iSel<0)
-  //  ((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->SelectString(-1, NoneString);
-  //
-  //S=Cfg.RdStr("General", CfgItemsO[iDM].Name, CfgItemsO[iDM].StrDef);
-  //if (S.Length()==0)
-  //  S="Mass WT Mean";
-  //for (i=0; i<SpModels.GetSize(); i++)
-  //  if (S.XStrICmp(SpModels[i].Name())==0)
-  //    break;
-  //if (i==SpModels.GetSize())
-  //  {
-  //  LogWarning("EditCfg", 0, "SpModel '%s' not found", S());
-  //  i=0;
-  //  }
-  //iSel=((CComboBox*)GetDlgItem(IDC_DEFSPMDL))->SetCurSel(i);
-
   bInited=true;
   return TRUE;
   }
@@ -2436,17 +2405,6 @@ BOOL CMdlCfgOpt::OnKillActive()
     if (PrevVal)
       Cfg.WrInt("General", "SearchDefaultSpecieDB", 0);
 #endif
-
-    //int iSel=((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->GetCurSel();
-    //if (iSel>=0)
-    //  ((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->GetLBText(iSel, CS);
-    //else
-    //  CS=NoneString;
-    //Cfg.WrStr("General", CfgItemsO[iFC].Name, NONNULL((const char*)CS));
-    //
-    //iSel=((CComboBox*)GetDlgItem(IDC_DEFSPMDL))->GetCurSel();
-    //S=(iSel>=0 ? SpModels[iSel].Name() : NoneString);
-    //Cfg.WrStr("General", CfgItemsO[iDM].Name, NONNULL(S()));
     }  
   return OK;
   }

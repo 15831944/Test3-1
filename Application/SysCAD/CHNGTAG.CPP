@@ -15,7 +15,7 @@
 #include "scd_wm.h"
 #include "msgwnd.h"
 #include "explorescd.h"
-
+//#include "optoff.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

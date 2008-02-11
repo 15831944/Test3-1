@@ -26,6 +26,7 @@
 #include "neutraldlgs.h"
 #include "afxwin.h"
 #include "archmngr.h"
+//#include "optoff.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -45,17 +46,12 @@ class CModesPage : public CCustomPropertyPage
     CProjectSettings * m_pSet;
 
     flag    m_bTimeChanged:1;
-    //m_bTagNamingChanged:1;
     CTimeValue m_CurrentTimeAtInit;
 
     //{{AFX_DATA(CGenPage)
     enum { IDD = IDD_PRJMODESDLG };
     CString     m_CurrentTimeHMS;
     CString     m_TimeText;
-    //BOOL        m_NumTagsOK;
-    //BOOL        m_NumStartingOK;
-    //CString     m_NumChar;
-    //int m_SolveMd;
     BOOL        m_SyncWithClock;
     //}}AFX_DATA
 
@@ -68,10 +64,9 @@ class CModesPage : public CCustomPropertyPage
     //{{AFX_MSG(CGenPage)
     virtual void OnOK();
     virtual BOOL OnInitDialog();
+    //}}AFX_MSG
 
     void           DoSyncChange();
-    //void           SetLibraryOptions();
-    //void           SetFrameOptions();
     void           LoadCBs(bool DoSwap);
 
   public:
@@ -119,23 +114,11 @@ class CModesPage : public CCustomPropertyPage
     CComboBox      m_LinkModeCB;
     CComboBox      m_HeatModeCB;
     CComboBox      m_FlowModeCB;
-    //CEdit          m_Library;
-    //CComboBox      m_PageFrame;
-
-    //Strng          m_sDefGrpLib;
-    //Strng          m_sGrfFrameName;
-    //Strng          m_sGrfFrameFilter;
-    //CEdit          m_Filter;
   public:
-    //afx_msg void OnBnClickedLibrarybtn();
-    //afx_msg void OnEnChangeLibrary();
-    //afx_msg void OnEnChangeGrpfilter();
     afx_msg void OnCbnSelchangePrjnetmodecombo();
     afx_msg void OnTimeChanged();
     afx_msg void OnDTimeChanged();
     afx_msg void OnKillfocusPrjCurrenttime();
-    //afx_msg void OnNumTagsChanged();
-    //afx_msg void OnNumStTagsChanged();
     afx_msg void OnSynchronise();
     afx_msg void OnUpdateDynamic(CCmdUI* pCmdUi);
     afx_msg void OnUpdateCurrentTime(CCmdUI* pCmdUi);
@@ -155,21 +138,16 @@ class CGrfTagsPage : public CCustomPropertyPage
     CProject         * m_pPrj;
     CProjectSettings * m_pSet;
 
-    flag    //m_bTimeChanged:1,
-    m_bTagNamingChanged:1;
+    flag    m_bTagNamingChanged:1;
     CTimeValue m_CurrentTimeAtInit;
 
     //{{AFX_DATA(CGenPage)
     enum { IDD = IDD_PRJGRFTAGSDLG };
-    //CString     m_CurrentTimeHMS;
-    //CString     m_TimeText;
 #if WithNumericTags
     BOOL        m_NumTagsOK;
 #endif
     BOOL        m_NumStartingOK;
     CString     m_NumChar;
-    //int m_SolveMd;
-    //BOOL       m_SyncWithClock;
     //}}AFX_DATA
 
     //{{AFX_VIRTUAL(CGenPage)
@@ -181,57 +159,12 @@ class CGrfTagsPage : public CCustomPropertyPage
     //{{AFX_MSG(CGenPage)
     virtual void OnOK();
     virtual BOOL OnInitDialog();
+    //}}AFX_MSG
 
-    //void           DoSyncChange();
     void           SetLibraryOptions();
     void           SetFrameOptions();
-    //void           LoadCBs(bool DoSwap);
 
   public:
-    //long           m_NetMode;
-    //
-    //long           m_PBNodeMode;
-    //long           m_PBLinkMode;
-    //long           m_PBHeatMode;
-    //long           m_PBFlowMode;
-
-    //long           m_DynNodeMode;
-    //long           m_DynLinkMode;
-    //long           m_DynHeatMode;
-    //long           m_DynFlowMode;
-
-    //long           m_PBMaxNodeMode;
-    //long           m_PBMaxLinkMode;
-    //long           m_PBMaxHeatMode;
-    //long           m_PBMaxFlowMode;
-
-    //long           m_DynMaxNodeMode;
-    //long           m_DynMaxLinkMode;
-    //long           m_DynMaxHeatMode;
-    //long           m_DynMaxFlowMode;
-
-    //long           m_NodeMode;
-    //long           m_LinkMode;
-    //long           m_HeatMode;
-    //long           m_FlowMode;
-
-    //long           m_MaxNodeMode;
-    //long           m_MaxLinkMode;
-    //long           m_MaxHeatMode;
-    //long           m_MaxFlowMode;
-
-
-    //DDBValueLstMem m_NetModes;
-    //DDBValueLstMem m_NodeModes;
-    //DDBValueLstMem m_LinkModes;
-    //DDBValueLstMem m_HeatModes;
-    //DDBValueLstMem m_FlowModes;
-
-    //CComboBox      m_NetModeCB;
-    //CComboBox      m_NodeModeCB;
-    //CComboBox      m_LinkModeCB;
-    //CComboBox      m_HeatModeCB;
-    //CComboBox      m_FlowModeCB;
     CEdit          m_Library;
     CComboBox      m_PageFrame;
 
@@ -243,15 +176,8 @@ class CGrfTagsPage : public CCustomPropertyPage
     afx_msg void OnBnClickedLibrarybtn();
     afx_msg void OnEnChangeLibrary();
     afx_msg void OnEnChangeGrpfilter();
-    //afx_msg void OnCbnSelchangePrjnetmodecombo();
-    //afx_msg void OnTimeChanged();
-    //afx_msg void OnDTimeChanged();
-    //afx_msg void OnKillfocusPrjCurrenttime();
     afx_msg void OnNumTagsChanged();
     afx_msg void OnNumStTagsChanged();
-    //afx_msg void OnSynchronise();
-    //afx_msg void OnUpdateDynamic(CCmdUI* pCmdUi);
-    //afx_msg void OnUpdateCurrentTime(CCmdUI* pCmdUi);
 
     DECLARE_MESSAGE_MAP()
   };
@@ -535,9 +461,8 @@ IMPLEMENT_DYNAMIC(CProjectSettingsDlg, CPropertySheet)
 //---------------------------------------------------------------------------
 
 CProjectSettingsDlg::CProjectSettingsDlg(bool AsModal,  CProject * Prj, CProjectSettings * Set, LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
-: CPropertySheet(pszCaption, pParentWnd, iSelectPage),
-m_pPrj(Prj),
-m_pSet(Set)
+: CPropertySheet(pszCaption, pParentWnd, iSelectPage), 
+  m_pPrj(Prj), m_pSet(Set)
   {
   m_pSet->m_bConfigBusy = 1;
   m_bAsModal = AsModal;
@@ -1038,14 +963,9 @@ IMPLEMENT_DYNCREATE(CModesPage, CCustomPropertyPage)
 CModesPage::CModesPage() : CCustomPropertyPage(CModesPage::IDD)
   {
   m_bTimeChanged = 0;
-  //m_bTagNamingChanged = 0;
   //{{AFX_DATA_INIT(CModesPage)
   m_CurrentTimeHMS = _T("");
   m_TimeText = _T("Time");
-  //m_NumTagsOK = !FALSE;
-  //m_NumStartingOK = !FALSE;
-  //m_NumChar = _T("");
-  //m_SolveMd = 0;
   m_SyncWithClock = FALSE;
   //}}AFX_DATA_INIT
   }
@@ -1257,7 +1177,7 @@ void CModesPage::LoadCBs(bool DoSwap)
       iCurSel=iMd;
     }
   m_FlowModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -1267,10 +1187,6 @@ void CModesPage::DoDataExchange(CDataExchange* pDX)
   //{{AFX_DATA_MAP(CModesPage)
   DDX_Text(pDX, IDC_PRJCURRENTTIME, m_CurrentTimeHMS);
   DDX_Text(pDX, IDC_TIMETEXT, m_TimeText);
-  //DDX_Check(pDX, IDC_PRJNUMERICOK, m_NumTagsOK);
-  //DDX_Check(pDX, IDC_PRJNUMERICSTARTOK, m_NumStartingOK);
-  //DDX_Text(pDX, IDC_PRJNUMERICCHAR, m_NumChar);
-  //DDX_Radio(pDX, IDC_PRJPROBAL, m_SolveMd);
   DDX_Check(pDX, IDC_SYNCHRONISE, m_SyncWithClock);
   //}}AFX_DATA_MAP
 
@@ -1280,81 +1196,7 @@ void CModesPage::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_PRJLINKMODECOMBO, m_LinkModeCB);
   DDX_Control(pDX, IDC_PRJHEATMODECOMBO, m_HeatModeCB);
   DDX_Control(pDX, IDC_PRJFLOWMODECOMBO, m_FlowModeCB);
-  //DDX_Control(pDX, IDC_LIBRARY, m_Library);
-  //DDX_Control(pDX, IDC_PAGEFRAME, m_PageFrame);
-  //DDX_Control(pDX, IDC_GRPFILTER, m_Filter);
   }
-
-//---------------------------------------------------------------------------
-
-//void CModesPage::GetGraphicsOptions()
-//  {
-//  CString S;
-//  m_Library.GetWindowText(S);
-//  gs_pPrj->m_sDefGrpLib=S;
-//  gs_pPrj->m_sDefGrpLib.FnContract();
-//
-//  m_PageFrame.GetWindowText(S);
-//  gs_pPrj->m_sGrfFrameName=S;
-//  }
-
-//---------------------------------------------------------------------------
-
-//void CModesPage::SetLibraryOptions()
-//  {
-//  CString S;
-//  m_Library.GetWindowText(S);
-//  Strng Fn(S);
-//  Fn.FnExpand();
-//  flag LibOK=FileExists(Fn());
-//  if (LibOK)
-//    m_sDefGrpLib.FnContract(Fn());
-//
-//  m_PageFrame.ResetContent();
-//  m_PageFrame.AddString("Extents-A1");
-//  m_PageFrame.AddString("Extents-A2");
-//  m_PageFrame.AddString("Extents-A3");
-//  m_PageFrame.AddString("Extents-A4");
-//  m_PageFrame.AddString("Extents-A5");
-//  m_PageFrame.AddString("None");
-//  m_PageFrame.AddString("----------");
-//
-//  if (LibOK)
-//    {
-//    Strng Fn(m_sDefGrpLib);
-//    Fn.FnExpand();
-//    CNeutralImportExport NImport;
-//    CNeutralGrpDescList List;
-//    //NImport.SetImportFilter(m_sGrfFrameFilter());
-//    if (NImport.GetGroups(List, Fn())>0)
-//      {
-//      POSITION Pos=List.GetHeadPosition();
-//      while (Pos)
-//        {
-//        CNeutralGrpDescItem &I=List.GetNext(Pos);
-//        if (_strnicmp(I.m_sGroup, m_sGrfFrameFilter(), m_sGrfFrameFilter.GetLength())==0)
-//          m_PageFrame.AddString(I.m_sGroup);
-//        }
-//      int xxx=0;
-//      }
-//    }
-//
-//  int i=m_PageFrame.SelectString(0, m_sGrfFrameName());
-//  if (i<0)
-//    m_PageFrame.SetCurSel(2);
-//  }
-//
-////---------------------------------------------------------------------------
-////
-////void CModesPage::SetFrameOptions()
-////  {
-////  CString S;
-////  m_Library.GetWindowText(S);
-////  gs_pPrj->m_sDefGrpLib=S;
-////  gs_pPrj->m_sDefGrpLib.FnContract();
-////  //m_Library.SetWindowText(gs_pPrj->m_sDefGrpLib());
-////  //m_PageFrame.SetWindowText(gs_pPrj->m_sGrfFrameName());
-////  }
 
 //---------------------------------------------------------------------------
 
@@ -1481,18 +1323,6 @@ void CModesPage::OnOK()
         AfxMessageBox("Invalid CurrentTime");
       }
 
-    //CString S;
-    //m_Library.GetWindowText(S);
-    //m_sDefGrpLib=S;
-    //m_Filter.GetWindowText(S);
-    //m_sGrfFrameFilter=S;
-    //m_PageFrame.GetWindowText(S);
-    //m_sGrfFrameName=S;
-
-    //gs_pPrj->m_sDefGrpLib=m_sDefGrpLib;
-    //gs_pPrj->m_sGrfFrameName=m_sGrfFrameName;
-    //gs_pPrj->m_sGrfFrameFilter=m_sGrfFrameFilter;
-
     }
   }
 
@@ -1541,56 +1371,10 @@ void CModesPage::OnCbnSelchangePrjnetmodecombo()
 
 //---------------------------------------------------------------------------
 
-//void CModesPage::OnPrjProbalOrDynamic()
-//  {
-//  int Prev=m_SolveMd;
-//  UpdateData(true);
-//  if (m_SolveMd!=Prev)
-//    {
-//    long SMd=0;
-//    switch (m_SolveMd)
-//      {
-//      case 0: SMd=SM_Direct; break;
-//      case 1: SMd=SM_Inline; break;
-//      case 2: SMd=SM_Buffered; break;
-//      }
-//    long HMd=HM_Full;
-//
-//    gs_Exec.SetGlblRunModes(SMd|HMd, NSHM_All);
-//
-//    m_bTimeChanged=1;
-//    m_SyncWithClock=0;
-//    DoSyncChange();
-//    UpdateData(false);
-//    UpdateDialogControls(this, FALSE);
-//    }
-//  }
-
 void CModesPage::OnUpdateDynamic(CCmdUI* pCmdUi)
   {
   pCmdUi->Enable(DefNetDynamicMode());
   }
-
-//---------------------------------------------------------------------------
-
-//void CModesPage::OnNumTagsChanged()
-//  {
-//  UpdateData(true);
-//  m_bTagNamingChanged = 1;
-//  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
-//  UpdateData(false);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CModesPage::OnNumStTagsChanged()
-//  {
-//  UpdateData(true);
-//  m_bTagNamingChanged = 1;
-////  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
-//  m_NumTagsOK = m_NumTagsOK && m_NumStartingOK;
-//  UpdateData(false);
-//  }
 
 //---------------------------------------------------------------------------
 
@@ -1601,6 +1385,8 @@ void CModesPage::OnSynchronise()
   UpdateData(false);
   UpdateDialogControls(this, FALSE);
   }
+
+//---------------------------------------------------------------------------
 
 void CModesPage::DoSyncChange()
   {
@@ -1622,29 +1408,6 @@ void CModesPage::DoSyncChange()
     }
   }
 
-//void CModesPage::OnBnClickedLibrarybtn()
-//  {
-//  INCOMPLETECODE(__FILE__, __LINE__)
-//  //GetGraphicsOptions();
-//  //SetGraphicsOptions();
-//  }
-//
-//void CModesPage::OnEnChangeLibrary()
-//  {
-//  SetLibraryOptions();
-//  //GetGraphicsOptions();
-// // SetGraphicsOptions();
-//  }
-//
-//
-//void CModesPage::OnEnChangeGrpfilter()
-//  {
-//  CString S;
-//  m_Filter.GetWindowText(S);
-//  m_sGrfFrameFilter=S;
-//  SetLibraryOptions();
-//  }
-
 //===========================================================================
 
 IMPLEMENT_DYNCREATE(CGrfTagsPage, CCustomPropertyPage)
@@ -1654,15 +1417,11 @@ CGrfTagsPage::CGrfTagsPage() : CCustomPropertyPage(CGrfTagsPage::IDD)
   //m_bTimeChanged = 0;
   m_bTagNamingChanged = 0;
   //{{AFX_DATA_INIT(CGrfTagsPage)
-  //m_CurrentTimeHMS = _T("");
-  //m_TimeText = _T("Time");
 #if WithNumericTags
   m_NumTagsOK = !FALSE;
 #endif
-  m_NumStartingOK = !FALSE;
+  m_NumStartingOK = TRUE;
   m_NumChar = _T("");
-  //m_SolveMd = 0;
-  //m_SyncWithClock = FALSE;
   //}}AFX_DATA_INIT
   }
 
@@ -1676,86 +1435,30 @@ CGrfTagsPage::~CGrfTagsPage()
 
 BEGIN_MESSAGE_MAP(CGrfTagsPage, CCustomPropertyPage)
   //{{AFX_MSG_MAP(CGrfTagsPage)
-  //ON_EN_CHANGE(IDC_PRJCURRENTTIME, OnTimeChanged)
-  //ON_EN_KILLFOCUS(IDC_PRJCURRENTTIME, OnKillfocusPrjCurrenttime)
-  ////ON_BN_CLICKED(IDC_PRJPROBAL, OnPrjProbalOrDynamic)
-  ////ON_BN_CLICKED(IDC_PRJDYNAMICFLOW, OnPrjProbalOrDynamic)
-  ////ON_BN_CLICKED(IDC_PRJDYNAMICFULL, OnPrjProbalOrDynamic)
   ON_BN_CLICKED(IDC_PRJNUMERICOK, OnNumTagsChanged)
   ON_BN_CLICKED(IDC_PRJNUMERICSTARTOK, OnNumStTagsChanged)
-  //ON_BN_CLICKED(IDC_SYNCHRONISE, OnSynchronise)
   //}}AFX_MSG_MAP
-  //ON_UPDATE_COMMAND_UI(IDC_PRJCURRENTTIME, OnUpdateCurrentTime)
-  //ON_UPDATE_COMMAND_UI(IDC_SYNCHRONISE, OnUpdateDynamic)
   ON_BN_CLICKED(IDC_LIBRARYBTN, OnBnClickedLibrarybtn)
   ON_EN_CHANGE(IDC_LIBRARY, OnEnChangeLibrary)
   ON_EN_CHANGE(IDC_GRPFILTER, OnEnChangeGrpfilter)
-  //ON_CBN_SELCHANGE(IDC_PRJNETMODECOMBO, &CGrfTagsPage::OnCbnSelchangePrjnetmodecombo)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
 
 BOOL CGrfTagsPage::OnInitDialog()
   {
-  //Strng sModelCfg = PF.RdStr("General", "ModelLibrary", "");
-  //sModelCfg = PF.RdStr("General", "ModelConfiguration", sOldModelCfg());
-  //sModelCfg = PF.RdStr("General", "CfgFile", sOldModelCfg());
-  //sModelCfg.FnExpand();
-
-  //CProfINIFile Cfg(sModelCfg());
-
-  //long MaxNodeMode;
-  //long MaxLinkMode;
-  //long MaxHeatMode;
-  //long MaxFlowMode;
-
-
   CCustomPropertyPage::OnInitDialog();
 
-  //m_NetMode   = m_pSet->m_NetMode;
-
-  //m_PBNodeMode    = m_pSet->m_PBNodeMode;
-  //m_PBLinkMode    = m_pSet->m_PBLinkMode;
-  //m_PBHeatMode    = m_pSet->m_PBHeatMode;
-  //m_PBFlowMode    = m_pSet->m_PBFlowMode;
-  //m_PBMaxNodeMode = SM_Direct;
-  //m_PBMaxLinkMode = SM_Direct;
-  //m_PBMaxHeatMode = m_pSet->m_MaxHeatMode;
-  //m_PBMaxFlowMode = LFM_Xfer;
-
-  //m_DynNodeMode    = m_pSet->m_DynNodeMode;
-  //m_DynLinkMode    = m_pSet->m_DynLinkMode;
-  //m_DynHeatMode    = m_pSet->m_DynHeatMode;
-  //m_DynFlowMode    = m_pSet->m_DynFlowMode;
-  //m_DynMaxNodeMode = m_pSet->m_MaxNodeMode;
-  //m_DynMaxLinkMode = m_pSet->m_MaxLinkMode;
-  //m_DynMaxHeatMode = m_pSet->m_MaxHeatMode;
-  //m_DynMaxFlowMode = m_pSet->m_MaxFlowMode;
-
-  UpdateDialogControls(this, FALSE);
-
-  //LoadCBs(false);
-
-  //m_SyncWithClock = m_pSet->m_SyncWithClock!=0;
-
-  //m_CurrentTimeHMS = m_pSet->m_TheTime.Format(TD_TimeDate);
-  //m_CurrentTimeAtInit = m_pSet->m_TheTime;
-  //LPCTSTR Tm=m_pSet->m_TheTime.Format(TD_Time);
-  //
-  //SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
-
-
 #if WithNumericTags
-  m_NumTagsOK = !m_pSet->m_NumericTagsBad;
+  m_NumTagsOK = (m_pSet->m_NumericTagsBad!=0 ? 0 : 1);
 #endif
-  m_NumStartingOK = !m_pSet->m_NumericStartingTagsBad;
+  m_NumStartingOK = (m_pSet->m_NumericStartingTagsBad!=0 ? 0 : 1);
 #if WithNumericTags
-  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+  m_NumStartingOK = ((m_NumStartingOK || m_NumTagsOK) ? 1 : 0);
 #else
   GetDlgItem(IDC_PRJNUMERICOK)->EnableWindow(false);
 #endif
   m_NumChar = m_pSet->m_NonNumericTagChr;
-
 
 #if WITHGRFDOCFRAME
   m_sDefGrpLib=m_pSet->m_sDefGrpLib;
@@ -1771,157 +1474,28 @@ BOOL CGrfTagsPage::OnInitDialog()
   m_PageFrame.EnableWindow(FALSE); // this will invoke the SetLibraryOptions
 #endif
 
+  UpdateData(false);
+  UpdateDialogControls(this, FALSE);
   return TRUE;
   }
 
-//---------------------------------------------------------------------------
-
-//void CGrfTagsPage::LoadCBs(bool DoSwap)
-//  {
-//  if (m_NetMode==NM_Probal)
-//    {
-//    if (DoSwap)
-//      {
-//      m_DynNodeMode     = m_NodeMode;
-//      m_DynLinkMode     = m_LinkMode;
-//      m_DynHeatMode     = m_HeatMode;
-//      m_DynFlowMode     = m_FlowMode;
-//      m_DynMaxNodeMode  = m_MaxNodeMode;
-//      m_DynMaxLinkMode  = m_MaxLinkMode;
-//      m_DynMaxHeatMode  = m_MaxHeatMode;
-//      m_DynMaxFlowMode  = m_MaxFlowMode;
-//      }
-//    m_NodeMode        = m_PBNodeMode;
-//    m_LinkMode        = m_PBLinkMode;
-//    m_HeatMode        = m_PBHeatMode;
-//    m_FlowMode        = m_PBFlowMode;
-//    m_MaxNodeMode     = m_PBMaxNodeMode;
-//    m_MaxLinkMode     = m_PBMaxLinkMode;
-//    m_MaxHeatMode     = m_PBMaxHeatMode;
-//    m_MaxFlowMode     = m_PBMaxFlowMode;
-//    }
-//  else
-//    {
-//    if (DoSwap)
-//      {
-//      m_PBNodeMode      = m_NodeMode;
-//      m_PBLinkMode      = m_LinkMode;
-//      m_PBHeatMode      = m_HeatMode;
-//      m_PBFlowMode      = m_FlowMode;
-//      m_PBMaxNodeMode   = m_MaxNodeMode;
-//      m_PBMaxLinkMode   = m_MaxLinkMode;
-//      m_PBMaxHeatMode   = m_MaxHeatMode;
-//      m_PBMaxFlowMode   = m_MaxFlowMode;
-//      }
-//    m_NodeMode        = m_DynNodeMode;
-//    m_LinkMode        = m_DynLinkMode;
-//    m_HeatMode        = m_DynHeatMode;
-//    m_FlowMode        = m_DynFlowMode;
-//    m_MaxNodeMode     = m_DynMaxNodeMode;
-//    m_MaxLinkMode     = m_DynMaxLinkMode;
-//    m_MaxHeatMode     = m_DynMaxHeatMode;
-//    m_MaxFlowMode     = m_DynMaxFlowMode;
-//    }
-//
-//  GetGlblModeValueLst(m_NetModes,  GetPermissableModes(NM_All, NULL), 0, false);
-//  GetGlblModeValueLst(m_NodeModes, GetPermissableModes(MaxModes2Mask(m_MaxNodeMode), NULL), 0, false);
-//  GetGlblModeValueLst(m_LinkModes, GetPermissableModes(MaxModes2Mask(m_MaxLinkMode), NULL), 0, false);
-//  GetGlblModeValueLst(m_HeatModes, GetPermissableModes(MaxModes2Mask(m_MaxHeatMode), NULL), 0, false);
-//  GetGlblModeValueLst(m_FlowModes, GetPermissableModes(MaxModes2Mask(m_MaxFlowMode), NULL), 0, false);
-//
-//  m_NetModeCB.ResetContent();
-//  m_NodeModeCB.ResetContent();
-//  m_LinkModeCB.ResetContent();
-//  m_HeatModeCB.ResetContent();
-//  m_FlowModeCB.ResetContent();
-//
-//  int iCurSel=-1;
-//  for (int iMd=0; iMd<m_NetModes.Length(); iMd++)
-//    {
-//    m_NetModeCB.AddString(m_NetModes.Item(iMd)->m_pStr);
-//    if (m_NetModes.Item(iMd)->m_lVal==m_NetMode)
-//      iCurSel=iMd;
-//    }
-//  m_NetModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
-//  m_NetModeCB.EnableWindow(m_pPrj==NULL);
-//
-//  iCurSel = -1;
-//  for (int iMd=0; iMd<m_NodeModes.Length(); iMd++)
-//    {
-//    m_NodeModeCB.AddString(m_NodeModes.Item(iMd)->m_pStr);
-//    if (m_NodeModes.Item(iMd)->m_lVal==m_NodeMode)
-//      iCurSel=iMd;
-//    }
-//  m_NodeModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
-//
-//  iCurSel = -1;
-//  for (int iMd=0; iMd<m_LinkModes.Length(); iMd++)
-//    {
-//    m_LinkModeCB.AddString(m_LinkModes.Item(iMd)->m_pStr);
-//    if (m_LinkModes.Item(iMd)->m_lVal==m_LinkMode)
-//      iCurSel=iMd;
-//    }
-//  m_LinkModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
-//
-//  iCurSel = -1;
-//  for (int iMd=0; iMd<m_HeatModes.Length(); iMd++)
-//    {
-//    m_HeatModeCB.AddString(m_HeatModes.Item(iMd)->m_pStr);
-//    if (m_HeatModes.Item(iMd)->m_lVal==m_HeatMode)
-//      iCurSel=iMd;
-//    }
-//  m_HeatModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
-//
-//  iCurSel = -1;
-//  for (int iMd=0; iMd<m_FlowModes.Length(); iMd++)
-//    {
-//    m_FlowModeCB.AddString(m_FlowModes.Item(iMd)->m_pStr);
-//    if (m_FlowModes.Item(iMd)->m_lVal==m_FlowMode)
-//      iCurSel=iMd;
-//    }
-//  m_FlowModeCB.SetCurSel(iCurSel>=0 ? iCurSel:iMd-1);
-//  };
-//
 //---------------------------------------------------------------------------
 
 void CGrfTagsPage::DoDataExchange(CDataExchange* pDX)
   {
   CCustomPropertyPage::DoDataExchange(pDX);
   //{{AFX_DATA_MAP(CGrfTagsPage)
-  //DDX_Text(pDX, IDC_PRJCURRENTTIME, m_CurrentTimeHMS);
-  //DDX_Text(pDX, IDC_TIMETEXT, m_TimeText);
 #if WithNumericTags
   DDX_Check(pDX, IDC_PRJNUMERICOK, m_NumTagsOK);
 #endif
   DDX_Check(pDX, IDC_PRJNUMERICSTARTOK, m_NumStartingOK);
   DDX_Text(pDX, IDC_PRJNUMERICCHAR, m_NumChar);
-  //DDX_Radio(pDX, IDC_PRJPROBAL, m_SolveMd);
-  //DDX_Check(pDX, IDC_SYNCHRONISE, m_SyncWithClock);
   //}}AFX_DATA_MAP
 
-  //GetDlgItem(IDC_PRJCURRENTTIME)->EnableWindow(!m_SyncWithClock);
-  //DDX_Control(pDX, IDC_PRJNETMODECOMBO, m_NetModeCB);
-  //DDX_Control(pDX, IDC_PRJNODEMODECOMBO, m_NodeModeCB);
-  //DDX_Control(pDX, IDC_PRJLINKMODECOMBO, m_LinkModeCB);
-  //DDX_Control(pDX, IDC_PRJHEATMODECOMBO, m_HeatModeCB);
-  //DDX_Control(pDX, IDC_PRJFLOWMODECOMBO, m_FlowModeCB);
   DDX_Control(pDX, IDC_LIBRARY, m_Library);
   DDX_Control(pDX, IDC_PAGEFRAME, m_PageFrame);
   DDX_Control(pDX, IDC_GRPFILTER, m_Filter);
   }
-
-//---------------------------------------------------------------------------
-
-//void CGrfTagsPage::GetGraphicsOptions()
-//  {
-//  CString S;
-//  m_Library.GetWindowText(S);
-//  gs_pPrj->m_sDefGrpLib=S;
-//  gs_pPrj->m_sDefGrpLib.FnContract();
-//
-//  m_PageFrame.GetWindowText(S);
-//  gs_pPrj->m_sGrfFrameName=S;
-//  }
 
 //---------------------------------------------------------------------------
 
@@ -1960,7 +1534,6 @@ void CGrfTagsPage::SetLibraryOptions()
         if (_strnicmp(I.m_sGroup, m_sGrfFrameFilter(), m_sGrfFrameFilter.GetLength())==0)
           m_PageFrame.AddString(I.m_sGroup);
         }
-      int xxx=0;
       }
     }
 
@@ -2026,7 +1599,7 @@ void CGrfTagsPage::OnOK()
 
       if (m_pPrj && m_bTagNamingChanged)
         {
-        _asm int 3;
+        //_asm int 3;
 #if WithNumericTags
         int TagsChngd = gs_Exec.CheckAllTags(!m_NumTagsOK, !m_NumStartingOK);
 #else
@@ -2044,7 +1617,7 @@ void CGrfTagsPage::OnOK()
 #if WithNumericTags
           m_pSet->m_NumericTagsBad = !m_NumTagsOK;
 #endif
-          m_pSet->m_NumericStartingTagsBad = !m_NumStartingOK;
+          m_pSet->m_NumericStartingTagsBad = (m_NumStartingOK!=0 ? 0 : 1);
           if (TagsChngd>0)
             {
             CWaitCursor Wait;
@@ -2083,87 +1656,12 @@ void CGrfTagsPage::OnOK()
 
 //---------------------------------------------------------------------------
 
-//void CGrfTagsPage::OnTimeChanged()
-//  {
-//  m_bTimeChanged = 1;
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CGrfTagsPage::OnKillfocusPrjCurrenttime()
-//  {
-//  UpdateData(true);
-//  CTimeValue t;
-//  if (t.Parse(m_CurrentTimeHMS))
-//    {
-//    if (t>=0.0)
-//      {
-//      LPCTSTR Tm=t.Format(TD_TimeDate);
-//      m_CurrentTimeHMS = Tm;
-//      Tm=t.Format(TD_Time);
-//      SetDlgItemText(IDC_DATETIME_TXT, Tm);
-//      UpdateData(false);
-//      }
-//    }
-//  }
-//
-//void CGrfTagsPage::OnUpdateCurrentTime(CCmdUI* pCmdUi)
-//  {
-//  pCmdUi->Enable(!DefNetProbalMode() && !m_SyncWithClock);
-//  }
-//
-////---------------------------------------------------------------------------
-//
-//void CGrfTagsPage::OnCbnSelchangePrjnetmodecombo()
-//  {
-//  UpdateData(true);
-//
-//  m_NetMode = m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : 0;
-//  LoadCBs(true);
-//
-//  UpdateData(false);
-//  }
-//
-//---------------------------------------------------------------------------
-
-//void CGrfTagsPage::OnPrjProbalOrDynamic()
-//  {
-//  int Prev=m_SolveMd;
-//  UpdateData(true);
-//  if (m_SolveMd!=Prev)
-//    {
-//    long SMd=0;
-//    switch (m_SolveMd)
-//      {
-//      case 0: SMd=SM_Direct; break;
-//      case 1: SMd=SM_Inline; break;
-//      case 2: SMd=SM_Buffered; break;
-//      }
-//    long HMd=HM_Full;
-//
-//    gs_Exec.SetGlblRunModes(SMd|HMd, NSHM_All);
-//
-//    m_bTimeChanged=1;
-//    m_SyncWithClock=0;
-//    DoSyncChange();
-//    UpdateData(false);
-//    UpdateDialogControls(this, FALSE);
-//    }
-//  }
-
-//void CGrfTagsPage::OnUpdateDynamic(CCmdUI* pCmdUi)
-//  {
-//  pCmdUi->Enable(DefNetDynamicMode());
-//  }
-
-//---------------------------------------------------------------------------
-
 void CGrfTagsPage::OnNumTagsChanged()
   {
   UpdateData(true);
   m_bTagNamingChanged = 1;
 #if WithNumericTags
-  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+  m_NumStartingOK = ((m_NumStartingOK || m_NumTagsOK) ? 1 : 0);
 #endif
   UpdateData(false);
   }
@@ -2174,42 +1672,13 @@ void CGrfTagsPage::OnNumStTagsChanged()
   {
   UpdateData(true);
   m_bTagNamingChanged = 1;
-  //  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
 #if WithNumericTags
-  m_NumTagsOK = m_NumTagsOK && m_NumStartingOK;
+  m_NumTagsOK = ((m_NumTagsOK && m_NumStartingOK) ? 1 : 0);
 #endif
   UpdateData(false);
   }
 
 //---------------------------------------------------------------------------
-
-//void CGrfTagsPage::OnSynchronise()               
-//  {
-//  UpdateData(true);
-//  DoSyncChange();
-//  UpdateData(false);
-//  UpdateDialogControls(this, FALSE);
-//  }
-//
-//void CGrfTagsPage::DoSyncChange()
-//  {
-//  m_bTimeChanged = 1;
-//  if (m_SyncWithClock)
-//    {
-//    __time64_t t;
-//    _time64(&t); //this Initialisation must occur
-//    CTimeValue tv((double)t);
-//    m_CurrentTimeHMS = tv.Format(TD_TimeDate);
-//    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : tv.Format(TD_Time));
-//    }
-//  else
-//    {
-//    LPCTSTR Tm=m_CurrentTimeAtInit.Format(TD_TimeDate);
-//    m_CurrentTimeHMS = Tm;
-//    Tm=m_CurrentTimeAtInit.Format(TD_Time);
-//    SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
-//    }
-//  }
 
 void CGrfTagsPage::OnBnClickedLibrarybtn()
   {
@@ -2218,13 +1687,14 @@ void CGrfTagsPage::OnBnClickedLibrarybtn()
     //SetGraphicsOptions();
   }
 
+//---------------------------------------------------------------------------
+
 void CGrfTagsPage::OnEnChangeLibrary()
   {
   SetLibraryOptions();
-  //GetGraphicsOptions();
-  // SetGraphicsOptions();
   }
 
+//---------------------------------------------------------------------------
 
 void CGrfTagsPage::OnEnChangeGrpfilter()
   {
@@ -2234,6 +1704,7 @@ void CGrfTagsPage::OnEnChangeGrpfilter()
   SetLibraryOptions();
   }
 
+//---------------------------------------------------------------------------
 //===========================================================================
 
 IMPLEMENT_DYNCREATE(CCommsPage, CCustomPropertyPage)

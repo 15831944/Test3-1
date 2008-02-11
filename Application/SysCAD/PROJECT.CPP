@@ -1905,8 +1905,8 @@ flag CProjectSettings::WriteSettings(CProfINIFile & PF, bool FullSave)
 #if WithNumericTags
   PF.WrLong("General", "NumericTagsBad",          m_NumericTagsBad);
 #endif
-  PF.WrLong("General", "NumericStartingTagsBad",  m_NumericStartingTagsBad);
-  PF.WrLong("General", "NonNumericTagChr",        m_NonNumericTagChr);
+  PF.WrLong("General", "NumericStartingTagsBad",  m_NumericStartingTagsBad?1:0);
+  PF.WrLong("General", "NonNumericTagChr",        (long)m_NonNumericTagChr);
 
   PF.WrLong("General", "GrfBehaviour",            m_GrfBehaviour);
   PF.WrLong("General", "TrndBehaviour",           m_TrndBehaviour);
@@ -3493,8 +3493,8 @@ flag CProject::OnChangeCurrentSettings(LPCTSTR Title, int WhichPage)
     else
       {
       CProfINIFile PF(PrjIniFile());
-      MainWnd()->m_pPrjSheet = new CProjectSettingsDlg(false, this, this, Title, MainWnd(),
-        WhichPage>=0 ? WhichPage : PF.RdInt("General", "PrjOptionsPageNo", 0));
+      const UINT Pg = WhichPage>=0 ? WhichPage : PF.RdInt("General", "PrjOptionsPageNo", 0);
+      MainWnd()->m_pPrjSheet = new CProjectSettingsDlg(false, this, this, Title, MainWnd(), Pg);
       }
     }
 
