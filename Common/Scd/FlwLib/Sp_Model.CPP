@@ -8461,7 +8461,7 @@ double SpModel::pHnegLogH(CSysVector * pMA)
   if (TolMass<MeasTolerance)
     return 7.0;
 
-  const double LiqVol  = GTZ(MA.Volume(m_iFidelity, som_Liq, C2K(25.0), StdP, NULL));
+  const double LiqVol  = GTZ(MA.Volume(m_iFidelity, DensityMethod(), som_Liq, C2K(25.0), StdP, NULL));
   int Na=0;
   int Nb=0;
   CSVLongArray &A = SDB.m_Acids;
