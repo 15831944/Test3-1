@@ -59,10 +59,10 @@ static bool dbgConnect() { return 1; }
   dbgpln("%-30s  >>> %7s %7s %s  %-20s  %s  %s  %s", Method, "", "", Guid, Tag, Path, Shape, Model);               \
   dbgindent(2);                                                                                                    \
   }
-#define DO_ENTRY_GGTPSM(Method, GrfGuid, MdlGuid, Tag, Path, Shape, Model)                                                      \
+#define DO_ENTRY_GGTPSM(Method, MdlGuid, GrfGuid, Tag, Path, Shape, Model)                                                      \
   if (dbgConnect())                                                                                                  \
   {                                                                                                                \
-  dbgpln("%-30s  >>> %7s %7s %s  %s  %-20s  %s  %s  %s", Method, "", "", GrfGuid, MdlGuid, Tag, Path, Shape, Model);               \
+  dbgpln("%-30s  >>> %7s %7s %s  %s  %-20s  %s  %s  %s", Method, "", "", MdlGuid, GrfGuid, Tag, Path, Shape, Model);               \
   dbgindent(2);                                                                                                    \
   }
 
@@ -348,7 +348,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
         CString ModelGuid = pNode->Guid();
 
-        DO_ENTRY_GGTPSM("DoCreateNodeE", GraphicGuid, ModelGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
+        DO_ENTRY_GGTPSM("DoCreateNodeE", ModelGuid, GraphicGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
 
         float boxW = float(int(GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X));
         float boxH = float(int(GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y));
@@ -392,7 +392,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         CString DstGrfGuid = "Grf GUID Fetch Failed";
         CString DstPort    = pNode->IODesc_Rmt(1)->IOName();
 
-        DO_ENTRY_GGTPSM("DoCreateLinkE", GraphicGuid, ModelGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle),"","");
+        DO_ENTRY_GGTPSM("DoCreateLinkE", ModelGuid, GraphicGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle),"","");
 
         CExistingItems::CGroupIndex SInx;
         if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(0)->Tag(), SInx))
@@ -437,7 +437,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           -GTI.m_Tag.m_Rotation, true);
 
 
-        DO_EXIT_G("DoCreateLinkE", ModelGuid);
+        DO_EXIT_GG("DoCreateLinkE", ModelGuid, GraphicGuid);
         }
 
       // Remove Original Symbol
@@ -832,7 +832,7 @@ void CSvcConnect::GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GraphicGuid)
 
 void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid)
   {
-  ON_ENTRY_GT("OnDeleteItem", Guid, "");
+  ON_ENTRY_GT("OnDeleteNodeG", Guid, "");
 
   Strng Tag;
   flag IsLink;
@@ -861,7 +861,7 @@ void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid)
     // ... Error
     }
 
-  ON_EXIT("OnDeleteItem");
+  ON_EXIT("OnDeleteNodeG");
   };
 
 //------------------------------------------------------------------------
@@ -1001,8 +1001,8 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
                                 
   m_pCLR->AddCreateLink(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, 
-          SrcGrfGuid, DstGrfGuid, 
           SrcMdlGuid, DstMdlGuid, 
+          SrcGrfGuid, DstGrfGuid, 
           SrcPort, DstPort,
           ControlPoints, textBox, 0.0, false);
 
@@ -1089,12 +1089,18 @@ void CSvcConnect::OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid,
 
   ON_ENTRY_GT("OnCreateLinkM", Guid, tag);
 
+
   try
     {
 
     FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
     FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
 
+#if WITHDBGLINES
+    dbgpln("Guids:%-40s %-40s", OriginGuid, DestinationGuid);
+    dbgpln("Tags :%-40s %-40s", pSrc?pSrc->Tag():"", pDst?pDst->Tag():"");
+    dbgpln("Ports:%-40s %-40s", OriginPort, DestinationPort);
+#endif
 
     m_Ctrl.SetXObjArray(gs_pTheSFELib);
 

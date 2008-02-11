@@ -3404,7 +3404,7 @@ CString TaggedObject::CreateGuidStr()
 #endif
 
   RpcStringFree(&psEqGUID);
-  dbgpln("CreateGuidStr:%s", Guid);
+  //dbgpln("CreateGuidStr:%s", Guid);
   return Guid;
   }
 
