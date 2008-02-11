@@ -7,6 +7,7 @@
 //#include "optoff.h"
 
 #define dbgMakeup  0
+#define dbgMakeup1 0
 
 //=========================================================================
 //
@@ -475,9 +476,9 @@ class DllImportExport CMeasInfo
       {
       switch (Which)
         {
-        case  0: return m_CIStr.Set("E\tNo Phase Selected for %s", m_Tag());
-        case  1: return m_CIStr.Set("E\tNo Species Selected for %s", m_Tag());
-        case  2: return m_CIStr.Set("E\tNo Element Selected for %s", m_Tag());
+        case  0: return m_CIStr.Set("E\tMakeup:No Phase Selected for %s", m_Tag());
+        case  1: return m_CIStr.Set("E\tMakeup:No Species Selected for %s", m_Tag());
+        case  2: return m_CIStr.Set("E\tMakeup:No Element Selected for %s", m_Tag());
         };
       return "???";
       }
@@ -1964,18 +1965,27 @@ class CFeedMkUpFnd : public MRootFinder
     CFeedMkUpFnd(CXBlk_MUBase * pMU, LPCTSTR pTag, SpConduit * pIn, SpConduit * pSrc, SpConduit * pSrcWrk, SpConduit * pPrd, double TRqd, double PRqd, CToleranceBlock & Tol) : \
       m_pMU(pMU), m_pTag(pTag), m_MeasInfo(*pIn), m_Src(*pSrc), m_SrcWrk(*pSrcWrk), m_Prd(*pPrd), m_TRqd(TRqd), m_PRqd(PRqd), MRootFinder("MkUpFnd", Tol)
       { 
-      if (dbgMakeup)
-        {
+#if dbgMakeup
         dbgpln(" FeedSetPt:%20.6f %-25s ========================================================================", 
           m_pMU->GetSetPoint(), m_pTag);
-        }
-      };
+#endif
+    };
     LPCTSTR ObjTag() { return m_pTag; };
     double Function(double Qm)
-      {
+    {
       m_Prd.QCopy(m_MeasInfo);
+#if dbgMakeup1  
+      dbgpln("      %116sPrd:SL:%10.2f G:%10.2f T:%10.2f P:%10.2f Rho:%10.2f", "", m_Prd.QMass(som_SL), m_Prd.QMass(som_Gas), m_Prd.Temp(), m_Prd.Press(), m_Prd.Rho());
+#endif
       m_SrcWrk.QSetM(m_Src, som_ALL, Qm);
+#if dbgMakeup1  
+      dbgpln("      %116sSrc:SL:%10.2f G:%10.2f T:%10.2f P:%10.2f Rho:%10.2f", "", m_Src.QMass(som_SL), m_Src.QMass(som_Gas), m_Src.Temp(), m_Src.Press(), m_Src.Rho());
+      dbgpln("      %116sWrk:SL:%10.2f G:%10.2f T:%10.2f P:%10.2f Rho:%10.2f", "", m_SrcWrk.QMass(som_SL), m_SrcWrk.QMass(som_Gas), m_SrcWrk.Temp(), m_SrcWrk.Press(), m_SrcWrk.Rho());
+#endif
       m_Prd.QAddF(m_SrcWrk, som_ALL, 1.0);
+#if dbgMakeup1  
+      dbgpln("      %116sPrd:SL:%10.2f G:%10.2f T:%10.2f P:%10.2f Rho:%10.2f", "", m_Prd.QMass(som_SL), m_Prd.QMass(som_Gas), m_Prd.Temp(), m_Prd.Press(), m_Prd.Rho());
+#endif
 
       m_TMix = m_Prd.Temp();
       if (Valid(m_TRqd))
@@ -1983,11 +1993,13 @@ class CFeedMkUpFnd : public MRootFinder
 
       m_Measured = m_pMU->GetMeasVal(m_MeasInfo, m_SrcWrk, m_Prd);
 
-      if (dbgMakeup)
-        {
-        dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6e %s", 
-          m_Measured, Qm, m_MeasInfo.QMass(), m_Src.QMass(), m_pTag);
-        }
+#if dbgMakeup1  
+      dbgpln("      %116sPrd:SL:%10.2f G:%10.2f T:%10.2f P:%10.2f Rho:%10.2f", "", m_Prd.QMass(som_SL), m_Prd.QMass(som_Gas), m_Prd.Temp(), m_Prd.Press(), m_Prd.Rho());
+#endif
+#if dbgMakeup
+      dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6e %s", 
+        m_Measured, Qm, m_MeasInfo.QMass(), m_Src.QMass(), m_pTag);
+#endif
 
       return m_Measured;
       };
@@ -2014,6 +2026,11 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
   {
   FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
   ASSERT_ALWAYS(pNd!=0, "Should always be part of a FlwNode", __FILE__, __LINE__);
+
+  SpConduit &QSrc=SrcIO.Cd;
+
+  if (QProd.QMass()<1e-10)
+    QProd.SetTempPress(QSrc.Temp(), QSrc.Press());
 
   switch (m_Op)
     {
@@ -2044,7 +2061,6 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
   m_bStopMakeUp = m_pMakeupBase->On() && (m_eLoFeedOpt>LF_AlwaysOn) && (m_QmFeed<m_LoFeedQm); 
 
   StkSpConduit QMkUp("QMkUp", "SrcWrk", pNd);
-  SpConduit &QSrc=SrcIO.Cd;
 
   m_TempMkUp = QSrc.Temp();
 
@@ -2069,6 +2085,10 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
     // Copy to Src if Self
     if (m_eSource==Src_Self)
       QSrc.QSetF(QProd, som_ALL, 1.0);
+
+#if dbgMakeup  
+    dbgpln("Src:SL:%10.2f G:%10.2f T:%10.2f P:%10.2f Rho:%10.2f", QSrc.QMass(som_SL), QSrc.QMass(som_Gas), QSrc.Temp(), QSrc.Press(), QSrc.Rho());
+#endif
 
     double TReqd;
     switch (m_eRqdTemp)
@@ -2202,8 +2222,8 @@ flag CXBlk_MUBase::CIStrng(int No, pchar & pS)
   switch (i)
     {
     //case  1: pS="E\tConverge Error"; return 1;
-    case   2: pS="W\tRequirement not Achieved - Low Limit"; return 1;
-    case   3: pS="W\tRequirement not Achieved - High Limit"; return 1;
+    case   2: pS="W\tMakeup:Requirement not Achieved - Low Limit"; return 1;
+    case   3: pS="W\tMakeup:Requirement not Achieved - High Limit"; return 1;
     case   4: pS="E\tMakeup has No Effect"; return 1;
     case   5: 
     case   6: 
@@ -2211,7 +2231,7 @@ flag CXBlk_MUBase::CIStrng(int No, pchar & pS)
     case   8: 
     case   9: 
     case  10: pS = m_Meas2.CIStr(i-8); return 1;
-    case  11: pS="N\tLow Feed - Makeup Stopped"; return 1;
+    case  11: pS="N\tMakeup:Low Feed - Makeup Stopped"; return 1;
     case  12: pS="W\tMakeup appears poorly configured"; return 1;
     default:
       return CMakeupBlock::CIStrng(No, pS);
