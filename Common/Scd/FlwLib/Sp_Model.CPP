@@ -8427,14 +8427,17 @@ double SpModel::SurfaceTension(PhMask Phase, double T_, double P_, CSysVector * 
 
 // --------------------------------------------------------------------------
 
-byte   SpModel::pHState(CSysVector * pMA)
+byte SpModel::pHState(CSysVector * pMA)
   {
   CSysVector & MA = pMA==NULL ? MArray() : *pMA;
+  const double TolMass = MA.Mass(som_Liq)*1e-12;
+  if (TolMass<MeasTolerance)
+    return pH_OK;
+
   int Na=0;
   int Nb=0;
   CSVLongArray &A = SDB.m_Acids;
   CSVLongArray &B = SDB.m_Bases;
-  double TolMass = MA.Mass(som_Liq)*1e-12;
   for (int a=0; a<A.GetCount(); a++)
     {
     if (MA[A[a]]>TolMass)
@@ -8447,18 +8450,22 @@ byte   SpModel::pHState(CSysVector * pMA)
     }
 
   return (Na && Nb) ? pH_AcidAndBase : pH_OK;
-  };
+  }
+
+// --------------------------------------------------------------------------
 
 double SpModel::pHnegLogH(CSysVector * pMA)
   {
   CSysVector & MA = pMA==NULL ? MArray() : *pMA;
+  const double TolMass = MA.Mass(som_Liq)*1e-12;
+  if (TolMass<MeasTolerance)
+    return 7.0;
+
+  const double LiqVol  = GTZ(MA.Volume(m_iFidelity, som_Liq, C2K(25.0), StdP, NULL));
   int Na=0;
   int Nb=0;
   CSVLongArray &A = SDB.m_Acids;
   CSVLongArray &B = SDB.m_Bases;
-  double TolMass = MA.Mass(som_Liq)*1e-12;
-  double LiqVol  = GTZ(MA.Volume(m_iFidelity, DensityMethod(), som_Liq, C2K(25.0), StdP, NULL));
-
   double H=0.0;
   for (int a=0; a<A.GetCount(); a++)
     {
@@ -8474,7 +8481,7 @@ double SpModel::pHnegLogH(CSysVector * pMA)
         H += CbNxt;
         Cb = CbNxt;
         }
-      };
+      }
     }
 
   double OH=0;
@@ -8493,19 +8500,22 @@ double SpModel::pHnegLogH(CSysVector * pMA)
   if (H>OH)
     return -log10(H-OH);
   else if (OH>H)
-    return 14-(-log10(OH-H));
+    return 14.0-(-log10(OH-H));
   else
-    return 7;
-  };
+    return 7.0;
+  }
 
 // --------------------------------------------------------------------------
 
-LPSTR  SpModel::pHAcids()  
+LPSTR SpModel::pHAcids()  
   {
   CSysVector & MA = MArray();
-  CSVLongArray &A = SDB.m_Acids;
-  double TolMass = MA.Mass(som_Liq)*1e-12;
   m_sAcids="";
+  const double TolMass = MA.Mass(som_Liq)*1e-12;
+  if (TolMass<MeasTolerance)
+    return m_sAcids();
+
+  CSVLongArray &A = SDB.m_Acids;
   for (int a=0; a<A.GetCount(); a++)
     {
     int s=A[a];
@@ -8517,14 +8527,19 @@ LPSTR  SpModel::pHAcids()
       }
     }
   return m_sAcids();
-  };
+  }
+
+// --------------------------------------------------------------------------
 
 LPSTR  SpModel::pHBases()                          
   {
   CSysVector & MA = MArray();
-  CSVLongArray &B = SDB.m_Bases;
-  double TolMass = MA.Mass(som_Liq)*1e-12;
   m_sBases="";
+  const double TolMass = MA.Mass(som_Liq)*1e-12;
+  if (TolMass<MeasTolerance)
+    return m_sBases();
+
+  CSVLongArray &B = SDB.m_Bases;
   for (int b=0; b<B.GetCount(); b++)
     {
     int s=B[b];
@@ -8536,7 +8551,7 @@ LPSTR  SpModel::pHBases()
       }
     }
   return m_sBases();
-  };
+  }
 
 // --------------------------------------------------------------------------
 
