@@ -783,28 +783,30 @@ void CSvcConnect::OnDeleteNodeM(__int64 eventId, __int64 requestId, LPCSTR Guid)
   flag IsLink;
   if (gs_pPrj->FindNodeInfoFromGuid((LPSTR)Guid, Tag, IsLink))
     {
-
-    ON_ENTRY_GT("OnDeleteNodeM", Guid, Tag());
-
-    try
+    if (!IsLink)
       {
-      m_Ctrl.SetXObjArray(gs_pTheSFELib);
+      ON_ENTRY_GT("OnDeleteNodeM", Guid, Tag());
 
-      int RetCode = gs_Exec.SCDeleteNodeM(m_Ctrl, Tag(), Guid);
-
-
-      if (RetCode!=EOSC_DONE)
+      try
         {
-        LogError(NETSERVERNAME, 0, "DeleteNode '%s' failed!", Tag());
-        //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
-        }
-      }
-    catch(...)
-      {
-      LogError(NETSERVERNAME, 0, "Exception in CreateNode '%s'", Tag());
-      }
+        m_Ctrl.SetXObjArray(gs_pTheSFELib);
 
-    ON_EXIT_G("OnDeleteNodeM", Guid);
+        int RetCode = gs_Exec.SCDeleteNodeM(m_Ctrl, Tag(), Guid);
+
+
+        if (RetCode!=EOSC_DONE)
+          {
+          LogError(NETSERVERNAME, 0, "DeleteNode '%s' failed!", Tag());
+          //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
+          }
+        }
+      catch(...)
+        {
+        LogError(NETSERVERNAME, 0, "Exception in CreateNode '%s'", Tag());
+        }
+
+      ON_EXIT_G("OnDeleteNodeM", Guid);
+      }
     }
   }
 
@@ -832,7 +834,6 @@ void CSvcConnect::GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GraphicGuid)
 
 void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid)
   {
-  ON_ENTRY_GT("OnDeleteNodeG", Guid, "");
 
   Strng Tag;
   flag IsLink;
@@ -841,6 +842,7 @@ void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid)
     {
     if (!IsLink)
       {
+      ON_ENTRY_GT("OnDeleteNodeG", Guid, "");
       m_Ctrl.ClrXObjArray();
 
       int RetCode = gs_Exec.SCDeleteNodeG(m_Ctrl, Tag(), Guid, "???");
@@ -850,18 +852,18 @@ void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid)
         //DeletesFailedCnt++;
         }
 
+      ON_EXIT("OnDeleteNodeG");
       }
     else
       {
       // Links should be deleted by OnDeleteLink
       }
     }
-  else
-    {
-    // ... Error
-    }
+  //else
+  //  {
+  //  // ... Error
+  //  }
 
-  ON_EXIT("OnDeleteNodeG");
   };
 
 //------------------------------------------------------------------------
@@ -1141,7 +1143,6 @@ void CSvcConnect::GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR GraphicGuid)
 
 void CSvcConnect::OnDeleteLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid)
   {
-  ON_ENTRY_GT("OnDeleteLink", Guid, "");
 
   Strng Tag;
   flag IsLink;
@@ -1150,6 +1151,7 @@ void CSvcConnect::OnDeleteLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid)
     {
     if (IsLink)
       {
+      ON_ENTRY_GT("OnDeleteLinkM", Guid, "");
       m_Ctrl.ClrXObjArray();
 
       int RetCode = gs_Exec.SCDeleteLinkM(m_Ctrl, Tag(), Guid);
@@ -1159,34 +1161,28 @@ void CSvcConnect::OnDeleteLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid)
         //DeletesFailedCnt++;
         }
 
+      ON_EXIT("OnDeleteLinkM");
       }
     else
       {
       // Links should be deleted by OnDeleteLink
       }
     }
-  else
-    {
-    // ... Error
-    }
 
-  ON_EXIT("OnDeleteLink");
   };
 
 //------------------------------------------------------------------------
 
 void CSvcConnect::OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid)
   {
-  ON_ENTRY_GT("OnDeleteLink", Guid, "");
-
   Strng Tag;
   flag IsLink;
   Strng_List Pages;
-  _asm int 3; // to fix grf/mdl guids
-  if (gs_pPrj->FindNodeInfoFromGuid((LPSTR)Guid, Tag, IsLink))
+  if (1)//gs_pPrj->FindNodeInfoFromGuid((LPSTR)Guid, Tag, IsLink))
     {
-    if (IsLink)
+    if (1)//IsLink)
       {
+      ON_ENTRY_GT("OnDeleteLinkG", Guid, "");
       m_Ctrl.ClrXObjArray();
 
       int RetCode = gs_Exec.SCDeleteLinkG(m_Ctrl, Tag(), Guid);
@@ -1195,19 +1191,13 @@ void CSvcConnect::OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid)
         LogError(Tag(), 0, "Link not deleted");
         //DeletesFailedCnt++;
         }
-
+      ON_EXIT("OnDeleteLinkG");
       }
     else
       {
       // Links should be deleted by OnDeleteLink
       }
     }
-  else
-    {
-    // ... Error
-    }
-
-  ON_EXIT("OnDeleteLink");
   };
 
 

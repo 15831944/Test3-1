@@ -450,7 +450,7 @@ int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   return EOSC_DONE;
   };
 
-int CGrfWnd::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
+int CGrfWnd::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GrfGuid, LPCSTR path)
   {
   int RetCode = EOSC_NOTFOUND;
 
@@ -458,7 +458,8 @@ int CGrfWnd::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   if (gs_pPrj->SvcActive)
     {
     DXF_ENTITY eInsert, eAttrib;
-    if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
+    if ((pTag && Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib)) ||
+        (GrfGuid && Dsp.FindGuid((LPSTR)GrfGuid, eInsert, eAttrib)))
       {
       Dsp.Open();
 
@@ -646,7 +647,7 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGu
   return EOSC_DONE;
   };
 
-int CGrfWnd::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
+int CGrfWnd::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GrfGuid /*, LPCSTR path*/)
   {
   int RetCode = EOSC_NOTFOUND;
 
@@ -654,7 +655,8 @@ int CGrfWnd::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
   if (gs_pPrj->SvcActive)
     {
     DXF_ENTITY eInsert, eAttrib;
-    if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
+    if ((pTag && Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib)) ||
+        (GrfGuid && Dsp.FindGuid((LPSTR)GrfGuid, eInsert, eAttrib)))
       {
       Dsp.Open();
 

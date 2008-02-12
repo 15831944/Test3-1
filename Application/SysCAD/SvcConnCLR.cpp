@@ -715,16 +715,24 @@ ref class CSvcConnectCLRThread
 
       if (clientProtocol->graphic->Links->TryGetValue(*guid, GLnk))
         {
-        //ModelLink ^MLnk = GLnk->MdlGuid;
+        //ModelLink ^MLnk = GLnk->ModelGuid;
 
+        action->Delete->Add(GLnk->ModelGuid);
+        //action->Delete->Add(GLnk->Guid);
+
+        m_pConn->dbgPrintLn("Init  Delete Lnk Mdl  : %s", ToCString(GLnk->ModelGuid.ToString()));
+        //m_pConn->dbgPrintLn("Delete Lnk Grf  : %s", ToCString(GLnk->Guid->ToString()));
+
+        for each (System::Collections::Generic::KeyValuePair<System::Guid, SysCAD::Protocol::GraphicLink ^> KVPair in clientProtocol->graphic->Links)
+          {
+          SysCAD::Protocol::GraphicLink ^ GLnk1 = KVPair.Value;
+          if (GLnk->ModelGuid == GLnk1->ModelGuid)
+            {
+            action->Delete->Add(GLnk1->Guid);
+            m_pConn->dbgPrintLn("Check Delete Lnk Grf  : %s", ToCString(GLnk1->Guid.ToString()));
+            }
+          } 
         }
-
-
-      //clientProtocol->graphic->Links ;
-      //for each (SysCAD::Protocol::GraphicLink^ GLnk in clientProtocolGraphic->Links )
-        //{
-        //  {
-        //}
       //action->Delete->Add(Guid(gcnew String(GraphicGuid)));
       //action->Delete->Add(Guid(gcnew String(ModelGuid)));
 

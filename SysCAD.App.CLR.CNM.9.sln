@@ -392,7 +392,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overview", "GUIs\FlowChart.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PureComponents TreeView VS2005 SRC", "GUIs\TreeView\PureComponents TreeView VS2005 SRC.csproj", "{07620E7A-1355-41BB-A084-B72B24401F4B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Alumina2", "SMDK\TransCritical\Alumina2\Alumina2.9.vcproj", "{96E1E755-DDA4-4437-9456-273B14D65001}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ks.Alumina2", "SMDK\TransCritical\Alumina2\Alumina2.9.vcproj", "{96E1E755-DDA4-4437-9456-273B14D65001}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
 		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838} = {FAF21E45-D5A0-4812-8A6B-3373C1CFC838}
@@ -6847,6 +6847,7 @@ Global
 		{ED8B341A-7180-480E-A8B7-C5D242FDDC52}.Release_Dbg|Any CPU.ActiveCfg = Release|Any CPU
 		{ED8B341A-7180-480E-A8B7-C5D242FDDC52}.Release_Dbg|Any CPU.Build.0 = Release|Any CPU
 		{ED8B341A-7180-480E-A8B7-C5D242FDDC52}.Release_Dbg|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{ED8B341A-7180-480E-A8B7-C5D242FDDC52}.Release_Dbg|Mixed Platforms.Build.0 = Release|Any CPU
 		{ED8B341A-7180-480E-A8B7-C5D242FDDC52}.Release_Dbg|Win32.ActiveCfg = Release|Any CPU
 		{ED8B341A-7180-480E-A8B7-C5D242FDDC52}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release|Any CPU
 		{ED8B341A-7180-480E-A8B7-C5D242FDDC52}.Release_DbgCLR Full|Any CPU.Build.0 = Release|Any CPU
