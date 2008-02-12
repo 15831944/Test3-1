@@ -710,7 +710,22 @@ ref class CSvcConnectCLRThread
       {
       SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
 
-      action->Delete->Add(Guid(gcnew String(GraphicGuid)));
+      Guid ^ guid = gcnew Guid(gcnew String(GraphicGuid));
+      SysCAD::Protocol::GraphicLink ^GLnk;
+
+      if (clientProtocol->graphic->Links->TryGetValue(*guid, GLnk))
+        {
+        //ModelLink ^MLnk = GLnk->MdlGuid;
+
+        }
+
+
+      //clientProtocol->graphic->Links ;
+      //for each (SysCAD::Protocol::GraphicLink^ GLnk in clientProtocolGraphic->Links )
+        //{
+        //  {
+        //}
+      //action->Delete->Add(Guid(gcnew String(GraphicGuid)));
       //action->Delete->Add(Guid(gcnew String(ModelGuid)));
 
       clientProtocol->Change(requestId, action);

@@ -4206,27 +4206,6 @@ void GrfCmdBlk::DoConnect()
               ControlPoints.AddTail(CPointF(PtX, PtY));
               }
 
-  //CString ModelGuid  = pNode->Guid();
-  //CString SrcMdlGuid = pNode->Nd_Rmt(0)->Guid();
-  //CString SrcGrfGuid = "Grf GUID Fetch Failed";
-  //CString SrcPort    = pNode->IODesc_Rmt(0)->IOName();
-  //CString DstMdlGuid = pNode->Nd_Rmt(1)->Guid();
-  //CString DstGrfGuid = "Grf GUID Fetch Failed";
-  //CString DstPort    = pNode->IODesc_Rmt(1)->IOName();
-
-  //DO_ENTRY_GGTPSM("DoCreateLinkE", GraphicGuid, ModelGuid, I.m_sTag, MakePath(projectPath, Grp.m_sTitle),"","");
-
-  //CExistingItems::CGroupIndex SInx;
-  //if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(0)->Tag(), SInx))
-  //  SrcGrfGuid = Grp.m_GTIA[SInx.m_iGTIA].m_sGuid();
-  //else
-  //  LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(0)->Tag());
-
-  //CExistingItems::CGroupIndex DInx;
-  //if (GI.m_TagMap.Lookup(pNode->Nd_Rmt(1)->Tag(), DInx))
-  //  DstGrfGuid = Grp.m_GTIA[DInx.m_iGTIA].m_sGuid();
-  //else
-  //  LogError("Upgrade2Scd10", 0, "Tag Not in Graphics %s", pNode->Nd_Rmt(1)->Tag());
 
             gs_pPrj->Svc.GCBCreateLink((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), ATag(), AClass(), 
               SrcGrfGuid(), DstGrfGuid(), SrcMdlGuid(), DstMdlGuid(), 
@@ -7895,9 +7874,7 @@ void GrfCmdBlk::DoDelete()
             if (DelMdl)
               { 
               LPCSTR pGrfGuid= Scd10GetGrfGuid(e);
-              //    if (pGrfGuid)
 
-              //LPCSTR pTag = Scd10GetTag(e);
               if (pGrfGuid)
                 {
                 CMdlValueSet::Clear();
@@ -7910,6 +7887,8 @@ void GrfCmdBlk::DoDelete()
                   gs_pPrj->Svc.GCBDeleteNode(e, pGrfGuid);
                 SCD10LEAVE;
                 }
+              else
+                LogError("DeleteNode/Link", 0, "Guid does not exist");
               }
             }
           else

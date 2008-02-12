@@ -1130,19 +1130,11 @@ void CSvcConnect::OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid,
 
 void CSvcConnect::GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR GraphicGuid)
   {
+  DO_ENTRY_GT("GCBDeleteLink", GraphicGuid, "");
 
-  //Strng Guid;
-  //if (gs_pPrj->GetNodeTaGuid((LPSTR)Tag, Guid))
-  //  {
-    DO_ENTRY_GT("GCBDeleteLink", GraphicGuid, "");
+  m_pCLR->DoDeleteLink(m_lRequestIdRet, GraphicGuid);
 
-    m_pCLR->DoDeleteLink(m_lRequestIdRet, GraphicGuid);
-
-    DO_EXIT("GCBDeleteLink");
-  //  }
-  //else
-  //  {
-  //  }
+  DO_EXIT("GCBDeleteLink");
   }
 
 //------------------------------------------------------------------------
