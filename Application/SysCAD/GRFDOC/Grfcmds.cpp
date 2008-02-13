@@ -4430,7 +4430,7 @@ void GrfCmdBlk::DoMoveLink()
               }
 
             CRectangleF TA(0.0, 0.0, 0.0, 0.0);
-            gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints, TA, 0.0, !bFlag1);
+            gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints, CSvcTagBlk(TA, 0.0, !bFlag1));
             SCD10LEAVE;
             }
           else
@@ -9368,7 +9368,9 @@ void GrfCmdBlk::DoUpdateTags()
                     SCD10ENTER;
                     //What about Symbol only ??????????
                     gs_pPrj->Svc.GCBModifyTagG((CGrfDoc*)pDoc, TAtt, Find_Attr_Value(Ins, GuidAttribStr),  
-                      Delta, DXF_ATTRIB_HEIGHT(TAtt), DXF_ATTRIB_ROT_ANG(TAtt), (DXF_ATTRIB_AFLAGS(TAtt)&DXF_ATTRIB_INVIS)==0);
+                      Delta, 
+                      CSvcTagBlk(CRectangleF(DXF_ATTRIB_PT(TAtt)[0], DXF_ATTRIB_PT(TAtt)[1], /*Width?*/ 0,
+                      DXF_ATTRIB_HEIGHT(TAtt)), (float)DXF_ATTRIB_ROT_ANG(TAtt), (DXF_ATTRIB_AFLAGS(TAtt)&DXF_ATTRIB_INVIS)==0));
 
                     SCD10LEAVE;
                     }

@@ -364,8 +364,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           MakePath(projectPath, Grp.m_sTitle), Model, Shape,
           CRectangleF(boxX, boxY, boxW, boxH),
           0.0, 
-          CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
-          -GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible!=0,
+          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), -GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible!=0),
           COLORREF(0), false, false);
 
         DO_EXIT_GG("DoCreateNodeE", ModelGuid, GraphicGuid);
@@ -433,8 +432,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           SrcGrfGuid, DstGrfGuid, 
           SrcPort, DstPort, 
           CtrlPts,
-          CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), 
-          -GTI.m_Tag.m_Rotation, true);
+          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), -GTI.m_Tag.m_Rotation, true));
 
 
         DO_EXIT_GG("DoCreateLinkE", ModelGuid, GraphicGuid);
@@ -680,7 +678,7 @@ void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
   CRectangleF textBox(boundingRect.MidX(), boundingRect.Top(), 2.0f*strlen(Tag), 3.0f);
 
-  m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, textBox, 0.0, true, 0, false, false); // !!! tagArea not used.
+  m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CSvcTagBlk(textBox, 0.0, true), 0, false, false); // !!! tagArea not used.
 
   if (!m_pCLR->ProcessChangeLists(m_lRequestIdRet))
     {
@@ -698,7 +696,7 @@ void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
 void CSvcConnect::OnCreateNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, LPCSTR path, 
                                 LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect,
-                                float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF FillColor, 
+                                float angle, const CSvcTagBlk & TagBlk, COLORREF FillColor, 
                                 bool mirrorX, bool mirrorY)
   {
 
@@ -719,7 +717,7 @@ void CSvcConnect::OnCreateNodeG(__int64 eventId, __int64 requestId, LPCSTR Guid,
 
     m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
 
-    int RetCode = gs_Exec.SCInsertNodeG(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, tagArea, tagAngle, tagVisible, FillColor, mirrorX, mirrorY);
+    int RetCode = gs_Exec.SCInsertNodeG(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, TagBlk, FillColor, mirrorX, mirrorY);
 
 
     if (RetCode!=EOSC_DONE)
@@ -751,22 +749,13 @@ void CSvcConnect::OnCreateNodeM(__int64 eventId, __int64 requestId, LPCSTR Guid,
 
   try
     {
-
-    //CString PageName=CSvcConnect::ExtractPageName(path);
-
-    //CGrfWnd * pWnd=FindGrfWnd(PageName);
-    //PageRct = GetPageRect(PageName);
-
     m_Ctrl.SetXObjArray(gs_pTheSFELib);
-    //m_Ctrl.AddXObjArray(FindGrfWnd(PageName));
-
+  
     int RetCode = gs_Exec.SCInsertNodeM(m_Ctrl, tag, Guid, model);
-
 
     if (RetCode!=EOSC_DONE)
       {
       LogError(NETSERVERNAME, 0, "CreateNode '%s' failed!", tag);
-      //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
       }
     }
   catch(...)
@@ -793,11 +782,9 @@ void CSvcConnect::OnDeleteNodeM(__int64 eventId, __int64 requestId, LPCSTR Guid)
 
         int RetCode = gs_Exec.SCDeleteNodeM(m_Ctrl, Tag(), Guid);
 
-
         if (RetCode!=EOSC_DONE)
           {
           LogError(NETSERVERNAME, 0, "DeleteNode '%s' failed!", Tag());
-          //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
           }
         }
       catch(...)
@@ -821,7 +808,7 @@ void CSvcConnect::GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GraphicGuid)
   //  {
   DO_ENTRY_GT("GCBDeleteNode", GraphicGuid, "");
 
-  m_pCLR->DoDeleteNode(m_lRequestIdRet, GraphicGuid);
+  m_pCLR->AddDeleteNode(m_lRequestIdRet, GraphicGuid);
 
   DO_EXIT("GCBDeleteNode");
   //  }
@@ -876,20 +863,20 @@ void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCST
 
   Delta.Y=-Delta.Y; // Y is inverted
 
-  m_pCLR->DoModifyNodePosition(m_lRequestIdRet, GraphicGuid, Delta);
+  m_pCLR->AddModifyNodePosition(m_lRequestIdRet, GraphicGuid, Delta);
 
   DO_EXIT("GCBModifyNodePosition");
   };
 
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, float tagHeight, float tagAngle, bool tagVisible)
+void CSvcConnect::GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, const CSvcTagBlk & TagBlk)
   {
   DO_ENTRY_GT("GCBModifyTagG", GraphicGuid, "");//Tag);
 
   Delta.Y=-Delta.Y; // Y is inverted
 
-  m_pCLR->DoModifyTagG(m_lRequestIdRet, GraphicGuid, Delta, tagHeight, tagAngle, tagVisible);
+  m_pCLR->AddModifyTagG(m_lRequestIdRet, GraphicGuid, Delta, TagBlk);
 
   DO_EXIT("GCBModifyTagG");
   };
@@ -898,7 +885,7 @@ void CSvcConnect::GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Graphi
 
 void CSvcConnect::OnModifyNodeG(__int64 eventId, __int64 requestId, LPCSTR ItemGuid, LPCSTR tag, LPCSTR path, 
                                 LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
+                                float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
                                 bool mirrorX, bool mirrorY)
   {
   ON_ENTRY_GT("OnModifyNodeG", ItemGuid, tag);
@@ -906,7 +893,7 @@ void CSvcConnect::OnModifyNodeG(__int64 eventId, __int64 requestId, LPCSTR ItemG
   CString PageName=CSvcConnect::ExtractPageName(path);
   m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
 
-  int RetCode = gs_Exec.SCModifyNodeG(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, tagArea, tagAngle, tagVisible, Colour, mirrorX, mirrorY);
+  int RetCode = gs_Exec.SCModifyNodeG(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, TagBlk, Colour, mirrorX, mirrorY);
   if (RetCode!=EOSC_DONE)
     {
     LogError(tag, 0, "Model not modified");
@@ -1006,7 +993,7 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
           SrcMdlGuid, DstMdlGuid, 
           SrcGrfGuid, DstGrfGuid, 
           SrcPort, DstPort,
-          ControlPoints, textBox, 0.0, false);
+          ControlPoints, CSvcTagBlk(textBox, 0.0, false));
 
   if (!m_pCLR->ProcessChangeLists(m_lRequestIdRet))
     {
@@ -1020,9 +1007,9 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
 void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, /*LPCSTR path,*/ 
                                 LPCSTR ClassId, 
-                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                const CSvcGuidPair & Guids, 
                                 CPointFList & ControlPoints,
-                                const CRectangleF & tagArea, float tagAngle, bool tagVisible)
+                                const CSvcTagBlk & TagBlk)
   {
   // !!! tagArea not handled as yet.
 
@@ -1031,16 +1018,16 @@ void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid,
 #if WITHDBGLINES
   if (dbgConnect())
     {
-    dbgpln(" Src:%s", OriginGuid);                                 
-    dbgpln(" Dst:%s", DestinationGuid);                                 
+    dbgpln(" Src:%s", Guids.m_OriginGuid);                                 
+    dbgpln(" Dst:%s", Guids.m_DestinationGuid);                                 
     }
 #endif
 
   try
     {
 
-    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
-    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, Guids.m_OriginGuid);
+    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, Guids.m_DestinationGuid);
 
     CRectangleF boundingRect;
     POSITION Pos=ControlPoints.GetHeadPosition();
@@ -1061,9 +1048,8 @@ void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid,
       }
 
     int RetCode = gs_Exec.SCInsertLinkG(m_Ctrl, tag, Guid, /*path,*/ ClassId, 
-      OriginGuid, DestinationGuid, 
-      pSrc?pSrc->Tag():"", pDst?pDst->Tag():"",
-      ControlPoints, tagArea, tagAngle, tagVisible);
+      CSvcLnkGBlk(Guids.m_OriginGuid, Guids.m_DestinationGuid, pSrc?pSrc->Tag():"", pDst?pDst->Tag():""),
+      ControlPoints, TagBlk);
 
     if (RetCode!=EOSC_DONE)
       {
@@ -1084,7 +1070,7 @@ void CSvcConnect::OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid,
 
 void CSvcConnect::OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, /*LPCSTR path,*/ 
                                 LPCSTR ClassId, 
-                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                const CSvcGuidPair & Guids, 
                                 LPCSTR OriginPort, LPCSTR DestinationPort)
   {
   // !!! tagArea not handled as yet.
@@ -1095,11 +1081,11 @@ void CSvcConnect::OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid,
   try
     {
 
-    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
-    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, Guids.m_OriginGuid);
+    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, Guids.m_DestinationGuid);
 
 #if WITHDBGLINES
-    dbgpln("Guids:%-40s %-40s", OriginGuid, DestinationGuid);
+    dbgpln("Guids:%-40s %-40s", Guids.m_OriginGuid, Guids.m_DestinationGuid);
     dbgpln("Tags :%-40s %-40s", pSrc?pSrc->Tag():"", pDst?pDst->Tag():"");
     dbgpln("Ports:%-40s %-40s", OriginPort, DestinationPort);
 #endif
@@ -1107,9 +1093,7 @@ void CSvcConnect::OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid,
     m_Ctrl.SetXObjArray(gs_pTheSFELib);
 
     int RetCode = gs_Exec.SCInsertLinkM(m_Ctrl, tag, Guid, /*path,*/ ClassId, 
-      OriginGuid, DestinationGuid, 
-      pSrc?pSrc->Tag():"", pDst?pDst->Tag():"",
-      OriginPort, DestinationPort);
+      CSvcLnkMBlk(Guids.m_OriginGuid, Guids.m_DestinationGuid, pSrc?pSrc->Tag():"", pDst?pDst->Tag():"", OriginPort, DestinationPort));
 
     if (RetCode!=EOSC_DONE)
       {
@@ -1134,7 +1118,7 @@ void CSvcConnect::GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR GraphicGuid)
   {
   DO_ENTRY_GT("GCBDeleteLink", GraphicGuid, "");
 
-  m_pCLR->DoDeleteLink(m_lRequestIdRet, GraphicGuid);
+  m_pCLR->AddDeleteLink(m_lRequestIdRet, GraphicGuid);
 
   DO_EXIT("GCBDeleteLink");
   }
@@ -1176,7 +1160,7 @@ void CSvcConnect::OnDeleteLinkM(__int64 eventId, __int64 requestId, LPCSTR Guid)
 void CSvcConnect::OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid)
   {
   Strng Tag;
-  flag IsLink;
+  //flag IsLink;
   Strng_List Pages;
   if (1)//gs_pPrj->FindNodeInfoFromGuid((LPSTR)Guid, Tag, IsLink))
     {
@@ -1207,7 +1191,7 @@ void CSvcConnect::OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR Guid)
 
 void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag,
                                    /*LPCSTR ClassId, LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort,*/ 
-                                   CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible)
+                                   CPointFList & ControlPoints, const CSvcTagBlk & TagBlk)
   {
 
   Strng Guid;
@@ -1232,7 +1216,7 @@ void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCST
       Pt.Set(PageRct.Left()+Pt.X(),PageRct.Top()-Pt.Y());
       }
 
-    //m_pCLR->DoModifyLink(m_lRequestIdRet, Guid(), Tag, "?Path?", pClass, pSrcNd->Guid(), pDstNd->Guid(), pSrcIO, pDstIO, ControlPoints, tagArea, tagAngle);
+    //m_pCLR->AddModifyLink(m_lRequestIdRet, Guid(), Tag, "?Path?", pClass, pSrcNd->Guid(), pDstNd->Guid(), pSrcIO, pDstIO, ControlPoints, tagArea, tagAngle);
 
     DO_EXIT("GCBModifyLinkPts");
     }
@@ -1245,8 +1229,8 @@ void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCST
 
 void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                                 LPCSTR ClassId, 
-                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                                CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible)
+                                const CSvcGuidPair & Guids, 
+                                CPointFList & ControlPoints, const CSvcTagBlk & TagBlk)
   {
   ON_ENTRY_GT("OnModifyLinkG", LinkGuid, Tag);
 
@@ -1269,7 +1253,7 @@ void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkG
     m_Ctrl.SetXObjArray(FindGrfWnd(GroupName));
     }
 
-  int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, ControlPoints, tagArea, tagAngle, tagVisible);
+  int RetCode = gs_Exec.SCModifyLinkG(m_Ctrl, Tag, LinkGuid, ClassId, Guids, ControlPoints, TagBlk);
   if (RetCode!=EOSC_DONE)
     {
     LogError(Tag, 0, "Link not modified");
@@ -1286,19 +1270,19 @@ void CSvcConnect::OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkG
 
 void CSvcConnect::OnModifyLinkM(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                                 LPCSTR ClassId, 
-                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                                LPCSTR OriginPort, LPCSTR DestinationPort)
+                                const CSvcLnkMBlk & LnkMBlk)
   {
   ON_ENTRY_GT("OnModifyLinkM", LinkGuid, Tag);
 
 
-  FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
-  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+  FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, LnkMBlk.m_OriginGuid);
+  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, LnkMBlk.m_DestinationGuid);
 
 
   m_Ctrl.SetXObjArray(gs_pTheSFELib);
 
-  int RetCode = gs_Exec.SCModifyLinkM(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), OriginPort, DestinationPort);
+  int RetCode = gs_Exec.SCModifyLinkM(m_Ctrl, Tag, LinkGuid, ClassId, 
+    CSvcLnkMBlk(LnkMBlk.m_OriginGuid, LnkMBlk.m_DestinationGuid, pSrc->Tag(), pDst->Tag(), LnkMBlk.m_OriginPort, LnkMBlk.m_DestinationPort));
   if (RetCode!=EOSC_DONE)
     {
     LogError(Tag, 0, "Link not modified");

@@ -118,9 +118,9 @@ class CSvcConnect
                       CPointFList & ControlPoints);//, const CRectangleF & tagArea);
     void GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR GraphicGuid);
     void GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, 
-                      CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible);
+                      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk);
    
-    void GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, float tagHeight, float tagAngle, bool tagVisible);
+    void GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, const CSvcTagBlk & TagBlk);
 
     // CallBack's
     void OnCreateNodeM(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR model);
@@ -129,12 +129,12 @@ class CSvcConnect
 
     void OnCreateNodeG(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
       LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-      float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
+      float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
       bool mirrorX, bool mirrorY);
     void OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR guid);
     void OnModifyNodeG(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
       LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-      float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
+      float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
       bool mirrorX, bool mirrorY);
 
     // Links -----------------------------------------------------------------
@@ -144,23 +144,22 @@ class CSvcConnect
     // CallBack's
     void OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible);
+                      const CSvcGuidPair & Guids, 
+                      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk);
     void OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR guid);
     void OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible);
+                      const CSvcGuidPair & Guids, 
+                      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk);
     
     void OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                      const CSvcGuidPair & Guids, 
                       LPCSTR OriginPort, LPCSTR DestinationPort);
     void OnDeleteLinkM(__int64 eventId, __int64 requestId, LPCSTR guid);
     void OnModifyLinkM(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      LPCSTR OriginPort, LPCSTR DestinationPort);
+                      const CSvcLnkMBlk & LnkMBlk);
 
     //------------------------------------------------------------------------
 

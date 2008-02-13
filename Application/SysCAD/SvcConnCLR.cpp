@@ -361,8 +361,7 @@ ref class CSvcConnectCLRThread
             ToCString(MNd->NodeClass), ToCString(GNd->Shape), //boundingRect, 
             CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), 
             float(GNd->Angle), 
-            CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height),
-            float(GNd->TagAngle), GNd->TagVisible,
+            CSvcTagBlk(CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height), float(GNd->TagAngle), GNd->TagVisible),
             RGB(GNd->FillColor.R, GNd->FillColor.G, GNd->FillColor.B), 
             GNd->MirrorX, GNd->MirrorY);
           }
@@ -379,10 +378,10 @@ ref class CSvcConnectCLRThread
         __int64 eventId=-1;
         __int64 requestId=-1;
         m_pConn->OnCreateLinkG(eventId, requestId, ToCString(GLnk->Guid.ToString()), ToCString(GLnk->Tag), "", 
-          ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString()),
+          CSvcGuidPair(ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString())),
           Pts, 
-          CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height),
-          float(GLnk->TagAngle), GLnk->TagVisible);
+          CSvcTagBlk(CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height),
+          float(GLnk->TagAngle), GLnk->TagVisible));
 
         }
       }
@@ -412,25 +411,12 @@ ref class CSvcConnectCLRThread
 
     void AddCreateGroup(__int64 & requestId, LPCSTR GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
       {
-      //Guid guid;//Guid(gcnew String(GrpGuid))
-      //SysCAD::Protocol::Rectangle^ BR = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
-      //clientProtocol->CreateGroup(requestId, guid, gcnew String(Tag), gcnew String(Path), BR);
-      //GrpGuid = guid.ToString();
-
       GraphicGroup ^ Grp = gcnew GraphicGroup(Guid(gcnew String(GrpGuid)), gcnew String(Tag));
-      //Grp->Tag = gcnew String(Tag);
       Grp->Path = gcnew String(Path);
       Grp->BoundingRect = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
 
       m_Action->Create->Add(Grp);
       }
-
-
-    //void GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, SysCAD::Protocol::Rectangle^ boundingRect)
-    //    {
-    //    m_pConn->OnCreateGroup(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
-    //      CRectangleF(boundingRect->Left, boundingRect->Top, boundingRect->Width, boundingRect->Height));
-    //    }
 
     // ====================================================================
     //
@@ -438,75 +424,31 @@ ref class CSvcConnectCLRThread
 
     void AddCreateNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid, LPCSTR Tag, LPCSTR Path, 
       LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
-      double Angle, const CRectangleF & TagArea, double TagAngle, bool tagVisible, COLORREF FillColor, 
+      double Angle, const CSvcTagBlk & TagBlk, COLORREF FillColor, 
       bool MirrorX, bool MirrorY)
       {
-      //  requestId, guid, gcnew String(Tag), gcnew String(Path), 
-      //  gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA, TextAngle, 
-      //  Color::Empty, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
-      //ItemGuid = guid.ToString();
-
       //PKH Comment- Is this correct
       GraphicNode ^ GNd = gcnew GraphicNode(Guid(gcnew String(GraphicGuid)), gcnew String(Tag), gcnew String(Path), Guid(gcnew String(ModelGuid)), 
         gcnew String(Symbol), gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height()),
-        0.0, gcnew SysCAD::Protocol::Rectangle(TagArea.Left(), TagArea.Bottom(), TagArea.Width(), TagArea.Height()), TagAngle, tagVisible, Color::Empty, 
+        0.0, gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height()), TagBlk.m_Angle, TagBlk.m_Visible, Color::Empty, 
         Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
 
       ModelNode ^ MNd = gcnew ModelNode(Guid(gcnew String(ModelGuid)), gcnew String(Tag), gcnew String(ClassId));
-
-      //List<Item^>  ^Create = gcnew List<Item^>; 
-      //List<Item^>  ^Modify;// = gcnew List<Item^>;
-      //List<Guid>   ^Delete;// = gcnew List<Guid>;  
 
       m_Action->Create->Add(MNd);
       m_Action->Create->Add(GNd);
 
       }
 
-    void DoCreates(__int64 & requestId)//, CString & ModelGuid, CString & GraphicGuid, LPCSTR Tag, LPCSTR Path, 
-      {
-      ////This occurs once only, after the Create list has been fully populated.			
-      ////Perhaps pass the Create list as a parameter, and call Change in the calling function.
-      //bool GOk = clientProtocol->Change(requestId, Create, Modify, Delete);
-      //   GraphicGuid = GNd->Guid.ToString();
-
-      ////Have moved the Add(MNd) above to the list.
-      ////Item is parent to GraphicItem and ModelItem.
-      ////GraphicItem is parent to GraphicNode, ModelItem is parent to ModelNode.
-      //// List<Item^> ^Create will contain _all_ created objects.
-
-      //   //PKH Answer - what goes here ?
-      //   //bool EOk = engineProtocol->Change(requestId, MCreate, Modify, Delete);
-      //   //This has not been implemented yet.
-      ////At the moment the assumption is the same as it was previously:
-      ////if an item doens't exist it's ok to create it, and if an item exists it's ok to modify it.			
-      //
-      //ModelGuid = MNd->Guid.ToString();
-      };
-
-
-    //void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, SysCAD::Protocol::Rectangle^ boundingRect, double angle, SysCAD::Protocol::Rectangle^ tagArea, double tagAngle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
-    //  {
-    //  m_pConn->OnCreateItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
-    //    ToCString(model->ToString()), ToCString(shape->ToString()), //boundingRect, 
-    //    CRectangleF(boundingRect->Left, boundingRect->Top, boundingRect->Width, boundingRect->Height), 
-    //    angle, 
-    //    CRectangleF(tagArea->Left, tagArea->Top, tagArea->Width, tagArea->Height),
-    //tagAngle,
-    //    RGB(fillColor.R, fillColor.G, fillColor.B), 
-    //    mirrorX, mirrorY);
-    //  }
-
     // ====================================================================
     //
     // ====================================================================
 
-    void DoDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)
+    void AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)
       {
       SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
 
       action->Delete->Add(Guid(gcnew String(GraphicGuid)));
-      //action->Delete->Add(Guid(gcnew String(ModelGuid)));
 
       clientProtocol->Change(requestId, action);
       };
@@ -520,7 +462,7 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
-    void DoModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
+    void AddModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
       {
       Guid graphicGuid(gcnew String(GraphicGuid));
       GraphicNode ^ GNd;
@@ -541,7 +483,7 @@ ref class CSvcConnectCLRThread
         }
       };
 
-    void DoModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, float tagHeight, double tagAngle, bool tagVisible)
+    void AddModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, const CSvcTagBlk & TagBlk)
       {
       Guid graphicGuid(gcnew String(GraphicGuid));
 
@@ -551,13 +493,13 @@ ref class CSvcConnectCLRThread
         GraphicNode ^ newGNd = GNd->Clone();
 
         float OldW = newGNd->TagArea->Width;
-        float NewW = OldW * tagHeight/newGNd->TagArea->Height;
+        float NewW = OldW * TagBlk.m_Area.Height()/newGNd->TagArea->Height;
         newGNd->TagArea->X += (float)Delta.X-0.5*(NewW-OldW);
         newGNd->TagArea->Y += (float)Delta.Y;
         newGNd->TagArea->Width = NewW;
-        newGNd->TagArea->Height = tagHeight;
-        newGNd->TagAngle = tagAngle;
-        newGNd->TagVisible = tagVisible;
+        newGNd->TagArea->Height = TagBlk.m_Area.Height();
+        newGNd->TagAngle = TagBlk.m_Angle;
+        newGNd->TagVisible = TagBlk.m_Visible;
 
         SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
 
@@ -573,13 +515,13 @@ ref class CSvcConnectCLRThread
         GraphicLink ^ newLNd = LNd->Clone();
 
         float OldW = newLNd->TagArea->Width;
-        float NewW = OldW * tagHeight/newLNd->TagArea->Height;
+        float NewW = OldW * TagBlk.m_Area.Height()/newLNd->TagArea->Height;
         newLNd->TagArea->X += (float)Delta.X-0.5*(NewW-OldW);
         newLNd->TagArea->Y += (float)Delta.Y;
         newLNd->TagArea->Width = NewW;
-        newLNd->TagArea->Height = tagHeight;
-        newLNd->TagAngle = tagAngle;
-        newLNd->TagVisible = tagVisible;
+        newLNd->TagArea->Height = TagBlk.m_Area.Height();
+        newLNd->TagAngle = TagBlk.m_Angle;
+        newLNd->TagVisible = TagBlk.m_Visible;
 
         SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
 
@@ -630,7 +572,7 @@ ref class CSvcConnectCLRThread
       LPCSTR OriginMdlGuid, LPCSTR DestinationMdlGuid, 
       LPCSTR OriginGrfGuid, LPCSTR DestinationGrfGuid, 
       LPCSTR OriginPort, LPCSTR DestinationPort, 
-      CPointFList & ControlPoints, const CRectangleF & tagArea, double tagAngle, bool tagVisible)
+      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk)
       {
       List<SysCAD::Protocol::Point^> ^ Pts = gcnew List<SysCAD::Protocol::Point^>;
       POSITION Pos=ControlPoints.GetHeadPosition();
@@ -652,7 +594,7 @@ ref class CSvcConnectCLRThread
 
         GraphicLink ^ GLnk = gcnew GraphicLink(Guid(gcnew String(GraphicGuid)), Guid(gcnew String(ModelGuid)), gcnew String(Tag), 
           Guid(gcnew String(OriginGrfGuid)), 0, Guid(gcnew String(DestinationGrfGuid)), 0,  
-          Pts, gcnew SysCAD::Protocol::Rectangle(tagArea.Left(), tagArea.Bottom(), tagArea.Width(), tagArea.Height()), tagAngle, tagVisible);
+          Pts, gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height()), TagBlk.m_Angle, TagBlk.m_Visible);
 
         //  gcnew String(OriginPort), -1, gcnew String(DestinationPort), -1, Pts, TA, tagAngle);
         //LinkGuid = guid.ToString();
@@ -706,7 +648,7 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
-    void DoDeleteLink(__int64 & requestId, LPCSTR GraphicGuid)
+    void AddDeleteLink(__int64 & requestId, LPCSTR GraphicGuid)
       {
       SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
 
@@ -750,20 +692,21 @@ ref class CSvcConnectCLRThread
     // ====================================================================
 
 
-    //void DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
-    //  {
-    //  List<SysCAD::Protocol::Point^> ^ Pts = gcnew List<SysCAD::Protocol::Point^>;
-    //  POSITION Pos=ControlPoints.GetHeadPosition();
-    //  while (Pos)
-    //    {
-    //    CPointF & Pt=ControlPoints.GetNext(Pos);
-    //    Pts->Add(gcnew SysCAD::Protocol::Point(Pt.X(), Pt.Y()));
-    //    }
-    //  SysCAD::Protocol::Rectangle^ TA = gcnew SysCAD::Protocol::Rectangle(tagArea.Left(), tagArea.Bottom(), tagArea.Width(), tagArea.Height());
+    void AddModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, const CSvcGuidPair & Guids, LPCSTR OriginPort, LPCSTR DestinationPort, 
+      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk)
+      {
+      List<SysCAD::Protocol::Point^> ^ Pts = gcnew List<SysCAD::Protocol::Point^>;
+      POSITION Pos=ControlPoints.GetHeadPosition();
+      while (Pos)
+        {
+        CPointF & Pt=ControlPoints.GetNext(Pos);
+        Pts->Add(gcnew SysCAD::Protocol::Point(Pt.X(), Pt.Y()));
+        }
+      SysCAD::Protocol::Rectangle^ TA = gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height());
 
-    //  clientProtocol->ModifyLink(requestId, Guid(gcnew String(LinkGuid)), gcnew String(Tag), /*LPCSTR Path,*/ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), 
-    //    gcnew String(OriginPort), -1, gcnew String(DestinationPort), -1, Pts, TA, tagAngle);
-    //  };
+      //clientProtocol->ModifyLink(requestId, Guid(gcnew String(LinkGuid)), gcnew String(Tag), /*LPCSTR Path,*/ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), 
+      //  gcnew String(OriginPort), -1, gcnew String(DestinationPort), -1, Pts, TA, tagAngle);
+      };
 
     //void LinkModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<SysCAD::Protocol::Point^> ^ controlPoints, SysCAD::Protocol::Rectangle^ tagArea, double tagAngle)
     //  {
@@ -890,8 +833,7 @@ ref class CSvcConnectCLRThread
               ToCString(MNd->NodeClass), ToCString(GNd->Shape), //boundingRect, 
               CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), 
               float(GNd->Angle), 
-              CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height),
-              float(GNd->TagAngle), GNd->TagVisible,
+              CSvcTagBlk(CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height), float(GNd->TagAngle), GNd->TagVisible),
               RGB(GNd->FillColor.R, GNd->FillColor.G, GNd->FillColor.B), 
               GNd->MirrorX, GNd->MirrorY);
             }
@@ -900,7 +842,7 @@ ref class CSvcConnectCLRThread
         else if (clientProtocol->model->Links->TryGetValue(*guid, MLnk))
           {
           m_pConn->OnCreateLinkM(eventId, requestId, ToCString(MLnk->Guid.ToString()), ToCString(MLnk->Tag), ToCString(MLnk->LinkClass), 
-            ToCString(MLnk->Origin.ToString()), ToCString(MLnk->Destination.ToString()), ToCString(MLnk->OriginPort), ToCString(MLnk->DestinationPort));
+            CSvcGuidPair(ToCString(MLnk->Origin.ToString()), ToCString(MLnk->Destination.ToString())), ToCString(MLnk->OriginPort), ToCString(MLnk->DestinationPort));
           }
 
         else if (clientProtocol->graphic->Links->TryGetValue(*guid, GLnk))
@@ -912,10 +854,9 @@ ref class CSvcConnectCLRThread
             Pts.AddTail(CPointF(Pt->X, Pt->Y));
             }
           m_pConn->OnCreateLinkG(eventId, requestId, ToCString(GLnk->Guid.ToString()), ToCString(GLnk->Tag), "", 
-            ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString()),
+            CSvcGuidPair(ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString())),
             Pts, 
-            CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height),
-            float(GLnk->TagAngle), GLnk->TagVisible);
+            CSvcTagBlk(CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height), float(GLnk->TagAngle), GLnk->TagVisible));
           }
         }
       }
@@ -940,8 +881,7 @@ ref class CSvcConnectCLRThread
               ToCString(MNd->NodeClass), ToCString(GNd->Shape), //boundingRect, 
               CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), 
               float(GNd->Angle), 
-              CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height),
-              float(GNd->TagAngle), GNd->TagVisible,
+              CSvcTagBlk(CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height), float(GNd->TagAngle), GNd->TagVisible),
               RGB(GNd->FillColor.R, GNd->FillColor.G, GNd->FillColor.B), 
               GNd->MirrorX, GNd->MirrorY);
             }
@@ -951,7 +891,7 @@ ref class CSvcConnectCLRThread
         if (engineProtocol->model->Links->TryGetValue(*guid, MLnk))
           {
           m_pConn->OnModifyLinkM(eventId, requestId, ToCString(MLnk->Guid.ToString()), ToCString(MLnk->Tag), ToCString(MLnk->LinkClass), 
-            ToCString(MLnk->Origin.ToString()), ToCString(MLnk->Destination.ToString()), ToCString(MLnk->OriginPort), ToCString(MLnk->DestinationPort));
+            CSvcLnkMBlk(ToCString(MLnk->Origin.ToString()), ToCString(MLnk->Destination.ToString()), "", "", ToCString(MLnk->OriginPort), ToCString(MLnk->DestinationPort)));
           }
 
         GraphicLink ^GLnk;
@@ -964,10 +904,9 @@ ref class CSvcConnectCLRThread
             Pts.AddTail(CPointF(Pt->X, Pt->Y));
             }
           m_pConn->OnModifyLinkG(eventId, requestId, ToCString(GLnk->Guid.ToString()), ToCString(GLnk->Tag), "", 
-            ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString()),
+            CSvcGuidPair(ToCString(GLnk->Origin.ToString()), ToCString(GLnk->Destination.ToString())),
             Pts, 
-            CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height),
-            float(GLnk->TagAngle), GLnk->TagVisible);
+            CSvcTagBlk(CRectangleF(GLnk->TagArea->Left, GLnk->TagArea->Top, GLnk->TagArea->Width, GLnk->TagArea->Height), float(GLnk->TagAngle), GLnk->TagVisible));
           }
         }
       }
@@ -1131,26 +1070,26 @@ void CSvcConnectCLR::AddCreateGroup(__int64 & requestId, LPCSTR GrpGuid, LPCSTR 
 
 void CSvcConnectCLR::AddCreateNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid, LPCSTR Tag, LPCSTR Path,  
                                    LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
-                                   double Angle, const CRectangleF & tagArea, double tagAngle, bool tagVisible, COLORREF FillColor, 
+                                   double Angle, const CSvcTagBlk & TagBlk, COLORREF FillColor, 
                                    bool MirrorX, bool MirrorY)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddCreateNode(requestId, ModelGuid, GraphicGuid, Tag, Path, 
-    ClassId, Symbol, boundingRect, Angle, tagArea, tagAngle, tagVisible, FillColor, MirrorX, MirrorY);
+    ClassId, Symbol, boundingRect, Angle, TagBlk, FillColor, MirrorX, MirrorY);
   };
 
-void CSvcConnectCLR::DoDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)
+void CSvcConnectCLR::AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)
   {
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteNode(requestId, GraphicGuid);
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddDeleteNode(requestId, GraphicGuid);
   };
 
-void CSvcConnectCLR::DoModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
+void CSvcConnectCLR::AddModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
   {
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyNodePosition(requestId, GraphicGuid, Delta);
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyNodePosition(requestId, GraphicGuid, Delta);
   }
 
-void CSvcConnectCLR::DoModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, float tagHeight, double tagAngle, bool tagVisible)
+void CSvcConnectCLR::AddModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, const CSvcTagBlk & TagBlk)
   {
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyTagG(requestId, GraphicGuid, Delta, tagHeight, tagAngle, tagVisible);
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyTagG(requestId, GraphicGuid, Delta, TagBlk);
   }
 
 //========================================================================
@@ -1160,34 +1099,33 @@ void CSvcConnectCLR::AddCreateLink(__int64 & requestId, LPCSTR ModelGuid, LPCSTR
                                    LPCSTR OriginMdlGuid, LPCSTR DestinationMdlGuid, 
                                    LPCSTR OriginGrfGuid, LPCSTR DestinationGrfGuid, 
                                    LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                   CPointFList & ControlPoints, const CRectangleF & tagArea, double tagAngle, bool tagVisible)
+                                   CPointFList & ControlPoints, const CSvcTagBlk & TagBlk)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddCreateLink(requestId, ModelGuid, GraphicGuid, Tag, Path, 
     ClassId, 
     OriginMdlGuid, DestinationMdlGuid, 
     OriginGrfGuid, DestinationGrfGuid, 
     OriginPort, DestinationPort, 
-    ControlPoints, tagArea, tagAngle, tagVisible);
+    ControlPoints, TagBlk);
   };
 
-void CSvcConnectCLR::DoDeleteLink(__int64 & requestId, LPCSTR GraphicGuid)
+void CSvcConnectCLR::AddDeleteLink(__int64 & requestId, LPCSTR GraphicGuid)
   {
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteLink(requestId, GraphicGuid);
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddDeleteLink(requestId, GraphicGuid);
   };
-//
-//
-//void CSvcConnectCLR::DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, 
-//                                  LPCSTR ClassId, 
-//                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-//                                  LPCSTR OriginPort, LPCSTR DestinationPort, 
-//                                  CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle)
-//  {
-//  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyLink(requestId, LinkGuid, Tag, Path, 
-//    ClassId, 
-//    OriginGuid, DestinationGuid, OriginPort, DestinationPort, 
-//    ControlPoints, tagArea, tagAngle);
-//  };
-//
+
+void CSvcConnectCLR::AddModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, 
+                                  LPCSTR ClassId, 
+                                  const CSvcGuidPair & Guids, 
+                                  LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                  CPointFList & ControlPoints, const CSvcTagBlk & TagBlk)
+  {
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyLink(requestId, LinkGuid, Tag, Path, 
+    ClassId, 
+    Guids, OriginPort, DestinationPort, 
+    ControlPoints, TagBlk);
+  };
+
 
 //========================================================================
 

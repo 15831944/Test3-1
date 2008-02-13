@@ -400,7 +400,7 @@ int CGrfWnd::EO_DeleteTags(Strng_List & Tags)
 
 int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
+                            float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
                             bool mirrorX, bool mirrorY) 
   {
 #if SYSCAD10         
@@ -431,9 +431,9 @@ int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
     CB.ASymbol=shape;
     CB.m_sGuid=ItemGuid;
     CB.m_Rect=boundingRect;
-    CB.m_TagPt.X=tagArea.MidX();
-    CB.m_TagPt.Y=PageRct.Top()-tagArea.Top();
-    CB.m_TagVisible=tagVisible;
+    CB.m_TagPt.X=TagBlk.m_Area.MidX();
+    CB.m_TagPt.Y=PageRct.Top()-TagBlk.m_Area.Top();
+    CB.m_TagVisible=TagBlk.m_Visible;
 
     //if (m_bExportBusy)
     //  {
@@ -481,7 +481,7 @@ int CGrfWnd::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GrfGuid, 
 
 int CGrfWnd::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & tagArea, float tagAngle, bool tagVisible, COLORREF Colour, 
+                            float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   { 
 #if SYSCAD10         
@@ -527,9 +527,9 @@ int CGrfWnd::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
           CB.ATagBase="XX_";//MInfo.TagInitialID();
           CB.ASymbol=shape;
           CB.m_sGuid=ItemGuid;
-          CB.m_TagPt.X=tagArea.MidX();
-          CB.m_TagPt.Y=PageRct.Top()-tagArea.Top();
-          CB.m_TagVisible=tagVisible;
+          CB.m_TagPt.X=TagBlk.m_Area.MidX();
+          CB.m_TagPt.Y=PageRct.Top()-TagBlk.m_Area.Top();
+          CB.m_TagVisible=TagBlk.m_Visible;
           //CB.m_Rect=boundingRect;
           //if (m_bExportBusy)
           //  {
@@ -586,10 +586,9 @@ int CGrfWnd::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGuid,
                                LPCSTR model, 
-                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                               LPCSTR OriginTag, LPCSTR DestinationTag, 
+                               const CSvcLnkGBlk & LnkGBlk,
                                CPointFList & ControlPoints, 
-                               const CRectangleF & tagArea, float tagAngle, bool tagVisible)
+                               const CSvcTagBlk & TagBlk)
   {
 #if SYSCAD10         
   if (gs_pPrj->SvcActive)
@@ -611,7 +610,7 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGu
     //  }
 
     DXF_ENTITY eInsert, eAttrib;
-    if (!Dsp.FindGuid((LPSTR)OriginGuid, eInsert, eAttrib) && !Dsp.FindGuid((LPSTR)DestinationGuid, eInsert, eAttrib))
+    if (!Dsp.FindGuid((LPSTR)LnkGBlk.m_OriginGuid, eInsert, eAttrib) && !Dsp.FindGuid((LPSTR)LnkGBlk.m_DestinationGuid, eInsert, eAttrib))
       {
       return EOSC_DONE;
       }
@@ -621,9 +620,9 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGu
     LDH.SetLineMethod(LDM_Direct); //todo user option
     LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
     LDH.SetArrowScale(2.5); //todo user option
-    LDH.SetShowTag(tagVisible); //todo user option
+    LDH.SetShowTag(TagBlk.m_Visible); //todo user option
 
-    LDH.SetTag(pTag, tagArea.MidX(), PageRct.Top()-tagArea.Top(), 0.0);
+    LDH.SetTag(pTag, TagBlk.m_Area.MidX(), PageRct.Top()-TagBlk.m_Area.Top(), 0.0);
     LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
     LDH.InitPoints();
 
@@ -640,14 +639,14 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGu
     if (pGDoc!=NULL)
       {
       //todo check if parms are legal!!!
-      pGDoc->GCB.DoInsertLinkGrf(LDH, (LPSTR)OriginTag, (LPSTR)DestinationTag, true);
+      pGDoc->GCB.DoInsertLinkGrf(LDH, (LPSTR)LnkGBlk.m_OriginTag, (LPSTR)LnkGBlk.m_DestinationTag, true);
       }
     }
 #endif
   return EOSC_DONE;
   };
 
-int CGrfWnd::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GrfGuid /*, LPCSTR path*/)
+int CGrfWnd::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GrfGuid )
   {
   int RetCode = EOSC_NOTFOUND;
 
@@ -676,10 +675,10 @@ int CGrfWnd::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GrfGuid /
   return RetCode;
   };
 
-int CGrfWnd::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+int CGrfWnd::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
                                LPCSTR model, 
-                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                               CPointFList & ControlPoints, const CRectangleF & tagArea, float tagAngle, bool tagVisible)
+                               const CSvcGuidPair & Guids, 
+                               CPointFList & ControlPoints, const CSvcTagBlk & TagBlk)
   {
 #if SYSCAD10         
   if (gs_pPrj->SvcActive)
@@ -695,7 +694,7 @@ int CGrfWnd::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
 
     DXF_ENTITY eSrc, eAttSrc;
     DXF_ENTITY eDst, eAttDst;
-    if (Dsp.FindGuid((LPSTR)OriginGuid, eSrc, eAttSrc) && Dsp.FindGuid((LPSTR)DestinationGuid, eDst, eAttDst))
+    if (Dsp.FindGuid((LPSTR)Guids.m_OriginGuid, eSrc, eAttSrc) && Dsp.FindGuid((LPSTR)Guids.m_DestinationGuid, eDst, eAttDst))
       {
       LPSTR SrcTag = Find_Attr_Value(eSrc, TagAttribStr);
       LPSTR DstTag = Find_Attr_Value(eDst, TagAttribStr);
@@ -721,8 +720,8 @@ int CGrfWnd::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
           LDH.SetArrowScale(2.5); //todo user option
           //LDH.SetShowTag(false); //todo user option
 
-          LDH.SetTag(pTag, tagArea.MidX(), PageRct.Top()-tagArea.Top(), 0.0);
-          LDH.SetShowTag(tagVisible);
+          LDH.SetTag(pTag, TagBlk.m_Area.MidX(), PageRct.Top()-TagBlk.m_Area.Top(), 0.0);
+          LDH.SetShowTag(TagBlk.m_Visible);
 
           LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
           LDH.InitPoints();
