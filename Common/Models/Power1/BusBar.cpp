@@ -45,7 +45,7 @@ CBusBar::CBusBar(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   FlwNode(pClass_, TagIn, pAttach, eAttach)
   {
   AttachClassInfo(nc_Elec, TwoEIOAreaList);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   //m_bPresent = 0;
   m_dArea=0.0005;
   m_eCondMat = eCM_Copper;

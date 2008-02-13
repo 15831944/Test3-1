@@ -72,7 +72,7 @@ CTransformer::CTransformer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   m_tsLcl.Add("SB");
   m_tsLcl.Add("SN");
   AttachClassInfo(nc_Elec, TwoEIOAreaList);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   }
 
 //--------------------------------------------------------------------------

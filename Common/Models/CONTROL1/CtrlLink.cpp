@@ -37,7 +37,7 @@ CCtrlLink::CCtrlLink(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   FlwNode(pClass_, TagIn, pAttach, eAttach)
   {
   AttachClassInfo(nc_CLnk, TwoCIOAreaList);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   m_bOn = 1;
   m_dValue = 0;
   }

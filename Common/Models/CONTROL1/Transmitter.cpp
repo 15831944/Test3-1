@@ -338,7 +338,7 @@ CTransmitter::CTransmitter(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
 
   AttachClassInfo(nc_Control, &TransmitterIOAreaList[0], &NullFlwGroup);
 
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   bOn = 1;
 
   bAboutToStart = 0;

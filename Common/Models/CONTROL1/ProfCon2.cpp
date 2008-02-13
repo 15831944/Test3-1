@@ -42,7 +42,7 @@ CProfileCon2::CProfileCon2(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   {
   fHasFiles=1;
   AttachClassInfo(nc_Control, NULL, NULL, &NullFlwGroup);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   //bDoneXRefs = 0;
   bAboutToStart = 0;
   }

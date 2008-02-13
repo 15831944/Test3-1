@@ -66,7 +66,7 @@ CElecCable::CElecCable(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   FlwNode(pClass_, TagIn, pAttach, eAttach)
   {
   AttachClassInfo(nc_ELnk, TwoEIOAreaList);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   //m_bPresent = 0;
   //m_dResPerLen= 1;
   m_CabLength = 1;

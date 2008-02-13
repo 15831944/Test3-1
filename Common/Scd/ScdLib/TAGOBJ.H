@@ -1423,6 +1423,14 @@ class DllImportExport TaggedObject : public ConditionBlk
     flag            LinearFlowMode()        { return (FlowMode() & LFM_All)==LFM_Linear; };
     flag            FullFlowMode()          { return (FlowMode() & LFM_All)==LFM_Full; };
     
+
+    void            SetActiveOptions(flag HoldPB_OK=true, flag HoldDyn_OK=false, flag HoldIfSS=false, flag MustBeActive=false)
+      {
+      m_fActiveHoldOK_PB  = HoldPB_OK;
+      m_fActiveHoldOK_Dyn = HoldDyn_OK;
+      m_fActiveHoldIfSS   = HoldIfSS;
+      m_fMustBeActive     = MustBeActive;
+      };
     flag            GetActive();
     virtual void    SetActive(flag Active);
 
@@ -1525,9 +1533,10 @@ protected:
     flag            m_fActive;
     flag            m_fActiveHold;
     flag            m_fActiveHoldIfSS;
-    flag            fActiveHold_Auto;
-    flag            fActiveHoldOK_PB;
-    flag            fActiveHoldOK_Dyn;
+    flag            m_fActiveHold_Auto;
+    flag            m_fActiveHoldOK_PB;
+    flag            m_fActiveHoldOK_Dyn;
+    flag            m_fMustBeActive;
 
     static flag     bGlblResultsValid;
     static flag     bGlblResultsValidChg;

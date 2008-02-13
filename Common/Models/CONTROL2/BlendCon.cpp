@@ -63,7 +63,7 @@ CBlendCon::CBlendCon(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   #endif
   {
   AttachClassInfo(nc_Control, NULL, &NullFlwGroup);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   bOn = 1;
   bLogOptimiseErrors = 1;
   bLogOptimiseNotes = 0;

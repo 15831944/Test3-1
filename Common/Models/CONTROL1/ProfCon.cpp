@@ -183,7 +183,7 @@ CProfileCon::CProfileCon(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   {
   fHasFiles=1;
   AttachClassInfo(nc_Control, NULL, NULL, &NullFlwGroup);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   bOn = 1;
   //bDoneXRefs = 0;
   bAboutToStart = 0;

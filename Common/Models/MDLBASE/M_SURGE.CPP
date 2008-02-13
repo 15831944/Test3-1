@@ -89,9 +89,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
 
   POffset=0;
 
-  fActiveHoldOK_PB=true;
-  fActiveHoldOK_Dyn=true;
-  m_fActiveHoldIfSS=true;
+  SetActiveOptions(true, true, true);
 
   SetAllowedModes(true, NM_All/*|SM_Direct*/|SM_Inline|SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
 

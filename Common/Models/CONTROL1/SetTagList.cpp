@@ -154,7 +154,7 @@ CTagListCon::CTagListCon(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   {
   fHasFiles=1;
   AttachClassInfo(nc_Control, NULL, NULL, &NullFlwGroup);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   bOn = 1;
   bSetAtStart = 0;
   bSetBeforeStart = 0;

@@ -492,8 +492,8 @@ ref class CSvcConnectCLRThread
         {
         GraphicNode ^ newGNd = GNd->Clone();
 
-        float OldW = newGNd->TagArea->Width;
-        float NewW = OldW * TagBlk.m_Area.Height()/newGNd->TagArea->Height;
+        float OldW = (float)newGNd->TagArea->Width;
+        float NewW = (float)(OldW * TagBlk.m_Area.Height()/newGNd->TagArea->Height);
         newGNd->TagArea->X += (float)Delta.X-0.5*(NewW-OldW);
         newGNd->TagArea->Y += (float)Delta.Y;
         newGNd->TagArea->Width = NewW;
@@ -514,8 +514,8 @@ ref class CSvcConnectCLRThread
         {
         GraphicLink ^ newLNd = LNd->Clone();
 
-        float OldW = newLNd->TagArea->Width;
-        float NewW = OldW * TagBlk.m_Area.Height()/newLNd->TagArea->Height;
+        float OldW = (float)newLNd->TagArea->Width;
+        float NewW = (float)(OldW * TagBlk.m_Area.Height()/newLNd->TagArea->Height);
         newLNd->TagArea->X += (float)Delta.X-0.5*(NewW-OldW);
         newLNd->TagArea->Y += (float)Delta.Y;
         newLNd->TagArea->Width = NewW;

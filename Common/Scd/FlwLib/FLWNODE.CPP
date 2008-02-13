@@ -4657,7 +4657,7 @@ void FlwNode::BuildCommonSEDefn(DataDefnBlk & DDB)
 
   if (!fSolutionForRoot)
     {
-    DDB.CheckBoxBtn ("Active", "", DC_, "", xidActiveMode, this, isParmStopped);
+    DDB.CheckBoxBtn ("Active", "", DC_, "", xidActiveMode, this, m_fMustBeActive ?0:isParmStopped);
     DDB.CheckBoxBtn ("Hold",   "", DC_, "", xidHoldMode,   this, isParm);
     }
 

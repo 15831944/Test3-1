@@ -56,7 +56,7 @@ CElecBlk::CElecBlk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   bReloadReqd = False;
   bWithDBG = False;
   AttachClassInfo(nc_Control, ElecBlkIOAreaList, &NullFlwGroup);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   sPGMName = "";
   bOn = 1;
   m_VarData = NULL;

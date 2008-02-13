@@ -335,7 +335,8 @@ CActuator::CActuator(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
 
   AttachClassInfo(nc_Control, &ActuatorIOAreaList[0], &NullFlwGroup);
 
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
+
   bOn = 1;
 
   //bDoneExtRefs = 0;

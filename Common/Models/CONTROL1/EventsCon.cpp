@@ -340,7 +340,7 @@ CEventsCon::CEventsCon(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   {
   fHasFiles=1;
   AttachClassInfo(nc_Control, NULL, NULL, &NullFlwGroup);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   bOn = 1;
   bAboutToStart = 0;
   }

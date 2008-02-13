@@ -139,7 +139,7 @@ CNodeProcedures::CNodeProcedures(FlwNode * pNd)
   m_bReloadReqd = false;
   m_bWithDBG = false;
   //AttachClassInfo(nc_Control, NULL, &NullFlwGroup);
-  //fActiveHoldOK_Dyn=true;
+  //SetActiveOptions(true, true);
   m_sProcName = "";
   m_bOn = 1;
   m_VarData = NULL;

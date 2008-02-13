@@ -49,7 +49,7 @@ CIsolator::CIsolator(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   m_tsPwrOut(this, "PwrOut", eCT_3Ph4W)
   {
   AttachClassInfo(nc_Elec, IsolatorIOAreaList);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   m_bOn = 0;
   }
 
@@ -226,7 +226,7 @@ CCctBreaker::CCctBreaker(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   m_tsPwrOut(this, "PwrOut", eCT_3Ph4W)
   {
   AttachClassInfo(nc_Elec, CctBreakerIOAreaList);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   m_bOn = 0;
   }
 

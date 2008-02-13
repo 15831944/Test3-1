@@ -46,6 +46,7 @@ CArea::CArea(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
   {
   AttachIOAreas(CAreaIOAreaList);
   m_Content.SetView(SVV_AsMassFrac);  
+  SetActiveOptions(true, false, false, true);
   }
 
 //--------------------------------------------------------------------------

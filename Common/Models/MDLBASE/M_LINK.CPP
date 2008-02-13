@@ -761,8 +761,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
     }
 #endif
 
-  fActiveHoldOK_PB=true;
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   m_fFwdOnly=false;
 
   m_bAdjustToEstFlow=false;

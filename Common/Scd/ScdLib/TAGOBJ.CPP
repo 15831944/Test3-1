@@ -2470,9 +2470,10 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject *pAtta
   m_fActive=true;
   m_fActiveHold=false;
   m_fActiveHoldIfSS=false;
-  fActiveHold_Auto=false;
-  fActiveHoldOK_PB=true;
-  fActiveHoldOK_Dyn=false;
+  m_fActiveHold_Auto=false;
+  m_fActiveHoldOK_PB=true;
+  m_fActiveHoldOK_Dyn=false;
+  m_fMustBeActive=false;
 
   m_bFileIOBusy=false;
 
@@ -2481,14 +2482,6 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject *pAtta
   m_pgpTO=NULL;
 
   m_lEqLink=-1;
-
-  //// Generate DefaultGuid
-  //UCHAR*psEqGUID=NULL;
-  //UUID AGuid;
-  //ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
-  //ASSERT_ALWAYS(UuidToString(&AGuid, &psEqGUID)==RPC_S_OK, "Guid Not Converted", __FILE__, __LINE__);
-  //m_sEqGUID.Set("{%s}", psEqGUID);
-  //RpcStringFree(&psEqGUID);
 
   m_sGuid = CreateGuidStr();
 
@@ -3119,14 +3112,14 @@ long GetPermissableModes(long MdMask, TaggedObject * pObject)
 // -------------------------------------------------------------------------
 
 flag TaggedObject::GetActive()             { return m_fActive; };
-void TaggedObject::SetActive(flag Active)  { m_fActive=Active; };
+void TaggedObject::SetActive(flag Active) { m_fActive=Active || m_fMustBeActive; };
 
 flag TaggedObject::GetActiveHold()
-  { return (m_fActiveHold || fActiveHold_Auto || (m_fActiveHoldIfSS && gs_License.OnlySteadyState())) && GetActiveHoldOK();};
+ { return (m_fActiveHold || m_fActiveHold_Auto || (m_fActiveHoldIfSS && gs_License.OnlySteadyState())) && GetActiveHoldOK();};
 flag TaggedObject::GetActiveHoldIsAuto()   { return GetActiveHold() && !m_fActiveHold; };
-flag TaggedObject::GetActiveHoldOK()       { return NetDynamicMethod() ? fActiveHoldOK_Dyn:fActiveHoldOK_PB;};
+flag TaggedObject::GetActiveHoldOK()    { return NetDynamicMethod() ? m_fActiveHoldOK_Dyn:m_fActiveHoldOK_PB;};
 void TaggedObject::SetActiveHold(flag Hold) { m_fActiveHold = Hold && GetActiveHoldOK(); };
-void TaggedObject::SetActiveHoldAuto(flag Hold) { fActiveHold_Auto = Hold && GetActiveHoldOK(); };
+void TaggedObject::SetActiveHoldAuto(flag Hold) { m_fActiveHold_Auto = Hold && GetActiveHoldOK(); };
 
 // -------------------------------------------------------------------------
 

@@ -324,7 +324,7 @@ CQueueCon::CQueueCon(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   {
   fHasFiles=1;
   AttachClassInfo(nc_Control, NULL, NULL, &NullFlwGroup);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   bDirectSetRqd = 0;
   bAboutToStart = 0;
   }

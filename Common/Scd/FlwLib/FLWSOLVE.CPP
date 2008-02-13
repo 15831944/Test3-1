@@ -9750,6 +9750,8 @@ CFlwSolver::CFlwSolver(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   m_fHoldDoGlobalLinks=false;
   m_bMustCreateObjsFromFile=false;
 
+  SetActiveOptions(false, false, false, true);
+
   FlushDbg=0;
 //  InitializeCriticalSection(&xCritSect);
   //TargetTags.Init(this);

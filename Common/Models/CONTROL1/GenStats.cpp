@@ -92,7 +92,7 @@ CGenStats::CGenStats(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
     //,  m_MXRH(this)
   {
   AttachClassInfo(nc_Control, NULL, &NullFlwGroup);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   bOn = 1;
   bResetOnStart = 0;
   bResetOnInit = 1;

@@ -302,7 +302,7 @@ PIDControl::PIDControl(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
 
 //  AttachIOAreas(&PIDIOAreaList[0], NULL, NULL, true);
 
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   bOn = 1;
   //bDoneExtRefs = 0;
   bAboutToStart = 0;

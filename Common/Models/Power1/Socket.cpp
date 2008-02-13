@@ -45,7 +45,7 @@ CSocket::CSocket(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_tsPwrOut(this, "PwrOut", eCT_3Ph4W)
   {
   AttachClassInfo(nc_Elec, SocketIOAreaList);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   //m_bOn = 1;
   m_bPresent = 0;
   //m_dValue = 0;

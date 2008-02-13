@@ -37,7 +37,7 @@ CAirLink::CAirLink(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   FlwNode(pClass_, TagIn, pAttach, eAttach)
   {
   AttachClassInfo(nc_ELnk, TwoEIOAreaList);
-  fActiveHoldOK_Dyn=true;
+  SetActiveOptions(true, true);
   m_bOn = 1;
   //m_dValue = 0;
   }
