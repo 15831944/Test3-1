@@ -302,11 +302,18 @@ flag CHistCat::Save(long CatNo/*=-1*/)
         }
       else if (CatNo>=0)
         {
-        unsigned long Pos = sizeof(HD_CatHead) + (CatItems[CatNo]->lRecNo * sizeof(HD_CatItem)); 
-        if (F.GetLength() < Pos)
-          F.SetLength(Pos);
-        F.Seek(Pos, CFile::begin); 
-        F.Write((void*)&(CatItems[CatNo]->Data), sizeof(HD_CatItem));
+        for (long i=0; i<iCatItemCnt; i++)
+          {
+          if (CatItems[i]->lRecNo==CatNo)
+            {
+            unsigned long Pos = sizeof(HD_CatHead) + (CatItems[i]->lRecNo * sizeof(HD_CatItem)); 
+            if (F.GetLength() < Pos)
+              F.SetLength(Pos);
+            F.Seek(Pos, CFile::begin); 
+            F.Write((void*)&(CatItems[i]->Data), sizeof(HD_CatItem));
+            i = iCatItemCnt; //stop looping through CatItems
+            }
+          }
         }
       F.Close();
       }
