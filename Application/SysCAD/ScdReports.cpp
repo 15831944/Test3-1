@@ -29,6 +29,7 @@ void CScdReports::FireTheEvent(long Evt, long Data)
   switch (Evt)
     {
     case ComCmd_Report_GetValues: 
+    case ComCmd_Report_GetInfo:
     case ComCmd_Report_Trend: 
     case ComCmd_Report_SetValues: 
     case ComCmd_Report_SaveAndClose: 
@@ -181,19 +182,19 @@ STDMETHODIMP CScdReports::get__NewEnum(IUnknown * * pVal)
   SCD_COMEXIT
   }
 
-#define SCD_INITSYNC(cmd)                                   \
-  long TheCmd=cmd;                                        \
+#define SCD_INITSYNC(cmd)                               \
+  long TheCmd=cmd;                                      \
   InitCOCmdStuff(TheCmd);
 
-#define SCD_EXECSYNC                                        \
-  switch (ExecCOCmdStuff(TheCmd))                         \
+#define SCD_EXECSYNC                                    \
+  switch (ExecCOCmdStuff(TheCmd))                       \
   {                                                     \
-    case CScdCOCmdBase::SS_CallTimeout:                   \
+    case CScdCOCmdBase::SS_CallTimeout:                 \
     Scd.ReturnH(HRESULT_ERR(2), "Async Call Timeout");  \
     break;                                              \
-      case CScdCOCmdBase::SS_CallReturned:                  \
-      case CScdCOCmdBase::SS_CallASync:                     \
-      break;                                              \
+      case CScdCOCmdBase::SS_CallReturned:              \
+      case CScdCOCmdBase::SS_CallASync:                 \
+      break;                                            \
   }
 
 STDMETHODIMP CScdReports::Process(eScdReportTypes Type, BSTR bsFilename, BSTR bsReportname, VARIANT_BOOL SaveAndClose)
@@ -207,6 +208,10 @@ STDMETHODIMP CScdReports::Process(eScdReportTypes Type, BSTR bsFilename, BSTR bs
       case eScdRT_GetValues:
         Opt=SUB_REPORT_GETVALUES; 
         Cmd=ComCmd_Report_GetValues;
+        break;
+      case eScdRT_GetInfo:
+        Opt=SUB_REPORT_GENERALINFO; 
+        Cmd=ComCmd_Report_GetInfo;
         break;
       case eScdRT_SetValues: 
         Opt=SUB_REPORT_SETVALUES; 

@@ -60,6 +60,7 @@ LPCTSTR ScdCOMCmd2Str(long Cmd)
     case ComCmd_WaitTillStop                  : return "ComCmd_WaitTillStop";
     case ComCmd_ResetWait                     : return "ComCmd_ResetWait";
     case ComCmd_Report_GetValues              : return "ComCmd_Report_GetValues";
+    case ComCmd_Report_GetInfo                : return "ComCmd_Report_GetInfo";
     case ComCmd_Report_Trend                  : return "ComCmd_Report_Trend";
     case ComCmd_Report_SetValues              : return "ComCmd_Report_SetValues";
     case ComCmd_Report_SaveAndClose           : return "ComCmd_Report_SaveAndClose";

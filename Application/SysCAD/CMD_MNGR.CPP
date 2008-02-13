@@ -98,6 +98,7 @@ struct tCmdNameList { DWORD Cmd; LPCTSTR Name; } CmdNameList[] =
     {ComCmd_WaitTillStop,                 "WaitTillStop"                },
     {ComCmd_ResetWait,                    "ResetWait"                   },
     {ComCmd_Report_GetValues,             "GenerateTagReport"           },
+    {ComCmd_Report_GetInfo,               "GenerateTagInfo"             },
     {ComCmd_Report_Trend,                 "GenerateTrendReport"         },
     {ComCmd_Report_SetValues,             "ProcessSetTags"              },
     {ComCmd_Report_SaveAndClose,          "SaveAndCloseReport"          },
@@ -599,6 +600,7 @@ inline int CmdIDFromRptType(int iRpt)
   switch (iRpt)
     {
     case SUB_REPORT_GETVALUES: return ComCmd_Report_GetValues;
+    case SUB_REPORT_GENERALINFO: return ComCmd_Report_GetInfo;
     case SUB_REPORT_TREND: return ComCmd_Report_Trend;
     case SUB_REPORT_SETVALUES: return ComCmd_Report_SetValues;
     case SUB_REPORT_SAVEANDCLOSE: return ComCmd_Report_SaveAndClose;
@@ -1121,6 +1123,8 @@ int CCmdExec::AddCmd(char* Txt)
     AddCmd(new CCmdResetWait());
   else if (_stricmp(f[0], CmdNames(ComCmd_Report_GetValues))==0 && nParms==2)
     AddCmd(new CCmdGenerateReport(SUB_REPORT_GETVALUES, StrQuotesTrim(f[1]), StrQuotesTrim(f[2])));
+  else if (_stricmp(f[0], CmdNames(ComCmd_Report_GetInfo))==0 && nParms==1)
+    AddCmd(new CCmdGenerateReport(SUB_REPORT_GENERALINFO, StrQuotesTrim(f[1]), "Info"));
   else if (_stricmp(f[0], CmdNames(ComCmd_Report_Trend))==0 && nParms==2)
     AddCmd(new CCmdGenerateReport(SUB_REPORT_TREND, StrQuotesTrim(f[1]), StrQuotesTrim(f[2])));
   else if (_stricmp(f[0], CmdNames(ComCmd_Report_SetValues))==0 && nParms==2)
@@ -2080,6 +2084,7 @@ if (dbgDoComCmd())
 //SUB_REPORT_MACRO
       }
       break;
+    case ComCmd_Report_GetInfo: break;
     case ComCmd_Report_Trend: break;
     case ComCmd_Report_SaveAndClose: break;
     case ComCmd_Report_SetValues: break;
@@ -2230,6 +2235,7 @@ LRESULT CCmdExec::DoCOMEvt(WPARAM wParam, LPARAM lParam)
     //case ComCmd_WaitTillStop : break;
     //case ComCmd_ResetWait : break;
     case ComCmd_Report_GetValues:
+    case ComCmd_Report_GetInfo:
     case ComCmd_Report_Trend:
     case ComCmd_Report_SetValues:
     case ComCmd_Report_ExecuteMacro:

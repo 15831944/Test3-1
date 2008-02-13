@@ -567,6 +567,7 @@ typedef enum eScdReportTypes
   eScdRT_GetValues    =   0 ,
   eScdRT_SetValues    =   1 ,
   eScdRT_Trend        =   2 ,
+  eScdRT_GetInfo      =   3 ,
   }	eScdReportTypes;
 
 //----------------------------------------------  

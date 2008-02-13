@@ -84,11 +84,12 @@ const long  ComCmd_WaitTillSteadyState            = 34;
 const long  ComCmd_WaitTillStop                   = 35;
 const long  ComCmd_ResetWait                      = 36;
 const long  ComCmd_Report_GetValues               = 37;
-const long  ComCmd_Report_Trend                   = 38;
-const long  ComCmd_Report_SetValues               = 39;
-const long  ComCmd_Report_SaveAndClose            = 40;
-const long  ComCmd_Report_ExecuteMacro            = 41;
-const long  ComCmd_Report_Process                 = 42;
+const long  ComCmd_Report_GetInfo                 = 38;
+const long  ComCmd_Report_Trend                   = 39;
+const long  ComCmd_Report_SetValues               = 40;
+const long  ComCmd_Report_SaveAndClose            = 41;
+const long  ComCmd_Report_ExecuteMacro            = 42;
+const long  ComCmd_Report_Process                 = 43;
 
 const long  ComCmd_DocCmd                         = 45;
 

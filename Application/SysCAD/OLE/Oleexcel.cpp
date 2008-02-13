@@ -5215,7 +5215,7 @@ void COleInfoReportMngr::ReportTagLists(int Pg)
 
 int COleInfoReportMngr::DoAutomation()
   {
-  //CAutomationHelper AutoHelper(ComCmd_InfoReport); //destructor does work
+  CAutomationHelper AutoHelper(ComCmd_Report_GetInfo); //destructor does work
   BOOL DidSetScrUpdating = FALSE;
   long PrevCalc = 0;
   flag Failed = 0;
