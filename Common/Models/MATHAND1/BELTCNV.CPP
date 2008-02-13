@@ -56,13 +56,14 @@ const int EIOId_Supply = ElecIOId(0);
 XID xidBeltLength       = ModelXID(1000);
 XID xidBeltSpeed        = ModelXID(1001);
 XID xidTotSpilt         = ModelXID(1002);
-XID xidNWtMtrs          = ModelXID(1003);
-XID xidNSections        = ModelXID(1004);
-XID xidTotalMass        = ModelXID(1005);
-XID xidAvgLoading       = ModelXID(1006);
-XID xidShowProf         = ModelXID(1007);
-XID xidProfPts          = ModelXID(1008);
-XID xidProfDispType     = ModelXID(1009);
+XID xidTotVented        = ModelXID(1003);
+XID xidNWtMtrs          = ModelXID(1004);
+XID xidNSections        = ModelXID(1005);
+XID xidTotalMass        = ModelXID(1006);
+XID xidAvgLoading       = ModelXID(1007);
+XID xidShowProf         = ModelXID(1008);
+XID xidProfPts          = ModelXID(1009);
+XID xidProfDispType     = ModelXID(1010);
 XID xidFeedType0        = ModelXID(1100);
 XID xidFeedIndex0       = ModelXID(1200);
 XID xidFeedPos0         = ModelXID(1300);
@@ -115,7 +116,10 @@ BeltCnv::BeltCnv(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_Pwr.Initialise("525v_A/C");
   AttachClassInfo(nc_Process, NULL);
   AttachIOAreas(BeltCnvIOAreaList);
-  //Initialise();
+
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Hide);
+  InitAssocGrfShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_Hide, eAGS_Show, eAGS_Show);
+
   m_MaxVelocity=1.0;
   m_MaxSpillLoading=100.0;
   m_MaxStallLoading=1000.0;
@@ -172,6 +176,7 @@ void BeltCnv::BuildDataDefn(DataDefnBlk & DDB)
   if (OrigPrjFileVerNo()<90 && DDB.ForFileSnpScn())
     DDB.String  ("SpillArea",    "",              DC_,     "",      &m_sAreaTag,        this, isParmStopped);
   DDB.Double  ("TotalSpilt",   "",                DC_M,    "kg",    xidTotSpilt,        this, isParm);
+  DDB.Double  ("TotalVented",  "",                DC_M,    "kg",    xidTotVented,       this, isParm);
 
   DDB.Page("BeltDrive", DDB_RqdPage);
   DDB.Text    ("Power Draw");
@@ -327,6 +332,14 @@ flag BeltCnv::DataXchg(DataChangeBlk & DCB)
         m_Q.SetTotalSpilt(*DCB.rD, Scl*m_Q.TotalSpiltHf(), Scl*m_Q.TotalSpiltHs(), Scl*m_Q.TotalSpiltHz());
         }
       DCB.D=m_Q.TotalSpiltMass();
+      return 1;
+    case xidTotVented:
+      if (DCB.rD)
+        {
+        double Scl=*DCB.rD/GTZ(m_Q.TotalVentedMass());
+        m_Q.SetTotalVented(*DCB.rD, Scl*m_Q.TotalVentedHf(), Scl*m_Q.TotalVentedHs(), Scl*m_Q.TotalVentedHz());
+        }
+      DCB.D=m_Q.TotalVentedMass();
       return 1;
     case xidNWtMtrs:
       if (DCB.rL)
@@ -582,26 +595,28 @@ void BeltCnv::SetState(eScdMdlStateActs RqdState)
   {
   MdlNode::SetState(RqdState);
   m_Q.SetState(RqdState);
-  switch (RqdState)
-    {
-    case MSA_PBInit:
-    case MSA_Empty:
-    case MSA_PreSet:
-      m_Q.Empty();
-      m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
-      break;
-    case MSA_SteadyState:
-      break;
-    case MSA_EmptySpillTargets:
-      m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
-      break;
-    case MSA_DynStatsRunInit:
-      //if (pStats)
-      //  pStats->ResetStats();
-      //dInitMt = m_Q.TotalMass();
-      //m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
-      break;
-    }
+  //switch (RqdState)
+  //  {
+  //  case MSA_PBInit:
+  //  case MSA_Empty:
+  //  case MSA_PreSet:
+  //    m_Q.Empty();
+  //    m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+  //    m_Q.SetTotalVented(0.0, 0.0, 0.0, 0.0);
+  //    break;
+  //  case MSA_SteadyState:
+  //    break;
+  //  case MSA_EmptySpillTargets:
+  //    m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+  //    m_Q.SetTotalVented(0.0, 0.0, 0.0, 0.0);
+  //    break;
+  //  case MSA_DynStatsRunInit:
+  //    //if (pStats)
+  //    //  pStats->ResetStats();
+  //    //dInitMt = m_Q.TotalMass();
+  //    //m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+  //    break;
+  //  }
   };
 
 //---------------------------------------------------------------------------
@@ -611,6 +626,8 @@ void BeltCnv::StartSolution()
   };
 
 //---------------------------------------------------------------------------
+
+const int JnId_Spill=1;
 
 void BeltCnv::ConfigureJoins()
   {
@@ -626,6 +643,8 @@ void BeltCnv::ConfigureJoins()
         SetIO_Open(i, 0, false, ESS_Denied);
       break;
     }
+  for (int ii=NoProcessIOs(), jj=JnId_Spill; ii<NoFlwIOs(); ii++, jj++)
+    SetIO_Direct(ii, jj);
   };
 
 //---------------------------------------------------------------------------

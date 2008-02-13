@@ -545,6 +545,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
   {
   int MustSelect=0;
   flag bShowIt=0;
+  flag bForceShowIt=0;
   flag bLogIt=0;
   byte mBeep=0;
 
@@ -576,6 +577,9 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
       {
       MustSelect=1;
       }
+
+    if (Msg.m_dwFlags & LogFlag_ShowMsgWnd)
+      bForceShowIt=1;
 
     flag AddMsg=1;
     int iImg=0;
@@ -793,7 +797,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
     ScdApp()->BeginWaitCursor();
     ScdApp()->BeginWaitCursor();
     }
-  else if (bShowIt && m_DisplayOn && ((wParam&LF_DoAfxMsgBox)==0))
+  else if (((bShowIt && m_DisplayOn) || bForceShowIt) && ((wParam&LF_DoAfxMsgBox)==0))
     {
     BringWindowToTop();
     CMsgWindow::Show(true);

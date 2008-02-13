@@ -137,26 +137,43 @@ void SpQSection::SetMakeup(SpQueue * pQ, double Frac, double QmRqd, SpConduit * 
 
 // --------------------------------------------------------------------------
 
-void SpQSection::Load(SpQueue * pQ, double Frac, SpConduit * pFeed, CDirectFlwIO *pSpill)
+void SpQSection::Load(SpQueue * pQ, double Frac, SpConduit * pFeed, CDirectFlwIO *pSpill, CDirectFlwIO *pVent)
   {
   double MaxAmtInSct = fabs(Frac*pQ->m_dMaxSpillLoading*pQ->m_dTimeSlice*pQ->m_dSpeed);
   double AmtInSct    = m_pMdl->Mass(som_ALL);
   double MaxAmtToAdd = GTZ(MaxAmtInSct-AmtInSct);
-  double RqdAmtToAdd = Frac * pFeed->QMass(som_ALL) * pQ->m_dTimeSlice;
+  double RqdAmtToAdd = Frac * pFeed->QMass(som_SL) * pQ->m_dTimeSlice;
   double AmtToAdd    = Min(RqdAmtToAdd, MaxAmtToAdd);
   double AmtToSpill  = RqdAmtToAdd-AmtToAdd;
+  double AmtToVent   = 1.0/*Frac*/ * pFeed->QMass(som_Gas) * pQ->m_dTimeSlice;
   double QmToAdd     = AmtToAdd/pQ->m_dTimeSlice;
   double QmToSpill   = AmtToSpill/pQ->m_dTimeSlice;
+  double QmToVent    = AmtToVent/pQ->m_dTimeSlice;
 
-  m_pMdl->AddMassM(pFeed->Model(), som_ALL, AmtToAdd);
+  m_pMdl->AddMassM(pFeed->Model(), som_SL, AmtToAdd);
   if (AmtToSpill>1.0e-6)
     {
     //pSpill->AddMass2Target(*pFeed, QmToSpill, pQ->m_dTimeSlice);
     pSpill->Cd.QAddM(*pFeed, som_ALL, QmToSpill);
-    pQ->m_dTotSpiltM+=AmtToSpill;
-    pQ->m_dTotSpiltHf+=AmtToSpill*pFeed->msHf();
-    pQ->m_dTotSpiltHs+=AmtToSpill*pFeed->msHs();
-    pQ->m_dTotSpiltHz+=AmtToSpill*pFeed->msHz();
+    if (pQ->m_bSumLosses)
+      {
+      pQ->m_dTotSpiltM+=AmtToSpill;
+      pQ->m_dTotSpiltHf+=AmtToSpill*pFeed->msHf();
+      pQ->m_dTotSpiltHs+=AmtToSpill*pFeed->msHs();
+      pQ->m_dTotSpiltHz+=AmtToSpill*pFeed->msHz();
+      }
+    }
+  if (AmtToVent>1.0e-6)
+    {
+    //pSpill->AddMass2Target(*pFeed, QmToSpill, pQ->m_dTimeSlice);
+    pVent->Cd.QAddM(*pFeed, som_Gas, QmToVent);
+    if (pQ->m_bSumLosses)
+      {
+      pQ->m_dTotVentedM+=AmtToVent;
+      pQ->m_dTotVentedHf+=AmtToVent*pFeed->msHf();
+      pQ->m_dTotVentedHs+=AmtToVent*pFeed->msHs();
+      pQ->m_dTotVentedHz+=AmtToVent*pFeed->msHz();
+      }
     }
 
 #if dbgSpQueue
@@ -169,7 +186,7 @@ void SpQSection::Load(SpQueue * pQ, double Frac, SpConduit * pFeed, CDirectFlwIO
 
 // --------------------------------------------------------------------------
 
-void SpQSection::UnLoad(SpQueue * pQ, double Frac, double QmRqd, SpConduit * pProd, CDirectFlwIO *pSpill)
+void SpQSection::UnLoad(SpQueue * pQ, double Frac, double QmRqd, SpConduit * pProd, CDirectFlwIO *pSpill, CDirectFlwIO *pVent)
   {
   double MassInSct = m_pMdl->Mass(som_ALL);
   double AmtToGo   = Frac * MassInSct;
@@ -207,7 +224,7 @@ void SpQSection::CopyMass(SpQSection * pSct, double Scl)
 
 // --------------------------------------------------------------------------
 
-void SpQSection::Spill(SpQueue * pQ, double Frac, CDirectFlwIO *pSpill)
+void SpQSection::Spill(SpQueue * pQ, double Frac, CDirectFlwIO *pSpill, CDirectFlwIO *pVent)
   {
   double MassInSct = m_pMdl->Mass(som_ALL);
   //double AmtToGo   = Frac * MassInSct;
@@ -225,20 +242,6 @@ void SpQSection::Spill(SpQueue * pQ, double Frac, CDirectFlwIO *pSpill)
   // Do this After Spilling
   m_pMdl->ScaleMass(som_ALL, GEZ(1.0-Frac));
 
-  if (QmToSpill>1.0e-6)//only complain for "significant" spill
-    {
-    if (gs_SpillOption & SpillReports_Cnds)
-      pQ->SetCI(3, true);
-    if (gs_SpillOption & SpillReports_Msgs)
-      LogWarning(pQ->FullObjTag(), 0, "Spill excess");
-    if (!gs_FSIdleRequested && (gs_SpillOption & SpillReports_Idle) && (gs_SpillOption & SpillReports_Units))
-      {
-      LogWarning(pQ->FullObjTag(), LF_DoAfxMsgBox|LF_Exclamation, "Solver IDLE request due to spillage");
-      gs_FSIdleRequested=true;
-      FlwNode::ExecObj()->XIdle();
-      }
-    }
-
   #if dbgSpQueue
   if (dbgSpill() && (!dbgDbgBrk() || dbgDbgBrk() && pQ->DoDbgBrk()))
     dbgpln("  Spill %5i) %6.2f->%6.2f   L:%6.2f   %%:%6.2f   Qm2Spl:%8.4f   TotSpilt:%8.4f  t:%6.2f",
@@ -253,20 +256,6 @@ void SpQSection::Spill(CSpPlugFlow* pQ, double Frac)
   double MassInSct = m_pMdl->Mass(som_ALL);
   double QmToSpill = Frac * MassInSct / pQ->m_dTimeSlice;
   m_pMdl->ScaleMass(som_ALL, GEZ(1.0-Frac));
-
-  if (QmToSpill>1.0e-6)//only complain for "significant" spill
-    {
-    if (gs_SpillOption & SpillReports_Cnds)
-      pQ->SetCI(3, "W\tSpill Attempted %g kg/s", QmToSpill);
-    if (gs_SpillOption & SpillReports_Msgs)
-      LogWarning(pQ->FullObjTag(), 0, "Spill excess");
-    if (!gs_FSIdleRequested && (gs_SpillOption & SpillReports_Idle) && (gs_SpillOption & SpillReports_Units))
-      {
-      LogWarning(pQ->FullObjTag(), LF_DoAfxMsgBox|LF_Exclamation, "Solver IDLE request due to spillage");
-      gs_FSIdleRequested=true;
-      FlwNode::ExecObj()->XIdle();
-      }
-    }
 
   #if dbgSpQueue
   if (dbgSpill() && (!dbgDbgBrk() || dbgDbgBrk() && pQ->DoDbgBrk()))
@@ -498,7 +487,8 @@ bool CSpPFSectionList::Break(double P, POSITION AtPos, POSITION &LastPos, CSpPFS
 
 SpQIO::SpQIO()
   {
-  m_pSpill        = NULL;//new CDirectFlwIO(eDIO_Spill, NULL, false, false, "IO", IOId_Spill2Area, IOId_AreaSpillIn);
+  m_pSpill        = NULL;
+  m_pVent         = NULL;
   m_dPosition     = 0;
   m_dQmEst        = 0;
   m_dQmAct        = 0;
@@ -619,8 +609,9 @@ SpQueue::SpQueue(pTagObjClass pClass_, pchar pTag_, TaggedObject* pAttach, TagOb
   {
   FlwNode * pNd=dynamic_cast<FlwNode *>(pAttach);
   ASSERT(pNd!=NULL);
-  m_pSpill=NULL;//new CDirectFlwIO(eDIO_Spill, pNd, false, true, SpillIOTag, IOId_Spill2Area, IOId_AreaSpillIn);
-  //m_bOwnSpill=true;
+  m_pSpill=NULL;
+  m_pVent=NULL;
+
   m_dSpeed=1.0;
   m_dMaxSpeed=1.0;
   m_dMinFracSectLen=0.0; //should this default be 0.0? perhaps 0.001?
@@ -632,10 +623,16 @@ SpQueue::SpQueue(pTagObjClass pClass_, pchar pTag_, TaggedObject* pAttach, TagOb
   m_dMaxSpillLoading=100.0;
   m_dMinLoading=0.001;
   m_dTimeSlice=0.0;
+  
+  m_bSumLosses=false;
   m_dTotSpiltM=0.0;
   m_dTotSpiltHf=0.0;
   m_dTotSpiltHs=0.0;
   m_dTotSpiltHz=0.0;
+  m_dTotVentedM=0.0;
+  m_dTotVentedHf=0.0;
+  m_dTotVentedHs=0.0;
+  m_dTotVentedHz=0.0;
 
   m_nMaxTurnDown=50;
   m_bPosChg=0;
@@ -663,7 +660,6 @@ SpQueue::SpQueue(pchar pTag_, TaggedObject* pAttach, TagObjAttachment eAttach, C
   {
   ASSERT(NULL!=dynamic_cast<FlwNode *>(pAttach));
   m_pSpill            = pSpill;
-  //m_bOwnSpill         = false;
   m_pVent             = pVent;
   m_pAccIn            = pAccIn;
   m_pAccOut           = pAccOut;
@@ -678,10 +674,16 @@ SpQueue::SpQueue(pchar pTag_, TaggedObject* pAttach, TagObjAttachment eAttach, C
   m_dMaxSpillLoading  = 100.0;
   m_dMinLoading       = 0.001;
   m_dTimeSlice        = 0.0;
-  m_dTotSpiltM=0.0;
-  m_dTotSpiltHf=0.0;
-  m_dTotSpiltHs=0.0;
-  m_dTotSpiltHz=0.0;
+
+  m_bSumLosses        = false;
+  m_dTotSpiltM        = 0.0;
+  m_dTotSpiltHf       = 0.0;
+  m_dTotSpiltHs       = 0.0;
+  m_dTotSpiltHz       = 0.0;
+  m_dTotVentedM       = 0.0;
+  m_dTotVentedHf      = 0.0;
+  m_dTotVentedHs      = 0.0;
+  m_dTotVentedHz      = 0.0;
 
   m_nMaxTurnDown      = 50;
   m_bPosChg           = 0;
@@ -784,6 +786,8 @@ void   SpQueue::SetState(eScdMdlStateActs RqdState)
     {
     case MSA_Empty:
       Empty();
+      SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+      SetTotalVented(0.0, 0.0, 0.0, 0.0);
       break;
     case MSA_PreSet:
       break;
@@ -792,6 +796,10 @@ void   SpQueue::SetState(eScdMdlStateActs RqdState)
       break;
     case MSA_SteadyState:
       LogNote(FullObjTag(), 0, "SteadyState Undefined");
+      break;
+    case MSA_DynStatsRunInit:
+      SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+      SetTotalVented(0.0, 0.0, 0.0, 0.0);
       break;
     }
   };
@@ -809,8 +817,7 @@ void SpQueue::SetNFeeds(int NFeeds)
     for (int i=n; i<NFeeds; i++)
       {
       m_Feed[i].m_pSpill=m_pSpill;
-      //CDirectFlwIO & Spill=*m_Feed[i].m_pSpill;
-      //Spill.InitialiseIO(eDIO_Spill, &m_pSpill->Nd, false, false/*!Spill.TagDeferred*/, "FdX", IOId_Spill2Area, IOId_AreaSpillIn);
+      m_Feed[i].m_pVent=m_pVent;
       m_Feed[i].m_pQ=this;
       };
     }
@@ -829,8 +836,7 @@ void SpQueue::SetNProds(int NProds)
     for (int i=0; i<NProds; i++)
       {
       m_Prod[i].m_pSpill=m_pSpill;
-      //CDirectFlwIO & Spill=*m_Prod[i].m_pSpill;
-      //Spill.InitialiseIO(eDIO_Spill, &m_pSpill->Nd, false, false/*!Spill.TagDeferred*/, "PrX", IOId_Spill2Area, IOId_AreaSpillIn);
+      m_Prod[i].m_pVent=m_pVent;
       m_Prod[i].m_pQ=this;
       }
     }
@@ -844,6 +850,8 @@ void SpQueue::EvalProducts()
   DumpProfile(2, "Before EvalProd", 0);
   int NF=m_Feed.GetSize();
   int NP=m_Prod.GetSize();
+
+  m_bSumLosses=false;
 
   Spill.Cd.QZero();
   for (int i=0; i<NF; i++)
@@ -936,7 +944,7 @@ void SpQueue::Add2Sections(int FeedNo, SpQSectionList & Sections)
   if (pSct==NULL)
     { // No Sections Add One
     pSct=Sections.Add(Ps, Pe, ADDHEAD, NULL, SctPos, m_Spares);
-    pSct->Load(this, 1.0, pFeed, F.Spill.Connected ? &F.Spill : &Spill);
+    pSct->Load(this, 1.0, pFeed, F.Spill.Connected ? &F.Spill : &Spill, F.Vent.Connected ? &F.Vent: &Vent);
     }
   else
     {
@@ -996,7 +1004,7 @@ void SpQueue::Add2Sections(int FeedNo, SpQSectionList & Sections)
         }
 
       double Scl=(Min(pSct->End(), Pe)-Max(pSct->Start(), Ps))/GTZ(Pe-Ps);
-      pSct->Load(this, Scl, pFeed, F.Spill.Connected ? &F.Spill : &Spill);
+      pSct->Load(this, Scl, pFeed, F.Spill.Connected ? &F.Spill : &Spill, F.Vent.Connected ? &F.Vent: &Vent);
       //#if dbgSpQueue
       //if (dbgAdvSects() && (!dbgDbgBrk() || dbgDbgBrk() && DoDbgBrk()))
       //  dbgpln("     --> T:%6.2f  M:%8.4f", K2C(pSct->m_pMdl->Temp()), pSct->m_pMdl->Mass());
@@ -1275,7 +1283,7 @@ void SpQueue::UnLoadProd(int ProdNo)
       }
 
     double Scl=(Min(pSct->End(), Pe)-Max(pSct->Start(), Ps))/GTZ(pSct->Length());
-    pSct->UnLoad(this, Scl*P.Removal(), P.m_dQmEst, pProd, P.Spill.Connected ? &P.Spill : &Spill);
+    pSct->UnLoad(this, Scl*P.Removal(), P.m_dQmEst, pProd, P.Spill.Connected ? &P.Spill : &Spill, P.Vent.Connected ? &P.Vent: &Vent);
 
     //#if dbgSpQueue
     //if (dbgAdvSects() && (!dbgDbgBrk() || dbgDbgBrk() && DoDbgBrk()))
@@ -1307,6 +1315,8 @@ void SpQueue::SetStepInfo(double dTime, double MaxSpeed, double Speed, int MaxTu
 
 void SpQueue::Advance(double dTime, flag Moved)//, double MaxSpeed, double Speed, int MaxTurnDown/*=20*/)
   {
+  m_bSumLosses=true;
+
   m_dTimeSlice=dTime;
   m_dMinFracSectLen = Range(0.0,    m_dMinFracSectLen, 0.25);
   m_dTempTol        = Range(1.0e-9, m_dTempTol       , 0.25);
@@ -1397,6 +1407,7 @@ void SpQueue::Advance(double dTime, flag Moved)//, double MaxSpeed, double Speed
     }
 
   m_pSpill->Cd.QZero();
+  m_pVent->Cd.QZero();
   if (m_dSpeed>=0.0)
     {
     int iF=0, iP=0;
@@ -1449,7 +1460,7 @@ void SpQueue::Advance(double dTime, flag Moved)//, double MaxSpeed, double Speed
       {
       if (Ss>m_dLength)
         {  // Remove
-        pSct->Spill(this, 1.0, m_pSpill);
+        pSct->Spill(this, 1.0, m_pSpill, m_pVent);
         m_Sections.RemoveAt(SCT.Pos());
         m_Spares.AddTail(pSct);
         #if dbgSpQueue
@@ -1461,7 +1472,7 @@ void SpQueue::Advance(double dTime, flag Moved)//, double MaxSpeed, double Speed
       else
         { // Chop off end - Scale Mass
         double Scl=(m_dLength-Ss)/GTZ(Se-Ss);
-        pSct->Spill(this, 1.0-Scl, m_pSpill);
+        pSct->Spill(this, 1.0-Scl, m_pSpill, m_pVent);
         //pSct->ScaleMass(Scl);
         pSct->SetLength(m_dLength-Ss);
         #if dbgSpQueue
@@ -1474,7 +1485,7 @@ void SpQueue::Advance(double dTime, flag Moved)//, double MaxSpeed, double Speed
       {
       if (Se<0.0)
         { // Remove
-        pSct->Spill(this, 1.0, m_pSpill);
+        pSct->Spill(this, 1.0, m_pSpill, m_pVent);
         #if dbgSpQueue
         if (dbgAdvSects() && (!dbgDbgBrk() || dbgDbgBrk() && DoDbgBrk()))
           dbgpln("     --> T:%6.2f  M:%8.4f", K2C(pSct->m_pMdl->Temp()), pSct->m_pMdl->Mass());
@@ -1485,7 +1496,7 @@ void SpQueue::Advance(double dTime, flag Moved)//, double MaxSpeed, double Speed
       else
         { // Chop off start - Scale Mass
         double Scl=(Se-0.0)/GTZ(Se-Ss);
-        pSct->Spill(this, 1.0-Scl, m_pSpill);
+        pSct->Spill(this, 1.0-Scl, m_pSpill, m_pVent);
         //pSct->ScaleMass(Scl);
         pSct->SetStart(0.0);
         pSct->SetLength(Se-0.0);
@@ -2275,7 +2286,6 @@ void CSpPlugFlow::Advance(double dTime, double VelStart, double VelEnd, bool Lin
       {
       if (Ss>m_dLength)
         {  // Remove
-//+        m_pSpillTarget->AddMass2Target(pFeed, QmToSpill, pQ->m_dTimeSlice);
         pSct->Spill(this, 1.0);
         m_Sections.RemoveAt(SCT.Pos());
         m_Spares.AddTail(pSct);
@@ -2283,8 +2293,6 @@ void CSpPlugFlow::Advance(double dTime, double VelStart, double VelEnd, bool Lin
         //if (dbgAdvSects() && (!dbgDbgBrk() || dbgDbgBrk() && DoDbgBrk()))
         //  dbgpln("     --> T:%6.2f  M:%8.4f", K2C(pSct->m_pMdl->Temp()), pSct->m_pMdl->Mass());
         //#endif
-// m_pSpillTarget->AddMass2Target(pFeed, QmToSpill, pQ->m_dTimeSlice);
-
         }
       else
         { // Chop off end - Scale Mass

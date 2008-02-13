@@ -297,6 +297,8 @@ XID xidSolveFxdLnks                   = FlwXID(2063);
 XID xidSolveLoneLnks                  = FlwXID(2064);
 XID xidSolveNetLnks                   = FlwXID(2065);
 
+XID xidGlblAccumOpts                  = FlwXID(2068);
+
 XID xidStartupDirectory               = FlwXID(2070);
 XID xidStartupDrive                   = FlwXID(2071);
 XID xidProgFiles                      = FlwXID(2072);
@@ -7282,6 +7284,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
     case xidODENStatesSR:
       DCB.L=ODE().GetNStatesSaveState();
       return 1;
+
     case xidRealTimeOn:
       if (DCB.rB)
         gs_Exec.SetRealTime(*DCB.rB);
@@ -7806,6 +7809,28 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       return m_SSQmTol.GetAbsDD().DataXchg(DCB, xidSSQmTolAbs, &FlwSlvNd);
     case xidSSQmTolRel:
       return m_SSQmTol.GetAbsDD().DataXchg(DCB, xidSSQmTolRel, &FlwSlvNd);
+
+    case xidGlblAccumOpts:
+      if (DCB.rpC)
+        SpConduit::SetAccumOptionStrGlbl(DCB.rpC);
+      DCB.pC=SpConduit::GetAccumOptionStrGlbl();
+      return 1;
+
+    case xidRngChk_T:
+      if (DCB.rB)
+        gs_RangeChecks = *DCB.rB ? (gs_RangeChecks | RngChk_Temperature) : (gs_RangeChecks & ~RngChk_Temperature);
+      DCB.B = gs_RangeChecks & RngChk_Temperature ? 1:0;
+      return 1;
+    case xidRngChk_P:
+      if (DCB.rB)
+        gs_RangeChecks = *DCB.rB ? (gs_RangeChecks | RngChk_Pressure) : (gs_RangeChecks & ~RngChk_Pressure);
+      DCB.B = gs_RangeChecks & RngChk_Pressure ? 1:0;
+      return 1;
+    case xidRngChk_Rho:
+      if (DCB.rB)
+        gs_RangeChecks = *DCB.rB ? (gs_RangeChecks | RngChk_Density) : (gs_RangeChecks & ~RngChk_Density);
+      DCB.B = gs_RangeChecks & RngChk_Density ? 1:0;
+      return 1;
 
     default:
       if (DCB.lHandle>=xidWorstMagInt0 && DCB.lHandle<=xidWorstMagInt9)
@@ -10429,18 +10454,26 @@ static DDBValueLst DDBCloseTest[] =
     {CloseTest_IdleBoth,    "On-Both-Idle"},
     {0}
   };
-static DDBValueLst DDBSpillReporting[] = 
+static DDBValueLst DDBSplVntReport[] = 
   {
-    {SpillReports_Off,        "Off"},
-    {SpillReports_Msgs ,      "On-Messages"},
-    {SpillReports_Cnds ,      "On-Conditions"},
-    {SpillReports_Both ,      "On-Both"},
-    {SpillReports_IdleUnits,  "On-Both-IdleUnits"},
-    {SpillReports_IdleLinks,  "On-Both-IdleLinks"},
-    {SpillReports_IdleBoth ,  "On-Both-Idle"},
+    {SplVntRpt_Off,              "Off"},
+    {SplVntRpt_Msgs ,            "On-Messages"},
+    {SplVntRpt_Cnds ,            "On-Conditions"},
+    {SplVntRpt_Msgs|SplVntRpt_Cnds, "On-Both"},
     {0}
   };
-static DDBValueLst DDBAuditOptions[] = 
+static DDBValueLst DDBSplVntAction[] = 
+  {
+    {SplVntAct_Off,                                   "Off"},
+    {SplVntAct_Idle|SplVntAct_Units,                  "Idle-Units"},
+    {SplVntAct_Idle|SplVntAct_Links,                  "Idle-Links"},
+    {SplVntAct_Idle|SplVntAct_Units|SplVntAct_Links , "Idle-Both"},
+    {SplVntAct_Stop|SplVntAct_Units,                  "Stop-Units"},
+    {SplVntAct_Stop|SplVntAct_Links,                  "Stop-Links"},
+    {SplVntAct_Stop|SplVntAct_Units|SplVntAct_Links , "Stop-Both"},
+    {0}
+  };
+static DDBValueLst DDBAuditVisibility[] = 
   {
     {Audit_AllOff,   "AllOff"   },
     //{-1,             "-------",  MDD_NoSelect},
@@ -10504,13 +10537,23 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double  ("Dyn.dTimeMin",          "", DC_Time, "s", xidODETimeIncMnRqd,         this, InitHidden|noFile|noScenario|noSnap|isParm);
 
     DDB.Text    ("");
-    DDB.Text    ("Balance & Closure");
-    DDB.Double  ("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
-    DDB.Long    ("Closure.Tests",         "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
-    DDB.Long    ("Closure.IterCnt",       "", DC_,     "",  &gs_ClosureIterCnt,                 this, isParmStopped|SetOnChange);
-    DDB.Long    ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
-    DDB.Long    ("AuditLevel",            "", DC_,     "",  &gs_AuditOption,                    this, isParmStopped|SetOnChange, DDBAuditOptions);
-    //DDB.Long    ("RangeChecks",           "", DC_,     "",  &gs_RangeChecks,                    this, isParmStopped|SetOnChange, DDBRangeChecks);
+    DDB.Text("Balance & Closure");
+    DDB.Double("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
+    DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,          this, isParmStopped|SetOnChange, DDBCloseTest);
+    DDB.Long  ("AuditLevel",            "", DC_,     "",  &gs_AuditVisibility,        this, isParmStopped|SetOnChange, DDBAuditVisibility);
+    DDBValueLstMem DDBAccumOpts;
+    SpConduit::GetAccumDDBStrs(DDBAccumOpts, true);
+    DDB.String("Accum.Options",         "", DC_,     "",   xidGlblAccumOpts,          this, isParmStopped|SetOnChange, DDBAccumOpts());
+    
+    DDB.Text  ("");
+    DDB.Text("Spills & Vents");
+    DDB.Long  ("Spill.Report",           "", DC_,     "",      &gs_SpillReport,           this, isParm|SetOnChange, DDBSplVntReport);
+    DDB.Long  ("Vent.Report",            "", DC_,     "",      &gs_VentReport,            this, isParm|SetOnChange, DDBSplVntReport);
+    DDB.Long  ("Spill.Action",           "", DC_,     "",      &gs_SpillAction,           this, isParm|SetOnChange, DDBSplVntAction);
+    DDB.Long  ("Vent.Action",            "", DC_,     "",      &gs_VentAction,            this, isParm|SetOnChange, DDBSplVntAction);
+    DDB.Double("Spill.Threshold",        "", DC_Qm,   "kg/s",  &gs_SpillTolerance,        this, isParm);
+    DDB.Double("Vent.Threshold",         "", DC_Qm,   "kg/s",  &gs_VentTolerance,         this, isParm);
+
 #if WITHMDLRANGECHECKS
     DDB.Text    ("");
     if (DDB.BeginStruct(this, "RangeChecks", 0, DDB_NoPage))
@@ -10528,10 +10571,10 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
 
     DDB.Text    ("");
     DDB.Text    ("Display Configuration");
-    DDB.Double  ("Value.Zero",            "", DC_,     "",      &gs_DisplayZeroLimit,           this, isParm/*Stopped*/);
-    DDB.Double  ("Status.ZeroFlow",       "", DC_,     "",      &gs_DisplayZeroFlow,            this, isParm/*Stopped*/);
-    DDB.Double  ("Status.VapourTest",     "", DC_Frac, "%",     &gs_StatusVapTestFrac,          this, isParm/*Stopped*/);
-    DDB.Double  ("Status.SolidsTest",     "", DC_Frac, "%",     &gs_StatusSolTestFrac,          this, isParm/*Stopped*/);
+    DDB.Double("Value.Zero",            "", DC_,     "",      &gs_DisplayZeroLimit,   this, isParm);
+    DDB.Double("Status.ZeroFlow",       "", DC_,     "",      &gs_DisplayZeroFlow,    this, isParm);
+    DDB.Double("Status.VapourTest",     "", DC_Frac, "%",     &gs_StatusVapTestFrac,  this, isParm);
+    DDB.Double("Status.SolidsTest",     "", DC_Frac, "%",     &gs_StatusSolTestFrac,  this, isParm);
 
     DDB.Text    ("");
     DDB.Text    ("Options");
@@ -13941,7 +13984,7 @@ flag CFlwSolver::EO_Starting(flag fBeginStarting)
 
   if (fBeginStarting)
     {
-    gs_FSIdleRequested=false;
+    gs_SplVntActionRequested=0;
     DoGlobalLinks();
     }
 
@@ -14892,7 +14935,7 @@ flag CFlwSolver::EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)
     pPair=m_TagRefsMap.PGetNextAssoc(pPair);
     }
 
-  gs_FSIdleRequested=false;//reset flag after iteration
+  gs_SplVntActionRequested=0;//reset flag after iteration
 
   //if (gs_Exec.SolvingPB())
   //  {

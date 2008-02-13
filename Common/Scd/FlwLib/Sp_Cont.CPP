@@ -305,6 +305,7 @@ static byte SpIm_End  =0x59;
 // ===========================================================================
 
 CSpView SpConduit::GlblView(SVV_AsMassFrac);
+byte SpConduit::gs_AccumOpts = CdAcc_QmQv;//|CdAcc_Stops;
 
 IMPLEMENT_SPARES(SpConduit, 100);
 IMPLEMENT_TAGOBJ(SpConduit, "SpConduit", "SpConduit", "", "", "", TOC_SYSTEM,
@@ -318,6 +319,12 @@ SpModelOwner(pClass_, pTag_, pAttach, eAttach, false)
   SetView(SVV_AsMassFlow);
   SetUsage(SPMU_Flow);
   SetNegDataOK(true);
+
+  m_AccumUse      = CdAccUse_UnUsed;
+  m_AccumOpts     = 0;
+  m_AccumQm       = 0.0;
+  m_AccumQv       = 0.0;
+  m_pAccums       = NULL;
   };
 
 // --------------------------------------------------------------------------
@@ -325,11 +332,18 @@ SpModelOwner(pClass_, pTag_, pAttach, eAttach, false)
 SpConduit::SpConduit(pchar pTag_, pTaggedObject pAttach, TagObjAttachment eAttach) : \
 SpModelOwner(&SpConduitClass, pTag_, pAttach, pAttach ? (eAttach!=TOA_Unknown ? eAttach : TOA_Embedded) : TOA_Free, false)
   {
+
   pModel=(SpModel*)SpModelClass.ConstructGroup(DefaultModel(), NULL, SpModelDefTag, this, TOA_Embedded|TOA_Hidden);
   pModel->m_pGlblView=&GlblView;
   SetView(SVV_AsMassFlow);
   SetUsage(SPMU_Flow);
   SetNegDataOK(true);
+
+  m_AccumUse      = CdAccUse_UnUsed;
+  m_AccumOpts     = 0;
+  m_AccumQm       = 0.0;
+  m_AccumQv       = 0.0;
+  m_pAccums       = NULL;
   };
 
 // --------------------------------------------------------------------------
@@ -341,6 +355,12 @@ SpModelOwner(&SpConduitClass, "NoTag", NULL, TOA_Free, false)
   pModel->m_pGlblView=&GlblView;
   SetView(SVV_AsMassFlow);
   SetUsage(SPMU_Flow);
+
+  m_AccumUse      = CdAccUse_UnUsed;
+  m_AccumOpts     = 0;
+  m_AccumQm       = 0.0;
+  m_AccumQv       = 0.0;
+  m_pAccums       = NULL;
   };
 
 // --------------------------------------------------------------------------
@@ -348,6 +368,7 @@ SpModelOwner(&SpConduitClass, "NoTag", NULL, TOA_Free, false)
 SpConduit::~SpConduit()
   {
   pModel->Destroy();
+  delete m_pAccums;
   };
 
 // --------------------------------------------------------------------------
@@ -405,6 +426,92 @@ static const BDDSpecies_Blk sbConduit[] = {
   {SVV_AsCompConc25,   SVV_AsMassFlow,  false, false, VAMsk_SpComp      }
   };
 
+static struct {byte m_Opts; LPSTR m_Str, m_DefStr; } s_AccumOpts[]=
+  {
+    {CdAcc_QmQv,                                      "Qm,Qv",              "<QmQv>"               },
+    {CdAcc_QmQv|CdAcc_AllQm,                          "AllQm",              "<AllQm>"              },
+    {CdAcc_QmQv|CdAcc_AllQm|CdAcc_AllQv,              "AllQm,AllQv",        "<AllQm,AllQv>"        },
+  };
+
+void SpConduit::GetAccumDDBStrs(DDBValueLstMem & DDB, bool Glbl)
+  {
+  DDB.Empty();
+  if (!Glbl)
+    {
+    for (int i=0; i<sizeof(s_AccumOpts)/sizeof(s_AccumOpts[0]); i++)
+      {
+      if (gs_AccumOpts==s_AccumOpts[i].m_Opts)
+        {
+        DDB.Add(0, s_AccumOpts[i].m_DefStr);
+        break;
+        }         
+      }
+    }
+  for (int i=0; i<sizeof(s_AccumOpts)/sizeof(s_AccumOpts[0]); i++)
+    DDB.Add(s_AccumOpts[i].m_Opts, s_AccumOpts[i].m_Str);
+  }
+
+LPSTR SpConduit::GetAccumOptionStr()
+  {
+  if (m_AccumOpts)
+    {
+    for (int i=0; i<sizeof(s_AccumOpts)/sizeof(s_AccumOpts[0]); i++)
+      {
+      if (m_AccumOpts==s_AccumOpts[i].m_Opts)
+        return s_AccumOpts[i].m_Str;
+      }
+    }
+  for (int i=0; i<sizeof(s_AccumOpts)/sizeof(s_AccumOpts[0]); i++)
+    {
+    if (gs_AccumOpts==s_AccumOpts[i].m_Opts)
+      return s_AccumOpts[i].m_DefStr;
+    }
+  return "??";
+  }
+
+void SpConduit::SetAccumOptionStr(LPSTR Str) 
+  {
+  for (int i=0; i<sizeof(s_AccumOpts)/sizeof(s_AccumOpts[0]); i++)
+    {
+    if (stricmp(Str, s_AccumOpts[i].m_Str)==0)
+      {
+      m_AccumOpts = s_AccumOpts[i].m_Opts;
+      return; 
+      }
+    }
+  for (int i=0; i<sizeof(s_AccumOpts)/sizeof(s_AccumOpts[0]); i++)
+    {
+    if (stricmp(Str, s_AccumOpts[i].m_DefStr)==0)
+      {
+      m_AccumOpts = 0;
+      gs_AccumOpts = s_AccumOpts[i].m_Opts;
+      return; 
+      }
+    }
+  }
+
+LPSTR SpConduit::GetAccumOptionStrGlbl()
+  {
+  for (int i=0; i<sizeof(s_AccumOpts)/sizeof(s_AccumOpts[0]); i++)
+    {
+    if (gs_AccumOpts==s_AccumOpts[i].m_Opts)
+      return s_AccumOpts[i].m_Str;
+    }
+  return "??";
+  }
+
+void SpConduit::SetAccumOptionStrGlbl(LPSTR Str) 
+  {
+  for (int i=0; i<sizeof(s_AccumOpts)/sizeof(s_AccumOpts[0]); i++)
+    {
+    if (stricmp(Str, s_AccumOpts[i].m_Str)==0)
+      {
+      gs_AccumOpts = s_AccumOpts[i].m_Opts;
+      return; 
+      }
+    }
+  }
+
 void SpConduit::BuildDataDefn(DataDefnBlk &DDB)
   {
   if (DDB.BeginStruct(this))
@@ -444,8 +551,33 @@ void SpConduit::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Double  ("VapourNormVol",    "VNQVt",  DC_NQv,   "NL/s",   xidSMVNVol,    this, isResult|noFile|noSnap|InitHidden);
     DDB.Double  ("SlurryNormVol",    "SLNQVt", DC_NQv,   "NL/s",   xidSMSLNVol,   this, isResult|noFile|noSnap|InitHidden);
 
+    if (m_AccumUse>CdAccUse_UnUsed)
+      {
+      DDBValueLstMem DDBAccumOpts;
+      GetAccumDDBStrs(DDBAccumOpts, false);
+
+      DDB.Text    ("Accumulated Mass Flow");
+      DDB.String  ("Accum.Options",         "",            DC_,    "",     xidSMAccumOpts,   this, isParmStopped|SetOnChange, DDBAccumOpts());
+      DDB.Double  ("Accum.TotalMass",       "Accum.QMt",   DC_M,   "kg",   xidSMQmAccum,     this, isResult);
+      if (m_pAccums && (AccumOptions() & CdAcc_AllQm))
+        {
+        DDB.Double  ("Accum.SolidMass",     "Accum.SQMt",  DC_M,   "kg",   xidSMQmSAccum,    this, isResult); 
+        DDB.Double  ("Accum.LiquidMass",    "Accum.LQMt",  DC_M,   "kg",   xidSMQmLAccum,    this, isResult); 
+        DDB.Double  ("Accum.VapourMass",    "Accum.VQMt",  DC_M,   "kg",   xidSMQmGAccum,    this, isResult); 
+        DDB.Double  ("Accum.SlurryMass",    "Accum.SLQMt", DC_M,   "kg",   xidSMQmSLAccum,   this, isResult); 
+        }
+      DDB.Double  ("Accum.TotalVolume",       "Accum.QVt",   DC_Vol, "L",    xidSMQvAccum,     this, isResult);
+      if (m_pAccums && (AccumOptions() & CdAcc_AllQv))
+        {
+        DDB.Double  ("Accum.SolidVolume",   "Accum.SQVt",  DC_Vol, "L",    xidSMQvSAccum,    this, isResult); 
+        DDB.Double  ("Accum.LiquidVolume",  "Accum.LQVt",  DC_Vol, "L",    xidSMQvLAccum,    this, isResult); 
+        DDB.Double  ("Accum.VapourVolume",  "Accum.VQVt",  DC_Vol, "L",    xidSMQvGAccum,    this, isResult); 
+        DDB.Double  ("Accum.SlurryVolume",  "Accum.SLQVt", DC_Vol, "L",    xidSMQvSLAccum,   this, isResult); 
+        }
+      }
 
     pModel->BuildDataDefn_Vars(DDB);
+
     pModel->BuildDataDefn_UsrProps(DDB, MP_UserProp, true);
 
     DDB.Text    ("");
@@ -470,6 +602,30 @@ flag SpConduit::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (pModel->DataXchg(DCB))
     return 1;
+
+  switch (DCB.lHandle)
+    {
+    case xidSMAccumOpts:
+      if (DCB.rpC)
+        {
+        SetAccumOptionStr(DCB.rpC);
+        InitAccums();
+        }
+      DCB.pC=GetAccumOptionStr();
+      return 1;
+
+    case xidSMQmAccum:    DCB.D = m_AccumQm;                            return 1;
+    case xidSMQvAccum:    DCB.D = m_AccumQv;                            return 1;
+    case xidSMQmSAccum:   DCB.D = m_pAccums ? m_pAccums->m_QmS  : 0.0;  return 1;
+    case xidSMQmLAccum:   DCB.D = m_pAccums ? m_pAccums->m_QmL  : 0.0;  return 1;
+    case xidSMQmGAccum:   DCB.D = m_pAccums ? m_pAccums->m_QmG  : 0.0;  return 1;
+    case xidSMQmSLAccum:  DCB.D = m_pAccums ? m_pAccums->m_QmSL : 0.0;  return 1;
+    case xidSMQvSAccum:   DCB.D = m_pAccums ? m_pAccums->m_QvS  : 0.0;  return 1;
+    case xidSMQvLAccum:   DCB.D = m_pAccums ? m_pAccums->m_QvL  : 0.0;  return 1;
+    case xidSMQvGAccum:   DCB.D = m_pAccums ? m_pAccums->m_QvG  : 0.0;  return 1;
+    case xidSMQvSLAccum:  DCB.D = m_pAccums ? m_pAccums->m_QvSL : 0.0;  return 1;
+    }
+
   return SpModelOwner::DataXchg(DCB);
   };
 
@@ -505,19 +661,96 @@ void SpConduit::SetState(eScdMdlStateActs RqdState)
       QRestoreMass(gs_Environment);
       SetTempPress(AmbientTemp(), AtmosPress());
       QSetTraceMass();
+      ZeroAccums();
       break;
     case MSA_PreSet:
+      ZeroAccums();
       break;
     case MSA_ZeroFlows:
       QRestoreMass(gs_Environment);
       SetTempPress(AmbientTemp(), AtmosPress());
       QSetTraceMass();
+      ZeroAccums();
       break;
     case MSA_EmptySpillTargets:
+      ZeroAccums();
       break;
     case MSA_SteadyState:
       LogNote(FullObjTag(), 0, "SteadyState Undefined");
       break;
+    case MSA_DynStatsRunInit:
+      ZeroAccums();
+      break;
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void SpConduit::InitAccums()
+  {
+  if (m_AccumUse > CdAccUse_UnUsed && AccumOptions()!=CdAcc_QmQv)
+    {
+    if (m_pAccums==NULL)
+      m_pAccums=new CSpCdAccums;
+    }
+  else
+    {
+    delete m_pAccums;
+    m_pAccums = NULL;
+    }
+
+  }
+
+void SpConduit::ZeroAccums()
+  {
+  InitAccums();
+  if (m_AccumUse > CdAccUse_UnUsed)
+    {
+    m_AccumUse = CdAccUse_InUse;
+    m_AccumQm  = 0.0;
+    m_AccumQv  = 0.0;
+    if (m_pAccums)
+      {
+      m_pAccums->m_QmS  = 0.0;
+      m_pAccums->m_QmL  = 0.0;
+      m_pAccums->m_QmG  = 0.0;
+      m_pAccums->m_QmSL = 0.0;
+      m_pAccums->m_QvS  = 0.0;
+      m_pAccums->m_QvL  = 0.0;
+      m_pAccums->m_QvG  = 0.0;
+      m_pAccums->m_QvSL = 0.0;
+      }
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void SpConduit::IntegrateAccums(int Sign)
+  {
+  InitAccums();
+  if (m_AccumUse > CdAccUse_UnUsed)
+    {
+    m_AccumUse  = CdAccUse_Valid;
+    double Mult = Sign * ICGetTimeInc(); 
+    m_AccumQm += Mult * QMass();
+    m_AccumQv += Mult * QVolume();
+    if (m_pAccums)
+      {
+      if (AccumOptions() & CdAcc_AllQm)
+        {
+        m_pAccums->m_QmS  += Mult * QMass(som_Sol);
+        m_pAccums->m_QmL  += Mult * QMass(som_Liq);
+        m_pAccums->m_QmG  += Mult * QMass(som_Gas);
+        m_pAccums->m_QmSL += Mult * QMass(som_SL);
+        }
+      if (AccumOptions() & CdAcc_AllQv)
+        {
+        m_pAccums->m_QvS  += Mult * QVolume(som_Sol);
+        m_pAccums->m_QvL  += Mult * QVolume(som_Liq);
+        m_pAccums->m_QvG  += Mult * QVolume(som_Gas);
+        m_pAccums->m_QvSL += Mult * QVolume(som_SL);
+        }
+      }
     }
   };
 
@@ -1213,7 +1446,7 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
           DDB.String("Target",        "",     DC_, "",           xidCnSpillTarget, this, isParmStopped|isTag|InitHidden);
           DDB.Double("Rate",          "",     DC_Qm,   "kg/s",   xidCnSpillRate,   this, isResult);
           FlwNode *p=FindObjOfType((FlwNode*)NULL);
-          if (p && p->AuditOption()>=Audit_Totals)
+          if (p && p->AuditVisibility()>=Audit_Totals)
             DDB.Double("Total",         "",    DC_M, "kg",        xidCnSpillTotal,  this, 0/*isParm*/);
           }
         if (PrjFileVerNo()>=45)
@@ -1238,7 +1471,7 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
           DDB.Double("Rate",          "",    DC_Qm, "kg/s",     xidCnVentRate,   this, isResult|0);
 
           FlwNode *p=FindObjOfType((FlwNode*)NULL);
-          if (p && p->AuditOption()>=Audit_Totals)
+          if (p && p->AuditVisibility()>=Audit_Totals)
             DDB.Double("Total",         "",    DC_M, "kg",        xidCnVentTotal,  this, 0/*isParm*/);
           }
         if (PrjFileVerNo()>=45)
@@ -3207,10 +3440,10 @@ flag SpContainer::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case 1: pS="N\tSpilling";                           return 1;
+    //case 1: pS="N\tSpilling";                           return 1;
     case 2: pS="E\tSpill Targeted to Self";             return 1;
     case 3: pS="E\tSpill Target xxx not Found";         return 1;
-    case 4: pS="N\tVenting";                            return 1;
+    //case 4: pS="N\tVenting";                            return 1;
     case 5: pS="E\tVent Targeted to Self";              return 1;
     case 6: pS="E\tVent Target xxx not Found";          return 1;
     case 7: pS="E\tStream for level control not set";   return 1;

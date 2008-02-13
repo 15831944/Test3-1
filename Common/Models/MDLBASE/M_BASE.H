@@ -164,10 +164,6 @@ class MdlNode;
 
 #define CNMTOREMOVE   0
 
-const dword  MNAudit_Qm     = 0x00000001;
-const dword  MNAudit_Hz     = 0x00000002;
-const dword  MNAudit_Cnts   = 0x00000004;
-
 class DllImportExport MdlNode : public FlwNode
   {
   public:

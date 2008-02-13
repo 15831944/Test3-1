@@ -421,8 +421,9 @@ int CMessageLog::LogLn(HWND hWndOwn, DWORD Flags, LPCTSTR Where, UINT BoxFlags, 
 
   int MustDo=((BoxFlags&LF_NoSkip)!=0);
   BoxFlags&=~LF_NoSkip;
+  bool MustPost = (Flags&LogFlag_PostMsg)!=0;
 
-  if (!m_bMessageBoxEmbedded && (m_hMsgWnd==NULL || ((BoxFlags&LF_DoAfxMsgBox) && (MustDo || !GetMsgBoxSkip()))))
+  if (!m_bMessageBoxEmbedded && !MustPost && (m_hMsgWnd==NULL || ((BoxFlags&LF_DoAfxMsgBox) && (MustDo || !GetMsgBoxSkip()))))
     {//message window has not been created yet...
 //dbgpln("MsgBox >>");
     if ((BoxFlags & (MB_ABORTRETRYIGNORE|MB_OK|MB_OKCANCEL|MB_RETRYCANCEL|MB_YESNO|MB_YESNOCANCEL))==0)
@@ -440,12 +441,8 @@ int CMessageLog::LogLn(HWND hWndOwn, DWORD Flags, LPCTSTR Where, UINT BoxFlags, 
 
 //dbgpln("MsgBox <<");
     }
-  else if (!m_bMessageBoxEmbedded && ((BoxFlags!=0) && (MustDo || !GetMsgBoxSkip())))
+  else if (!m_bMessageBoxEmbedded && !MustPost && ((BoxFlags!=0) && (MustDo || !GetMsgBoxSkip())))
     {
-    //while (!PostMessage(m_hMsgWnd, m_dwLogMsgID, 0, 0))
-    //  Sleep(0);
-  	//AfxGetApp()->EnableModeless(FALSE);
-
     // remove Buttons - all in lower 4 Bits
     BoxFlags=((BoxFlags & ~0xF) | MB_OKCANCEL);
     if (SendMessage(m_hMsgWnd, m_dwLogMsgID, BoxFlags, 0))

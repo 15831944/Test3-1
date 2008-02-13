@@ -306,6 +306,18 @@ XID xidSpMdlVarsAvailEnd    = SpcXID(100532);
 XID xidSpMdlSpVarsAvail     = SpcXID(100533); // leave 32
 XID xidSpMdlSpVarsAvailEnd  = SpcXID(100565); 
 
+XID xidSMAccumOpts          = SpcXID(100371); 
+XID xidSMQmAccum            = SpcXID(100370); 
+XID xidSMQmSAccum           = SpcXID(100372); 
+XID xidSMQmLAccum           = SpcXID(100373); 
+XID xidSMQmGAccum           = SpcXID(100374); 
+XID xidSMQmSLAccum          = SpcXID(100375); 
+XID xidSMQvAccum            = SpcXID(100376); 
+XID xidSMQvSAccum           = SpcXID(100377); 
+XID xidSMQvLAccum           = SpcXID(100378); 
+XID xidSMQvGAccum           = SpcXID(100379); 
+XID xidSMQvSLAccum          = SpcXID(100380); 
+
 XID xidQualSwitch           = SpcXID(200000);   //xidAttribute      + MaxAttributes;            // ditto
 XID xidQualSwitch1          = xidQualSwitch     + MaxSpQualities;           // ditto
 XID xidQualSwitch2          = xidQualSwitch1    + MaxSpQualities;           // ditto

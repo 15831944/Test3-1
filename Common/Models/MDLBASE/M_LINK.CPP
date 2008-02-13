@@ -656,8 +656,8 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   {
   AttachClassInfo(nc_MLnk,NULL);
 
-  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show, eAGS_Show);
-  InitAssocGrfShowDyn(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show, eAGS_Show);
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show);
+  InitAssocGrfShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_Hide, eAGS_Show, eAGS_Show);
 
   m_RiseRqd=dNAN;
   m_DatumChg=dNAN;
@@ -3159,19 +3159,20 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
                 m_QmSpilt=QmIn-Fo.QMass();
                 if (QmIn-IOQOutEst>1.0e-6)//only complain for "significant" spill
                   {
-                  Strng ErrMsg;
-                  ErrMsg.Set("N\tMassflow into Pipe(%.3g) > Capacity(%.3g).  Extra Spilt", QmIn, IOQOutEst);
+                  Strng Reason;
+                  Reason.Set("N\tMassflow into Pipe(%.3g) > Capacity(%.3g).  Extra Spilling", QmIn, IOQOutEst);
+                  m_Spill.Reason = Reason();
 
-                  if (gs_SpillOption & SpillReports_Cnds)
-                    SetCI(7, "%s", ErrMsg());
-                  if (gs_SpillOption & SpillReports_Msgs)
-                    LogWarning(FullObjTag(), 0, "%s", ErrMsg());//Massflow into Pipe > Capacity.  Extra Spilt");
-                  if (!gs_FSIdleRequested && (gs_SpillOption & SpillReports_Idle) && (gs_SpillOption & SpillReports_Links))
-                    {
-                    LogWarning(FullObjTag(), LF_DoAfxMsgBox|LF_Exclamation, "Solver IDLE request due to spillage");
-                    gs_FSIdleRequested=true;
-                    ExecObj()->XIdle();
-                    }
+                //  if (gs_SpillAction & SplVntActions_Cnds)
+                //    SetCI(7, "%s", ErrMsg());
+                //  if (gs_SpillAction & SplVntActions_Msgs)
+                //    LogWarning(FullObjTag(), 0, "%s", ErrMsg());//Massflow into Pipe > Capacity.  Extra Spilt");
+                //  if (!gs_FSIdleRequested && (gs_SpillAction & SplVntActions_Idle) && (gs_SpillAction & SplVntActions_Links))
+                //    {
+                //    LogWarning(FullObjTag(), LF_DoAfxMsgBox|LF_Exclamation, "Solver IDLE request due to spillage");
+                //    gs_FSIdleRequested=true;
+                //    ExecObj()->XIdle();
+                //    }
                   }
                 ClrCI(8);
                 m_Spill.Cd.QSetM(Fi, som_ALL, m_QmSpilt);
@@ -3182,7 +3183,8 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
                 if (QmIn>IOQOutEst+1.0e-6)
                   {
                   Strng ErrMsg;
-                  ErrMsg.Set("N\tMassflow into Pipe(%.3g) > Capacity(%.3g).  Capacity Ignored.  Extra Spilt", QmIn, IOQOutEst);
+                  //ErrMsg.Set("N\tMassflow into Pipe(%.3g) > Capacity(%.3g).  Capacity Ignored.  Extra Spilt", QmIn, IOQOutEst);
+                  ErrMsg.Set("N\tMassflow into Pipe(%.3g) > Capacity(%.3g).  Capacity Ignored", QmIn, IOQOutEst);
                   SetCI(8, ErrMsg());
                   }
                 else
@@ -3511,7 +3513,8 @@ void MN_Lnk::EvalDiscrete()
           double NetQm = 0.0;
           for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
             {
-            NetQm += (m_AttachedDirectIOs[i]->HasConduit ? m_AttachedDirectIOs[i]->Cd.QMass() : m_AttachedDirectIOs[i]->Sum.FlowMass);
+            CDirectFlwIO * D=m_AttachedDirectIOs[i];
+            NetQm += D->NdSignImplied * (D->HasConduit ? D->Cd.QMass() : D->Sum.FlowMass);
             }
           const double v1 = IOConduit(0)->QMass()+NetQm;
           const double v2 = IOConduit(1)->QMass();
@@ -3544,6 +3547,25 @@ void MN_Lnk::EvalDiscrete()
       }
     }
   SetCI(4, QmBAD);
+  }
+
+//--------------------------------------------------------------------------
+
+void MN_Lnk::EvalAudit(int Pass)
+  {
+  if (Pass==0)
+    {
+    for (int i=0; i<NoProcLnkIOs(); i++)
+      {
+      double Qm=IOQm_In(i);
+      int Sgn=FlwSign(Qm) * ((i==0)?1:-1);
+      if (IOConduitIn(i))
+        IOConduitIn(i)->IntegrateAccums(Sgn);
+      IOConduitIO(i)->IntegrateAccums(Sgn);
+      }
+    }
+
+  MdlNode::EvalAudit(Pass);
   }
 
 //---------------------------------------------------------------------------
@@ -3619,7 +3641,7 @@ flag MN_Lnk::CIStrng(int No, pchar & pS)
       }
     case 5: pS="W\tMassflow achieved thru Pipe != Estimated flow (Pressure dependant)"; return 1;
     case 6: pS="W\tMassflow into Pipe <> Massflow out of Pipe";       return 1;
-    case 7: pS="N\tMassflow into Pipe > Capacity.  Extra Spilt";      return 1;
+    case 7: pS="N\tMassflow into Pipe > Capacity.  Extra Spilling";   return 1;
     case 8: pS="N\tMassflow into Pipe > Capacity.  Capacity Ignored"; return 1;
     case 9: pS="W\tSpill Target not found"; return 1;
     default:

@@ -401,6 +401,7 @@ class DllImportExport MN_Lnk : public MdlNode
     virtual void   EvalDerivs(CNodeEvalIndex & NEI);
     virtual void   ConvergeStates(CConvergeStateBlk &CSB);
     virtual void   EvalDiscrete();
+    virtual void   EvalAudit(int Pass);
     virtual void   EvalStatistics(eScdCtrlTasks Tasks=CO_All);
 
     //virtual void   EvalIOPAverage(int AveIter);

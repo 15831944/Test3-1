@@ -498,13 +498,14 @@ XID xidDrctQm           = MdlBsXID(5206);
 XID xidDrctQv           = MdlBsXID(5207);
 XID xidDrctNQv          = MdlBsXID(5208);
 XID xidDrctEnable       = MdlBsXID(5209);
-XID xidConnectState     = MdlBsXID(5210);
-XID xidDIOFlangeTag     = MdlBsXID(5211);
-XID xidDIOFlngSrcTag    = MdlBsXID(5212);
-XID xidDIOFlngDstTag    = MdlBsXID(5213);
-XID xidUseStatus        = MdlBsXID(5214);
-XID xidDrctOpening      = MdlBsXID(5215);
-XID xidDrctFracHgt      = MdlBsXID(5216);
+XID xidDrctActOK        = MdlBsXID(5210);
+XID xidConnectState     = MdlBsXID(5211);
+XID xidDIOFlangeTag     = MdlBsXID(5212);
+XID xidDIOFlngSrcTag    = MdlBsXID(5213);
+XID xidDIOFlngDstTag    = MdlBsXID(5214);
+XID xidUseStatus        = MdlBsXID(5215);
+XID xidDrctOpening      = MdlBsXID(5216);
+XID xidDrctFracHgt      = MdlBsXID(5217);
 
 enum eDIOConnectSelects
   {
@@ -521,6 +522,7 @@ const DWORD DFIO_ShowQm       = 0x00000001;
 const DWORD DFIO_ShowSrcTag   = 0x00000002;
 const DWORD DFIO_ShowDstTag   = 0x00000004;
 const DWORD DFIO_ShowFracHgt  = 0x00000008;
+const DWORD DFIO_ShowActOK    = 0x00000010;
 
 class DllImportExport CDirectFlwIO
   {
@@ -602,6 +604,8 @@ class DllImportExport CDirectFlwIO
     void          putOpening(double O)      { m_Opening=O; };
     double        getFracHgt()              { return m_FracHgt; };
     void          putFracHgt(double F)      { m_FracHgt=F; };
+    LPCTSTR       getReason()               { return (LPCTSTR)m_sReason(); };
+    void          putReason(LPCTSTR Reason) { m_sReason=Reason; };
 
     _declspec(property(get=getEnabled))                     flag          Enabled;
     _declspec(property(get=getSysEnable,put=putSysEnable))  flag          SysEnable;
@@ -623,6 +627,7 @@ class DllImportExport CDirectFlwIO
     _declspec(property(get=getFlange))                      CFlange     & Flange;
     _declspec(property(get=getConduit))                     SpConduit   & Cd;
     _declspec(property(get=getFEP))                         CFlwEqnPtr  & FEP;
+    _declspec(property(get=getReason,put=putReason))        LPCTSTR       Reason;
 
   protected:
 
@@ -660,6 +665,10 @@ class DllImportExport CDirectFlwIO
     CTODirectPtr<FlwNode>  m_pRmt;
 
     POSITION      m_RmtListPos;
+   
+    Strng         m_sReason;
+    bool          m_ActionOK;
+
 
   public:
     static eDIOConnectSelects sm_ConnectVentSpills;
@@ -3300,17 +3309,21 @@ const long CloseTest_IdleBoth = (CloseTest_Idle|CloseTest_Msgs|CloseTest_Cnds);
 extern DllImportExport long gs_ClosureOption;
 extern DllImportExport long gs_ClosureIterCnt;
 
-const long SpillReports_Off   = 0x00;
-const long SpillReports_Idle  = 0x01;
-const long SpillReports_Msgs  = 0x02;
-const long SpillReports_Cnds  = 0x04;
-const long SpillReports_Units = 0x10;
-const long SpillReports_Links = 0x20;
-const long SpillReports_Both  = (SpillReports_Msgs|SpillReports_Cnds);
-const long SpillReports_IdleUnits = (SpillReports_Idle|SpillReports_Units|SpillReports_Msgs|SpillReports_Cnds);
-const long SpillReports_IdleLinks = (SpillReports_Idle|SpillReports_Links|SpillReports_Msgs|SpillReports_Cnds);
-const long SpillReports_IdleBoth  = (SpillReports_Idle|SpillReports_Units|SpillReports_Links|SpillReports_Msgs|SpillReports_Cnds);
+const long SplVntRpt_Off   = 0x00;
+const long SplVntRpt_Msgs  = 0x01;
+const long SplVntRpt_Cnds  = 0x02;
 
+const long SplVntAct_Off   = 0x00;
+const long SplVntAct_Idle  = 0x01;
+const long SplVntAct_Stop  = 0x02;
+const long SplVntAct_Units = 0x10;
+const long SplVntAct_Links = 0x20;
+//const long SplVntActions_Both  = (SplVntActions_Msgs|SplVntActions_Cnds);
+//const long SplVntActions_IdleUnits = (SplVntActions_Idle|SplVntActions_Units|SplVntActions_Msgs|SplVntActions_Cnds);
+//const long SplVntActions_IdleLinks = (SplVntActions_Idle|SplVntActions_Links|SplVntActions_Msgs|SplVntActions_Cnds);
+//const long SplVntActions_IdleBoth  = (SplVntActions_Idle|SplVntActions_Units|SplVntActions_Links|SplVntActions_Msgs|SplVntActions_Cnds);
+
+const long Audit_Hide         = -1;
 const long Audit_AllOff       = 0;
 const long Audit_Ignore       = 1;
 const long Audit_Off          = 2;
@@ -3318,14 +3331,31 @@ const long Audit_Flows        = 3;
 const long Audit_Totals       = 4;
 const long Audit_Balance      = 5;
 
+const dword  MNAudit_Qm     = 0x00000001;
+const dword  MNAudit_Hz     = 0x00000002;
+const dword  MNAudit_Cnts   = 0x00000004;
+
+const long RngChk_Temperature = 0x00000001;
+const long RngChk_Pressure    = 0x00000002;
+const long RngChk_Density     = 0x00000004;
+//const long RngChk_Density     = 0x00000002;
+
 // MdlStatusOptions
 const dword MSO_ShowStatus    = 0x00000001;
 const dword MSO_ShowRunInEdit = 0x00000002;
 
 //
-extern DllImportExport long gs_SpillOption;
-extern DllImportExport long gs_AuditOption;
-extern DllImportExport bool gs_FSIdleRequested;
+extern DllImportExport long   gs_SpillReport;
+extern DllImportExport long   gs_SpillAction;
+extern DllImportExport double gs_SpillTolerance;
+
+extern DllImportExport long   gs_VentReport;
+extern DllImportExport long   gs_VentAction;
+extern DllImportExport double gs_VentTolerance;
+
+extern DllImportExport long gs_AuditVisibility;
+extern DllImportExport long gs_RangeChecks;
+extern DllImportExport byte gs_SplVntActionRequested;
 
 enum NodeFlwTasks
   {
@@ -4410,10 +4440,10 @@ class DllImportExport FlwNode : public CTNode
     virtual void   UnlinkAllXRefs();
 
 
-    long           AuditOption();
-    LPCSTR         GetAuditOptionStr(flag ForFiling);
-    long           SetAuditOptionStr(flag ForFiling, LPCSTR Str);
-    void           GetAuditOptionStrLst(flag ForFiling, DDBValueLstMem & Lst);
+    long           AuditVisibility();
+    LPCSTR         GetAuditVisibilityStr(flag ForFiling);
+    long           SetAuditVisibilityStr(flag ForFiling, LPCSTR Str);
+    void           GetAuditVisibilityStrLst(flag ForFiling, DDBValueLstMem & Lst);
     void           SetAuditCalculation(); 
     long           AuditCalculation(); 
 
@@ -4674,8 +4704,8 @@ class DllImportExport FlwNode : public CTNode
 
     CJoinClusterArray m_Clusters;
 
-    long           m_AuditOption;
-    long           m_ForceAuditOption;
+    long           m_AuditVisibility;
+    long           m_ForceAuditVisibility;
     long           m_AuditCalculation;
 
     CExternAuditCalc m_ExtAudit;

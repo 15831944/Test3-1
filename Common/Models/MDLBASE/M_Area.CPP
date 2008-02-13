@@ -346,6 +346,7 @@ m_Content("Content", this, TOA_Embedded)
 
   m_Content.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
 
+  m_ForceAuditVisibility   = Audit_Hide;
   m_dwBaseAuditOptions = 0;
   m_dwAreaAuditOptions = MNAudit_Qm| (dbgfile() ? (MNAudit_Hz|MNAudit_Cnts) : 0);
   m_bDoAudit       = true;
@@ -496,7 +497,7 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
     }
 
   //CDirectFlwIO::sm_
-  if ((m_bDoAudit && AuditOption()>=Audit_Flows) || m_bForceAudit)
+  if ((m_bDoAudit && AuditVisibility()>=Audit_Flows) || m_bForceAudit)
     {
     if (What & BDDAO_Flows)
       {
@@ -546,10 +547,11 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
       DDB.EndStruct();
       }
 
-    if (What & BDDAO_Totals && AuditOption()>=Audit_Totals)
+    if (What & BDDAO_Totals && AuditVisibility()>=Audit_Totals)
       {
       DDB.Text(" ");
-      if (DDB.BeginStruct(this, "Totals", NULL, DDB_RqdPage))
+      DDB.Page("..", DDB_OptPage);
+      if (DDB.BeginStruct(this, "Totals", NULL, DDB_NoPage))
         {
         if (m_dwAreaAuditOptions & MNAudit_Qm)
           {
@@ -600,7 +602,8 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
       if (m_dwAreaAuditOptions & MNAudit_Cnts)
         {
         DDB.Text(" ");
-        if (DDB.BeginStruct(this, "Counts", NULL, DDB_RqdPage))
+        DDB.Page("..", DDB_OptPage);
+        if (DDB.BeginStruct(this, "Counts", NULL, DDB_NoPage))
           {
           DDB.Long   ("",   "Spills",   DC_,     "",       xidSpillsInCnt,  this, isResult|noFile|noSnap); 
           DDB.Long   ("",   "Vents",    DC_,     "",       xidVentsInCnt,   this, isResult|noFile|noSnap); 
@@ -1129,47 +1132,12 @@ void MN_Area::EvalDiscrete()
 
 void MN_Area::EvalAudit(int Pass)
   {
-  MdlNode::EvalAudit(Pass);
   switch (Pass)
     {
     case 0:
       {
-      //// Integrate All DirectIOs
-      //POSITION Pos=m_NdsInArea.GetHeadPosition();
-      //while (Pos)
-      //  {
-      //  FlwNode &Nd=*m_NdsInArea.GetNext(Pos);
-
-      //  //for (int io=0; io<Nd.NoProcessIOs(); io++)
-      //  //  {
-      //  //  double Qm=Sign(Nd.IOQm_In(io))*Nd.IOConduit(io)->QMass();
-      //  //  double Hz=Sign(Nd.IOQm_In(io))*Nd.IOConduit(io)->totHz();
-      //  //  }
-      //
-      //  int i=0;
-      //  POSITION DPos=Nd.m_DirectIOs.GetHeadPosition();
-      //  while (DPos)
-      //    {
-      //    CDirectFlwIO &D=*m_DirectIOs.GetNext(DPos);
-      //    FlwNode &DNd=D.Nd;
-
-      //    if (D.Connected && (DNd.m_pArea==this))
-      //      {
-      //      if (D.IsIO)
-      //        D.Sum.Set(D.Cd);
-      //      D.Sum.Integrate(ICGetTimeInc());
-      //      }
-      //    }
-      //  }
-
-      //POSITION DPos=m_DirectIOsConnected.GetHeadPosition();
-      //while (DPos)
-      //  {
-      //  CDirectFlwIO &D=*m_DirectIOsConnected.GetNext(DPos);
-      //  FlwNode &DNd=D.Nd;
-      //  if (D.Connected && (&DNd.Area!=this) && (&D.Area==this))
-      //    D.Sum.Integrate(ICGetTimeInc());
-      //  }
+      // Dont do this here
+      MdlNode::EvalAudit(Pass);
 
       break;
       }  

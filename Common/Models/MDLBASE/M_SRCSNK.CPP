@@ -64,6 +64,8 @@ m_CF(this)
   Contents.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
   Flows.SetModelSelectable(false);
 
+  Flows.SetAccumsInUse(true);
+
   SetAllowedModes(false, NM_All|SM_Direct|SM_Inline/*|SM_Buffered*/|HM_All);
 
   m_CF.m_pCdOther = &Flows;
@@ -457,7 +459,6 @@ int MN_SrcSnk::DeleteTag(char * pDelTag)
   return MdlNode::DeleteTag(pDelTag);
   };
 
-
 //--------------------------------------------------------------------------
 
 flag MN_SrcSnk::GetModelAction(CMdlActionArray & Acts)
@@ -781,6 +782,14 @@ void MN_SrcSnk::SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn)
 flag MN_SrcSnk::Set_Sizes()
   {
   return true;
+  };
+
+//--------------------------------------------------------------------------
+
+void MN_SrcSnk::SetState(eScdMdlStateActs RqdState)
+  {
+  MdlNode::SetState(RqdState);
+  Flows.SetState(RqdState);
   };
 
 //--------------------------------------------------------------------------
@@ -1382,6 +1391,22 @@ void MN_SrcSnk::EvalDiscrete()
     SetCI(3, "N\tRequired pressure %.1fkPa out of project range (%g to %g)", P, CDB.MinP, CDB.MaxP);
   else
     SetCI(3, "W\tRequired pressure %.1fkPa out of project range (%g to %g)", P, CDB.MinP, CDB.MaxP);
+  }
+
+//--------------------------------------------------------------------------
+
+void MN_SrcSnk::EvalAudit(int Pass)
+  {
+  switch (Pass)
+    {
+    case 0:
+      Flows.IntegrateAccums(1);
+      break;
+    case 1:
+      break;
+    }       
+
+  MdlNode::EvalAudit(Pass);
   }
 
 // --------------------------------------------------------------------------

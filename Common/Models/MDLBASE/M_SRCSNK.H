@@ -93,6 +93,7 @@ class DllImportExport MN_SrcSnk : public MdlNode
 //    virtual pFlwBlk FBlk(int i=0) { return i==0 ? &FB : NULL; };
     virtual void   SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
     virtual flag   Set_Sizes();
+    virtual void   SetState(eScdMdlStateActs RqdState);
     virtual void   StartSolution();
     virtual void   StartStep();
     virtual bool   PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
@@ -105,6 +106,7 @@ class DllImportExport MN_SrcSnk : public MdlNode
     virtual void   ClosureInfo();
 
     virtual void   EvalDiscrete();
+    virtual void   EvalAudit(int Pass);
     virtual void   DoEvalProducts(flag Validating, double dTime);
     virtual void   EvalProductsInit(EvalProductsInitTasks Task);
     virtual void   EvalProducts(CNodeEvalIndex & NEI);

@@ -2547,7 +2547,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmNett:
       {
-      if (AuditOption()>=Audit_Flows)
+      if (AuditVisibility()>=Audit_Flows)
         {
         double Sig=0.0;
         for (int i=0; i<NoProcLnkIOs(); i++)
@@ -2563,7 +2563,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_ExtQm:
       {
-      if (AuditOption()>=Audit_Flows)
+      if (AuditVisibility()>=Audit_Flows)
         {
         DCB.D=m_ExtAudit.FlowMass;
         }
@@ -2573,7 +2573,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmBalance:
       {
-      if (AuditOption()>=Audit_Flows)
+      if (AuditVisibility()>=Audit_Flows)
         {
         double Sig=m_ExtAudit.FlowMass;
         for (int i=0; i<NoProcLnkIOs(); i++)
@@ -2591,7 +2591,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmBalanceRel:
       {
-      if (AuditOption()>=Audit_Flows)
+      if (AuditVisibility()>=Audit_Flows)
         {
         double Sig=m_ExtAudit.FlowMass;
         double SigPos=GEZ(m_ExtAudit.FlowMass);
@@ -2621,7 +2621,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmNettTotal:
       {
-      if (AuditOption()>=Audit_Totals)
+      if (AuditVisibility()>=Audit_Totals)
         {
         double Sig=0.0;
         for (int i=0; i<NoProcLnkIOs(); i++)
@@ -2637,7 +2637,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_ExtQmTotal:
       {
-      if (AuditOption()>=Audit_Totals)
+      if (AuditVisibility()>=Audit_Totals)
         {
         DCB.D=m_ExtAudit.TotalMass;
         }
@@ -2647,7 +2647,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmBalanceTotal:
       {
-      if (AuditOption()>=Audit_Totals)
+      if (AuditVisibility()>=Audit_Totals)
         {
         double Sig=m_ExtAudit.TotalMass;
         for (int i=0; i<NoProcessIOs(); i++)
@@ -2665,7 +2665,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_QmBalanceTotalRel:
       {
-      if (AuditOption()>=Audit_Totals)
+      if (AuditVisibility()>=Audit_Totals)
         {
         double Sig=m_ExtAudit.TotalMass;
         double SigPos=GEZ(m_ExtAudit.TotalMass);
@@ -2696,7 +2696,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
 
     case xidIO_HfNett:
       {
-      if (AuditOption()>=Audit_Flows)
+      if (AuditVisibility()>=Audit_Flows)
         {
         double Sig=0.0;
         for (int i=0; i<NoProcLnkIOs(); i++)
@@ -2709,7 +2709,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_ExtHs:
       {
-      if (AuditOption()>=Audit_Flows)
+      if (AuditVisibility()>=Audit_Flows)
         {
         DCB.D=m_ExtAudit.FlowHf;
         }
@@ -2719,7 +2719,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HfBalance:
       {
-      if (AuditOption()>=Audit_Flows)
+      if (AuditVisibility()>=Audit_Flows)
         {
         double Sig=m_ExtAudit.FlowHf;
         for (int i=0; i<NoProcessIOs(); i++)
@@ -2737,7 +2737,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HfBalanceRel:
       {
-      if (AuditOption()>=Audit_Flows)
+      if (AuditVisibility()>=Audit_Flows)
         {
         double Sig=m_ExtAudit.FlowHf;
         double SigPos=GEZ(m_ExtAudit.FlowHf);
@@ -2767,7 +2767,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HfNettTotal:
       {
-      if (AuditOption()>=Audit_Totals)
+      if (AuditVisibility()>=Audit_Totals)
         {
         double Sig=0.0;
         for (int i=0; i<NoProcLnkIOs(); i++)
@@ -2780,7 +2780,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_ExtHsTotal:
       {
-      if (AuditOption()>=Audit_Totals)
+      if (AuditVisibility()>=Audit_Totals)
         {
         DCB.D=m_ExtAudit.TotalHf;
         }
@@ -2790,7 +2790,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HfBalanceTotal:
       {
-      if (AuditOption()>=Audit_Totals)
+      if (AuditVisibility()>=Audit_Totals)
         {                                         
         double Sig=m_ExtAudit.TotalHf;
         for (int i=0; i<NoProcessIOs(); i++)
@@ -2808,7 +2808,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidIO_HfBalanceTotalRel:
       {
-      if (AuditOption()>=Audit_Totals)
+      if (AuditVisibility()>=Audit_Totals)
         {
         double Sig=m_ExtAudit.TotalHf;
         double SigPos=GEZ(m_ExtAudit.TotalHf);
@@ -4177,15 +4177,15 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
   static bool ShowIONames=false;
   Strng Sym, Tag;
 
-  if (!DDB.ForFileSnpScn())
+  if (!DDB.ForFileSnpScn() && m_ForceAuditVisibility>Audit_Hide)
     {
-    if (AuditOption()>=Audit_Flows && m_dwBaseAuditOptions!=0)
+    if (AuditVisibility()>=Audit_Flows && m_dwBaseAuditOptions!=0)
       {
       if (DDB.BeginStruct(this, "Audit", NULL, DDB_RqdPage))
         {
         DDB.CheckBoxBtn("ShowIONames", "", DC_, 0, &ShowIONames, this, isParm);
         DDB.Text(" ");
-        if (AuditOption()>=Audit_Flows)
+        if (AuditVisibility()>=Audit_Flows)
           {
           if (DDB.BeginStruct(this, "Flows", NULL, DDB_NoPage))
             {
@@ -4275,7 +4275,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           DDB.EndStruct();
           }
 
-        if (AuditOption()>=Audit_Totals)
+        if (AuditVisibility()>=Audit_Totals)
           {
           DDB.Text(" ");
           DDB.Page("..", DDB_OptPage);
@@ -4367,7 +4367,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
           DDB.EndStruct();
           }
 
-        if (AuditOption()>=Audit_Flows && (m_dwBaseAuditOptions & MNAudit_Cnts))
+        if (AuditVisibility()>=Audit_Flows && (m_dwBaseAuditOptions & MNAudit_Cnts))
           {    
           DDB.Text(" ");
           DDB.Page("..", DDB_OptPage);

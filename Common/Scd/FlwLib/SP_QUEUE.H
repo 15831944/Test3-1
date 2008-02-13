@@ -71,13 +71,12 @@ class DllImportExport SpQSection
     double        Loading() { return Mass()/GTZ(Length()); };
     void          SetStart(double St) { m_dPosition=St; };
     void          SetLength(double L) { m_dLength=L; };
-    void          SetMakeup(SpQueue * pQ, double Frac, double QmRqd, SpConduit * pProd);//pSpillArea pSpill);
-    //static void   SetMakeup(SpQIO & Feed, SpQueue * pQ, double Frac, double QmRqd, SpConduit * pProd);
-    void          Load(SpQueue * pQ, double Frac, SpConduit * pFeed, CDirectFlwIO * pSpill);//pSpillArea pSpill);
-    void          UnLoad(SpQueue * pQ, double Frac, double QmRqd, SpConduit * pProd, CDirectFlwIO * pSpill);//pSpillArea pSpill);
+    void          SetMakeup(SpQueue * pQ, double Frac, double QmRqd, SpConduit * pProd);
+    void          Load(SpQueue * pQ, double Frac, SpConduit * pFeed, CDirectFlwIO * pSpill, CDirectFlwIO * pVent);
+    void          UnLoad(SpQueue * pQ, double Frac, double QmRqd, SpConduit * pProd, CDirectFlwIO * pSpill, CDirectFlwIO * pVent);
     void          ScaleMass(double Scl) { m_pMdl->ScaleMass(som_ALL, Scl);};
     void          CopyMass(SpQSection * pSct, double Scl);
-    void          Spill(SpQueue * pQ, double Frac, CDirectFlwIO *pSpill);
+    void          Spill(SpQueue * pQ, double Frac, CDirectFlwIO *pSpill, CDirectFlwIO * pVent);
     void          Spill(CSpPlugFlow* pQ, double Frac);
 
     void          Load(CSpPlugFlow * pPF, double Frac, SpConduit * pFeed);
@@ -174,6 +173,8 @@ class DllImportExport SpQIO
 
     CDirectFlwIO  & getSpill()                    { return *m_pSpill; };
     _declspec(property(get=getSpill))             CDirectFlwIO & Spill;
+    CDirectFlwIO  & getVent()                    { return *m_pVent; };
+    _declspec(property(get=getVent))             CDirectFlwIO & Vent;
 
   protected:
     double         m_dPosition;
@@ -200,7 +201,8 @@ class DllImportExport SpQIO
 
     // this must be a pointer/reference to an instance because CArray is used to 
     // keep a an array of SpQIO's and this does move elements around
-    CDirectFlwIO * m_pSpill;//pSpillArea     pSpill;
+    CDirectFlwIO * m_pSpill;
+    CDirectFlwIO * m_pVent;
     SpConduit *    m_pCond;
     SpQueue *      m_pQ;
     //bool           m_bOwnSpill;
@@ -274,6 +276,17 @@ class DllImportExport SpQueue : public SpModelOwner
       m_dTotSpiltHf=Hf; 
       m_dTotSpiltHs=Hs; 
       m_dTotSpiltHz=Hz; 
+      };
+    double         TotalVentedMass() { return m_dTotVentedM; };
+    double         TotalVentedHf() { return m_dTotVentedHf; };
+    double         TotalVentedHs() { return m_dTotVentedHs; };
+    double         TotalVentedHz() { return m_dTotVentedHz; };
+    void           SetTotalVented(double D, double Hf, double Hs, double Hz) 
+      { 
+      m_dTotVentedM=D; 
+      m_dTotVentedHf=Hf; 
+      m_dTotVentedHs=Hs; 
+      m_dTotVentedHz=Hz; 
       };
 
     void           AddFeed()          { SetNFeeds(NFeeds()+1); m_Feed[NFeeds()-1].SetPosition(0.0); };
@@ -351,11 +364,17 @@ class DllImportExport SpQueue : public SpModelOwner
     CDirectFlwIO * m_pVent;
     CDirectFlwIO * m_pAccIn;
     CDirectFlwIO * m_pAccOut;
-    //bool           m_bOwnSpill;
+ 
+    bool           m_bSumLosses;
     double         m_dTotSpiltM;
     double         m_dTotSpiltHf;
     double         m_dTotSpiltHs;
     double         m_dTotSpiltHz;
+
+    double         m_dTotVentedM;
+    double         m_dTotVentedHf;
+    double         m_dTotVentedHs;
+    double         m_dTotVentedHz;
 
     CLVector       m_FeedOrder, m_ProdOrder;
     flag           m_bPosChg;

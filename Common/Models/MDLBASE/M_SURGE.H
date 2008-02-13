@@ -78,6 +78,7 @@ class DllImportExport MN_Surge : public MdlNode
     virtual void   EvalIntegral(CNodeEvalIndex & NEI, SpConduit * pQFeed);
     virtual void   ConvergeStates(CConvergeStateBlk &CSB);
     virtual void   EvalDiscrete();
+    virtual void   EvalAudit(int Pass);
     virtual void   DumpDerivs();
     virtual void   EvalStatistics(eScdCtrlTasks Tasks=CO_All);
 
@@ -119,6 +120,7 @@ class DllImportExport MN_Surge : public MdlNode
 
     virtual int    ChangeTag(char * pOldTag, char * pNewTag);
     virtual int    DeleteTag(char * pDelTag);
+
 
     DEFINE_CI(MN_Surge, MdlNode, 4);
 

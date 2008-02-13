@@ -40,6 +40,9 @@ const DWORD LogFlag_FromPGM       = 0x00010000;
 const DWORD LogFlag_FromCOM       = 0x00020000;
 const DWORD LogFlag_FromBlackBox  = 0x00040000;
 
+const DWORD LogFlag_ShowMsgWnd    = 0x00100000;
+const DWORD LogFlag_PostMsg       = 0x00200000;
+
 const DWORD LogOption_COMCallsEntry    = 0x00000001;
 const DWORD LogOption_COMCallsExit     = 0x00000002;
 const DWORD LogOption_COMCalls         = 0x00000004;

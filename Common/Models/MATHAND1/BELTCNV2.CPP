@@ -58,13 +58,14 @@ XID xidBeltLength       = ModelXID(1000);
 XID xidBeltSpeed        = ModelXID(1001);
 XID xidBeltStopped      = ModelXID(1002);
 XID xidTotSpilt         = ModelXID(1003);
-XID xidNWtMtrs          = ModelXID(1004);
-XID xidNSections        = ModelXID(1005);
-XID xidTotalMass        = ModelXID(1006);
-XID xidAvgLoading       = ModelXID(1007);
-XID xidShowProf         = ModelXID(1008);
-XID xidProfPts          = ModelXID(1009);
-XID xidProfDispType     = ModelXID(1010);
+XID xidTotVented        = ModelXID(1004);
+XID xidNWtMtrs          = ModelXID(1005);
+XID xidNSections        = ModelXID(1006);
+XID xidTotalMass        = ModelXID(1007);
+XID xidAvgLoading       = ModelXID(1008);
+XID xidShowProf         = ModelXID(1009);
+XID xidProfPts          = ModelXID(1010);
+XID xidProfDispType     = ModelXID(1011);
 XID xidFeedType0        = ModelXID(1100);
 XID xidFeedIndex0       = ModelXID(1200);
 XID xidFeedPos0         = ModelXID(1300);
@@ -214,7 +215,10 @@ BeltCnv2::BeltCnv2(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
 
   AttachClassInfo(nc_Process, NULL);
   AttachIOAreas(BeltCnvIOAreaList);
-  //Initialise();
+
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Hide);
+  InitAssocGrfShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_Hide, eAGS_Show, eAGS_Show);
+
   m_MaxVelocity=1.0;
   m_MaxSpillLoading=100.0;
   m_MaxStallLoading=1000.0;
@@ -309,9 +313,11 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
   if (OrigPrjFileVerNo()<90 && DDB.ForFileSnpScn())
     DDB.String  ("SpillArea",    "",              DC_,     "",      &m_sAreaTag,        this, isParmStopped);
   DDB.Double  ("TotalSpilt",   "",                DC_M,    "kg",    xidTotSpilt,        this, isParm);
+  DDB.Double  ("TotalVented",  "",                DC_M,    "kg",    xidTotVented,       this, isParm);
   DDB.Double  ("Balance",      "",                DC_M,    "kg",    xidBalance,         this, isResult);
   DDB.Double  ("PrevTotalMass","",                DC_M,    "kg",    &m_TotMassPrev,     this, isParmConstruct|InitHidden);
   DDB.Double  ("PrevSpillMass","",                DC_M,    "kg",    &m_SpillMassPrev,   this, isParmConstruct|InitHidden);
+  DDB.Double  ("PrevVentMass", "",                DC_M,    "kg",    &m_VentMassPrev,    this, isParmConstruct|InitHidden);
 
   DDB.Text("");
   DDB.Long    ("NoWtMtrs",     "",                DC_,     "",      xidNWtMtrs,         this, isParm);
@@ -570,6 +576,14 @@ flag BeltCnv2::DataXchg(DataChangeBlk & DCB)
         }
       DCB.D=m_Q.TotalSpiltMass();
       return 1;
+    case xidTotVented:
+      if (DCB.rD)
+        {
+        double Scl=*DCB.rD/GTZ(m_Q.TotalVentedMass());
+        m_Q.SetTotalVented(*DCB.rD, Scl*m_Q.TotalVentedHf(), Scl*m_Q.TotalVentedHs(), Scl*m_Q.TotalVentedHz());
+        }
+      DCB.D=m_Q.TotalVentedMass();
+      return 1;
     case xidNWtMtrs:
       if (DCB.rL)
         {
@@ -654,7 +668,7 @@ flag BeltCnv2::DataXchg(DataChangeBlk & DCB)
       }
     case xidBalance:
       {
-      double B=-(m_Q.TotalMass()-m_TotMassPrev)-(m_Q.TotalSpiltMass()-m_SpillMassPrev); 
+      double B=-(m_Q.TotalMass()-m_TotMassPrev)-(m_Q.TotalSpiltMass()-m_SpillMassPrev)-(m_Q.TotalVentedMass()-m_VentMassPrev); 
       for (int i=0; i<NoFlwIOs(); i++)
         B+=IOQm_In(i)*ICGetTimeInc();
       DCB.D=B;
@@ -962,22 +976,22 @@ void BeltCnv2::SetState(eScdMdlStateActs RqdState)
     case MSA_PBInit:
     case MSA_Empty:
     case MSA_PreSet:
-      m_Q.Empty();
+      //m_Q.Empty();
       m_TotMassPrev=0.0;
-      m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+      //m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
       m_SpillMassPrev=0.0;
       break;
     case MSA_SteadyState:
       break;
     case MSA_EmptySpillTargets:
-      m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+      //m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
       m_SpillMassPrev=0.0;
       break;
     case MSA_DynStatsRunInit:
       //if (pStats)
       //  pStats->ResetStats();
       //dInitMt = m_Q.TotalMass();
-      m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
+      //m_Q.SetTotalSpilt(0.0, 0.0, 0.0, 0.0);
       m_SpillMassPrev=0.0;
       break;
     }
@@ -990,6 +1004,8 @@ void BeltCnv2::StartSolution()
   };
 
 //---------------------------------------------------------------------------
+
+const int JnId_Spill=1;
 
 void BeltCnv2::ConfigureJoins()
   {
@@ -1005,6 +1021,8 @@ void BeltCnv2::ConfigureJoins()
         SetIO_Open(i, 0, false, ESS_Denied);
       break;
     }
+  for (int ii=NoProcessIOs(), jj=JnId_Spill; ii<NoFlwIOs(); ii++, jj++)
+    SetIO_Direct(ii, jj);
   };
 
 //---------------------------------------------------------------------------
@@ -1015,6 +1033,7 @@ void BeltCnv2::StartStep()
   m_Q.SetStepInfo(ICGetTimeInc(), m_MaxVelocity, m_MaxVelocity*Range(-1.0, m_BeltSB.Speed(this), 1.0), m_MaxTurnDown);
   m_TotMassPrev=m_Q.TotalMass();
   m_SpillMassPrev=m_Q.TotalSpiltMass();
+  m_VentMassPrev=m_Q.TotalVentedMass();
   m_Q.SetMaxSpillLoading(m_MaxSpillLoading);
   m_Q.SetMinLoading(m_MinLoading);
   m_AccCalc.Start(0, m_Q);

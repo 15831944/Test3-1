@@ -54,6 +54,7 @@ class DllImportExport MN_Xfer : public MdlNode
     virtual void   ConvergeStates(CConvergeStateBlk &CSB);
 
     virtual void   EvalDiscrete();
+    virtual void   EvalAudit(int Pass);
 
     virtual void   DumpDerivs();
     virtual flag   ChangeMode(dword NewMode, dword OldMode);

@@ -148,6 +148,7 @@ class BeltCnv2 : public MdlNode
     //Strng          m_SpillName;
     double         m_TotMassPrev;
     double         m_SpillMassPrev;
+    double         m_VentMassPrev;
 
     bool           m_LBtnDn;
     bool           m_RBtnDn;

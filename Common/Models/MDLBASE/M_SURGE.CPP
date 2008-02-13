@@ -64,6 +64,10 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_PresetImg.SetView(SVV_AsMassFrac);
   m_PresetImg.bSpeciesOnly=true;
 
+  m_QFeed.SetAccumsInUse(true);
+  m_QProdSrg.SetAccumsInUse(true);
+  m_QProdHx.SetAccumsInUse(true);
+
   m_QmAcc=0.0;
   m_QvAcc=0.0;
 
@@ -349,6 +353,10 @@ void MN_Surge::SetState(eScdMdlStateActs RqdState)
   {
   MdlNode::SetState(RqdState);
   Contents.SetState(RqdState);
+  m_QFeed.SetState(RqdState);
+  m_QProdSrg.SetState(RqdState);
+  m_QProdHx.SetState(RqdState);
+
   switch (RqdState)
     {
     case MSA_PBInit:
@@ -562,9 +570,10 @@ void MN_Surge::EvalState()
   {
   
   //dbgpln("VentSpill  %10.2e  %10.2e  %s", Contents.Vent.Cd.QMass(), Contents.Spill.Cd.QMass(), Tag());
-  
-  Contents.SetCI(1, Contents.Spill.Flowing());
-  Contents.SetCI(4, Contents.Vent.Flowing());
+
+  // Now Done i FLwNode::EvalAudit
+  //Contents.SetCI(1, Contents.Spill.Flowing());
+  //Contents.SetCI(4, Contents.Vent.Flowing());
   Contents.TestLevelLimits();
   };
 
@@ -1254,6 +1263,24 @@ void MN_Surge::EvalDiscrete()
     m_QmAcc=Contents.Mass(som_SL)-m_QmAcc;
     m_QvAcc=Contents.Volume(som_SL)-m_QvAcc;
     }
+  }
+
+//--------------------------------------------------------------------------
+
+void MN_Surge::EvalAudit(int Pass)
+  {
+  switch (Pass)
+    {
+    case 0:
+      m_QFeed.IntegrateAccums(1);
+      m_QProdSrg.IntegrateAccums(1);
+      m_QProdHx.IntegrateAccums(1);
+      break;
+    case 1:
+      break;
+    }       
+
+  MdlNode::EvalAudit(Pass);
   }
 
 //---------------------------------------------------------------------------

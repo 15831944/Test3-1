@@ -33,6 +33,9 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show, eAGS_Show);
   InitAssocGrfShowDyn(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show, eAGS_Show);
 
+  m_QFeed().SetAccumsInUse(true);
+  m_QProd().SetAccumsInUse(true);
+
   Joins.SetSize(1);
   m_NetworkIsolator=false;
   m_Accumulator=NULL;
@@ -218,6 +221,10 @@ void   MN_Xfer::SetState(eScdMdlStateActs RqdState)
   MdlNode::SetState(RqdState);
   if (m_NetworkIsolator)
     m_Accumulator->SetState(RqdState);
+
+  m_QFeed().SetState(RqdState);
+  m_QProd().SetState(RqdState);
+
   switch (RqdState)
     {
     case MSA_PBInit:
@@ -695,6 +702,23 @@ void MN_Xfer ::EvalDiscrete()
   m_ExtAudit.Complete(0, &m_RB, GSM.ExtMassFlowIn(), GSM.ExtHeatFlowIn());
 
   m_Leak.EvalDiscrete();
+  }
+
+//--------------------------------------------------------------------------
+
+void MN_Xfer::EvalAudit(int Pass)
+  {
+  switch (Pass)
+    {
+    case 0:
+      m_QFeed().IntegrateAccums(1);
+      m_QProd().IntegrateAccums(1);
+      break;
+    case 1:
+      break;
+    }       
+
+  MdlNode::EvalAudit(Pass);
   }
 
 //--------------------------------------------------------------------------

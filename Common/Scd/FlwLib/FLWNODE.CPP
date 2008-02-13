@@ -19,6 +19,7 @@
 #include "flwsolve.h"
 #include "licbase.h"
 #include "ndxrefs.h"
+#include "dlgbusy.h"
 
 //#include "optoff.h"
 
@@ -1311,9 +1312,10 @@ CConnect(Connect_Flange, pClass_, TagIn, pAttach, eAttach)
   fInFlangeList       = false;
   //fIsEvalSeqStart     = false;
 
-  m_pQIO              =  new SpConduit("Qio", NULL, TOA_Free);
-  m_pQIn              =  NULL;
-  m_pQMem             =  NULL;
+  m_pQIO = new SpConduit("Qio", NULL, TOA_Free);
+  m_pQIO->SetAccumsInUse(true);
+  m_pQIn = NULL;
+  m_pQMem= NULL;
 
   m_pPMUFilter        =  NULL;
   m_bPMUOpts          =  0;
@@ -1936,6 +1938,7 @@ void CFlange::SetTearType(byte Type, FlwNode * pNd)
   if (!fIsBuffered && IsTear() && m_pQIn==NULL)
     {
     m_pQIn = new SpConduit("Qx", pNd, TOA_Embedded);
+    m_pQIn->SetAccumsInUse(true);
     m_pQIn->QCopy(*m_pQIO);
     TaggedObject::StructureChanged(m_pQIn);
     TaggedObject::StructureChanged(m_pNdSrc);
@@ -3335,11 +3338,23 @@ flag FlwNode::fInConfigureJoins       = 0;
 flag FlwNode::fCollectChgStats        = 0;
 dword FlwNode::m_dwMdlStatusOptions   = 0;
 
-long gs_ClosureOption   = CloseTest_Msgs;
-long gs_ClosureIterCnt  = 10; //eval every 10 iters
-long gs_SpillOption     = SpillReports_Cnds;
-long gs_AuditOption     = Audit_Off;
-bool gs_FSIdleRequested = false;
+
+
+long gs_ClosureOption    = CloseTest_Off;
+long gs_ClosureIterCnt   = -1;
+
+long   gs_SpillReport    = SplVntRpt_Cnds;
+long   gs_SpillAction    = SplVntAct_Idle|SplVntAct_Units|SplVntAct_Links;
+double gs_SpillTolerance = 1e-6;
+
+long   gs_VentReport     = SplVntRpt_Cnds;
+long   gs_VentAction     = SplVntAct_Idle|SplVntAct_Units|SplVntAct_Links;
+double gs_VentTolerance  = 1e-9;
+
+byte   gs_SplVntActionRequested = 0;
+
+long gs_AuditVisibility = Audit_Off;
+long gs_RangeChecks     = RngChk_Temperature | RngChk_Pressure | RngChk_Density;
 
 CConnectMap FlwNode::sm_ConnectMap;
 CConnectList FlwNode::sm_ConnectList;
@@ -3442,8 +3457,8 @@ m_ExtAudit(this)
   fHasFiles=0;
   Joins.SetSize(0);
 
-  m_AuditOption      = Audit_Ignore;
-  m_ForceAuditOption = Audit_Ignore;
+  m_AuditVisibility      = Audit_Ignore;
+  m_ForceAuditVisibility = Audit_Ignore;
   m_AuditCalculation = Audit_Ignore;
 
   #if NDSTOPWATCHES
@@ -3925,11 +3940,11 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
           CDirectFlwIO & D=*m_AttachedDirectIOs[i];
 #if WithNewDIOTags
           if (D.Enabled) 
-            D.BuildDataDefn(DDB, tt_Element, NULL, DDB_NoPage, 99500+i, DFIO_ShowQm|DFIO_ShowSrcTag|DFIO_ShowDstTag);
+            D.BuildDataDefn(DDB, tt_Element, NULL, DDB_NoPage, 99500+i, DFIO_ShowQm|DFIO_ShowSrcTag|DFIO_ShowDstTag|(D.Type==eDIO_Spill||D.Type==eDIO_Vent?DFIO_ShowActOK:0));
 #else
           //if (D.MethodEnable(NetMethod()))
           if (D.Enabled)
-            D.BuildDataDefn(DDB, tt_Element, /*D.m_pFlng!=NULL ? D.Flange.Tag():*/NULL, DDB_NoPage, 99500+i, DFIO_ShowQm|DFIO_ShowSrcTag|DFIO_ShowDstTag);
+            D.BuildDataDefn(DDB, tt_Element, /*D.m_pFlng!=NULL ? D.Flange.Tag():*/NULL, DDB_NoPage, 99500+i, DFIO_ShowQm|DFIO_ShowSrcTag|DFIO_ShowDstTag|(D.Type==eDIO_Spill||D.Type==eDIO_Vent?DFIO_ShowActOK:0));
 #endif
           }
         }
@@ -3971,7 +3986,7 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
               }
             IOTag+=".IO";
 #endif
-            D.BuildDataDefn(DDB, tt_Struct, IOTag(), DDB_NoPage, 99500+i, DFIO_ShowQm|DFIO_ShowSrcTag|DFIO_ShowDstTag);
+            D.BuildDataDefn(DDB, tt_Struct, IOTag(), DDB_NoPage, 99500+i, DFIO_ShowQm|DFIO_ShowSrcTag|DFIO_ShowDstTag|(D.Type==eDIO_Spill||D.Type==eDIO_Vent?DFIO_ShowActOK:0));
             }
           }
         }
@@ -4565,7 +4580,7 @@ void FlwNode::BuildCommonSEDefn(DataDefnBlk & DDB)
 
   //DDB.Text(" ");
   LPTSTR AreaTag=PrjFileVerNo()<96 ? "Location":"PlantArea";
-  DDB.String(AreaTag,       "", DC_,     "",   xidFlwNdRqdArea,  this, isParmStopped|InitHidden);
+  DDB.String(AreaTag,       "", DC_,     "",   xidFlwNdRqdArea,  this, isParmStopped/*|InitHidden*/);
 
   DDB.Double ("Origin.X",   "", DC_L,    "m",  &m_Origin.m_X,    this, isParmStopped|InitHidden);
   DDB.Double ("Origin.Y",   "", DC_L,    "m",  &m_Origin.m_Y,    this, isParmStopped|InitHidden);
@@ -4618,8 +4633,8 @@ void FlwNode::BuildCommonSEDefn(DataDefnBlk & DDB)
   if (!fSolutionForRoot)
     {
     DDBValueLstMem DDBModes;
-    GetAuditOptionStrLst(DDB.ForFileSnpScn(), DDBModes);
-    DDB.String("AuditLevel",      "", DC_, "", xidAuditReqd,   this, (DDBModes.Length()>1?isParmStopped:0)|SetOnChange|InitHidden, &DDBModes);
+    GetAuditVisibilityStrLst(DDB.ForFileSnpScn(), DDBModes);
+    DDB.String("AuditLevel",      "", DC_, "", xidAuditReqd,   this, (DDBModes.Length()>1?isParmStopped:0)|SetOnChange/*|InitHidden*/, &DDBModes);
     }
 
 #if WITHSPECSHEETS
@@ -4649,10 +4664,10 @@ void FlwNode::BuildCommonSEDefn(DataDefnBlk & DDB)
   DDB.CheckBoxBtn ("Marked", "", DC_, "", xidMarked,  this, isParm|noFileAtAll|InitHidden);
   if (!fSolutionForRoot)
     {
-    DDB.String      ("EvalOrder",        "", DC_, "", xidEvalOrder,     this, InitHidden);
-    DDB.String      ("EvalSequence",     "", DC_, "", xidEvalSeq,       this, InitHidden);
+    DDB.String      ("EvalOrder",        "", DC_, "", xidEvalOrder,     this, 0/*InitHidden*/);
+    DDB.String      ("EvalSequence",     "", DC_, "", xidEvalSeq,       this, 0/*InitHidden*/);
 #ifndef _RELEASE
-    DDB.String      ("EvalOrderActual",  "", DC_, "", xidEvalOrderDiff, this, InitHidden);
+    DDB.String      ("EvalOrderActual",  "", DC_, "", xidEvalOrderDiff, this, 0/*InitHidden*/);
 #endif
     }
 
@@ -5350,8 +5365,8 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
     case xidAuditReqd:
       {
       if (DCB.rpC)
-        SetAuditOptionStr(DCB.ForFileSnpScn(), DCB.rpC);
-      DCB.pC=(LPSTR)GetAuditOptionStr(DCB.ForFileSnpScn());
+        SetAuditVisibilityStr(DCB.ForFileSnpScn(), DCB.rpC);
+      DCB.pC=(LPSTR)GetAuditVisibilityStr(DCB.ForFileSnpScn());
       return 1;
       }
 
@@ -5664,9 +5679,9 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
 
 void FlwNode::SetAuditCalculation() 
   { 
-  m_AuditCalculation=AuditOption();
+  m_AuditCalculation=AuditVisibility();
   for (int i=0; i<NoFlwIOs(); i++)
-    m_AuditCalculation=Max(m_AuditCalculation, Nd_Rmt(i)->AuditOption());
+    m_AuditCalculation=Max(m_AuditCalculation, Nd_Rmt(i)->AuditVisibility());
   }
 
 //--------------------------------------------------------------------------
@@ -5678,20 +5693,23 @@ long FlwNode::AuditCalculation()
 
 //--------------------------------------------------------------------------
 
-long FlwNode::AuditOption() 
+long FlwNode::AuditVisibility() 
   { 
-  if (gs_AuditOption==Audit_AllOff)
+  //if (m_ForceAuditVisibility==Audit_Hide)
+  //  return Audit_Off;
+
+  if (gs_AuditVisibility==Audit_AllOff)
     return Audit_Off;
-  return Max(m_ForceAuditOption, m_AuditOption, gs_AuditOption); 
+  return Max(m_ForceAuditVisibility, m_AuditVisibility, gs_AuditVisibility); 
   }
 
 //--------------------------------------------------------------------------
 
-LPCSTR FlwNode::GetAuditOptionStr(flag ForFiling)
+LPCSTR FlwNode::GetAuditVisibilityStr(flag ForFiling)
   {
-  if (!ForFiling && gs_AuditOption==Audit_AllOff)
+  if (!ForFiling && gs_AuditVisibility==Audit_AllOff)
     return "<AllOff>";
-  long Opt=Max(m_ForceAuditOption , m_AuditOption);
+  long Opt=Max(m_ForceAuditVisibility , m_AuditVisibility);
   switch (Opt)
     {
     case Audit_Off:          return "Off";
@@ -5700,7 +5718,7 @@ LPCSTR FlwNode::GetAuditOptionStr(flag ForFiling)
     case Audit_Balance:      return "Balance";
     case Audit_Ignore:
       {
-      switch (gs_AuditOption)
+      switch (gs_AuditVisibility)
         {
         case Audit_Ignore:       return "<Off>";
         case Audit_Off:          return "<Off>";
@@ -5712,51 +5730,53 @@ LPCSTR FlwNode::GetAuditOptionStr(flag ForFiling)
     }
   return "??";
   }
-long FlwNode::SetAuditOptionStr(flag ForFiling, LPCSTR Str) 
+long FlwNode::SetAuditVisibilityStr(flag ForFiling, LPCSTR Str) 
   {
+  //if (m_ForceAuditVisibility==Audit_Hide)
+  //  return AuditVisibility();
   if  (!ForFiling && stricmp(Str, "<AllOff>")==0) 
     {
     }
   else
     {
-    if   (stricmp(Str, "Off")==0)          m_AuditOption = Audit_Off;
-    else if   (stricmp(Str, "Flows")==0)   m_AuditOption = Audit_Flows;
-    else if   (stricmp(Str, "Totals")==0)  m_AuditOption = Audit_Totals;
-    else if   (stricmp(Str, "Balance")==0) m_AuditOption = Audit_Balance;
+    if   (stricmp(Str, "Off")==0)          m_AuditVisibility = Audit_Off;
+    else if   (stricmp(Str, "Flows")==0)   m_AuditVisibility = Audit_Flows;
+    else if   (stricmp(Str, "Totals")==0)  m_AuditVisibility = Audit_Totals;
+    else if   (stricmp(Str, "Balance")==0) m_AuditVisibility = Audit_Balance;
     else 
       {
-      m_AuditOption = Audit_Ignore;
-      if        (stricmp(Str, "<Off>")==0)     gs_AuditOption = Audit_Off;
-      else if   (stricmp(Str, "<Flows>")==0)   gs_AuditOption = Audit_Flows;
-      else if   (stricmp(Str, "<Totals>")==0)  gs_AuditOption = Audit_Totals;
-      else if   (stricmp(Str, "<Balance>")==0) gs_AuditOption = Audit_Balance;
+      m_AuditVisibility = Audit_Ignore;
+      if        (stricmp(Str, "<Off>")==0)     gs_AuditVisibility = Audit_Off;
+      else if   (stricmp(Str, "<Flows>")==0)   gs_AuditVisibility = Audit_Flows;
+      else if   (stricmp(Str, "<Totals>")==0)  gs_AuditVisibility = Audit_Totals;
+      else if   (stricmp(Str, "<Balance>")==0) gs_AuditVisibility = Audit_Balance;
       }                 
     }
 
-  return AuditOption(); 
+  return AuditVisibility(); 
   }
 
-void FlwNode::GetAuditOptionStrLst(flag ForFiling, DDBValueLstMem & Lst)
+void FlwNode::GetAuditVisibilityStrLst(flag ForFiling, DDBValueLstMem & Lst)
   {
   Lst.Empty();
 
-  if (!ForFiling && gs_AuditOption==Audit_AllOff)
+  if (!ForFiling && gs_AuditVisibility==Audit_AllOff)
     Lst.Add("<AllOff>");
   else
     {
-    if       (gs_AuditOption == Audit_Off)     Lst.Add("<Off>");     
-    else if  (gs_AuditOption == Audit_Flows)   Lst.Add("<Flows>");
-    else if  (gs_AuditOption == Audit_Totals)  Lst.Add("<Totals>");  
-    else if  (gs_AuditOption == Audit_Balance) Lst.Add("<Balance>");
+    if       (gs_AuditVisibility == Audit_Off)     Lst.Add("<Off>");     
+    else if  (gs_AuditVisibility == Audit_Flows)   Lst.Add("<Flows>");
+    else if  (gs_AuditVisibility == Audit_Totals)  Lst.Add("<Totals>");  
+    else if  (gs_AuditVisibility == Audit_Balance) Lst.Add("<Balance>");
 
     if (Lst.Length()>0)
       Lst.Add("---------");
 
 
-    if (m_ForceAuditOption <= Audit_Off)                  Lst.Add("Off");     
-    if (m_ForceAuditOption <= Audit_Flows)                Lst.Add("Flows");
-    if (m_ForceAuditOption <= Audit_Totals)               Lst.Add("Totals");  
-    //if (m_ForceAuditOption <= Audit_Balance && !ForNode)  Lst.Add("Balance");
+    if (m_ForceAuditVisibility <= Audit_Off)                  Lst.Add("Off");     
+    if (m_ForceAuditVisibility <= Audit_Flows)                Lst.Add("Flows");
+    if (m_ForceAuditVisibility <= Audit_Totals)               Lst.Add("Totals");  
+    //if (m_ForceAuditVisibility <= Audit_Balance && !ForNode)  Lst.Add("Balance");
     }
   };
 
@@ -9635,6 +9655,8 @@ flag FlwNode::CIStrng(int No, pchar & pS)
     case 33: pS="WL\tNBadPwrCOnnects";                       return 1;
     case 34: pS="W\tNBadCluster";                            return 1;
     case 35: pS="W\tProcedure reload required";              return 1;
+    case 36: pS="N\tSpilling";                               return 1;
+    case 37: pS="N\tVenting";                                return 1;
     default:
       return CTNode::CIStrng(No, pS);
     }
@@ -9860,8 +9882,6 @@ CTraceArray * FlwNode::GetChangeTrace(long i, dword Flags)
 
 void FlwNode::EvalAudit(int Pass)
   {
-  if (AuditCalculation()>Audit_Off)
-    {
     #if dbgFlwNode 
     if (dbgEvalAudit())
       dbgpln("EvalAudit [%i] %s", Pass, FullObjTag());
@@ -9869,6 +9889,134 @@ void FlwNode::EvalAudit(int Pass)
     switch (Pass)
       {
       case 0:
+        {
+      //if (IsMLnk())
+      //  {
+      //  int Sign=Sign(IOQm_In());
+      //  if (IOConduitIn(i))
+      //    IOConduitIn(i)->IntegrateAccums(Sign);
+      //  IOConduitIO(i)->IntegrateAccums(Sign);
+      //  }
+      //else if ((m_dwType&(nc_MLnk|nc_Audit))==0)
+      //  {
+      //  }
+
+      for (int d=FirstProcDirect(); d<=LastAuditDirect(); d++)
+        {
+        CDirectFlwIO &D=*m_EnabledDirectIOs[d];
+        if (D.HasConduit)
+          D.Cd.IntegrateAccums(1);
+        if (D.Type==eDIO_Spill)
+          {
+          double QmCd=D.Cd.QMass();
+          if (QmCd>gs_SpillTolerance) 
+            {
+            //dbgpln("Spill %3i %5i %12.4f %s", d, D.LclIOId(), QmCd, Tag());
+            Strng Msg("Spilling");
+            char Typ='W';
+            if (D.Reason && strlen(D.Reason)>2)
+              {
+              if (D.Reason[1]=='\t')
+                {
+                Typ=D.Reason[0];
+                Msg=&D.Reason[2];
+                }
+              else
+                Msg=D.Reason;
+              }
+            if (gs_SpillReport & SplVntRpt_Cnds)
+              SetCI(36, "%c\t%s", Typ, Msg());
+            if (gs_SpillReport & SplVntRpt_Msgs)
+              {
+              switch (Typ)
+                {
+                case 'N': LogNote   (FullObjTag(), 0, Msg());  break;
+                case 'W': LogWarning(FullObjTag(), 0, Msg());  break;
+                default : LogError  (FullObjTag(), 0, Msg());  break;
+                }
+              }
+            if (D.m_ActionOK)
+              {
+              if ((gs_SpillAction & SplVntAct_Stop) && (gs_SpillAction & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
+                {
+                gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, "Solver STOP request due to slurry spillage");
+                if (gs_SplVntActionRequested<2)
+                  {
+                  gs_SplVntActionRequested=2;
+                  ExecObj()->XStop();
+                  }
+                }
+              else if ((gs_SpillAction & SplVntAct_Idle) && (gs_SpillAction & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
+              {
+                gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, "Solver IDLE request due to slurry spillage");
+                if (gs_SplVntActionRequested<1)
+                  {
+                  gs_SplVntActionRequested=1;
+              ExecObj()->XIdle();
+              }
+            }
+              }
+            }
+          else
+            ClrCI(36);
+          }
+        if (D.Type==eDIO_Vent)
+          {
+          double QmCd=D.Cd.QMass();
+          if (QmCd>gs_VentTolerance) 
+            {
+            Strng Msg("Venting");
+            char Typ='W';
+            if (D.Reason && strlen(D.Reason)>2)
+              {
+              if (D.Reason[1]=='\t')
+                {
+                Typ=D.Reason[0];
+                Msg=&D.Reason[2];
+                }
+              else
+                Msg=D.Reason;
+              }
+            //dbgpln("Vent  %3i %5i %12.4f %s", d, D.LclIOId(), QmCd, Tag());
+            if (gs_VentReport & SplVntRpt_Cnds)
+              SetCI(37, "%c\t%s", Typ, Msg());
+            if (gs_VentReport & SplVntRpt_Msgs)
+              {
+              switch (Typ)
+                {
+                case 'N': LogNote   (FullObjTag(), 0, Msg());  break;
+                case 'W': LogWarning(FullObjTag(), 0, Msg());  break;
+                default : LogError  (FullObjTag(), 0, Msg());  break;
+                }
+              }
+            if (D.m_ActionOK)
+              {
+              if ((gs_VentAction & SplVntAct_Stop) && (gs_VentAction & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
+              {
+                gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, "Solver STOP request due to gas venting");
+                if (gs_SplVntActionRequested<2)
+                  {
+                  gs_SplVntActionRequested=2;
+                  ExecObj()->XStop();
+                  }
+                }
+              else if ((gs_VentAction & SplVntAct_Idle) && (gs_VentAction & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
+                {
+                gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, "Solver IDLE request due to gas venting");
+                if (gs_SplVntActionRequested<1)
+                  {
+                  gs_SplVntActionRequested=1;
+              ExecObj()->XIdle();
+              }
+            }
+          }
+        }
+          else
+            ClrCI(37);
+          }
+        }
+
+      if (AuditCalculation()>Audit_Off)
         {
         m_ExtAudit.Integrate(ICGetTimeInc());
         for (int i=0; i<NoProcessIOs(); i++)
@@ -9891,7 +10039,7 @@ void FlwNode::EvalAudit(int Pass)
         if (NoEnabledDirectIOs()>0)
           {
           // Integrate All DirectIOs
-          for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
+          for (int d=FirstProcDirect(); d<=LastAuditDirect(); d++)
             {
             CDirectFlwIO &D=*m_EnabledDirectIOs[d];
             if (AuditCalculation()>=Audit_Totals)
@@ -9902,13 +10050,13 @@ void FlwNode::EvalAudit(int Pass)
             #endif
             }
           }
+        }
         break;
         }
       case 1:
         break;
       }
     }
-  }
 
 //--------------------------------------------------------------------------
 
@@ -12603,6 +12751,7 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
   m_NdSignImp=0;
   m_RmtListPos=NULL;
   m_EvalFlowEquationsReturn=false;
+  m_ActionOK=SplVntAct_Idle;
   Initialise(eType, Nd);
   InitialiseIO(ShowUsr, SysEnable, Tag, LclDIOId, RmtDIOId, -1);
   };
@@ -12615,8 +12764,8 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
   m_NdSignImp=0;
   m_RmtListPos=NULL;
   m_EvalFlowEquationsReturn=false;
+  m_ActionOK=SplVntAct_Idle;
   Initialise(eType, Nd);
-
   InitialiseIO(ShowUsr, SysEnable, Tag, -1, -1, -1);
   //InitialiseFlags(ShowUsr, SysEnable, Tag);
   };
@@ -12939,6 +13088,9 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
     if (DDB.ForFileSnpScn())
       DDB.Byte    ("UseStatus",   "",  DC_,         "",       xidUseStatus,      m_pNd, isResult);
 
+    if (Options&DFIO_ShowActOK)
+      DDB.CheckBoxBtn("ActionOK", "",    DC_, "",   xidDrctActOK,        m_pNd, isParm);
+
     DDB.Text("");
     if (!m_bIsXfer)
       xm_FEP.BuildDataDefn(FBDDOpt_WithAll/*|FBDDOpt_WithXtraEqn*/, DDB, m_pNd, NULL, UserInfo);
@@ -13091,6 +13243,13 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
       double QmEst= (m_iMyConnectedIO>=0) ? m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst : 0.0;
       double Sgn = Valid(QmEst) ? Sign(QmEst) : 0.0;
       DCB.D=HasConduit ? Sgn*Cd.QNVolume() : 0.0;
+      return 1;
+      }
+    case xidDrctActOK:
+      {
+      if (DCB.rB)
+        m_ActionOK=*DCB.rB!=0;
+      DCB.B=m_ActionOK;
       return 1;
       }
     case xidConnectState:

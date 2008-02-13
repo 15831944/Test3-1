@@ -40,6 +40,41 @@ class CDirectFlwIO;                 // Only defined in M_BASE
 //
 //                   SpConduit - Used for Transporting Material
 //
+// ===========================================================================                 
+
+const byte   CdAcc_QmQv    = 0x01;
+const byte   CdAcc_AllQm   = 0x02;
+const byte   CdAcc_AllQv   = 0x04;
+
+const byte   CdAccUse_UnUsed = 0;
+const byte   CdAccUse_InUse  = 1;
+const byte   CdAccUse_Valid  = 2;
+
+class DllImportExport CSpCdAccums
+  {
+  public:
+    CSpCdAccums()
+      {
+      m_QmS   = 0.0;
+      m_QmL   = 0.0;
+      m_QmG   = 0.0;
+      m_QmSL  = 0.0;
+      m_QvS   = 0.0;
+      m_QvL   = 0.0;
+      m_QvG   = 0.0;
+      m_QvSL  = 0.0;
+      }
+  public:
+    double    m_QmS;
+    double    m_QmL;
+    double    m_QmG;
+    double    m_QmSL;
+    double    m_QvS;
+    double    m_QvL;
+    double    m_QvG;
+    double    m_QvSL;
+  };
+
 // ===========================================================================
 
 class DllImportExport SpConduit : public SpModelOwner
@@ -82,7 +117,8 @@ class DllImportExport SpConduit : public SpModelOwner
     long            Fidelity()      { return pModel->Fidelity(); };
 
     void            SetState(eScdMdlStateActs RqdState);
-
+    void            SetAccumsInUse(bool InUse)                  { m_AccumUse = InUse ? CdAccUse_InUse : CdAccUse_UnUsed; };
+                                                                                            
     void            SetDataSign(int Sgn)                        { pModel->SetDataSign(Sgn); };
     signed char     DataSign()                                  { return pModel->DataSign(); };
     void            SetNegDataOK(bool OK)                       { pModel->SetNegDataOK(OK); };
@@ -316,9 +352,29 @@ class DllImportExport SpConduit : public SpModelOwner
 
     double         msLatentHeatVap(double T, double P, CSysVector * pMA=NULL)         { return pModel->msLatentHeatVap(T, P, pMA);};
 
+    void           InitAccums();
+    void           ZeroAccums();
+    void           IntegrateAccums(int Sign);
+    byte           AccumOptions() { return m_AccumOpts ? m_AccumOpts : gs_AccumOpts; };
+    static void    GetAccumDDBStrs(DDBValueLstMem & DDB, bool Glbl);
+    LPSTR          GetAccumOptionStr();
+    void           SetAccumOptionStr(LPSTR Str); 
+    static LPSTR   GetAccumOptionStrGlbl();
+    static void    SetAccumOptionStrGlbl(LPSTR Str); 
+
     void           dbgDump(char * Hdr, flag Vert=1);
+
+
  private:
     SpConduit &     operator=(const SpConduit & S) {ASSERT(0); return *this;} // assignment prevent its use
+
+    // Totals;
+    byte           m_AccumUse;
+    byte           m_AccumOpts;
+    static byte    gs_AccumOpts;
+    double         m_AccumQm;
+    double         m_AccumQv;
+    CSpCdAccums  * m_pAccums;
 
   };
 
