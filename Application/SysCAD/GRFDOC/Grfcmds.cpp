@@ -2180,35 +2180,19 @@ void GrfCmdBlk::DoInsert()
             
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
 
-//<<<<<<< .working
 #if SYSCAD10         
             if (gs_pPrj->SvcActive)
-//=======
-//#if SYSCAD10
-//            //TACKY !!
-//            int NOpens=pDsp->Opens;
-//            for (int ixx=0; ixx<NOpens; ixx++)
-//              pDsp->Close();
-//            gs_pPrj->Svc.DoCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
-//            for (int ixx=0; ixx<NOpens; ixx++)
-//              pDsp->Open();
-//
-//#else
-//
-//            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), /*DoAddModel*/1?CB->ATag():NULL, NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
-//            if (CB->e)
-//>>>>>>> .merge-right.r3340
               {
               SCD10ENTER;
               //What about Symbol only ??????????
-              gs_pPrj->Svc.GCBCreateNode((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
+              gs_pPrj->Svc.GCBCreateNode((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
 
               SCD10LEAVE;
               }
             else
 #endif
               {
-              CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->m_sGuid(), /*DoAddModel*/1?CB->ATag():NULL, NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
+              CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->m_sGuid(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
               if (CB->e)
                 {
                 Strng TheGuid;
