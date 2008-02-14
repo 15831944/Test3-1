@@ -498,6 +498,8 @@ class DllImportExport CSvcLnkMBlk
     LPCSTR m_DestinationPort; 
   };
 
+//------------------------------------------------------------------------
+
 class DllImportExport CSvcGuidPair
   {
   public:

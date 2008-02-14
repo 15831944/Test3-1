@@ -28,6 +28,7 @@ class CSvcConnectCLR
 
     void Sync(__int64 requestId);
 
+    //----------------------------------------------------------------------------------
     //Groups
     void AddCreateGroup(__int64 & requestId, LPCSTR GroupGuid, LPCSTR Tag, LPCSTR Path,
                          const CRectangleF & boundingRect);
@@ -63,19 +64,6 @@ class CSvcConnectCLR
     //Things
 
     //----------------------------------------------------------------------------------
-    //.....
-
-    //void DoModifyItem(__int64 & requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
-    //                  LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, 
-    //                  float Angle, const CRectangleF & tagArea, COLORREF FillColor, 
-    //                  bool MirrorX, bool MirrorY);
-
-    // ..........
-    //static void CreateItem(__int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, LPCSTR model, LPCSTR stencil, PKRectangleF boundingRect, float angle, int fillColor, int fillMode, bool mirrorX, bool mirrorY);
-    //static void CreateLink(__int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR classID, LPCSTR origin, LPCSTR destination, LPCSTR originPort, LPCSTR destinationPort, PKPointF controlPoints[], int controlPointsLength);
-
-    //static void DeleteItem(__int64 requestId, LPCSTR guid);
-    //static void DeleteLink(__int64 requestId, LPCSTR guid);
 
     bool ProcessChangeLists(__int64 & requestId);
 
@@ -84,11 +72,6 @@ class CSvcConnectCLR
     void Save();
 
     void LogMessage(DWORD Type, LPCSTR Msg);
-
-    //static void ModifyItemBoundingRect(__int64 requestId, LPCSTR guid, PKRectangleF boundingRect);
-    //static void ModifyLinkControlPoints(__int64 requestId, LPCSTR guid, PKPointF controlPoints[], int controlPointsLength);
-
-    //void Export(LPCSTR projectPath, LPCSTR configPath);
 
   public:
 
