@@ -9880,183 +9880,144 @@ CTraceArray * FlwNode::GetChangeTrace(long i, dword Flags)
 
 //--------------------------------------------------------------------------
 
-void FlwNode::EvalAudit(int Pass)
+void FlwNode::SplVntActions(CDirectFlwIO &D, long Report, long Action, int CINo, LPCSTR MsgStr1, LPCSTR MsgStr2)
   {
-    #if dbgFlwNode 
-    if (dbgEvalAudit())
-      dbgpln("EvalAudit [%i] %s", Pass, FullObjTag());
-    #endif
-    switch (Pass)
+  //dbgpln("Spill %3i %5i %12.4f %s", d, D.LclIOId(), QmCd, Tag());
+  Strng Msg(MsgStr1);
+  char Typ='W';
+  if (D.Reason && strlen(D.Reason)>2)
+    {
+    if (D.Reason[1]=='\t')
       {
-      case 0:
+      Typ=D.Reason[0];
+      Msg=&D.Reason[2];
+      }
+    else
+      Msg=D.Reason;
+    }
+  if (Report & SplVntRpt_Cnds)
+    SetCI(36, "%c\t%s", Typ, Msg());
+  if (Report & SplVntRpt_Msgs)
+    {
+    switch (Typ)
+      {
+      case 'N': LogNote   (FullObjTag(), 0, Msg());  break;
+      case 'W': LogWarning(FullObjTag(), 0, Msg());  break;
+      default : LogError  (FullObjTag(), 0, Msg());  break;
+      }
+    }
+  if (D.m_ActionOK)
+    {
+    if ((Action & SplVntAct_Stop) && (Action & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
+      {
+      Strng Msg("Solver STOP request due to ");
+      Msg+=MsgStr2;
+      gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, Msg());
+      if (gs_SplVntActionRequested<2)
         {
-      //if (IsMLnk())
-      //  {
-      //  int Sign=Sign(IOQm_In());
-      //  if (IOConduitIn(i))
-      //    IOConduitIn(i)->IntegrateAccums(Sign);
-      //  IOConduitIO(i)->IntegrateAccums(Sign);
-      //  }
-      //else if ((m_dwType&(nc_MLnk|nc_Audit))==0)
-      //  {
-      //  }
+        gs_SplVntActionRequested=2;
+        ExecObj()->XStop();
+        }
+      }
+    else if ((Action & SplVntAct_Idle) && (Action & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
+      {
+      Strng Msg("Solver IDLE request due to ");
+      Msg+=MsgStr2;
+      gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, Msg());
+      if (gs_SplVntActionRequested<1)
+        {
+        gs_SplVntActionRequested=1;
+        ExecObj()->XIdle();
+        }
+      }
+    }
+  }
 
+void FlwNode::EvalDirectAccums()
+  {
+  for (int d=FirstProcDirect(); d<=LastAuditDirect(); d++)
+    {
+    CDirectFlwIO &D=*m_EnabledDirectIOs[d];
+    if (D.HasConduit)
+      D.Cd.IntegrateAccums(1);
+    if (D.Type==eDIO_Spill)
+      {
+      double QmCd=D.Cd.QMass();
+      if (QmCd>gs_SpillTolerance) 
+        SplVntActions(D, gs_SpillReport, gs_SpillAction, 36, "Spilling", "slurry spillage");
+      else
+        ClrCI(36);
+      }
+    if (D.Type==eDIO_Vent)
+      {
+      double QmCd=D.Cd.QMass();
+      if (QmCd>gs_VentTolerance) 
+        SplVntActions(D, gs_VentReport, gs_VentAction, 37, "Venting", "gas venting");
+      else
+        ClrCI(37);
+      }
+    }
+  };
+
+void FlwNode::EvalStdNodeAudit()
+  {
+  if (AuditCalculation()>Audit_Off)
+    {
+    m_ExtAudit.Integrate(ICGetTimeInc());
+    for (int i=0; i<NoProcessIOs(); i++)
+      {
+      // Only do the Ins
+      // The model at the other end will do this if it is 'out'
+      if (IOQm_In(i)>=0.0)
+        {
+        CAreaSum &Sum=IOFlange(i)->Sum;
+        Sum.Set(*IOConduit(i));
+        if (AuditCalculation()>=Audit_Totals)
+          Sum.Integrate(ICGetTimeInc());
+#if dbgFlwNode 
+        if (dbgEvalAudit())
+          dbgpln("%2i)    f %20s %20s %-20s > %s",i,DbgFltString(Sum.FlowMass),DbgFltString(Sum.TotalMass), FullObjTag(), Nd_Rmt(i)->FullObjTag());
+#endif
+        }
+      }
+
+    if (NoEnabledDirectIOs()>0)
+      {
+      // Integrate All DirectIOs
       for (int d=FirstProcDirect(); d<=LastAuditDirect(); d++)
         {
         CDirectFlwIO &D=*m_EnabledDirectIOs[d];
         if (D.HasConduit)
-          D.Cd.IntegrateAccums(1);
-        if (D.Type==eDIO_Spill)
-          {
-          double QmCd=D.Cd.QMass();
-          if (QmCd>gs_SpillTolerance) 
-            {
-            //dbgpln("Spill %3i %5i %12.4f %s", d, D.LclIOId(), QmCd, Tag());
-            Strng Msg("Spilling");
-            char Typ='W';
-            if (D.Reason && strlen(D.Reason)>2)
-              {
-              if (D.Reason[1]=='\t')
-                {
-                Typ=D.Reason[0];
-                Msg=&D.Reason[2];
-                }
-              else
-                Msg=D.Reason;
-              }
-            if (gs_SpillReport & SplVntRpt_Cnds)
-              SetCI(36, "%c\t%s", Typ, Msg());
-            if (gs_SpillReport & SplVntRpt_Msgs)
-              {
-              switch (Typ)
-                {
-                case 'N': LogNote   (FullObjTag(), 0, Msg());  break;
-                case 'W': LogWarning(FullObjTag(), 0, Msg());  break;
-                default : LogError  (FullObjTag(), 0, Msg());  break;
-                }
-              }
-            if (D.m_ActionOK)
-              {
-              if ((gs_SpillAction & SplVntAct_Stop) && (gs_SpillAction & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
-                {
-                gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, "Solver STOP request due to slurry spillage");
-                if (gs_SplVntActionRequested<2)
-                  {
-                  gs_SplVntActionRequested=2;
-                  ExecObj()->XStop();
-                  }
-                }
-              else if ((gs_SpillAction & SplVntAct_Idle) && (gs_SpillAction & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
-              {
-                gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, "Solver IDLE request due to slurry spillage");
-                if (gs_SplVntActionRequested<1)
-                  {
-                  gs_SplVntActionRequested=1;
-              ExecObj()->XIdle();
-              }
-            }
-              }
-            }
-          else
-            ClrCI(36);
-          }
-        if (D.Type==eDIO_Vent)
-          {
-          double QmCd=D.Cd.QMass();
-          if (QmCd>gs_VentTolerance) 
-            {
-            Strng Msg("Venting");
-            char Typ='W';
-            if (D.Reason && strlen(D.Reason)>2)
-              {
-              if (D.Reason[1]=='\t')
-                {
-                Typ=D.Reason[0];
-                Msg=&D.Reason[2];
-                }
-              else
-                Msg=D.Reason;
-              }
-            //dbgpln("Vent  %3i %5i %12.4f %s", d, D.LclIOId(), QmCd, Tag());
-            if (gs_VentReport & SplVntRpt_Cnds)
-              SetCI(37, "%c\t%s", Typ, Msg());
-            if (gs_VentReport & SplVntRpt_Msgs)
-              {
-              switch (Typ)
-                {
-                case 'N': LogNote   (FullObjTag(), 0, Msg());  break;
-                case 'W': LogWarning(FullObjTag(), 0, Msg());  break;
-                default : LogError  (FullObjTag(), 0, Msg());  break;
-                }
-              }
-            if (D.m_ActionOK)
-              {
-              if ((gs_VentAction & SplVntAct_Stop) && (gs_VentAction & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
-              {
-                gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, "Solver STOP request due to gas venting");
-                if (gs_SplVntActionRequested<2)
-                  {
-                  gs_SplVntActionRequested=2;
-                  ExecObj()->XStop();
-                  }
-                }
-              else if ((gs_VentAction & SplVntAct_Idle) && (gs_VentAction & (IsLnk() ? SplVntAct_Links : SplVntAct_Units)))
-                {
-                gs_MsgLog.LogLn(LogFlag_Warning|LogFlag_ShowMsgWnd, FullObjTag(), 0, "Solver IDLE request due to gas venting");
-                if (gs_SplVntActionRequested<1)
-                  {
-                  gs_SplVntActionRequested=1;
-              ExecObj()->XIdle();
-              }
-            }
-          }
+          D.Sum.Set(*D.Flange.ConduitIO());
+        if (AuditCalculation()>=Audit_Totals)
+          D.Sum.Integrate(ICGetTimeInc());
+#if dbgFlwNode 
+        if (dbgEvalAudit())
+          dbgpln("%2i)[%2i]d %20s %20s %-20s %s",i++,d,DbgFltString(D.Sum.FlowMass),DbgFltString(D.Sum.TotalMass), FullObjTag(), D.Tag);
+#endif
         }
-          else
-            ClrCI(37);
-          }
-        }
-
-      if (AuditCalculation()>Audit_Off)
-        {
-        m_ExtAudit.Integrate(ICGetTimeInc());
-        for (int i=0; i<NoProcessIOs(); i++)
-          {
-          // Only do the Ins
-          // The model at the other end will do this if it is 'out'
-          if (IOQm_In(i)>=0.0)
-            {
-            CAreaSum &Sum=IOFlange(i)->Sum;
-            Sum.Set(*IOConduit(i));
-            if (AuditCalculation()>=Audit_Totals)
-              Sum.Integrate(ICGetTimeInc());
-            #if dbgFlwNode 
-            if (dbgEvalAudit())
-              dbgpln("%2i)    f %20s %20s %s",i,DbgFltString(Sum.FlowMass),DbgFltString(Sum.TotalMass), Nd_Rmt(i)->FullObjTag());
-            #endif
-            }
-          }
-
-        if (NoEnabledDirectIOs()>0)
-          {
-          // Integrate All DirectIOs
-          for (int d=FirstProcDirect(); d<=LastAuditDirect(); d++)
-            {
-            CDirectFlwIO &D=*m_EnabledDirectIOs[d];
-            if (AuditCalculation()>=Audit_Totals)
-              D.Sum.Integrate(ICGetTimeInc());
-            #if dbgFlwNode 
-            if (dbgEvalAudit())
-              dbgpln("%2i)[%2i]d %20s %20s %s",i++,d,DbgFltString(D.Sum.FlowMass),DbgFltString(D.Sum.TotalMass), D.Tag);
-            #endif
-            }
-          }
-        }
-        break;
-        }
-      case 1:
-        break;
       }
     }
+  };
+
+void FlwNode::EvalAudit(int Pass)
+  {
+#if dbgFlwNode 
+  if (dbgEvalAudit())
+    dbgpln("EvalAudit [%i] %s", Pass, FullObjTag());
+#endif
+  switch (Pass)
+    {
+    case 0:
+      {
+      EvalDirectAccums();
+      EvalStdNodeAudit();
+      break;
+      }
+    case 1:
+      break;
+    }
+  }
 
 //--------------------------------------------------------------------------
 

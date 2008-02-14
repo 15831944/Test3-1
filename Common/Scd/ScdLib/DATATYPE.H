@@ -64,6 +64,7 @@ typedef DWORD DDEF_NElements;
 #define isVisible           DDEF_VISIBLE
 #define AffectsStruct       DDEF_AFFECTSSTRUCT
 #define HideIfZero          DDEF_HIDEIFZERO
+#define SmallValue          DDEF_SMALLVALUE
 
 #define noFileAtAll         DDEF_NOFILE|DDEF_NOSNAPSHOT|DDEF_NOSCENARIO
 

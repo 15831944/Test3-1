@@ -783,6 +783,8 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     CToleranceBlock m_HCloseTol;
     CToleranceBlock m_HCloseTol2;
 
+    int            m_AuditCount;
+
      
     //CMap <LPSTR, LPSTR, FlwNode*, FlwNode*> m_NdGuidMap; 
 

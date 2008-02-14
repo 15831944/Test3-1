@@ -360,6 +360,7 @@ class AccNodeWnd : public FxdEdtView, public CExecObj
   public:
     static FmtAttribute sm_FixedFmt;
     static FmtAttribute sm_FloatFmt;
+    static FmtAttribute GlblEFmt;
   // Attributes
   protected:
     Strng          m_NdTag;

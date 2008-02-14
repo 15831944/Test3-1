@@ -3562,9 +3562,12 @@ void MN_Lnk::EvalAudit(int Pass)
         IOConduitIn(i)->IntegrateAccums(Sgn);
       IOConduitIO(i)->IntegrateAccums(Sgn);
       }
+    EvalDirectAccums();
+    EvalStdNodeAudit();
     }
 
-  MdlNode::EvalAudit(Pass);
+
+  //MdlNode::EvalAudit(Pass);
   }
 
 //---------------------------------------------------------------------------

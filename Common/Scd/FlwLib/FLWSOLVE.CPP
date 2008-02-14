@@ -10553,8 +10553,8 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("Vent.Report",            "", DC_,     "",      &gs_VentReport,            this, isParm|SetOnChange, DDBSplVntReport);
     DDB.Long  ("Spill.Action",           "", DC_,     "",      &gs_SpillAction,           this, isParm|SetOnChange, DDBSplVntAction);
     DDB.Long  ("Vent.Action",            "", DC_,     "",      &gs_VentAction,            this, isParm|SetOnChange, DDBSplVntAction);
-    DDB.Double("Spill.Threshold",        "", DC_Qm,   "kg/s",  &gs_SpillTolerance,        this, isParm);
-    DDB.Double("Vent.Threshold",         "", DC_Qm,   "kg/s",  &gs_VentTolerance,         this, isParm);
+    DDB.Double("Spill.Threshold",        "", DC_Qm,   "kg/s",  &gs_SpillTolerance,        this, isParm|SmallValue);
+    DDB.Double("Vent.Threshold",         "", DC_Qm,   "kg/s",  &gs_VentTolerance,         this, isParm|SmallValue);
 
 #if WITHMDLRANGECHECKS
     DDB.Text    ("");
@@ -10577,6 +10577,12 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("Status.ZeroFlow",       "", DC_,     "",      &gs_DisplayZeroFlow,    this, isParm);
     DDB.Double("Status.VapourTest",     "", DC_Frac, "%",     &gs_StatusVapTestFrac,  this, isParm);
     DDB.Double("Status.SolidsTest",     "", DC_Frac, "%",     &gs_StatusSolTestFrac,  this, isParm);
+    DDB.Text  ("");
+    DDB.Text  ("Display Configuration");
+    DDB.Double("Value.Zero",              "", DC_,     "",      &gs_DisplayZeroLimit,   this, isParm|SmallValue);
+    DDB.Double("Status.ZeroFlow",         "", DC_,     "",      &gs_DisplayZeroFlow,    this, isParm|SmallValue);
+    DDB.Double("Status.VapourTest",       "", DC_Frac, "%",     &gs_StatusVapTestFrac,  this, isParm/*|SmallValue*/);
+    DDB.Double("Status.SolidsTest",       "", DC_Frac, "%",     &gs_StatusSolTestFrac,  this, isParm/*|SmallValue*/);
 
     DDB.Text    ("");
     DDB.Text    ("Options");

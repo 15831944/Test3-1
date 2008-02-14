@@ -4347,7 +4347,12 @@ class DllImportExport FlwNode : public CTNode
                            LPCTSTR sDstTermStripName, LPCTSTR sDstTerminalName) { return false; };
 
     virtual void   EvalDiscrete() {};
+    
+    void           SplVntActions(CDirectFlwIO &D, long Report, long Action, int CINo, LPCSTR MsgStr1, LPCSTR MsgStr2);
+    virtual void   EvalDirectAccums();
+    virtual void   EvalStdNodeAudit();
     virtual void   EvalAudit(int Pass);
+
     virtual void   GetBalanceReport(CNodeAuditInfo & Audit);
     //virtual void   CheckXRefs();
     virtual void   EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All) {};

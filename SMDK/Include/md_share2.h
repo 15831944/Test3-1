@@ -21,6 +21,7 @@ const MD_Flags MF_NAN_OK        = DDEF_NAN_OK;         //for floating point fiel
 const MD_Flags MF_BUTTON        = DDEF_BUTTON;         //for bool fields, Present a button
 //const MD_Flags MF_ISRESULT      = DDEF_RESULT;       // this is a calculated field which goes invalid on any change
 const MD_Flags MF_HIDEIFZERO    = DDEF_HIDEIFZERO;     // hide this field if it is zero
+const MD_Flags MF_SMALLVALUE    = DDEF_SMALLVALUE;
 
 const MD_Flags MF_Result        = MF_RESULT;           //result field in access window
 const MD_Flags MF_Parameter     = MF_PARAMETER;        //input field in access window
@@ -33,6 +34,7 @@ const MD_Flags MF_NanOK         = MF_NAN_OK;           //for floating point fiel
 const MD_Flags MF_Button        = MF_BUTTON;           //for bool fields, Present a button
 //const MD_Flags MF_ISRESULT      = MF_ISRESULT;       // this is a calculated field which goes invalid on any change
 const MD_Flags MF_HideIfZero    = MF_HIDEIFZERO;       // hide this field if it is zero
+const MD_Flags MF_SmallValue    = MF_SMALLVALUE;       // SMall values are expected use 'e' fmt
 
 // ======================================================================
 // Data Definitions for Text equivalents of Integral Values

@@ -50,7 +50,7 @@ CompositionFetchHelper::CompositionFetchHelper(MdlNode* pMdl)
         sm_CFQualsNm[i]+=pQ->ClassId();
         i++;
         }
-    //NBNB: TODO this list should be cleared when a project is closed!!!
+      //NBNB: TODO this list should be cleared when a project is closed!!!
     }
 
   m_CFQualsOn.SetSize(sm_nCFQuals);
@@ -68,40 +68,40 @@ void CompositionFetchHelper::BuildDataDefn(DataDefnBlk & DDB)
     {CFWhenContinuous,  "Continuous" },
     {0}};
 
-  int QDrv = m_bAllowFlow ? 0 : MDD_Hidden;
-  DDBValueLst DDBFetchWhat[]={
-    {CFWhatNull,                                    "Nothing"             }, 
-    {CFWhatTemp|CFWhatPress,                        "T,P"                 },
-    {CFWhatComp,                                    "Comp"                },
-    {CFWhatFlow,                                    "Flow",           QDrv},
-    {CFWhatTemp|CFWhatComp,                         "T,Comp"              },
-    {CFWhatTemp|CFWhatPress|CFWhatComp,             "T,P,Comp"            },
-    {CFWhatTemp|CFWhatPress|CFWhatFlow,             "T,P,Flow",       QDrv},
-    {CFWhatComp|CFWhatFlow,                         "Comp,Flow",      QDrv},
-    {CFWhatTemp|CFWhatPress|CFWhatComp|CFWhatFlow,  "T,P,Comp,Flow",  QDrv},
-    {0}};
+    int QDrv = m_bAllowFlow ? 0 : MDD_Hidden;
+    DDBValueLst DDBFetchWhat[]={
+      {CFWhatNull,                                    "Nothing"             }, 
+      {CFWhatTemp|CFWhatPress,                        "T,P"                 },
+      {CFWhatComp,                                    "Comp"                },
+      {CFWhatFlow,                                    "Flow",           QDrv},
+      {CFWhatTemp|CFWhatComp,                         "T,Comp"              },
+      {CFWhatTemp|CFWhatPress|CFWhatComp,             "T,P,Comp"            },
+      {CFWhatTemp|CFWhatPress|CFWhatFlow,             "T,P,Flow",       QDrv},
+      {CFWhatComp|CFWhatFlow,                         "Comp,Flow",      QDrv},
+      {CFWhatTemp|CFWhatPress|CFWhatComp|CFWhatFlow,  "T,P,Comp,Flow",  QDrv},
+      {0}};
 
-  //if (DDB.BeginStruct(NULL, "Fetch", NULL, DDB_NoPage, -1, MarkerClosed))
-  DDEF_Flags Vis=DDB.Visibility();
-  DDB.Text  ("");
-  DDB.Text  ("Composition Fetch");
-  DDB.Byte  ("CF.When",    "", DC_, "", xidCFWhen,     m_pMdl, isParm|SetOnChange, DDBFetchOp);
-  DDB.Byte  ("CF.What",    "", DC_, "", &m_iCFWhat,    m_pMdl, isParm|SetOnChange, DDBFetchWhat);
-  DDB.CheckBox("CF.WarnOnZeroSrc",    "", DC_, "", &m_bCFWarnOnZero,    m_pMdl, isParm|SetOnChange, DDBFetchWhat);
+      //if (DDB.BeginStruct(NULL, "Fetch", NULL, DDB_NoPage, -1, MarkerClosed))
+      DDEF_Flags Vis=DDB.Visibility();
+      DDB.Text  ("");
+      DDB.Text  ("Composition Fetch");
+      DDB.Byte  ("CF.When",    "", DC_, "", xidCFWhen,     m_pMdl, isParm|SetOnChange, DDBFetchOp);
+      DDB.Byte  ("CF.What",    "", DC_, "", &m_iCFWhat,    m_pMdl, isParm|SetOnChange, DDBFetchWhat);
+      DDB.CheckBox("CF.WarnOnZeroSrc",    "", DC_, "", &m_bCFWarnOnZero,    m_pMdl, isParm|SetOnChange, DDBFetchWhat);
 
-  if (m_iCFWhat&CFWhatComp)
-    {
-    for (int iQ=0; iQ<sm_nCFQuals; iQ++)
-      DDB.CheckBox(sm_CFQualsNm[iQ].Str(), "", DC_, "", &m_CFQualsOn[iQ], m_pMdl, isParm); 
-    }
+      if (m_iCFWhat&CFWhatComp)
+        {
+        for (int iQ=0; iQ<sm_nCFQuals; iQ++)
+          DDB.CheckBox(sm_CFQualsNm[iQ].Str(), "", DC_, "", &m_CFQualsOn[iQ], m_pMdl, isParm); 
+        }
 
-  DDB.Visibility(NSHM_All, m_bAllowFlow);
-  DDB.Double("CF.Ratio",   "", DC_, "", &m_dCFRatio,   m_pMdl, isParm);
-  DDB.Visibility();
-  DDB.String("CF.Source",  "", DC_, "", xidCFTag,      m_pMdl, isParm|isTag);
-  DDB.Button("CF.Fetch",   "", DC_, "", xidCFFetchNow, m_pMdl, isParm);
-  DDB.Visibility(Vis);
-  //DDB.EndStruct();
+      DDB.Visibility(NSHM_All, m_bAllowFlow);
+      DDB.Double("CF.Ratio",   "", DC_, "", &m_dCFRatio,   m_pMdl, isParm);
+      DDB.Visibility();
+      DDB.String("CF.Source",  "", DC_, "", xidCFTag,      m_pMdl, isParm|isTag);
+      DDB.Button("CF.Fetch",   "", DC_, "", xidCFFetchNow, m_pMdl, isParm);
+      DDB.Visibility(Vis);
+      //DDB.EndStruct();
   }
 
 // -------------------------------------------------------------------------
@@ -470,6 +470,32 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
     DDB.EndStruct();
     }
 
+  if (1)//What & BDDAO_BLLinks)
+    {
+    DDB.Visibility();
+    if (DDB.BeginStruct(this, "BL", NULL, DDB_RqdPage))
+      {
+      DDB.Long("Count", "", DC_, "", xidBLCount, this, isResult|noFileAtAll);
+      if (DDB.BeginArray(this, "In", NULL, DDB_NoPage))
+        {
+        int j=0;
+        for (int i=0; i<NoFlwIOs(); i++)
+          {
+          if (IOId_Self(i)==IOId_AreaSpillI)
+            {
+            DDB.BeginElement(this, j++);
+            DDB.String("DirectLink",  "", DC_,   "",     xidBLFlange,  i, this, isResult|noFileAtAll|isTag);
+            DDB.String("SrcTag",      "", DC_,   "",     xidBLSrcTag,  i, this, isResult|noFileAtAll|isTag);
+            DDB.Double("Qm",          "", DC_Qm, "kg/s", xidBLFlows, i, this, isResult|noFileAtAll);
+            }
+          }
+        }
+      DDB.EndArray();
+      DDB.Double("Total", "", DC_Qm, "kg/s", xidBLTotal, this, isResult|noFileAtAll);
+      }
+    DDB.EndStruct();
+    }
+
   if (What & BDDAO_BLLinks)
     {
     DDB.Visibility();
@@ -517,8 +543,8 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
             DDB.Double ("",   "Bleeds",       DC_Qm,   "kg/s",  xidBleedsInQm,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Accumulation", DC_Qm,   "kg/s",  xidAccumsInQm,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Depletion",    DC_Qm,   "kg/s",  xidAccumsOutQm,  this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Error",        DC_Qm,   "kg/s",  xidNettInQm,     this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Error.Rel",    DC_Frac, "%",     xidNettInQmRel,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Error",        DC_Qm,   "kg/s",  xidNettInQm,     this, isResult|noFile|noSnap|SmallValue); 
+            DDB.Double ("",   "Error.Rel",    DC_Frac, "%",     xidNettInQmRel,  this, isResult|noFile|noSnap|SmallValue); 
             }
           DDB.EndStruct();
           }
@@ -538,8 +564,8 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
             DDB.Double ("",   "Bleeds",       DC_Pwr,   "kJ/s", xidBleedsInHf,    this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Accumulation", DC_Pwr,   "kJ/s", xidAccumsInHf,    this, isResult|noFile|noSnap);
             DDB.Double ("",   "Depletion",    DC_Pwr,   "kJ/s", xidAccumsOutHf,   this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Error",        DC_Pwr,   "kJ/s", xidNettInHf,      this, isResult|noFile|noSnap);
-            //DDB.Double ("",   "Error.Rel",    DC_Frac,  "%",    xidNettInHfRel,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Error",        DC_Pwr,   "kJ/s", xidNettInHf,      this, isResult|noFile|noSnap|SmallValue);
+            //DDB.Double ("",   "Error.Rel",    DC_Frac,  "%",    xidNettInHfRel,   this, isResult|noFile|noSnap|SmallValue);
             }
           DDB.EndStruct();
           }
@@ -567,8 +593,8 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
             DDB.Double ("",   "Bleeds",       DC_M,     "kg", xidBleedsInQmSum,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Accumulation", DC_M,     "kg", xidAccumsInQmSum,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Depletion",    DC_M,     "kg", xidAccumsOutQmSum,  this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Error",        DC_M,     "kg", xidNettInQmSum,     this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Error.Rel",    DC_Frac,  "%",  xidNettInQmSumRel,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Error",        DC_M,     "kg", xidNettInQmSum,     this, isResult|noFile|noSnap|SmallValue); 
+            DDB.Double ("",   "Error.Rel",    DC_Frac,  "%",  xidNettInQmSumRel,  this, isResult|noFile|noSnap|SmallValue); 
             }
           DDB.EndStruct();
           }
@@ -588,8 +614,8 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
             DDB.Double ("",   "Bleeds",       DC_E,     "kJ", xidBleedsInHfSum,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Accumulation", DC_E,     "kJ", xidAccumsInHfSum,   this, isResult|noFile|noSnap);
             DDB.Double ("",   "Depletion",    DC_E,     "kJ", xidAccumsOutHfSum,  this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Error",        DC_E,     "kJ", xidNettInHfSum,     this, isResult|noFile|noSnap);
-            //DDB.Double ("",   "Error.Rel",    DC_Frac,  "%",  xidNettInHfSumRel,  this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Error",        DC_E,     "kJ", xidNettInHfSum,     this, isResult|noFile|noSnap|SmallValue);
+            //DDB.Double ("",   "Error.Rel",    DC_Frac,  "%",  xidNettInHfSumRel,  this, isResult|noFile|noSnap|SmallValue);
             }
           DDB.EndStruct();
           }
@@ -619,16 +645,15 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
         DDB.EndStruct();
         }
       }
+
+    DDB.Text(" ");
+    DDB.Text("Audit Clipboard options:");
+    DDB.Button("Copy_All",       "", DC_, "", xidIO_CopyAdtAll, this, isParm);
+    DDB.Button("Copy_Mass",      "", DC_, "", xidIO_CopyAdtMass, this, isParm);
+    DDB.Button("Copy_MassTotal", "", DC_, "", xidIO_CopyAdtMassTotal, this, isParm);
+    DDB.Button("Copy_Heat",      "", DC_, "", xidIO_CopyAdtHeat, this, isParm);
+    DDB.Button("Copy_HeatTotal", "", DC_, "", xidIO_CopyAdtHeatTotal, this, isParm);
     }
-
-  DDB.Text(" ");
-  DDB.Text("Audit Clipboard options:");
-  DDB.Button("Copy_All",       "", DC_, "", xidIO_CopyAdtAll, this, isParm);
-  DDB.Button("Copy_Mass",      "", DC_, "", xidIO_CopyAdtMass, this, isParm);
-  DDB.Button("Copy_MassTotal", "", DC_, "", xidIO_CopyAdtMassTotal, this, isParm);
-  DDB.Button("Copy_Heat",      "", DC_, "", xidIO_CopyAdtHeat, this, isParm);
-  DDB.Button("Copy_HeatTotal", "", DC_, "", xidIO_CopyAdtHeatTotal, this, isParm);
-
   DDB.Text("");
   DDB.EndStruct();
   };  
@@ -749,7 +774,7 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
         m_Content.SetPRqdTo(Range(1.0, *DCB.rD, 1.0e10));
       DCB.D=m_Content.PRqd();
       return 1;
-    
+
     case xidMUCount:
       {
       int j=0;
@@ -793,7 +818,8 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
       DCB.pC=Nd_Rmt(DCB.lHandle2)->FullObjTag();
       return 1;
     case xidBLFlows:
-      DCB.D=IOQm_In(DCB.lHandle2);
+      //DCB.D=IOQm_In(DCB.lHandle2);
+      DCB.D=IOConduit(DCB.lHandle2)->QMass();
       return 1;
     case xidBLTotal:
       {
@@ -1137,7 +1163,10 @@ void MN_Area::EvalAudit(int Pass)
     case 0:
       {
       // Dont do this here
-      MdlNode::EvalAudit(Pass);
+      //EvalDirectAccums();
+      //EvalStdNodeAudit();
+
+      //MdlNode::EvalAudit(Pass);
 
       break;
       }  
@@ -1689,7 +1718,7 @@ void MN_Area::SetState(eScdMdlStateActs RqdState)
       break;
     case MSA_DynStatsRunInit:
       break;
-    //case MSA_SteadyState:
+      //case MSA_SteadyState:
       }
     }
   }

@@ -713,12 +713,14 @@ void MN_Xfer::EvalAudit(int Pass)
     case 0:
       m_QFeed().IntegrateAccums(1);
       m_QProd().IntegrateAccums(1);
+      EvalDirectAccums();
+      EvalStdNodeAudit();
       break;
     case 1:
       break;
     }       
 
-  MdlNode::EvalAudit(Pass);
+  //MdlNode::EvalAudit(Pass);
   }
 
 //--------------------------------------------------------------------------

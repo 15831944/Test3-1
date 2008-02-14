@@ -1401,12 +1401,16 @@ void MN_SrcSnk::EvalAudit(int Pass)
     {
     case 0:
       Flows.IntegrateAccums(1);
+      EvalDirectAccums();
+      EvalStdNodeAudit();
       break;
     case 1:
       break;
     }       
 
-  MdlNode::EvalAudit(Pass);
+
+
+  //MdlNode::EvalAudit(Pass);
   }
 
 // --------------------------------------------------------------------------

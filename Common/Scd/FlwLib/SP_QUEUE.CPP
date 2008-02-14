@@ -140,7 +140,7 @@ void SpQSection::SetMakeup(SpQueue * pQ, double Frac, double QmRqd, SpConduit * 
 void SpQSection::Load(SpQueue * pQ, double Frac, SpConduit * pFeed, CDirectFlwIO *pSpill, CDirectFlwIO *pVent)
   {
   double MaxAmtInSct = fabs(Frac*pQ->m_dMaxSpillLoading*pQ->m_dTimeSlice*pQ->m_dSpeed);
-  double AmtInSct    = m_pMdl->Mass(som_ALL);
+  double AmtInSct    = m_pMdl->Mass(som_SL);
   double MaxAmtToAdd = GTZ(MaxAmtInSct-AmtInSct);
   double RqdAmtToAdd = Frac * pFeed->QMass(som_SL) * pQ->m_dTimeSlice;
   double AmtToAdd    = Min(RqdAmtToAdd, MaxAmtToAdd);
@@ -154,25 +154,25 @@ void SpQSection::Load(SpQueue * pQ, double Frac, SpConduit * pFeed, CDirectFlwIO
   if (AmtToSpill>1.0e-6)
     {
     //pSpill->AddMass2Target(*pFeed, QmToSpill, pQ->m_dTimeSlice);
-    pSpill->Cd.QAddM(*pFeed, som_ALL, QmToSpill);
     if (pQ->m_bSumLosses)
       {
+      pSpill->Cd.QAddM(*pFeed, som_SL, QmToSpill);
       pQ->m_dTotSpiltM+=AmtToSpill;
-      pQ->m_dTotSpiltHf+=AmtToSpill*pFeed->msHf();
-      pQ->m_dTotSpiltHs+=AmtToSpill*pFeed->msHs();
-      pQ->m_dTotSpiltHz+=AmtToSpill*pFeed->msHz();
+      pQ->m_dTotSpiltHf+=AmtToSpill*pFeed->msHf(som_SL);
+      pQ->m_dTotSpiltHs+=AmtToSpill*pFeed->msHs(som_SL);
+      pQ->m_dTotSpiltHz+=AmtToSpill*pFeed->msHz(som_SL);
       }
     }
   if (AmtToVent>1.0e-6)
     {
     //pSpill->AddMass2Target(*pFeed, QmToSpill, pQ->m_dTimeSlice);
-    pVent->Cd.QAddM(*pFeed, som_Gas, QmToVent);
     if (pQ->m_bSumLosses)
       {
+      pVent->Cd.QAddM(*pFeed, som_Gas, QmToVent);
       pQ->m_dTotVentedM+=AmtToVent;
-      pQ->m_dTotVentedHf+=AmtToVent*pFeed->msHf();
-      pQ->m_dTotVentedHs+=AmtToVent*pFeed->msHs();
-      pQ->m_dTotVentedHz+=AmtToVent*pFeed->msHz();
+      pQ->m_dTotVentedHf+=AmtToVent*pFeed->msHf(som_Gas);
+      pQ->m_dTotVentedHs+=AmtToVent*pFeed->msHs(som_Gas);
+      pQ->m_dTotVentedHz+=AmtToVent*pFeed->msHz(som_Gas);
       }
     }
 

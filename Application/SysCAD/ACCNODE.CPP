@@ -197,7 +197,7 @@ void AccNdData::Init()
   fHasNANOK       = false;
   fHasNANStr      = false;
 #if WITHSPECSHEETS
-//ss  fIsSpecSheet    = false;
+  //ss  fIsSpecSheet    = false;
 #endif
   ObjOn           = false;
   fPageOn         = false;
@@ -295,17 +295,17 @@ void AccNdData::AdjTextValue(char * NewCnv, bool SaveOld)
 
 void AccNdFld::Init()
   {
- 	pData=NULL;
-	iData=0;
-	iType=0;
+  pData=NULL;
+  iData=0;
+  iType=0;
   sTagText="";
-	iLvl=0;
-	fIsData=false;
-	fIsTreeNd=false;
-	fIsTreeVis=false;
-	fUseComment=false;
-	fPadDash=false;
-	iUseComment=0;
+  iLvl=0;
+  fIsData=false;
+  fIsTreeNd=false;
+  fIsTreeVis=false;
+  fUseComment=false;
+  fPadDash=false;
+  iUseComment=0;
   ValFld=NULL;
   };
 
@@ -326,6 +326,7 @@ const int MaxTagCmds=200; // NBNB See separ in resource.h
 
 FmtAttribute AccNodeWnd::sm_FixedFmt;
 FmtAttribute AccNodeWnd::sm_FloatFmt;
+FmtAttribute AccNodeWnd::GlblEFmt;
 
 IMPLEMENT_DYNCREATE(AccNodeWnd, FxdEdtView)
 
@@ -355,6 +356,7 @@ AccNodeWnd::AccNodeWnd()
   //GlblFmt.Set("f5", 0, 5, 'f');
   sm_FixedFmt.Set("f2", 0, 2, 'f');
   sm_FloatFmt.Set("e2", 0, 2, 'e');
+  GlblEFmt.Set("e2", 0, 2, 'e');
 
   m_hTTWnd=NULL;                 // handle to the ToolTip control
   m_bTTVisible=false;
@@ -421,7 +423,7 @@ BEGIN_MESSAGE_MAP(AccNodeWnd, FxdEdtView)
   ON_MESSAGE(WMU_ACCREFRESHCANCEL, OnAccRefreshCancel)
   ON_NOTIFY_EX_RANGE(TTN_GETDISPINFO, 0, 0xFFFF, OnToolTipNotify)
 END_MESSAGE_MAP()
- 
+
 //---------------------------------------------------------------------------
 
 BOOL AccNodeWnd::PreCreateWindow( CREATESTRUCT& cs )
@@ -534,7 +536,7 @@ void AccNodeWnd::OnDrawLine(rGDIBlk GB, int PgNo, int RowNo)
 
         FxdEdtRow & Row = *CRow(EI.PgRowNo);
         FxdEdtFld* Fld = Row.FldFromId(Id_ViewIndex);
-  //      if (Slt && Fld)// && (Slt->bRecorded || Slt->nTrendNo>=0))
+        //      if (Slt && Fld)// && (Slt->bRecorded || Slt->nTrendNo>=0))
 
         int fi=-1;
         for (int f=0; f<Row.NFields; f++)
@@ -544,108 +546,108 @@ void AccNodeWnd::OnDrawLine(rGDIBlk GB, int PgNo, int RowNo)
             break;
             }
 
-        if (Fld)// && (Slt->bRecorded || Slt->nTrendNo>=0))
-          {
-          int y1=Fld->Ys(GB)+1;
-          int x2=Fld->Xs(GB);
-          CDC &DC = GB.DC();
-          CDCResChk ResChk(DC);
-
-          CPen* OldPen = DC.SelectObject(GB.pPenTxtBord);
-          CBrush* OldBrush = NULL;
-          COLORREF OldBk = 0;
-
-          //int Recx = x2+1;//iMarginWidth;
-          //int Recy = y1+4;
-          if (fi>=0 && Flds[fi].pData)
+          if (Fld)// && (Slt->bRecorded || Slt->nTrendNo>=0))
             {
-            COLORREF BackColor=0;
-#if WITHEQUIPSPECS
-            CTagValueStatus Stat=Flds[fi].pData->m_ValStatus;
-            if (Stat & CTOSelectData::VS_Changed)
-              BackColor = GB.crTxtBackRmtChgd;
-            else if (Stat & CTOSelectData::VS_Set)
-              BackColor = GB.crTxtBackRmtData;
-            else
-#endif
-              BackColor = GB.crGrfBack;
+            int y1=Fld->Ys(GB)+1;
+            int x2=Fld->Xs(GB);
+            CDC &DC = GB.DC();
+            CDCResChk ResChk(DC);
 
-            OldBk = DC.SetBkColor(BackColor);
+            CPen* OldPen = DC.SelectObject(GB.pPenTxtBord);
+            CBrush* OldBrush = NULL;
+            COLORREF OldBk = 0;
 
-#if WITHEQUIPSPECS
-            if (Stat & (CTOSelectData::VS_Changed|CTOSelectData::VS_Set))
+            //int Recx = x2+1;//iMarginWidth;
+            //int Recy = y1+4;
+            if (fi>=0 && Flds[fi].pData)
               {
-              CRect TrndR(x2, y1, Fld->Xe(GB), Fld->Ye(GB));
-              CBrush Brush(BackColor);
-              if (OldBrush)
-                DC.SelectObject(&Brush);
+              COLORREF BackColor=0;
+#if WITHEQUIPSPECS
+              CTagValueStatus Stat=Flds[fi].pData->m_ValStatus;
+              if (Stat & CTOSelectData::VS_Changed)
+                BackColor = GB.crTxtBackRmtChgd;
+              else if (Stat & CTOSelectData::VS_Set)
+                BackColor = GB.crTxtBackRmtData;
               else
-                OldBrush = DC.SelectObject(&Brush);
-              DC.Rectangle(TrndR);
-              }
+#endif
+                BackColor = GB.crGrfBack;
+
+              OldBk = DC.SetBkColor(BackColor);
+
+#if WITHEQUIPSPECS
+              if (Stat & (CTOSelectData::VS_Changed|CTOSelectData::VS_Set))
+                {
+                CRect TrndR(x2, y1, Fld->Xe(GB), Fld->Ye(GB));
+                CBrush Brush(BackColor);
+                if (OldBrush)
+                  DC.SelectObject(&Brush);
+                else
+                  OldBrush = DC.SelectObject(&Brush);
+                DC.Rectangle(TrndR);
+                }
 #endif
 
-            if (fAllFldsVis)
-              {
-              if (!Flds[fi].fIsTreeVis)
+              if (fAllFldsVis)
                 {
+                if (!Flds[fi].fIsTreeVis)
+                  {
+                  CDC memdc;
+                  memdc.CreateCompatibleDC(&DC);
+                  CDCResChk ResChk(memdc);
+                  CBitmap* poldbmp = memdc.SelectObject(&HiddenBitmap);
+                  DC.BitBlt(x2, y1+1, 8,8, &memdc, 0, 0, SRCCOPY);
+                  memdc.SelectObject(poldbmp);
+                  }
+                x2 += 9;
+                }
+              if (Flds[fi].pData->iViewIndex>=0)
+                {                                               
                 CDC memdc;
                 memdc.CreateCompatibleDC(&DC);
                 CDCResChk ResChk(memdc);
-                CBitmap* poldbmp = memdc.SelectObject(&HiddenBitmap);
-                DC.BitBlt(x2, y1+1, 8,8, &memdc, 0, 0, SRCCOPY);
+                CBitmap* poldbmp = memdc.SelectObject(&ViewVarBitmap);
+                DC.BitBlt(x2, y1, 6,6, &memdc, 0, 0, SRCCOPY);
                 memdc.SelectObject(poldbmp);
                 }
-              x2 += 9;
-              }
-            if (Flds[fi].pData->iViewIndex>=0)
-              {                                               
-              CDC memdc;
-              memdc.CreateCompatibleDC(&DC);
-              CDCResChk ResChk(memdc);
-              CBitmap* poldbmp = memdc.SelectObject(&ViewVarBitmap);
-              DC.BitBlt(x2, y1, 6,6, &memdc, 0, 0, SRCCOPY);
-              memdc.SelectObject(poldbmp);
-              }
-            x2 += 8;
-            if (Flds[fi].pData->fRecorded && Flds[fi].pData->fArchived)
-              {
-              x2+=0;
-              y1+=2;
-              }
-            else
-              {
-              x2+=2;
-              y1+=4;
-              }
-            if (Flds[fi].pData->fRecorded)
-              {
-              CRect TrndR(x2, y1, x2+7, y1+7);
-              CBrush Brush(RGB(255, 255, 0));
-              if (OldBrush)
-                DC.SelectObject(&Brush);
+              x2 += 8;
+              if (Flds[fi].pData->fRecorded && Flds[fi].pData->fArchived)
+                {
+                x2+=0;
+                y1+=2;
+                }
               else
-                OldBrush = DC.SelectObject(&Brush);
-              DC.Ellipse(TrndR);
-              y1+=4;
-              x2+=4;
+                {
+                x2+=2;
+                y1+=4;
+                }
+              if (Flds[fi].pData->fRecorded)
+                {
+                CRect TrndR(x2, y1, x2+7, y1+7);
+                CBrush Brush(RGB(255, 255, 0));
+                if (OldBrush)
+                  DC.SelectObject(&Brush);
+                else
+                  OldBrush = DC.SelectObject(&Brush);
+                DC.Ellipse(TrndR);
+                y1+=4;
+                x2+=4;
+                }
+              if (Flds[fi].pData->fArchived)
+                {
+                CRect TrndR(x2, y1, x2+7, y1+7);
+                CBrush Brush(RGB(0, 255, 255));
+                if (OldBrush)
+                  DC.SelectObject(&Brush);
+                else
+                  OldBrush = DC.SelectObject(&Brush);
+                DC.Ellipse(TrndR);
+                }
               }
-            if (Flds[fi].pData->fArchived)
-              {
-              CRect TrndR(x2, y1, x2+7, y1+7);
-              CBrush Brush(RGB(0, 255, 255));
-              if (OldBrush)
-                DC.SelectObject(&Brush);
-              else
-                OldBrush = DC.SelectObject(&Brush);
-              DC.Ellipse(TrndR);
-              }
+            DC.SelectObject(OldPen);
+            if (OldBrush)
+              DC.SelectObject(OldBrush);
+            DC.SetBkColor(OldBk);
             }
-          DC.SelectObject(OldPen);
-          if (OldBrush)
-            DC.SelectObject(OldBrush);
-          DC.SetBkColor(OldBk);
-          }
         }
       }
     }
@@ -696,10 +698,10 @@ flag AccNodeWnd::LoadAccessData()
     Data[i].Init();
     }
 
-  #if WITHSPECSHEETS
+#if WITHSPECSHEETS
   //ss  sSpecSheet="Standard";
   //ss  iSpecSheet=-1;
-  #endif
+#endif
 
   CXM_ObjectData ObjData(0);
   flag Ok = false;
@@ -719,7 +721,7 @@ flag AccNodeWnd::LoadAccessData()
       }
     WndTitle.Set("Loading - %s", TryNdTag());
     m_pMyFrm->SetWindowText(WndTitle());
-    
+
     TABOptions ForXtra=0;//(fAllFldsVis?TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario:0);
     CXM_ObjectTag ObjTag(TryNdTag(), TABOPT_ValueStatus|ForXtra|TABOpt_AllInfo|TABOpt_ForView|TABOpt_XRefStatus);
     ObjData.Clear();
@@ -730,15 +732,15 @@ flag AccNodeWnd::LoadAccessData()
       break;
     }
 
-    //LogNote("Acc", 0, "XRead %s", SW.MinSecHunDesc(sSWTmp));
+  //LogNote("Acc", 0, "XRead %s", SW.MinSecHunDesc(sSWTmp));
   if (Ok)
     {
     m_NdTag=TryNdTag;
     fLastSaveInvalid=0;
-    #if dbgDumpObject
+#if dbgDumpObject
     ObjRoute.dbgDump("Access : Load");
     ObjData.List.dbgDump(1, "Access : Load");
-    #endif
+#endif
     int iNo=0;
     int ObjLvl=0;
     int iStructLvl=0;
@@ -751,7 +753,7 @@ flag AccNodeWnd::LoadAccessData()
     CPkDataIter Iter;
     int ReportedMaxFieldsError = 0;
     flag FirstPage=1;
-        
+
     //AccNdData * pPrevD = NULL;
     int iRowStartData=-1;
     //AccNdData * pPrevD = NULL;
@@ -813,7 +815,7 @@ flag AccNodeWnd::LoadAccessData()
         d.fHasCheck    = ((d.iFlags & DDEF_CHECKBOX)!=0);
         d.fHasButton   = ((d.iFlags & DDEF_BUTTON)!=0);
         d.fHasSetOnChange = ((d.iFlags & DDEF_SETONCHANGE)!=0);
-        
+
         d.m_iChildLvl   = (d.iFlags & DDEF_CHILDMASK) >> DDEF_CHILDSHIFT;
         d.m_fNxtIsChild = 0;
 
@@ -864,7 +866,7 @@ flag AccNodeWnd::LoadAccessData()
         //else
         d.m_Cnv.SetText(pPItem->CnvTxt());
         d.sIndividualCnv = d.m_Cnv.Text();
- 
+
         if (IsFloatData(d.iType))
           {
           //int Width    = (int)DDEF_WIDTH(d.iFlags);
@@ -883,15 +885,15 @@ flag AccNodeWnd::LoadAccessData()
         d.AdjTextValue(NULL, false);
 
 #if WITHSPECSHEETS
-//ss        d.fIsSpecSheet=0;
-//ss        if (IsLayout(d.iType))
-//ss          d.sSymOrTag = d.sValue();
-//ss        else if (d.sSymOrTag.XStrICmp("SpecSheet")==0)
-//ss          {
-//ss          d.fIsSpecSheet=1;
-//ss          sSpecSheet=d.sValue();
-//ss          iSpecSheet=iNo;
-//ss          }
+        //ss        d.fIsSpecSheet=0;
+        //ss        if (IsLayout(d.iType))
+        //ss          d.sSymOrTag = d.sValue();
+        //ss        else if (d.sSymOrTag.XStrICmp("SpecSheet")==0)
+        //ss          {
+        //ss          d.fIsSpecSheet=1;
+        //ss          sSpecSheet=d.sValue();
+        //ss          iSpecSheet=iNo;
+        //ss          }
 #else
         if (IsLayout(d.iType))
           d.sSymOrTag = d.sValue();
@@ -1064,7 +1066,7 @@ flag AccNodeWnd::LoadAccessData()
 
       d.fIsStrng=IsStrng(d.iType) || (!d.fHasNANStr && (d.ValLst.Length()>0) && !d.fHasButton);
 #if WITHSPECSHEETS
-//ss      d.fIsParam=(((d.iFlags & DDEF_PARAM)!=0) && !d.fIsSpecSheet);
+      //ss      d.fIsParam=(((d.iFlags & DDEF_PARAM)!=0) && !d.fIsSpecSheet);
 #else
       d.fIsParam=((d.iFlags & DDEF_PARAM)!=0);
 #endif
@@ -1142,26 +1144,26 @@ flag AccNodeWnd::LoadAccessData()
           }
 
 #pragma chNOTE("NBNB Implement faster method to check for tags in historian and/or archiver!!!")
-      if (HistInfoVis && IsNumData(d.iType))
-        {// NBNB Very Slow
-        CXM_HistoryExists *xb=new CXM_HistoryExists (0, d.sFullTag());
-        CXMsgLst XM;
-        XM.PackMsg(xb);
-        DWORD RetCode = XSendMessage(XM, HRoute);
-        d.fRecorded = ((RetCode & RC_SM_HistRecOn)!=0);
-        }
-      if (ArcInfoVis && IsNumData(d.iType))
-        {// NBNB Very Slow
-        CXM_ArchiveExists *xb=new CXM_ArchiveExists (d.sFullTag());
-        CXMsgLst XM;
-        XM.PackMsg(xb);
-        DWORD RetCode = XSendMessage(XM, ARoute);
-        d.fArchived = ((RetCode & RC_SM_ArcExists)!=0);
-        }
+        if (HistInfoVis && IsNumData(d.iType))
+          {// NBNB Very Slow
+          CXM_HistoryExists *xb=new CXM_HistoryExists (0, d.sFullTag());
+          CXMsgLst XM;
+          XM.PackMsg(xb);
+          DWORD RetCode = XSendMessage(XM, HRoute);
+          d.fRecorded = ((RetCode & RC_SM_HistRecOn)!=0);
+          }
+        if (ArcInfoVis && IsNumData(d.iType))
+          {// NBNB Very Slow
+          CXM_ArchiveExists *xb=new CXM_ArchiveExists (d.sFullTag());
+          CXMsgLst XM;
+          XM.PackMsg(xb);
+          DWORD RetCode = XSendMessage(XM, ARoute);
+          d.fArchived = ((RetCode & RC_SM_ArcExists)!=0);
+          }
 
       }
 #if WITHSPECSHEETS
-//ss    SSLoad(sSpecSheet());
+    //ss    SSLoad(sSpecSheet());
 #else
     for (int i=0; i<NData; i++)
       Data[i].fUsed=false;
@@ -1187,7 +1189,7 @@ flag AccNodeWnd::LoadAccessData()
     ConnectFields();
     }
 
-//dbgpln("AccNodeWnd::LoadAccessData <<");
+  //dbgpln("AccNodeWnd::LoadAccessData <<");
   return true;
   }
 
@@ -1239,7 +1241,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
           ObjData.List.SetStructureE(/*pPItem,*/ f.iType, f.sSymOrTag());
           }
 #if WITHSPECSHEETS
-//ss        else if (f.fIsData && (f.fIsParam || f.fIsSpecSheet))
+        //ss        else if (f.fIsData && (f.fIsParam || f.fIsSpecSheet))
 #else
         else if (f.fIsData)
 #endif
@@ -1289,10 +1291,10 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
 
     if (DoWrite)
       {
-      #if dbgDumpObject
+#if dbgDumpObject
       ObjRoute.dbgDump("Access : Save");
       ObjData.List.dbgDump(1, "Access : Save");
-      #endif
+#endif
 
       //XOpenTransaction();
       //ObjRoute.SetAtStart();
@@ -1308,7 +1310,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
           break;
         case TOData_OK:
           OK=1;
-//??      gs_Exec.m_Seq.NoteManSet(CExecSequence::VSS_Access, WrkTag(), DU);
+          //??      gs_Exec.m_Seq.NoteManSet(CExecSequence::VSS_Access, WrkTag(), DU);
           break;
         }
       if (gs_pTheSFELib)
@@ -1328,7 +1330,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
   for (int fi=0; fi<NData; fi++)
     {
 #if WITHSPECSHEETS
-//ss    if (Data[fi].fIsData && (Data[fi].fIsParam || Data[fi].fIsSpecSheet))
+    //ss    if (Data[fi].fIsData && (Data[fi].fIsParam || Data[fi].fIsSpecSheet))
 #else
     if (Data[fi].fIsData && Data[fi].fIsParam)
 #endif
@@ -1346,17 +1348,17 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
 
   for (int i=0; i < MaxFixedPages; i++)
     if (Pg[i])
-       {
-       delete Pg[i];
-       Pg[i]=NULL;
-       }
+      {
+      delete Pg[i];
+      Pg[i]=NULL;
+      }
 
-  Pages=0;
-  int PrvPgNo=CPgNo;
-  CPgNo=-1;
-  CPg=NULL;
+    Pages=0;
+    int PrvPgNo=CPgNo;
+    CPgNo=-1;
+    CPg=NULL;
 
-  return OK;
+    return OK;
   }
 
 //---------------------------------------------------------------------------
@@ -2346,6 +2348,11 @@ void AccNodeWnd::ConnectFields()
                 NewCnvs.SetText(""); //don't adjust
               d.AdjTextValue(NewCnvs.Text(), false);
               }
+            else if (d.iFlags&DDEF_SMALLVALUE)
+              {
+              d.m_Fmt=GlblEFmt;
+              d.FormatFloat();
+              }
             }
           else if (IsFloatData(f.iType))
             {
@@ -2357,7 +2364,7 @@ void AccNodeWnd::ConnectFields()
       }
     }
 
-  #if dbgANW
+#if dbgANW
   for (int ii=0; ii<NData; ii++)
     {
     AccNdData &f=Data[ii];
@@ -2366,11 +2373,11 @@ void AccNodeWnd::ConnectFields()
     T2.Set("%3i", f.iStrtFld);
     T3.Set(f.sTagComment.IsNotEmpty() ? "(%s)" : " ", f.sTagComment());
     dbgpln("ANW %3i %3.3s %3.3s %2i %2i  %-25s(%2i:%-8s) %-30s= %s", ii,
-           (f.iEndFld>0) ? T1():"", (f.iStrtFld>0) ? T2():"",
-           f.iType, f.iLvl, f.sSymOrTag(),  f.Cnv.Index(), f.Cnv.Text(), T3(),
-           f.sValue.IsNotEmpty() ? f.sValue() : "");
+      (f.iEndFld>0) ? T1():"", (f.iStrtFld>0) ? T2():"",
+      f.iType, f.iLvl, f.sSymOrTag(),  f.Cnv.Index(), f.Cnv.Text(), T3(),
+      f.sValue.IsNotEmpty() ? f.sValue() : "");
     }
-  #endif
+#endif
 
   }
 
@@ -2446,7 +2453,7 @@ void AccNodeWnd::ReFreshAttrs()
         f.fIsTreeVis = d.pObjAttr->FieldVisible(Tag(), d.iFlags, f.fIsTreeVis);
     }
   }
-             
+
 //---------------------------------------------------------------------------
 
 int AccNodeWnd::BuildStdPageHeader()
@@ -3150,7 +3157,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
                 Strng Sep;
                 Sep.LPad(ColHdrs[0].m_Gap);
                 SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,Sep());
-                //SetDesc(LnNo, "", -1, NamW+WdtAdj, 3, "");
+              //SetDesc(LnNo, "", -1, NamW+WdtAdj, 3, "");
                 }
               }
             else
@@ -3348,8 +3355,8 @@ void AccNodeWnd::PageChanged(int NewPageNo, flag Initial)
   if (!Initial && ObjClassId.IsNotEmpty())
     {
     //SaveCurrentPageInfo();
-//      CProfINIFile PF(PrjIniFile());
-//    PF.WrInt("AccessPages", ObjClassId(), CPgNo);
+    //      CProfINIFile PF(PrjIniFile());
+    //    PF.WrInt("AccessPages", ObjClassId(), CPgNo);
     }
   }
 
@@ -3472,11 +3479,11 @@ long AccNodeWnd::Parse(FxdEdtInfo &EI, Strng & Str)
         d.sValue=Str;
       else
         switch(d.iType)
-          {
+        {
           case tt_pChar     : d.sValue=Str; break;
           case tt_ppChar    : d.sValue=Str; break;
           case tt_Strng     : d.sValue=Str; break;
-          //case tt_ppChar    : Flds[f].sValue=Str; break;
+            //case tt_ppChar    : Flds[f].sValue=Str; break;
           case tt_Object    : break;
           case tt_Struct    : break;
           case tt_Element   : break;
@@ -3515,7 +3522,7 @@ long AccNodeWnd::Parse(FxdEdtInfo &EI, Strng & Str)
                 }
               }
             break;
-          }
+        }
       d.fIsModified=1;
       if (d.fHasSetOnChange)
         {
@@ -3558,7 +3565,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         CRequestModelIOInfoRec IOInfo;
         for (int i=0; gs_pTheSFELib->RequestModelIOConn(m_NdTag(), i, ConnInfo); i++)
           if (!ConnInfo.fIsDirectConnect && ((ConnInfo.iDirn<0 && (EI.FieldId==Id_Next)) ||
-                                           (ConnInfo.iDirn>0 && (EI.FieldId==Id_Prev))))
+            (ConnInfo.iDirn>0 && (EI.FieldId==Id_Prev))))
             {
             if (gs_pTheSFELib->RequestModelIOInfoById(m_NdTag(), ConnInfo.iId, IOInfo))
               Tg.Set("%s : %s", IOInfo.Name(), ConnInfo.Tag());
@@ -3567,39 +3574,39 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
             DescTags.AddStrng(Tg());
             Tags.AddStrng(ConnInfo.Tag());
             }
-        if (Tags.GetSize()>0)
-          {
-          int iIO=0;
-          if (Tags.GetSize()>1)
+          if (Tags.GetSize()>0)
             {
-            CMenu Menu;
-            Menu.CreatePopupMenu();
+            int iIO=0;
+            if (Tags.GetSize()>1)
+              {
+              CMenu Menu;
+              Menu.CreatePopupMenu();
 
-            for (int i=0; i<Tags.GetSize(); i++)
-              Menu.AppendMenu(MF_STRING, IDM_DSTIO_0+i,  DescTags[i]());
+              for (int i=0; i<Tags.GetSize(); i++)
+                Menu.AppendMenu(MF_STRING, IDM_DSTIO_0+i,  DescTags[i]());
 
-            POINT ScreenPoint = {(int)EI.Fld->Xe(ScrGB), (int)EI.Fld->Ye(ScrGB)};// = point;
-            ClientToScreen(&ScreenPoint);
-            CRect ClickRect(0,0,2048,2048);
-            int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_LEFTBUTTON|TPM_RETURNCMD, 
-              ScreenPoint.x, ScreenPoint.y, this, &ClickRect);
-            if (RetCd)
-              iIO=RetCd-IDM_DSTIO_0;
-            else
-              iIO=-1;
-            Menu.DestroyMenu();
+              POINT ScreenPoint = {(int)EI.Fld->Xe(ScrGB), (int)EI.Fld->Ye(ScrGB)};// = point;
+              ClientToScreen(&ScreenPoint);
+              CRect ClickRect(0,0,2048,2048);
+              int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_LEFTBUTTON|TPM_RETURNCMD, 
+                ScreenPoint.x, ScreenPoint.y, this, &ClickRect);
+              if (RetCd)
+                iIO=RetCd-IDM_DSTIO_0;
+              else
+                iIO=-1;
+              Menu.DestroyMenu();
+              }
+            if (iIO>=0)
+              {
+              char* pTxt=new char[Tags[iIO].Length()+1];
+              strcpy(pTxt, Tags[iIO]());
+              ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG|SUB_TAG_KWIK, (LPARAM)pTxt);
+              DidPost = true;
+              }
             }
-          if (iIO>=0)
-            {
-            char* pTxt=new char[Tags[iIO].Length()+1];
-            strcpy(pTxt, Tags[iIO]());
-            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG|SUB_TAG_KWIK, (LPARAM)pTxt);
-            DidPost = true;
-            }
-          }
-        if (!DidPost)
-          ShowDefWndTitle();
-        break;
+          if (!DidPost)
+            ShowDefWndTitle();
+          break;
         }
       case Id_GoToPrevBtn: //access most recent/previous in history
         if (m_NdHistList.GetSize()>1)
@@ -3678,12 +3685,12 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         OnFilePrint();
         break;
 #if WITHSPECSHEETS
-//ss      case Id_SpecShtBtn:
-//ss        {
-//ss        CSpecSheet SpecSheet;
-//ss        SpecSheet.DoModal();
-//ss        break;
-//ss        }
+        //ss      case Id_SpecShtBtn:
+        //ss        {
+        //ss        CSpecSheet SpecSheet;
+        //ss        SpecSheet.DoModal();
+        //ss        break;
+        //ss        }
 #endif
       case Id_Options:
         {
@@ -3692,7 +3699,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         GetWindowRect(&WRect);
         CRect CRect;
         GetClientRect(&CRect);
-  
+
         //RBPoint.x = WRect.left+CRect.left+ScrGB.ColWdt()*EI.Fld->Col1;
         //RBPoint.y = WRect.top+CRect.top+ScrGB.RowHgt()*(EI.Fld->pRow->RowNo+TabIndexRows+2);
         RBPoint.x = WRect.left+CRect.left+EI.Fld->Xs(ScrGB);
@@ -3719,7 +3726,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         Menu.AppendMenu(MF_POPUP, (unsigned int)FormatMenu2.m_hMenu, "Global Default Format");
         Menu.AppendMenu(MF_SEPARATOR);
 #if WITHSPECSHEETS
-//ss        Menu.AppendMenu(MF_STRING, IDM_ACC_SPECSHEET,   "&Spec Sheet ...");
+        //ss        Menu.AppendMenu(MF_STRING, IDM_ACC_SPECSHEET,   "&Spec Sheet ...");
 #endif
         Menu.AppendMenu(MF_STRING, IDM_ACC_MDLHELP,       "Model Help");
         Menu.AppendMenu(MF_STRING, IDM_ACC_PRINT,         "&Print ...");
@@ -3736,7 +3743,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         Menu.AppendMenu(MF_STRING|(DefNetDynamicMode()?0:MF_GRAYED), IDM_ACC_PRESETNODE, "P&reset");
         Menu.AppendMenu(MF_STRING/*|(TaggedObject::NetDynamicMethod()?0:MF_GRAYED)*/, IDM_ACC_RESETSTATSNODE, "Reset &Stats");
         //Menu.AppendMenu(MF_STRING, IDM_ACC_PASTEBLK_0,  "Paste &Block ...");
-        
+
         //Menu.AppendMenu(MF_POPUP, (unsigned int)CopyMenu.m_hMenu, "&Copy Block");
         //Menu.AppendMenu(MF_POPUP, (unsigned int)PasteMenu.m_hMenu, "&Paste Block");
 
@@ -3837,7 +3844,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
                 HasTag = 0;
                 }
               }
-            
+
             if (HasTag)
               {
               char* pTxt = NULL;
@@ -3976,7 +3983,7 @@ flag AccNodeWnd::RefreshData(flag SaveIt)
       Invalidate();
       }
 
-  return true;
+    return true;
   }
 
 //---------------------------------------------------------------------------
@@ -3999,10 +4006,10 @@ flag AccNodeWnd::AnyFldsOrDataChanged()
   {
   if (AnyFldsChanged())
     return true;
-  
+
   for (int fi=0; fi<NData; fi++)
 #if WITHSPECSHEETS
-//ss    if (Data[fi].fIsData && (Data[fi].fIsParam || Data[fi].fIsSpecSheet) && Data[fi].fIsModified)
+    //ss    if (Data[fi].fIsData && (Data[fi].fIsParam || Data[fi].fIsSpecSheet) && Data[fi].fIsModified)
 #else
     if (Data[fi].fIsData && Data[fi].fIsParam && Data[fi].fIsModified)
 #endif
@@ -4125,15 +4132,15 @@ void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred, bool UpdateHist
       m_NdHistList.InsertAt(0, m_NdTag);
       if (m_NdHistList.GetSize()>MaxNdHistListSize)
         m_NdHistList.SetSize(MaxNdHistListSize);
-      
+
       m_iNdHistPos=0;
       //m_iNdHistPos=Range(0, m_iNdHistPos-1, m_NdHistList.GetSize()-1);
       }
     fKeepNdHist=0;
 
-    #if dbgDataReadWrite
+#if dbgDataReadWrite
     dbgpln("Get Data From %s", m_NdTag());
-    #endif
+#endif
 
     LoadAccessData();
     if (NData<=0)
@@ -4384,7 +4391,7 @@ void AccNodeWnd::OnAccFmt(UINT Id)
     AccNdFld & f=Flds[RBActiveFld];
     if (f.HasData())
       {
-//      AccNdData &d=f();
+      //      AccNdData &d=f();
       if (i<(UINT)DefinedFmts.GetSize())
         {
         for (pFxdEdtFld pFld=FirstSlctFld(); pFld; pFld=NextSlctFld())
@@ -4426,9 +4433,9 @@ void AccNodeWnd::OnAccShow(UINT Id)
     if (pFld->FieldId!=0 && fi<MaxAccNdFlds)
       {
       rAccNdFld f=Flds[fi];
-    //if (RBActiveFld >=0 && RBActiveFld < NFlds)
-    //  {
-    //  rAccNdFld f=Flds[RBActiveFld];
+      //if (RBActiveFld >=0 && RBActiveFld < NFlds)
+      //  {
+      //  rAccNdFld f=Flds[RBActiveFld];
       if (f.HasData())
         {
         AccNdData &d=f();
@@ -4574,22 +4581,22 @@ void AccNodeWnd::OnAccOptions(UINT Id)
       break;
 #if WITHDOCUMENTATIONLINK
     case IDM_ACC_DOCUMENT:
-//MSWORD        ?
+      //MSWORD        ?
       //gs_pPrj->Document(m_NdTag());
       break;
 #endif
 #if WITHSPECSHEETS
-//ss    case IDM_ACC_SPECSHEET:
-//ss      {
-//ss      CSpecSheet SpecSheet;
-//ss      SpecSheet.DoModal();
-//ss      }
-//ss      break;
+      //ss    case IDM_ACC_SPECSHEET:
+      //ss      {
+      //ss      CSpecSheet SpecSheet;
+      //ss      SpecSheet.DoModal();
+      //ss      }
+      //ss      break;
 #endif
     case IDM_ACC_DISPLAYTAGS:
       SetDisplayTagsOnly(!GetDisplayTagsOnly());
 #if WITHSPECSHEETS
-//ss      LoadSpecSheet(sSpecSheet());
+      //ss      LoadSpecSheet(sSpecSheet());
 #endif
       if (CloseAccessData(true, false, false))
         {
@@ -4604,7 +4611,7 @@ void AccNodeWnd::OnAccOptions(UINT Id)
     case IDM_ACC_HIDEIFZERO:
       SetHideZeros(!GetHideZeros());
 #if WITHSPECSHEETS
-//ss      LoadSpecSheet(sSpecSheet());
+      //ss      LoadSpecSheet(sSpecSheet());
 #endif
       if (CloseAccessData(true, false, false))
         {
@@ -4692,7 +4699,7 @@ void AccNodeWnd::OnAccOptions(UINT Id)
       break;
     default:;
     }
-  
+
   // FOrce Redraw with rebuild if neccessary ...
   if (RebuildReqd || ReloadReqd)
     {
@@ -4702,7 +4709,7 @@ void AccNodeWnd::OnAccOptions(UINT Id)
     Invalidate();
     //FixScrollSizes();
     }
-//  RedrawWindow();
+  //  RedrawWindow();
   }
 
 //---------------------------------------------------------------------------
@@ -4738,7 +4745,7 @@ void AccNodeWnd::OnAccEmptyPreset(UINT Id)
     {
     case IDM_ACC_PBINITNODE:
       SL.Append(m_NdTag());
-    //case IDM_ACC_PBINITALL:
+      //case IDM_ACC_PBINITALL:
       Op=MSA_PBInit;
       break;
     case IDM_ACC_EMPTYNODE:
@@ -4758,7 +4765,7 @@ void AccNodeWnd::OnAccEmptyPreset(UINT Id)
       break;
     case IDM_ACC_RESETSTATSNODE:
       SL.Append(m_NdTag());
-    //case IDM_ACC_RESETSTATSALL:
+      //case IDM_ACC_RESETSTATSALL:
       Op=MSA_DynStatsRunInit;
       break;
     }
@@ -4825,14 +4832,14 @@ void AccNodeWnd::OnAccMenu(UINT id)
       if (sLastSelFullTag[Index].GetLength()>0)
         CopyTextToClipboard(this, (LPSTR)(LPCSTR)sLastSelFullTag[Index]);
       break;
-    /*case ID_EDIT_RHSCOPYTAG:
+      /*case ID_EDIT_RHSCOPYTAG:
       if (sLastSelFullTag.GetLength()>0)
-        {
-        if (sLastSelFullTag.Find('.')>0)
-          CopyTextToClipboard(this, sLastSelFullTag.Mid(sLastSelFullTag.Find('.')+1, 256)());
-        else
-          CopyTextToClipboard(this, sLastSelFullTag());
-        }
+      {
+      if (sLastSelFullTag.Find('.')>0)
+      CopyTextToClipboard(this, sLastSelFullTag.Mid(sLastSelFullTag.Find('.')+1, 256)());
+      else
+      CopyTextToClipboard(this, sLastSelFullTag());
+      }
       break;*/
     default:
       {
@@ -4848,7 +4855,7 @@ void AccNodeWnd::OnAccMenu(UINT id)
 
 afx_msg LONG AccNodeWnd::OnAccRefreshSave(UINT wParam, LONG lParam)
   {
-////TODO RESTORE
+  ////TODO RESTORE
   RefreshData(true);
   return 0;
   }
@@ -4857,7 +4864,7 @@ afx_msg LONG AccNodeWnd::OnAccRefreshSave(UINT wParam, LONG lParam)
 
 afx_msg LONG AccNodeWnd::OnAccRefreshCancel(UINT wParam, LONG lParam)
   {
-////TODO RESTORE
+  ////TODO RESTORE
   RefreshData(false);
   return 0;
   }
@@ -4971,13 +4978,13 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
         CMenu CnvMenu;
         CnvMenu.CreatePopupMenu();
         d.m_Cnv.AddToMenu(CnvMenu, true);
-        
+
         Strng ClassNV(GetClassIdNoVersion(ObjClassId()));
 
         Strng S1(ClassNV),S2(ClassNV);
         S1+="'s On";
         S2+="'s Off";
-        
+
         CMenu RecMenu;
         RecMenu.CreatePopupMenu();
         RecMenu.AppendMenu(MF_STRING, IDM_ACC_HISTORY_ON, "On");
@@ -5005,15 +5012,15 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
           {
           Menu.AppendMenu(MF_STRING, IDM_ACC_TREND0, "Send To &Trend\tF5");
           Menu.AppendMenu(MF_STRING, IDM_ACC_VIEW0, "Send To &QuickView\tF6");
-          #if WithSendToCustom
+#if WithSendToCustom
           Menu.AppendMenu(MF_STRING|MF_GRAYED, IDM_ACC_CUSTOM0, "Send To &Custom\tF7");
-          #endif
+#endif
           Menu.AppendMenu(MF_POPUP, (unsigned int)RecMenu.m_hMenu, "&Record in historian");
           Menu.AppendMenu(MF_STRING, IDM_ACC_ARCHIVE0, "Add to Archive");
 
           if (!IsData(d.iType))
             Menu.EnableMenuItem(2, MF_BYPOSITION|MF_GRAYED);
-        
+
           //flag Vis = d.pObjAttr->FieldVisible(Tag(), d.iFlags, true);
           //if (Vis)
           //  {
@@ -5047,7 +5054,7 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
             Menu.EnableMenuItem(ID_EDIT_PASTE, MF_BYCOMMAND|MF_GRAYED);
             Menu.EnableMenuItem(ID_EDIT_PASTE_SPECIAL, MF_BYCOMMAND|MF_GRAYED);
             }
-    
+
           if (d.iFlags & DDEF_TAGPARM)
             {
             if (!IsStrng(d.iType))
@@ -5093,7 +5100,7 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
             if (HasTag && gs_pTheSFELib)
               gs_pTheSFELib->AddAttachedToMenu(Menu, (LPSTR)(LPCSTR)sLastSelected[0]);
             }
-          #if WITHXREFUPDATES
+#if WITHXREFUPDATES
           else if (d.m_Markers)// & FFM_HasSet)
             {
             CXRefInfoArray Refs;
@@ -5151,7 +5158,7 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
               //Menu.AppendMenu(MF_POPUP|(HasConns?0:MF_GRAYED), (unsigned int)CnMenu.m_hMenu, "Connects");
               }
             }
-          #endif
+#endif
           }
 
         //Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON, RBPoint.x, RBPoint.y, this);
@@ -5498,9 +5505,9 @@ flag AccNodeWnd::DoCopyVal(pFxdEdtFld pFld, char *buff, int buffsize)
       XStrTrim(buff);
       AppendCnvText(buff, Data[di].m_Cnv.Text());
 
-//      strcat(buff, " (");
-//      strcat(buff, Data[di].Cnv.Text());
-//      strcat(buff, ")");
+      //      strcat(buff, " (");
+      //      strcat(buff, Data[di].Cnv.Text());
+      //      strcat(buff, ")");
       return true;
       }
     }
@@ -5546,9 +5553,9 @@ void AccNodeWnd::EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)
 
 flag AccNodeWnd::EO_ReadSubsData(CXMsgLst &XM)
   {
-  #if dbgDataReadWrite
+#if dbgDataReadWrite
   dbgpln("AccNodeWnd Read  ============================================================");
-  #endif
+#endif
   flag DataRead=0;
   return DataRead;
   };
@@ -5557,9 +5564,9 @@ flag AccNodeWnd::EO_ReadSubsData(CXMsgLst &XM)
 
 flag AccNodeWnd::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
   {
-  #if dbgDataReadWrite
+#if dbgDataReadWrite
   dbgpln("AccNodeWnd Write ============================================================");
-  #endif
+#endif
   return true;
   };
 
@@ -5610,8 +5617,8 @@ flag AccNodeWnd::EO_Stopping(flag fBeginStopping)
 
 void AccNodeWnd::EO_GlblResultValidity(flag IsValid, flag IsAlwaysValid)
   {
-//  SendMessage(WMU_ACCREFRESHCANCEL);
-//  PostMessage(WMU_ACCREFRESHCANCEL);
+  //  SendMessage(WMU_ACCREFRESHCANCEL);
+  //  PostMessage(WMU_ACCREFRESHCANCEL);
   };
 
 //---------------------------------------------------------------------------
@@ -5709,14 +5716,14 @@ flag AccNodeWnd::BuildDataMessage(long DataIndex, Strng & Tag, Strng & RefTag, S
   for (int di = 0; (di < NData); di++ )
     {
     AccNdData &d=Data[di];
-//    dbgpln("Fld %3i Typ:%-16s S:%i E:%i Lvl:%3i :%s",
-//          di, tt_TypeString(d.iType), d.iStrtFld, d.iEndFld, d.iLvl, d.sSymOrTag());
+    //    dbgpln("Fld %3i Typ:%-16s S:%i E:%i Lvl:%3i :%s",
+    //          di, tt_TypeString(d.iType), d.iStrtFld, d.iEndFld, d.iLvl, d.sSymOrTag());
 
     if (di==DataIndex)
       {
       if (FullFldName(RefTag, Data, di))
         {
-      //RefTag=d.sRefTag;
+        //RefTag=d.sRefTag;
         CXM_ObjectTag ObjTag(d.sFullTag(), TABOpt_AllInfo|TABOpt_ForView);
         CXM_Route ObjRoute;
 
@@ -5832,14 +5839,14 @@ bool CAccessWnds::InitHelp(LPCTSTR Path)
   {
   CString Connect;
   Connect.Format("Provider=%s;Data Source=%s", "Microsoft.Jet.OLEDB.4.0", (LPCTSTR)Path);
-                   // OR Driver={Microsoft Access Driver (*.mdb)};DBQ=physical path to .mdb file
+  // OR Driver={Microsoft Access Driver (*.mdb)};DBQ=physical path to .mdb file
   m_bsConnect=Connect;
   try
     {
     HRESULT hr=m_RS1.CreateInstance(__uuidof(ADODB::Recordset));
     if (SUCCEEDED(hr))
       {
-      
+
       return true;
       }
     else
@@ -5874,7 +5881,7 @@ CString CAccessWnds::GetHelp(LPCTSTR Tag)
     if ( m_RS1->adEOF == VARIANT_FALSE )
       {
       _variant_t v=m_RS1->Fields->Item[ _variant_t("Description")]->Value;
-      
+
       if (v.vt==VT_BSTR)
         {
         Desc=W2CT(v.bstrVal);

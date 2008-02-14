@@ -1273,12 +1273,14 @@ void MN_Surge::EvalAudit(int Pass)
       m_QFeed.IntegrateAccums(1);
       m_QProdSrg.IntegrateAccums(1);
       m_QProdHx.IntegrateAccums(1);
+      EvalDirectAccums();
+      EvalStdNodeAudit();
       break;
     case 1:
       break;
     }       
 
-  MdlNode::EvalAudit(Pass);
+  //MdlNode::EvalAudit(Pass);
   }
 
 //---------------------------------------------------------------------------

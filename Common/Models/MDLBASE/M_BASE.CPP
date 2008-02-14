@@ -4224,8 +4224,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
                 DDB.Double("External",    "",  DC_Qm , "kg/s",    xidIO_ExtQm,           this, isResult|/*isTag|*/noFile|noSnap);
 
-                DDB.Double("Error",       "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap|NAN_OK);
-                DDB.Double("Error.Rel",   "", DC_Frac,  "%",     xidIO_QmBalanceRel,     this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error",       "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap|NAN_OK|SmallValue);
+                DDB.Double("Error.Rel",   "", DC_Frac,  "%",     xidIO_QmBalanceRel,     this, isResult|noFile|noSnap|NAN_OK|SmallValue);
                 }
               DDB.EndStruct();
               }
@@ -4266,8 +4266,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
                 DDB.Double("External",    "", DC_Pwr , "kJ/s",    xidIO_ExtHs,           this, isResult|noFile|noSnap|NAN_OK);
 
-                DDB.Double("Error",       "", DC_Pwr , "kJ/s",    xidIO_HfBalance,       this, isResult|noFile|noSnap|NAN_OK);
-                //DDB.Double("Error.Rel",   "", DC_Frac,  "%",      xidIO_HfBalanceRel,    this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error",       "", DC_Pwr , "kJ/s",    xidIO_HfBalance,       this, isResult|noFile|noSnap|NAN_OK|SmallValue);
+                //DDB.Double("Error.Rel",   "", DC_Frac,  "%",      xidIO_HfBalanceRel,    this, isResult|noFile|noSnap|NAN_OK|SmallValue);
                 }
               DDB.EndStruct();
               }
@@ -4316,8 +4316,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
                 DDB.Double("External",     "",  DC_M , "kg",    xidIO_ExtQmTotal,           this, isResult|/*isTag|*/noFile|noSnap);
 
-                DDB.Double("Error",        "", DC_M , "kg",   xidIO_QmBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
-                DDB.Double("Error.Rel",     "", DC_Frac, "%",  xidIO_QmBalanceTotalRel,   this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error",        "", DC_M , "kg",   xidIO_QmBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK|SmallValue);
+                DDB.Double("Error.Rel",     "", DC_Frac, "%",  xidIO_QmBalanceTotalRel,   this, isResult|noFile|noSnap|NAN_OK|SmallValue);
                 }
               DDB.EndStruct();
               }
@@ -4358,8 +4358,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
                 DDB.Double("External",    "",  DC_E , "kJ",    xidIO_ExtHsTotal,           this, isResult|/*isTag|*/noFile|noSnap);
 
-                DDB.Double("Error",       "", DC_E , "kJ",    xidIO_HfBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
-                //DDB.Double("Error.Rel",   "", DC_Frac,  "%",  xidIO_HzBalanceTotalRel,    this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error",       "", DC_E , "kJ",    xidIO_HfBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK|SmallValue);
+                //DDB.Double("Error.Rel",   "", DC_Frac,  "%",  xidIO_HzBalanceTotalRel,    this, isResult|noFile|noSnap|NAN_OK|SmallValue);
                 }
               DDB.EndStruct();
               }

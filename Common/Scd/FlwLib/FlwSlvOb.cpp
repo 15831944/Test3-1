@@ -434,6 +434,7 @@ SDBObjectEdt::SDBObjectEdt(pFxdEdtView pView_, pSDBObject pSDBO_) :
         }
       }
     }
+  iNameWidth+=5; // space For Index
   
   CProfINIFile PF(PrjIniFile());
 
@@ -620,7 +621,7 @@ void SDBObjectEdt::Build()
       }
     
     L++;
-    SetDesc(L, "Specie",        -1, iNameWidth ,  0, "");
+    SetDesc(L, "     Specie",        -1, iNameWidth ,  0, "");
     if (rSDBO.m_bShowMs)
       {
       SetDesc(L, HCnvMs.Text(),     -1, iWd_Hf     ,  2, "");
@@ -686,8 +687,10 @@ void SDBObjectEdt::Build()
             }
 
           int iSp=I.SDBIndex();
+          Strng SpNm;
+          SpNm.Set("%3i) %s", iSp, SDB[iSp].SymOrTag());
 
-          SetDesc(L, SDB[iSp].SymOrTag(),  -1, iNameWidth,  0, "");
+          SetDesc(L, SpNm(),  -1, iNameWidth,  0, "");
 
           #if ShowSteamTableEntropy
           if (H2Og_i<0 && strcmp(SDB[iSp].SymOrTag(), "H2O(g)")==0)
@@ -861,7 +864,10 @@ void SDBObjectEdt::Build()
 
           int iSp=I.SDBIndex();
 
-          SetDesc(L, SDB[iSp].SymOrTag(),  -1, iNameWidth,  0, "");
+          Strng SpNm;
+          SpNm.Set("%3i) %s", iSp, SDB[iSp].SymOrTag());
+
+          SetDesc(L, SpNm(),  -1, iNameWidth,  0, "");
 
           SetParm(L, "", Id_LoT1+iSp   , iWd_LoHiT, 2, "");
           Tg.Set("$SDB.%s.LoT()", SDB[iSp].SymOrTag());
