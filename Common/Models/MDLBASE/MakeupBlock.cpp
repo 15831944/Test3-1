@@ -2144,7 +2144,11 @@ void CXBlk_MUBase::EvalProducts(SpConduit &QProd, double Po, double FinalTEst)
       }
 
     //QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
+    //Keep T & P
+    double T=QSrc.Temp();
+    double P=QSrc.Press();
     QSrc.QCopy(QMkUp());
+    QSrc.SetTempPress(T, P);
     m_HeatFlow   = QProd.totHf() - QProd.totHf(som_ALL, MkUpFnd.TMix(), QProd.Press());
     m_Measured   = MkUpFnd.Measured();
 
