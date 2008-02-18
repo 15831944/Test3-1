@@ -118,48 +118,31 @@ class CSvcConnect
                       CPointFList & ControlPoints);//, const CRectangleF & tagArea);
     void GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR GraphicGuid);
     void GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, 
-                      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk);
+                      CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
    
-    void GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, const CSvcTagBlk & TagBlk);
+    void GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk);
 
     // CallBack's
-    void OnCreateNodeM(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR model);
-    void OnDeleteNodeM(__int64 eventId, __int64 requestId, LPCSTR guid);
-    void OnModifyNodeM(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR model);
+    void OnCreateNodeM(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header);
+    void OnDeleteNodeM(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header);
+    void OnModifyNodeM(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header);
 
-    void OnCreateNodeG(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
-      LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-      float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-      bool mirrorX, bool mirrorY);
-    void OnDeleteNodeG(__int64 eventId, __int64 requestId, LPCSTR guid);
-    void OnModifyNodeG(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
-      LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-      float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-      bool mirrorX, bool mirrorY);
+    void OnCreateNodeG(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk);
+    void OnDeleteNodeG(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header);
+    void OnModifyNodeG(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk);
 
     // Links -----------------------------------------------------------------
     // Operations
 
 
     // CallBack's
-    void OnCreateLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
-                      LPCSTR ClassId, 
-                      const CSvcGuidPair & Guids, 
-                      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk);
-    void OnDeleteLinkG(__int64 eventId, __int64 requestId, LPCSTR guid);
-    void OnModifyLinkG(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
-                      LPCSTR ClassId, 
-                      const CSvcGuidPair & Guids, 
-                      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk);
+    void OnCreateLinkG(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header, CSvcGuidPair & Guids, CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
+    void OnDeleteLinkG(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header);
+    void OnModifyLinkG(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header, CSvcGuidPair & Guids, CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
     
-    void OnCreateLinkM(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
-                      LPCSTR ClassId, 
-                      const CSvcGuidPair & Guids, 
-                      LPCSTR OriginPort, LPCSTR DestinationPort);
-    void OnDeleteLinkM(__int64 eventId, __int64 requestId, LPCSTR guid);
-    void OnModifyLinkM(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
-                      LPCSTR ClassId, 
-                      const CSvcLnkMBlk & LnkMBlk);
+    void OnCreateLinkM(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header, CSvcGuidPair & Guids, LPCSTR OriginPort, LPCSTR DestinationPort);
+    void OnDeleteLinkM(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header);
+    void OnModifyLinkM(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk);
 
     //------------------------------------------------------------------------
 

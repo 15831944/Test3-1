@@ -160,37 +160,19 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     int          EO_DeleteTagsDone(Strng_List & Tags);
     int          EO_CanClose(Strng_List & Problems);
 
-    int          EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                                bool mirrorX, bool mirrorY);
-    int          EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
-    int          EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                                bool mirrorX, bool mirrorY);
-    int          EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model);
-    int          EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid);
-    int          EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model);
+    int          EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk);
+    int          EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int          EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk);
+    int          EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int          EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int          EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
 
-    int          EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                 LPCSTR model, 
-                                 const CSvcLnkGBlk & LnkGBlk,
-                                 CPointFList & ControlPoints, 
-                                 const CSvcTagBlk & TagBlk);
-    int          EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid);
-    int          EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                 LPCSTR model, 
-                                 const CSvcGuidPair & Guids, 
-                                 CPointFList & ControlPoints, 
-                                 const CSvcTagBlk & TagBlk);
-    int          EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                 LPCSTR model, 
-                                 const CSvcLnkMBlk & LnkMBlk);
-    int          EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid);
-    int          EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                 LPCSTR model, 
-                                 const CSvcLnkMBlk & LnkMBlk);
+    int          EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkGBlk & LnkGBlk, CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
+    int          EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int          EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcGuidPair & Guids, CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
+    int          EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk);
+    int          EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int          EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk);
 
     void         EO_SetSolveMode();
     flag         EO_Starting(flag fBeginStarting);

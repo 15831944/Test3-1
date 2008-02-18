@@ -617,120 +617,95 @@ int  SFEFlwLib::EO_DeleteTagsDone(Strng_List & Tags)
 
 //----------------------------------------------------------------------------------------------------------------
 
-int SFEFlwLib::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                              LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                              float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                              bool mirrorX, bool mirrorY)
+int SFEFlwLib::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk)
   {
-  IENTER(false) pSfe->EO_SCInsertNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, TagBlk, Colour, mirrorX, mirrorY);
+  IENTER(false) pSfe->EO_SCInsertNodeG(Ctrl, Header, NdGBlk, TagBlk);
   ILEAVE
   };
-int SFEFlwLib::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
+int SFEFlwLib::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
-  IENTER(false) pSfe->EO_SCDeleteNodeG(Ctrl, pTag, ItemGuid, path);
+  IENTER(false) pSfe->EO_SCDeleteNodeG(Ctrl, Header);
   ILEAVE
   };
-int SFEFlwLib::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                              LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                              float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                              bool mirrorX, bool mirrorY)
+int SFEFlwLib::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk)
   {
-  IENTER(false) pSfe->EO_SCModifyNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, TagBlk, Colour, mirrorX, mirrorY);
+  IENTER(false) pSfe->EO_SCModifyNodeG(Ctrl, Header, NdGBlk, TagBlk);
   ILEAVE
   };
 
-int SFEFlwLib::EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)
+int SFEFlwLib::EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCInsertNodeM(Ctrl, pTag, ItemGuid, model);
+  IENTER(false) pSfe->EO_SCInsertNodeM(Ctrl, Header);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
-int SFEFlwLib::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
+int SFEFlwLib::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCDeleteNodeM(Ctrl, pTag, ItemGuid);
+  IENTER(false) pSfe->EO_SCDeleteNodeM(Ctrl, Header);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
-int SFEFlwLib::EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)
+int SFEFlwLib::EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
-  IENTER(false) pSfe->EO_SCModifyNodeM(Ctrl, pTag, ItemGuid, model);
+  IENTER(false) pSfe->EO_SCModifyNodeM(Ctrl, Header);
   ILEAVE
   };
 
 //----------------------------------------------------------------------------------------------------------------
 
-int SFEFlwLib::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                               LPCSTR model, 
-                               const CSvcLnkGBlk & LnkGBlk,
-                               CPointFList & ControlPoints, 
-                               const CSvcTagBlk & TagBlk) 
+int SFEFlwLib::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkGBlk & LnkGBlk, CPointFList & ControlPoints, CSvcTagBlk & TagBlk) 
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCInsertLinkG(Ctrl, pTag, ItemGuid, /*path,*/
-                                   model, 
-                                   LnkGBlk,
-                                   ControlPoints, 
-                                   TagBlk) ;
+  IENTER(false) pSfe->EO_SCInsertLinkG(Ctrl, Header, LnkGBlk, ControlPoints, TagBlk) ;
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
 
-int SFEFlwLib::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
+int SFEFlwLib::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCDeleteLinkG(Ctrl, pTag, ItemGuid/*, path*/);
+  IENTER(false) pSfe->EO_SCDeleteLinkG(Ctrl, Header);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
 
-int SFEFlwLib::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                               LPCSTR model, 
-                               const CSvcGuidPair & Guids, 
-                               CPointFList & ControlPoints, 
-                               const CSvcTagBlk & TagBlk) 
+int SFEFlwLib::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcGuidPair & Guids, CPointFList & ControlPoints, CSvcTagBlk & TagBlk) 
   {
   //SetLoadAllModelStatus();
   //SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCModifyLinkG(Ctrl, pTag, ItemGuid, /*path,*/
-                                   model, Guids, ControlPoints, TagBlk) ;
+  IENTER(false) pSfe->EO_SCModifyLinkG(Ctrl, Header, Guids, ControlPoints, TagBlk) ;
   //CExploreScd::RefreshIt(false);
   ILEAVE
   };
-int SFEFlwLib::EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                               LPCSTR model, 
-                               const CSvcLnkMBlk & LnkMBlk) 
+int SFEFlwLib::EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk) 
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCInsertLinkM(Ctrl, pTag, ItemGuid, /*path,*/
-                                   model, LnkMBlk);
+  IENTER(false) pSfe->EO_SCInsertLinkM(Ctrl, Header, LnkMBlk);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
 
-int SFEFlwLib::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
+int SFEFlwLib::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCDeleteLinkM(Ctrl, pTag, ItemGuid/*, path*/);
+  IENTER(false) pSfe->EO_SCDeleteLinkM(Ctrl, Header);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
 
-int SFEFlwLib::EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                               LPCSTR model, 
-                               const CSvcLnkMBlk & LnkMBlk) 
+int SFEFlwLib::EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk) 
   {
   //SetLoadAllModelStatus();
   //SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCModifyLinkM(Ctrl, pTag, ItemGuid, /*path,*/
-                                   model, LnkMBlk);
+  IENTER(false) pSfe->EO_SCModifyLinkM(Ctrl, Header, LnkMBlk);
   //CExploreScd::RefreshIt(false);
   ILEAVE
   };

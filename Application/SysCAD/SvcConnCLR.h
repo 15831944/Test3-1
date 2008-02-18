@@ -37,12 +37,12 @@ class CSvcConnectCLR
     //Nodes
     void AddCreateNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
-                      double Angle, const CSvcTagBlk & TagBlk, COLORREF FillColor, 
+                      double Angle, CSvcTagBlk & TagBlk, COLORREF FillColor, 
                       bool MirrorX, bool MirrorY);
     void AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid);
 
     void AddModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta);
-    void AddModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, const CSvcTagBlk & TagBlk);
+    void AddModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk);
 
     //----------------------------------------------------------------------------------
     //Links
@@ -51,13 +51,13 @@ class CSvcConnectCLR
                       LPCSTR OriginMdlGuid, LPCSTR DestinationMdlGuid, 
                       LPCSTR OriginGrfGuid, LPCSTR DestinationGrfGuid, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk);
+                      CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
     void AddDeleteLink(__int64 & requestId, LPCSTR GraphicGuid);
     void AddModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, 
-                      const CSvcGuidPair & Guids, 
+                      CSvcGuidPair & Guids, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints, const CSvcTagBlk & TagBlk);
+                      CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
 
 
     //----------------------------------------------------------------------------------

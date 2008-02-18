@@ -134,39 +134,19 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
     virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
     virtual int    EO_DeleteTags(Strng_List & Tags) ;
     
-    virtual int    EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGuid, LPCSTR path,
-                                    LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, float angle, 
-                                    const CSvcTagBlk & TagBlk, 
-                                    COLORREF Colour, 
-                                    bool mirrorX, bool mirrorY) ;
-    virtual int    EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGuid, LPCSTR path);
-    virtual int    EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGuid, LPCSTR path,
-                                    LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, float angle, 
-                                    const CSvcTagBlk & TagBlk, 
-                                    COLORREF Colour, 
-                                    bool mirrorX, bool mirrorY) ;
-    virtual int    EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ModelGuid, LPCSTR model)     { return EOSC_NOTFOUND; };
-    virtual int    EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ModelGuid)                   { return EOSC_NOTFOUND; };
-    virtual int    EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ModelGuid, LPCSTR model)     { return EOSC_NOTFOUND; };
+    virtual int    EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk) ;
+    virtual int    EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    virtual int    EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk) ;
+    virtual int    EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)                         { return EOSC_NOTFOUND; };
+    virtual int    EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)                         { return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)                         { return EOSC_NOTFOUND; };
 
-    virtual int    EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGuid,
-                                  LPCSTR model, 
-                                  const CSvcLnkGBlk & LnkGBlk,
-                                  CPointFList & ControlPoints, 
-                                  const CSvcTagBlk & TagBlk);
-    virtual int    EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGuid);
-    virtual int    EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR GraphicGuid,
-                                  LPCSTR model, 
-                                  const CSvcGuidPair & Guids, 
-                                  CPointFList & ControlPoints, 
-                                  const CSvcTagBlk & TagBlk);
-    virtual int    EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ModelGuid,
-                                  LPCSTR model, 
-                                  const CSvcLnkMBlk & LnkMBlk)                              { return EOSC_NOTFOUND; };
-    virtual int    EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ModelGuid)                   { return EOSC_NOTFOUND; };
-    virtual int    EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ModelGuid,
-                                  LPCSTR model, 
-                                  const CSvcLnkMBlk & LnkMBlk)                              { return EOSC_NOTFOUND; };
+    virtual int    EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkGBlk & LnkGBlk, CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
+    virtual int    EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    virtual int    EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcGuidPair & Guids,  CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
+    virtual int    EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk)  { return EOSC_NOTFOUND; };
+    virtual int    EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)                         { return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk)  { return EOSC_NOTFOUND; };
 
     virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
     virtual flag   EO_Start(CXM_TimeControl &CB);

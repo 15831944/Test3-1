@@ -530,76 +530,58 @@ int CSfeSrvr::EO_CanClose(Strng_List & Problems)
   };
 
 
-int CSfeSrvr::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                             float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                             bool mirrorX, bool mirrorY)
+int CSfeSrvr::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk)
   {
-  return SfeFS->EO_SCInsertNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, TagBlk, Colour, mirrorX, mirrorY);
+  return SfeFS->EO_SCInsertNodeG(Ctrl, Header, NdGBlk, TagBlk);
   };
-int CSfeSrvr::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
+int CSfeSrvr::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
-  return SfeFS->EO_SCDeleteNodeG(Ctrl, pTag, ItemGuid, path);
+  return SfeFS->EO_SCDeleteNodeG(Ctrl, Header);
   };
-int CSfeSrvr::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                   float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                                   bool mirrorX, bool mirrorY)
+int CSfeSrvr::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk)
   {
-  return SfeFS->EO_SCModifyNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, TagBlk, Colour, mirrorX, mirrorY);
+  return SfeFS->EO_SCModifyNodeG(Ctrl, Header, NdGBlk, TagBlk);
   };
 
 
-int CSfeSrvr::EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)
+int CSfeSrvr::EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
-  return SfeFS->EO_SCInsertNodeM(Ctrl, pTag, ItemGuid, model);
+  return SfeFS->EO_SCInsertNodeM(Ctrl, Header);
   };
-int CSfeSrvr::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
+int CSfeSrvr::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
-  return SfeFS->EO_SCDeleteNodeM(Ctrl, pTag, ItemGuid);
+  return SfeFS->EO_SCDeleteNodeM(Ctrl, Header);
   };
-int CSfeSrvr::EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)
+int CSfeSrvr::EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
-  return SfeFS->EO_SCModifyNodeM(Ctrl, pTag, ItemGuid, model);
+  return SfeFS->EO_SCModifyNodeM(Ctrl, Header);
   };
 
 
-int CSfeSrvr::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                 LPCSTR model, 
-                                 const CSvcLnkGBlk & LnkGBlk,
-                                 CPointFList & ControlPoints, 
-                                 const CSvcTagBlk & TagBlk)
+int CSfeSrvr::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkGBlk & LnkGBlk, CPointFList & ControlPoints, CSvcTagBlk & TagBlk)
   {
-  return SfeFS->EO_SCInsertLinkG(Ctrl, pTag, ItemGuid, model, LnkGBlk, ControlPoints, TagBlk);
+  return SfeFS->EO_SCInsertLinkG(Ctrl, Header, LnkGBlk, ControlPoints, TagBlk);
   };
-int CSfeSrvr::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
+int CSfeSrvr::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
-  return SfeFS->EO_SCDeleteLinkG(Ctrl, pTag, ItemGuid);
+  return SfeFS->EO_SCDeleteLinkG(Ctrl, Header);
   }
-int CSfeSrvr::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                              LPCSTR model, 
-                              const CSvcGuidPair & Guids, 
-                              CPointFList & ControlPoints, 
-                              const CSvcTagBlk & TagBlk) 
+int CSfeSrvr::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcGuidPair & Guids, CPointFList & ControlPoints, CSvcTagBlk & TagBlk) 
   {
-  return SfeFS->EO_SCModifyLinkG(Ctrl, pTag, ItemGuid, model, Guids, ControlPoints, TagBlk);
+  return SfeFS->EO_SCModifyLinkG(Ctrl, Header, Guids, ControlPoints, TagBlk);
   };
 
-int CSfeSrvr::EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                 LPCSTR model, 
-                                 const CSvcLnkMBlk & LnkMBlk)
+int CSfeSrvr::EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk)
   {
-  return SfeFS->EO_SCInsertLinkM(Ctrl, pTag, ItemGuid, model, LnkMBlk);
+  return SfeFS->EO_SCInsertLinkM(Ctrl, Header, LnkMBlk);
   };
-int CSfeSrvr::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
+int CSfeSrvr::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
-  return SfeFS->EO_SCDeleteLinkM(Ctrl, pTag, ItemGuid);
+  return SfeFS->EO_SCDeleteLinkM(Ctrl, Header);
   }
-int CSfeSrvr::EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                              LPCSTR model, 
-                              const CSvcLnkMBlk & LnkMBlk) 
+int CSfeSrvr::EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk) 
   {
-  return SfeFS->EO_SCModifyLinkM(Ctrl, pTag, ItemGuid, model, LnkMBlk);
+  return SfeFS->EO_SCModifyLinkM(Ctrl, Header, LnkMBlk);
   };
 
 int CSfeSrvr::EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)

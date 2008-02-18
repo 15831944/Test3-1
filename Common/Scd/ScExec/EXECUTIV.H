@@ -421,6 +421,44 @@ class DllImportExport CSvcExecCtrl
 
 //========================================================================
 
+class DllImportExport CSvcHeaderBlk
+  {
+  public:
+    CSvcHeaderBlk(LPCSTR Guid, LPCSTR Tag="", LPCSTR Path="", LPCSTR ClassId="") : \
+    m_Guid(Guid),
+    m_Tag(Tag),
+    m_Path(Path),
+    m_ClassId(ClassId)
+      {
+      }
+  public:
+    LPCSTR m_Guid;
+    LPCSTR m_Tag;
+    LPCSTR m_Path;
+    LPCSTR m_ClassId;
+  };
+
+class DllImportExport CSvcNdGBlk
+  {
+  public:
+    CSvcNdGBlk(LPCSTR Shape, const CRectangleF & BoundingRect, float Angle, COLORREF Colour, bool MirrorX, bool MirrorY) : \
+      m_Shape(Shape),
+      m_BoundingRect(BoundingRect),
+      m_Angle(Angle),
+      m_Colour(Colour),
+      m_MirrorX(MirrorX),
+      m_MirrorY(MirrorY)
+      {
+      }
+  public:
+    LPCSTR        m_Shape;
+    CRectangleF   m_BoundingRect;
+    float         m_Angle;
+    COLORREF      m_Colour;
+    bool          m_MirrorX;
+    bool          m_MirrorY;
+  };
+
 class DllImportExport CSvcTagBlk
   {
   public:
@@ -429,11 +467,11 @@ class DllImportExport CSvcTagBlk
       m_Angle   = 0.0f;
       m_Visible = false; 
       };
-    CSvcTagBlk(const CRectangleF & Area, float Angle, bool Visible)
+    CSvcTagBlk(const CRectangleF & Area, float Angle, bool Visible) : \
+      m_Area(Area), 
+      m_Angle(Angle), 
+      m_Visible(Visible) 
       {
-      m_Area    = Area; 
-      m_Angle   = Angle; 
-      m_Visible = Visible; 
       };
 
   public:
@@ -447,22 +485,13 @@ class DllImportExport CSvcTagBlk
 class DllImportExport CSvcLnkGBlk
   {
   public:
-    //CSvcLnkMBlk()
-    //  {
-    //  m_SrcGrfGuid  = NULL;
-    //  m_DstGrfGuid  = NULL;
-    //  m_SrcMdlGuid  = NULL;
-    //  m_DstMdlGuid  = NULL;
-    //  m_SrcPort     = NULL;
-    //  m_DstPort     = NULL; 
-    //  }
     CSvcLnkGBlk(LPCSTR OriginGuid="", LPCSTR DestinationGuid="", 
-                LPCSTR OriginTag="",  LPCSTR DestinationTag="")
+      LPCSTR OriginTag="",  LPCSTR DestinationTag="") : \
+      m_OriginGuid      (OriginGuid),
+      m_DestinationGuid (DestinationGuid),
+      m_OriginTag       (OriginTag),
+      m_DestinationTag  (DestinationTag)
       {
-      m_OriginGuid       = OriginGuid;
-      m_DestinationGuid  = DestinationGuid;
-      m_OriginTag        = OriginTag;
-      m_DestinationTag   = DestinationTag;
       }
 
   public:
@@ -479,14 +508,14 @@ class DllImportExport CSvcLnkMBlk
   public:
     CSvcLnkMBlk(LPCSTR OriginGuid="", LPCSTR DestinationGuid="", 
                 LPCSTR OriginTag="",  LPCSTR DestinationTag="", 
-                LPCSTR OriginPort="", LPCSTR DestinationPort="")
+                LPCSTR OriginPort="", LPCSTR DestinationPort="") : \
+      m_OriginGuid       (OriginGuid),
+      m_DestinationGuid  (DestinationGuid),
+      m_OriginTag        (OriginTag),
+      m_DestinationTag   (DestinationTag),
+      m_OriginPort       (OriginPort),
+      m_DestinationPort  (DestinationPort)
       {
-      m_OriginGuid       = OriginGuid;
-      m_DestinationGuid  = DestinationGuid;
-      m_OriginTag        = OriginTag;
-      m_DestinationTag   = DestinationTag;
-      m_OriginPort       = OriginPort;
-      m_DestinationPort  = DestinationPort;
       }
 
   public:
@@ -503,10 +532,10 @@ class DllImportExport CSvcLnkMBlk
 class DllImportExport CSvcGuidPair
   {
   public:
-    CSvcGuidPair(LPCSTR OriginGuid="", LPCSTR DestinationGuid="")
+    CSvcGuidPair(LPCSTR OriginGuid="", LPCSTR DestinationGuid="") : \
+      m_OriginGuid       (OriginGuid),
+      m_DestinationGuid  (DestinationGuid)
       {
-      m_OriginGuid       = OriginGuid;
-      m_DestinationGuid  = DestinationGuid;
       }
 
   public:
@@ -561,41 +590,22 @@ class DllImportExport CExecObj
     virtual int    EO_CanClose(Strng_List & Problems)                   { return EO_CanClose_Yes; };
 
 
+    virtual int    EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk) { return EOSC_NOTFOUND; };
+    virtual int    EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) { return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk) { return EOSC_NOTFOUND; };
 
-    virtual int    EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, 
-                                  const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                                  bool mirrorX, bool mirrorY)           { return EOSC_NOTFOUND; };
-    virtual int    EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path) { return EOSC_NOTFOUND; };
-    virtual int    EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect,                                           
-                                  float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                                  bool mirrorX, bool mirrorY)           { return EOSC_NOTFOUND; };
+    virtual int    EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) { return EOSC_NOTFOUND; };
+    virtual int    EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) { return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) { return EOSC_NOTFOUND; };
 
-    virtual int    EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)      { return EOSC_NOTFOUND; };
-    virtual int    EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)                    { return EOSC_NOTFOUND; };
-    virtual int    EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)      { return EOSC_NOTFOUND; };
+    virtual int    EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkGBlk & LnkGBlk, CPointFList & ControlPoints, CSvcTagBlk & TagBlk)                                  { return EOSC_NOTFOUND; };               
+    virtual int    EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) { return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcGuidPair & Guids, CPointFList & ControlPoints, CSvcTagBlk & TagBlk)                                  { return EOSC_NOTFOUND; };
 
-    virtual int    EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                   LPCSTR model, 
-                                   const CSvcLnkGBlk & LnkGBlk,
-                                   CPointFList & ControlPoints, 
-                                   const CSvcTagBlk & TagBlk) { return EOSC_NOTFOUND; };               
-    virtual int    EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid){ return EOSC_NOTFOUND; };
-    virtual int    EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                   LPCSTR model, 
-                                   const CSvcGuidPair & Guids, 
-                                   CPointFList & ControlPoints, 
-                                   const CSvcTagBlk & TagBlk) { return EOSC_NOTFOUND; };
+    virtual int    EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk) { return EOSC_NOTFOUND; };               
+    virtual int    EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) { return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk) { return EOSC_NOTFOUND; };
 
-    virtual int    EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                   LPCSTR model, 
-                                   const CSvcLnkMBlk & LnkMBlk) { return EOSC_NOTFOUND; };               
-    virtual int    EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid){ return EOSC_NOTFOUND; };
-    virtual int    EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                   LPCSTR model, 
-                                   const CSvcLnkMBlk & LnkMBlk) { return EOSC_NOTFOUND; };
 
     virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route)           { return False; };
 
@@ -1154,38 +1164,19 @@ class DllImportExport CExecutive : public ConditionBlk
 #else
     int            CheckAllTags(flag NewNumStartingBad, flag Prompt=1, flag ForceTest=0);
 #endif
-    int            SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                               bool mirrorX, bool mirrorY);
-    int            SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
-    int            SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                               bool mirrorX, bool mirrorY);
-    int            SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model);
-    int            SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid);
-    int            SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model);
-
-
-    int            SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                LPCSTR model, 
-                                const CSvcLnkGBlk & LnkGBlk,
-                                CPointFList & ControlPoints, 
-                                const CSvcTagBlk & TagBlk);
-    int            SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid);
-    int            SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                LPCSTR model, 
-                                const CSvcGuidPair & Guids, 
-                                CPointFList & ControlPoints, 
-                                const CSvcTagBlk & TagBlk);
-    int            SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                LPCSTR model, 
-                                const CSvcLnkMBlk & LnkMBlk);
-    int            SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid);
-    int            SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                LPCSTR model, 
-                                const CSvcLnkMBlk & LnkMBlk);
+    int            SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk);
+    int            SCDeleteNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int            SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk);
+    int            SCInsertNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int            SCDeleteNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int            SCModifyNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+   
+    int            SCInsertLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkGBlk & LnkGBlk, CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
+    int            SCDeleteLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int            SCModifyLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcGuidPair & Guids, CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
+    int            SCInsertLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk);
+    int            SCDeleteLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header);
+    int            SCModifyLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk);
 
     void           ClearThread() { LockExec();  pExecThread=NULL; UnlockExec(); };
     DWORD          ExecThreadId() { return pExecThread->m_nThreadID; };

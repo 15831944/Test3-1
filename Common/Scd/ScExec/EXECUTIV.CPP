@@ -1857,10 +1857,9 @@ int CExecutive::DeleteTags(Strng_List & Tags)
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                            LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                            bool mirrorX, bool mirrorY)     
+int CExecutive::SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, \
+                              CSvcNdGBlk & NdGBlk, 
+                              CSvcTagBlk & TagBlk)     
   {
   int Ret = EOSC_DONE;
 
@@ -1869,10 +1868,10 @@ int CExecutive::SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCInsertNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, TagBlk, Colour, mirrorX, mirrorY);
+    int e=O[OInx]->EO_SCInsertNodeG(Ctrl, Header, NdGBlk, TagBlk);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCItem insert failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCItem insert failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -1881,7 +1880,7 @@ int CExecutive::SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)     
+int CExecutive::SCDeleteNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)     
   {
   int Ret = EOSC_DONE;
 
@@ -1890,10 +1889,10 @@ int CExecutive::SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e = O[OInx]->EO_SCDeleteNodeG(Ctrl, pTag, ItemGuid, path);
+    int e = O[OInx]->EO_SCDeleteNodeG(Ctrl, Header);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCItem delete failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCItem delete failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -1902,10 +1901,8 @@ int CExecutive::SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                            LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                            bool mirrorX, bool mirrorY)     
+int CExecutive::SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, 
+                            CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk)     
   {
   int Ret = EOSC_DONE;
 
@@ -1914,10 +1911,10 @@ int CExecutive::SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCModifyNodeG(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, TagBlk, Colour, mirrorX, mirrorY);
+    int e=O[OInx]->EO_SCModifyNodeG(Ctrl, Header, NdGBlk, TagBlk);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCItem modify failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCItem modify failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -1926,7 +1923,7 @@ int CExecutive::SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)     
+int CExecutive::SCInsertNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)     
   {
   int Ret = EOSC_DONE;
 
@@ -1935,10 +1932,10 @@ int CExecutive::SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCInsertNodeM(Ctrl, pTag, ItemGuid, model);
+    int e=O[OInx]->EO_SCInsertNodeM(Ctrl, Header);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCItem insert failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCItem insert failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -1947,7 +1944,7 @@ int CExecutive::SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)     
+int CExecutive::SCDeleteNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)     
   {
   int Ret = EOSC_DONE;
 
@@ -1956,10 +1953,10 @@ int CExecutive::SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e = O[OInx]->EO_SCDeleteNodeM(Ctrl, pTag, ItemGuid);
+    int e = O[OInx]->EO_SCDeleteNodeM(Ctrl, Header);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCItem delete failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCItem delete failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -1968,7 +1965,7 @@ int CExecutive::SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model)     
+int CExecutive::SCModifyNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)     
   {
   int Ret = EOSC_DONE;
 
@@ -1977,10 +1974,10 @@ int CExecutive::SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCModifyNodeM(Ctrl, pTag, ItemGuid, model);
+    int e=O[OInx]->EO_SCModifyNodeM(Ctrl, Header);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCItem modify failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCItem modify failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -1989,11 +1986,10 @@ int CExecutive::SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                             LPCSTR model, 
-                             const CSvcLnkGBlk & LnkGBlk,
+int CExecutive::SCInsertLinkG(CSvcExecCtrl & Ctrl,CSvcHeaderBlk & Header,
+                             CSvcLnkGBlk & LnkGBlk,
                              CPointFList & ControlPoints, 
-                             const CSvcTagBlk & TagBlk)
+                             CSvcTagBlk & TagBlk)
   {
   int Ret = EOSC_DONE;
 
@@ -2002,10 +1998,10 @@ int CExecutive::SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCInsertLinkG(Ctrl, pTag, ItemGuid, /*path,*/ model, LnkGBlk, ControlPoints, TagBlk);
+    int e=O[OInx]->EO_SCInsertLinkG(Ctrl, Header, LnkGBlk, ControlPoints, TagBlk);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCLink insert failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCLink insert failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -2014,7 +2010,7 @@ int CExecutive::SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid)     
+int CExecutive::SCDeleteLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)     
   {
   int Ret = EOSC_DONE;
 
@@ -2023,10 +2019,10 @@ int CExecutive::SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid)
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e = O[OInx]->EO_SCDeleteLinkG(Ctrl, pTag, LinkGuid/*, path*/);
+    int e = O[OInx]->EO_SCDeleteLinkG(Ctrl, Header);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCLink delete failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCLink delete failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -2035,11 +2031,10 @@ int CExecutive::SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid)
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                             LPCSTR model, 
-                             const CSvcGuidPair & Guids, 
+int CExecutive::SCModifyLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, 
+                             CSvcGuidPair & Guids, 
                              CPointFList & ControlPoints, 
-                             const CSvcTagBlk & TagBlk)
+                             CSvcTagBlk & TagBlk)
   {
   int Ret = EOSC_DONE;
 
@@ -2048,10 +2043,10 @@ int CExecutive::SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCModifyLinkG(Ctrl, pTag, ItemGuid, /*path,*/ model, Guids, ControlPoints, TagBlk);
+    int e=O[OInx]->EO_SCModifyLinkG(Ctrl, Header, Guids, ControlPoints, TagBlk);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCLink modify failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCLink modify failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -2061,9 +2056,8 @@ int CExecutive::SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                             LPCSTR model, 
-                             const CSvcLnkMBlk & LnkMBlk)
+int CExecutive::SCInsertLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, 
+                             CSvcLnkMBlk & LnkMBlk)
   {
   int Ret = EOSC_DONE;
 
@@ -2072,10 +2066,10 @@ int CExecutive::SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCInsertLinkM(Ctrl, pTag, ItemGuid, /*path,*/ model, LnkMBlk);
+    int e=O[OInx]->EO_SCInsertLinkM(Ctrl, Header, LnkMBlk);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCLink insert failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCLink insert failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -2084,7 +2078,7 @@ int CExecutive::SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid)     
+int CExecutive::SCDeleteLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)     
   {
   int Ret = EOSC_DONE;
 
@@ -2093,10 +2087,10 @@ int CExecutive::SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid)
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e = O[OInx]->EO_SCDeleteLinkM(Ctrl, pTag, LinkGuid/*, path*/);
+    int e = O[OInx]->EO_SCDeleteLinkM(Ctrl, Header);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCLink delete failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCLink delete failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }
@@ -2105,9 +2099,8 @@ int CExecutive::SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR LinkGuid)
 
 //---------------------------------------------------------------------------
 
-int CExecutive::SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                             LPCSTR model, 
-                             const CSvcLnkMBlk & LnkMBlk)
+int CExecutive::SCModifyLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, 
+                             CSvcLnkMBlk & LnkMBlk)
   {
   int Ret = EOSC_DONE;
 
@@ -2116,10 +2109,10 @@ int CExecutive::SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCModifyLinkM(Ctrl, pTag, ItemGuid, /*path,*/ model, LnkMBlk);
+    int e=O[OInx]->EO_SCModifyLinkM(Ctrl, Header, LnkMBlk);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
-      LogError(pTag, 0, "SCLink modify failure in %s", O[OInx]->Name());
+      LogError(Header.m_Tag, 0, "SCLink modify failure in %s", O[OInx]->Name());
       Ret = EOSC_FAILED;
       }
     }

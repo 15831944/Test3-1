@@ -13768,58 +13768,52 @@ int CFlwSolver::EO_DeleteTagsDone(Strng_List & Tags)
 
 //--------------------------------------------------------------------------
   
-int CFlwSolver::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                               bool mirrorX, bool mirrorY) 
+int CFlwSolver::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk) 
   {
   return EOSC_DONE;
   };
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path) 
+int CFlwSolver::EO_SCDeleteNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) 
   {
   return EOSC_DONE;
   };
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path, 
-                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CSvcTagBlk & TagBlk, COLORREF Colour, 
-                               bool mirrorX, bool mirrorY) 
+int CFlwSolver::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk) 
   {
   return EOSC_NOTFOUND;
   };
 
 //--------------------------------------------------------------------------
   
-int CFlwSolver::EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model) 
+int CFlwSolver::EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) 
   {
 
   if (Ctrl.m_bExportBusy)
     {
-    FlwNode * p=FindNodeTag((LPSTR)pTag);
+    FlwNode * p=FindNodeTag((LPSTR)Header.m_Tag);
     if (p)
       {
-      dbgpln("SCChgGuid : %s > %s", pTag, ItemGuid);
-      p->SetGuid((LPSTR)ItemGuid);
+      dbgpln("SCChgGuid : %s > %s", Header.m_Tag, Header.m_Guid);
+      p->SetGuid((LPSTR)Header.m_Guid);
       }
     return EOSC_DONE;
     }
 
-  bool Error = FE_TestModelTagUnique((char*)pTag)==0;
+  bool Error = FE_TestModelTagUnique((char*)Header.m_Tag)==0;
   if (Error)
     {
-    LogError("Solver", 0, "Tag not found : AddUnit '%s' failed!", pTag);
+    LogError("Solver", 0, "Tag not found : AddUnit '%s' failed!", Header.m_Tag);
     // return Scd.Return(eScdGraphicCode_TagNotFound, "Tag not found : AddUnit '%s' failed!", Tag);
     }
   else
     {
     FlwNode *pNd;
-    int XError=FE_DoInsert((LPSTR)model, "", "", (LPSTR)pTag, NULL, NULL, &pNd, (LPSTR)ItemGuid);
-    dbgpln("SCCreateItem : %s > %s", pTag, ItemGuid);
+    int XError=FE_DoInsert((LPSTR)Header.m_ClassId, "", "", (LPSTR)Header.m_Tag, NULL, NULL, &pNd, (LPSTR)Header.m_Guid);
+    dbgpln("SCCreateItem : %s > %s", Header.m_Tag, Header.m_Guid);
     return (XError == 0) ? EOSC_DONE : EOSC_FAILED;
     }
 
@@ -13828,14 +13822,14 @@ int CFlwSolver::EO_SCInsertNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid) 
+int CFlwSolver::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) 
   {
   // A COpy of EO_DeleteTag = SHOULD EO_DeleteTagDone be called and when ??????????
   UnDoGlobalLinks();
-  FlwNode * p = (FlwNode *)FindObj((LPSTR)pTag);
+  FlwNode * p = (FlwNode *)FindObj((LPSTR)Header.m_Tag);
   if (p)
     {
-    dbgpln("DELETE %s %s ", pTag, p->FullObjTag());
+    dbgpln("DELETE %s %s ", Header.m_Tag, p->FullObjTag());
     p->DisConnectAllIOs();
     delete p;
 
@@ -13845,7 +13839,7 @@ int CFlwSolver::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
       {
       if (!m_pSaveNode->Internal)
         {
-        m_pSaveNode->DeleteTag((LPSTR)pTag);
+        m_pSaveNode->DeleteTag((LPSTR)Header.m_Tag);
         }
       }
 
@@ -13857,55 +13851,45 @@ int CFlwSolver::EO_SCDeleteNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR model) 
+int CFlwSolver::EO_SCModifyNodeM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header) 
   {
   return EOSC_NOTFOUND;
   };
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                                 LPCSTR model, 
-                                 const CSvcLnkGBlk & LnkGBlk,
-                                 CPointFList & ControlPoints, 
-                                 const CSvcTagBlk & TagBlk) 
+int CFlwSolver::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkGBlk & LnkGBlk, CPointFList & ControlPoints, CSvcTagBlk & TagBlk) 
   {
   return EOSC_DONE;
   };
 
-int CFlwSolver::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
+int CFlwSolver::EO_SCDeleteLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
   {
   return EOSC_DONE;
   };
 
-int CFlwSolver::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                               LPCSTR model, 
-                               const CSvcGuidPair & Guids, 
-                               CPointFList & ControlPoints, 
-                               const CSvcTagBlk & TagBlk) 
+int CFlwSolver::EO_SCModifyLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcGuidPair & Guids, CPointFList & ControlPoints, CSvcTagBlk & TagBlk) 
   {
   return EOSC_NOTFOUND;
   };
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                               LPCSTR model, 
-                               const CSvcLnkMBlk & LnkMBlk) 
+int CFlwSolver::EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk) 
   {
   if (Ctrl.m_bExportBusy)
     {
-    FlwNode * p=FindNodeTag((LPSTR)pTag);
+    FlwNode * p=FindNodeTag((LPSTR)Header.m_Tag);
     if (p)
-      p->SetGuid((LPSTR)ItemGuid);
+      p->SetGuid((LPSTR)Header.m_Guid);
     
     return EOSC_DONE;
     }
 
-  bool Error = FE_TestModelTagUnique((char*)pTag)==0;
+  bool Error = FE_TestModelTagUnique((char*)Header.m_Tag)==0;
   if (Error)
     {
-    LogError("Solver", 0, "Tag not found : AddUnit '%s' failed!", pTag);
+    LogError("Solver", 0, "Tag not found : AddUnit '%s' failed!", Header.m_Tag);
     // return Scd.Return(eScdGraphicCode_TagNotFound, "Tag not found : AddUnit '%s' failed!", Tag);
     }
   else
@@ -13915,21 +13899,21 @@ int CFlwSolver::EO_SCInsertLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
     Strng From(LnkMBlk.m_OriginTag, ".", LnkMBlk.m_OriginPort);
     Strng To(LnkMBlk.m_DestinationTag, ".", LnkMBlk.m_DestinationPort);
 
-    int XError=FE_DoInsert((LPSTR)model, "", "", (LPSTR)pTag, From(), To(), &pNd, (LPSTR)ItemGuid);
+    int XError=FE_DoInsert((LPSTR)Header.m_ClassId, "", "", (LPSTR)Header.m_Tag, From(), To(), &pNd, (LPSTR)Header.m_Guid);
     return (XError == 0) ? EOSC_DONE : EOSC_FAILED;
     }
 
   return EOSC_NOTFOUND;
   };
 
-int CFlwSolver::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid)
+int CFlwSolver::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header)
     {
     // A COpy of EO_DeleteTag = SHOULD EO_DeleteTagDone be called and when ??????????
   UnDoGlobalLinks();
-  FlwNode * p = (FlwNode *)FindObj((LPSTR)pTag);
+  FlwNode * p = (FlwNode *)FindObj((LPSTR)Header.m_Tag);
   if (p)
     {
-    dbgpln("DELETE %s %s ", pTag, p->FullObjTag());
+    dbgpln("DELETE %s %s ", Header.m_Tag, p->FullObjTag());
     p->DisConnectAllIOs();
     delete p;
 
@@ -13939,7 +13923,7 @@ int CFlwSolver::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
       {
       if (!m_pSaveNode->Internal)
         {
-        m_pSaveNode->DeleteTag((LPSTR)pTag);
+        m_pSaveNode->DeleteTag((LPSTR)Header.m_Tag);
         }
       }
 
@@ -13949,9 +13933,7 @@ int CFlwSolver::EO_SCDeleteLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGu
   return EOSC_FAILED;
   };
 
-int CFlwSolver::EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
-                               LPCSTR model, 
-                               const CSvcLnkMBlk & LnkMBlk) 
+int CFlwSolver::EO_SCModifyLinkM(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcLnkMBlk & LnkMBlk) 
   {
   return EOSC_NOTFOUND;
   };
