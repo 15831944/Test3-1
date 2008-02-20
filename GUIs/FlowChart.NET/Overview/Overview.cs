@@ -737,7 +737,7 @@ namespace MindFusion.FlowChartX
 		}
 
 
-		private void Fit()
+		public void Fit()
 		{
 			if (!fitToAll)
 				return;

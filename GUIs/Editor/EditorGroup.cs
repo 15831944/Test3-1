@@ -88,8 +88,7 @@ namespace SysCAD.Editor
     {
       box.FillColor = System.Drawing.Color.FromArgb(80, 222, 184, 136);
       box.FrameColor = System.Drawing.Color.FromArgb(160, 111, 92, 68);
-      if (visible && state.ShowGroups)
-        box.Visible = visible;
+      box.Visible = visible && state.ShowGroups;
       box.ZBottom();
     }
   }

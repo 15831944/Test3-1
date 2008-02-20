@@ -90,6 +90,9 @@ namespace SysCAD.Editor
     private bool showLinks = true;
 
     private bool showModels = false;
+
+    private bool showGroups = true;
+
     private bool showTags = true;
     Int64 step = Int64.MinValue;
 
@@ -1482,8 +1485,8 @@ namespace SysCAD.Editor
 
     public bool ShowGroups
     {
-      get { return showModels; }
-      set { showModels = value; }
+      get { return showGroups; }
+      set { showGroups = value; }
     }
 
     public bool ShowTags
