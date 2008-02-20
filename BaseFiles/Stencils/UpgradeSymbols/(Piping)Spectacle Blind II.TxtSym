@@ -1,6 +1,6 @@
 Symbol,Spectacle Blind II
 MDrw_Poly, 0,-3.78, 0,2.47
-MDrw_Arc 0,4.345, 0.625, 0.625,4.345, -0.375,3.845,
+MDrw_Arc 0,4.345, 0.625, 6.28319, 0.625,4.345
 MDrw_End
 TextArea,-0.625,5.47,1.25,3
 XMin,-0.625

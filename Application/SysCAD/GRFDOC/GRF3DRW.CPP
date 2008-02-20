@@ -1306,16 +1306,22 @@ void CGrfLayer::ExportEntities10(C3_BOX Bnds, FILE *fp)
     
     if (C3_CURVE_IS_ARC(c))
       {
-      REAL Rad;
+      REAL Rad, Sweep;
       PT3 Ctr, Pt0, Pt1, d_vec;
       c3c_get_arc_radius ( c, &Rad);
       c3c_get_arc_center ( c, Ctr); 
+      c3c_get_arc_sweep  ( c, &Sweep); 
       c3c_get_arc_pts_d ( c, Pt0, Pt1, d_vec ) ;
+      double T0=C3_CURVE_T0(c);
+      double T1=C3_CURVE_T1(c);
       RANGEX(Bnds, Ctr[0]+Rad);
       RANGEX(Bnds, Ctr[0]-Rad);
       RANGEY(Bnds, Ctr[1]+Rad);
       RANGEY(Bnds, Ctr[1]-Rad);
-      fprintf(fp,"MDrw_Arc %g,%g, %g, %g,%g, %g,%g,\n", Ctr[0], Ctr[1], Rad, Pt0[0], Pt0[1], Pt1[0], Pt1[1]);
+      dbgpln("MDrw_Arc C:%7.3f,%7.3f  R:%7.3f  Sw:%7.3f T0:%7.3f T1:%7.3f  Pt0:%7.3f,%7.3f,%7.3f  Pt1:%7.3f,%7.3f,%7.3f  Vec:%7.3f,%7.3f,%7.3f",
+        Ctr[0], Ctr[1], Rad, Sweep, T0, T1, Pt0[0], Pt0[1], Pt0[2], Pt0[0], Pt1[1], Pt1[2], d_vec[0], d_vec[1], d_vec[2]);
+      fprintf(fp,"MDrw_Arc %g,%g, %g, %g, %g,%g\n", Ctr[0], Ctr[1], Rad, Sweep, Pt0[0], Pt0[1]);
+      //fprintf(fp,"MDrw_Arc %g,%g, %g, %g,%g, %g,%g, ; %g,%g,\n", Ctr[0], Ctr[1], Rad, T0, T1);//Pt0[0], Pt0[1], Pt1[0], Pt1[1], d_vec[0], d_vec[1]);
       }
     else if (C3_CURVE_IS_BEZIER(c))
       fprintf(fp,"            BEZIER\n");
@@ -6927,6 +6933,7 @@ BOOL DXF_Drawing::ExportEntities10(C3_BOX Bnds, pchar fn)
   FILE* fp = fopen(fn, "w");
   if (fp)
     {
+    dbgpln("------------------- %s", fn);
     CWaitCursor Wait;
     //fprintf(fp," Starting printing blocks ***********************************\n");
     Blocks.ExportEntities10(Bnds,fp);

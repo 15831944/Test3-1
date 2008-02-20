@@ -1,7 +1,7 @@
 Symbol,Actuator Diaphragm
 MDrw_Poly, 0,-2.5, 0,1.25
 MDrw_Poly, -2.5,1.25, 2.5,1.25
-MDrw_Arc -6.22274e-031,1.25, 2.5, 2.5,1.25, -2.5,1.25,
+MDrw_Arc -6.22274e-031,1.25, 2.5, 3.14159, 2.5,1.25
 MDrw_End
 TextArea,-2.5,4.25,5,3
 XMin,-2.5
