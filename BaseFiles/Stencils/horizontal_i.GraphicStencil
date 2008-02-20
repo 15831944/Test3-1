@@ -57,27 +57,31 @@
 <y1>11.311871382731892</y1>
 <y2>88.268508327616928</y2>
 </a1:Line>
-<a1:Arc id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>230.6928044095086</a>
-<h>100.00012780006409</h>
-<s>-100.63273451625179</s>
-<w>53.838339608779741</w>
-<x>-6.8695326988204843E-05</x>
-<y>-0.00011010488832856925</y>
-</a1:Arc>
+<a1:Bezier id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>9.8663978678329851</x1>
+<x2>1.1967317030169427</x2>
+<x3>1.0947335432032961</x3>
+<x4>9.59443591868154</x4>
+<y1>11.311871382731892</y1>
+<y2>35.257645363864953</y2>
+<y3>64.113724392624079</y3>
+<y4>88.268742317252375</y4>
+</a1:Bezier>
 <a1:Line id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>9.5941820998200438</x1>
 <x2>88.636415408095857</x2>
 <y1>88.268508327616928</y1>
 <y2>88.268508327616928</y2>
 </a1:Line>
-<a1:Arc id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>57.156287940843754</a>
-<h>92.239655275911687</h>
-<s>246.90176033331039</s>
-<w>49.660235395600395</w>
-<x>50.339699836727483</x>
-<y>3.400965485930167</y>
-</a1:Arc>
+<a1:Bezier id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>88.636415408095857</x1>
+<x2>98.581930170709413</x2>
+<x3>98.752020427371718</x3>
+<x4>89.075653797730169</x4>
+<y1>88.268508327616928</y1>
+<y2>64.883253295819657</y2>
+<y3>35.083602211709334</y3>
+<y4>11.311994419281374</y4>
+</a1:Bezier>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

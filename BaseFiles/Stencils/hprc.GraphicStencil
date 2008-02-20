@@ -64,20 +64,20 @@
 <y2>100</y2>
 </a1:Line>
 <a1:Arc id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>3.6801900733962611E-05</a>
-<h>85.000039798378836</h>
-<s>126.86985774543236</s>
-<w>42.499956149255183</w>
-<x>4.999987600833558</x>
-<y>7.4999628024384091</y>
+<a>0</a>
+<h>85</h>
+<s>360</s>
+<w>42.499936250095622</w>
+<x>4.9999925000112491</x>
+<y>7.5000099999999934</y>
 </a1:Arc>
 <a1:Arc id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>359.99999397095252</a>
-<h>84.999985527868063</h>
-<s>-233.13007681470032</s>
-<w>42.499929014040504</w>
-<x>52.499928486173374</x>
-<y>7.5000217082011922</y>
+<a>0</a>
+<h>85</h>
+<s>360</s>
+<w>42.499936250095622</w>
+<x>52.49992125011812</x>
+<y>7.5000099999999934</y>
 </a1:Arc>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

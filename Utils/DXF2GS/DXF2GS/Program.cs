@@ -90,22 +90,20 @@ namespace DXF2GS
               case "MDrw_Arc":
                 {
                   Double xc = Double.Parse(words[1]);
-                  Double yc = -Double.Parse(words[2]);
+                  Double yc = Double.Parse(words[2]);
                   Double r = Double.Parse(words[3]);
-                  Double x1 = Double.Parse(words[4]);
-                  Double y1 = -Double.Parse(words[5]);
-                  Double x2 = Double.Parse(words[6]);
-                  Double y2 = -Double.Parse(words[7]);
-                  
-                  Double a1 = Math.Atan2(y1 - yc, x1 - xc);
-                  Double a2 = Math.Atan2(y2 - yc, x2 - xc);
+                  Double s = Double.Parse(words[4]);
+                  Double x1 = Double.Parse(words[5]);
+                  Double y1 = Double.Parse(words[6]);
+                  Double a = Math.Atan2(y1 - yc, x1 - xc);
 
-                  if (Math.Abs(a1 - a2) < 0.001)
+
+                  if (s > 1.95 * Math.PI)
                   {
                     graphicStencil.Decorations.Add(
                       new Arc(
                         ((xc - r) - xMin) / (xMax - xMin) * 100.0,
-                        ((yc - r) - yMin) / (yMax - yMin) * 100.0,
+                        ((-yc - r) - yMin) / (yMax - yMin) * 100.0,
                         (2.0 * r) / (xMax - xMin) * 100.0,
                         (2.0 * r) / (yMax - yMin) * 100.0,
                         0.0,
@@ -115,13 +113,26 @@ namespace DXF2GS
                   }
                   else
                   {
-                    graphicStencil.Decorations.Add(
-                      Arc3(
-                      x1, y1,
-                      x2, y2,
-                      xc, yc, r,
-                      xMin, xMax, yMin, yMax)
-                    );
+                    Bezier bezier = new Bezier();
+                    bezier.x1 = x1;
+                    bezier.y1 = y1;
+                    bezier.x2 = xc + r * Math.Cos(a + s / 3.0);
+                    bezier.y2 = yc + r * Math.Sin(a + s / 3.0);
+                    bezier.x3 = xc + r * Math.Cos(a + 2.0 * s / 3.0);
+                    bezier.y3 = yc + r * Math.Sin(a + 2.0 * s / 3.0);
+                    bezier.x4 = xc + r * Math.Cos(a + s);
+                    bezier.y4 = yc + r * Math.Sin(a + s);
+
+                    bezier.x1 = (bezier.x1 - xMin) / (xMax - xMin) * 100.0;
+                    bezier.y1 = (-bezier.y1 - yMin) / (yMax - yMin) * 100.0;
+                    bezier.x2 = (bezier.x2 - xMin) / (xMax - xMin) * 100.0;
+                    bezier.y2 = (-bezier.y2 - yMin) / (yMax - yMin) * 100.0;
+                    bezier.x3 = (bezier.x3 - xMin) / (xMax - xMin) * 100.0;
+                    bezier.y3 = (-bezier.y3 - yMin) / (yMax - yMin) * 100.0;
+                    bezier.x4 = (bezier.x4 - xMin) / (xMax - xMin) * 100.0;
+                    bezier.y4 = (-bezier.y4 - yMin) / (yMax - yMin) * 100.0;
+
+                    graphicStencil.Decorations.Add(bezier);
                   }
                 }
                 break;
@@ -162,7 +173,7 @@ namespace DXF2GS
                     Double xc = Double.Parse(words[5]);
                     Double yc = -Double.Parse(words[6]);
                     Double r = Double.Parse(words[7]);
-                    
+
 
                     graphicStencil.Decorations.Add(
                       Arc3(
@@ -248,7 +259,7 @@ namespace DXF2GS
       Console.ReadKey(false);
     }
 
-    private static Arc Arc3(Double x1, Double y1, Double x2, Double y2, Double xc, Double yc, Double r, Double xMin, Double xMax, Double yMin, Double yMax)
+    private static Bezier Arc3(Double x1, Double y1, Double x2, Double y2, Double xc, Double yc, Double r, Double xMin, Double xMax, Double yMin, Double yMax)
     {
       Double a1 = Math.Atan2(y1 - yc, x1 - xc);
       Double a2 = Math.Atan2(y2 - yc, x2 - xc);
@@ -263,10 +274,10 @@ namespace DXF2GS
       return Arc3(x1, y1, xm, ym, x2, y2, xMin, xMax, yMin, yMax);
     }
 
-    private static Arc Arc3(Double x1, Double y1, Double x2, Double y2, Double x3, Double y3, Double xMin, Double xMax, Double yMin, Double yMax)
+    private static Bezier Arc3(Double x1, Double y1, Double x2, Double y2, Double x3, Double y3, Double xMin, Double xMax, Double yMin, Double yMax)
     {
       //a = 2*det([1,1,1;x1,x2,x3;y1,y2,y3]);
-      Double a = 2.0 * det(1.0, 1.0, 1.0, x1, x2, x3, y1, y2, y3);
+      Double aDet = 2.0 * det(1.0, 1.0, 1.0, x1, x2, x3, y1, y2, y3);
 
       //r = sqrt( ((x2-x3)^2+(y2-y3)^2) ...
       Double r = (Math.Sqrt((Math.Pow(x2 - x3, 2) + Math.Pow(y2 - y3, 2))
@@ -275,30 +286,77 @@ namespace DXF2GS
         // * ((x1-x2)^2+(y1-y2)^2) )
                * (Math.Pow(x1 - x2, 2) + Math.Pow(y1 - y2, 2)))
         // / abs(a);
-               / Math.Abs(a));
+               / Math.Abs(aDet));
 
       //xc = - det([1,1,1;y1,y2,y3;x1^2+y1^2,x2^2+y2^2,x3^2+y3^2]) / a;
       Double xc = (-det(1.0, 1.0, 1.0,
                         y1, y2, y3,
-                        x1 * x1 + y1 * y1, x2 * x2 + y2 * y2, x3 * x3 + y3 * y3) / a);
+                        x1 * x1 + y1 * y1, x2 * x2 + y2 * y2, x3 * x3 + y3 * y3) / aDet);
 
       //yc =   det([1,1,1;x1,x2,x3;x1^2+y1^2,x2^2+y2^2,x3^2+y3^2]) / a;
       Double yc = (det(1.0, 1.0, 1.0,
                        x1, x2, x3,
-                       x1 * x1 + y1 * y1, x2 * x2 + y2 * y2, x3 * x3 + y3 * y3) / a);
+                       x1 * x1 + y1 * y1, x2 * x2 + y2 * y2, x3 * x3 + y3 * y3) / aDet);
 
-      Double a3 = (Math.Atan2(yc - y3, xc - x3) * 180.0 / Math.PI) + 180.0;
       Double a1 = (Math.Atan2(yc - y1, xc - x1) * 180.0 / Math.PI) + 180.0;
+      Double a2 = (Math.Atan2(yc - y2, xc - x2) * 180.0 / Math.PI) + 180.0;
+      Double a3 = (Math.Atan2(yc - y3, xc - x3) * 180.0 / Math.PI) + 180.0;
 
-      return
-        new Arc(
-          ((xc - r) - xMin) / (xMax - xMin) * 100.0,
-          ((yc - r) - yMin) / (yMax - yMin) * 100.0,
-          (2.0 * r) / (xMax - xMin) * 100.0,
-          (2.0 * r) / (yMax - yMin) * 100.0,
-          a1,
-          a3 - a1
-        );
+      Double a;
+      Double s;
+
+      if (Math.Sign(a2 - a1) < Math.Sign(a3 - a2))
+      {
+        // a1>a2 but a2<a3 -- reduce a3...
+        a1 -= 360.0;
+      }
+      else if (Math.Sign(a1 - a2) < Math.Sign(a2 - a3))
+      {
+        // a1<a2 but a2>a3 -- increase a3...
+        a3 += 360.0;
+      }
+
+      // they are now going in a single direction, all is ok.
+      if (a1 < a3)
+      {
+        a = a1 / 180.0 * Math.PI;
+        s = (a3 - a1) / 180.0 * Math.PI;
+      }
+      else
+      {
+        a = a3 / 180.0 * Math.PI;
+        s = (a1 - a3) / 180.0 * Math.PI;
+      }
+
+      Bezier bezier = new Bezier();
+      bezier.x1 = xc + r * Math.Cos(a);
+      bezier.y1 = yc + r * Math.Sin(a);
+      bezier.x2 = xc + r * Math.Cos(a + s / 3.0);
+      bezier.y2 = yc + r * Math.Sin(a + s / 3.0);
+      bezier.x3 = xc + r * Math.Cos(a + 2.0 * s / 3.0);
+      bezier.y3 = yc + r * Math.Sin(a + 2.0 * s / 3.0);
+      bezier.x4 = xc + r * Math.Cos(a + s);
+      bezier.y4 = yc + r * Math.Sin(a + s);
+
+      bezier.x1 = (bezier.x1 - xMin) / (xMax - xMin) * 100.0;
+      bezier.y1 = (-bezier.y1 - yMin) / (yMax - yMin) * 100.0;
+      bezier.x2 = (bezier.x2 - xMin) / (xMax - xMin) * 100.0;
+      bezier.y2 = (-bezier.y2 - yMin) / (yMax - yMin) * 100.0;
+      bezier.x3 = (bezier.x3 - xMin) / (xMax - xMin) * 100.0;
+      bezier.y3 = (-bezier.y3 - yMin) / (yMax - yMin) * 100.0;
+      bezier.x4 = (bezier.x4 - xMin) / (xMax - xMin) * 100.0;
+      bezier.y4 = (-bezier.y4 - yMin) / (yMax - yMin) * 100.0;
+
+      return bezier;
+      //return
+      //  new Arc(
+      //    ((xc - r) - xMin) / (xMax - xMin) * 100.0,
+      //    ((yc - r) - yMin) / (yMax - yMin) * 100.0,
+      //    (2.0 * r) / (xMax - xMin) * 100.0,
+      //    (2.0 * r) / (yMax - yMin) * 100.0,
+      //    a1,
+      //    a3 - a1
+      //  );
     }
   }
 }

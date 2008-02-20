@@ -49,22 +49,26 @@
 <y1>93.563233153523441</y1>
 <y2>93.563233153523441</y2>
 </a1:Line>
-<a1:Arc id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>311.04405808941772</a>
-<h>52.375864501457883</h>
-<s>-82.088116178835463</s>
-<w>99.999985125421134</w>
-<x>7.4372894341121196E-06</x>
-<y>-9.9239015260610487E-05</y>
-</a1:Arc>
-<a1:Arc id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>131.04405808941772</a>
-<h>52.375864501457905</h>
-<s>-82.088116178835463</s>
-<w>99.999985125421162</w>
-<x>7.4372894068873295E-06</x>
-<y>47.62423473755738</y>
-</a1:Arc>
+<a1:Bezier id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>82.831953890631226</x1>
+<x2>61.826084357230926</x2>
+<x3>38.173844711263683</x3>
+<x4>17.167952717358162</x4>
+<y1>6.4367668464765808</y1>
+<y2>0.74291949950615133</y2>
+<y3>0.74292320204274</y3>
+<y4>6.4367597045409859</y4>
+</a1:Bezier>
+<a1:Bezier id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>17.168046109368753</x1>
+<x2>38.173904449576433</x2>
+<x3>61.826144095534488</x3>
+<x4>82.832029220015059</x4>
+<y1>93.563233153523441</y1>
+<y2>99.257084414476012</y2>
+<y3>99.257072883955331</y3>
+<y4>93.563229429313708</y4>
+</a1:Bezier>
 <a1:Line id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>17.168046109368753</x1>
 <x2>17.168046109368753</x2>

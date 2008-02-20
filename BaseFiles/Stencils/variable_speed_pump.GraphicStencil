@@ -41,14 +41,16 @@
 </SOAP-ENC:Array>
 <SOAP-ENC:Array id="ref-10" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
-<a1:Arc id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>54.462243028256339</a>
-<h>83.333322528773792</h>
-<s>294.000876095538</s>
-<w>83.333322528773792</w>
-<x>-2.9718353638704304E-05</x>
-<y>-5.13669248588163E-05</y>
-</a1:Arc>
+<a1:Bezier id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>65.884933333333322</x1>
+<x2>76.8225617039591</x2>
+<x3>82.640497751206865</x3>
+<x4>82.4914935353922</x4>
+<y1>75.57213333333334</y1>
+<y2>64.031138792390536</y2>
+<y3>49.233235056671845</y3>
+<y4>33.333419568272873</y4>
+</a1:Bezier>
 <a1:Line id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>41.666636</x1>
 <x2>100</x2>
@@ -85,13 +87,15 @@
 <y1>75.571999999999989</y1>
 <y2>100</y2>
 </a1:Line>
-<a1:Arc id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>269.99995146960106</a>
-<h>83.333256891933232</h>
-<s>-144.46221379558546</s>
-<w>83.333256891933232</w>
-<x>4.284630305069944E-05</x>
-<y>-1.4945082208820775E-11</y>
-</a1:Arc>
+<a1:Bezier id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>41.666636</x1>
+<x2>10.627420205241602</x2>
+<x3>0.25224249720595304</x3>
+<x4>17.448270529000133</x4>
+<y1>0</y1>
+<y2>13.869523666292071</y2>
+<y3>46.244726690038455</y3>
+<y4>75.572097919520758</y4>
+</a1:Bezier>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

@@ -59,14 +59,16 @@
 <y1>86.362204099800138</y1>
 <y2>13.937689912675971</y2>
 </a1:Line>
-<a1:Arc id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>180.00000000000003</a>
-<h>22.083348941336681</h>
-<s>179.99999999999997</s>
-<w>100</w>
-<x>-2.6586808438821468E-14</x>
-<y>75.176862548944868</y>
-</a1:Arc>
+<a1:Bezier id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>0</x1>
+<x2>24.999961698740226</x2>
+<x3>74.999923397421767</x3>
+<x4>99.999999999823956</x4>
+<y1>86.2185370196132</y1>
+<y2>95.78090272818055</y2>
+<y3>95.780917378206681</y3>
+<y4>86.218566319687881</y4>
+</a1:Bezier>
 <a1:Line id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>57.054815296716619</x1>
 <x2>43.165928625167375</x2>
@@ -121,14 +123,16 @@
 <y1>2.6961815846126336</y1>
 <y2>0</y2>
 </a1:Line>
-<a1:Arc id="ref-23" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>2.8421709430404007E-14</a>
-<h>22.083348941336681</h>
-<s>179.99999999999994</s>
-<w>100</w>
-<x>-2.6586808438821468E-14</x>
-<y>2.896015442007621</y>
-</a1:Arc>
+<a1:Bezier id="ref-23" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>100</x1>
+<x2>75.000038301259764</x2>
+<x3>25.000076602578204</x3>
+<x4>1.7604898321239616E-10</x4>
+<y1>13.937689912675971</y1>
+<y2>4.375324204108618</y2>
+<y3>4.3753095540825049</y3>
+<y4>13.937660612601297</y4>
+</a1:Bezier>
 <a1:Line id="ref-24" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>56.9568111019535</x1>
 <x2>43.067924430404247</x2>

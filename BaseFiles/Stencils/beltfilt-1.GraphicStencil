@@ -38,14 +38,16 @@
 </SOAP-ENC:Array>
 <SOAP-ENC:Array id="ref-10" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
-<a1:Arc id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>0</a>
-<h>50</h>
-<s>360</s>
-<w>11.111111111111111</w>
-<x>0</x>
-<y>0</y>
-</a1:Arc>
+<a1:Bezier id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>5.5555555555555554</x1>
+<x2>11.105305094988491</x2>
+<x3>5.0482375802513939</x3>
+<x4>0.052181357250723356</x4>
+<y1>225</y1>
+<y2>23.857340381535487</y2>
+<y3>0.10445368029355917</y3>
+<y4>28.418430455195843</y4>
+</a1:Bezier>
 <a1:Line id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>5.5555555555555554</x1>
 <x2>94.444444444444443</x2>

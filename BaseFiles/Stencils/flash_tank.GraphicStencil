@@ -69,13 +69,15 @@
 <y1>78.260903591697215</y1>
 <y2>100</y2>
 </a1:Line>
-<a1:Arc id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>331.92747262008186</a>
-<h>49.2754022936658</h>
-<s>-123.85494524016369</s>
-<w>100.00006705886888</w>
-<x>-7.7647094480341218E-05</x>
-<y>1.0434781220162393E-05</y>
-</a1:Arc>
+<a1:Bezier id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>94.117615916945866</x1>
+<x2>67.626728727554664</x2>
+<x3>32.373070564144484</x3>
+<x4>5.8822312590203563</x4>
+<y1>13.04348393194954</y1>
+<y2>1.5817709702471081</y2>
+<y3>1.581801676316599</y3>
+<y4>13.043551758690885</y4>
+</a1:Bezier>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

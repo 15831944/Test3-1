@@ -93,28 +93,32 @@
 <y1>91.818033862193786</y1>
 <y2>8.181719544492827</y2>
 </a1:Line>
-<a1:Arc id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>318.59051256421321</a>
-<h>29.090848787336444</h>
-<s>-97.181025128426256</s>
-<w>88.888771603845726</w>
-<x>9.2130527561533508E-05</x>
-<y>3.2571634239644438</y>
-</a1:Arc>
+<a1:Bezier id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>77.777836381788376</x1>
+<x2>56.841928622303882</x2>
+<x3>32.0475380582565</x3>
+<x4>11.1113565192553</x4>
+<y1>8.181719544492827</y1>
+<y2>3.834443834051573</y2>
+<y3>3.8343952752342267</y3>
+<y4>8.1815558459016788</y4>
+</a1:Bezier>
 <a1:Line id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>44.444477932450496</x1>
 <x2>44.444477932450496</x2>
 <y1>3.2567578897530582</y1>
 <y2>0.90894295310288542</y2>
 </a1:Line>
-<a1:Arc id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>138.59051256421313</a>
-<h>29.090848787336437</h>
-<s>-97.1810251284262</s>
-<w>88.888771603845711</w>
-<x>9.2130527688686218E-05</x>
-<y>67.651741195385739</y>
-</a1:Arc>
+<a1:Bezier id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>11.111119483112624</x1>
+<x2>32.0470272425971</x2>
+<x3>56.841417806644486</x3>
+<x4>77.7775993456457</x4>
+<y1>91.818033862193786</y1>
+<y2>96.165309572635053</y2>
+<y3>96.165358131452408</y3>
+<y4>91.818197560784967</y4>
+</a1:Bezier>
 <a1:Line id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>44.444477932450496</x1>
 <x2>44.444477932450496</x2>

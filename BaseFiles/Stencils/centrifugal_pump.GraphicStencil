@@ -41,14 +41,16 @@
 </SOAP-ENC:Array>
 <SOAP-ENC:Array id="ref-10" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
-<a1:Arc id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>54.462264761736208</a>
-<h>83.333273852768045</h>
-<s>294.00083262857828</s>
-<w>83.333273852768045</w>
-<x>2.1626917299973531E-05</x>
-<y>-1.6410791321419538E-05</y>
-</a1:Arc>
+<a1:Bezier id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>65.884933333333322</x1>
+<x2>76.822593995770134</x2>
+<x3>82.640546612188075</x3>
+<x4>82.49156019935505</x4>
+<y1>75.57213333333334</y1>
+<y2>64.031178156374</y2>
+<y3>49.233280934992251</y3>
+<y4>33.333465279763622</y4>
+</a1:Bezier>
 <a1:Line id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>41.666693333333335</x1>
 <x2>100</x2>
@@ -85,13 +87,15 @@
 <y1>75.572</y1>
 <y2>100</y2>
 </a1:Line>
-<a1:Arc id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>269.9999755295604</a>
-<h>83.333282424375824</h>
-<s>-144.46218307643525</s>
-<w>83.333282424375824</w>
-<x>6.99165403735454E-05</x>
-<y>-3.801403636316536E-12</y>
-</a1:Arc>
+<a1:Bezier id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>41.666693333333335</x1>
+<x2>10.627477538574937</x2>
+<x3>0.25229983053928723</x3>
+<x4>17.448327862333468</x4>
+<y1>0</y1>
+<y2>13.869523666292077</y2>
+<y3>46.244726690038455</y3>
+<y4>75.572097919520758</y4>
+</a1:Bezier>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

@@ -94,14 +94,16 @@
 <y1>50</y1>
 <y2>50</y2>
 </a1:Line>
-<a1:Arc id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>270.00189280304267</a>
-<h>23.4373353041352</h>
-<s>-144.46556301055784</s>
-<w>13.091837788063062</w>
-<x>84.289653654812014</x>
-<y>38.281249993605684</y>
-</a1:Arc>
+<a1:Bezier id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>90.835788797497514</x1>
+<x2>85.959337027885269</x2>
+<x3>84.32914683940902</x3>
+<x4>87.030500552537532</x4>
+<y1>38.28125</y1>
+<y2>42.181696067671496</y2>
+<y3>51.287097407679738</y3>
+<y4>59.535626910800019</y4>
+</a1:Bezier>
 <a1:Line id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>87.030959795556413</x1>
 <x2>84.289684257565384</x2>
@@ -138,14 +140,16 @@
 <y1>38.28125</y1>
 <y2>38.28125</y2>
 </a1:Line>
-<a1:Arc id="ref-25" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>54.462413861159334</a>
-<h>23.4371256184109</h>
-<s>293.99968022435678</s>
-<w>13.091720659923137</w>
-<x>84.289782661122374</x>
-<y>38.28158950286624</y>
-</a1:Arc>
+<a1:Bezier id="ref-25" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>94.640338504936523</x1>
+<x2>96.358795158081435</x2>
+<x3>97.272877822725121</x3>
+<x4>97.249540287272168</x4>
+<y1>59.535950000000007</y1>
+<y2>56.290305794087288</y2>
+<y3>52.128442205516279</y3>
+<y4>47.656617901726079</y4>
+</a1:Bezier>
 <a1:Line id="ref-26" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>69.823625521931589</x1>
 <x2>78.202460584563383</x2>

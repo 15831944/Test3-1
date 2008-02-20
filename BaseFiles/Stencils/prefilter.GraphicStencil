@@ -63,14 +63,16 @@
 <y1>75</y1>
 <y2>0</y2>
 </a1:Line>
-<a1:Arc id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<a>180</a>
-<h>49.999999999999986</h>
-<s>-180</s>
-<w>33.333333333333329</w>
-<x>33.333333333333329</x>
-<y>50</y>
-</a1:Arc>
+<a1:Bezier id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>33.333333333333329</x1>
+<x2>41.666653899580083</x2>
+<x3>58.3333077991406</x3>
+<x4>66.666666666608</x4>
+<y1>75</y1>
+<y2>96.650624037978375</y2>
+<y3>96.650657207825361</y3>
+<y4>75.000066339744834</y4>
+</a1:Bezier>
 <a1:Line id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>33.333333333333329</x1>
 <x2>0</x2>
