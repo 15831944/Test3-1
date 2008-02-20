@@ -368,7 +368,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, I.m_sTag,
           MakePath(projectPath, Grp.m_sTitle), Model, Shape,
           CRectangleF(boxX, boxY, boxW, boxH),
-          0.0, 
+          GTI.m_Node.m_Rotation, 
           CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)-GTI.m_Tag.m_Rotation, (float)GTI.m_Tag.m_Visible!=0),
           COLORREF(0), false, false);
 
