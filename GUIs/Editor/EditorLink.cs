@@ -55,7 +55,10 @@ namespace SysCAD.Editor
     {
       if (Visible && ((hovered) || ((arrow.Origin.Tag as EditorNode).Hovered) || ((arrow.Destination.Tag as EditorNode).Hovered)))
       {
-        opacity += 50;
+        if (opacity < 170)
+        {
+          opacity += 50;
+        }
         if (opacity > 170)
         {
           opacityTimer.Stop();
@@ -64,7 +67,10 @@ namespace SysCAD.Editor
       }
       else
       {
-        opacity -= 50;
+        if (opacity > 50)
+        {
+          opacity -= 50;
+        }
         if (opacity < 51)
         {
           opacityTimer.Stop();
