@@ -426,10 +426,27 @@ ref class CSvcConnectCLRThread
       double Angle, CSvcTagBlk & TagBlk, COLORREF FillColor, 
       bool MirrorX, bool MirrorY)
       {
+      SysCAD::Protocol::Rectangle ^ BndRect = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+      SysCAD::Protocol::Rectangle ^ TagArea = gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height());  
       //PKH Comment- Is this correct
+      GraphicStencil ^Gs; 
+      if (config->GraphicStencils->TryGetValue((gcnew String(Symbol))->ToLower()->Replace(' ', '_'), Gs))
+        {
+        if (BndRect->Width==0.0)
+          {
+          BndRect->Inflate(Gs->defaultSize->Width/2.0, Gs->defaultSize->Height/2.0);
+          }
+        if (TagArea->Width==0.0)
+          {
+          TagArea = Gs->TagArea;
+          TagArea->X += BndRect->X;
+          TagArea->Y += BndRect->Y;
+          }
+        }
+      
       GraphicNode ^ GNd = gcnew GraphicNode(Guid(gcnew String(GraphicGuid)), gcnew String(Tag), gcnew String(Path), Guid(gcnew String(ModelGuid)), 
-        gcnew String(Symbol), gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height()),
-        Angle, gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height()), TagBlk.m_Angle, TagBlk.m_Visible, Color::Empty, 
+        gcnew String(Symbol), BndRect,
+        Angle, TagArea, TagBlk.m_Angle, TagBlk.m_Visible, Color::Empty, 
         Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
 
       ModelNode ^ MNd = gcnew ModelNode(Guid(gcnew String(ModelGuid)), gcnew String(Tag), gcnew String(ClassId));

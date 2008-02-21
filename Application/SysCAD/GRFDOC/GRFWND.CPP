@@ -428,7 +428,7 @@ int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcN
     CB.ASymbol=NdGBlk.m_Shape;
     CB.m_sGuid=Header.m_Guid;
     CB.m_Rect=NdGBlk.m_BoundingRect;
-    CB.m_TagPt.X=TagBlk.m_Area.MidX();
+    CB.m_TagPt.X=TagBlk.m_Area.MidX()-PageRct.Left();
     CB.m_TagPt.Y=PageRct.Top()-TagBlk.m_Area.Top();
     CB.m_TagVisible=TagBlk.m_Visible;
 
@@ -612,7 +612,7 @@ int CGrfWnd::EO_SCInsertLinkG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcL
     LDH.SetArrowScale(2.5); //todo user option
     LDH.SetShowTag(TagBlk.m_Visible); //todo user option
 
-    LDH.SetTag(Header.m_Tag, TagBlk.m_Area.MidX(), PageRct.Top()-TagBlk.m_Area.Top(), 0.0);
+    LDH.SetTag(Header.m_Tag, TagBlk.m_Area.MidX()-PageRct.Left(), PageRct.Top()-TagBlk.m_Area.Top(), 0.0);
     LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
     LDH.InitPoints();
 

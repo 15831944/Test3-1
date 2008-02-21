@@ -99,8 +99,8 @@ namespace SysCAD.Protocol
     {
       x -= width;
       y -= height;
-      width += width * 2;
-      height += height * 2;
+      this.width += width * 2;
+      this.height += height * 2;
     }
 
     /// <summary>

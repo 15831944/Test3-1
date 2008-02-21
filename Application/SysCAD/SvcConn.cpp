@@ -667,11 +667,11 @@ void CSvcConnect::GCBCreateGroup(LPCSTR Guid, LPCSTR Prj, LPCSTR Page, const CRe
 
 void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle)
   {
-  double Width=20;
-  double Height=20;
+  double Width=0;      //FIX
+  double Height=0;
 
   CRectangleF PageRct = GetPageRect(Page);
-  CRectangleF boundingRect(Pt.x()-0.5*Width,PageRct.Top()-Pt.y()-0.5*Height,Width, Height);
+  CRectangleF boundingRect(PageRct.Left()+Pt.x()-0.5*Width,PageRct.Top()-Pt.y()-0.5*Height,Width, Height);
   // TO Fix
   //CString Shape = ExtractShape(ClassId);//Symbol);
   CString Shape = ExtractShape(Symbol);
@@ -681,7 +681,7 @@ void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
   DO_ENTRY_GGTPSM("GCBCreateNode", GraphicGuid, ModelGuid, Tag, MakePath(Prj, Page), Shape, ClassId);
 
-  CRectangleF textBox(boundingRect.MidX(), boundingRect.Top(), 2.0f*strlen(Tag), 3.0f);
+  CRectangleF textBox;//(boundingRect.MidX(), boundingRect.Top(), 2.0f*strlen(Tag), 3.0f);
 
   m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CSvcTagBlk(textBox, 0.0, true), 0, false, false); // !!! tagArea not used.
 
