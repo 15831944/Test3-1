@@ -426,11 +426,32 @@ ref class CSvcConnectCLRThread
       double Angle, CSvcTagBlk & TagBlk, COLORREF FillColor, 
       bool MirrorX, bool MirrorY)
       {
+      if (stricmp(Tag, "A22-SC-001")==0)
+        {
+        int xxx=0;
+        }
       SysCAD::Protocol::Rectangle ^ BndRect = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
       SysCAD::Protocol::Rectangle ^ TagArea = gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height());  
       //PKH Comment- Is this correct
       GraphicStencil ^Gs; 
-      if (config->GraphicStencils->TryGetValue((gcnew String(Symbol))->ToLower()->Replace(' ', '_'), Gs))
+      String ^ gcSymbol = (gcnew String(Symbol))->ToLower()->Replace(' ', '_');
+
+      // Check for Existance - then : Try Trimming
+      while (gcSymbol->Length>1 && !config->GraphicStencils->TryGetValue(gcSymbol, Gs))
+        {
+        gcSymbol = gcSymbol->Remove(gcSymbol->Length-1);
+        Gs = nullptr;
+        }
+
+      // Try ClassId
+      if (Gs == nullptr)
+        {
+        gcSymbol = (gcnew String(ClassId))->ToLower()->Replace(' ', '_');
+        if (gcSymbol->Length>1 && !config->GraphicStencils->TryGetValue(gcSymbol, Gs))
+           Gs = nullptr;
+        }
+      
+      if (Gs != nullptr)
         {
         if (BndRect->Width==0.0)
           {
@@ -443,9 +464,13 @@ ref class CSvcConnectCLRThread
           TagArea->Y += BndRect->Y;
           }
         }
+      else
+        {
+        // Do Anything ???;
+        }
       
       GraphicNode ^ GNd = gcnew GraphicNode(Guid(gcnew String(GraphicGuid)), gcnew String(Tag), gcnew String(Path), Guid(gcnew String(ModelGuid)), 
-        gcnew String(Symbol), BndRect,
+        gcSymbol, BndRect,
         Angle, TagArea, TagBlk.m_Angle, TagBlk.m_Visible, Color::Empty, 
         Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
 
