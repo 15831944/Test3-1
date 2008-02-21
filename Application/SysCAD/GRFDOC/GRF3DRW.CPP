@@ -5925,6 +5925,31 @@ pBlock DXF_Drawing::LoadFromLib(pchar Path, pchar FileName, pchar BlockName)
           strcat(fn1, FileName);
           strcat(fn1, ".dxf");
           f = dxf_fopen(fn1, DXF_READ);
+#if SYSCAD10
+          if (!f )
+            {
+            // try ' ' in place of '_'
+            char * p=strchr(FileName, '_');
+            if (p)
+              {
+              strcpy(fn1, Path);
+              if (fn1[strlen(fn1)-1]!='\\')
+                strcat(fn1, "\\");
+              strcat(fn1, fd.cFileName);
+              strcat(fn1, "\\");
+              char*pfn=fn1+strlen(fn1);
+              strcat(fn1, FileName);
+              strcat(fn1, ".dxf");
+              for ( ; *pfn; pfn++)
+                {
+                if (*pfn=='_') 
+                  *pfn=' ';
+                }
+              
+              f = dxf_fopen(fn1, DXF_READ);
+              }
+            }
+#endif
           if (f)
             break;
           }

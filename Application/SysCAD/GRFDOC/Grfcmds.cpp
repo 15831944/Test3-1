@@ -3360,24 +3360,25 @@ bool GrfCmdBlk::DoInsertNodeGrf(CInsertBlk* CB, bool SkipTagTest)
       C3_BOX_S Bnds ;                      
       pDrw->GetBounds(&Bnds, EmptyLst, Lst, EmptyLst);
 
-      dml_free_list(Lst);
-      dml_free_list(EmptyLst);
-
-
-      //DXF_INSERT_PT(CB->e)[0]   = CB.m_Rect.MidX()-PageRct.Left();
-      //DXF_INSERT_PT(CB->e)[1]   = PageRct.Top()-CB.m_Rect.MidY();
-      //DXF_INSERT_PT(CB->e)[2]   = 0;
+      // Adjust Scaling 
       DXF_INSERT_X_SCALE(CB->e)  = DXF_INSERT_X_SCALE(CB->e)  * CB->m_Rect.Width()/Max(1.0, (C3_MAX_X(&Bnds)-C3_MIN_X(&Bnds)));
       DXF_INSERT_Y_SCALE(CB->e)  = DXF_INSERT_Y_SCALE(CB->e)  * CB->m_Rect.Height()/Max(1.0, (C3_MAX_Y(&Bnds)-C3_MIN_Y(&Bnds)));
 
-      //DXF_INSERT_ROT_ANG(CB->e) = -angle;
-      //  }
+      // Adjust Insert Pt
+      pDrw->GetBounds(&Bnds, EmptyLst, Lst, EmptyLst);
+
+      double InsXMid=DXF_INSERT_PT(CB->e)[0];
+      double InsYMid=DXF_INSERT_PT(CB->e)[1];
+      double BndXMid=0.5*(C3_MAX_X(&Bnds)+C3_MIN_X(&Bnds));
+      double BndYMid=0.5*(C3_MAX_Y(&Bnds)+C3_MIN_Y(&Bnds));
+      DXF_INSERT_PT(CB->e)[0] += InsXMid-BndXMid;
+      DXF_INSERT_PT(CB->e)[1] += InsYMid-BndYMid;
+
+      dml_free_list(Lst);
+      dml_free_list(EmptyLst);
 
       pDrw->EntityInvalidate(CB->e);
       pWnd->Invalidate(true);
-
-
-      int xxx=0;
       }
     pDsp->Draw(CB->e, -1);
     }
