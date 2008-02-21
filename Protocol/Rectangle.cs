@@ -64,6 +64,19 @@ namespace SysCAD.Protocol
       height = rectF.Height;
     }
 
+    public Rectangle(Rectangle rect)
+    {
+      x = rect.X;
+      y = rect.Y;
+      width = rect.Width;
+      height = rect.Height;
+    }
+
+    public Rectangle Clone()
+    {
+      return new Rectangle(this);
+    }
+
     private static Rectangle FromLTRB(Double left, Double top,
                Double right, Double bottom)
     {

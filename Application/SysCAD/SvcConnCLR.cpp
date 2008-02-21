@@ -438,7 +438,7 @@ ref class CSvcConnectCLRThread
           }
         if (TagArea->Width==0.0)
           {
-          TagArea = Gs->TagArea;
+          TagArea = Gs->TagArea->Clone();
           TagArea->X += BndRect->X;
           TagArea->Y += BndRect->Y;
           }
