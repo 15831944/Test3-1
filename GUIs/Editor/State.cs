@@ -275,7 +275,11 @@ namespace SysCAD.Editor
 
     static public void SetControlPoints(Arrow arrow, List<SysCAD.Protocol.Point> points)
     {
-      arrow.SegmentCount = (short)(points.Count - 1);
+      if (points.Count % 2 == 0)
+        arrow.SegmentCount = (short)(points.Count); // extra point required.
+      else
+        arrow.SegmentCount = (short)(points.Count - 1);
+
       int i = 0;
       SysCAD.Protocol.Point keepPoint = SysCAD.Protocol.Point.Empty;
 

@@ -251,8 +251,8 @@ namespace SysCAD.Service
                     newControlPoints.Add(pointA);
                     newControlPoints.Add(pointB);
                     newControlPoints.Add(pointC);
-                    if (newControlPoints.Count % 2 == 0)
-                      newControlPoints.Add(pointC);
+                    //if (newControlPoints.Count % 2 == 0)
+                    //  newControlPoints.Add(pointC);
                     graphicLink.ControlPoints = newControlPoints;
                     }
                   }
