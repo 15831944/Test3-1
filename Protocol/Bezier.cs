@@ -63,5 +63,61 @@ namespace SysCAD.Protocol
                    x4.ToString("N2", CultureInfo.InvariantCulture) + ", " +
                    y4.ToString("N2", CultureInfo.InvariantCulture) + ")";
     }
+
+    public PointF pointF1
+    {
+      get
+      {
+        return new PointF((float)x1, (float)y1);
+      }
+
+      set
+      {
+        x1 = (Double)value.X;
+        y1 = (Double)value.Y;
+      }
+    }
+
+    public PointF pointF2
+    {
+      get
+      {
+        return new PointF((float)x2, (float)y2);
+      }
+
+      set
+      {
+        x2 = (Double)value.X;
+        y2 = (Double)value.Y;
+      }
+    }
+
+    public PointF pointF3
+    {
+      get
+      {
+        return new PointF((float)x3, (float)y3);
+      }
+
+      set
+      {
+        x3 = (Double)value.X;
+        y3 = (Double)value.Y;
+      }
+    }
+
+    public PointF pointF4
+    {
+      get
+      {
+        return new PointF((float)x4, (float)y4);
+      }
+
+      set
+      {
+        x4 = (Double)value.X;
+        y4 = (Double)value.Y;
+      }
+    }
   }
 }

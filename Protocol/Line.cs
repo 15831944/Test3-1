@@ -1,6 +1,7 @@
 
 using System;
 using System.Globalization;
+using System.Drawing;
 
 [assembly: CLSCompliant(true)]
 namespace SysCAD.Protocol
@@ -36,6 +37,34 @@ namespace SysCAD.Protocol
                    y1.ToString("N2", CultureInfo.InvariantCulture) + ", " +
                    x2.ToString("N2", CultureInfo.InvariantCulture) + ", " +
                    y2.ToString("N2", CultureInfo.InvariantCulture) + ")";
+    }
+
+    public PointF pointF1
+    {
+      get
+      {
+        return new PointF((float)x1, (float)y1);
+      }
+
+      set
+      {
+        x1 = (Double)value.X;
+        y1 = (Double)value.Y;
+      }
+    }
+
+    public PointF pointF2
+    {
+      get
+      {
+        return new PointF((float)x2, (float)y2);
+      }
+
+      set
+      {
+        x2 = (Double)value.X;
+        y2 = (Double)value.Y;
+      }
     }
   }
 }

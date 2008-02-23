@@ -38,7 +38,16 @@ namespace SysCAD.Protocol
       //this.max = max;
     }
 
-    private Anchor(String tag, AnchorType type, Int16 look, PointF position)//, uint min, uint max)
+    public Anchor(String tag, AnchorType type, Int16 look)//, uint min, uint max)
+    {
+      this.tag = tag;
+      this.type = type;
+      this.look = look;
+      //this.min = min;
+      //this.max = max;
+    }
+
+    public Anchor(String tag, AnchorType type, Int16 look, PointF position)//, uint min, uint max)
     {
       this.tag = tag;
       this.type = type;
@@ -49,7 +58,7 @@ namespace SysCAD.Protocol
       //this.max = max;
     }
 
-    private Anchor(String tag, AnchorType type, Int16 look, ArrayList positions)//, uint min, uint max)
+    public Anchor(String tag, AnchorType type, Int16 look, ArrayList positions)//, uint min, uint max)
     {
       this.tag = tag;
       this.type = type;

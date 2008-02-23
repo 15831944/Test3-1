@@ -654,12 +654,48 @@ namespace SysCAD.Editor
           if ((modelLink.OriginPort != null) && ((origin.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.OriginPort + graphicLink.OriginPortID.ToString())))
             arrow.OrgnAnchor = (origin.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.OriginPort + graphicLink.OriginPortID.ToString()];
           else
-            arrow.OrgnAnchor = -1;
+          {
+            Console.WriteLine("(origin.ModelBox.Tag as EditorNode).modelNode : " +
+              (origin.ModelBox.Tag as EditorNode).modelNode.Guid.ToString() + " : " +
+              (origin.ModelBox.Tag as EditorNode).modelNode.NodeClass.ToString() + " : " +
+              (origin.ModelBox.Tag as EditorNode).modelNode.Tag.ToString());
+
+            Console.WriteLine("modelLink.OriginPort : " + modelLink.OriginPort);
+            Console.WriteLine("graphicLink.OriginPortID.ToString() : " + graphicLink.OriginPortID.ToString());
+            Console.WriteLine("anchorTagToInt Key:Value pairs:");
+            foreach (string key in (origin.ModelBox.Tag as EditorNode).anchorTagToInt.Keys)
+            {
+              Console.WriteLine("  " + key + " : " + (origin.ModelBox.Tag as EditorNode).anchorTagToInt[key].ToString());
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+
+            arrow.DestAnchor = -1;
+          }
 
           if ((modelLink.DestinationPort != null) && ((destination.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.DestinationPort + graphicLink.DestinationPortID.ToString())))
             arrow.DestAnchor = (destination.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.DestinationPort + graphicLink.DestinationPortID.ToString()];
           else
+          {
+            Console.WriteLine("(destination.ModelBox.Tag as EditorNode).modelNode : " + 
+              (destination.ModelBox.Tag as EditorNode).modelNode.Guid.ToString() + " : " + 
+              (destination.ModelBox.Tag as EditorNode).modelNode.NodeClass.ToString() + " : " + 
+              (destination.ModelBox.Tag as EditorNode).modelNode.Tag.ToString());
+
+            Console.WriteLine("modelLink.DestinationPort : " + modelLink.DestinationPort);
+            Console.WriteLine("graphicLink.DestinationPortID.ToString() : " + graphicLink.DestinationPortID.ToString());
+            Console.WriteLine("anchorTagToInt Key:Value pairs:");
+            foreach (string key in (destination.ModelBox.Tag as EditorNode).anchorTagToInt.Keys)
+            {
+              Console.WriteLine("  " + key + " : " + (destination.ModelBox.Tag as EditorNode).anchorTagToInt[key].ToString());
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+
             arrow.DestAnchor = -1;
+          }
 
           String originTag = "";
 
@@ -1731,6 +1767,19 @@ namespace SysCAD.Editor
         clientProtocol.LogMessage(out requestId, "ModifyLink: One of the objects missing for GraphicNode \'" + graphicLink.Guid + ", " + graphicLink.Tag + "\'", SysCAD.Log.MessageType.Error);
         return;
       }
+    }
+
+    internal static bool CompareControlPoints(PointCollection pointCollection, List<SysCAD.Protocol.Point> list)
+    {
+      if (pointCollection.Count == list.Count) return false;
+
+      for (int i = 0; i < list.Count; i++)
+      {
+        if (pointCollection[i].X != list[i].X) return false;
+        if (pointCollection[i].Y != list[i].Y) return false;
+      }
+
+      return true;
     }
   }
 }
