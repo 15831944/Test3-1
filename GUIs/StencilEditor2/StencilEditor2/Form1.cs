@@ -17,6 +17,8 @@ namespace StencilEditor2
     Box modelBox;
     RectangleF visibleRect = new RectangleF(-10.0F, -10.0F, 120.0F, 120.0F);
 
+    String path = "D:\\SysCAD\\PKH\\BaseFiles\\Stencils\\";
+
     ChartObject contextObject;
     PointF contextPoint;
 
@@ -124,10 +126,11 @@ namespace StencilEditor2
       openFileDialog.Multiselect = false;
       openFileDialog.ShowHelp = false;
       openFileDialog.ShowReadOnly = false;
-      openFileDialog.FileName = "Pump-1.modelstencil";
+      openFileDialog.SupportMultiDottedExtensions = true;
+      openFileDialog.FileName = System.IO.Path.GetFileName(path);
       openFileDialog.Title = "Open ModelStencil";
 
-      openFileDialog.InitialDirectory = "D:\\SysCAD\\PKH\\BaseFiles\\Stencils";
+      openFileDialog.InitialDirectory = System.IO.Path.GetFullPath(path);
 
       if (openFileDialog.ShowDialog(this) == DialogResult.OK)
       {
@@ -140,6 +143,7 @@ namespace StencilEditor2
         SetStencil(modelStencil);
         SetControls(modelStencil);
       }
+      path = openFileDialog.FileName;
     }
 
     private void SetControls(ModelStencil modelStencil)
@@ -230,7 +234,7 @@ namespace StencilEditor2
           box.HandlesStyle = HandlesStyle.MoveOnly;
           box.ToolTip = anchor.Tag + " : " + anchor.Look;
           box.ZTop();
-          box.Tag = anchor;
+          box.Tag = point;
         }
       }
     }
@@ -411,6 +415,12 @@ namespace StencilEditor2
         arc.y = GridUnfix(e.Box.BoundingRect.Y);
         arc.w = e.Box.BoundingRect.Width;
         arc.h = e.Box.BoundingRect.Height;
+      }
+      else if (e.Box.Tag is SysCAD.Protocol.Point)
+      {
+        SysCAD.Protocol.Point point = e.Box.Tag as SysCAD.Protocol.Point;
+        point.X = GridUnfix(e.Box.BoundingRect.X + 1.0F);
+        point.Y = GridUnfix(e.Box.BoundingRect.Y + 1.0F);
       }
 
       SetStencil(modelStencil);
@@ -813,15 +823,17 @@ namespace StencilEditor2
     {
       SaveFileDialog saveFileDialog = new SaveFileDialog();
       saveFileDialog.AddExtension = true;
-      saveFileDialog.CheckFileExists = true;
       saveFileDialog.CheckPathExists = true;
+      saveFileDialog.CreatePrompt = true;
       saveFileDialog.DefaultExt = "ModelStencil";
       saveFileDialog.Filter = "ModelStencils|*.ModelStencil";
+      saveFileDialog.OverwritePrompt = true;
       saveFileDialog.ShowHelp = false;
-      saveFileDialog.FileName = "Pump-1.modelstencil";
-      saveFileDialog.Title = "Open ModelStencil";
+      saveFileDialog.SupportMultiDottedExtensions = true;
+      saveFileDialog.FileName = System.IO.Path.GetFileName(path);
+      saveFileDialog.Title = "Save ModelStencil";
 
-      saveFileDialog.InitialDirectory = "D:\\SysCAD\\PKH\\BaseFiles\\Stencils";
+      saveFileDialog.InitialDirectory = System.IO.Path.GetFullPath(path);
 
       if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
       {
