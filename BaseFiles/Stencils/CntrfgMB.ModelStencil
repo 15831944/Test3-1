@@ -63,7 +63,7 @@
     </a1:Anchor>
     <a1:Anchor id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
       <positions href="#ref-104"/>
-      <tag id="ref-28">Washwater</tag>
+      <tag id="ref-28">WashWater1</tag>
       <type>Process</type>
       <look>0</look>
     </a1:Anchor>
@@ -75,7 +75,7 @@
     </a1:Anchor>
     <a1:Anchor id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
       <positions href="#ref-106"/>
-      <tag id="ref-30">Washwater2</tag>
+      <tag id="ref-30">WashWater2</tag>
       <type>Process</type>
       <look>0</look>
     </a1:Anchor>
