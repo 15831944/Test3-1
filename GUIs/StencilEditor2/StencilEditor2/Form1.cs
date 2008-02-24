@@ -11,11 +11,8 @@ namespace StencilEditor2
 {
   public partial class Form1 : Form
   {
-    Preview preview1;
-    Preview preview2;
-    Preview preview3;
-    Preview preview4;
-    Preview preview5;
+    const int previewCount = 8;
+    Preview[] previews = new Preview[previewCount];
     ModelStencil modelStencil;
     Box modelBox;
     RectangleF visibleRect = new RectangleF(-10.0F, -10.0F, 120.0F, 120.0F);
@@ -30,23 +27,17 @@ namespace StencilEditor2
       this.flowChart1.DocExtents = new RectangleF(-10.0F, -10.0F, 120.0F, 120.0F);
       ZoomToRect(visibleRect);
 
-      preview1 = new Preview(this, toolStripButton1, 200, 0);
-      preview2 = new Preview(this, toolStripButton1, 100, 202);
-      preview3 = new Preview(this, toolStripButton1, 50, 304);
-      preview4 = new Preview(this, toolStripButton1, 25, 356);
-      preview5 = new Preview(this, toolStripButton1, 12, 383);
+      int previewY = 0;
+      for (int i = 0; i < previewCount; i++)
+      {
+        int height = (int)(400.0 / Math.Pow(2.0, (i + 1.0)));
+        previews[i] = new Preview(this, showPreviewToolStripMenuItem, height, previewY);
+        previewY += height + 2;
 
-      preview1.Owner = this;
-      preview2.Owner = this;
-      preview3.Owner = this;
-      preview4.Owner = this;
-      preview5.Owner = this;
+        previews[i].Owner = this;
+      }
 
-      preview1.UpdatePreview();
-      preview2.UpdatePreview();
-      preview3.UpdatePreview();
-      preview4.UpdatePreview();
-      preview5.UpdatePreview();
+      UpdatePreviews();
 
       ResetFlowChart(true);
     }
@@ -87,22 +78,15 @@ namespace StencilEditor2
       backBox.ZBottom();
     }
 
-    private void toolStripButton1_CheckStateChanged(object sender, EventArgs e)
-    {
-      preview1.UpdatePreview();
-      preview2.UpdatePreview();
-      preview3.UpdatePreview();
-      preview4.UpdatePreview();
-      preview5.UpdatePreview();
-    }
-
     private void Form1_VisibleChanged(object sender, EventArgs e)
     {
-      preview1.UpdatePreview();
-      preview2.UpdatePreview();
-      preview3.UpdatePreview();
-      preview4.UpdatePreview();
-      preview5.UpdatePreview();
+      UpdatePreviews();
+    }
+
+    private void UpdatePreviews()
+    {
+      foreach (Preview preview in previews)
+        preview.UpdatePreview();
     }
 
     private void modelStencilToolStripMenuItem_CheckStateChanged(object sender, EventArgs e)
@@ -150,6 +134,7 @@ namespace StencilEditor2
         modelStencil = OpenModelStencil(openFileDialog.FileName);
 
         editPropertiesToolStripMenuItem.Enabled = true;
+        saveToolStripMenuItem.Enabled = true;
 
         ResetFlowChart(true);
         SetStencil(modelStencil);
@@ -232,7 +217,7 @@ namespace StencilEditor2
           box.Tag = arc;
         }
       }
-      
+
       foreach (Anchor anchor in modelStencil.Anchors)
       {
         foreach (SysCAD.Protocol.Point point in anchor.Positions)
@@ -267,11 +252,8 @@ namespace StencilEditor2
       modelBox.Shape = GetShapeTemplate(modelStencil);
       modelBox.Visible = true;
 
-      preview1.SetStencil(GetShapeTemplate(modelStencil));
-      preview2.SetStencil(GetShapeTemplate(modelStencil));
-      preview3.SetStencil(GetShapeTemplate(modelStencil));
-      preview4.SetStencil(GetShapeTemplate(modelStencil));
-      preview5.SetStencil(GetShapeTemplate(modelStencil));
+      foreach (Preview preview in previews)
+        preview.SetStencil(GetShapeTemplate(modelStencil));
 
       flowChart1.Enabled = true;
     }
@@ -340,22 +322,23 @@ namespace StencilEditor2
       return modelStencil;
     }
 
+    private void SaveModelStencil(string fullpath, ModelStencil modelStencil)
+    {
+      SoapFormatter sf = new SoapFormatter();
+      StreamWriter streamWriter = new StreamWriter(fullpath);
+      Stream stream = streamWriter.BaseStream;
+      sf.Serialize(stream, modelStencil);
+      stream.Close();
+    }
+
     private void Form1_Move(object sender, EventArgs e)
     {
-      preview1.UpdatePreview();
-      preview2.UpdatePreview();
-      preview3.UpdatePreview();
-      preview4.UpdatePreview();
-      preview5.UpdatePreview();
+      UpdatePreviews();
     }
 
     private void Form1_Resize(object sender, EventArgs e)
     {
-      preview1.UpdatePreview();
-      preview2.UpdatePreview();
-      preview3.UpdatePreview();
-      preview4.UpdatePreview();
-      preview5.UpdatePreview();
+      UpdatePreviews();
       ZoomToRect(this.flowChart1.DocExtents);
     }
 
@@ -374,11 +357,7 @@ namespace StencilEditor2
 
     private void Form1_Activated(object sender, EventArgs e)
     {
-      preview1.UpdatePreview();
-      preview2.UpdatePreview();
-      preview3.UpdatePreview();
-      preview4.UpdatePreview();
-      preview5.UpdatePreview();
+      UpdatePreviews();
     }
 
     private void inToolStripMenuItem_Click(object sender, EventArgs e)
@@ -471,11 +450,6 @@ namespace StencilEditor2
     private void flowChart1_ArrowModifying(object sender, ArrowConfirmArgs e)
     {
       toolStripStatusLabel1.Text = GridUnfix(e.Point).ToString();
-    }
-
-    private void toolStripButton2_CheckStateChanged(object sender, EventArgs e)
-    {
-      flowChart1.AlignToGrid = toolStripButton2.Checked;
     }
 
     private void toolStripMenuItem3_Click(object sender, EventArgs e)
@@ -822,6 +796,37 @@ namespace StencilEditor2
       ChartObject hoverObject = flowChart1.GetObjectAt(contextPoint, true);
 
       // Hover information (e.g. anchor and look...)
+    }
+
+    private void showPreviewToolStripMenuItem_CheckStateChanged(object sender, EventArgs e)
+    {
+      UpdatePreviews();
+    }
+
+    private void toggleGridToolStripMenuItem_CheckStateChanged(object sender, EventArgs e)
+    {
+      flowChart1.AlignToGrid = toggleGridToolStripMenuItem.Checked;
+      //flowChart1.ShowGrid = toggleGridToolStripMenuItem.Checked;
+    }
+
+    private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      SaveFileDialog saveFileDialog = new SaveFileDialog();
+      saveFileDialog.AddExtension = true;
+      saveFileDialog.CheckFileExists = true;
+      saveFileDialog.CheckPathExists = true;
+      saveFileDialog.DefaultExt = "ModelStencil";
+      saveFileDialog.Filter = "ModelStencils|*.ModelStencil";
+      saveFileDialog.ShowHelp = false;
+      saveFileDialog.FileName = "Pump-1.modelstencil";
+      saveFileDialog.Title = "Open ModelStencil";
+
+      saveFileDialog.InitialDirectory = "D:\\SysCAD\\PKH\\BaseFiles\\Stencils";
+
+      if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
+      {
+        SaveModelStencil(saveFileDialog.FileName, modelStencil);
+      }
     }
   }
 }

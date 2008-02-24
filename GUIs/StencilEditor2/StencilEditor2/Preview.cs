@@ -14,16 +14,16 @@ namespace StencilEditor2
   public partial class Preview : Form
   {
     Form1 mainForm;
-    ToolStripButton toolStripButton1;
+    ToolStripMenuItem toolStripMenuItem;
     int size;
     int pos;
 
     Box modelBox;
 
-    public Preview(Form1 mainForm, ToolStripButton toolStripButton1, int size, int pos)
+    public Preview(Form1 mainForm, ToolStripMenuItem toolStripMenuItem, int size, int pos)
     {
       this.mainForm = mainForm;
-      this.toolStripButton1 = toolStripButton1;
+      this.toolStripMenuItem = toolStripMenuItem;
       this.size = size;
       this.pos = pos;
 
@@ -40,11 +40,11 @@ namespace StencilEditor2
     
     internal void UpdatePreview()
     {
-      Left = mainForm.RectangleToScreen(mainForm.ClientRectangle).Right + 3;
+      Left = mainForm.RectangleToScreen(mainForm.ClientRectangle).Right + 4;
       Top = mainForm.RectangleToScreen(mainForm.ClientRectangle).Top - 24 + pos;
       Width = size ;
       Height = size;
-      Visible = toolStripButton1.Checked && mainForm.Visible && (!(mainForm.WindowState == FormWindowState.Minimized));
+      Visible = toolStripMenuItem.Checked && mainForm.Visible && (!(mainForm.WindowState == FormWindowState.Minimized));
 
       this.flowChart1.Size = ClientSize;
       this.flowChart1.ZoomToRect(this.flowChart1.DocExtents);
