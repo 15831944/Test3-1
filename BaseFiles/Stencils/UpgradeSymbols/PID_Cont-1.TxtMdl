@@ -1,0 +1,12 @@
+ClassName,PIDControl
+ClassId,PID_Cont-1
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Control:PID
+Desc,PID Controller model.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,10000,C0.Meas,0x10,0x2000,0,1,0.00,$$$.C0.Meas
+Port1,10001,C0.Spt,0x10,0x2000,0,1,0.00,$$$.C0.Spt
+Port2,10002,C0.Out,0x1,0x2000,0,10,0.00,$$$.C0.Out
+Port3,10003,C0.FF,0x10,0x2000,0,1,0.00,$$$.C0.FF

@@ -1,0 +1,11 @@
+ClassName,Ejector
+ClassId,Ejector-1
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Process:Unit:Ejector(1)
+Desc,Ejector
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,InPres,0x10,0x80,1,1,0.00,InPres
+Port1,1,InSuct,0x30,0x80,1,1,0.00,InSuct
+Port2,2,Output,0x3,0x80,1,1,0.00,Output

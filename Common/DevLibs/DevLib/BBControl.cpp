@@ -68,12 +68,17 @@ void CBBControl::SetSubClass(pchar MdlName)
   delete m_pMethod;
   m_pMethod=NULL; // new ....
 
-  m_pMethod=dynamic_cast<MBaseMethod*>(Class()->SubConstruct()->Construct(this));
-  m_pMethod->Init(this);
-  m_pMethod->Init();
+  if (Class()->SubConstruct())
+    {
+    m_pMethod=dynamic_cast<MBaseMethod*>(Class()->SubConstruct()->Construct(this));
+    m_pMethod->Init(this);
+    m_pMethod->Init();
 
-  MdlNode::SetSubClass(MdlName);
-  CBBBase::SetSubClass(MdlName);
+    MdlNode::SetSubClass(MdlName);
+    CBBBase::SetSubClass(MdlName);
+    }
+  else
+    m_bSubClassOK=false;
   };
 
 //--------------------------------------------------------------------------

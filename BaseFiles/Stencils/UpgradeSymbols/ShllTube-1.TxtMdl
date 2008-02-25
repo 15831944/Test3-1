@@ -1,0 +1,13 @@
+ClassName,ShellTube
+ClassId,ShllTube-1
+CategoryGrp,0x40000000
+CategoryMdl,0x00000020
+ProgID,(null)
+ShortDesc,Heat Transfer:Shell & Tub
+Desc,With all streams connected,  calculate the outlet temperature and duty. With liquor streams connected, specify the outlet temperature and steam pressure, assume all steam condensate, and calculate steam usage.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,TubesIn,0x30,0x80,1,20,1.00,
+Port1,1,TubesOut,0x3,0x80,1,1,0.00,
+Port2,2,ShellIn,0x50,0x80,1,20,1.00,
+Port3,3,ShellOut,0x5,0x80,1,1,0.00,
+Port4,4,ShellVent,0x1,0x80,0,1,1.00,

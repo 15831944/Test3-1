@@ -1,0 +1,14 @@
+ClassName,Classifier
+ClassId,Classif
+CategoryGrp,0x20000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Separation:Classifier
+Desc,The classifier mixes perfectly all the incoming feed streams and then, based on the user configuration, calculates the amount, temperature and composition of material reporting to the underflow and overflow. The underflow and overflow liquids have the same composition. The model converts the solids content at 25C to the solids content at the operating temperature to determine the composition of the underflow and overflow.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,20,1.00,Classifier Feed
+Port1,1,Overflow,0x3,0x80,1,1,0.98,Classifier Overflow
+Port2,2,Underflow,0x5,0x80,1,1,0.00,Classifier Underflow
+Port3,3,Vent,0x1,0x80,0,1,1.00,
+Port4,1500,Spl,0x1,0x80,0,1000,0.00,
+Port5,2500,Vnt,0x1,0x80,0,1000,0.00,

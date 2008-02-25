@@ -1,0 +1,9 @@
+ClassName,MakeupSrc
+ClassId,MakeupSrc-1
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Process:Unit:Makeup Sourc
+Desc,Simple Source Material for Makeups
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,4500,Mu,0x1,0x80,0,32000,0.00,MakeupIO

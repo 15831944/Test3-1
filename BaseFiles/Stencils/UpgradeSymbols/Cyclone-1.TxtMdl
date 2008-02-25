@@ -1,0 +1,11 @@
+ClassName,Cyclone
+ClassId,Cyclone-1
+CategoryGrp,0x10000000
+CategoryMdl,0x00000080
+ProgID,(null)
+ShortDesc,Size Separation:Cyclone
+Desc,(null)
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,1,0.00,Cyclone Feed
+Port1,1,OverFlow,0x3,0x80,1,1,0.00,Cyclone Overflow
+Port2,2,UnderFlow,0x5,0x80,1,1,0.00,Cyclone Underflow

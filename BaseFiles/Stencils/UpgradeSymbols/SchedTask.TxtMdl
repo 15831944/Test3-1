@@ -1,0 +1,8 @@
+ClassName,CScheduleTask
+ClassId,SchedTask
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Control:Task
+Desc,Schedule Task model.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc

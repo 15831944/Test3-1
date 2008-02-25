@@ -1,0 +1,13 @@
+ClassName,CArea
+ClassId,Area-1
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Process:Unit:Area
+Desc,Simple Source and/or Sink of Material as Leaks
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,1500,Spls,0x10,0x80,0,32000,0.00,SpillIO
+Port1,2500,Vnts,0x10,0x80,0,32000,0.00,VentIO
+Port2,3500,Leak,0x11,0x80,0,32000,0.00,LeakIO
+Port3,4500,MUs,0x1,0x80,0,32000,0.00,Makeup
+Port4,5500,BLs,0x10,0x80,0,32000,0.00,Bleed

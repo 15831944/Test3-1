@@ -1,0 +1,26 @@
+ClassName,X_Tie
+ClassId,Tie-1
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Process:Piping:Tie(1)
+Desc,General Purpose Tie Piece used to Simulate Tee & Cross pieces
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,IO,0x11,0x80,2,50,0.00,IOPts
+Port1,3500,Leak,0x1,0x80,0,1000,0.00,
+Port2,4500,MU1,0x10,0x80,0,1000,0.00,
+Port3,4501,MU2,0x10,0x80,0,1000,0.00,
+Port4,4502,MU3,0x10,0x80,0,1000,0.00,
+Port5,4503,MU4,0x10,0x80,0,1000,0.00,
+Port6,4504,MU5,0x10,0x80,0,1000,0.00,
+Port7,4505,MU6,0x10,0x80,0,1000,0.00,
+Port8,4506,MU7,0x10,0x80,0,1000,0.00,
+Port9,4507,MU8,0x10,0x80,0,1000,0.00,
+Port10,5500,BL1,0x1,0x80,0,1000,0.00,
+Port11,5501,BL2,0x1,0x80,0,1000,0.00,
+Port12,5502,BL3,0x1,0x80,0,1000,0.00,
+Port13,5503,BL4,0x1,0x80,0,1000,0.00,
+Port14,5504,BL5,0x1,0x80,0,1000,0.00,
+Port15,5505,BL6,0x1,0x80,0,1000,0.00,
+Port16,5506,BL7,0x1,0x80,0,1000,0.00,
+Port17,5507,BL8,0x1,0x80,0,1000,0.00,

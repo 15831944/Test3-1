@@ -1,0 +1,12 @@
+ClassName,C4PortValve
+ClassId,Vlv4Port-1
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Process:Piping:Vlv4Port(1
+Desc,Four Port Valve
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Port1,0x11,0x80,0,1,0.00,Port1
+Port1,1,Port2,0x11,0x80,0,1,0.00,Port2
+Port2,2,Port3,0x11,0x80,0,1,0.00,Port3
+Port3,3,Port4,0x11,0x80,0,1,0.00,Port4

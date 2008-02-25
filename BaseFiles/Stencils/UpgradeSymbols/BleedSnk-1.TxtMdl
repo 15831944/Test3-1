@@ -1,0 +1,9 @@
+ClassName,BleedSnk
+ClassId,BleedSnk-1
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Process:Unit:Bleed Sink
+Desc,Simple Sink for Bleeds
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,5500,Bl,0x10,0x80,0,32000,0.00,BleedIO

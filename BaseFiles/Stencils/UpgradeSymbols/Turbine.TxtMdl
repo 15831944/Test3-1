@@ -1,0 +1,12 @@
+ClassName,CTurbine
+ClassId,Turbine
+CategoryGrp,0x40000000
+CategoryMdl,0x00000040
+ProgID,(null)
+ShortDesc,Heat Transfer:Steam Turbi
+Desc,Steam Turbine.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,In,0x30,0x80,1,1,0.00,Input
+Port1,1,Out,0x3,0x80,1,1,0.00,Output
+Port2,1500,Spl,0x1,0x80,0,1000,0.00,
+Port3,2500,Vnt,0x1,0x80,0,1000,0.00,

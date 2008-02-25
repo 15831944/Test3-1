@@ -1,0 +1,14 @@
+ClassName,CElectroCell
+ClassId,ECell
+CategoryGrp,0x20000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Separation:Electrowinning
+Desc,Electrowinning Cell removes metals separately from the unit
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x10,0x80,1,20,1.00,Feed
+Port1,1,Anolyte,0x1,0x80,1,1,1.00,Anolyte
+Port2,2,Cathodes,0x1,0x80,1,1,0.00,Cathodes
+Port3,3,Hood,0x1,0x80,0,1,1.05,
+Port4,1500,Spl,0x1,0x80,0,1000,0.00,
+Port5,2500,Vnt,0x1,0x80,0,1000,0.00,

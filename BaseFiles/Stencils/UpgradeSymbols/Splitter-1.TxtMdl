@@ -1,0 +1,11 @@
+ClassName,Splitter
+ClassId,Splitter-1
+CategoryGrp,0x20000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Separation:Splitter
+Desc,General Purpose Splitter
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,20,0.00,Feed or wash water
+Port1,1,UnderSize,0x3,0x80,1,1,0.00,Liquid/under size material
+Port2,2,OverSize,0x5,0x80,1,1,0.00,Over size material/solids

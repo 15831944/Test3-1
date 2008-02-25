@@ -1585,6 +1585,7 @@ protected:
     CAssocGrfShowArray  m_AssocGrfShow;//
 
     Strng           m_sCndStrng;
+    flag            m_bSubClassOK;
 
   protected:
     TagObjClass*   m_pClass;

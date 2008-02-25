@@ -408,7 +408,7 @@ m_SelectData(this)
   m_bSelectable=(dwSelectMask_!=0);
   dwSelectMask=dwSelectMask_;
   fDuplicateExists=False;
-
+  
   sMdlLibName="Unknown";
   m_pSubConstruct=NULL;
 
@@ -2476,6 +2476,7 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject *pAtta
   m_fMustBeActive=false;
 
   m_bFileIOBusy=false;
+  m_bSubClassOK=true;
 
   fDoDbgBrk=False; // For debugging purposes
 

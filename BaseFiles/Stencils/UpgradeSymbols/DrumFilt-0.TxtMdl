@@ -1,0 +1,15 @@
+ClassName,DrumFilt
+ClassId,DrumFilt-0
+CategoryGrp,0x20000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Separation:Drum Filter
+Desc,Drum Filter based on user defined solid- liquid separation.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,20,1.00,Filter Feed
+Port1,1,Wash,0x50,0x80,0,5,1.00,Wash Water
+Port2,2,Filtrate,0x3,0x80,1,1,0.98,Filtrate
+Port3,3,Cake,0x5,0x80,1,1,0.00,Filter Cake
+Port4,4,Vent,0x1,0x80,0,1,1.00,
+Port5,1500,Spl,0x1,0x80,0,1000,0.00,
+Port6,2500,Vnt,0x1,0x80,0,1000,0.00,

@@ -1,0 +1,13 @@
+ClassName,FlashTank
+ClassId,FlshTank-1
+CategoryGrp,0x40000000
+CategoryMdl,0x00000020
+ProgID,(null)
+ShortDesc,Heat Transfer:Flash Tank(
+Desc,The flash tank flashes water vapour from the liquor feed stream.  The amount vaporised depends on the condition of the heaters and pipework (not on the conditions in the tank). The model maintains equilibrium between the vapour and liquid streams. The vapour and liquid phases exits separately via the vapour and liquor streams, respectively. Chemical reactions can occur in the flash tank. The model operates in one of two modes.1) The user specifies only the heat loss to atmosphere from the flash tank. The model will calculate the flash pressure and temperature, and the flow rate of the vapour and liquor phases.2) The user specifies the heat loss and the tank pressure. The model calculates the flash temperature, and the flow rate of the vapour and liquor phases, and the necessary resistance number in the outlet pipes to give the required pressure drops to obtain a pressure balance.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,20,0.00,Feeds
+Port1,1,Liquor,0x3,0x80,1,1,0.00,Liquor
+Port2,2,Vapour,0x5,0x80,1,1,1.00,Vapour
+Port3,1500,Spl,0x1,0x80,0,1000,0.00,
+Port4,2500,Vnt,0x1,0x80,0,1000,0.00,

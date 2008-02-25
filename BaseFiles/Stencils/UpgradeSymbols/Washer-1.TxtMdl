@@ -1,0 +1,15 @@
+ClassName,Washer
+ClassId,Washer-1
+CategoryGrp,0x20000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Separation:Washer(1)
+Desc,Washer parameters and connections determine underflow and overflow
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,10,1.00,Washer Feed
+Port1,1,Input,0x50,0x80,0,20,1.00,Washer Input
+Port2,2,OverFlow,0x3,0x80,1,1,0.98,Washer Overflow
+Port3,3,UnderFlow,0x5,0x80,1,1,0.00,Washer Underflow
+Port4,4,Vent,0x1,0x80,0,1,1.00,
+Port5,1500,Spl,0x1,0x80,0,1000,0.00,
+Port6,2500,Vnt,0x1,0x80,0,1000,0.00,

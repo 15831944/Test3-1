@@ -1,0 +1,13 @@
+ClassName,Dryer
+ClassId,Dryer
+CategoryGrp,0x20000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Separation:Dryer
+Desc,Solids Dryer
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,20,1.00,Dryer Feed
+Port1,2,Moisture,0x3,0x80,1,1,0.40,Evaporated Moisture
+Port2,3,Cake,0x5,0x80,1,1,0.00,Dried Solids
+Port3,1500,Spl,0x1,0x80,0,1000,0.00,
+Port4,2500,Vnt,0x1,0x80,0,1000,0.00,

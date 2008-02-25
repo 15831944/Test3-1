@@ -1,0 +1,14 @@
+ClassName,HeatXchg1
+ClassId,HeatXchg-1
+CategoryGrp,0x40000000
+CategoryMdl,0x00000020
+ProgID,(null)
+ShortDesc,Heat Transfer:Heat Exchan
+Desc,(null)
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,PriIn,0x30,0x80,1,20,1.00,
+Port1,1,PriOut,0x3,0x80,1,5,0.00,
+Port2,2,PVent,0x1,0x80,0,1,1.00,
+Port3,3,SecIn,0x50,0x80,1,20,1.00,
+Port4,4,SecOut,0x5,0x80,1,5,0.00,
+Port5,5,SVent,0x1,0x80,0,1,0.00,

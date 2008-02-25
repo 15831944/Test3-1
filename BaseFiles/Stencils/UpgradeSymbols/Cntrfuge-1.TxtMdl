@@ -1,0 +1,13 @@
+ClassName,Centrifuge1
+ClassId,Cntrfuge-1
+CategoryGrp,0x20000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Separation:Disk Centrifug
+Desc,The Disk Centrifuge mixes perfectly all the incoming feed streams and then, based on the user configuration, calculates the amount, temperature and composition of material reporting to the products. 
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,20,0.00,
+Port1,1,Centrate,0x3,0x80,1,1,0.00,
+Port2,2,Solids,0x5,0x80,1,1,0.00,
+Port3,1500,Spl,0x1,0x80,0,1000,0.00,
+Port4,2500,Vnt,0x1,0x80,0,1000,0.00,

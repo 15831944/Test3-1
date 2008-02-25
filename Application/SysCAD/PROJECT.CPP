@@ -6823,6 +6823,8 @@ void CProject::ExportScd9Symbols()
   NodeGrfInfo * pNGI=gs_pPrj->GetNodeDrawings();
   NodeGrfInfo::ExportToFile10(pNGI, OutPath());
 
+  gs_pSfeSrvr->DumpModelInfo(OutPath());
+
   CDlgBusy::Close();
   }
 
@@ -8873,6 +8875,13 @@ flag CProject::RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoRe
 flag CProject::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelIOConn(pTag, iNo, Info) : FALSE;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CProject::DumpModelInfo(LPCSTR Path)
+  {
+  return FlwLib()!=NULL ? FlwLib()->DumpModelInfo(Path) : FALSE;
   };
 
 //---------------------------------------------------------------------------

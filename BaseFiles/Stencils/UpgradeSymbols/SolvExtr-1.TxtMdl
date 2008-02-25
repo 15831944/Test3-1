@@ -1,0 +1,13 @@
+ClassName,MixerSettler
+ClassId,SolvExtr-1
+CategoryGrp,0x20000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Separation:Mixer/Settler
+Desc,Solvent Extraction Mixer Settler
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,AqIn,0x30,0x80,1,20,0.00,Aqueous_Inlet
+Port1,1,AqOut,0x3,0x80,1,1,0.75,Aqueous_Outlet
+Port2,2,OrgIn,0x50,0x80,1,20,0.00,Organic_Inlet
+Port3,3,OrgOut,0x5,0x80,1,1,0.75,Organic_Outlet
+Port4,4,OverFlw,0x1,0x80,0,10,1.00,OverFlow

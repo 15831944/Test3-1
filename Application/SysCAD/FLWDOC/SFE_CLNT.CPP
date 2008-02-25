@@ -489,7 +489,8 @@ flag SFEFlwLib::RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoR
   { FENTER(false) pSfe->RequestModelIOInfoById(pTag, iId, Info); FLEAVE};
 flag SFEFlwLib::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
   { FENTER(false) pSfe->RequestModelIOConn(pTag, iNo, Info); FLEAVE};
-
+flag SFEFlwLib::DumpModelInfo(LPCSTR Path)
+  { FENTER(false) pSfe->DumpModelInfo(Path); FLEAVE};
 int  SFEFlwLib::RequestModelStatus(CModelStatusArray &Status, flag & TagsChanged)
   {
   if (m_Status.m_LoadReqd)

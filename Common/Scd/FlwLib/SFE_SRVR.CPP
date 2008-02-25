@@ -379,6 +379,11 @@ flag CSfeSrvr::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & I
   return SfeFS->RequestModelIOConn(pTag, iNo, Info); 
   };
 
+flag CSfeSrvr::DumpModelInfo(LPCSTR Path)
+  {
+  return SfeFS->DumpModelInfo(Path); 
+  };
+
 int CSfeSrvr::RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged)
   {
   return SfeFS->RequestModelStatus(Options, Status, TagsChanged);

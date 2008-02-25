@@ -1,0 +1,13 @@
+ClassName,DeSuperHeater
+ClassId,DesuperHeater
+CategoryGrp,0x40000000
+CategoryMdl,0x00000040
+ProgID,(null)
+ShortDesc,Heat Transfer:DesuperHeat
+Desc,Simple Desuperheater.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,SteamIn,0x30,0x80,1,1,0.00,
+Port1,1,FeedLiquor,0x50,0x80,1,1,0.00,
+Port2,2,SteamOut,0x3,0x80,1,1,0.00,
+Port3,1500,Spl,0x1,0x80,0,1000,0.00,
+Port4,2500,Vnt,0x1,0x80,0,1000,0.00,

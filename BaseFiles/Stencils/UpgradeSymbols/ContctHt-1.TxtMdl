@@ -1,0 +1,14 @@
+ClassName,ContactHeater
+ClassId,ContctHt-1
+CategoryGrp,0x40000000
+CategoryMdl,0x00000020
+ProgID,(null)
+ShortDesc,Heat Transfer:Direct Cont
+Desc,The direct contact heater model mixes the inlet streams, condenses all the steam and carries out any chemical reactions specified before rejecting the amount of heat lost and calculating the temperature, composition and flow rate of the exit stream.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Liquor,0x30,0x80,1,10,1.00,Liquor
+Port1,1,Steam,0x50,0x80,1,1,0.50,Steam
+Port2,2,HotLiquor,0x3,0x80,1,1,0.50,Hot Liquor
+Port3,3,ExcessSteam,0x5,0x80,0,1,0.98,Excess Steam
+Port4,1500,Spl,0x1,0x80,0,1000,0.00,
+Port5,2500,Vnt,0x1,0x80,0,1000,0.00,

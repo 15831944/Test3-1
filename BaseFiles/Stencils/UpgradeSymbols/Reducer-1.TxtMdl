@@ -1,0 +1,10 @@
+ClassName,Reducer
+ClassId,Reducer-1
+CategoryGrp,0x08000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Process:Piping:Reducer(1)
+Desc,Reducer
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,In,0x30,0x80,1,1,0.00,Input
+Port1,1,Out,0x3,0x80,1,1,0.00,Output

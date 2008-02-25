@@ -1,0 +1,14 @@
+ClassName,Pump_GP
+ClassId,Pump-1
+CategoryGrp,0x08000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Process:Piping:Pump(1)
+Desc,General Purpose Pump
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,In,0x30,0x80,1,1,0.00,Input
+Port1,1,Out,0x3,0x80,1,1,0.00,Output
+Port2,3500,LeakI,0x1,0x80,0,1000,0.00,
+Port3,3501,LeakO,0x1,0x80,0,1000,0.00,
+Port4,10000,Speed,0x10,0x2000,0,1,0.00,
+Port5,20000,ElecIn,0x10,0x20000,0,50,0.00,ElecSupply

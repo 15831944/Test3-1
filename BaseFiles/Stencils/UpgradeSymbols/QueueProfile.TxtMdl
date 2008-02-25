@@ -1,0 +1,8 @@
+ClassName,CQueueCon
+ClassId,QueueProfile
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Control:Queue Profile
+Desc,Queue Profile Control model.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc

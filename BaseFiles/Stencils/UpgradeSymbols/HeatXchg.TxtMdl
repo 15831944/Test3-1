@@ -1,0 +1,12 @@
+ClassName,HeatXchg
+ClassId,HeatXchg
+CategoryGrp,0x40000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Heat Exchanger
+Desc,A Long Description
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,PriIn,0x30,0x80,1,1,0.00,
+Port1,1,PriOut,0x3,0x80,1,1,0.00,
+Port2,2,SecIn,0x50,0x80,1,1,0.00,
+Port3,3,SecOut,0x5,0x80,1,1,0.00,

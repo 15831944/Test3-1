@@ -1,0 +1,8 @@
+ClassName,CEventsCon
+ClassId,Events
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Control:Events
+Desc,Events Control model.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc

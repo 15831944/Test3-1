@@ -1,0 +1,8 @@
+ClassName,Downtime
+ClassId,Downtime
+CategoryGrp,0x80000000
+CategoryMdl,0x00000000
+ProgID,(null)
+ShortDesc,Control:Downtime
+Desc,Downtime
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc

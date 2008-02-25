@@ -1333,6 +1333,8 @@ class DllImportExport CSfeSrvrBase
     virtual flag         RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoRec & Info) { return 0; };
     virtual flag         RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info) { return 0; };
 
+    virtual flag         DumpModelInfo(LPCSTR Path)       { return 0; };
+
     virtual int          RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged) { return 0; };
     virtual flag         TestLoadModelStatus()            { return 0; };
 

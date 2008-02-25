@@ -1,0 +1,32 @@
+ClassName,CTank
+ClassId,Tank-1
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Process:Unit:Tank(1)
+Desc,General Purpose Mixed Tank
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,I,0x11,0x80,0,20,1.00,Input
+Port1,1,Side,0x11,0x80,0,20,0.50,Side of Tank
+Port2,2,O,0x11,0x80,0,20,0.00,Output
+Port3,3,OverFlw,0x1,0x80,0,10,1.00,OverFlow
+Port4,4,GasVent,0x1,0x80,0,10,1.05,GasVent
+Port5,80,HX,0x11,0x80,2,20,0.00,Heat Exchange Element
+Port6,1500,Spl,0x1,0x80,0,1000,0.00,
+Port7,2500,Vnt,0x1,0x80,0,1000,0.00,
+Port8,4500,MU1,0x10,0x80,0,1000,0.00,
+Port9,4501,MU2,0x10,0x80,0,1000,0.00,
+Port10,4502,MU3,0x10,0x80,0,1000,0.00,
+Port11,4503,MU4,0x10,0x80,0,1000,0.00,
+Port12,4504,MU5,0x10,0x80,0,1000,0.00,
+Port13,4505,MU6,0x10,0x80,0,1000,0.00,
+Port14,4506,MU7,0x10,0x80,0,1000,0.00,
+Port15,4507,MU8,0x10,0x80,0,1000,0.00,
+Port16,5500,BL1,0x1,0x80,0,1000,0.00,
+Port17,5501,BL2,0x1,0x80,0,1000,0.00,
+Port18,5502,BL3,0x1,0x80,0,1000,0.00,
+Port19,5503,BL4,0x1,0x80,0,1000,0.00,
+Port20,5504,BL5,0x1,0x80,0,1000,0.00,
+Port21,5505,BL6,0x1,0x80,0,1000,0.00,
+Port22,5506,BL7,0x1,0x80,0,1000,0.00,
+Port23,5507,BL8,0x1,0x80,0,1000,0.00,

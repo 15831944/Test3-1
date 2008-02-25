@@ -1,0 +1,13 @@
+ClassName,Boiler
+ClassId,Boiler
+CategoryGrp,0x40000000
+CategoryMdl,0x00000040
+ProgID,(null)
+ShortDesc,Heat Transfer:Boiler
+Desc,Simple Boiler.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,FeedLiquor,0x30,0x80,1,10,0.10,
+Port1,1,SteamOut,0x3,0x80,1,1,1.00,
+Port2,2,BlowDown,0x1,0x80,0,1,0.50,
+Port3,1500,Spl,0x1,0x80,0,1000,0.00,
+Port4,2500,Vnt,0x1,0x80,0,1000,0.00,

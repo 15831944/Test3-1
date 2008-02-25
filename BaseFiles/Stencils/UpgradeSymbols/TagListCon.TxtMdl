@@ -1,0 +1,8 @@
+ClassName,CTagListCon
+ClassId,TagListCon
+CategoryGrp,0x80000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Control:Set Tag List
+Desc,Events Control model.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc

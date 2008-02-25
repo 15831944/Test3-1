@@ -1,0 +1,14 @@
+ClassName,BarometricCondenser
+ClassId,BaroCond
+CategoryGrp,0x40000000
+CategoryMdl,0x00000020
+ProgID,(null)
+ShortDesc,Heat Transfer:Barometric 
+Desc,The barometric condenser is a direct contact heater The unit has separate water and steam inlets, and mixture and vapour outlets. 
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Steam,0x30,0x80,1,1,1.00,Steam
+Port1,1,Water,0x50,0x80,1,1,0.50,Water
+Port2,2,Mixture,0x3,0x80,1,1,0.00,Mixture
+Port3,3,Vapour,0x5,0x80,0,1,1.00,Vapour
+Port4,1500,Spl,0x1,0x80,0,1000,0.00,
+Port5,2500,Vnt,0x1,0x80,0,1000,0.00,

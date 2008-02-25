@@ -1,0 +1,11 @@
+ClassName,Crush1
+ClassId,Crush-1
+CategoryGrp,0x10000000
+CategoryMdl,0x00000080
+ProgID,(null)
+ShortDesc,Size Alteration:Crush1
+Desc,(null)
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,20,0.00,
+Port1,1,Product,0x3,0x80,1,1,0.00,
+Port2,20000,ElecIn,0x10,0x20000,0,50,0.00,ElecSupply

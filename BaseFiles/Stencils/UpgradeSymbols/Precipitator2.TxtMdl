@@ -1,0 +1,13 @@
+ClassName,Precipitator2
+ClassId,Precipitator2
+CategoryGrp,0x04000000
+CategoryMdl,0x00000120
+ProgID,(null)
+ShortDesc,Process:Unit:Precipitator(2)
+Desc,TODO: Precip Model
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x10,0x80,1,10,1.00,Feed
+Port1,1,Prod,0x1,0x80,1,1,1.00,Product
+Port2,2,CoolO,0x1,0x80,0,1,1.00,CoolOut
+Port3,3,CoolI,0x10,0x80,0,5,1.00,CoolIn
+Port4,4,Evap,0x1,0x80,0,1,1.00,Evap

@@ -12757,6 +12757,61 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
 
 //--------------------------------------------------------------------------
 
+flag CFlwSolver::DumpModelInfo(LPCSTR Path)
+  {
+  for (TagObjClass * p = TagObjClass::FindGroupId(FlwUnitGrp); p; p=p->NextClassInGrp())
+    {
+    FlwNode * pNd=CreateFlwNode(p->ClassId(), NULL, "$$$", NULL, TOA_Free);
+    if (pNd && pNd->m_bSubClassOK)
+      {
+      Strng Fn(Path);
+      Fn.FnCheckEndBSlash();
+      Fn+=p->ClassId();
+      Fn.FnCheckExtension(".TxtMdl");
+      FILE *h= fopen(Fn(), "wt");
+      if (h)
+        {
+
+        dbgpln("Class,Id:%s,%s", p->ClassName(), p->ClassId());
+
+        fprintf(h, "ClassName,%s\n", p->ClassName());
+        fprintf(h, "ClassId,%s\n", p->ClassId());
+        fprintf(h, "CategoryGrp,0x%08x\n", p->CategoryGrp());
+        fprintf(h, "CategoryMdl,0x%08x\n", p->CategoryMdl());
+        fprintf(h, "ProgID,%s\n", p->ProgID());
+        fprintf(h, "ShortDesc,%s\n", p->ShortDesc());
+        fprintf(h, "Desc,%s\n", p->Desc());
+
+        IOAreaRec * pIO=pNd->m_pIOAreas;
+        fprintf(h, ";Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc\n");
+        if (pIO)
+          {
+          int Id=-1;
+          int iPort=0;
+          for (int i=0; i<pNd->IOAreaCount(); i++)
+            {
+            IOAreaRec & A = pNd->IOArea(i);
+            if (Id!=A.m_Id)
+              {
+              fprintf(h, "Port%i,%i,%s,0x%x,0x%x,%i,%i,%.2f,%s\n", 
+                iPort++,A.m_Id, A.IOName(), A.m_Dirn, A.m_dwType, A.m_nIORqd, A.m_nIOMax, A.m_dFracHgt,A.IODesc());
+              Id=A.m_Id;
+              }
+            }
+          }
+
+        fclose(h);
+        }
+      else
+        LogError("Solver", 0, "%s not openned", Fn());
+      delete pNd;
+      }
+    }
+  return true;
+  };
+
+//--------------------------------------------------------------------------
+
 #define dbgRequestModelStatus 0
 
 int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged)

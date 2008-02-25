@@ -1,0 +1,15 @@
+ClassName,CoolingTower
+ClassId,CoolTwr
+CategoryGrp,0x40000000
+CategoryMdl,0x00000020
+ProgID,(null)
+ShortDesc,Heat Transfer:Cooling Tow
+Desc,Simple cooling tower model. The unit calculates the amount of water to be evaporated to acheive the specified requirements.
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,20,0.00,Feeds
+Port1,1,Liquor,0x3,0x80,1,1,0.00,Liquor
+Port2,2,LiqLoss,0x1,0x80,0,1,0.00,LiqLoss
+Port3,3,Vapour,0x1,0x80,1,1,1.00,Vapour
+Port4,4,DriftLoss,0x1,0x80,0,1,0.00,DriftLoss
+Port5,1500,Spl,0x1,0x80,0,1000,0.00,
+Port6,2500,Vnt,0x1,0x80,0,1000,0.00,

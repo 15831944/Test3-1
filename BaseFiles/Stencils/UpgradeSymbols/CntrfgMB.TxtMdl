@@ -1,0 +1,17 @@
+ClassName,CentrifugeMB
+ClassId,CntrfgMB
+CategoryGrp,0x20000000
+CategoryMdl,0x00000010
+ProgID,(null)
+ShortDesc,Separation:Centrifugal Fi
+Desc,The Centrifugal Filter allows the user to separatethe solids and liquids in the centrifuge and then to washthe cake with one or two washes
+;Port,Id,Name,Dirn,Type,IORqd,IOMax,Hgt,Desc
+Port0,0,Feed,0x30,0x80,1,20,1.00,Centrifuge Feed
+Port1,1,Filtrate,0x3,0x80,1,1,0.40,Filtrate
+Port2,2,Cake,0x5,0x80,1,1,0.00,Solids
+Port3,3,WashWater1,0x50,0x80,0,1,1.00,1st Wash Water
+Port4,4,Wash1,0x1,0x80,0,1,1.00,First Washings
+Port5,5,WashWater2,0x90,0x80,0,1,1.00,2nd Wash Water
+Port6,6,Wash2,0x1,0x80,0,1,1.00,Second Washings
+Port7,1500,Spl,0x1,0x80,0,1000,0.00,
+Port8,2500,Vnt,0x1,0x80,0,1000,0.00,
