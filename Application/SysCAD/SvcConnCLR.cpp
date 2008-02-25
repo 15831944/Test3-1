@@ -455,7 +455,7 @@ ref class CSvcConnectCLRThread
         {
         if (BndRect->Width==0.0)
           {
-          BndRect->Inflate(Gs->defaultSize->Width/2.0, Gs->defaultSize->Height/2.0);
+          BndRect->Inflate(Gs->DefaultSize->Width/2.0, Gs->DefaultSize->Height/2.0);
           }
         if (TagArea->Width==0.0)
           {

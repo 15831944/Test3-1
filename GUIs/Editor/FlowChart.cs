@@ -1523,20 +1523,20 @@ namespace SysCAD.Editor
           if (graphicStencil != null)
           {
             float scale;
-            if (form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width > form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height)
+            if (form1.fcHoverview.Size.Width / graphicStencil.DefaultSize.Width > form1.fcHoverview.Size.Height / graphicStencil.DefaultSize.Height)
             {
-              scale = (float)(form1.fcHoverview.Size.Height / graphicStencil.defaultSize.Height) / 5.0F;
+              scale = (float)(form1.fcHoverview.Size.Height / graphicStencil.DefaultSize.Height) / 5.0F;
             }
             else
             {
-              scale = (float)(form1.fcHoverview.Size.Width / graphicStencil.defaultSize.Width) / 5.0F;
+              scale = (float)(form1.fcHoverview.Size.Width / graphicStencil.DefaultSize.Width) / 5.0F;
             }
 
             //float scale = 100.0F / (float)Math.Sqrt((float)graphicStencil.defaultSize.Width * (float)graphicStencil.default5Size.Width + (float)graphicStencil.defaultSize.Height * (float)graphicStencil.defaultSize.Height);
             form1.fcHoverview.AntiAlias = SmoothingMode.AntiAlias;
 
 
-            form1.hoverviewBox = form1.fcHoverview.CreateBox(0.0F, 0.0F, (float)graphicStencil.defaultSize.Width * scale, (float)graphicStencil.defaultSize.Height * scale);
+            form1.hoverviewBox = form1.fcHoverview.CreateBox(0.0F, 0.0F, (float)graphicStencil.DefaultSize.Width * scale, (float)graphicStencil.DefaultSize.Height * scale);
             form1.hoverviewBox.FillColor = System.Drawing.Color.FromArgb(220, 222, 184, 136);
             form1.hoverviewBox.FrameColor = System.Drawing.Color.FromArgb(255, 111, 92, 68);
 

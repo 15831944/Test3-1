@@ -179,7 +179,7 @@ namespace SysCAD.Editor
           i++;
         }
 
-        return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
+        return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], FillMode.Alternate, stencil.Tag));
       }
 
       else
@@ -393,10 +393,10 @@ namespace SysCAD.Editor
           {
             if (graphicStencil != null)
             {
-              textArea = new SysCAD.Protocol.Rectangle(graphicNode.X + graphicStencil.TagArea.X / graphicStencil.defaultSize.Width * graphicNode.Width,
-                                        graphicNode.Y + graphicStencil.TagArea.Y / graphicStencil.defaultSize.Height * graphicNode.Height,
-                                        graphicStencil.TagArea.Width / graphicStencil.defaultSize.Width * graphicNode.Width,
-                                        graphicStencil.TagArea.Height / graphicStencil.defaultSize.Height * graphicNode.Height);
+              textArea = new SysCAD.Protocol.Rectangle(graphicNode.X + graphicStencil.TagArea.X / graphicStencil.DefaultSize.Width * graphicNode.Width,
+                                        graphicNode.Y + graphicStencil.TagArea.Y / graphicStencil.DefaultSize.Height * graphicNode.Height,
+                                        graphicStencil.TagArea.Width / graphicStencil.DefaultSize.Width * graphicNode.Width,
+                                        graphicStencil.TagArea.Height / graphicStencil.DefaultSize.Height * graphicNode.Height);
             }
             else
             {

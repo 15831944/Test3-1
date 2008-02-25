@@ -48,28 +48,29 @@ namespace SysCAD.Protocol
         {
           String fullpath = files[i];
 
-          try
-          {
-            SoapFormatter sf = new SoapFormatter();
-            StreamReader streamRdr = new StreamReader(fullpath);
-            Stream stream = streamRdr.BaseStream;
-            ModelStencil modelStencil = (ModelStencil)sf.Deserialize(stream);
-            modelStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
+          //try
+          //{
+          SoapFormatter sf = new SoapFormatter();
+          StreamReader streamRdr = new StreamReader(fullpath);
+          Stream stream = streamRdr.BaseStream;
+          ModelStencil modelStencil = (ModelStencil)sf.Deserialize(stream);
+          modelStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
 
-            if (ConfirmModelStencil(modelStencil))
-            {
-              TrimAnchorPoints(modelStencil);
-              ModelStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), modelStencil);
-            }
-
-            stream.Close();
-            //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
-            //LogNote("Srvr : 0 : " + iStencil++ + " : " + System.IO.Path.GetFileNameWithoutExtension(fullpath));
-          }
-          catch (Exception)
+          if (ConfirmModelStencil(modelStencil))
           {
-            //Message("Error '" + e.Message + "' loading ModelStencil: " + fullpath, MessageType.Error);
+            TrimAnchorPoints(modelStencil);
+            ModelStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), modelStencil);
           }
+
+          stream.Close();
+          //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
+          //LogNote("Srvr : 0 : " + iStencil++ + " : " + System.IO.Path.GetFileNameWithoutExtension(fullpath));
+          //}
+          //catch (Exception)
+          //{
+          //  int asdf = 0;
+          //  //Message("Error '" + e.Message + "' loading ModelStencil: " + fullpath, MessageType.Error);
+          //}
         }
 
         Console.WriteLine("\n");
@@ -83,16 +84,17 @@ namespace SysCAD.Protocol
         {
           String fullpath = files[i];
 
-          SoapFormatter sf = new SoapFormatter();
-          Stream stream = (new StreamReader(fullpath)).BaseStream;
-          GraphicStencil graphicStencil = (GraphicStencil)sf.Deserialize(stream);
-          stream.Close();
+          //try
+          //{
+          GraphicStencil graphicStencil = GraphicStencil.Deserialize(fullpath);
 
-
-          //graphicStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
           GraphicStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath).ToLower().Replace(' ', '_'), graphicStencil);
-          //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
-          //LogNote("Srvr : 0 : " + iStencil++ + " : " + System.IO.Path.GetFileNameWithoutExtension(fullpath));
+          //}
+          //catch
+          //{
+          //  int adsf = 0;
+          //  //logNote("Config : Error loading GraphicStencil " + fullpath);
+          //}
         }
       }
 

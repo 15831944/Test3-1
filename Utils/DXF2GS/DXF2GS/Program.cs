@@ -26,9 +26,10 @@ namespace DXF2GS
       {
         GraphicStencil graphicStencil = new GraphicStencil();
         graphicStencil.Tag = Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].Replace('_', ' ');
+        graphicStencil.Groups = new ArrayList();
         graphicStencil.Elements = new ArrayList();
         graphicStencil.Decorations = new ArrayList();
-        graphicStencil.defaultSize = new Size(0.0, 0.0);
+        graphicStencil.DefaultSize = new Size(0.0, 0.0);
         Double xMin = 0.0;
         Double xMax = 0.0;
         Double yMin = 0.0;
@@ -56,6 +57,10 @@ namespace DXF2GS
 
               case "YMax":
                 yMin = -Double.Parse(words[1]);
+                break;
+
+              case "Group":
+                graphicStencil.Groups.Add(words[1]);
                 break;
             }
           }
@@ -191,11 +196,11 @@ namespace DXF2GS
                 break;
 
               case "Width":
-                graphicStencil.defaultSize.Width = Double.Parse(words[1]);
+                graphicStencil.DefaultSize.Width = Double.Parse(words[1]);
                 break;
 
               case "Height":
-                graphicStencil.defaultSize.Height = Double.Parse(words[1]);
+                graphicStencil.DefaultSize.Height = Double.Parse(words[1]);
                 break;
 
               case "TextArea":
@@ -213,12 +218,12 @@ namespace DXF2GS
               case "XMax":
               case "YMin":
               case "YMax":
+              case "Group":
                 break;
 
               // Ignore.
               case "Insert":
               case "Symbol":
-              case "Group":
               case "MDrw_TagPos":
               case "MDrw_End":
               case "InsertX":
@@ -232,11 +237,7 @@ namespace DXF2GS
           }
         }
 
-        SoapFormatter sf = new SoapFormatter();
-        StreamWriter streamWriter = new StreamWriter(args[1] + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].ToLower().Replace(' ', '_') + ".GraphicStencil");
-        Stream stream = streamWriter.BaseStream;
-        sf.Serialize(stream, graphicStencil);
-        stream.Close();
+        GraphicStencil.Serialize(args[1] + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].ToLower().Replace(' ', '_') + ".GraphicStencil", graphicStencil);
 
         Console.WriteLine(args[1] + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].ToLower().Replace(' ', '_') + ".GraphicStencil");
 
