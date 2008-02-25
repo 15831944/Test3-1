@@ -28,7 +28,15 @@ namespace SysCAD.Protocol
     public object SetObjectData(Object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
     {
       ModelStencil modelStencil = (ModelStencil)obj;
-      modelStencil.Groups = (ArrayList)info.GetValue("groups", typeof(ArrayList));
+      try
+      {
+        modelStencil.Groups = (ArrayList)info.GetValue("groups", typeof(ArrayList));
+      }
+      catch
+      {
+        modelStencil.Groups = new ArrayList();
+        modelStencil.Groups.Add((String)info.GetValue("groupName", typeof(String)));
+      }
       modelStencil.Anchors = (ArrayList)info.GetValue("anchors", typeof(ArrayList));
       modelStencil.Decorations = (ArrayList)info.GetValue("decorations", typeof(ArrayList));
       modelStencil.Elements = (ArrayList)info.GetValue("elements", typeof(ArrayList));
