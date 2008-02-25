@@ -210,7 +210,7 @@ namespace SysCAD.Editor
           i++;
         }
 
-        return (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.FillMode, stencil.Tag));
+        return (new ShapeTemplate(elementTemplate, decorationTemplate, null, FillMode.Alternate, stencil.Tag));
       }
 
       else

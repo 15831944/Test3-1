@@ -1,13 +1,17 @@
 <SOAP-ENV:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:clr="http://schemas.microsoft.com/soap/encoding/clr/1.0" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 <SOAP-ENV:Body>
 <a1:ModelStencil id="ref-1" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<groups href="#ref-3"/>
 <anchors href="#ref-4"/>
 <decorations href="#ref-5"/>
 <elements href="#ref-6"/>
-<fillMode>Alternate</fillMode>
-<groupName id="ref-7">Pump</groupName>
-<tag xsi:null="1"/>
+<tag xsi:type="xsd:anyType" xsi:null="1"/>
 </a1:ModelStencil>
+<a2:ArrayList id="ref-3" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<_items href="#ref-7"/>
+<_size>1</_size>
+<_version>1</_version>
+</a2:ArrayList>
 <a2:ArrayList id="ref-4" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>
 <_size>0</_size>
@@ -23,6 +27,8 @@
 <_size>5</_size>
 <_version>3856</_version>
 </a2:ArrayList>
+<SOAP-ENC:Array id="ref-7" SOAP-ENC:arrayType="xsd:anyType[4]">
+</SOAP-ENC:Array>
 <SOAP-ENC:Array id="ref-8" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
 <SOAP-ENC:Array id="ref-9" SOAP-ENC:arrayType="xsd:anyType[4]">

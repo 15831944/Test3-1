@@ -123,7 +123,7 @@ namespace SysCAD.Protocol
       Stream stream = null;
 
       //try
-      {
+      //{
         SoapFormatter sf = new SoapFormatter();
         StreamReader streamReader = new StreamReader(path);
         stream = (streamReader).BaseStream;
@@ -134,8 +134,8 @@ namespace SysCAD.Protocol
 
         graphicStencil = (GraphicStencil)sf.Deserialize(stream);
         stream.Close();
-        Serialize(path, graphicStencil);
-      }
+        //Serialize(path, graphicStencil);
+      //}
       //catch
       //{
       //  stream.Close();

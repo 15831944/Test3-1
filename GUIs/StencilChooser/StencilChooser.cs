@@ -36,7 +36,9 @@ namespace SysCAD
 
       foreach (String key in modelStencils.Keys)
       {
-        String group = modelStencils[key].GroupName;
+        String group = null;
+        //if (modelStencils[key].Groups.Count>0)
+        //  group = (String)(modelStencils[key].Groups[0]);
         if (String.IsNullOrEmpty(group))
           group = "!!None!!";
 

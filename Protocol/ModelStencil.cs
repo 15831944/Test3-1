@@ -9,9 +9,34 @@ using System.Drawing.Drawing2D;
 
 //using MindFusion.FlowChartX;
 using System.Collections;
+using System.IO;
 
 namespace SysCAD.Protocol
 {
+  sealed class ModelStencilSerializationSurrogate : ISerializationSurrogate
+  {
+    public void GetObjectData(Object obj, SerializationInfo info, StreamingContext context)
+    {
+      ModelStencil modelStencil = (ModelStencil)obj;
+      info.AddValue("groups", modelStencil.Groups);
+      info.AddValue("anchors", modelStencil.Anchors);
+      info.AddValue("decorations", modelStencil.Decorations);
+      info.AddValue("elements", modelStencil.Elements);
+      info.AddValue("tag", modelStencil.Tag);
+    }
+
+    public object SetObjectData(Object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+    {
+      ModelStencil modelStencil = (ModelStencil)obj;
+      modelStencil.Groups = (ArrayList)info.GetValue("groups", typeof(ArrayList));
+      modelStencil.Anchors = (ArrayList)info.GetValue("anchors", typeof(ArrayList));
+      modelStencil.Decorations = (ArrayList)info.GetValue("decorations", typeof(ArrayList));
+      modelStencil.Elements = (ArrayList)info.GetValue("elements", typeof(ArrayList));
+      modelStencil.Tag = (String)info.GetValue("tag", typeof(String));
+      return modelStencil;
+    }
+  }
+
 
   /// <summary>
   /// Summary description for Class1.
@@ -21,16 +46,22 @@ namespace SysCAD.Protocol
   public class ModelStencil
   {
 
+    private ArrayList groups;
+
     private ArrayList anchors;
     private ArrayList decorations;
 
     private ArrayList elements;
-    private FillMode fillMode;
-    private String groupName;
     private String tag;
 
     public ModelStencil()
     {
+    }
+
+    public ArrayList Groups
+    {
+      get { return groups; }
+      set { groups = value; }
     }
 
     public ArrayList Anchors
@@ -51,22 +82,62 @@ namespace SysCAD.Protocol
       set { elements = value; }
     }
 
-    public FillMode FillMode
-    {
-      get { return fillMode; }
-      set { fillMode = value; }
-    }
-
-    public String GroupName
-    {
-      get { return groupName; }
-      set { groupName = value; }
-    }
-
     public String Tag
     {
       get { return tag; }
       set { tag = value; }
     }
+
+
+    public static void Serialize(string path, ModelStencil modelStencil)
+    {
+      SoapFormatter sf = new SoapFormatter();
+      StreamWriter streamWriter = new StreamWriter(path);
+      Stream stream = streamWriter.BaseStream;
+
+      SurrogateSelector ss = new SurrogateSelector();
+      ss.AddSurrogate(typeof(ModelStencil), new StreamingContext(StreamingContextStates.All), new ModelStencilSerializationSurrogate());
+      sf.SurrogateSelector = ss;
+
+      sf.Serialize(stream, modelStencil);
+      stream.Close();
+    }
+
+    public static ModelStencil Deserialize(String path)
+    {
+      ModelStencil modelStencil;
+      Stream stream = null;
+
+      //try
+      //{
+        SoapFormatter sf = new SoapFormatter();
+        StreamReader streamReader = new StreamReader(path);
+        stream = (streamReader).BaseStream;
+
+        SurrogateSelector ss = new SurrogateSelector();
+        ss.AddSurrogate(typeof(ModelStencil), new StreamingContext(StreamingContextStates.All), new ModelStencilSerializationSurrogate());
+        sf.SurrogateSelector = ss;
+
+        modelStencil = (ModelStencil)sf.Deserialize(stream);
+        stream.Close();
+        //Serialize(path, modelStencil);
+      //}
+      //catch
+      //{
+      //  stream.Close();
+
+      //  SoapFormatter sf = new SoapFormatter();
+      //  StreamReader streamReader = new StreamReader(path);
+      //  stream = (streamReader).BaseStream;
+
+      //  modelStencil = (ModelStencil)sf.Deserialize(stream);
+      //  stream.Close();
+      //  modelStencil.tag = Path.GetFileNameWithoutExtension(path);
+      //  Serialize(path, modelStencil);
+      //}
+
+      return modelStencil;
+    }
+
   }
 }

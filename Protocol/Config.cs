@@ -36,9 +36,9 @@ namespace SysCAD.Protocol
       this.addProject = addProject;
       this.addProjectAnyway = addProjectAnyway;
 
-      CreateDummyModelStencil(stencilPath + "\\Example.ModelStencil");
-      CreateDummyGraphicStencil(stencilPath + "\\Example.GraphicStencil");
-      CreateDummyThingStencil(stencilPath + "\\Example.ThingStencil");
+      //CreateDummyModelStencil(stencilPath + "\\Example.ModelStencil");
+      //CreateDummyGraphicStencil(stencilPath + "\\Example.GraphicStencil");
+      //CreateDummyThingStencil(stencilPath + "\\Example.ThingStencil");
 
       {
         //int iStencil = 0;
@@ -50,11 +50,7 @@ namespace SysCAD.Protocol
 
           //try
           //{
-          SoapFormatter sf = new SoapFormatter();
-          StreamReader streamRdr = new StreamReader(fullpath);
-          Stream stream = streamRdr.BaseStream;
-          ModelStencil modelStencil = (ModelStencil)sf.Deserialize(stream);
-          modelStencil.Tag = System.IO.Path.GetFileNameWithoutExtension(fullpath);
+          ModelStencil modelStencil = ModelStencil.Deserialize(fullpath);
 
           if (ConfirmModelStencil(modelStencil))
           {
@@ -62,7 +58,6 @@ namespace SysCAD.Protocol
             ModelStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), modelStencil);
           }
 
-          stream.Close();
           //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
           //LogNote("Srvr : 0 : " + iStencil++ + " : " + System.IO.Path.GetFileNameWithoutExtension(fullpath));
           //}
@@ -248,11 +243,7 @@ namespace SysCAD.Protocol
             "  </Ellipse>" +
             "</Canvas>";
 
-        SoapFormatter sf = new SoapFormatter();
-        StreamWriter streamWriter = new StreamWriter(fullpath);
-        Stream stream = streamWriter.BaseStream;
-        sf.Serialize(stream, thingStencil);
-        stream.Close();
+        ThingStencil.Serialize(fullpath, thingStencil);
       }
     }
 
@@ -270,11 +261,7 @@ namespace SysCAD.Protocol
 
         graphicStencil2.Decorations = new ArrayList();
 
-        SoapFormatter sf2 = new SoapFormatter();
-        StreamWriter streamWriter = new StreamWriter(fullpath);
-        Stream stream2 = streamWriter.BaseStream;
-        sf2.Serialize(stream2, graphicStencil2);
-        stream2.Close();
+        GraphicStencil.Serialize(fullpath, graphicStencil2);
       }
     }
 
@@ -284,7 +271,8 @@ namespace SysCAD.Protocol
       {
         ModelStencil modelStencil2 = new ModelStencil();
         modelStencil2.Tag = "";
-        modelStencil2.GroupName = "Control";
+        //modelStencil2.Groups = new ArrayList();
+        //modelStencil2.Groups.Add("Control");
         ArrayList elements = new ArrayList();
         SysCAD.Protocol.Arc arc = new SysCAD.Protocol.Arc(0, 0, 100, 100, 10, 360);
         elements.Add(arc);
@@ -297,13 +285,8 @@ namespace SysCAD.Protocol
         Anchor anchor2 = new Anchor("tag2", AnchorType.Electrical, 0, 0.0f, 1.0f);
         anchors.Add(anchor2);
         modelStencil2.Anchors = anchors;
-        modelStencil2.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
 
-        SoapFormatter sf2 = new SoapFormatter();
-        StreamWriter streamWriter = new StreamWriter(fullpath);
-        Stream stream2 = streamWriter.BaseStream;
-        sf2.Serialize(stream2, modelStencil2);
-        stream2.Close();
+        ModelStencil.Serialize(fullpath, modelStencil2);
       }
     }
 

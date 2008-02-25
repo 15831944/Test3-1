@@ -46,7 +46,9 @@ namespace SysCAD.Editor
 
       foreach (String key in graphicStencils.Keys)
       {
-        String group = modelStencils[key].GroupName;
+        String group = null;
+        if (graphicStencils[key].Groups.Count > 0)
+          group = (String)(graphicStencils[key].Groups[0]);
         if (String.IsNullOrEmpty(group))
           group = "None";
 
