@@ -32,16 +32,13 @@ namespace SysCAD.Editor
     private delegate void CreateAreaDelegate(GraphicArea graphicArea);
     private delegate void CreateNodeDelegate(ModelNode modelNode, GraphicNode graphicNode);
     private delegate void CreateLinkDelegate(ModelLink modelLink, GraphicLink graphicLink);
-    private delegate void CreateThingDelegate(GraphicThing graphicThing);
 
     private delegate void ModifyAreaDelegate(GraphicArea graphicArea);
     private delegate void ModifyNodeDelegate(Guid guid);
     private delegate void ModifyLinkDelegate(Guid guid);
-    private delegate void ModifyThingDelegate(GraphicThing graphicThing);
 
     private delegate void DeleteNodeDelegate(Guid guid);
     private delegate void DeleteLinkDelegate(Guid guid);
-    private delegate void DeleteThingDelegate(Guid guid);
 
     private Dictionary<Guid, EditorArea> editorAreas = new Dictionary<Guid, EditorArea>();
     private Dictionary<Guid, EditorNode> editorNodes = new Dictionary<Guid, EditorNode>();
@@ -98,7 +95,6 @@ namespace SysCAD.Editor
 
     public List<Guid> newElementSelectionList = new List<Guid>(); // List of elements that have to be selected -- i.e. after paste.
 
-    private Dictionary<Guid, Thing> things = new Dictionary<Guid, Thing>();
     DateTime time = DateTime.MinValue;
 
     private PureComponents.TreeView.TreeView tvNavigation;
@@ -217,55 +213,6 @@ namespace SysCAD.Editor
         return null;
     }
 
-    //    public static System.Drawing.Image GetImage(GraphicThing graphicThing, FlowChart flowchart)
-    //    {
-    //      StringReader sr = new StringReader(PreprocessXaml(graphicThing.Xaml));
-    //      XmlReader xr = new XmlTextReader(sr);
-
-    //      System.Drawing.Rectangle clientRect = flowchart.DocToClient(graphicThing.BoundingRect);
-
-    //      Viewbox viewbox = new Viewbox();
-    //      viewbox.Stretch = Stretch.Fill;
-    //      viewbox.Child = System.Windows.Markup.XamlReader.Load(xr) as System.Windows.Controls.Canvas;
-    //      viewbox.Measure(new System.Windows.Size(clientRect.Width, clientRect.Height));
-    //      viewbox.Arrange(new Rect(0, 0, clientRect.Width, clientRect.Height));
-    //      viewbox.UpdateLayout();
-
-    //      RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(clientRect.Width, clientRect.Height, 96, 96, PixelFormats.Default);
-    //      renderTargetBitmap.Render(viewbox);
-
-    //      MemoryStream stream = new MemoryStream();
-    //      {
-    //        PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
-    //        pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-    //        pngBitmapEncoder.Save(stream);
-    //      }
-
-    //      {
-    //        PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
-    //        pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-    //        FileStream fileStream = new FileStream("c:\\test.png", FileMode.Create);
-    //        pngBitmapEncoder.Save(fileStream);
-    //        fileStream.Flush();
-    //        fileStream.Close();
-    //      }
-
-    //      return System.Drawing.Image.FromStream(stream);
-    //    }
-
-    public static String PreprocessXaml(String xaml)
-    {
-      //String xaml = unProcessedXaml;
-      //Regex regex = new Regex(@"\[\[[^\]]*\]\]");
-      MatchEvaluator myEvaluator = new MatchEvaluator(ProcessMatch);
-      return Regex.Replace(xaml, @"\[\[[^\]]*\]\]", myEvaluator);
-      //MatchCollection matches = regex.Matches(xaml);
-      //foreach (Match match in matches)
-      //{
-      //}
-      //return xaml;
-    }
-
     public void SetArrow(State state, Arrow arrow, GraphicLink graphicLink, ModelLink modelLink)
     {
       EditorLink link = new EditorLink(state, graphicLink, modelLink);
@@ -306,11 +253,6 @@ namespace SysCAD.Editor
     //  return clientProtocol.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, originPortID, destinationPort, destinationPortID, controlPoints, textArea, textAngle);
     //}
 
-    //internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    //{
-    //  return clientProtocol.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-    //}
-
     internal void CreateArea(GraphicArea graphicArea)
     {
       if (flowChart.InvokeRequired)
@@ -335,17 +277,17 @@ namespace SysCAD.Editor
         box.ToolTip = "";// graphicArea.Tag;
         box.Style = BoxStyle.Rectangle;
 
-        // Make groups unmodifiable -- for now.
+        // Make areas unmodifiable -- for now.
         box.Locked = true;
 
-        EditorArea group = new EditorArea(this, graphicArea);
-        group.Box = box;
-        editorAreas.Add(group.Guid, group);
+        EditorArea area = new EditorArea(this, graphicArea);
+        area.Box = box;
+        editorAreas.Add(area.Guid, area);
 
-        box.Tag = group;
-        node.Tag = group;
+        box.Tag = area;
+        node.Tag = area;
 
-        group.Visible = isVisible;
+        area.Visible = isVisible;
       }
     }
 
@@ -537,8 +479,6 @@ namespace SysCAD.Editor
             editorNodes[guid].ModelBox.Selected = true;
           if (editorLinks.ContainsKey(guid))
             editorLinks[guid].Arrow.Selected = true;
-          if (things.ContainsKey(guid))
-            things[guid].Box.Selected = true;
         }
       }
     }
@@ -746,51 +686,6 @@ namespace SysCAD.Editor
       }
     }
 
-    //internal void CreateThing(GraphicThing graphicThing)
-    //{
-
-    //  if (flowChart.InvokeRequired)
-    //  {
-    //    flowChart.BeginInvoke(new CreateThingDelegate(CreateThing), new object[] { graphicThing });
-    //  }
-
-    //  else
-    //  {
-    //    flowChart.SuspendLayout();
-
-    //    Box box = flowChart.CreateBox((float)graphicThing.X, (float)graphicThing.Y, (float)graphicThing.Width, (float)graphicThing.Height);
-    //    box.RotationAngle = (float)graphicThing.Angle;
-    //    box.ToolTip = graphicThing.Tag;
-    //    box.Style = BoxStyle.Rectangle;
-
-    //    box.FillColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
-    //    box.FrameColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
-
-    //    box.ZBottom();
-
-    //    Thing thing = new Thing(graphicThing.Guid, graphicThing.Tag, box, isVisible, graphicThing);
-
-    //    box.Tag = thing;
-
-    //    //box.Image = State.GetImage(graphicThing, flowchart);
-
-    //    things.Add(thing.Guid, thing);
-
-    //    flowChart.ResumeLayout();
-
-    //    PureComponents.TreeView.Node node =
-    //      tvNavigation.AddNodeByPath(graphicThing.Path + graphicThing.Tag, graphicThing.Guid.ToString());
-    //    node.Tag = thing;
-    //    node.AllowDrop = false;
-
-    //    node.NodeStyle = new PureComponents.TreeView.NodeStyle();
-    //    node.NodeStyle.SelectedForeColor = System.Drawing.Color.Green;
-    //    node.NodeStyle.ForeColor = System.Drawing.Color.Green;
-
-    //    NewElementSelection();
-    //  }
-    //}
-
     //internal bool DeleteGraphicNode(out Int64 requestId, Guid guid)
     //{
     //  return clientProtocol.DeleteItem(out requestId, guid);
@@ -801,12 +696,7 @@ namespace SysCAD.Editor
     //  return clientProtocol.DeleteLink(out requestId, guid);
     //}
 
-    //internal bool DeleteGraphicThing(out Int64 requestId, Guid guid)
-    //{
-    //  return clientProtocol.DeleteThing(out requestId, guid);
-    //}
-
-    internal void DeleteItem(Guid guid)
+   internal void DeleteItem(Guid guid)
     {
 
       if (flowChart.InvokeRequired)
@@ -851,29 +741,6 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void DeleteThing(Guid guid)
-    {
-
-      if (flowChart.InvokeRequired)
-      {
-        flowChart.BeginInvoke(new DeleteThingDelegate(DeleteThing), new object[] { guid });
-      }
-
-      else
-      {
-        tvNavigation.Nodes.Remove(tvNavigation.GetNodeByKey(guid.ToString()));
-
-        Thing thing;
-
-        if (things.TryGetValue(guid, out thing))
-        {
-          flowChart.DeleteObject(thing.Box);
-          things.Remove(guid);
-        }
-      }
-    }
-
-
     internal bool Exists(Guid guid)
     {
       EditorNode item;
@@ -882,10 +749,7 @@ namespace SysCAD.Editor
       EditorLink link;
       editorLinks.TryGetValue(guid, out link);
 
-      Thing thing;
-      things.TryGetValue(guid, out thing);
-
-      return ((link != null) || (item != null) || (thing != null));
+      return ((link != null) || (item != null));
     }
 
     internal bool Exists(String tag)
@@ -902,13 +766,6 @@ namespace SysCAD.Editor
       {
 
         if (link.Tag == tag)
-          return true;
-      }
-
-      foreach (Thing thing in things.Values)
-      {
-
-        if (thing.Tag == tag)
           return true;
       }
 
@@ -1013,22 +870,6 @@ namespace SysCAD.Editor
       return graphicStencil;
     }
 
-    internal GraphicThing GraphicThing(Box box)
-    {
-      GraphicThing graphicThing = null;
-
-      if (box.Tag is Thing)
-        clientProtocol.graphic.Things.TryGetValue((box.Tag as Thing).Guid, out graphicThing);
-      return graphicThing;
-    }
-
-    internal GraphicThing GraphicThing(Guid guid)
-    {
-      GraphicThing graphicThing;
-      clientProtocol.graphic.Things.TryGetValue(guid, out graphicThing);
-      return graphicThing;
-    }
-
     internal bool IsItem(Guid guid)
     {
       return clientProtocol.graphic.Nodes.ContainsKey(guid);
@@ -1037,11 +878,6 @@ namespace SysCAD.Editor
     internal bool IsLink(Guid guid)
     {
       return clientProtocol.graphic.Links.ContainsKey(guid);
-    }
-
-    internal bool IsThing(Guid guid)
-    {
-      return clientProtocol.graphic.Things.ContainsKey(guid);
     }
 
     internal EditorNode Item(Guid guid)
@@ -1069,11 +905,11 @@ namespace SysCAD.Editor
       {
         Guid guid = new Guid(keyGuid);
         EditorNode node;
-        EditorArea group;
+        EditorArea area;
 
-        if (editorAreas.TryGetValue(guid, out group))
+        if (editorAreas.TryGetValue(guid, out area))
         {
-          group.Visible = visible;
+          area.Visible = visible;
         }
 
         if (editorNodes.TryGetValue(guid, out node))
@@ -1081,12 +917,6 @@ namespace SysCAD.Editor
           node.Visible = visible;
         }
 
-        //Thing thing;
-
-        //if (things.TryGetValue(guid, out thing))
-        //{
-        //  thing.Visible = visible;
-        //}
       }
     }
 
@@ -1282,13 +1112,6 @@ namespace SysCAD.Editor
     {
       this.step = step;
       this.time = time;
-    }
-
-    internal Thing Thing(Guid guid)
-    {
-      Thing thing;
-      things.TryGetValue(guid, out thing);
-      return thing;
     }
 
     static private ElementTemplate MirroredElement(object element, bool mirrorX, bool mirrorY)
@@ -1564,11 +1387,6 @@ namespace SysCAD.Editor
       get { return clientProtocol.graphic.Links.Values; }
     }
 
-    internal IEnumerable<GraphicThing> GraphicThings
-    {
-      get { return clientProtocol.graphic.Things.Values; }
-    }
-
     internal IEnumerable<EditorArea> Areas
     {
       get { return editorAreas.Values; }
@@ -1582,11 +1400,6 @@ namespace SysCAD.Editor
     internal IEnumerable<EditorLink> Links
     {
       get { return editorLinks.Values; }
-    }
-
-    internal IEnumerable<Thing> Things
-    {
-      get { return things.Values; }
     }
 
     internal void ConnectGraphic(

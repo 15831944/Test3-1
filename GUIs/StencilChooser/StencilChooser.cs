@@ -43,13 +43,13 @@ namespace SysCAD
           group = "!!None!!";
 
         TreeNode groupNode;
-        if (stencilChooserTreeView.Nodes.ContainsKey("Area: " + group))
+        if (stencilChooserTreeView.Nodes.ContainsKey("Group: " + group))
         {
-          groupNode = stencilChooserTreeView.Nodes["Area: " + group];
+          groupNode = stencilChooserTreeView.Nodes["Group: " + group];
         }
         else
         {
-          groupNode = stencilChooserTreeView.Nodes.Add("Area: " + group, group);
+          groupNode = stencilChooserTreeView.Nodes.Add("Group: " + group, group);
         }
 
         TreeNode modelNode = groupNode.Nodes.Add("Model: " + key, key, "Model: " + key, "Model: " + key);

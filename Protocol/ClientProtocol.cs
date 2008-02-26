@@ -547,54 +547,6 @@ namespace SysCAD.Protocol
       OnSync(eventId);
     }
 
-    //public void ServiceGraphicThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    //{
-
-    //  if (!graphicThings.ContainsKey(guid))
-    //  {
-    //    GraphicThing graphicThing = new GraphicThing(guid, tag);
-    //    graphicThing.Path = path;
-    //    graphicThing.BoundingRect = boundingRect;
-    //    graphicThing.Xaml = xaml;
-    //    graphicThing.Angle = angle;
-    //    graphicThing.MirrorX = mirrorX;
-    //    graphicThing.MirrorY = mirrorY;
-
-    //    graphicThings.Add(guid, graphicThing);
-
-    //    //OnThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-    //  }
-    //}
-
-    //public void ServiceGraphicThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
-    //{
-
-    //  if (graphicThings.ContainsKey(guid))
-    //  {
-    //    graphicThings.Remove(guid);
-
-    //    //OnThingDeleted(eventId, requestId, guid);
-    //  }
-    //}
-
-    //public void ServiceGraphicThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    //{
-    //  GraphicThing graphicThing;
-
-    //  if (graphicThings.TryGetValue(guid, out graphicThing))
-    //  {
-    //    graphicThing.Tag = tag;
-    //    graphicThing.Path = path;
-    //    graphicThing.BoundingRect = boundingRect;
-    //    graphicThing.Xaml = xaml;
-    //    graphicThing.Angle = angle;
-    //    graphicThing.MirrorX = mirrorX;
-    //    graphicThing.MirrorY = mirrorY;
-
-    //    //OnThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-    //  }
-    //}
-
     public void Syncxxx()
     {
       MemoryStream memoryStream;

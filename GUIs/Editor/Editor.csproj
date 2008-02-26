@@ -84,17 +84,10 @@
       <DependentUpon>GraphicStencilChangeForm.cs</DependentUpon>
     </Compile>
     <Compile Include="EditorGroup.cs" />
-    <Compile Include="InsertAnnotationDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="InsertAnnotationDialog.Designer.cs">
-      <DependentUpon>InsertAnnotationDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="ModelPropertyGrid.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="PropertyGraphicStencilFeel.cs" />
-    <Compile Include="Thing.cs" />
     <Compile Include="EditorNode.cs" />
     <Compile Include="EditorLink.cs" />
     <Compile Include="State.cs" />
@@ -123,10 +116,6 @@
     <EmbeddedResource Include="GraphicStencilChangeForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>GraphicStencilChangeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="InsertAnnotationDialog.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>InsertAnnotationDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\licenses.licx" />
     <EmbeddedResource Include="Properties\Resources.resx">

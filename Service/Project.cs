@@ -579,38 +579,6 @@ namespace SysCAD.Service
     //  }
     //}
 
-    //bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    //{
-    //  if (true) // Decide whether to create an Thing.
-    //  { // We're going to do it.
-    //    // Create the Thing.
-
-    //    this.requestId++;
-    //    requestId = this.requestId;
-    //    guid = Guid.NewGuid();
-
-    //    GraphicThing graphicThing = new GraphicThing(guid, tag);
-    //    graphicThing.Path = path;
-    //    graphicThing.BoundingRect = boundingRect;
-    //    graphicThing.Xaml = xaml;
-    //    graphicThing.Angle = angle;
-    //    graphicThing.MirrorX = mirrorX;
-    //    graphicThing.MirrorY = mirrorY;
-
-    //    graphic.Things.Add(guid, graphicThing);
-
-    //    // Raise event(s).
-    //    eventId++;
-    //    //clientClientServiceProtocol.DoThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-
-    //    return true;
-    //  }
-    //  //else
-    //  //{ // We're not going to do it.
-    //  //  return false;
-    //  //}
-    //}
-
     //bool DeleteArea(out Int64 requestId, Guid guid)
     //{
     //  throw new NotImplementedException("The method or operation is not implemented.");
@@ -653,27 +621,6 @@ namespace SysCAD.Service
     //    // Raise event(s).
     //    eventId++;
     //    //clientClientServiceProtocol.DoLinkDeleted(eventId, requestId, guid);
-
-    //    return true;
-    //  }
-    //  else
-    //  { // We're not going to do it.
-    //    return false;
-    //  }
-    //}
-
-    //bool DeleteThing(out Int64 requestId, Guid guid)
-    //{
-    //  this.requestId++;
-    //  requestId = this.requestId;
-
-    //  if (graphic.Things.ContainsKey(guid))
-    //  { // We're going to do it.
-    //    // Delete the Thing.
-
-    //    // Raise event(s).
-    //    eventId++;
-    //    //clientClientServiceProtocol.DoThingDeleted(eventId, requestId, guid);
 
     //    return true;
     //  }
@@ -864,52 +811,6 @@ namespace SysCAD.Service
     //    // Raise event(s).
     //    eventId++;
     //    //clientClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints, tagArea, tagAngle);
-
-    //    return true;
-    //  }
-    //  else
-    //  { // We're not going to do it.
-    //    return false;
-    //  }
-    //}
-
-    //bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    //{
-    //  this.requestId++;
-    //  requestId = this.requestId;
-
-    //  if (graphic.Things.ContainsKey(guid))
-    //  { // We're going to do it.
-    //    // Modify the Thing.
-
-    //    // Raise event(s).
-    //    eventId++;
-    //    //clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-
-    //    return true;
-    //  }
-    //  else
-    //  { // We're not going to do it.
-    //    return false;
-    //  }
-    //}
-
-    //bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
-    //{
-    //  this.requestId++;
-    //  requestId = this.requestId;
-
-    //  if (graphic.Things.ContainsKey(guid))
-    //  { // We're going to do it.
-    //    // Modify the item.
-
-    //    GraphicThing graphicThing = graphic.Things[guid];
-
-    //    graphicThing.Path = path;
-
-    //    // Raise event(s).
-    //    eventId++;
-    //    //clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, graphicThing.Tag, path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
 
     //    return true;
     //  }

@@ -469,9 +469,6 @@ namespace SysCAD.Editor
       {
         //if (IsItem(node))
         //frmFlowChart.State.ModifyGraphicNodePath(out requestId, new Guid(node.Key), node.FullPath);
-
-        //if (IsThing(node))
-        //frmFlowChart.State.ModifyGraphicThingPath(out requestId, new Guid(node.Key), node.FullPath);
       }
 
       foreach (PureComponents.TreeView.Node subNode in node.Nodes)
@@ -649,12 +646,12 @@ namespace SysCAD.Editor
       NavigationTreeView.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
     }
 
-    /// <summary>Determine if this node represents a leaf (i.e. item or thing.)</summary>
+    /// <summary>Determine if this node represents a leaf (i.e. item.)</summary>
     /// <param name="node">Node to be tested</param>
     /// <returns>True if node represents a leaf.</returns>
     private static bool IsLeaf(PureComponents.TreeView.Node node)
     {
-      return ((node.Tag != null) && ((node.Tag is EditorNode) || (node.Tag is Thing)));
+      return ((node.Tag != null) && (node.Tag is EditorNode));
     }
 
     /// <summary>Determine if this node represents a item.</summary>
@@ -665,15 +662,7 @@ namespace SysCAD.Editor
       return ((node.Tag != null) && (node.Tag is EditorNode));
     }
 
-    /// <summary>Determine if this node represents a thing.</summary>
-    /// <param name="node">Node to be tested</param>
-    /// <returns>True if node represents a thing.</returns>
-    private static bool IsThing(PureComponents.TreeView.Node node)
-    {
-      return ((node.Tag != null) && (node.Tag is Thing));
-    }
-
-    /// <summary>Determine if this node represents a branch (i.e. root or group.)</summary>
+    /// <summary>Determine if this node represents a branch (i.e. root or area.)</summary>
     /// <param name="node">Node to be tested</param>
     /// <returns>True if node represents a branch.</returns>
     private static bool IsBranch(PureComponents.TreeView.Node node)
@@ -681,9 +670,9 @@ namespace SysCAD.Editor
       return ((node.Tag == null) || (node.Tag is EditorArea));
     }
 
-    /// <summary>Determine if this node represents a group.</summary>
+    /// <summary>Determine if this node represents a area.</summary>
     /// <param name="node">Node to be tested</param>
-    /// <returns>True if node represents a group.</returns>
+    /// <returns>True if node represents a area.</returns>
     private static bool IsArea(PureComponents.TreeView.Node node)
     {
       return ((node.Tag != null) && (node.Tag is EditorArea));
@@ -743,9 +732,9 @@ namespace SysCAD.Editor
     {
       frmFlowChart.State.ShowAreas = ((IBarCheckableCommand)barManager1.Commands["View.ShowAreas"]).Checked;
 
-      foreach (EditorArea group in frmFlowChart.State.Areas)
+      foreach (EditorArea area in frmFlowChart.State.Areas)
       {
-        group.UpdateVisibility();
+        area.UpdateVisibility();
       }
     }
 
@@ -925,14 +914,6 @@ namespace SysCAD.Editor
             //  //frmFlowChart.newItemSelectionList.Add(guid);
             //}
 
-            //foreach (GraphicThing graphicThing in pasteData.graphicThings.Values)
-            //{
-            //  graphicThing.X += dx;
-            //  graphicThing.Y += dy;
-            //  frmFlowChart.NewGraphicThing(out guid, graphicThing, tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator);
-            //  frmFlowChart.State.newElementSelectionList.Add(guid);
-            //}
-
             //// that returns the active composite if somebody has already created one
             //CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
 
@@ -972,10 +953,6 @@ namespace SysCAD.Editor
         GraphicNode graphicNode = frmFlowChart.State.GraphicNode(box);
         if (graphicNode != null)
           copyGuids.Add(graphicNode.Guid);
-
-        GraphicThing graphicThing = frmFlowChart.State.GraphicThing(box);
-        if (graphicThing != null)
-          copyGuids.Add(graphicThing.Guid);
       }
 
       foreach (Arrow arrow in doc.Selection.Arrows)

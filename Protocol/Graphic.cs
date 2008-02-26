@@ -7,23 +7,21 @@ namespace SysCAD.Protocol
   [Serializable]
   public class Graphic
   {
-    private Dictionary<Guid, GraphicArea> groups;
+    private Dictionary<Guid, GraphicArea> areas;
     private Dictionary<Guid, GraphicNode> nodes;
     private Dictionary<Guid, GraphicLink> links;
-    private Dictionary<Guid, GraphicThing> things;
 
     public Graphic()
     {
-      groups = new Dictionary<Guid, GraphicArea>();
+      areas = new Dictionary<Guid, GraphicArea>();
       nodes = new Dictionary<Guid, GraphicNode>();
       links = new Dictionary<Guid, GraphicLink>();
-      things = new Dictionary<Guid, GraphicThing>();
     }
 
     public Dictionary<Guid, GraphicArea> Areas
     {
-      get { return groups; }
-      set { groups = value; }
+      get { return areas; }
+      set { areas = value; }
     }
 
     public Dictionary<Guid, GraphicNode> Nodes
@@ -38,16 +36,10 @@ namespace SysCAD.Protocol
       set { links = value; }
     }
 
-    public Dictionary<Guid, GraphicThing> Things
-    {
-      get { return things; }
-      set { things = value; }
-    }
-
     public void Create(GraphicItem graphicItem)
     {
       if (graphicItem is GraphicArea)
-        groups.Add(graphicItem.Guid, graphicItem as GraphicArea);
+        areas.Add(graphicItem.Guid, graphicItem as GraphicArea);
       
       if (graphicItem is GraphicNode)
         nodes.Add(graphicItem.Guid, graphicItem as GraphicNode);
@@ -58,8 +50,8 @@ namespace SysCAD.Protocol
 
     public void Modify(GraphicItem graphicItem)
     {
-      if (groups.ContainsKey(graphicItem.Guid))
-        groups[graphicItem.Guid] = graphicItem as GraphicArea;
+      if (areas.ContainsKey(graphicItem.Guid))
+        areas[graphicItem.Guid] = graphicItem as GraphicArea;
 
       if (nodes.ContainsKey(graphicItem.Guid))
         nodes[graphicItem.Guid] = graphicItem as GraphicNode;
@@ -70,8 +62,8 @@ namespace SysCAD.Protocol
 
     public void Delete(Guid guid)
     {
-      if (groups.ContainsKey(guid))
-        groups.Remove(guid);
+      if (areas.ContainsKey(guid))
+        areas.Remove(guid);
 
       if (nodes.ContainsKey(guid))
         nodes.Remove(guid);
@@ -82,8 +74,8 @@ namespace SysCAD.Protocol
 
     public GraphicItem Get(Guid guid)
     {
-      if (groups.ContainsKey(guid))
-        return groups[guid];
+      if (areas.ContainsKey(guid))
+        return areas[guid];
 
       if (nodes.ContainsKey(guid))
         return nodes[guid];

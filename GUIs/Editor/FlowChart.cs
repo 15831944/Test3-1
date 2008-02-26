@@ -134,30 +134,6 @@ namespace SysCAD.Editor
         fcFlowChart.DocExtents = RectangleF.FromLTRB(minX - width * 0.05F, minY - height * 0.05F, maxX + width * 0.05F, maxY + height * 0.05F);
     }
 
-    //public void NewGraphicThing(GraphicThing graphicThing, String path)
-    //{
-    //  Guid guid;
-    //  NewGraphicThing(out guid, graphicThing, path);
-    //}
-
-    //public void NewGraphicThing(out Guid guid, GraphicThing graphicThing, String path)
-    //{
-    //  if (graphicThing != null)
-    //    NewGraphicThing(out guid, path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
-    //  else
-    //    guid = Guid.Empty;
-    //}
-
-    //public void NewGraphicThing(out Guid guid, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    //{
-    //  Int64 requestId;
-
-    //  while (state.Exists("N_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
-    //    tempBoxKey++;
-
-    //  state.CreateGraphicThing(out requestId, out guid, "N_" + tempBoxKey.ToString(), path, boundingRect, xaml, angle, mirrorX, mirrorY);
-    //}
-
     public void SetSizes()
     {
       float zoomFactor = fcFlowChart.ZoomFactor;
@@ -199,11 +175,6 @@ namespace SysCAD.Editor
       {
         link.TextBox.Font = standardFont;
       }
-
-      //foreach (Thing thing in state.Things)
-      //{
-      //  thing.Box.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      //}
 
       fcFlowChart.Invalidate();
     }
@@ -286,8 +257,8 @@ namespace SysCAD.Editor
         }
         else if (box.Tag is EditorArea)
         {
-          EditorArea group = box.Tag as EditorArea;
-          if (group.Visible)
+          EditorArea area = box.Tag as EditorArea;
+          if (area.Visible)
           {
             foundVisibleObject = true;
             if (box.BoundingRect.Left < minX) minX = box.BoundingRect.Left;
@@ -428,11 +399,6 @@ namespace SysCAD.Editor
           state.ClientProtocol.LogMessage(out requestId, "ModelLink missing for graphicLink (Tag: " + graphicLink.Tag + ", Guid: " + graphicLink.Guid + ")", SysCAD.Log.MessageType.Error);
         }
       }
-
-      //foreach (GraphicThing graphicThing in clientProtocol.graphic.Things.Values)
-      //{
-      //  state.CreateThing(graphicThing);
-      //}
 
       fcFlowChart.UndoManager.UndoEnabled = true;
       fcFlowChart.UseWaitCursor = false;
@@ -631,42 +597,6 @@ namespace SysCAD.Editor
       }
 
       fcFlowChart.RecreateCacheImage();
-    }
-
-    private void EditThing(object sender, EventArgs e)
-    {
-      //Thing thing = (hoverviewBox.Tag as Thing);
-      //GraphicThing graphicThing = thing.GraphicThing;
-
-      //ThingEditor.ThingEditorForm thingEditor = new ThingEditor.ThingEditorForm(graphicThing);
-      //thingEditor.ShowDialog();
-      //graphicThing = thingEditor.graphicThing;
-
-      state.ClientProtocol.LogMessage(out requestId, "EditThing not implemented.", SysCAD.Log.MessageType.Error);
-
-      //if (state.ModifyGraphicThing(out requestId,
-      //  graphicThing.Guid,
-      //  graphicThing.Tag,
-      //  graphicThing.Path,
-      //  graphicThing.BoundingRect,
-      //  graphicThing.Xaml,
-      //  graphicThing.Angle,
-      //  graphicThing.MirrorX,
-      //  graphicThing.MirrorY))
-      //{
-      //  //hoverviewBox.Image = State.GetImage(graphicThing, fcFlowChart);
-      //}
-
-      form1.GraphicPropertyGrid.Refresh();
-
-      ContextMenu propertyGridMenu = form1.GraphicPropertyGrid.ContextMenu;
-
-      if (propertyGridMenu == null)
-        propertyGridMenu = new ContextMenu();
-
-      propertyGridMenu.MenuItems.Add("Test");
-
-      form1.GraphicPropertyGrid.ContextMenu = propertyGridMenu;
     }
 
     private void fcFlowChart_ArrowCreated(object sender, ArrowEventArgs e)
@@ -1006,15 +936,6 @@ namespace SysCAD.Editor
             theMenu.MenuItems.Add("Route Links", new EventHandler(RouteLinks));
             theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseItemToTop));
             theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendItemToBottom));
-
-            form1.ModeModify();
-          }
-
-          else if (hoverBox.Tag is Thing)
-          {
-            theMenu.MenuItems.Add("Edit Thing", new EventHandler(EditThing));
-            theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseThingToTop));
-            theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendThingToBottom));
 
             form1.ModeModify();
           }
@@ -1693,11 +1614,6 @@ namespace SysCAD.Editor
       if ((hoverBox != null) && (hoverBox.Tag is EditorNode))
         (hoverBox.Tag as EditorNode).Hovered = true;
 
-      //else if (oldHoverBox.Tag is Thing)
-      //{
-      //  // Unhover the old thing.
-      //}
-
       oldHoverArrow = hoverArrow;
       oldHoverBox = hoverBox;
     }
@@ -1850,17 +1766,6 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_ThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect, String xaml, Double angle, bool mirrorX, bool mirrorY)
-    {
-      Thing thing = state.Thing(guid);
-
-      if (thing != null)
-      {
-        thing.Box.BoundingRect = boundingRect;
-        thing.Box.RotationAngle = (float)angle;
-      }
-    }
-
     private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
     {
       SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
@@ -1938,34 +1843,6 @@ namespace SysCAD.Editor
         action.Modify.Add(newLink);
 
         AddAction(action);
-      }
-
-      else if (e.Box.Tag is Thing)
-      {
-        //GraphicThing graphicThing = state.GraphicThing((e.Box.Tag as Thing).Guid);
-        //Box box = (e.Box.Tag as Thing).Box;
-
-        //if (!state.ModifyGraphicThing(out requestId,
-        //    graphicThing.Guid,
-        //    graphicThing.Tag,
-        //    graphicThing.Path,
-        //    new SysCAD.Protocol.Rectangle(box.BoundingRect), // this is the new boundingbox from the user move.
-        //    graphicThing.Xaml,
-        //    box.RotationAngle, // this is the new rotationangle from the user move.
-        //    graphicThing.MirrorX,
-        //    graphicThing.MirrorY))
-        //{
-        //  box.BoundingRect = graphicThing.BoundingRect;
-        //  box.RotationAngle = (float)graphicThing.Angle;
-        //}
-
-        //else
-        //{
-        //  graphicThing.BoundingRect = new SysCAD.Protocol.Rectangle(box.BoundingRect);
-        //  graphicThing.Angle = box.RotationAngle;
-        //}
-
-        //box.Image = State.GetImage(graphicThing, fcFlowChart);
       }
 
       form1.GraphicPropertyGrid.Refresh();
@@ -2082,11 +1959,6 @@ namespace SysCAD.Editor
       fcFlowChart.Invalidate();
     }
 
-    private void RaiseThingToTop(object sender, EventArgs e)
-    {
-      (hoverBox.Tag as Thing).Box.ZTop();
-    }
-
     private void refreshConnectedObjects() //Arrow arrowBeingModified)
     {
       fcFlowChart.Invalidate();
@@ -2175,11 +2047,6 @@ namespace SysCAD.Editor
       (hoverBox.Tag as EditorNode).GraphicBox.ZBottom();
       (hoverBox.Tag as EditorNode).ModelBox.ZBottom();
       fcFlowChart.Invalidate();
-    }
-
-    private void SendThingToBottom(object sender, EventArgs e)
-    {
-      (hoverBox.Tag as Thing).Box.ZBottom();
     }
 
     public String CurrentModel

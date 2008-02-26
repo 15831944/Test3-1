@@ -54,13 +54,13 @@ namespace SysCAD.Editor
 
         {
           TreeNode groupNode;
-          if (graphicTreeView.Nodes.ContainsKey("Area: " + group))
+          if (graphicTreeView.Nodes.ContainsKey("Group: " + group))
           {
-            groupNode = graphicTreeView.Nodes["Area: " + group];
+            groupNode = graphicTreeView.Nodes["Group: " + group];
           }
           else
           {
-            groupNode = graphicTreeView.Nodes.Add("Area: " + group, group);
+            groupNode = graphicTreeView.Nodes.Add("Group: " + group, group);
           }
 
           groupNode.Nodes.Add(key, key, "Unselected: " + key, "Selected: " + key);

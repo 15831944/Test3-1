@@ -109,12 +109,12 @@ namespace SysCAD.Editor
                 if (editorForm.FrmFlowChart.State.ClientProtocol.graphic.Areas != null)
                 {
                   messageBody += "Areas:\n";
-                  foreach (SysCAD.Protocol.GraphicArea group in editorForm.FrmFlowChart.State.ClientProtocol.graphic.Areas.Values)
+                  foreach (SysCAD.Protocol.GraphicArea area in editorForm.FrmFlowChart.State.ClientProtocol.graphic.Areas.Values)
                   {
-                    messageBody += "Tag: " + group.Tag + "\n";
-                    messageBody += "Path: " + group.Path + "\n";
-                    messageBody += "Guid: " + group.Guid.ToString() + "\n";
-                    messageBody += "Rect: " + group.BoundingRect.ToString() + "\n";
+                    messageBody += "Tag: " + area.Tag + "\n";
+                    messageBody += "Path: " + area.Path + "\n";
+                    messageBody += "Guid: " + area.Guid.ToString() + "\n";
+                    messageBody += "Rect: " + area.BoundingRect.ToString() + "\n";
                     messageBody += "\n";
                   }
                   messageBody += "\n";
@@ -147,10 +147,6 @@ namespace SysCAD.Editor
                     messageBody += "\n";
                   }
                   messageBody += "\n";
-                }
-                if (editorForm.FrmFlowChart.State.ClientProtocol.graphic.Things != null)
-                {
-
                 }
               }
             }

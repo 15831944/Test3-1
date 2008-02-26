@@ -279,8 +279,7 @@ ref class CSvcConnectCLRThread
       if (clientProtocol == nullptr)
         return false;
 
-      if ((clientProtocol->graphic->Areas == nullptr) || (clientProtocol->graphic->Nodes == nullptr) || 
-        (clientProtocol->graphic->Links == nullptr) || (clientProtocol->graphic->Things == nullptr))
+      if ((clientProtocol->graphic->Areas == nullptr) || (clientProtocol->graphic->Nodes == nullptr) || (clientProtocol->graphic->Links == nullptr))
         return false;
 
       //return (!((clientProtocol->graphic->Groups->Count == 0)&&
