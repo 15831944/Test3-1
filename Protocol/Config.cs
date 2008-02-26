@@ -78,7 +78,10 @@ namespace SysCAD.Protocol
           //{
           GraphicStencil graphicStencil = GraphicStencil.Deserialize(fullpath);
 
-          GraphicStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath).ToLower().Replace(' ', '_'), graphicStencil);
+          foreach (String tag in graphicStencil.Tags)
+          {
+            GraphicStencils.Add(tag, graphicStencil);
+          }
           //}
           //catch
           //{
