@@ -1289,40 +1289,6 @@ namespace SysCAD.Editor
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    //private void fcFlowChart_ItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, NodeClass nodeClass, Shape shape, SysCAD.Protocol.Rectangle boundingRect, Double angle, SysCAD.Protocol.Rectangle textArea, Double textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
-    //{
-    //  Item item = state.Item(guid);
-
-    //  if (item != null)
-    //  {
-    //    item.ModelBox.BoundingRect = boundingRect;
-    //    item.ModelBox.RotationAngle = (float)angle;
-
-    //    ModelStencil modelStencil = state.ModelStencil(model);
-
-    //    if (modelStencil != null)
-    //      item.ModelBox.Shape = State.GetShapeTemplate(modelStencil, mirrorX, mirrorY);
-    //    else
-    //      item.ModelBox.Shape = ShapeTemplate.FromId("Decision2");
-
-    //    item.ModelBox.AnchorPattern = State.GetAnchorPattern(modelStencil, item);
-
-    //    item.GraphicBox.BoundingRect = boundingRect;
-    //    item.GraphicBox.RotationAngle = (float)angle;
-    //    item.GraphicBox.FillColor = fillColor;
-
-    //    //item.Graphic.Shape = shape.ShapeTemplate(item.MirrorX, iItem.MirrorY);
-    //    {
-    //      GraphicStencil graphicStencil = state.GraphicShape(shape, model);
-
-    //      if (graphicStencil != null)
-    //        item.GraphicBox.Shape = State.GetShapeTemplate(graphicStencil, mirrorX, mirrorY);
-    //      else
-    //        item.GraphicBox.Shape = ShapeTemplate.FromId("Decision2");
-    //    }
-    //  }
-    //}
-
     private void fcFlowChart_LinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       EditorLink link = state.Link(guid);
@@ -1439,7 +1405,7 @@ namespace SysCAD.Editor
         if (modelNode != null)
         {
           ModelStencil modelStencil = State.ModelShape(modelNode.NodeClass);
-          GraphicStencil graphicStencil = State.GraphicShape(modelNode.NodeClass);
+          GraphicStencil graphicStencil = State.GraphicStencil(modelNode.NodeClass);
 
           if (graphicStencil != null)
           {

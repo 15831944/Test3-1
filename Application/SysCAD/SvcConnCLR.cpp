@@ -358,7 +358,7 @@ ref class CSvcConnectCLRThread
           __int64 requestId=-1;
           m_pConn->OnCreateNodeG(eventId, requestId, 
             CSvcHeaderBlk(ToCString(GNd->Guid.ToString()), ToCString(GNd->Tag), ToCString(GNd->Path), ToCString(MNd->NodeClass)), 
-            CSvcNdGBlk(ToCString(GNd->Shape), CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), float(GNd->Angle),
+            CSvcNdGBlk(ToCString(GNd->Stencil), CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), float(GNd->Angle),
             RGB(GNd->FillColor.R, GNd->FillColor.G, GNd->FillColor.B), GNd->MirrorX, GNd->MirrorY), 
             CSvcTagBlk(CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height), float(GNd->TagAngle), GNd->TagVisible));
           }
@@ -747,7 +747,7 @@ ref class CSvcConnectCLRThread
             {
             m_pConn->OnCreateNodeG(eventId, requestId, 
               CSvcHeaderBlk(ToCString(GNd->Guid.ToString()), ToCString(GNd->Tag), ToCString(GNd->Path), ToCString(MNd->NodeClass)),
-              CSvcNdGBlk(ToCString(GNd->Shape), CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), float(GNd->Angle),
+              CSvcNdGBlk(ToCString(GNd->Stencil), CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), float(GNd->Angle),
               RGB(GNd->FillColor.R, GNd->FillColor.G, GNd->FillColor.B), GNd->MirrorX, GNd->MirrorY), 
               CSvcTagBlk(CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height), float(GNd->TagAngle), GNd->TagVisible));
             }
@@ -796,7 +796,7 @@ ref class CSvcConnectCLRThread
             {
             m_pConn->OnModifyNodeG(eventId, requestId, 
               CSvcHeaderBlk(ToCString(GNd->Guid.ToString()), ToCString(GNd->Tag), ToCString(GNd->Path), ToCString(MNd->NodeClass)),
-              CSvcNdGBlk(ToCString(GNd->Shape), CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), float(GNd->Angle),
+              CSvcNdGBlk(ToCString(GNd->Stencil), CRectangleF(GNd->BoundingRect->Left, GNd->BoundingRect->Top, GNd->BoundingRect->Width, GNd->BoundingRect->Height), float(GNd->Angle),
               RGB(GNd->FillColor.R, GNd->FillColor.G, GNd->FillColor.B), GNd->MirrorX, GNd->MirrorY), 
               CSvcTagBlk(CRectangleF(GNd->TagArea->Left, GNd->TagArea->Top, GNd->TagArea->Width, GNd->TagArea->Height), float(GNd->TagAngle), GNd->TagVisible));
             }

@@ -323,7 +323,7 @@ namespace SysCAD.Editor
           isVisible = treeViewNode.Parent.IsSelected;
 
         ModelStencil modelStencil;
-        GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
+        GraphicStencil graphicStencil = GraphicStencil(graphicNode.Stencil);
 
 
         Box textBox = null, graphicBox = null, modelBox = null;
@@ -361,17 +361,17 @@ namespace SysCAD.Editor
           textBox.Text = graphicNode.Tag;
         }
 
-        if (graphicNode.Shape != null)
+        if (graphicNode.Stencil != null)
         {
           graphicBox = flowChart.CreateBox((float)graphicNode.X, (float)graphicNode.Y, (float)graphicNode.Width, (float)graphicNode.Height);
           graphicBox.RotationAngle = (float)graphicNode.Angle;
           graphicBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicNode.Model";
           graphicBox.Style = BoxStyle.Shape;
 
-          if (GraphicShape(graphicNode.Shape) == null)
+          if (GraphicStencil(graphicNode.Stencil) == null)
           // can't use graphicStencil because the above GraphicShape call will find a stencil even if the shape doesn't exist.
           {
-            clientProtocol.LogMessage(out requestId, "GraphicStencil not found in library for shape \'" + graphicNode.Shape + "\'", SysCAD.Log.MessageType.Warning);
+            clientProtocol.LogMessage(out requestId, "GraphicStencil not found in library for stencil \'" + graphicNode.Stencil + "\'", SysCAD.Log.MessageType.Warning);
           }
 
           if (graphicStencil != null)
@@ -863,7 +863,7 @@ namespace SysCAD.Editor
       return graphicLink;
     }
 
-    internal GraphicStencil GraphicShape(String stencilName)
+    internal GraphicStencil GraphicStencil(String stencilName)
     {
       GraphicStencil graphicStencil;
       config.GraphicStencils.TryGetValue(stencilName, out graphicStencil);
@@ -1028,7 +1028,7 @@ namespace SysCAD.Editor
         {
           graphicNode.MirrorX = mirrorX;
 
-          GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
+          GraphicStencil graphicStencil = GraphicStencil(graphicNode.Stencil);
 
           if (graphicStencil != null)
           {
@@ -1051,7 +1051,7 @@ namespace SysCAD.Editor
         {
           graphicNode.MirrorY = mirrorY;
 
-          GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
+          GraphicStencil graphicStencil = GraphicStencil(graphicNode.Stencil);
 
           if (graphicStencil != null)
           {
@@ -1505,7 +1505,7 @@ namespace SysCAD.Editor
         graphicBox.FillColor = graphicNode.FillColor;
 
         {
-          GraphicStencil graphicStencil = GraphicShape(graphicNode.Shape);
+          GraphicStencil graphicStencil = GraphicStencil(graphicNode.Stencil);
 
           if (graphicStencil != null)
             graphicBox.Shape = State.GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);

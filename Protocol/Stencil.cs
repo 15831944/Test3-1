@@ -10,11 +10,11 @@ namespace SysCAD.Protocol
 
   [Serializable]
   [TypeConverter(typeof(ShapeConverter))]
-  public class Shape
+  public class Stencil
   {
     String str;
 
-    public Shape(String str)
+    public Stencil(String str)
     {
       this.str = str;
     }
@@ -29,18 +29,18 @@ namespace SysCAD.Protocol
       return str;
     }
 
-    public static implicit operator String(Shape shape)
+    public static implicit operator String(Stencil stencil)
     {
-    if (shape == null)
+    if (stencil == null)
       return "";
     else
-      return shape.str;
+      return stencil.str;
     }
 
-    public static implicit operator Shape(String str)
+    public static implicit operator Stencil(String str)
     {
-      Shape shape = new Shape(str);
-      return shape;
+      Stencil stencil = new Stencil(str);
+      return stencil;
     }
   }
 }

@@ -25,8 +25,8 @@ namespace DXF2GS
       foreach (String path in Directory.GetFiles(args[0], "*.TxtSym"))
       {
         GraphicStencil graphicStencil = new GraphicStencil();
-        graphicStencil.Tag = Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].Replace('_', ' ');
-        graphicStencil.Groups = new ArrayList();
+        String tag = Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].Replace('_', ' ');
+        graphicStencil.Tags = new ArrayList();          
         graphicStencil.Elements = new ArrayList();
         graphicStencil.Decorations = new ArrayList();
         graphicStencil.DefaultSize = new Size(0.0, 0.0);
@@ -60,7 +60,7 @@ namespace DXF2GS
                 break;
 
               case "Group":
-                graphicStencil.Groups.Add(words[1]);
+                graphicStencil.Tags.Add(words[1] + "/" + tag);
                 break;
             }
           }
@@ -237,7 +237,7 @@ namespace DXF2GS
           }
         }
 
-        GraphicStencil.Serialize(args[1] + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].ToLower().Replace(' ', '_') + ".GraphicStencil", graphicStencil);
+        GraphicStencil.Serialize(args[1] + "\\" + ((String)(graphicStencil.Tags[0])).Replace('/', '_').ToLower().Replace(' ', '_') + ".GraphicStencil", graphicStencil);
 
         Console.WriteLine(args[1] + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].ToLower().Replace(' ', '_') + ".GraphicStencil");
 

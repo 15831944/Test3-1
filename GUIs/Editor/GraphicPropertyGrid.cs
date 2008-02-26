@@ -71,7 +71,7 @@ namespace SysCAD.Editor
       {
         Property a = e.PropertyEnum.Property;
 
-        if (a.Name == "Shape")
+        if (a.Name == "Stencil")
         {
           GraphicStencilChangeForm gscf = new GraphicStencilChangeForm(state.GraphicUnselectedThumbnails, state.GraphicSelectedThumbnails, state.ModelStencils, state.GraphicStencils, a.Value.DisplayString);
           if (gscf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -157,7 +157,7 @@ namespace SysCAD.Editor
       //itemGraphicAngle = 
       AppendProperty(itemGraphic, id++, "Angle", graphicNode, "Angle", "");
 
-      itemGraphicShape = AppendProperty(itemGraphic, id++, "Shape", graphicNode, "Shape", "");
+      itemGraphicShape = AppendProperty(itemGraphic, id++, "Stencil", graphicNode, "Stencil", "");
       itemGraphicShape.Property.Feel = GetRegisteredFeel(PropertyGrid.FeelButton);
 
       itemGraphicTag = AppendSubCategory(itemGraphic, id++, "Tag");

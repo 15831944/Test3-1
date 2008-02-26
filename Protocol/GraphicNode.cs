@@ -16,7 +16,7 @@ namespace SysCAD.Protocol
     private String path;
 
     private Guid modelGuid;
-    private Shape shape;
+    private Stencil stencil;
 
     private Rectangle boundingRect;
     private Double angle;
@@ -31,7 +31,7 @@ namespace SysCAD.Protocol
     private bool mirrorY;
 
 
-    public GraphicNode(Guid guid, String tag, String path, Guid modelGuid, Shape shape, Rectangle boundingRect,
+    public GraphicNode(Guid guid, String tag, String path, Guid modelGuid, Stencil stencil, Rectangle boundingRect,
       Double angle, Rectangle tagArea, Double tagAngle, Boolean tagVisible, System.Drawing.Color fillColor,
       FillMode fillMode, bool mirrorX, bool mirrorY)
     {
@@ -41,7 +41,7 @@ namespace SysCAD.Protocol
       this.path = path;
 
       this.modelGuid = modelGuid;
-      this.shape = shape;
+      this.stencil = stencil;
 
       this.boundingRect = boundingRect;
       this.angle = angle;
@@ -152,10 +152,10 @@ namespace SysCAD.Protocol
       set { path = value; }
     }
 
-    public Shape Shape
+    public Stencil Stencil
     {
-      get { return shape; }
-      set { shape = value; }
+      get { return stencil; }
+      set { stencil = value; }
     }
 
     public Double Width
@@ -178,7 +178,7 @@ namespace SysCAD.Protocol
 
     public GraphicNode Clone()
     {
-      GraphicNode graphicNode = new GraphicNode(Guid, Tag, path, modelGuid, shape, boundingRect, angle, tagArea, tagAngle, tagVisible, fillColor, fillMode, mirrorX, mirrorY);
+      GraphicNode graphicNode = new GraphicNode(Guid, Tag, path, modelGuid, stencil, boundingRect, angle, tagArea, tagAngle, tagVisible, fillColor, fillMode, mirrorX, mirrorY);
 
             return graphicNode;
     }

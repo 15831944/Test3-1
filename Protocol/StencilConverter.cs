@@ -11,7 +11,7 @@ namespace SysCAD.Protocol
   public class ShapeConverter : StringConverter
   {
 
-    private static List<Shape> stencilList = new List<Shape>();
+    private static List<Stencil> stencilList = new List<Stencil>();
 
     public static void AddStencil(String stencil)
     {
@@ -37,7 +37,7 @@ namespace SysCAD.Protocol
       String str = value as String;
 
       if (str != null)
-        return new Shape(str);
+        return new Stencil(str);
 
       return base.ConvertFrom(context, culture, value);
     }
