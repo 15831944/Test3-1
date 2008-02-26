@@ -5,7 +5,7 @@
 <anchors href="#ref-4"/>
 <decorations href="#ref-5"/>
 <elements href="#ref-6"/>
-<tag id="ref-7"></tag>
+<tag id="ref-7">Vlv4Port-1</tag>
 </a1:ModelStencil>
 <a2:ArrayList id="ref-3" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>

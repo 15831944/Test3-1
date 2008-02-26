@@ -3,6 +3,8 @@ using System;
 using SysCAD.Protocol;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace DXF2GS
 {
@@ -239,7 +241,7 @@ namespace DXF2GS
 
         GraphicStencil.Serialize(args[1] + "\\" + ((String)(graphicStencil.Tags[0])).Replace('/', '_').ToLower().Replace(' ', '_') + ".GraphicStencil", graphicStencil);
 
-        Console.WriteLine(args[1] + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].ToLower().Replace(' ', '_') + ".GraphicStencil");
+        //Console.WriteLine(args[1] + "\\" + ((String)(graphicStencil.Tags[0])).Replace('/', '_').ToLower().Replace(' ', '_') + ".GraphicStencil");
 
         if (xMin == xMax)
           Message("Zero width", args[1], path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");
@@ -248,6 +250,104 @@ namespace DXF2GS
           Message("Zero height", args[1], path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");
       }
 
+      Dictionary<String, ModelStencil> modelStencils = new Dictionary<string, ModelStencil>();
+
+      foreach (String path in Directory.GetFiles(args[1], "*.modelstencil"))
+      {
+        ModelStencil modelStencil = ModelStencil.Deserialize(path);
+        //if ((modelStencil.Tag == null) || (modelStencil.Tag == ""))
+        //{
+        //  modelStencil.Tag = Path.GetFileNameWithoutExtension(path);
+        //  ModelStencil.Serialize(path, modelStencil);
+        //}
+        modelStencil = ModelStencil.Deserialize(path);
+        modelStencils.Add(modelStencil.Tag, modelStencil);
+      }
+
+      foreach (String path in Directory.GetFiles(args[0], "*.TxtMdl"))
+      {
+        ModelStencil modelStencil = null;
+        string classID = "";
+        int id = -1;
+        string name = "";
+        int direction = -1;
+        int type = -1;
+        int ioRequired = -1;
+        int ioMax = -1;
+        double height = -1.0;
+        string description = "";
+
+        foreach (String line in (new StreamReader(path)).ReadToEnd().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+        {
+          string[] words = line.Split(" ,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+          if (words.Length > 0)
+          {
+            switch (words[0])
+            {
+              case "ClassId":
+                classID = words[1];
+                if (!modelStencils.TryGetValue(classID, out modelStencil))
+                {
+                  Console.WriteLine("ModelStencil '" + classID + "' missing.");
+                }
+                break;
+
+              case "Port0":  case "Port1":  case "Port2":  case "Port3":  case "Port4":  case "Port5":  case "Port6":  case "Port7":  case "Port8":  case "Port9":
+              case "Port10": case "Port11": case "Port12": case "Port13": case "Port14": case "Port15": case "Port16": case "Port17": case "Port18": case "Port19":
+              case "Port20": case "Port21": case "Port22": case "Port23": case "Port24": case "Port25": case "Port26": case "Port27": case "Port28": case "Port29":
+              case "Port30": case "Port31": case "Port32": case "Port33": case "Port34": case "Port35": case "Port36": case "Port37": case "Port38": case "Port39":
+              case "Port40": case "Port41": case "Port42": case "Port43": case "Port44": case "Port45": case "Port46": case "Port47": case "Port48": case "Port49":
+              case "Port50": case "Port51": case "Port52": case "Port53": case "Port54": case "Port55": case "Port56": case "Port57": case "Port58": case "Port59":
+                {
+                  //;Port,  Id, Name, Dirn, Type, IORqd, IOMax, Hgt,  Desc
+                  // Port0, 0,  In,   0x30, 0x80, 1,     1,     0.00, Input
+                  id = int.Parse(words[1]);
+                  name = words[2];
+                  direction = int.Parse(words[3].Remove(0, 2), NumberStyles.HexNumber);
+                  type = int.Parse(words[4].Remove(0,2), NumberStyles.HexNumber);
+                  ioRequired = int.Parse(words[5]);
+                  ioMax = int.Parse(words[6]);
+                  height = double.Parse(words[7]);
+                  description = "";
+                  if (words.Length > 8)
+                    description = words[8];
+
+                  if (modelStencil != null)
+                  {
+                    if (type == 128)
+                    {
+                      bool found = false;
+                      foreach (Anchor anchor in modelStencil.Anchors)
+                      {
+                        if (anchor.Tag == name)
+                          found = true;
+                      }
+                      if (!found) Console.WriteLine("Anchor '" + name + "' missing for model: " + classID);
+                    }
+                    // Ignore all other types...
+                  }
+                }
+                break;
+
+              // Ignore.
+              case "ClassName":
+              case "CategoryGrp":
+              case "CategoryMdl":
+              case "ProgID":
+              case "ShortDesc":
+              case "Desc":
+              case ";Port":
+                //case "
+                break;
+
+              default:
+                break;
+            }
+          }
+        }
+      }
+
+      Console.WriteLine();
       Console.WriteLine("Done.");
       Console.ReadKey(false);
     }
