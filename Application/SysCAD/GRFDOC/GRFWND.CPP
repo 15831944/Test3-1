@@ -398,6 +398,15 @@ int CGrfWnd::EO_DeleteTags(Strng_List & Tags)
 
 //---------------------------------------------------------------------------
 
+static CString FixShapeName(LPCSTR Shape)
+  {
+  CString S(Shape);
+  int iSlash=S.Find('/');
+  if (iSlash>=0)
+    S.SetAt(iSlash, '$');
+  return S;
+  };
+
 int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcNdGBlk & NdGBlk, CSvcTagBlk & TagBlk) 
   {
 #if SYSCAD10         
@@ -425,7 +434,7 @@ int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcN
     CB.NdScl.Z=1;
     CB.Rotate=NdGBlk.m_Angle;
     CB.ATagBase="XX_";//MInfo.TagInitialID();
-    CB.ASymbol=NdGBlk.m_Shape;
+    CB.ASymbol=FixShapeName(NdGBlk.m_Shape);
     CB.m_sGuid=Header.m_Guid;
     CB.m_Rect=NdGBlk.m_BoundingRect;
     CB.m_TagPt.X=TagBlk.m_Area.MidX()-PageRct.Left();
@@ -519,7 +528,7 @@ int CGrfWnd::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcN
           CB.NdScl.Z=1;
           CB.Rotate=NdGBlk.m_Angle;
           CB.ATagBase="XX_";//MInfo.TagInitialID();
-          CB.ASymbol=NdGBlk.m_Shape;
+          CB.ASymbol=FixShapeName(NdGBlk.m_Shape);
           CB.m_sGuid=Header.m_Guid;
           CB.m_TagPt.X=TagBlk.m_Area.MidX();
           CB.m_TagPt.Y=PageRct.Top()-TagBlk.m_Area.Top();

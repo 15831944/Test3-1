@@ -433,14 +433,30 @@ ref class CSvcConnectCLRThread
       SysCAD::Protocol::Rectangle ^ TagArea = gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height());  
       //PKH Comment- Is this correct
       GraphicStencil ^Gs; 
-      String ^ gcSymbol = (gcnew String(Symbol))->ToLower()->Replace(' ', '_');
 
       // Check for Existance - then : Try Trimming
-      while (gcSymbol->Length>1 && !config->GraphicStencils->TryGetValue(gcSymbol, Gs))
+      bool found = false;
+      String ^ gcSymbol = gcnew String(Symbol);
+
+      while (gcSymbol->Length>1 && !found)
         {
-        gcSymbol = gcSymbol->Remove(gcSymbol->Length-1);
-        Gs = nullptr;
+        for each (GraphicStencil ^ graphicStencil in config->GraphicStencils->Values)
+          {
+          for each (String ^ tag in graphicStencil->Tags)
+            {  
+            if (tag->ToLower()->Replace(' ', '_') == gcSymbol->ToLower()->Replace(' ', '_'))
+              {
+              gcSymbol = tag;
+              Gs = graphicStencil;
+              found = true;
+              }
+            }
+          }
+          if (!found)
+            gcSymbol = gcSymbol->Remove(gcSymbol->Length-1);
         }
+
+      if (!found) gcSymbol = gcnew String(Symbol);
 
       // Try ClassId
       if (Gs == nullptr)
