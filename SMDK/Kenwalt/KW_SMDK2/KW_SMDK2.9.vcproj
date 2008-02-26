@@ -109,7 +109,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
-				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
+				CommandLine="&quot;..\..\LinkSMDK.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -211,7 +211,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
-				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
+				CommandLine="&quot;..\..\LinkSMDK.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -308,7 +308,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
-				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
+				CommandLine="&quot;..\..\LinkSMDK.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -408,7 +408,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
-				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
+				CommandLine="&quot;..\..\LinkSMDK.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
 				ExcludedFromBuild="true"
 			/>
 		</Configuration>
@@ -510,7 +510,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Check SMDK License"
-				CommandLine="&quot;..\..\devlic.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
+				CommandLine="&quot;..\..\LinkSMDK.exe&quot; /q /f:&quot;$(TargetPath)&quot;"
 			/>
 		</Configuration>
 	</Configurations>

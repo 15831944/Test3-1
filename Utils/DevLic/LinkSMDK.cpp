@@ -78,9 +78,9 @@ BOOL CLinkSMDKApp::InitInstance()
   //  the specific initialization routines you do not need.
 
 //#ifdef _AFXDLL
-//  Enable3dControls();			// Call this when using MFC in a shared DLL
+//  Enable3dControls();     // Call this when using MFC in a shared DLL
 //#else
-//  Enable3dControlsStatic();	// Call this when linking to MFC statically
+//  Enable3dControlsStatic(); // Call this when linking to MFC statically
 //#endif
 
   // Initialise our INI handling stuff
@@ -160,7 +160,7 @@ BOOL CLinkSMDKApp::InitInstance()
   if ( bCmdLineOnly )
     {
     // Command Line Operation
-    
+
     // Example command line params to test
     // /L"C:\WINNT\SysCAD82License\" /F"C:\SysCAD81b44\bin\OSM_Methods.dll"
     // /Q /s"C:\SysCAD81b44\bin\OSM_Methods.dll"
@@ -176,7 +176,7 @@ BOOL CLinkSMDKApp::InitInstance()
 
     bool bOK = false;
     CString sReason;
-    if (FileExists) 
+    if (FileExists)
       {
       if (CheckLicense())
         {
@@ -187,7 +187,7 @@ BOOL CLinkSMDKApp::InitInstance()
             {
             // Successfully Licensed
             bOK = true;
-            if (!bQuiet) 
+            if (!bQuiet)
               AfxMessageBox("Replaced license in file!");
             }
           else
@@ -202,7 +202,7 @@ BOOL CLinkSMDKApp::InitInstance()
             {
             // Successfully Licensed
             bOK = true;
-            if (!bQuiet) 
+            if (!bQuiet)
               AfxMessageBox("Added license to file!");
             }
           else
@@ -220,11 +220,11 @@ BOOL CLinkSMDKApp::InitInstance()
       {
       sReason = "File does not exist!";
       /*bOK = true;
-      if (!bQuiet) 
+      if (!bQuiet)
         AfxMessageBox("File does not exist!");*/
       }
 
-    if (!bOK)
+    if (!bOK && !bQuiet)
       {//in these cases, show message regardless of /q option
       char Buff[1024];
       sprintf(Buff, "SMDK DLL will not be able to be used in SysCAD!\n\n%s", sReason);
