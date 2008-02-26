@@ -184,8 +184,8 @@ namespace SysCAD.Protocol
 
   public Item Get(Guid guid)
     {
-    if (graphic.Groups.ContainsKey(guid))
-      return graphic.Groups[guid];
+    if (graphic.Areas.ContainsKey(guid))
+      return graphic.Areas[guid];
 
     if (model.Nodes.ContainsKey(guid))
       return model.Nodes[guid];

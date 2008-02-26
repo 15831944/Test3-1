@@ -37,19 +37,19 @@ namespace SysCAD
       foreach (String key in modelStencils.Keys)
       {
         String group = null;
-        //if (modelStencils[key].Groups.Count>0)
-        //  group = (String)(modelStencils[key].Groups[0]);
+        if (modelStencils[key].Groups.Count>0)
+          group = (String)(modelStencils[key].Groups[0]);
         if (String.IsNullOrEmpty(group))
           group = "!!None!!";
 
         TreeNode groupNode;
-        if (stencilChooserTreeView.Nodes.ContainsKey("Group: " + group))
+        if (stencilChooserTreeView.Nodes.ContainsKey("Area: " + group))
         {
-          groupNode = stencilChooserTreeView.Nodes["Group: " + group];
+          groupNode = stencilChooserTreeView.Nodes["Area: " + group];
         }
         else
         {
-          groupNode = stencilChooserTreeView.Nodes.Add("Group: " + group, group);
+          groupNode = stencilChooserTreeView.Nodes.Add("Area: " + group, group);
         }
 
         TreeNode modelNode = groupNode.Nodes.Add("Model: " + key, key, "Model: " + key, "Model: " + key);

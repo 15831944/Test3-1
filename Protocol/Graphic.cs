@@ -7,20 +7,20 @@ namespace SysCAD.Protocol
   [Serializable]
   public class Graphic
   {
-    private Dictionary<Guid, GraphicGroup> groups;
+    private Dictionary<Guid, GraphicArea> groups;
     private Dictionary<Guid, GraphicNode> nodes;
     private Dictionary<Guid, GraphicLink> links;
     private Dictionary<Guid, GraphicThing> things;
 
     public Graphic()
     {
-      groups = new Dictionary<Guid, GraphicGroup>();
+      groups = new Dictionary<Guid, GraphicArea>();
       nodes = new Dictionary<Guid, GraphicNode>();
       links = new Dictionary<Guid, GraphicLink>();
       things = new Dictionary<Guid, GraphicThing>();
     }
 
-    public Dictionary<Guid, GraphicGroup> Groups
+    public Dictionary<Guid, GraphicArea> Areas
     {
       get { return groups; }
       set { groups = value; }
@@ -46,8 +46,8 @@ namespace SysCAD.Protocol
 
     public void Create(GraphicItem graphicItem)
     {
-      if (graphicItem is GraphicGroup)
-        groups.Add(graphicItem.Guid, graphicItem as GraphicGroup);
+      if (graphicItem is GraphicArea)
+        groups.Add(graphicItem.Guid, graphicItem as GraphicArea);
       
       if (graphicItem is GraphicNode)
         nodes.Add(graphicItem.Guid, graphicItem as GraphicNode);
@@ -59,7 +59,7 @@ namespace SysCAD.Protocol
     public void Modify(GraphicItem graphicItem)
     {
       if (groups.ContainsKey(graphicItem.Guid))
-        groups[graphicItem.Guid] = graphicItem as GraphicGroup;
+        groups[graphicItem.Guid] = graphicItem as GraphicArea;
 
       if (nodes.ContainsKey(graphicItem.Guid))
         nodes[graphicItem.Guid] = graphicItem as GraphicNode;

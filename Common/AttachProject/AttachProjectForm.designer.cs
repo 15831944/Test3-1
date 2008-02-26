@@ -46,7 +46,7 @@ namespace SysCAD
       // 
       this.repositoryURLTextBox.Location = new System.Drawing.Point(74, 13);
       this.repositoryURLTextBox.Margin = new System.Windows.Forms.Padding(2);
-      this.repositoryURLTextBox.Name = "repositoryURLTextBox";
+      this.repositoryURLTextBox.Name = "RepositoryURLTextBox";
       this.repositoryURLTextBox.Size = new System.Drawing.Size(206, 20);
       this.repositoryURLTextBox.TabIndex = 3;
       this.repositoryURLTextBox.Text = "ipc://SysCAD.Service/";
@@ -59,7 +59,7 @@ namespace SysCAD
       this.label1.Enabled = false;
       this.label1.Location = new System.Drawing.Point(9, 15);
       this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label1.Name = "label1";
+      this.label1.Name = "RepositoryLabel";
       this.label1.Size = new System.Drawing.Size(60, 13);
       this.label1.TabIndex = 1;
       this.label1.Text = "Repository:";
@@ -69,7 +69,7 @@ namespace SysCAD
       this.label2.AutoSize = true;
       this.label2.Location = new System.Drawing.Point(71, 33);
       this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label2.Name = "label2";
+      this.label2.Name = "ExampleProtocolLabel";
       this.label2.Size = new System.Drawing.Size(97, 13);
       this.label2.TabIndex = 2;
       this.label2.Text = "e.g. localhost:8065";
@@ -80,7 +80,7 @@ namespace SysCAD
       this.projectListBox.FormattingEnabled = true;
       this.projectListBox.Location = new System.Drawing.Point(11, 91);
       this.projectListBox.Margin = new System.Windows.Forms.Padding(2);
-      this.projectListBox.Name = "projectListBox";
+      this.projectListBox.Name = "ProjectListBox";
       this.projectListBox.Size = new System.Drawing.Size(269, 147);
       this.projectListBox.Sorted = true;
       this.projectListBox.TabIndex = 0;
@@ -93,7 +93,7 @@ namespace SysCAD
       this.label3.AutoSize = true;
       this.label3.Location = new System.Drawing.Point(9, 75);
       this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label3.Name = "label3";
+      this.label3.Name = "ProjectLabel";
       this.label3.Size = new System.Drawing.Size(45, 13);
       this.label3.TabIndex = 4;
       this.label3.Text = "Projects";
@@ -104,7 +104,7 @@ namespace SysCAD
       this.attachButton.Enabled = false;
       this.attachButton.Location = new System.Drawing.Point(162, 247);
       this.attachButton.Margin = new System.Windows.Forms.Padding(2);
-      this.attachButton.Name = "attachButton";
+      this.attachButton.Name = "AttachButton";
       this.attachButton.Size = new System.Drawing.Size(56, 19);
       this.attachButton.TabIndex = 5;
       this.attachButton.Text = "Attach";
@@ -115,7 +115,7 @@ namespace SysCAD
       this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.cancelButton.Location = new System.Drawing.Point(223, 247);
       this.cancelButton.Margin = new System.Windows.Forms.Padding(2);
-      this.cancelButton.Name = "cancelButton";
+      this.cancelButton.Name = "CancelButton";
       this.cancelButton.Size = new System.Drawing.Size(56, 19);
       this.cancelButton.TabIndex = 6;
       this.cancelButton.Text = "Cancel";
@@ -125,7 +125,7 @@ namespace SysCAD
       // 
       this.listProjectsButton.Location = new System.Drawing.Point(9, 54);
       this.listProjectsButton.Margin = new System.Windows.Forms.Padding(2);
-      this.listProjectsButton.Name = "listProjectsButton";
+      this.listProjectsButton.Name = "ListProjectsButton";
       this.listProjectsButton.Size = new System.Drawing.Size(73, 19);
       this.listProjectsButton.TabIndex = 7;
       this.listProjectsButton.Text = "List Projects";
@@ -140,7 +140,7 @@ namespace SysCAD
       // 
       this.addButton.Enabled = false;
       this.addButton.Location = new System.Drawing.Point(93, 54);
-      this.addButton.Name = "addButton";
+      this.addButton.Name = "AddButton";
       this.addButton.Size = new System.Drawing.Size(75, 19);
       this.addButton.TabIndex = 8;
       this.addButton.Text = "Add...";

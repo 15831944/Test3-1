@@ -106,10 +106,10 @@ namespace SysCAD.Editor
             {
               if (editorForm.FrmFlowChart.State.ClientProtocol.graphic != null)
               {
-                if (editorForm.FrmFlowChart.State.ClientProtocol.graphic.Groups != null)
+                if (editorForm.FrmFlowChart.State.ClientProtocol.graphic.Areas != null)
                 {
-                  messageBody += "Groups:\n";
-                  foreach (SysCAD.Protocol.GraphicGroup group in editorForm.FrmFlowChart.State.ClientProtocol.graphic.Groups.Values)
+                  messageBody += "Areas:\n";
+                  foreach (SysCAD.Protocol.GraphicArea group in editorForm.FrmFlowChart.State.ClientProtocol.graphic.Areas.Values)
                   {
                     messageBody += "Tag: " + group.Tag + "\n";
                     messageBody += "Path: " + group.Path + "\n";

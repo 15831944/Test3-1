@@ -8,26 +8,26 @@ using SysCAD.Protocol;
 namespace SysCAD.Editor
 {
 
-  internal class EditorGroup
+  internal class EditorArea
   {
 
     private Box box;
 
-    private GraphicGroup graphicGroup;
+    private GraphicArea graphicArea;
 
     private bool visible;
 
     private State state;
 
-    public EditorGroup(State state, GraphicGroup graphicGroup)
+    public EditorArea(State state, GraphicArea graphicArea)
     {
       this.state = state;
-      this.graphicGroup = graphicGroup;
+      this.graphicArea = graphicArea;
     }
 
     public override string ToString()
     {
-      return graphicGroup.Tag;
+      return graphicArea.Tag;
     }
 
     //internal void Remove(FlowChart flowChart)
@@ -46,14 +46,14 @@ namespace SysCAD.Editor
       set { box = value; }
     }
 
-    //public GraphicGroup GraphicGroup
+    //public GraphicArea GraphicArea
     //{
-    //  get { return graphicGroup; }
+    //  get { return graphicArea; }
     //}
 
     public Guid Guid
     {
-      get { return graphicGroup.Guid; }
+      get { return graphicArea.Guid; }
     }
 
     //public PureComponents.TreeView.Node Node
@@ -88,7 +88,7 @@ namespace SysCAD.Editor
     {
       box.FillColor = System.Drawing.Color.FromArgb(80, 222, 184, 136);
       box.FrameColor = System.Drawing.Color.FromArgb(160, 111, 92, 68);
-      box.Visible = visible && state.ShowGroups;
+      box.Visible = visible && state.ShowAreas;
       box.ZBottom();
     }
   }

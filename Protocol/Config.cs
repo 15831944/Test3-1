@@ -271,8 +271,8 @@ namespace SysCAD.Protocol
       {
         ModelStencil modelStencil2 = new ModelStencil();
         modelStencil2.Tag = "";
-        //modelStencil2.Groups = new ArrayList();
-        //modelStencil2.Groups.Add("Control");
+        modelStencil2.Groups = new ArrayList();
+        modelStencil2.Groups.Add("Control");
         ArrayList elements = new ArrayList();
         SysCAD.Protocol.Arc arc = new SysCAD.Protocol.Arc(0, 0, 100, 100, 10, 360);
         elements.Add(arc);

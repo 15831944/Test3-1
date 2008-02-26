@@ -284,9 +284,9 @@ namespace SysCAD.Editor
             if (box.BoundingRect.Bottom > maxY) maxY = box.BoundingRect.Bottom;
           }
         }
-        else if (box.Tag is EditorGroup)
+        else if (box.Tag is EditorArea)
         {
-          EditorGroup group = box.Tag as EditorGroup;
+          EditorArea group = box.Tag as EditorArea;
           if (group.Visible)
           {
             foundVisibleObject = true;
@@ -398,9 +398,9 @@ namespace SysCAD.Editor
 
 
 
-      foreach (GraphicGroup graphicGroup in clientProtocol.graphic.Groups.Values)
+      foreach (GraphicArea graphicArea in clientProtocol.graphic.Areas.Values)
       {
-        state.CreateGroup(graphicGroup);
+        state.CreateArea(graphicArea);
       }
 
       foreach (GraphicNode graphicNode in clientProtocol.graphic.Nodes.Values)
@@ -1343,12 +1343,12 @@ namespace SysCAD.Editor
       }
     }
 
-    private static void fcFlowChart_GroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
+    private static void fcFlowChart_AreaDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private static void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
+    private static void fcFlowChart_AreaModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }

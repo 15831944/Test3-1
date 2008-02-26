@@ -121,14 +121,14 @@ namespace SysCAD.Editor
         SuspendLayout();
         frmFlowChart.SuspendLayout();
         frmFlowChart.FlowChart.SuspendLayout();
-        tvNavigation.SuspendLayout();
+        NavigationTreeView.SuspendLayout();
 
         frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
         frmFlowChart.MdiParent = this;
         frmFlowChart.Text = clientProtocol.Name;
 
-        frmFlowChart.SetProject(clientProtocol, config, tvNavigation);
+        frmFlowChart.SetProject(clientProtocol, config, NavigationTreeView);
 
         ovOverview.Document = frmFlowChart.FlowChart;
 
@@ -169,20 +169,20 @@ namespace SysCAD.Editor
 
         frmFlowChart.Show();
 
-        this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
-        this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
-        this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
+        this.NavigationTreeView.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
+        this.NavigationTreeView.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
+        this.NavigationTreeView.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
 
-        tvNavigation.ClearNodeSelection();
+        NavigationTreeView.ClearNodeSelection();
 
-        foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
+        foreach (PureComponents.TreeView.Node node in NavigationTreeView.Nodes)
         {
           node.Select();
           node.Expand();
           SelectSubNodes(node);
         }
 
-        tvNavigation.ResumeLayout(true);
+        NavigationTreeView.ResumeLayout(true);
         frmFlowChart.FlowChart.ResumeLayout(true);
         frmFlowChart.ResumeLayout(true);
         ResumeLayout(true);
@@ -240,8 +240,8 @@ namespace SysCAD.Editor
           this.ViewZoomToVisible();
           break;
 
-        case "View.ShowGroups":
-          this.ViewShowGroups();
+        case "View.ShowAreas":
+          this.ViewShowAreas();
           break;
 
         case "View.ShowModels":
@@ -338,7 +338,7 @@ namespace SysCAD.Editor
         frmFlowChart.UnSetProject();
 
         frmFlowChart.Close();
-        tvNavigation.Clear();
+        NavigationTreeView.Clear();
         ovOverview.Document = null;
       }
     }
@@ -503,7 +503,7 @@ namespace SysCAD.Editor
         {
           frmFlowChart.State.SetVisible(innerNode.Key, false);
 
-          tvNavigation.RemoveSelectedNode(innerNode);
+          NavigationTreeView.RemoveSelectedNode(innerNode);
           SelectSubNodes(innerNode);
         }
       }
@@ -515,7 +515,7 @@ namespace SysCAD.Editor
         {
           frmFlowChart.State.SetVisible(innerNode.Key, true);
 
-          tvNavigation.AddSelectedNode(innerNode);
+          NavigationTreeView.AddSelectedNode(innerNode);
           SelectSubNodes(innerNode);
         }
       }
@@ -552,7 +552,7 @@ namespace SysCAD.Editor
         barManager1.Commands["View.ZoomOut"].Enabled = projectOpen;
         barManager1.Commands["View.ZoomToVisible"].Enabled = projectOpen;
         barManager1.Commands["View.ZoomToSelected"].Enabled = projectOpen;
-        barManager1.Commands["View.ShowGroups"].Enabled = projectOpen;
+        barManager1.Commands["View.ShowAreas"].Enabled = projectOpen;
         barManager1.Commands["View.ShowModels"].Enabled = projectOpen;
         barManager1.Commands["View.ShowGraphics"].Enabled = projectOpen;
         barManager1.Commands["View.ShowLinks"].Enabled = projectOpen;
@@ -586,7 +586,7 @@ namespace SysCAD.Editor
 
     private void tvNavigation_AfterNodePositionChange(PureComponents.TreeView.Node oNode)
     {
-      tvNavigation.ClearNodeSelection();
+      NavigationTreeView.ClearNodeSelection();
 
       foreach (MindFusion.FlowChartX.ChartObject chartObject in frmFlowChart.FlowChart.Objects)
         chartObject.Visible = false;
@@ -606,19 +606,19 @@ namespace SysCAD.Editor
       // Select only this area/item if navigation node clicked.
       if (Control.ModifierKeys == Keys.None)
       {
-        tvNavigation.ClearNodeSelection();
+        NavigationTreeView.ClearNodeSelection();
         oNode.Select();
       }
     }
 
     private void tvNavigation_NodeSelectionChange(object sender, EventArgs e)
     {
-      tvNavigation.NodeSelectionChange -= new System.EventHandler(this.tvNavigation_NodeSelectionChange);
+      NavigationTreeView.NodeSelectionChange -= new System.EventHandler(this.tvNavigation_NodeSelectionChange);
 
-      if (tvNavigation.SelectedNodes.Length > 0)
+      if (NavigationTreeView.SelectedNodes.Length > 0)
       {
 
-        foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
+        foreach (PureComponents.TreeView.Node node in NavigationTreeView.SelectedNodes)
         {
           if (IsBranch(node))
             SelectSubNodes(node);
@@ -629,7 +629,7 @@ namespace SysCAD.Editor
 
         wasSelectedNodes.Clear();
 
-        foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
+        foreach (PureComponents.TreeView.Node node in NavigationTreeView.SelectedNodes)
           wasSelectedNodes.Add(node);
 
         frmFlowChart.ZoomToVisible();
@@ -646,7 +646,7 @@ namespace SysCAD.Editor
         wasSelectedNodes.Clear();
       }
 
-      tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
+      NavigationTreeView.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
     }
 
     /// <summary>Determine if this node represents a leaf (i.e. item or thing.)</summary>
@@ -678,15 +678,15 @@ namespace SysCAD.Editor
     /// <returns>True if node represents a branch.</returns>
     private static bool IsBranch(PureComponents.TreeView.Node node)
     {
-      return ((node.Tag == null) || (node.Tag is EditorGroup));
+      return ((node.Tag == null) || (node.Tag is EditorArea));
     }
 
     /// <summary>Determine if this node represents a group.</summary>
     /// <param name="node">Node to be tested</param>
     /// <returns>True if node represents a group.</returns>
-    private static bool IsGroup(PureComponents.TreeView.Node node)
+    private static bool IsArea(PureComponents.TreeView.Node node)
     {
-      return ((node.Tag != null) && (node.Tag is EditorGroup));
+      return ((node.Tag != null) && (node.Tag is EditorArea));
     }
 
     private void ViewSelectArrows()
@@ -739,11 +739,11 @@ namespace SysCAD.Editor
       }
     }
 
-    private void ViewShowGroups()
+    private void ViewShowAreas()
     {
-      frmFlowChart.State.ShowGroups = ((IBarCheckableCommand)barManager1.Commands["View.ShowGroups"]).Checked;
+      frmFlowChart.State.ShowAreas = ((IBarCheckableCommand)barManager1.Commands["View.ShowAreas"]).Checked;
 
-      foreach (EditorGroup group in frmFlowChart.State.Groups)
+      foreach (EditorArea group in frmFlowChart.State.Areas)
       {
         group.UpdateVisibility();
       }

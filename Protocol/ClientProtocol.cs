@@ -353,25 +353,25 @@ namespace SysCAD.Protocol
       }
     }
 
-    //public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect)
+    //public void ServiceGraphicAreaCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect)
     //{
-    //  if (!graphicGroups.ContainsKey(guid))
+    //  if (!graphicAreas.ContainsKey(guid))
     //  {
-    //    GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
-    //    graphicGroup.Path = path;
-    //    graphicGroup.BoundingRect = boundingRect;
-    //    graphicGroups.Add(guid, graphicGroup);
+    //    GraphicArea graphicArea = new GraphicArea(guid, tag);
+    //    graphicArea.Path = path;
+    //    graphicArea.BoundingRect = boundingRect;
+    //    graphicAreas.Add(guid, graphicArea);
 
-    //    //OnGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
+    //    //OnAreaCreated(eventId, requestId, guid, tag, path, boundingRect);
     //  }
     //}
 
-    public void ServiceGraphicGroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
+    public void ServiceGraphicAreaDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    public void ServiceGraphicGroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect)
+    public void ServiceGraphicAreaModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }

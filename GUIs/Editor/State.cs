@@ -29,12 +29,12 @@ namespace SysCAD.Editor
     private ClientProtocol clientProtocol;
     private Config config;
 
-    private delegate void CreateGroupDelegate(GraphicGroup graphicGroup);
+    private delegate void CreateAreaDelegate(GraphicArea graphicArea);
     private delegate void CreateNodeDelegate(ModelNode modelNode, GraphicNode graphicNode);
     private delegate void CreateLinkDelegate(ModelLink modelLink, GraphicLink graphicLink);
     private delegate void CreateThingDelegate(GraphicThing graphicThing);
 
-    private delegate void ModifyGroupDelegate(GraphicGroup graphicGroup);
+    private delegate void ModifyAreaDelegate(GraphicArea graphicArea);
     private delegate void ModifyNodeDelegate(Guid guid);
     private delegate void ModifyLinkDelegate(Guid guid);
     private delegate void ModifyThingDelegate(GraphicThing graphicThing);
@@ -43,7 +43,7 @@ namespace SysCAD.Editor
     private delegate void DeleteLinkDelegate(Guid guid);
     private delegate void DeleteThingDelegate(Guid guid);
 
-    private Dictionary<Guid, EditorGroup> editorGroups = new Dictionary<Guid, EditorGroup>();
+    private Dictionary<Guid, EditorArea> editorAreas = new Dictionary<Guid, EditorArea>();
     private Dictionary<Guid, EditorNode> editorNodes = new Dictionary<Guid, EditorNode>();
     private Dictionary<Guid, EditorLink> editorLinks = new Dictionary<Guid, EditorLink>();
 
@@ -91,7 +91,7 @@ namespace SysCAD.Editor
 
     private bool showModels = false;
 
-    private bool showGroups = true;
+    private bool showAreas = true;
 
     private bool showTags = true;
     Int64 step = Int64.MinValue;
@@ -311,18 +311,18 @@ namespace SysCAD.Editor
     //  return clientProtocol.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     //}
 
-    internal void CreateGroup(GraphicGroup graphicGroup)
+    internal void CreateArea(GraphicArea graphicArea)
     {
       if (flowChart.InvokeRequired)
       {
-        flowChart.BeginInvoke(new CreateGroupDelegate(CreateGroup), new object[] { graphicGroup });
+        flowChart.BeginInvoke(new CreateAreaDelegate(CreateArea), new object[] { graphicArea });
       }
       else
       {
         Box box = null;
         PureComponents.TreeView.Node node = null;
 
-        node = tvNavigation.AddNodeByPath(graphicGroup.Path + graphicGroup.Tag, graphicGroup.Guid.ToString());
+        node = tvNavigation.AddNodeByPath(graphicArea.Path + graphicArea.Tag, graphicArea.Guid.ToString());
         node.AllowDrop = false;
         node.Tooltip = "";
         tvNavigation.AddSelectedNode(node);
@@ -331,16 +331,16 @@ namespace SysCAD.Editor
         if (node.Parent != null) // if we're not root, make visibility same as parent.
           isVisible = node.Parent.IsSelected;
 
-        box = flowChart.CreateBox((float)graphicGroup.X, (float)graphicGroup.Y, (float)graphicGroup.Width, (float)graphicGroup.Height);
-        box.ToolTip = "";// graphicGroup.Tag;
+        box = flowChart.CreateBox((float)graphicArea.X, (float)graphicArea.Y, (float)graphicArea.Width, (float)graphicArea.Height);
+        box.ToolTip = "";// graphicArea.Tag;
         box.Style = BoxStyle.Rectangle;
 
         // Make groups unmodifiable -- for now.
         box.Locked = true;
 
-        EditorGroup group = new EditorGroup(this, graphicGroup);
+        EditorArea group = new EditorArea(this, graphicArea);
         group.Box = box;
-        editorGroups.Add(group.Guid, group);
+        editorAreas.Add(group.Guid, group);
 
         box.Tag = group;
         node.Tag = group;
@@ -967,20 +967,20 @@ namespace SysCAD.Editor
       return modelNode;
     }
 
-    internal GraphicGroup GraphicGroup(Guid guid)
+    internal GraphicArea GraphicArea(Guid guid)
     {
-      GraphicGroup graphicGroup = null;
-      clientProtocol.graphic.Groups.TryGetValue(guid, out graphicGroup);
-      return graphicGroup;
+      GraphicArea graphicArea = null;
+      clientProtocol.graphic.Areas.TryGetValue(guid, out graphicArea);
+      return graphicArea;
     }
 
-    internal GraphicGroup GraphicGroup(Box box)
+    internal GraphicArea GraphicArea(Box box)
     {
-      GraphicGroup graphicGroup = null;
+      GraphicArea graphicArea = null;
 
       if (box.Tag is EditorNode)
-        clientProtocol.graphic.Groups.TryGetValue((box.Tag as EditorNode).Guid, out graphicGroup);
-      return graphicGroup;
+        clientProtocol.graphic.Areas.TryGetValue((box.Tag as EditorNode).Guid, out graphicArea);
+      return graphicArea;
     }
 
     internal GraphicNode GraphicItem(Guid guid)
@@ -1069,9 +1069,9 @@ namespace SysCAD.Editor
       {
         Guid guid = new Guid(keyGuid);
         EditorNode node;
-        EditorGroup group;
+        EditorArea group;
 
-        if (editorGroups.TryGetValue(guid, out group))
+        if (editorAreas.TryGetValue(guid, out group))
         {
           group.Visible = visible;
         }
@@ -1523,10 +1523,10 @@ namespace SysCAD.Editor
       set { showModels = value; }
     }
 
-    public bool ShowGroups
+    public bool ShowAreas
     {
-      get { return showGroups; }
-      set { showGroups = value; }
+      get { return showAreas; }
+      set { showAreas = value; }
     }
 
     public bool ShowTags
@@ -1569,9 +1569,9 @@ namespace SysCAD.Editor
       get { return clientProtocol.graphic.Things.Values; }
     }
 
-    internal IEnumerable<EditorGroup> Groups
+    internal IEnumerable<EditorArea> Areas
     {
-      get { return editorGroups.Values; }
+      get { return editorAreas.Values; }
     }
 
     internal IEnumerable<EditorNode> Items

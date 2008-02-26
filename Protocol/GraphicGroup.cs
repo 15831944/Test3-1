@@ -12,19 +12,19 @@ namespace SysCAD.Protocol
 {
 
   [Serializable]
-  public class GraphicGroup : GraphicItem
+  public class GraphicArea : GraphicItem
   {
     private Rectangle boundingRect;
 
     private String path;
 
-    public GraphicGroup(Guid guid, String tag)
+    public GraphicArea(Guid guid, String tag)
     {
       this.Guid = guid;
       this.Tag = tag;
     }
 
-    public GraphicGroup(String tag)
+    public GraphicArea(String tag)
     {
       this.Guid = Guid.NewGuid();
       this.Tag = tag;

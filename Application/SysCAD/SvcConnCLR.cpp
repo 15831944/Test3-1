@@ -279,7 +279,7 @@ ref class CSvcConnectCLRThread
       if (clientProtocol == nullptr)
         return false;
 
-      if ((clientProtocol->graphic->Groups == nullptr) || (clientProtocol->graphic->Nodes == nullptr) || 
+      if ((clientProtocol->graphic->Areas == nullptr) || (clientProtocol->graphic->Nodes == nullptr) || 
         (clientProtocol->graphic->Links == nullptr) || (clientProtocol->graphic->Things == nullptr))
         return false;
 
@@ -340,9 +340,9 @@ ref class CSvcConnectCLRThread
       {
       m_pConn->dbgPrintLn("LoadGraphicsFromClient ---------------------------");
 
-      for each (System::Collections::Generic::KeyValuePair<System::Guid, SysCAD::Protocol::GraphicGroup ^> KGrp in clientProtocol->graphic->Groups)
+      for each (System::Collections::Generic::KeyValuePair<System::Guid, SysCAD::Protocol::GraphicArea ^> KGrp in clientProtocol->graphic->Areas)
         {
-        SysCAD::Protocol::GraphicGroup ^ Grp = KGrp.Value;
+        SysCAD::Protocol::GraphicArea ^ Grp = KGrp.Value;
         m_pConn->dbgPrintLn("Grf Grp: %s", ToCString(Grp->Tag->ToString()));
         m_pConn->GCBCreateGroup(ToCString(Grp->Guid.ToString()), ToCString(path->ToString()), ToCString(Grp->Tag->ToString()), CRectangleF(Grp->BoundingRect->Left, Grp->BoundingRect->Top, Grp->BoundingRect->Width, Grp->BoundingRect->Height));
         }
@@ -410,7 +410,7 @@ ref class CSvcConnectCLRThread
 
     void AddCreateGroup(__int64 & requestId, LPCSTR GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
       {
-      GraphicGroup ^ Grp = gcnew GraphicGroup(Guid(gcnew String(GrpGuid)), gcnew String(Tag));
+      GraphicArea ^ Grp = gcnew GraphicArea(Guid(gcnew String(GrpGuid)), gcnew String(Tag));
       Grp->Path = gcnew String(Path);
       Grp->BoundingRect = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
 
@@ -709,13 +709,13 @@ ref class CSvcConnectCLRThread
       {
       for each (Guid ^ guid in created )
         {
-        GraphicGroup ^GGrp;
+        GraphicArea ^GGrp;
         ModelNode ^ MNd;
         GraphicNode ^GNd;
         ModelLink ^ MLnk;
         GraphicLink ^GLnk;
 
-        if (clientProtocol->graphic->Groups->TryGetValue(*guid, GGrp))
+        if (clientProtocol->graphic->Areas->TryGetValue(*guid, GGrp))
           {
           m_pConn->OnCreateGroup(eventId, requestId, ToCString(GGrp->Guid.ToString()), ToCString(GGrp->Tag), ToCString(GGrp->Path), CRectangleF(GGrp->BoundingRect->Left, GGrp->BoundingRect->Top, GGrp->BoundingRect->Width, GGrp->BoundingRect->Height)); 
           }

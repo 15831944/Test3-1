@@ -384,27 +384,27 @@ namespace SysCAD.Service
       return Exists(item.Guid);
       }
 
-    //bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
+    //bool CreateArea(out Int64 requestId, out Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
     //{
-    //  // Need to check for runstate here, and decide if we'll fire DoGroupCreated.
-    //  // This is required in case a rogue client tries to create an Group even when not supposed to.
+    //  // Need to check for runstate here, and decide if we'll fire DoAreaCreated.
+    //  // This is required in case a rogue client tries to create an Area even when not supposed to.
     //  // This applies to all three create*, and all three delete* events.
     //  if (true)
     //  { // We're going to do it.
-    //    // Create the Group.
+    //    // Create the Area.
     //    this.requestId++;
     //    requestId = this.requestId;
     //    guid = Guid.NewGuid();
 
-    //    GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
-    //    graphicGroup.Path = path;
-    //    graphicGroup.BoundingRect = boundingRect;
+    //    GraphicArea graphicArea = new GraphicArea(guid, tag);
+    //    graphicArea.Path = path;
+    //    graphicArea.BoundingRect = boundingRect;
 
-    //    graphic.Groups.Add(guid, graphicGroup);
+    //    graphic.Areas.Add(guid, graphicArea);
 
     //    // Raise event(s).
     //    eventId++;
-    //    //clientClientServiceProtocol.DoGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
+    //    //clientClientServiceProtocol.DoAreaCreated(eventId, requestId, guid, tag, path, boundingRect);
 
     //    return true;
     //  }
@@ -611,7 +611,7 @@ namespace SysCAD.Service
     //  //}
     //}
 
-    //bool DeleteGroup(out Int64 requestId, Guid guid)
+    //bool DeleteArea(out Int64 requestId, Guid guid)
     //{
     //  throw new NotImplementedException("The method or operation is not implemented.");
     //}
@@ -683,7 +683,7 @@ namespace SysCAD.Service
     //  }
     //}
 
-    //bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
+    //bool ModifyArea(out Int64 requestId, Guid guid, String tag, String path, SysCAD.Protocol.Rectangle boundingRect)
     //{
     //  throw new NotImplementedException("The method or operation is not implemented.");
     //}
