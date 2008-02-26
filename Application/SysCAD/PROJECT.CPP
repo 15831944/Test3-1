@@ -4767,6 +4767,9 @@ flag CProject::ImportFlwsheet()
       CDlgBusy::Open("");
       Strng s1;
       CString cs1;
+
+      gs_pSfeSrvr->FE_SetHoldGlobalLinks(true);
+      
       s1.FnNameExt(MPI.sSlavePrj());
       CDlgBusy::SetLine(1, "Project merge : Importing %s", s1());
       int err = gs_Exec.DoMergeA(MPI);
@@ -4815,6 +4818,9 @@ flag CProject::ImportFlwsheet()
       CDlgBusy::SetLine(1, "Merging projects");
       err = gs_Exec.DoMergeB(MPI);
       CDlgBusy::SetLine(3, "");
+
+      gs_pSfeSrvr->FE_SetHoldGlobalLinks(false);
+
 #if WithNumericTags
       if (gs_Exec.CheckAllTags(TaggedObject::NumericTagsBad, TaggedObject::NumericStartingTagsBad)<0)
         {
@@ -4827,6 +4833,7 @@ flag CProject::ImportFlwsheet()
         TaggedObject::NumericStartingTagsBad = 0;
         }
 #endif
+      
       //CloseHistorian();
       //OpenHistorian();
       CloseIOMarshal();

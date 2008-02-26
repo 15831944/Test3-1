@@ -18,6 +18,7 @@
 #include "sfe_base.h"
 #include "zipstuff.h"
 //#include "scdcomcmdsatlconv.h"
+
 //#include "optoff.h"
 
 #ifdef _DEBUG
@@ -8090,9 +8091,18 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
       MPI.SlaveRefFiles[i]+=s;
       }
 
-    //const int SlavePrjDirLen = MPI.sSlavePrjDir.Len();
-    //if (ss.Len()>=SlavePrjDirLen && _strnicmp(ss(), MPI.sSlavePrjDir(), SlavePrjDirLen)==0 && MPI.PostChangeRefFiles.Find(MPI.SlaveRefFiles[i]())<0)
-    if (_stricmp(ss(), MPI.sSlavePrjDir())==0 && MPI.PostChangeRefFiles.Find(MPI.SlaveRefFiles[i]())<0)
+    //for (int iii=0; iii<MPI.MasterRefFiles.GetSize(); iii++)
+    //  dbgpln("Master:%s", MPI.MasterRefFiles[iii]());
+    //for (int iii=0; iii<MPI.SlaveRefFiles.GetSize(); iii++)
+    //  dbgpln("Slave:%s", MPI.SlaveRefFiles[iii]());
+
+    // What about this  - maybe add and test 
+    //if (MPI.MasterRefFiles.Find(MPI.SlaveRefFiles[i]())==0)
+    //  {
+    //  // It is the same file 
+    //  }
+    //else 
+      if (_stricmp(ss(), MPI.sSlavePrjDir())==0 && MPI.PostChangeRefFiles.Find(MPI.SlaveRefFiles[i]())<0)
       {
       MPI.PostChangeRefFiles.Add(MPI.SlaveRefFiles[i]());
       int index = MasterFilenames.Find(s());
@@ -8165,6 +8175,9 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
           if (MPI.iSlaveTagCnt>=MPI.SlaveTags.GetSize())
             MPI.SlaveTags.SetSize(MPI.SlaveTags.GetSize()+32);
           MPI.SlaveTags[MPI.iSlaveTagCnt] = pItem->SymOrTag();
+
+          //dbgpln("SLaveTag : %s", MPI.SlaveTags[MPI.iSlaveTagCnt]());
+
           MPI.iSlaveTagCnt++;
           }
         }

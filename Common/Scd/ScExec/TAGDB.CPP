@@ -72,7 +72,7 @@ struct SwopClassRec SwopClass[] =
     {"Distributor",                   "E_BusBar",              "E_BusBar"        },
     {"CctBrk",                        "E_CctBrk",              "E_CctBrk"        },
     {"Starter",                       "E_Socket",              "E_Socket"        },
-    
+
     {"Alumina2*TubeDigester",         "TubeDigester2",         "TubeDigester2"   },
     {"Alumina2*Precipitator",         "Precipitator2",         "Precipitator2"   },
 
@@ -128,7 +128,7 @@ static struct {byte iType; ADOX::DataTypeEnum dbType; int dbSize; } TypeMap [] =
     { tt_Object_E    , ADOX::adError/*-1*/,       0               },
     { tt_Array_E     , ADOX::adError/*-1*/,       0               },
     { tt_Blob        , ADOX::adError/*-1*/,       0               },
-  };                                              
+  };
 
 static const BOOL DoGlblTransactions = FALSE;
 
@@ -199,7 +199,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
 
     BOOL           GetFieldValue(ADODB::_RecordsetPtr pRS,
       LPCTSTR  strFieldName,
-      Strng &S) 
+      Strng &S)
       {
       S="";
       try
@@ -211,7 +211,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
         }
       catch (_com_error & e)
         {
-        int xxx=0; 
+        int xxx=0;
         e; // ignore
         return FALSE;
         }
@@ -220,7 +220,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
     BOOL           GetFieldValue(ADODB::_RecordsetPtr pRS,
       LPCTSTR  strFieldName,
       long &L,
-      long LDefault=-1) 
+      long LDefault=-1)
       {
       L=LDefault;
       try
@@ -232,7 +232,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
         }
       catch (_com_error & e)
         {
-        int xxx=0; 
+        int xxx=0;
         e; // ignore
         return FALSE;
         }
@@ -248,7 +248,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
         }
       catch (_com_error & e)
         {
-        int xxx=0; 
+        int xxx=0;
         e; // ignore
         OK=FALSE;
         }
@@ -264,7 +264,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
         }
       catch (_com_error & e)
         {
-        int xxx=0; 
+        int xxx=0;
         e; // ignore
         OK=FALSE;
         }
@@ -357,7 +357,7 @@ int CTagDBMDB::Open(long DBFmt, DWORD DBOpts, pchar pRoot, pchar pRootOld, pchar
   //TODO: If the database does not exist, (eg new project) then special
   //      code would be needed here to create a new database.
 
-  sDBName.Concat(pRoot, MDBName); //build filename 
+  sDBName.Concat(pRoot, MDBName); //build filename
 
   WIN32_FIND_DATA fd;
   if (FileExists(sDBName(), fd))
@@ -500,10 +500,10 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
   ThisObjTagMem=ThisObjTag;
   Strng StructTag, ItemTag;
 #if dbgTagDB
-  if (dbgSaveObjFields())
+  if (dbgSaveObj())
     {
-    dbgpln("%*sObject Start :%s [%s] ",dbgIndent,"",pClass, ThisObjTag()); 
-    dbgIndent+=3;  
+    dbgpln("%*sObject Start :%s [%s] ",dbgIndent,"",pClass, ThisObjTag());
+    dbgIndent+=3;
     }
 #endif
   //CTagDBase::sCurrTag = ThisObjTag; //used for error reporting if critical error occurs
@@ -579,9 +579,9 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
       KWFieldDef* pFldInfo;
       if (!GetKWFieldInfo(ClassNV(), ItemTag(), pFldInfo))
         {
-        pFldInfo=new KWFieldDef(ClassNV(), 
-          ItemTag(), 
-          "", 
+        pFldInfo=new KWFieldDef(ClassNV(),
+          ItemTag(),
+          "",
           ADOX::adVarWChar, 255, // Length ?
           0,
           FALSE, // Required
@@ -590,8 +590,8 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
         MustCreate=TRUE;
         }
       KWFlds[nKWFlds]=pFldInfo;
-      KWData[nKWFlds]=T2BSTR(sClass()); 
-      //KWData[nKWFlds].SetString(sClass(), VT_BSTRT); 
+      KWData[nKWFlds]=T2BSTR(sClass());
+      //KWData[nKWFlds].SetString(sClass(), VT_BSTRT);
 
       nKWFlds++;
       nFlds++;
@@ -601,7 +601,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
         dbgpln("%*sDone:%-15s %-20s = %s",dbgIndent,"", tt_TypeString(pObjItem->Type()), ItemTag(), sClass());
 #endif
       }
-    else 
+    else
       {
       char ItemType=pItem->Type();
       if (ItemType)
@@ -657,7 +657,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                 if(StructTag.Length()>0)
                   ItemTag.Set("%s.%s", StructTag(), ITag());
                 else
-                  ItemTag=ITag();                
+                  ItemTag=ITag();
                 char StrValue[2048];
                 strcpy(StrValue, "");
                 flag HasStrList=false;
@@ -678,7 +678,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                         }
                       HasStrList=true;
                     }
-                  } 
+                  }
                 if (!HasStrList && strlen(StrValue)==0)
                   strncpy(StrValue, pItem->Value()->GetString("%i", "%.15g"), sizeof(StrValue));
                 StrValue[sizeof(StrValue)-1]=0;
@@ -693,9 +693,9 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
 
                 if (!GetKWFieldInfo(ClassNV(), ItemTag(), pFldInfo))
                   {
-                  pFldInfo=new KWFieldDef(ClassNV(), 
-                    ItemTag(), 
-                    pItem->CnvTxt()?pItem->CnvTxt():"", 
+                  pFldInfo=new KWFieldDef(ClassNV(),
+                    ItemTag(),
+                    pItem->CnvTxt()?pItem->CnvTxt():"",
                     FldType, FldSize,
                     0,
                     FALSE,                           // Required
@@ -710,8 +710,8 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
 
                   //if (isdigit(StrValue[0]))
                   //  DoBreak();
-                  //KWData[nKWFlds].SetString(StrValue, VT_BSTRT); 
-                  KWData[nKWFlds]=T2BSTR(StrValue); 
+                  //KWData[nKWFlds].SetString(StrValue, VT_BSTRT);
+                  KWData[nKWFlds]=T2BSTR(StrValue);
                   }
                 else
                   {
@@ -720,35 +720,35 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                     case tt_Bool  :
                     case tt_Bit   :
                     case tt_Byte  :
-                      KWData[nKWFlds]=(BYTE)pItem->Value()->Byte; 
+                      KWData[nKWFlds]=(BYTE)pItem->Value()->Byte;
                       break;
                     case tt_Char  :
-                      KWData[nKWFlds]=(BYTE)pItem->Value()->Char; 
+                      KWData[nKWFlds]=(BYTE)pItem->Value()->Char;
                       break;
                     case tt_Word  :
-                      KWData[nKWFlds]=(long)pItem->Value()->Word; 
+                      KWData[nKWFlds]=(long)pItem->Value()->Word;
                       break;
                     case tt_DWord :
-                      KWData[nKWFlds]=(long)pItem->Value()->DWord; 
+                      KWData[nKWFlds]=(long)pItem->Value()->DWord;
                       break;
                     case tt_Int   :
-                      KWData[nKWFlds]=(long)pItem->Value()->Int; 
+                      KWData[nKWFlds]=(long)pItem->Value()->Int;
                       break;
                     case tt_Short :
-                      KWData[nKWFlds]=(long)pItem->Value()->Short; 
+                      KWData[nKWFlds]=(long)pItem->Value()->Short;
                       break;
                     case tt_Long  :
-                      KWData[nKWFlds]=(long)pItem->Value()->Long; 
+                      KWData[nKWFlds]=(long)pItem->Value()->Long;
                       break;
                     case tt_Flt16 :
-                      KWData[nKWFlds]=(float)pItem->Value()->Flt16; 
+                      KWData[nKWFlds]=(float)pItem->Value()->Flt16;
                       break;
                     case tt_Float :
                       {
                       float f=(float)pItem->Value()->Float;
                       if (Valid(f))
-                        KWData[nKWFlds]=Min(f, fNANMagic_Limit); 
-                      else if (IsSignalNAN(f)) 
+                        KWData[nKWFlds]=Min(f, fNANMagic_Limit);
+                      else if (IsSignalNAN(f))
                         KWData[nKWFlds]=fNANMagic_Signal;
                       else if (IsQuietNAN(f))
                         KWData[nKWFlds]=fNANMagic_Quiet;
@@ -756,18 +756,18 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                         ASSERT_ALWAYS(FALSE, "Bad ValueType for Save value for tt_Double", __FILE__, __LINE__);
                       //float f=(float)pItem->Value()->Float;
                       //if (Valid(f))
-                      //  KWData[nKWFlds]=f; 
+                      //  KWData[nKWFlds]=f;
                       //else
-                      //  //KWData[nKWFlds]=0.0f; 
-                      //  KWData[nKWFlds].vt=VT_NULL; 
+                      //  //KWData[nKWFlds]=0.0f;
+                      //  KWData[nKWFlds].vt=VT_NULL;
                       break;
                       }
                     case tt_Double:
                       {
                       double d=pItem->Value()->Double;
                       if (Valid(d))
-                        KWData[nKWFlds]=Min(d, dNANMagic_Limit); 
-                      else if (IsSignalNAN(d)) 
+                        KWData[nKWFlds]=Min(d, dNANMagic_Limit);
+                      else if (IsSignalNAN(d))
                         {
                         if      (HasNANFlag(d, NF_Free  )) KWData[nKWFlds]=dNANMagic_Free  ;
                         else if (HasNANFlag(d, NF_Hold  )) KWData[nKWFlds]=dNANMagic_Hold  ;
@@ -792,21 +792,21 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                     case tt_Text  :
                       {
                       CString V(pItem->Value()->GetString());
-#if QUOTETAGS 
+#if QUOTETAGS
 // why was this here ??????
-                      if (V.GetLength()>0 && V.FindOneOf("<[(\"")>=0) 
+                      if (V.GetLength()>0 && V.FindOneOf("<[(\"")>=0)
                         {
                         CString S("\"");
                         S+=V;
                         S+="\"";
-                        KWData[nKWFlds]=T2BSTR(S); 
+                        KWData[nKWFlds]=T2BSTR(S);
                         }
                       else
 #endif
-                        KWData[nKWFlds]=T2BSTR(V);//pItem->Value()->GetString()); 
+                        KWData[nKWFlds]=T2BSTR(V);//pItem->Value()->GetString());
                       break;
                       }
-                    };                                              
+                    };
                   }
 
                 nKWFlds++;
@@ -814,7 +814,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
 
 #if dbgTagDB
                 if (dbgSaveObjFields())
-                  dbgpln("%*sSave:%-15s %-20s = %s",dbgIndent,"", tt_TypeString(ItemType), ItemTag(), StrValue); 
+                  dbgpln("%*sSave:%-15s %-20s = %s",dbgIndent,"", tt_TypeString(ItemType), ItemTag(), StrValue);
 #endif
                 }
             }
@@ -840,8 +840,8 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
       CreateFields(ClassNV(), KWFlds, nKWFlds);
 
 #if dbgTagDB
-    if (dbgSaveObj())
-      dbgpln("%*sObject Flds OK :%s [%s]",dbgIndent,"",pClass, ThisObjTag()); 
+    if (dbgSaveObjFields())
+      dbgpln("%*sObject Flds OK :%s [%s]",dbgIndent,"",pClass, ThisObjTag());
 #endif
 
 #if dbgShowTiming
@@ -878,9 +878,9 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
   if (dbgSaveObj())
     {
     dbgIndent-=3;
-    dbgpln("%*sObject Done  :%s [%s]",dbgIndent,"",pClass, ThisObjTag()); 
-    //dbgpln("       Flds: %s ",FldBuff); 
-    //dbgpln("       Data: %s ",DataBuff); 
+    dbgpln("%*sObject Done  :%s [%s]",dbgIndent,"",pClass, ThisObjTag());
+    //dbgpln("       Flds: %s ",FldBuff);
+    //dbgpln("       Data: %s ",DataBuff);
     }
 #endif
 
@@ -924,7 +924,7 @@ int CTagDBMDB::SaveArr(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
 #if dbgTagDB
   if (dbgSaveObjFields())
     {
-    dbgpln("%*sArray Start:%s ",dbgIndent,"",ThisObjTag()); 
+    dbgpln("%*sArray Start:%s ",dbgIndent,"",ThisObjTag());
     dbgIndent+=3;
     }
 #endif
@@ -964,7 +964,7 @@ int CTagDBMDB::SaveArr(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
   if (dbgSaveObjFields())
     {
     dbgIndent-=3;
-    dbgpln("%*sArray End:%s ",dbgIndent,"",ThisObjTag()); 
+    dbgpln("%*sArray End:%s ",dbgIndent,"",ThisObjTag());
     }
 #endif
   ASSERT(pItem->Type()==tt_Array_E);
@@ -1044,7 +1044,7 @@ int CTagDBMDB::SaveObject(pchar pObjType, CXM_ObjectData *pObjData)
   int Ret = SaveObj(pObjType, "", pObjData->List, Iter, SDOTag);
   if (ErrorOccured())
     LogError("TagDB", LF_Exclamation, "Save error for object %s", SDOTag());
-  return Ret; 
+  return Ret;
   };
 
 //------------------------------------------------------------------------
@@ -1062,7 +1062,7 @@ void CTagDBMDB::StartLoadSequence(pchar pObjType)
       GetRevisionNoFieldName(),
       GetRevisionNo());
     }
-  else 
+  else
     {
     TabName=GetObjectsTableName();
     strFind.Format(_T("Select * From [%s] Where [%s] = %i Order By [%s]"),
@@ -1173,7 +1173,7 @@ int CTagDBMDB::LoadObject(CXM_ObjectData *pObjData, flag CreateOnly)
         }
       catch (_com_error & e)
         {
-        int xxx=0; 
+        int xxx=0;
         e; // ignore
         OPrimaryCfg="";
         }
@@ -1238,8 +1238,8 @@ int CTagDBMDB::LoadObject(CXM_ObjectData *pObjData, flag CreateOnly)
 
   if (DoIt)
     {
-#if dbgTagDB                
-    if (dbgLoadObjExists()) 
+#if dbgTagDB
+    if (dbgLoadObjExists())
       {
       static long xxxCall=0;
       dbgpln("                                                             Load  %5i %s  %s", xxxCall++, Class(), Tag());
@@ -1303,18 +1303,18 @@ CString SafeDBKey(LPSTR Tag)
   return T;
   }
 
-#else 
+#else
 
 LPCSTR SafeDBKey(LPCSTR Tag)
   {
-  return Tag; 
+  return Tag;
   }
 
 #endif
 
 
 //------------------------------------------------------------------------
-/*Load the actual data for an object based on info from a record in the 
+/*Load the actual data for an object based on info from a record in the
 TagReg table. Note that this function can be called recursivly if a field
 in a record refers to another table. Tag names are built using a dot
 notation for each level.*/
@@ -1365,7 +1365,7 @@ ReTry:
         {//busy loading an array of items...
         InitRecTag+="[";
         //pRS->SetCurrentIndex(GetFullTagFieldName());
-        bool UseIndex=ALLOWTAGINDEX && pRS->Supports(ADODB::CursorOptionEnum(ADODB::adSeek|ADODB::adIndex)); 
+        bool UseIndex=ALLOWTAGINDEX && pRS->Supports(ADODB::CursorOptionEnum(ADODB::adSeek|ADODB::adIndex));
         if (UseIndex)
           pRS->Index=GetFullTagFieldName();
         if (m_bWithRevisionNo)
@@ -1384,8 +1384,8 @@ ReTry:
           }
         //dbgpln("RecCount: %i", pRS->RecordCount);
         flag Exists = (!pRS->adEOF);
-#if dbgTagDB                
-        if (dbgLoadObjExists()) 
+#if dbgTagDB
+        if (dbgLoadObjExists())
           dbgpln("%s", Exists?"Exists":"Missing");
 #endif
         if (Exists)
@@ -1403,7 +1403,7 @@ ReTry:
               }
             Strng FTag;
             GetFieldValue(pRS, GetFullTagFieldName(), FTag);
-            if (FTag.XStrNICmp(InitRecTag(), InitRecTag.Length())==0) 
+            if (FTag.XStrNICmp(InitRecTag(), InitRecTag.Length())==0)
               {
               nRecs++;
               }
@@ -1440,7 +1440,7 @@ ReTry:
       else
         {
         //pRS->CancelUpdate();
-        bool UseIndex=ALLOWTAGINDEX && pRS->Supports(ADODB::CursorOptionEnum(ADODB::adSeek|ADODB::adIndex)); 
+        bool UseIndex=ALLOWTAGINDEX && pRS->Supports(ADODB::CursorOptionEnum(ADODB::adSeek|ADODB::adIndex));
         if (UseIndex)
           pRS->Index=GetFullTagFieldName();
         if (m_bWithRevisionNo)
@@ -1474,7 +1474,7 @@ ReTry:
         CloseTblRecordset(ClassNV());
         goto ReTry;
         }
-      
+
       KWDisplayException(e, _T(""));
       }
 
@@ -1489,7 +1489,7 @@ ReTry:
       // FOR SPEED : these 2 lines are only required when/if we resustitate the multi level heirarchy of models.
       //if (!IsConn)
       //  GetFieldValue(pRS, "Parent", TagOfParent);
-      
+
       PTag=pTag;
       //CTagDBase::UnEscapeFlds(PTag);
       //ObjPTag=PTag;
@@ -1567,7 +1567,7 @@ ReTry:
             catch (_com_error & e)
               {
               Strng E;
-              E.Set("%s field %i", ClassNV(), i); 
+              E.Set("%s field %i", ClassNV(), i);
               KWDisplayException(e, E());
               continue;
               }
@@ -1589,7 +1589,7 @@ ReTry:
               CTagDBase::UnEscapeStructs(RqdPrefix);
 
               pchar p=RqdPrefix() ? strrchr(RqdPrefix(), '.') : NULL;
-              if (p)// && 0) // ? Temporary Fix to Fix Load of data with '.' in field names 
+              if (p)// && 0) // ? Temporary Fix to Fix Load of data with '.' in field names
                 {
                 VERIFY((p-RqdPrefix())>=0);
                 Tag=p+1;
@@ -1616,7 +1616,7 @@ ReTry:
                 int i=0,j=Min(RqdPrefix.Length(), Prefix.Length());
                 for (int LenEql=0; i<j; i++)
                   if (RqdPrefix[i]!=Prefix[i])
-                    break;  
+                    break;
                   else if (RqdPrefix[i]=='.')
                     LenEql=i;
                 if (i==j)
@@ -1641,7 +1641,7 @@ ReTry:
                   }
 
                 //Open structures of Reqd prefix from LenEql
-                int iii=0;          
+                int iii=0;
                 while (LenEql < RqdPrefix.Length())
                   {
                   ASSERT(iii++<100);
@@ -1659,7 +1659,7 @@ ReTry:
                     { int xxx=0;};
 
                   List.SetStructureS(/*pItem,*/ tt_Struct, XchgTag(p), "*", "", "", 0, "", NULL, NULL, 0);
-                  if (q) 
+                  if (q)
                     {
                     *q='.';
                     LenEql=q-RqdPrefix()+1;
@@ -1712,8 +1712,8 @@ ReTry:
 
               //if (LoadArray)
               //  Tag.Set("%s[%i]", Tag(), iRec);
-              if (!IsTagFld && StructsOK && StrValLen>2 && 
-                ((StrValue[0]=='<' && StrValue[StrValLen-1]=='>') || 
+              if (!IsTagFld && StructsOK && StrValLen>2 &&
+                ((StrValue[0]=='<' && StrValue[StrValLen-1]=='>') ||
                 (StrValue[0]=='[' && StrValue[StrValLen-1]==']')))
                 {
                 flag LoadArray=(StrValue[0]=='[');
@@ -1726,7 +1726,7 @@ ReTry:
                   FullTag.Set("%s.%s", RecTag(), Tag());
 
 #if dbgTagDB
-                if (dbgLoadObj())
+                if (dbgLoadObjFields())
                   dbgpln("LdObj:%-15s = %s", FullTag(), Class());
 #endif
 
@@ -1801,7 +1801,7 @@ ReTry:
                         DU.SetTypeDouble(tt_Float, dNAN);
                       else
                         ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adSingle", __FILE__, __LINE__);
-                      
+
                       //if (TheValue.vt==VT_R4)
                       //  DU.SetTypeDouble(tt_Float, V_R4(&TheValue));
                       //else if (TheValue.vt==VT_NULL)
@@ -1814,29 +1814,29 @@ ReTry:
                       if (TheValue.vt==VT_R8)
                         {
                         double d=V_R8(&TheValue);
-                        if      (d<=dNANMagic_Limit)  
+                        if      (d<=dNANMagic_Limit)
                           DU.SetTypeDouble(tt_Double, d);
-                        else if (d==dNANMagic_Signal) 
+                        else if (d==dNANMagic_Signal)
                           DU.SetTypeDouble(tt_Double, dNAN);
-                        else if (d==dNANMagic_Quiet ) 
+                        else if (d==dNANMagic_Quiet )
                           DU.SetTypeDouble(tt_Double, dQuietNAN);
-                        else if (d==dNANMagic_Free  ) 
+                        else if (d==dNANMagic_Free  )
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Free  ));
-                        else if (d==dNANMagic_Hold  ) 
+                        else if (d==dNANMagic_Hold  )
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Hold  ));
-                        else if (d==dNANMagic_Pulse ) 
+                        else if (d==dNANMagic_Pulse )
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Pulse ));
-                        else if (d==dNANMagic_Ignore) 
+                        else if (d==dNANMagic_Ignore)
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Ignore));
-                        else if (d==dNANMagic_Block ) 
+                        else if (d==dNANMagic_Block )
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Block ));
-                        else if (d==dNANMagic_Plus  ) 
+                        else if (d==dNANMagic_Plus  )
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Plus  ));
-                        else if (d==dNANMagic_Minus ) 
+                        else if (d==dNANMagic_Minus )
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Minus ));
-                        else if (d==dNANMagic_Star ) 
+                        else if (d==dNANMagic_Star )
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Star  ));
-                        else if (d==dNANMagic_Pass  ) 
+                        else if (d==dNANMagic_Pass  )
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Pass  ));
                         else
                           ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adDouble", __FILE__, __LINE__);
@@ -1920,14 +1920,14 @@ CTagDBase::CTagDBase()
 
 CTagDBase::~CTagDBase()
   {
-  ASSERT(pDB==NULL); 
+  ASSERT(pDB==NULL);
   }
 
 //------------------------------------------------------------------------
 
-flag  CTagDBase::IsOpen()  
-  { 
-  return pDB->IsOpen(); 
+flag  CTagDBase::IsOpen()
+  {
+  return pDB->IsOpen();
   }
 
 //------------------------------------------------------------------------
@@ -1941,20 +1941,20 @@ int CTagDBase::Open(long DBFmt, DWORD DBOpts, pchar pRoot, pchar pRootOld, pchar
   //AFX_MODULE_STATE * p=AfxGetModuleState();
   //p->m_dwVersion = 0x0601;
 
-  m_OpenOpts=DBOpts; 
+  m_OpenOpts=DBOpts;
   ASSERT(pDB==NULL);
   if (DBFmt == DBConnect_Find)
     {
     Strng Fn;
-    Fn.Set("%s%s", pRoot, MDBName); //build filename 
+    Fn.Set("%s%s", pRoot, MDBName); //build filename
     if (FileExists(Fn()))
       DBFmt=DBConnect_JET2000; // Maybe get clever
     }
   switch (DBFmt)
     {
-    case DBConnect_JET97: 
-    case DBConnect_JET2000: 
-      if (pRootOld && (m_OpenOpts & DBO_CopyOldDBFiles)) 
+    case DBConnect_JET97:
+    case DBConnect_JET2000:
+      if (pRootOld && (m_OpenOpts & DBO_CopyOldDBFiles))
         {
         Strng Fn, FnO;
         Fn.Set("%s%s", pRoot, MDBName);
@@ -1968,7 +1968,7 @@ int CTagDBase::Open(long DBFmt, DWORD DBOpts, pchar pRoot, pchar pRootOld, pchar
           }
         }
 
-      pDB= new CTagDBMDB; 
+      pDB= new CTagDBMDB;
       break;
     }
 
@@ -1979,8 +1979,8 @@ int CTagDBase::Open(long DBFmt, DWORD DBOpts, pchar pRoot, pchar pRootOld, pchar
   return -1;
   };
 int CTagDBase::Flush(flag bOnlyChanged) { return pDB->Flush(bOnlyChanged); };
-int CTagDBase::Close() 
-  { 
+int CTagDBase::Close()
+  {
   if (pDB==NULL)
     return 0;
   if (DoGlblTransactions && m_nObjectsSaved)
@@ -1988,7 +1988,7 @@ int CTagDBase::Close()
     pDB->EndTransaction(true);
     m_nObjectsSaved=0;
     }
-  if ((m_OpenOpts & DBO_RemovePrevRevs)) 
+  if ((m_OpenOpts & DBO_RemovePrevRevs))
     {
     pDB->RemoveRevisions(-1, pDB->GetRevisionNo()-1);
     }
@@ -2005,7 +2005,7 @@ int CTagDBase::Close()
 
 //------------------------------------------------------------------------
 
-void CTagDBase::SetChanged(flag Changed) 
+void CTagDBase::SetChanged(flag Changed)
   { pDB->SetChanged(Changed); };
 
 //------------------------------------------------------------------------
@@ -2026,14 +2026,14 @@ void CTagDBase::StartSaveSequence(pchar pObjType)
 //------------------------------------------------------------------------
 
 int CTagDBase::SaveObject(pchar pObjType, CXM_ObjectData *pObjData)
-  { 
+  {
   //pDB->SetHoldLocalTransactions(TRUE);
 
   // Transactions create Error 3211 'Table Locked by user or process' (sometimes!)
   if (DoGlblTransactions && m_nObjectsSaved==0)
     pDB->StartTransaction();
 
-  int Ret=pDB->SaveObject(pObjType, pObjData); 
+  int Ret=pDB->SaveObject(pObjType, pObjData);
 
   if (DoGlblTransactions && ++m_nObjectsSaved>=50)
     {

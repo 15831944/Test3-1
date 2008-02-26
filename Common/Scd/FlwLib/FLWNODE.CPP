@@ -4329,7 +4329,7 @@ void FlwNode::PreGlobalDisConnect()
 
 void FlwNode::DoDirectConnect(CDirectFlwIO * pDIO)
   {
-  if (pDIO->DoConnect())
+  if (!pDIO->m_bConnected && pDIO->DoConnect())
     {
     if (pDIO->Enabled)
       {
@@ -4952,8 +4952,7 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
           Strng Tg;
           MAKEFLNGTG4DDB(Tg, i, 0);
 
-          //dbgpln("============================================ %-40s %s ", Tg(), IOConnect(i)->m_pRefNd->Tag());
-
+          //dbgpln("================== %3i %3i @ [%08x]%-40s  %-40s %s ", i, NoFlwIOs(), this, Tag(), Tg(), IOConnect(i)->m_pRefNd->Tag());
 
           DWORD UI=UIIOFlag+i;
           if (DDB.BeginElement(this, Tg(),NULL,UI, DDB_OptPage,MarkerClosed))
