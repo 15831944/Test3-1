@@ -88,7 +88,8 @@ While running , per iteration the CExecutive allows each CExecObject to execute,
 //=========================================================================
 
 const int  MaxRqdPriority = 5;
-const int  MaxXObjects    = 256;       // MAXIMUM_WAIT_OBJECTS;
+//const int  MaxXObjects    = 256; // MAXIMUM_WAIT_OBJECTS;
+const int  MaxXObjects    = 350; //kga bumped this up feb 2008 (to handle projects with more than ~80 graphics pages)
 
 //_FWDDEF(CExecutive);
 //_FWDDEF(CExecObj);

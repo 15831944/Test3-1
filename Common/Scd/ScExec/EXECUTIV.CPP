@@ -1550,6 +1550,10 @@ flag CExecutive::Register(CExecObj *pEO, flag FixingRegistrations)
   else
     {
     ASSERT(Objs_Reg.GetSize() < MaxXObjects);
+    if (Objs_Reg.GetSize()>=MaxXObjects)
+      {//Too many executive objects heading for a crash...
+      AfxMessageBox("Critical error!\n\nToo many 'Executive Objects' (likely too many graphics/trend pages)!", MB_OK|MB_ICONEXCLAMATION);
+      }
     pEO->lId=Ids++;
     Ids=Max(0L, Ids);
 
