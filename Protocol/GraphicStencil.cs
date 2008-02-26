@@ -19,10 +19,9 @@ namespace SysCAD.Protocol
     {
       GraphicStencil graphicStencil = (GraphicStencil)obj;
       info.AddValue("defaultSize", graphicStencil.DefaultSize);
-      info.AddValue("groups", graphicStencil.Groups);
       info.AddValue("decorations", graphicStencil.Decorations);
       info.AddValue("elements", graphicStencil.Elements);
-      info.AddValue("tag", graphicStencil.Tag);
+      info.AddValue("tags", graphicStencil.Tags);
       info.AddValue("tagArea", graphicStencil.TagArea);
     }
 
@@ -30,10 +29,9 @@ namespace SysCAD.Protocol
     {
       GraphicStencil graphicStencil = (GraphicStencil)obj;
       graphicStencil.DefaultSize = (Size)info.GetValue("defaultSize", typeof(Size));
-      graphicStencil.Groups = (ArrayList)info.GetValue("groups", typeof(ArrayList));
       graphicStencil.Decorations = (ArrayList)info.GetValue("decorations", typeof(ArrayList));
       graphicStencil.Elements = (ArrayList)info.GetValue("elements", typeof(ArrayList));
-      graphicStencil.Tag = (String)info.GetValue("tag", typeof(String));
+      graphicStencil.Tags = (ArrayList)info.GetValue("tags", typeof(ArrayList));
       graphicStencil.TagArea = (Rectangle)info.GetValue("tagArea", typeof(Rectangle));
       return graphicStencil;
     }
@@ -49,12 +47,10 @@ namespace SysCAD.Protocol
   {
     private Size defaultSize;
 
-    private ArrayList groups;
-
     private ArrayList decorations;
 
     private ArrayList elements;
-    private String tag;
+    private ArrayList tags;
     private Rectangle tagArea;
 
     public GraphicStencil()
@@ -75,13 +71,6 @@ namespace SysCAD.Protocol
       set { decorations = value; }
     }
 
-    public ArrayList Groups
-    {
-      get { return groups; }
-
-      set { groups = value; }
-    }
-
     public ArrayList Elements
     {
       get { return elements; }
@@ -89,11 +78,11 @@ namespace SysCAD.Protocol
       set { elements = value; }
     }
 
-    public String Tag
+    public ArrayList Tags
     {
-      get { return tag; }
+      get { return tags; }
 
-      set { tag = value; }
+      set { tags = value; }
     }
 
     public Rectangle TagArea
@@ -134,7 +123,7 @@ namespace SysCAD.Protocol
 
         graphicStencil = (GraphicStencil)sf.Deserialize(stream);
         stream.Close();
-        //Serialize(path, graphicStencil);
+        Serialize(path, graphicStencil);
       //}
       //catch
       //{

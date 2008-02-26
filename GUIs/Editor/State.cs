@@ -175,7 +175,7 @@ namespace SysCAD.Editor
           i++;
         }
 
-        return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], FillMode.Alternate, stencil.Tag));
+        return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], FillMode.Alternate, (String)stencil.Tags[0]));
       }
 
       else

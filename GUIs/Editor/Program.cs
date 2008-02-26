@@ -84,7 +84,7 @@ namespace SysCAD.Editor
               {
                 messageBody += "GraphicStencils:\n";
                 foreach (SysCAD.Protocol.GraphicStencil graphicStencil in editorForm.FrmFlowChart.State.Config.GraphicStencils.Values)
-                  messageBody += "Tag: " + graphicStencil.Tag + "\n";
+                  messageBody += "Tag: " + graphicStencil.Tags[0] + "\n";
                 messageBody += "\n";
               }
               if (editorForm.FrmFlowChart.State.Config.ModelStencils != null)
