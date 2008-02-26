@@ -627,7 +627,12 @@ CString CSvcConnect::ExtractShape(LPCSTR Symbol)
   CString Shape(Symbol);
   int iSep=Shape.FindOneOf("$:");
   if (iSep>=0)
-    Shape.Delete(0, iSep+1);
+    {
+    // Old Fmt
+    //Shape.Delete(0, iSep+1);
+    // New
+    Shape.SetAt(iSep, '/');
+    }
   return Shape;
   }
 
