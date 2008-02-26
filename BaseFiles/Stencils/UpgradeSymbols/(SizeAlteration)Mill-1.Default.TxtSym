@@ -1,0 +1,18 @@
+Symbol,Mill-1
+Group,SizeAlteration
+MDrw_Poly, -4,-3, -4,3, -1,12, 9,12, 12,3, 12,-3, 9,-12, -1,-12, -4,-3, 
+MDrw_Poly, -1,-12, -1,12, 
+MDrw_Poly, 9,-12, 9,12, 
+MDrw_Poly, -4,-3, -12,3, -12,6, -7,6, -4,3, 
+MDrw_TagPos, 0,-15.5, 
+MDrw_End
+TextArea,-12,12.5,24,3
+XMin,-12
+XMax,12
+YMin,-12
+YMax,12
+Width,24
+Height,24
+InsertX,0
+InsertY,0
+

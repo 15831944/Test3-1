@@ -1,0 +1,14 @@
+Symbol,BeltCnv
+Group,Conveyor
+MDrw_Poly, -20,2, -20,-2, -18,-2, -18,0, 18,0, 18,-2, 20,-2, 20,2, -20,2, 
+MDrw_End
+TextArea,-20,2.5,40,3
+XMin,-20
+XMax,20
+YMin,-2
+YMax,2
+Width,40
+Height,4
+InsertX,0
+InsertY,0
+

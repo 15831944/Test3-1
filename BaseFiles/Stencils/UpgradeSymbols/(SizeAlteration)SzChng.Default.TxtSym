@@ -1,0 +1,16 @@
+Symbol,SzChng
+Group,SizeAlteration
+MDrw_Poly, -4,-2, -4,2, 4,2, 4,-2, -4,-2, 
+MDrw_Poly, -4,0, 4,0, 
+MDrw_TagPos, 0,-5.5, 
+MDrw_End
+TextArea,-4,2.5,8,3
+XMin,-4
+XMax,4
+YMin,-2
+YMax,2
+Width,8
+Height,4
+InsertX,0
+InsertY,0
+

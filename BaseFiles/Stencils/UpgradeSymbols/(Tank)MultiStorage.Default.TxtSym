@@ -1,0 +1,22 @@
+Symbol,MultiStorage
+Group,Tank
+MDrw_Poly, -10,-6, -4,2, 2,-6, 
+MDrw_Poly, -7,-5, -4,1, -1,-5, 
+MDrw_Poly, -4,1, -4,-5, 
+MDrw_Poly, -2,1, 0,4, 6,-4, 
+MDrw_Poly, -2,-1, 0,3, 3,-3, 
+MDrw_Poly, 0,3, 0,-3, 
+MDrw_Poly, 2,3, 4,6, 10,-2, 
+MDrw_Poly, 2,1, 4,5, 7,-1, 
+MDrw_Poly, 4,5, 4,-1, 
+MDrw_End
+TextArea,-10,6.5,20,3
+XMin,-10
+XMax,10
+YMin,-6
+YMax,6
+Width,20
+Height,12
+InsertX,0
+InsertY,0
+

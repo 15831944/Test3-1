@@ -1,0 +1,17 @@
+Symbol,Screen
+Group,SizeSeparation
+MDrw_Poly, -10,2.5, 10,0.5, 10,-1.5, 0,-4.5, -10,0.5, -10,2.5, 
+MDrw_Poly, -10,3.5, 10,1.5, 
+MDrw_Poly, -10,4.5, 10,2.5, 
+MDrw_TagPos, 0,-8, 
+MDrw_End
+TextArea,-10,5,20,3
+XMin,-10
+XMax,10
+YMin,-4.5
+YMax,4.5
+Width,20
+Height,9
+InsertX,0
+InsertY,0
+

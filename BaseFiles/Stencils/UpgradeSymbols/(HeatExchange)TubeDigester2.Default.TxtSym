@@ -1,0 +1,19 @@
+Symbol,TubeDigester2
+Group,HeatExchange
+MDrw_Poly, -10,1, 10,1, 
+MDrw_Poly, -10,-1, 10,-1, 
+MDrw_Poly, -9,3, -9,1, 
+MDrw_Poly, -9,-1, -9,-2, 8,-2, 8,-3, 
+MDrw_Poly, 9,-3, 9,-1, 
+MDrw_Poly, 9,1, 9,2, -8,2, -8,3, 
+MDrw_End
+TextArea,-10,3.5,20,3
+XMin,-10
+XMax,10
+YMin,-3
+YMax,3
+Width,20
+Height,6
+InsertX,0
+InsertY,0
+

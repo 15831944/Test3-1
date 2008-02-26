@@ -1,0 +1,14 @@
+Symbol,Precipitator2
+Group,Tank
+MDrw_Poly, -5,10, -5,-10, 5,-10, 5,10, 
+MDrw_End
+TextArea,-5,10.5,10,3
+XMin,-5
+XMax,5
+YMin,-10
+YMax,10
+Width,10
+Height,20
+InsertX,0
+InsertY,0
+

@@ -1,0 +1,18 @@
+Symbol,Crush-1
+Group,SizeAlteration
+MDrw_Poly, -8,-5.6, -8,5.6, 8,5.6, 8,-5.6, -8,-5.6, 
+MDrw_Poly, -8,-5.6, -4,3.2, -4,5.6, 
+MDrw_Poly, 8,-5.6, 4,3.2, 4,5.6, 
+MDrw_Poly, -5.6,-4, -2.4,3.2, 2.4,3.2, 5.6,-4, -5.6,-4, 
+MDrw_TagPos, 0,-9.9, 
+MDrw_End
+TextArea,-8,6.1,16,3
+XMin,-8
+XMax,8
+YMin,-5.6
+YMax,5.6
+Width,16
+Height,11.2
+InsertX,0
+InsertY,0
+
