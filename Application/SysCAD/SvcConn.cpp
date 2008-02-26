@@ -357,13 +357,13 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
         float boxW = float(int(GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X));
         float boxH = float(int(GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y));
-        float boxX = float(int(GTI.m_LoBnd.m_X + Grp.m_XOff) + 0.5); // needs to be x.5mm to meet grid in 10.
-        float boxY = float(int(Grp.m_PageRct.Height() - GTI.m_HiBnd.m_Y + Grp.m_YOff) + 0.5); // needs to be x.5mm to meet grid in 10.
+        float boxX = float(int(GTI.m_LoBnd.m_X + Grp.m_XOff + Grp.m_XShift) + 0.5); // needs to be x.5mm to meet grid in 10.
+        float boxY = float(int(Grp.m_PageRct.Height() - GTI.m_HiBnd.m_Y + Grp.m_YOff - Grp.m_YShift) + 0.5); // needs to be x.5mm to meet grid in 10.
 
         float textBoxW = float(int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength()));
         float textBoxH = float(int(GTI.m_Tag.m_YScale * 5.0));
-        float textBoxX = float(int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5); // needs to be x.5mm to meet grid in 10.
-        float textBoxY = float(int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5); // needs to be x.5mm to meet grid in 10.
+        float textBoxX = float(int(GTI.m_Tag.m_X + Grp.m_XOff + Grp.m_XShift - textBoxW / 2.0) + 0.5); // needs to be x.5mm to meet grid in 10.
+        float textBoxY = float(int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - Grp.m_YShift - textBoxH) + 0.5); // needs to be x.5mm to meet grid in 10.
 
         m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, I.m_sTag,
           MakePath(projectPath, Grp.m_sTitle), Model, Shape,
@@ -420,15 +420,15 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         CPointFList CtrlPts;
         for (int i=0; i<LPA.GetCount(); i++)
           {
-          float PtX = float(int(LPA[i].x+Grp.m_XOff) + 0.5); // needs to be x.5mm to meet grid in 10.
-          float PtY = float(int(Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff) + 0.5); // needs to be x.5mm to meet grid in 10.
+          float PtX = float(int(LPA[i].x+Grp.m_XOff + Grp.m_XShift) + 0.5); // needs to be x.5mm to meet grid in 10.
+          float PtY = float(int(Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff - Grp.m_YShift) + 0.5); // needs to be x.5mm to meet grid in 10.
           CtrlPts.AddTail(CPointF(PtX, PtY));
           }
 
         float textBoxW = float(int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength()));
         float textBoxH = float(int(GTI.m_Tag.m_YScale * 5.0));
-        float textBoxX = float(int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5); // needs to be x.5mm to meet grid in 10.
-        float textBoxY = float(int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5); // needs to be x.5mm to meet grid in 10.
+        float textBoxX = float(int(GTI.m_Tag.m_X + Grp.m_XOff + Grp.m_XShift - textBoxW / 2.0) + 0.5); // needs to be x.5mm to meet grid in 10.
+        float textBoxY = float(int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - Grp.m_YShift - textBoxH) + 0.5); // needs to be x.5mm to meet grid in 10.
 
         m_pCLR->AddCreateLink(m_lRequestIdRet, ModelGuid, GraphicGuid, I.m_sTag, 
           MakePath(projectPath, Grp.m_sSymbol), 
@@ -1313,8 +1313,10 @@ bool CExistingItems::Get()
 
     double PageX = 0;
     double PageY = 0;
-    double PageW = 420;
-    double PageH = 297;
+    double PageW = Grp.m_pDoc->GCB.pDrw->PageWidth();//420;
+    double PageH = Grp.m_pDoc->GCB.pDrw->PageHeight();//297;
+    double PageXShift = 0;
+    double PageYShift = 0;
 
     if (Grp.m_pDoc->GCB.pDrw->GetBounds())
       {
@@ -1322,25 +1324,38 @@ bool CExistingItems::Get()
       double DrwY = C3_MIN_Y(&Grp.m_pDoc->GCB.pDrw->m_Bounds);
       double DrwW = C3_MAX_X(&Grp.m_pDoc->GCB.pDrw->m_Bounds) - DrwX;
       double DrwH = C3_MAX_Y(&Grp.m_pDoc->GCB.pDrw->m_Bounds) - DrwY;
-      bool FoundPageSz=false;
-      for (int i=0; s_PgInfo[i].Nm; i++)
-        {
-        double Scl=s_PgInfo[i].Scl;
-        double PgW=s_PgInfo[i].Scl*420;
-        double PgH=s_PgInfo[i].Scl*297;
-        if (DrwW<=PgW*1.02 && DrwH<=PgH*1.02)
+
+      if (DrwW>PageW*1.02 || DrwH>PageH*1.02)
+        {  // Page too small !!!
+        bool FoundPageSz=false;
+        for (int i=0; s_PgInfo[i].Nm; i++)
           {
-          PageW=PgW;
-          PageH=PgH;
-          FoundPageSz=true;
-          break;
+          double Scl=s_PgInfo[i].Scl;
+          double PgW=s_PgInfo[i].Scl*420;
+          double PgH=s_PgInfo[i].Scl*297;
+          if (DrwW<=PgW*1.02 && DrwH<=PgH*1.02)
+            {
+            PageW=PgW;
+            PageH=PgH;
+            FoundPageSz=true;
+            break;
+            }
           }
         }
-      if (!FoundPageSz)
-        {
-        PageX += (PageW-DrwW)*0.5;
-        PageY += (PageH-DrwH)*0.5;
-        }
+      if (DrwX<0.0 || DrwX+DrwW>PageW)
+        PageXShift = -(DrwX+0.5*DrwW-0.5*PageW); 
+      if (DrwY<0.0 || DrwY+DrwH>PageH)
+        PageYShift = -(DrwY+0.5*DrwH-0.5*PageH); 
+
+      Grp.m_XShift=PageXShift;
+      Grp.m_YShift=PageYShift;
+      
+      int xxx=0;
+        //if (!FoundPageSz)
+      //  {
+      //  PageX += (PageW-DrwW)*0.5;
+      //  PageY += (PageH-DrwH)*0.5;
+      //  }
       }
     else
       {
@@ -1355,7 +1370,6 @@ bool CExistingItems::Get()
   while (Pos)
     {
     CGroup & Grp=*m_Groups.GetNext(Pos);
-
 
     int NAcross=Max(1,int(Sqrt((double)m_nPages)+0.5));
     Grp.m_XOff=(Grp.m_No%NAcross)*MaxPageW*1.05f;

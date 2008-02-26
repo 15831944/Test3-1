@@ -190,6 +190,8 @@ class CExistingItems
           m_pDoc    = pDoc;
           m_XOff    = 0;
           m_YOff    = 0;
+          m_XShift  = 0;
+          m_YShift  = 0;
           }
 
         CString         m_sTitle;
@@ -199,6 +201,9 @@ class CExistingItems
         CRectangleF     m_PageRct;
         float           m_XOff;
         float           m_YOff;
+
+        float           m_XShift;
+        float           m_YShift;
 
         CGrfTagInfoArray  m_GTIA;
       };
