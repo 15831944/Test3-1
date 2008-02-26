@@ -1,4 +1,5 @@
 Symbol,Reciprocating Compressor
+Group,Pump
 MDrw_Poly, 0.62156,-3.82667, 0.62156,-0.0766721
 MDrw_Poly, -1.87844,-0.0766721, -0.62844,-0.0766721
 MDrw_Poly, 1.87156,-0.0766721, 1.87156,3.67333

@@ -1,4 +1,5 @@
 Symbol,EvapCooling
+Group,HeatTransfer
 MDrw_Poly, -6.1892,-8.59723, 6.26116,-8.59723
 MDrw_Poly, -9.96402,6.50205, 10.036,6.50205
 MDrw_Poly, -9.96402,6.50205, -6.1892,-8.59723

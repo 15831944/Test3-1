@@ -1,4 +1,5 @@
 Symbol,Centrifugal Compressor
+Group,Pump
 MDrw_Poly, 1.25073,-1.19504, 5.00073,-1.19504
 MDrw_Poly, 5.00073,1.30496, 5.00073,0.0549637
 MDrw_Poly, 5.00073,-2.44504, 8.75073,-2.44504

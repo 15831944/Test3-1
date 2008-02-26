@@ -1,4 +1,5 @@
 Symbol,Sump II
+Group,Tank
 MDrw_Poly, -10.409,10, 10.409,10
 MDrw_Poly, 10.409,10, 10.409,3.0607
 MDrw_Poly, 10.409,3.0607, -10.409,3.0607

@@ -1,4 +1,5 @@
 Symbol,Sump Pump III
+Group,Pump
 MDrw_Poly, -1.562,-3.438, 1.562,-3.438
 MDrw_Poly, 1.562,-3.438, 1.562,-2.812
 MDrw_Poly, 1.562,-2.812, -1.562,-2.812

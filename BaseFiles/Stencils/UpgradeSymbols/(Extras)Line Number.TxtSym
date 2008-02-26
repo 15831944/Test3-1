@@ -1,4 +1,5 @@
 Symbol,Line Number
+Group,Extras
 MDrw_Poly, -15,-1.875, 15,-1.875
 MDrw_Poly, 15,1.875, -15,1.875
 MDrw_Arc 15.5469,1.24342e-016, 1.95313, 3.70918, 15,-1.875

@@ -1,4 +1,5 @@
 Symbol,Packed TowerII
+Group,Tank
 MDrw_Poly, -7.5123,-13.1435, 7.4877,-13.1435
 MDrw_Poly, 7.4877,-13.2729, 7.4877,13.0908
 MDrw_Poly, -7.5123,12.9944, 7.4877,12.9944

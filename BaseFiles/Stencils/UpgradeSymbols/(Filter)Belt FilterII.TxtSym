@@ -1,4 +1,5 @@
 Symbol,Belt FilterII
+Group,Filter
 MDrw_Poly, -19,3, 19,3
 MDrw_Arc -19,1, 2, 6.28319, -17,1
 MDrw_Arc 19,1, 2, 6.28319, 21,1

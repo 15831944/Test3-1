@@ -1,4 +1,5 @@
 Symbol,Logic Interlock I
+Group,Control
 MDrw_Poly, -5,0, 0,3.75
 MDrw_Poly, 0,3.75, 5,0
 MDrw_Poly, 5,0, 0,-3.75

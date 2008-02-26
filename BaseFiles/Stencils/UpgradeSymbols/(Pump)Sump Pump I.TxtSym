@@ -1,4 +1,5 @@
 Symbol,Sump Pump I
+Group,Pump
 MDrw_Arc 1.25,-5.938, 1.25, 3.14159, 1.25,-7.188
 MDrw_Poly, 1.25,-4.688, -1.25,-4.688
 MDrw_Poly, 1.25,-7.188, -1.25,-7.188

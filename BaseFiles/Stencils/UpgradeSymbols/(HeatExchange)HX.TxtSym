@@ -1,4 +1,5 @@
 Symbol,HX
+Group,HeatExchange
 MDrw_Poly, -4.5,0, -8.5,0
 MDrw_Poly, -4.5,-3.5, -4.5,0
 MDrw_Poly, -4.5,-3.5, 4.5,3.5

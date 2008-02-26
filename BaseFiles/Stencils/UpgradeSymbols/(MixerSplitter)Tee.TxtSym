@@ -1,4 +1,5 @@
 Symbol,Tee
+Group,MixerSplitter
 MDrw_Poly, -5.937,2.5, 5.938,2.5
 MDrw_Poly, 5.938,2.5, 5.938,-2.5
 MDrw_Poly, 5.938,-2.5, 2.5,-2.5

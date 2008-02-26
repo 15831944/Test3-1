@@ -1,4 +1,5 @@
 Symbol,Air Diapragm Pump
+Group,Pump
 MDrw_Poly, -2.46983,3.9912, -6.21983,0.241197
 MDrw_Poly, -6.21983,0.241197, -6.21983,-6.0088
 MDrw_Poly, -6.21983,-6.0088, -2.46983,-9.7588

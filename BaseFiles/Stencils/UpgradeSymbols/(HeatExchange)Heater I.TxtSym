@@ -1,4 +1,5 @@
 Symbol,Heater I
+Group,HeatExchange
 MDrw_Poly, -7.16729,4.98714, -7.16729,-4.98129
 MDrw_Poly, 3.73021,4.98714, 3.73021,-4.98129
 MDrw_Poly, -7.16729,4.98714, -6.17729,4.98714

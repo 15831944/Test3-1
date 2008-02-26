@@ -1,4 +1,5 @@
 Symbol,Blind Flange
+Group,Piping
 MDrw_Poly, 0,1.875, 0,-1.875
 MDrw_Poly, 1.25,1.875, 1.25,-1.875
 MDrw_End

@@ -1,4 +1,5 @@
 Symbol,Conveyor Cross Section
+Group,Conveyor
 MDrw_Poly, -3.75,-13.75, 3.75,-13.75
 MDrw_Poly, 3.75,-13.75, 3.75,-17.5
 MDrw_Poly, 3.75,-17.5, -3.75,-17.5

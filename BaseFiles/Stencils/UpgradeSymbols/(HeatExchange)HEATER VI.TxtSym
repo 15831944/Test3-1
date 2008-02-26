@@ -1,4 +1,5 @@
 Symbol,HEATER VI
+Group,HeatExchange
 MDrw_Poly, -7.96774,5.4714, -7.96774,-5.43939
 MDrw_Poly, 7.03226,5.4714, 7.03226,-5.43939
 MDrw_Poly, -8.96894,5.4661, -6.96894,5.4661

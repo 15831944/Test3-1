@@ -1,4 +1,5 @@
 Symbol,HEATER II
+Group,HeatExchange
 MDrw_Poly, -7.55913,4.35413, 11.4919,4.35413
 MDrw_Poly, -7.55913,-4.34997, 11.584,-4.34997
 MDrw_Poly, -8.68413,5.22454, -8.68413,-5.22038

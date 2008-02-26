@@ -1,4 +1,5 @@
 Symbol,Signals Capillary Tube
+Group,Extras
 MDrw_Poly, -1.25,1.25, 1.25,-1.25
 MDrw_Poly, 1.25,1.25, -1.25,-1.25
 MDrw_End

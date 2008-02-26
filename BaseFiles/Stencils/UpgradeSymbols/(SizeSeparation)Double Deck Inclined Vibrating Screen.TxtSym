@@ -1,4 +1,5 @@
 Symbol,Double Deck Inclined Vibrating Screen
+Group,SizeSeparation
 MDrw_Poly, 0,-10.08, 12.5,2.42
 MDrw_Poly, 12.5,2.42, -12.5,4.92
 MDrw_Poly, 12.5,2.42, 12.5,7.42

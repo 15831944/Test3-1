@@ -1,4 +1,5 @@
 Symbol,TitleBox
+Group,MixerSplitter
 MDrw_Poly, -187.482,-12.5088, -187.482,12.4912
 MDrw_Poly, 187.518,-12.5088, 187.518,12.4912
 MDrw_Poly, -187.482,12.4912, 187.518,12.4912

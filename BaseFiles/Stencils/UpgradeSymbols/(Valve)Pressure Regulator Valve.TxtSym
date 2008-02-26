@@ -1,4 +1,5 @@
 Symbol,Pressure Regulator Valve
+Group,Valve
 MDrw_Poly, -3.75,1.875, -3.75,-1.875
 MDrw_Poly, -3.75,-1.875, 3.75,1.875
 MDrw_Poly, 3.75,1.875, 3.75,-1.875

@@ -1,4 +1,5 @@
 Symbol,Single Phase Compressor
+Group,Pump
 MDrw_Poly, -3.18,-0.64, 3.07,-0.64
 MDrw_Poly, 3.07,1.86, 3.07,0.61
 MDrw_Poly, 3.07,-1.89, 6.82,-1.89

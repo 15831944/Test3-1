@@ -1268,7 +1268,7 @@ void CGrfLayer::PrintEntities(pViewport vp, FILE *fp)
 
 //----------------------------------------------------------------------------
 
-void CGrfLayer::ExportEntities10(C3_BOX Bnds, FILE *fp)
+void CGrfLayer::ExportEntities10(C3_BOX Bnds, LPCSTR Group, FILE *fp)
   {
   DML_ITEM it;
   C3_CURVE c;
@@ -2956,11 +2956,11 @@ void LayerCollection::PrintEntities(pViewport vp, FILE *fp)
 
 //----------------------------------------------------------------------------
 
-void LayerCollection::ExportEntities10(C3_BOX Bnds, FILE *fp)
+void LayerCollection::ExportEntities10(C3_BOX Bnds, LPCSTR Group, FILE *fp)
   {
   CGrfLayer * l;
   WALK_LAYERS(Layers, NULL, l)
-    l->ExportEntities10(Bnds, fp);
+    l->ExportEntities10(Bnds, Group, fp);
   }
 
 //----------------------------------------------------------------------------
@@ -5575,19 +5575,20 @@ void BlockCollection::PrintEntities(pViewport vp, FILE *fp)
 
 // ---------------------------------------------------------------------------
 
-void BlockCollection::ExportEntities10(C3_BOX Bnds, FILE *fp)
+void BlockCollection::ExportEntities10(C3_BOX Bnds, LPCSTR Group, FILE *fp)
   {
   pBlock b = NULL;
   WALK_BLOCKS(Blocks, b)
     {
     //(void)fprintf(fp,"Block Name %s\n",DXF_BLOCK_NAME_GET(b->Def));
     (void)fprintf(fp,"Symbol,%s\n",DXF_BLOCK_NAME_GET(b->Def));
+    (void)fprintf(fp,"Group,%s\n",Group);
     C3_BOX_S Bnds;
     Bnds.maxpt[0]=-1e30;
     Bnds.maxpt[1]=-1e30;
     Bnds.minpt[0]=1e30;
     Bnds.minpt[1]=1e30;
-    b->ExportEntities10(&Bnds,fp);
+    b->ExportEntities10(&Bnds, Group, fp);
     double XMn=Bnds.minpt[0];
     double YMn=Bnds.minpt[1];
     double XMx=Bnds.maxpt[0];
@@ -6953,7 +6954,7 @@ BOOL DXF_Drawing::PrintEntities(pViewport vp, pchar fn)
 
 //----------------------------------------------------------------------------
 
-BOOL DXF_Drawing::ExportEntities10(C3_BOX Bnds, pchar fn)
+BOOL DXF_Drawing::ExportEntities10(C3_BOX Bnds, LPCSTR Group, pchar fn)
   {
   FILE* fp = fopen(fn, "w");
   if (fp)
@@ -6961,9 +6962,9 @@ BOOL DXF_Drawing::ExportEntities10(C3_BOX Bnds, pchar fn)
     dbgpln("------------------- %s", fn);
     CWaitCursor Wait;
     //fprintf(fp," Starting printing blocks ***********************************\n");
-    Blocks.ExportEntities10(Bnds,fp);
+    Blocks.ExportEntities10(Bnds, Group, fp);
     //fprintf(fp," Done printing blocks ***********************************\n");
-    LayerCollection::ExportEntities10(Bnds,fp);
+    LayerCollection::ExportEntities10(Bnds, Group, fp);
     fclose(fp);
     return True;
     }

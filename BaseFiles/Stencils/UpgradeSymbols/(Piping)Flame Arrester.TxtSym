@@ -1,4 +1,5 @@
 Symbol,Flame Arrester
+Group,Piping
 MDrw_Poly, -3.75,1.875, -3.75,-1.875
 MDrw_Poly, 3.75,1.875, 3.75,-1.875
 MDrw_Poly, 5,1.875, 5,-1.875

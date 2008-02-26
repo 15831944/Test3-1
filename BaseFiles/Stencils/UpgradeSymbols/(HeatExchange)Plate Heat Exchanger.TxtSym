@@ -1,4 +1,5 @@
 Symbol,Plate Heat Exchanger
+Group,HeatExchange
 MDrw_Poly, -6.9473,8.80172, 7.0527,8.80172
 MDrw_Poly, 7.0527,8.80172, 7.0527,-6.94828
 MDrw_Poly, 7.0527,-6.94828, -6.9473,-6.94828

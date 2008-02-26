@@ -1,4 +1,5 @@
 Symbol,Shell_n_Tube
+Group,HeatExchange
 MDrw_Poly, -5.97323,-6.21608, -3.97322,-6.21608
 MDrw_Poly, -5.97323,7.78392, -5.97323,-6.21608
 MDrw_Poly, -3.97322,7.78392, -3.97322,-6.21608

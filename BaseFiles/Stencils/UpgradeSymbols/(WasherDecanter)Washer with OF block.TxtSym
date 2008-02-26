@@ -1,4 +1,5 @@
 Symbol,Washer with OF block
+Group,WasherDecanter
 MDrw_Poly, -11,7.5, 11,7.5
 MDrw_Poly, -11,-5.5, -11,7.5
 MDrw_Poly, 11,-5.5, 11,7.5

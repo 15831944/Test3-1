@@ -1,4 +1,5 @@
 Symbol,Actuator Float
+Group,Control
 MDrw_Poly, 0,-2.5, 0,2.5
 MDrw_Arc -3.75,1.25, 0.75, 6.28319, -3,1.25
 MDrw_Poly, 0,2.5, -3.03849,1.48717

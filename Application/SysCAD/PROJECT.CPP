@@ -6800,7 +6800,7 @@ int CProject::ExportScd9SymbolsInPath(LPCSTR SrcPath, LPCSTR OutPath, LPCSTR Gro
           ///...........
 
           //Viewport Vp(;
-          if (Dwg.ExportEntities10(/*&Vp*/NULL, OutFn()/*, e*/))
+          if (Dwg.ExportEntities10(/*&Vp*/NULL, Group, OutFn()/*, e*/))
             nAdded++;
           //fclose(h);
           //}

@@ -1,4 +1,5 @@
 Symbol,Logic Convert
+Group,Control
 MDrw_Poly, -2.5,2.5, 2.5,2.5
 MDrw_Poly, 2.5,2.5, 2.5,-2.5
 MDrw_Poly, 2.5,-2.5, -2.5,-2.5

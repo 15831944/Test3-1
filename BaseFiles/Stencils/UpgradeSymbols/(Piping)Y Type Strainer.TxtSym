@@ -1,4 +1,5 @@
 Symbol,Y Type Strainer
+Group,Piping
 MDrw_Poly, -5,1.875, -5,-1.875
 MDrw_Poly, 4.59775,-3.3762, 2.72275,-6.6238
 MDrw_Poly, 3.66025,-5, -5,0

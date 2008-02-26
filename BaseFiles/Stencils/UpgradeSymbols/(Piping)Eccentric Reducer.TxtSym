@@ -1,4 +1,5 @@
 Symbol,Eccentric Reducer
+Group,Piping
 MDrw_Poly, -2.51306,-1.24455, -2.51306,0.00544617
 MDrw_Poly, 2.48694,-1.24455, 2.48694,1.25545
 MDrw_Poly, 2.48694,1.25545, -2.51306,0.00544617

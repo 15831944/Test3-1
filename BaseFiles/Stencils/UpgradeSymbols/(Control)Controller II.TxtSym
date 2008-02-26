@@ -1,4 +1,5 @@
 Symbol,Controller II
+Group,Control
 MDrw_Poly, -5,5, 5,5
 MDrw_Poly, 5,5, 5,-5
 MDrw_Poly, 5,-5, -5,-5

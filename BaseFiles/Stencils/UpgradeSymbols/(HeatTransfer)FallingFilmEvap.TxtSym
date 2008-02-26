@@ -1,4 +1,5 @@
 Symbol,FallingFilmEvap
+Group,HeatTransfer
 MDrw_Poly, 0.033765,11.2996, 0.033765,-2.46863
 MDrw_Poly, 1.53377,11.2996, 1.53377,-2.46863
 MDrw_Poly, 3.03376,12.4248, 3.03376,-11.0001

@@ -1,4 +1,5 @@
 Symbol,Dryer
+Group,HeatExchange
 MDrw_Poly, -12.5,7.5, 12.5,7.5
 MDrw_Poly, 12.5,7.5, 12.5,-7.5
 MDrw_Poly, 12.5,-7.5, -12.5,-7.5

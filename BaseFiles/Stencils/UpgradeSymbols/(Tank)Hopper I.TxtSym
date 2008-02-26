@@ -1,4 +1,5 @@
 Symbol,Hopper I
+Group,Tank
 MDrw_Poly, -10,15, 10,15
 MDrw_Poly, 10,15, 10,10
 MDrw_Poly, 10,10, -10,10

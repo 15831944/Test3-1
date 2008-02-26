@@ -1,4 +1,5 @@
 Symbol,Belt End II
+Group,Conveyor
 MDrw_Arc -0.008302,-0.017033, 2, 6.28319, 1.9917,-0.017033
 MDrw_End
 TextArea,-2.0083,2.48297,4,3

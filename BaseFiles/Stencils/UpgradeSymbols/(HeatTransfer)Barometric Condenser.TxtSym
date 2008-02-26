@@ -1,4 +1,5 @@
 Symbol,Barometric Condenser
+Group,HeatTransfer
 MDrw_Poly, 7.65942,-11.1649, 7.65942,-3.51486
 MDrw_Poly, -7.74058,-11.1649, 7.65942,-11.1649
 MDrw_Poly, -2.26558,12.3351, 2.18442,12.3351

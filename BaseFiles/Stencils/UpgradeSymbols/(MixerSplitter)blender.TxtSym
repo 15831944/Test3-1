@@ -1,4 +1,5 @@
 Symbol,blender
+Group,MixerSplitter
 MDrw_Poly, -5.98225,2.52315, -5.98225,-3.47685
 MDrw_Poly, -4.98225,-4.47685, 5.01775,-4.47685
 MDrw_Poly, 6.01775,-3.47685, 6.01775,2.52315

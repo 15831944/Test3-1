@@ -1,4 +1,5 @@
 Symbol,Spray Heat Exchanger
+Group,HeatExchange
 MDrw_Poly, -11.25,11.25, 11.25,11.25
 MDrw_Poly, 11.25,11.25, 11.25,-11.25
 MDrw_Poly, -11.25,11.25, -11.25,-11.25

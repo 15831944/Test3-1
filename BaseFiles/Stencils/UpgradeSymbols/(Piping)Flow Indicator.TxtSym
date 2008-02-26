@@ -1,4 +1,5 @@
 Symbol,Flow Indicator
+Group,Piping
 MDrw_Poly, -3.75,2.5, 3.75,2.5
 MDrw_Poly, 3.75,2.5, 3.75,-2.5
 MDrw_Poly, 3.75,-2.5, -3.75,-2.5

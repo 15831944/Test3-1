@@ -1,4 +1,5 @@
 Symbol,FlashTank2
+Group,Tank
 MDrw_PCurve S   0,  9,7.49997,
 MDrw_PCurve P   1, 9,-4.50003,
 MDrw_PCurve P   2, 0,-13.5,

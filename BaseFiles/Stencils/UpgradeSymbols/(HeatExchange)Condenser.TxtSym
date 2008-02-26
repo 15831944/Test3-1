@@ -1,4 +1,5 @@
 Symbol,Condenser
+Group,HeatExchange
 MDrw_Arc -0.139825,1.17636, 4.82567, 0.473507, -4.2271e-007,6
 MDrw_Poly, -2.5,4.5, 2.5,4.5
 MDrw_Poly, -2.5,-5, 2.5,-5

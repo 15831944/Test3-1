@@ -1,4 +1,5 @@
 Symbol,Peristaltic Pump
+Group,Pump
 MDrw_Poly, -3.125,-4.375, 3.125,-4.375
 MDrw_Poly, -3.125,-4.375, 3.125,-4.375
 MDrw_Poly, 0,3.125, 4.375,3.125

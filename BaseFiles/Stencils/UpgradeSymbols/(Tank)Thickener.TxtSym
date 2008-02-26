@@ -1,4 +1,5 @@
 Symbol,Thickener
+Group,Tank
 MDrw_Poly, -23.75,3.75, 23.75,3.75
 MDrw_Poly, 23.75,-1.25, -23.75,-1.25
 MDrw_Poly, -23.75,-1.25, -23.75,3.75

@@ -1,4 +1,5 @@
 Symbol,Hose Connection
+Group,Piping
 MDrw_Poly, -1.25,6.22, -1.25,3.72
 MDrw_Poly, -1.25,3.72, 1.25,3.72
 MDrw_Poly, 1.25,3.72, 1.25,6.22

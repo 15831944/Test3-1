@@ -1,4 +1,5 @@
 Symbol,Logic Selection
+Group,MixerSplitter
 MDrw_Poly, -7.95789,0.0548576, 0.0421057,6.05486
 MDrw_Poly, 0.0421057,6.05486, 8.04211,0.0548576
 MDrw_Poly, 8.04211,0.0548576, 0.0421057,-5.94514

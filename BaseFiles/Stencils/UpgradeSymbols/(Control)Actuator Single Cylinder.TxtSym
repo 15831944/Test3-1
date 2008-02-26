@@ -1,4 +1,5 @@
 Symbol,Actuator Single Cylinder
+Group,Control
 MDrw_Poly, 0,-1.89, 0,1.86
 MDrw_Poly, -1.875,1.86, 1.875,1.86
 MDrw_Poly, 1.875,1.86, 1.875,5.61

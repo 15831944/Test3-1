@@ -1,4 +1,5 @@
 Symbol,Disk Centrifuge
+Group,Filter
 MDrw_Poly, -9.81713,5.10463, -9.81713,-5.09404
 MDrw_Poly, -9.81713,5.10463, 10.1829,5.10463
 MDrw_Poly, -9.81713,-5.09404, 10.1829,-5.09404

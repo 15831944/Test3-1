@@ -1,4 +1,5 @@
 Symbol,PipeHX
+Group,HeatExchange
 MDrw_Poly, -12.4926,4.47839, 15.0074,4.47839
 MDrw_Poly, -12.4926,4.47839, -12.4926,4.47839
 MDrw_Poly, -12.4926,-0.52161, 12.5494,-0.52161

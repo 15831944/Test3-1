@@ -1,4 +1,5 @@
 Symbol,ElectroCell
+Group,Tank
 MDrw_Poly, -12.008,-5.1112, -12.008,5.1582
 MDrw_Poly, 12.0047,-5.1112, 12.0047,5.1582
 MDrw_Poly, -12.008,5.1582, 12.0047,5.1582

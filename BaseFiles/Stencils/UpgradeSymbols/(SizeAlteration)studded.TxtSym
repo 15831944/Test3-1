@@ -1,4 +1,5 @@
 Symbol,studded
+Group,SizeAlteration
 MDrw_Poly, -12.0011,-8.0432, 11.9989,-8.0432
 MDrw_Poly, -5.00113,7.9568, 4.99887,7.9568
 MDrw_Arc -5.00113,-1.0432, 7, 1.62965, -4.58937,5.94468

@@ -1,4 +1,5 @@
 Symbol,Actuator Rotary Motor
+Group,Control
 MDrw_Poly, 0,-2.52, 0,1.23
 MDrw_Arc 0,3.105, 1.875, 6.28319, 1.875,3.105
 MDrw_End
