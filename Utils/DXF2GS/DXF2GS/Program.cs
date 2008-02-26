@@ -255,11 +255,6 @@ namespace DXF2GS
       foreach (String path in Directory.GetFiles(args[1], "*.modelstencil"))
       {
         ModelStencil modelStencil = ModelStencil.Deserialize(path);
-        //if ((modelStencil.Tag == null) || (modelStencil.Tag == ""))
-        //{
-        //  modelStencil.Tag = Path.GetFileNameWithoutExtension(path);
-        //  ModelStencil.Serialize(path, modelStencil);
-        //}
         modelStencil = ModelStencil.Deserialize(path);
         modelStencils.Add(modelStencil.Tag, modelStencil);
       }
@@ -314,17 +309,25 @@ namespace DXF2GS
 
                   if (modelStencil != null)
                   {
-                    if (type == 128)
+                    bool found = false;
+                    foreach (Anchor anchor in modelStencil.Anchors)
                     {
-                      bool found = false;
-                      foreach (Anchor anchor in modelStencil.Anchors)
-                      {
-                        if (anchor.Tag == name)
-                          found = true;
-                      }
-                      if (!found) Console.WriteLine("Anchor '" + name + "' missing for model: " + classID);
+                      if (anchor.Tag == name)
+                        found = true;
                     }
-                    // Ignore all other types...
+                    if (!found)
+                    {
+                      if (type == 128)
+                      {
+                        modelStencil.Anchors.Add(new Anchor(name, AnchorType.Process, 0, 50.0, 50.0));
+                      }
+                      else if (type == 8192)
+                      {
+                        modelStencil.Anchors.Add(new Anchor(name, AnchorType.Control, 0, 50.0, 50.0));
+                      }
+                    }
+
+                    ModelStencil.Serialize(args[1] + "\\" + classID + ".modelstencil", modelStencil);
                   }
                 }
                 break;
