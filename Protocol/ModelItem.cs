@@ -13,5 +13,12 @@ namespace SysCAD.Protocol
   [ComVisible(true)]
   public abstract class ModelItem : Item
   {
+    private Guid parent;
+
+    public Guid Parent
+    {
+      get { return parent; }
+      set { parent = value; }
+    }
   }
 }

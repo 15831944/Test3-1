@@ -352,6 +352,7 @@ namespace SysCAD.Editor
           textBox = flowChart.CreateBox((float)textArea.X, (float)textArea.Y, (float)textArea.Width, (float)textArea.Height);
           textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
           textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+          textBox.RotateContents = true;
           textBox.Style = BoxStyle.Shape;
           textBox.Shape = ShapeTemplate.FromId("Rectangle");
           textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
@@ -533,6 +534,7 @@ namespace SysCAD.Editor
           textBox = flowChart.CreateBox((float)textArea.X, (float)textArea.Y, (float)textArea.Width, (float)textArea.Height);
           textBox.FillColor = System.Drawing.Color.FromArgb(1, System.Drawing.Color.Black);
           textBox.FrameColor = System.Drawing.Color.FromArgb(1, System.Drawing.Color.Black);
+          textBox.RotateContents = true;
           textBox.Style = BoxStyle.Shape;
           textBox.Shape = ShapeTemplate.FromId("Rectangle");
           textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
