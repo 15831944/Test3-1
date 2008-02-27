@@ -369,7 +369,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           MakePath(projectPath, Grp.m_sTitle), Model, Shape,
           CRectangleF(boxX, boxY, boxW, boxH),
           GTI.m_Node.m_Rotation, 
-          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)-GTI.m_Tag.m_Rotation, (float)GTI.m_Tag.m_Visible!=0),
+          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)GTI.m_Tag.m_Rotation, (float)GTI.m_Tag.m_Visible!=0),
           COLORREF(0), false, false);
 
         DO_EXIT_GG("DoCreateNodeE", ModelGuid, GraphicGuid);
@@ -437,7 +437,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           SrcGrfGuid, DstGrfGuid, 
           SrcPort, DstPort, 
           CtrlPts,
-          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)-GTI.m_Tag.m_Rotation, true));
+          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible));
 
 
         DO_EXIT_GG("DoCreateLinkE", ModelGuid, GraphicGuid);
