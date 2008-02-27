@@ -825,11 +825,11 @@ void CNeutralGrfImportExport::DoExport(eScdNDBOptions Opts, CGrfDoc * pDoc)
     for (int i=0; i<Cnt; i++)
       {
       CGrfTagInfo & I = GTIA[i];
-      if (I.m_bHasTag && FindOldTag(I.m_sTag())<0)
+      if (I.xm_bHasTag && FindOldTag(I.m_sTag())<0)
         continue;
 
       int TagTyp = -1; //error
-      if (I.m_bHasTag)
+      if (I.xm_bHasTag)
         {
         CXM_ObjectTag ObjTag(I.m_sTag(), TABOpt_Parms);
         CXM_ObjectData ObjData;

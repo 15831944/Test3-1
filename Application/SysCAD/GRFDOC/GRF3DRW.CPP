@@ -1009,6 +1009,85 @@ void PopulateTagInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag, 
 
 //----------------------------------------------------------------------------
 
+void PopulateTextInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag, DXF_ENTITY guid, CGrfTagInfo & GTI, DML_LIST &style)
+  {
+  GTI.m_sSymbol = DXF_INSERT_BLOCK_GET(insert);
+  GTI.m_Node.m_X = DXF_INSERT_PT(insert)[0];
+  GTI.m_Node.m_Y = DXF_INSERT_PT(insert)[1];
+  GTI.m_Node.m_Z = DXF_INSERT_PT(insert)[2];
+  GTI.m_Node.m_XScale = DXF_INSERT_X_SCALE(insert);
+  GTI.m_Node.m_YScale = DXF_INSERT_Y_SCALE(insert);
+  GTI.m_Node.m_ZScale = DXF_INSERT_Z_SCALE(insert);
+  GTI.m_Node.m_Rotation = DXF_INSERT_ROT_ANG(insert);
+  GTI.m_Node.m_Visible  = true;
+  GTI.e = insert;
+  GTI.m_LoBnd.m_X = GTI.m_Node.m_X;
+  GTI.m_LoBnd.m_Y = GTI.m_Node.m_Y;
+  GTI.m_LoBnd.m_Z = GTI.m_Node.m_Z;
+  GTI.m_HiBnd.m_X = GTI.m_Node.m_X;
+  GTI.m_HiBnd.m_Y = GTI.m_Node.m_Y;
+  GTI.m_HiBnd.m_Z = GTI.m_Node.m_Z;
+
+  pBlock b;
+  b=pDrawing->Blocks.Find(DXF_INSERT_BLOCK_GET(insert));
+  if (b)
+    {
+    C3_TRANSFORM c3t;
+    c3t[0][0] = c3t[0][1] = c3t[0][2] = c3t[0][3] = 0.0;
+    c3t[1][0] = c3t[1][1] = c3t[1][2] = c3t[1][3] = 0.0;
+    c3t[2][0] = c3t[2][1] = c3t[2][2] = c3t[2][3] = 0.0;
+    c3t[0][0] = c3t[1][1] = c3t[2][2] = 1.0;
+
+    C3_BOX_S Bounds;
+    C3_TRANSFORM c3t_mem;
+    
+    PT3 p;
+    c3v_set(1.1e30, 1.1e30, 1.1e30, p);
+    c3a_box_init_pt(&Bounds, p);
+
+
+    ASSIGN_ARRAY(c3t_mem, c3t, c3t_mem);
+
+    C3_TRANSFORM Imat;
+    pDrawing->ConstructInsertMatrix(Imat,b,insert);
+    c3t_mult(Imat,c3t_mem,c3t);
+    b->GetBounds(c3t, &Bounds);
+    ASSIGN_ARRAY(c3t, c3t_mem, c3t_mem);
+
+    GTI.m_LoBnd.m_X = C3_MIN_X(&Bounds);
+    GTI.m_LoBnd.m_Y = C3_MIN_Y(&Bounds);
+    GTI.m_LoBnd.m_Z = C3_MIN_Z(&Bounds);
+    GTI.m_HiBnd.m_X = C3_MAX_X(&Bounds);
+    GTI.m_HiBnd.m_Y = C3_MAX_Y(&Bounds);
+    GTI.m_HiBnd.m_Z = C3_MAX_Z(&Bounds);
+    }
+
+  if (tag)
+    {
+    text_info ti;
+    double /*dx,dy,*/xmin,xmax,ymin,ymax;
+
+    text_info_from_dxf_attrib(&ti, style, tag);
+    scd_acad_text_corners(&ti, &xmin, &ymin, &xmax, &ymax);
+
+    GTI.m_Tag.m_X = DXF_ATTRIB_PT(tag)[0]+0.5*(xmax-xmin);
+    GTI.m_Tag.m_Y = DXF_ATTRIB_PT(tag)[1];//+0.5*(ymax-ymin);
+    GTI.m_Tag.m_Z = DXF_ATTRIB_PT(tag)[2];
+    GTI.m_Tag.m_XScale = ti.height/3.0; // CNM a Kludge  XF_ATTRIB_X_SCALE(tag);
+    GTI.m_Tag.m_YScale = GTI.m_Tag.m_XScale;//DXF_ATTRIB_Y_SCALE(tag);
+    GTI.m_Tag.m_ZScale = GTI.m_Tag.m_XScale;//DXF_ATTRIB_Z_SCALE(tag);
+    GTI.m_Tag.m_Rotation = DXF_ATTRIB_ROT_ANG(tag);
+    GTI.m_Tag.m_Visible = (DXF_ATTRIB_AFLAGS(tag)&DXF_ATTRIB_INVIS)==0;
+    }
+
+  if (guid)
+    {
+    GTI.m_sGuid = DXF_ATTRIB_VALUE_GET(guid);
+    }
+  }
+
+//----------------------------------------------------------------------------
+
 void CGrfLayer::CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagInfoArray & GTIA)
   {
   DML_ITEM it;
@@ -1027,8 +1106,33 @@ void CGrfLayer::CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagI
         }
       CGrfTagInfo GTI;
       GTI.m_sTag = pv ? pv:"NULL";
-      GTI.m_bHasTag = pv!=NULL;
+      GTI.xm_bHasTag = pv!=NULL;
       PopulateTagInfo(pDrawing, e, Find_Attr(e, TagAttribStr), Find_Attr(e, GuidAttribStr), GTI, Drawing->StyleLst);
+      GTIA.Add(GTI);
+      }
+    }
+  WALK_ENTITY_LIST(OtherLst, it, e)
+    {
+    if( DXF_ENTITY_IS_TEXT(e) )
+      {
+      //PopulateTextInfo(pDrawing, e, GTI);
+      //dbgpln("Text %10.2f,%10.2f  %10.2f  %10.2f  %10.2f   %s %s", 
+      //  DXF_TEXT_INS_PT(e)[0],DXF_TEXT_INS_PT(e)[1],  //insert pt
+      //  DXF_TEXT_HEIGHT(e),                           //height
+      //  DXF_TEXT_ROT_ANG(e),                          //angle
+      //  DXF_TEXT_X_SCALE(e),                          //scale
+      //  DXF_TEXT_VALUE_GET(e),                        //text
+      //  DXF_TEXT_STYLE_GET(e));                       //style_name
+      CGrfTagInfo GTI;
+      GTI.m_bHasSymbol      = false;
+      GTI.xm_bHasTag        = true;
+      GTI.m_sTag            = DXF_TEXT_VALUE_GET(e);
+      GTI.m_Tag.m_X         = DXF_TEXT_INS_PT(e)[0];
+      GTI.m_Tag.m_Y         = DXF_TEXT_INS_PT(e)[1];
+      GTI.m_Tag.m_Z         = DXF_TEXT_INS_PT(e)[2];
+      GTI.m_Tag.m_XScale    = DXF_TEXT_X_SCALE(e);
+      GTI.m_Tag.m_Rotation  = DXF_TEXT_ROT_ANG(e);
+      //GTI.m_Tag.m_Rotation = DXF_TEXT_ROT_ANG(e);
       GTIA.Add(GTI);
       }
     }

@@ -389,7 +389,7 @@ class CGrfTagInfo
       m_Tag.m_Visible=true; 
       m_bValid=0; 
       m_bDone=0;
-      m_bHasTag=0; 
+      xm_bHasTag=0; 
       m_LoBnd.m_X=0.0;
       m_LoBnd.m_Y=0.0;
       m_LoBnd.m_Z=0.0; 
@@ -407,7 +407,8 @@ class CGrfTagInfo
     Strng m_sGuid;
     flag m_bValid;
     flag m_bDone;
-    flag m_bHasTag;
+    flag m_bHasSymbol;
+    flag xm_bHasTag;
     struct CSymbol{
       double m_X;
       double m_Y;
