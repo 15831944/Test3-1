@@ -388,6 +388,7 @@ class CGrfTagInfo
       m_Tag.m_Rotation=0.0; 
       m_Tag.m_Visible=true; 
       m_bValid=0; 
+      m_bDone=0;
       m_bHasTag=0; 
       m_LoBnd.m_X=0.0;
       m_LoBnd.m_Y=0.0;
@@ -405,6 +406,7 @@ class CGrfTagInfo
     Strng m_sDrwGroup;
     Strng m_sGuid;
     flag m_bValid;
+    flag m_bDone;
     flag m_bHasTag;
     struct CSymbol{
       double m_X;

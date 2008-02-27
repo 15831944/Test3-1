@@ -314,12 +314,15 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
       }
     //    static __int64 RqID=0;
 
+
     Pos=GI.m_Items.GetHeadPosition();
     while (Pos)
       {
       CExistingItems::CItem & I = *GI.m_Items.GetNext(Pos);
-      if (I.m_sTag.CompareNoCase("PlantArea")==0)
-        continue;
+      
+      //????????
+      //if (I.m_sTag.CompareNoCase("PlantArea")==0)
+      //  continue;
 
       CNodeListItem & N = *I.m_pNLItem;
 
@@ -331,20 +334,21 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         };
 
       CExistingItems::CGroup & Grp = *Inx.m_pGrp;
-      CGrfTagInfo               & GTI =Grp.m_GTIA[Inx.m_iGTIA];
+      CGrfTagInfo            & GTI =Grp.m_GTIA[Inx.m_iGTIA];
 
-      CString Symbol = GTI.m_sSymbol();
+      GTI.m_bDone=true;
 
 #if dbgSvcConn
       if (dbgConnect())
         {
-        dbgpln("Export %s %-20s %-20s %-20s", N.m_bIsLnk?"Link":"Node", N.m_sTag, Symbol, N.m_sClass);
+        dbgpln("Export %s %-20s %-20s %-20s", N.m_bIsLnk?"Link":"Node", N.m_sTag, GTI.m_sSymbol(), N.m_sClass);
         dbgindent(4);
         }
 #endif
 
       if (!N.m_bIsLnk)
         {
+        CString Symbol = GTI.m_sSymbol();
         CString GraphicGuid = GTI.m_sGuid();
         CString Shape    = ExtractShape(Symbol);
         CString Model    = N.m_sClass;
@@ -376,6 +380,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         }
       else
         {
+        CString Symbol = GTI.m_sSymbol();
         CString GraphicGuid = GTI.m_sGuid();
         CString Shape    = ExtractShape(Symbol);
         CString Model    = N.m_sClass;
@@ -437,7 +442,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           SrcGrfGuid, DstGrfGuid, 
           SrcPort, DstPort, 
           CtrlPts,
-          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible));
+          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)-GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible));
 
 
         DO_EXIT_GG("DoCreateLinkE", ModelGuid, GraphicGuid);
@@ -457,6 +462,50 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         dbgpln("");
         }
 #endif
+      }
+
+    // Other Symbols;
+
+    Pos=GI.m_Groups.GetHeadPosition();
+    while (Pos)
+      {
+      CExistingItems::CGroup & Grp = *GI.m_Groups.GetNext(Pos);
+      for (int i=0; i<Grp.m_GTIA.GetCount(); i++)
+        {
+        CGrfTagInfo &GTI=Grp.m_GTIA[i];
+        if (!GTI.m_bDone)
+          {
+          CString Symbol = GTI.m_sSymbol();
+          CString GraphicGuid = GTI.m_sGuid();
+          CString Shape    = ExtractShape(Symbol);
+          CString Model    = "";//N.m_sClass;
+
+          //FlwNode * pNode = gs_pSfeSrvr->FE_FindNode(GTI.m_sTag, NULL);
+
+          CString ModelGuid = "";//TaggedObject::CreateGuidStr();//pNode->Guid(); // Cannot be blank
+
+          DO_ENTRY_GGTPSM("DoDumbSymbolE", ModelGuid, GraphicGuid, GTI.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
+
+          float boxW = float(int(GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X));
+          float boxH = float(int(GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y));
+          float boxX = float(int(GTI.m_LoBnd.m_X + Grp.m_XOff + Grp.m_XShift) + 0.5); // needs to be x.5mm to meet grid in 10.
+          float boxY = float(int(Grp.m_PageRct.Height() - GTI.m_HiBnd.m_Y + Grp.m_YOff - Grp.m_YShift) + 0.5); // needs to be x.5mm to meet grid in 10.
+
+          float textBoxW = float(int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength()));
+          float textBoxH = float(int(GTI.m_Tag.m_YScale * 5.0));
+          float textBoxX = float(int(GTI.m_Tag.m_X + Grp.m_XOff + Grp.m_XShift - textBoxW / 2.0) + 0.5); // needs to be x.5mm to meet grid in 10.
+          float textBoxY = float(int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - Grp.m_YShift - textBoxH) + 0.5); // needs to be x.5mm to meet grid in 10.
+
+          m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, GTI.m_sTag(),
+            MakePath(projectPath, Grp.m_sTitle), Model, Shape,
+            CRectangleF(boxX, boxY, boxW, boxH),
+            GTI.m_Node.m_Rotation, 
+            CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)-GTI.m_Tag.m_Rotation, (float)GTI.m_Tag.m_Visible!=0),
+            COLORREF(0), false, false);
+
+          DO_EXIT_GG("DoDumbSymbolE", ModelGuid, GraphicGuid);
+          }
+        }
       }
 
     if (!m_pCLR->ProcessChangeLists(m_lRequestIdRet))
@@ -1382,12 +1431,13 @@ bool CExistingItems::Get()
     for (long i=0; i<nInArray; i++)
       {
       CGroupIndex Inx;
-      if (!m_TagMap.Lookup(Grp.m_GTIA[i].m_sTag(), Inx))
+      CGrfTagInfo & I=Grp.m_GTIA[i];
+      if (!m_TagMap.Lookup(I.m_sTag(), Inx))
         {
         Inx.m_pGrp=&Grp;
         Inx.m_iGTIA=i;
-        m_TagMap.SetAt(Grp.m_GTIA[i].m_sTag(), Inx);
-        dbgpln("TagMap %s", Grp.m_GTIA[i].m_sTag());
+        m_TagMap.SetAt(I.m_sTag(), Inx);
+        dbgpln("TagMap %-20s %-20s %-20s %-20s %-20s", I.m_sTag(), I.m_sClass(), I.m_sSymbol(), I.m_sTag(), I.m_sDrwGroup());
         }
       }
     }

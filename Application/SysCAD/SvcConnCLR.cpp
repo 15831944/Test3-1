@@ -484,16 +484,20 @@ ref class CSvcConnectCLRThread
         // Do Anything ???;
         }
       
-      GraphicNode ^ GNd = gcnew GraphicNode(Guid(gcnew String(GraphicGuid)), gcnew String(Tag), gcnew String(Path), Guid(gcnew String(ModelGuid)), 
+      bool HasModel = ModelGuid!=NULL && strlen(ModelGuid)>0;
+      Guid guid = HasModel ? Guid(gcnew String(ModelGuid)) : Guid::Empty;
+
+      GraphicNode ^ GNd = gcnew GraphicNode(Guid(gcnew String(GraphicGuid)), gcnew String(Tag), gcnew String(Path), guid, 
         gcSymbol, BndRect,
         Angle, TagArea, TagBlk.m_Angle, TagBlk.m_Visible, Color::Empty, 
         Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
-
-      ModelNode ^ MNd = gcnew ModelNode(Guid(gcnew String(ModelGuid)), gcnew String(Tag), gcnew String(ClassId));
-
-      m_Action->Create->Add(MNd);
       m_Action->Create->Add(GNd);
 
+      if (HasModel)
+        {
+        ModelNode ^ MNd = gcnew ModelNode(guid, gcnew String(Tag), gcnew String(ClassId));
+        m_Action->Create->Add(MNd);
+        }
       }
 
     // ====================================================================
