@@ -383,7 +383,8 @@ namespace SysCAD.Editor
         }
         else
         {
-          state.ClientProtocol.LogMessage(out requestId, "ModelNode missing for graphicLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
+          state.CreateNode(null, graphicNode);
+          //state.ClientProtocol.LogMessage(out requestId, "ModelNode missing for graphicLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
         }
       }
 
