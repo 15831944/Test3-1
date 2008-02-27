@@ -161,6 +161,10 @@
       <Project>{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}</Project>
       <Name>Protocol</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Service\Service.csproj">
+      <Project>{317F8980-564D-423D-945F-D7A9F4A8043D}</Project>
+      <Name>Service %281.SysCAD.Net\Service\Service%29</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FlowChart.NET\FlowChart.NET.csproj">
       <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
       <Name>FlowChart.NET</Name>
