@@ -486,11 +486,11 @@ ref class CSvcConnectCLRThread
       
       bool HasModel = ModelGuid!=NULL && strlen(ModelGuid)>0;
       Guid MdlGuid = HasModel ? Guid(gcnew String(ModelGuid)) : Guid::Empty;
-      Guid GrfGuid = GraphicGuid!=NULL && strlen(GraphicGuid)>0 ? Guid(gcnew String(GraphicGuid)) : Guid::Empty;
+      Guid GrfGuid = GraphicGuid!=NULL && strlen(GraphicGuid)>0 ? Guid(gcnew String(GraphicGuid)) : Guid::NewGuid();
 
       GraphicNode ^ GNd = gcnew GraphicNode(GrfGuid, gcnew String(Tag), gcnew String(Path), MdlGuid, 
         gcSymbol, BndRect,
-        Angle, TagArea, TagBlk.m_Angle, gcnew System::Drawing::Font("Arial", TagBlk.m_Area.Height(), System::Drawing::GraphicsUnit::Millimeter), TagBlk.m_Visible, Color::Empty, 
+        Angle, TagArea, TagBlk.m_Angle, TagBlk.m_Area.Height(), TagBlk.m_Visible, Color::Empty, 
         Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
       m_Action->Create->Add(GNd);
 

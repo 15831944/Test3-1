@@ -360,7 +360,7 @@ namespace SysCAD.Editor
             Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
             Handles.Move;
           textBox.Text = graphicNode.Tag;
-          textBox.Font = graphicNode.TagFont;
+          textBox.Font = new Font("Arial", (float)graphicNode.TagFontSize, System.Drawing.GraphicsUnit.Millimeter);
         }
 
         if (graphicNode.Stencil != null)
@@ -377,7 +377,23 @@ namespace SysCAD.Editor
           }
 
           if (graphicStencil != null)
+          {
             graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicNode.MirrorX, graphicNode.MirrorY);
+            // An attempt to deal with un-clickable non-model graphics...  failed, will have to try something else.
+            // perhaps catch the click and look underneath expecially for graphicboxes???
+            //if (graphicBox.Shape.Outline.Length == 0)
+            //{
+            //  ElementTemplate[] background = new ElementTemplate[4];
+            //  background[0] = new LineTemplate(  0.0F,   0.0F,   0.0F, 100.0F);
+            //  background[1] = new LineTemplate(  0.0F, 100.0F, 100.0F, 100.0F);
+            //  background[2] = new LineTemplate(100.0F, 100.0F, 100.0F,   0.0F);
+            //  background[3] = new LineTemplate(100.0F,   0.0F,   0.0F,   0.0F);
+
+            //  graphicBox.Shape = new ShapeTemplate(background, graphicBox.Shape.Decorations, graphicBox.Shape.TagArea, FillMode.Alternate);
+            //  graphicBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+            //  graphicBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+            //}
+          }
           else
             graphicBox.Shape = ShapeTemplate.FromId("Decision2");
 
