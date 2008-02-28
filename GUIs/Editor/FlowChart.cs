@@ -1280,11 +1280,6 @@ namespace SysCAD.Editor
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
-    {
-      state.DeleteItem(guid);
-    }
-
     private void fcFlowChart_PortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String tag, PortInfo portInfo)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
@@ -1677,6 +1672,7 @@ namespace SysCAD.Editor
     {
       DoCreated(actioned.Created);
       DoModified(actioned.Modified);
+      DoDeleted(actioned.Deleted);
     }
 
     private void DoCreated(Collection<Guid> created)
@@ -1729,6 +1725,22 @@ namespace SysCAD.Editor
         foreach (Guid guid in modified)
         {
           state.ModifyLink(guid);
+        }
+      }
+    }
+
+    private void DoDeleted(Collection<Guid> deleted)
+    {
+      if (deleted != null)
+      {
+        foreach (Guid guid in deleted)
+        {
+          state.DeleteNode(guid);
+        }
+
+        foreach (Guid guid in deleted)
+        {
+          state.DeleteLink(guid);
         }
       }
     }

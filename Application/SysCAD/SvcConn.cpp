@@ -741,7 +741,7 @@ void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
   DO_ENTRY_GGTPSM("GCBCreateNode", GraphicGuid, ModelGuid, Tag, MakePath(Prj, Page), Shape, ClassId);
 
-  CRectangleF textBox;//(boundingRect.MidX(), boundingRect.Top(), 2.0f*strlen(Tag), 3.0f);
+  CRectangleF textBox(boundingRect.MidX(), boundingRect.Top(), 2.0f*strlen(Tag), 3.0f);
 
   m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CSvcTagBlk(textBox, 0.0, true), 0, false, false); // !!! tagArea not used.
 

@@ -352,6 +352,7 @@ namespace SysCAD.Editor
           }
 
           textBox = flowChart.CreateBox((float)textArea.X, (float)textArea.Y, (float)textArea.Width, (float)textArea.Height);
+          textBox.RotationAngle = (float)graphicNode.TagAngle;
           textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
           textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
           textBox.RotateContents = true;
@@ -464,11 +465,12 @@ namespace SysCAD.Editor
             hiddenBox.Style = BoxStyle.Ellipse; // not sure whether to go with ellipse or rectangle here (without corners, it'll get in the way less...)
             hiddenBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
             hiddenBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
-            hiddenBox.AttachTo(graphicBox, 0, 0, 100, 100);
             hiddenBox.ZBottom();
 
             hiddenBox.Tag = editorNode;
             editorNode.HiddenBox = hiddenBox;
+
+            graphicBox.AttachTo(hiddenBox, 0, 0, 100, 100);
           }
         }
 
@@ -556,6 +558,7 @@ namespace SysCAD.Editor
           }
 
           textBox = flowChart.CreateBox((float)textArea.X, (float)textArea.Y, (float)textArea.Width, (float)textArea.Height);
+          textBox.RotationAngle = (float)graphicLink.TagAngle;
           textBox.FillColor = System.Drawing.Color.FromArgb(1, System.Drawing.Color.Black);
           textBox.FrameColor = System.Drawing.Color.FromArgb(1, System.Drawing.Color.Black);
           textBox.RotateContents = true;
@@ -712,36 +715,31 @@ namespace SysCAD.Editor
       }
     }
 
-    //internal bool DeleteGraphicNode(out Int64 requestId, Guid guid)
-    //{
-    //  return clientProtocol.DeleteItem(out requestId, guid);
-    //}
-
-    //internal bool DeleteGraphicLink(out Int64 requestId, Guid guid)
-    //{
-    //  return clientProtocol.DeleteLink(out requestId, guid);
-    //}
-
-    internal void DeleteItem(Guid guid)
+    internal void DeleteNode(Guid guid)
     {
 
       if (flowChart.InvokeRequired)
       {
-        flowChart.BeginInvoke(new DeleteNodeDelegate(DeleteItem), new object[] { guid });
+        flowChart.BeginInvoke(new DeleteNodeDelegate(DeleteNode), new object[] { guid });
       }
 
       else
       {
-        tvNavigation.GetNodeByKey(guid.ToString()).Remove();
+        // This isn't perfect -- I'm only handling the GraphicNode delete and ignoring the ModelNode delete.
+        PureComponents.TreeView.Node treeViewNode = tvNavigation.GetNodeByKey(guid.ToString());
+          
+        if (treeViewNode != null)
+          treeViewNode.Remove();
 
-        //TBD: unlink connected links first
-        EditorNode item;
 
-        if (editorNodes.TryGetValue(guid, out item))
+        EditorNode editorItem;
+
+        if (editorNodes.TryGetValue(guid, out editorItem))
         {
-          flowChart.DeleteObject(item.ModelBox);
-          flowChart.DeleteObject(item.GraphicBox);
-          flowChart.DeleteObject(item.TextBox);
+          if (editorItem.ModelBox != null)   flowChart.DeleteObject(editorItem.ModelBox);
+          if (editorItem.GraphicBox != null) flowChart.DeleteObject(editorItem.GraphicBox);
+          if (editorItem.TextBox != null)    flowChart.DeleteObject(editorItem.TextBox);
+          if (editorItem.HiddenBox != null)  flowChart.DeleteObject(editorItem.HiddenBox);
           editorNodes.Remove(guid);
         }
       }

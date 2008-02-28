@@ -31,7 +31,10 @@ namespace SysCAD.Protocol
     {
       System.Drawing.Font tempFont = new System.Drawing.Font("Arial", sizeInMM, GraphicsUnit.Millimeter);
       familyName = tempFont.FontFamily.Name;
-      emSize = sizeInMM;
+      if (sizeInMM > 0.0F)
+        emSize = sizeInMM;
+      else
+        emSize = 3.0F;
       style = tempFont.Style;
       unit = GraphicsUnit.Millimeter;
       gdiCharSet = tempFont.GdiCharSet;
