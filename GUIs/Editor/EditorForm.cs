@@ -989,6 +989,13 @@ namespace SysCAD.Editor
 
     }
 
+    private void graphicPropertyGrid_NodeModified(GraphicNode graphicNode)
+    {
+      SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
+      action.Modify.Add(graphicNode);
+      frmFlowChart.AddAction(action);
+    }
+
     //private void fcHoverview_DrawBox(object sender, BoxDrawArgs e)
     //{
     //  if (hoverviewBox.Tag is EditorNode)

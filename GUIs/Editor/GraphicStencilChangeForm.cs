@@ -48,7 +48,7 @@ namespace SysCAD.Editor
       {
         String group = null;
         if (graphicStencils[key].Tags.Count > 0)
-          group = (String)(graphicStencils[key].Tags[0]);
+          group = (((String)(graphicStencils[key].Tags[0])).Split('/'))[0];
         if (String.IsNullOrEmpty(group))
           group = "None";
 
@@ -63,7 +63,7 @@ namespace SysCAD.Editor
             groupNode = graphicTreeView.Nodes.Add("Group: " + group, group);
           }
 
-          groupNode.Nodes.Add(key, key, "Unselected: " + key, "Selected: " + key);
+          groupNode.Nodes.Add(key, (((String)(graphicStencils[key].Tags[0])).Split('/'))[1], "Unselected: " + key, "Selected: " + key);
         }
       }
     }

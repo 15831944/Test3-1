@@ -31,12 +31,12 @@ namespace SysCAD.Editor
     private void InitializeComponent()
     {
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditorForm));
-      PureComponents.TreeView.ContextMenuStrings contextMenuStrings1 = new PureComponents.TreeView.ContextMenuStrings();
-      PureComponents.TreeView.TreeViewStyle treeViewStyle1 = new PureComponents.TreeView.TreeViewStyle();
-      PureComponents.TreeView.NodeStyle nodeStyle1 = new PureComponents.TreeView.NodeStyle();
-      PureComponents.TreeView.CheckBoxStyle checkBoxStyle1 = new PureComponents.TreeView.CheckBoxStyle();
-      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle1 = new PureComponents.TreeView.ExpandBoxStyle();
-      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle1 = new PureComponents.TreeView.NodeTooltipStyle();
+      PureComponents.TreeView.ContextMenuStrings contextMenuStrings2 = new PureComponents.TreeView.ContextMenuStrings();
+      PureComponents.TreeView.TreeViewStyle treeViewStyle2 = new PureComponents.TreeView.TreeViewStyle();
+      PureComponents.TreeView.NodeStyle nodeStyle2 = new PureComponents.TreeView.NodeStyle();
+      PureComponents.TreeView.CheckBoxStyle checkBoxStyle2 = new PureComponents.TreeView.CheckBoxStyle();
+      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle2 = new PureComponents.TreeView.ExpandBoxStyle();
+      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle2 = new PureComponents.TreeView.NodeTooltipStyle();
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editUndoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Undo", "&Undo", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editRedoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Redo", "&Redo", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editCutBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Cut", "Cu&t", -1);
@@ -196,6 +196,8 @@ namespace SysCAD.Editor
       this.fcHoverview = new MindFusion.FlowChartX.FlowChart();
       this.twOverview = new ActiproSoftware.UIStudio.Dock.ToolWindow();
       this.twHoverview = new ActiproSoftware.UIStudio.Dock.ToolWindow();
+      this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+      this.listView1 = new System.Windows.Forms.ListView();
       this.NavigationTreeView = new PureComponents.TreeView.TreeView();
       this.twNavigation = new ActiproSoftware.UIStudio.Dock.ToolWindow();
       this.barManager1 = new ActiproSoftware.UIStudio.Bar.BarManager();
@@ -217,11 +219,12 @@ namespace SysCAD.Editor
       this.toolWindowContainer3 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.toolWindowContainer2 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.dockContainerContainer2 = new ActiproSoftware.UIStudio.Dock.DockContainerContainer();
-      this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-      this.listView1 = new System.Windows.Forms.ListView();
       ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).BeginInit();
       this.twOverview.SuspendLayout();
       this.twHoverview.SuspendLayout();
+      this.splitContainer1.Panel1.SuspendLayout();
+      this.splitContainer1.Panel2.SuspendLayout();
+      this.splitContainer1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.NavigationTreeView)).BeginInit();
       this.twNavigation.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.barManager1)).BeginInit();
@@ -234,9 +237,6 @@ namespace SysCAD.Editor
       this.toolWindowContainer3.SuspendLayout();
       this.toolWindowContainer2.SuspendLayout();
       this.dockContainerContainer2.SuspendLayout();
-      this.splitContainer1.Panel1.SuspendLayout();
-      this.splitContainer1.Panel2.SuspendLayout();
-      this.splitContainer1.SuspendLayout();
       this.SuspendLayout();
       // 
       // dockManager1
@@ -255,7 +255,7 @@ namespace SysCAD.Editor
       this.ovOverview.FitAll = true;
       this.ovOverview.Location = new System.Drawing.Point(0, 0);
       this.ovOverview.Margin = new System.Windows.Forms.Padding(2);
-      this.ovOverview.Name = "OverviewOverview";
+      this.ovOverview.Name = "ovOverview";
       this.ovOverview.Size = new System.Drawing.Size(131, 111);
       this.ovOverview.TabIndex = 0;
       // 
@@ -273,7 +273,7 @@ namespace SysCAD.Editor
       this.fcHoverview.InplaceEditFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.fcHoverview.Location = new System.Drawing.Point(0, 0);
       this.fcHoverview.Margin = new System.Windows.Forms.Padding(2);
-      this.fcHoverview.Name = "HoverviewFlowChart";
+      this.fcHoverview.Name = "fcHoverview";
       this.fcHoverview.ShadowsStyle = MindFusion.FlowChartX.ShadowsStyle.None;
       this.fcHoverview.ShowAnchors = MindFusion.FlowChartX.ShowAnchors.Always;
       this.fcHoverview.ShowDisabledHandles = false;
@@ -288,7 +288,7 @@ namespace SysCAD.Editor
       this.twOverview.Key = "OverviewToolWindow";
       this.twOverview.Location = new System.Drawing.Point(0, 25);
       this.twOverview.Margin = new System.Windows.Forms.Padding(2);
-      this.twOverview.Name = "OverviewToolWindow";
+      this.twOverview.Name = "twOverview";
       this.twOverview.Size = new System.Drawing.Size(131, 111);
       this.twOverview.TabIndex = 0;
       this.twOverview.Text = "Overview";
@@ -301,18 +301,47 @@ namespace SysCAD.Editor
       this.twHoverview.Key = "HoverviewToolWindow";
       this.twHoverview.Location = new System.Drawing.Point(0, 25);
       this.twHoverview.Margin = new System.Windows.Forms.Padding(2);
-      this.twHoverview.Name = "HoverviewToolWindow";
+      this.twHoverview.Name = "twHoverview";
       this.twHoverview.Size = new System.Drawing.Size(149, 214);
       this.twHoverview.TabIndex = 0;
       this.twHoverview.Text = "Hoverview";
       // 
-      // tvNavigation
+      // splitContainer1
+      // 
+      this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+      this.splitContainer1.Name = "splitContainer1";
+      this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+      // 
+      // splitContainer1.Panel1
+      // 
+      this.splitContainer1.Panel1.Controls.Add(this.fcHoverview);
+      this.splitContainer1.Panel1MinSize = 20;
+      // 
+      // splitContainer1.Panel2
+      // 
+      this.splitContainer1.Panel2.Controls.Add(this.listView1);
+      this.splitContainer1.Panel2MinSize = 20;
+      this.splitContainer1.Size = new System.Drawing.Size(149, 214);
+      this.splitContainer1.SplitterDistance = 92;
+      this.splitContainer1.TabIndex = 0;
+      // 
+      // listView1
+      // 
+      this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.listView1.Location = new System.Drawing.Point(0, 0);
+      this.listView1.Name = "listView1";
+      this.listView1.Size = new System.Drawing.Size(149, 118);
+      this.listView1.TabIndex = 0;
+      this.listView1.UseCompatibleStateImageBehavior = false;
+      // 
+      // NavigationTreeView
       // 
       this.NavigationTreeView.AllowAdding = false;
       this.NavigationTreeView.AllowArranging = false;
       this.NavigationTreeView.AllowDeleting = false;
       this.NavigationTreeView.AllowEditing = false;
-      this.NavigationTreeView.ContextMenuStrings = contextMenuStrings1;
+      this.NavigationTreeView.ContextMenuStrings = contextMenuStrings2;
       this.NavigationTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
       this.NavigationTreeView.Location = new System.Drawing.Point(0, 0);
       this.NavigationTreeView.Margin = new System.Windows.Forms.Padding(2);
@@ -321,13 +350,13 @@ namespace SysCAD.Editor
       this.NavigationTreeView.PathSeparator = "/";
       this.NavigationTreeView.SelectionMode = PureComponents.TreeView.SelectionMode.MultipleExtended;
       this.NavigationTreeView.Size = new System.Drawing.Size(131, 349);
-      nodeStyle1.CheckBoxStyle = checkBoxStyle1;
-      nodeStyle1.ExpandBoxStyle = expandBoxStyle1;
-      nodeStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeTooltipStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeStyle1.TooltipStyle = nodeTooltipStyle1;
-      treeViewStyle1.NodeStyle = nodeStyle1;
-      this.NavigationTreeView.Style = treeViewStyle1;
+      nodeStyle2.CheckBoxStyle = checkBoxStyle2;
+      nodeStyle2.ExpandBoxStyle = expandBoxStyle2;
+      nodeStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeTooltipStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeStyle2.TooltipStyle = nodeTooltipStyle2;
+      treeViewStyle2.NodeStyle = nodeStyle2;
+      this.NavigationTreeView.Style = treeViewStyle2;
       this.NavigationTreeView.TabIndex = 1;
       this.NavigationTreeView.Tooltips = false;
       // 
@@ -339,7 +368,7 @@ namespace SysCAD.Editor
       this.twNavigation.Key = "NavigationToolWindow";
       this.twNavigation.Location = new System.Drawing.Point(0, 25);
       this.twNavigation.Margin = new System.Windows.Forms.Padding(2);
-      this.twNavigation.Name = "NavigationToolWindow";
+      this.twNavigation.Name = "twNavigation";
       this.twNavigation.Size = new System.Drawing.Size(131, 349);
       this.twNavigation.TabIndex = 0;
       this.twNavigation.Text = "Navigation";
@@ -451,7 +480,6 @@ namespace SysCAD.Editor
       viewShowTagsBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("viewShowTagsBarButtonCommand.Image")));
       viewShowAreasBarButtonCommand.Checkable = true;
       viewShowAreasBarButtonCommand.Checked = true;
-      viewShowAreasBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("viewShowAreasBarButtonCommand.Image")));
       toolsUnlockDemoBarButtonCommand.Enabled = false;
       this.barManager1.Commands.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommand[] {
             editUndoBarButtonCommand,
@@ -745,7 +773,7 @@ namespace SysCAD.Editor
       this.toolWindowContainer1.Size = new System.Drawing.Size(131, 136);
       this.toolWindowContainer1.TabIndex = 8;
       // 
-      // twGraphicProperties
+      // GraphicPropertiesToolWindow
       // 
       this.GraphicPropertiesToolWindow.AccessibleName = "";
       this.GraphicPropertiesToolWindow.Controls.Add(this.graphicPropertyGrid);
@@ -767,9 +795,10 @@ namespace SysCAD.Editor
       this.graphicPropertyGrid.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
       this.graphicPropertyGrid.Location = new System.Drawing.Point(0, 0);
       this.graphicPropertyGrid.Margin = new System.Windows.Forms.Padding(2);
-      this.graphicPropertyGrid.Name = "GraphicPropertyGrid";
+      this.graphicPropertyGrid.Name = "graphicPropertyGrid";
       this.graphicPropertyGrid.Size = new System.Drawing.Size(149, 222);
       this.graphicPropertyGrid.TabIndex = 0;
+      this.graphicPropertyGrid.NodeModified += new SysCAD.Editor.GraphicPropertyGrid.NodeChangedHandler(this.graphicPropertyGrid_NodeModified);
       // 
       // toolWindowContainer4
       // 
@@ -783,7 +812,7 @@ namespace SysCAD.Editor
       toolWindowContainer4.Controls.Add(ModelPropertiesToolWindow);
       toolWindowContainer4.Controls.Add(itemToolWindow);
       // 
-      // twModelProperties
+      // ModelPropertiesToolWindow
       // 
       this.ModelPropertiesToolWindow.Controls.Add(this.modelPropertiesGrid);
       this.ModelPropertiesToolWindow.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -885,35 +914,6 @@ namespace SysCAD.Editor
       this.dockContainerContainer2.Size = new System.Drawing.Size(153, 514);
       this.dockContainerContainer2.TabIndex = 19;
       // 
-      // splitContainer1
-      // 
-      this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-      this.splitContainer1.Name = "splitContainer1";
-      this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-      // 
-      // splitContainer1.Panel1
-      // 
-      this.splitContainer1.Panel1.Controls.Add(this.fcHoverview);
-      this.splitContainer1.Panel1MinSize = 20;
-      // 
-      // splitContainer1.Panel2
-      // 
-      this.splitContainer1.Panel2.Controls.Add(this.listView1);
-      this.splitContainer1.Panel2MinSize = 20;
-      this.splitContainer1.Size = new System.Drawing.Size(149, 214);
-      this.splitContainer1.SplitterDistance = 92;
-      this.splitContainer1.TabIndex = 0;
-      // 
-      // listView1
-      // 
-      this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.listView1.Location = new System.Drawing.Point(0, 0);
-      this.listView1.Name = "listView1";
-      this.listView1.Size = new System.Drawing.Size(149, 118);
-      this.listView1.TabIndex = 0;
-      this.listView1.UseCompatibleStateImageBehavior = false;
-      // 
       // EditorForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -935,6 +935,9 @@ namespace SysCAD.Editor
       ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).EndInit();
       this.twOverview.ResumeLayout(false);
       this.twHoverview.ResumeLayout(false);
+      this.splitContainer1.Panel1.ResumeLayout(false);
+      this.splitContainer1.Panel2.ResumeLayout(false);
+      this.splitContainer1.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.NavigationTreeView)).EndInit();
       this.twNavigation.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.barManager1)).EndInit();
@@ -948,9 +951,6 @@ namespace SysCAD.Editor
       this.toolWindowContainer3.ResumeLayout(false);
       this.toolWindowContainer2.ResumeLayout(false);
       this.dockContainerContainer2.ResumeLayout(false);
-      this.splitContainer1.Panel1.ResumeLayout(false);
-      this.splitContainer1.Panel2.ResumeLayout(false);
-      this.splitContainer1.ResumeLayout(false);
       this.ResumeLayout(false);
       this.PerformLayout();
 

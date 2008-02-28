@@ -1836,7 +1836,7 @@ namespace SysCAD.Editor
       form1.GraphicPropertyGrid.ContextMenu = propertyGridMenu;
     }
 
-    private void AddAction(SysCAD.Protocol.Action newAction)
+    public void AddAction(SysCAD.Protocol.Action newAction)
     {
       actionExpire.Stop();
       foreach (Item item in newAction.Modify)

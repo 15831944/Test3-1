@@ -76,10 +76,8 @@ namespace SysCAD.Editor
           GraphicStencilChangeForm gscf = new GraphicStencilChangeForm(state.GraphicUnselectedThumbnails, state.GraphicSelectedThumbnails, state.ModelStencils, state.GraphicStencils, a.Value.DisplayString);
           if (gscf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
           {
-            //state.ModifyGraphicItem(out requestId, graphicNode.Guid, graphicNode.Tag, 
-            //  graphicNode.Path, graphicNode.Model, gscf.Value, graphicNode.BoundingRect, 
-            //  graphicNode.Angle, graphicNode.TagArea, graphicNode.TagAngle, graphicNode.FillColor, 
-            //  graphicNode.FillMode, graphicNode.MirrorX, graphicNode.MirrorY);
+            graphicNode.Stencil = gscf.Value;
+            NodeModified(graphicNode);
           }
         }
       }
