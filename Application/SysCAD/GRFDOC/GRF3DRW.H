@@ -389,14 +389,14 @@ class CGrfTagInfo
       m_Tag.m_Visible=true; 
       m_bValid=0; 
       m_bDone=0;
-      xm_bHasTag=0; 
+      m_bHasTag=0; 
       m_LoBnd.m_X=0.0;
       m_LoBnd.m_Y=0.0;
       m_LoBnd.m_Z=0.0; 
       m_HiBnd.m_X=0.0;
       m_HiBnd.m_Y=0.0;
       m_HiBnd.m_Z=0.0; 
-      e=NULL; 
+      m_Entity=NULL; 
       };
 
   public:
@@ -408,7 +408,7 @@ class CGrfTagInfo
     flag m_bValid;
     flag m_bDone;
     flag m_bHasSymbol;
-    flag xm_bHasTag;
+    flag m_bHasTag;
     struct CSymbol{
       double m_X;
       double m_Y;
@@ -425,8 +425,8 @@ class CGrfTagInfo
       double m_Z;
       } m_LoBnd, m_HiBnd;
 
-    DXF_ENTITY e;
-    long PointsCount;
+    DXF_ENTITY m_Entity;
+    long m_PointsCount;
 
   };
 

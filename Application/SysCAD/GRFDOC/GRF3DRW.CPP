@@ -941,7 +941,7 @@ void PopulateTagInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag, 
   GTI.m_Node.m_ZScale = DXF_INSERT_Z_SCALE(insert);
   GTI.m_Node.m_Rotation = DXF_INSERT_ROT_ANG(insert);
   GTI.m_Node.m_Visible  = true;
-  GTI.e = insert;
+  GTI.m_Entity = insert;
   GTI.m_LoBnd.m_X = GTI.m_Node.m_X;
   GTI.m_LoBnd.m_Y = GTI.m_Node.m_Y;
   GTI.m_LoBnd.m_Z = GTI.m_Node.m_Z;
@@ -1020,7 +1020,7 @@ void PopulateTextInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag,
   GTI.m_Node.m_ZScale = DXF_INSERT_Z_SCALE(insert);
   GTI.m_Node.m_Rotation = DXF_INSERT_ROT_ANG(insert);
   GTI.m_Node.m_Visible  = true;
-  GTI.e = insert;
+  GTI.m_Entity = insert;
   GTI.m_LoBnd.m_X = GTI.m_Node.m_X;
   GTI.m_LoBnd.m_Y = GTI.m_Node.m_Y;
   GTI.m_LoBnd.m_Z = GTI.m_Node.m_Z;
@@ -1106,7 +1106,7 @@ void CGrfLayer::CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagI
         }
       CGrfTagInfo GTI;
       GTI.m_sTag = pv ? pv:"NULL";
-      GTI.xm_bHasTag = pv!=NULL;
+      GTI.m_bHasTag = pv!=NULL;
       PopulateTagInfo(pDrawing, e, Find_Attr(e, TagAttribStr), Find_Attr(e, GuidAttribStr), GTI, Drawing->StyleLst);
       GTIA.Add(GTI);
       }
@@ -1115,22 +1115,10 @@ void CGrfLayer::CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagI
     {
     if( DXF_ENTITY_IS_TEXT(e) )
       {
-      //PopulateTextInfo(pDrawing, e, GTI);
-      //dbgpln("Text %10.2f,%10.2f  %10.2f  %10.2f  %10.2f   %s %s", 
-      //  DXF_TEXT_INS_PT(e)[0],DXF_TEXT_INS_PT(e)[1],  //insert pt
-      //  DXF_TEXT_HEIGHT(e),                           //height
-      //  DXF_TEXT_ROT_ANG(e),                          //angle
-      //  DXF_TEXT_X_SCALE(e),                          //scale
-      //  DXF_TEXT_VALUE_GET(e),                        //text
-      //  DXF_TEXT_STYLE_GET(e));                       //style_name
-
-      double a=DXF_TEXT_ROT_ANG(e);
-      double x=DXF_TEXT_X_SCALE(e);
-      double h=DXF_TEXT_HEIGHT(e);
-
       CGrfTagInfo GTI;
+      GTI.m_Entity=e;
       GTI.m_bHasSymbol      = false;
-      GTI.xm_bHasTag        = true;
+      GTI.m_bHasTag        = true;
       GTI.m_sTag            = DXF_TEXT_VALUE_GET(e);
       GTI.m_Tag.m_X         = DXF_TEXT_INS_PT(e)[0];
       GTI.m_Tag.m_Y         = DXF_TEXT_INS_PT(e)[1];
@@ -5098,13 +5086,13 @@ static void SwapPT3(PT3 & A, PT3 & B)
 
 void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA)
   {
-  pBlock b = Blocks.Find(DXF_INSERT_BLOCK_GET(GTI.e));
+  pBlock b = Blocks.Find(DXF_INSERT_BLOCK_GET(GTI.m_Entity));
   if (b)
     {
     C3_TRANSFORM c3t;
-    ConstructInsertMatrix(c3t, b, GTI.e);
+    ConstructInsertMatrix(c3t, b, GTI.m_Entity);
 
-    GTI.PointsCount = 0;
+    GTI.m_PointsCount = 0;
 
     CGrfLayer * l;
     WALK_LAYERS(b->Layers, NULL, l)
@@ -5132,8 +5120,8 @@ void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA)
       int nSegs=1;
 
       int nLines=0;
-      long SeqOffset = (GTI.PointsCount>0 ? LPA[GTI.PointsCount-1].seq+2 : 0);
-      long index_offset = GTI.PointsCount;
+      long SeqOffset = (GTI.m_PointsCount>0 ? LPA[GTI.m_PointsCount-1].seq+2 : 0);
+      long index_offset = GTI.m_PointsCount;
 
 
 #if dbgLineExport 
@@ -5362,8 +5350,8 @@ void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA)
             dbgpln("                           Sg %3i : %3i %3i %3i %3i", i, Segs[i].iStPt, Segs[i].iEnPt, Segs[i].iStConn, Segs[i].iEnConn);
 #endif
 
-          GTI.PointsCount = index_offset + nPts;
-          LPA.SetSize(GTI.PointsCount);
+          GTI.m_PointsCount = index_offset + nPts;
+          LPA.SetSize(GTI.m_PointsCount);
 
           int Sq=SeqOffset;
 
@@ -5445,10 +5433,10 @@ void DXF_Drawing::CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA)
             {
             C3_CURVE cnew = c3d_copy(c);
             c3c_transform(cnew, c3t);
-            const long SeqOffset = (GTI.PointsCount>0 ? LPA[GTI.PointsCount-1].seq+2 : 0);
-            const long index_offset = GTI.PointsCount;
-            GTI.PointsCount += (SegCnt+1);
-            LPA.SetSize(GTI.PointsCount);
+            const long SeqOffset = (GTI.m_PointsCount>0 ? LPA[GTI.m_PointsCount-1].seq+2 : 0);
+            const long index_offset = GTI.m_PointsCount;
+            GTI.m_PointsCount += (SegCnt+1);
+            LPA.SetSize(GTI.m_PointsCount);
             SegCnt=0;
             while (1)
               {

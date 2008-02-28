@@ -449,10 +449,10 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         }
 
       // Remove Original Symbol
-      if (GTI.e)
+      if (GTI.m_Entity)
         {
-        Grp.m_pDoc->GCB.pDsp->Draw(GTI.e, GrfHelper.GR_BACKGROUND);
-        Grp.m_pDoc->GCB.pDrw->Delete(GTI.e);
+        Grp.m_pDoc->GCB.pDsp->Draw(GTI.m_Entity, GrfHelper.GR_BACKGROUND);
+        Grp.m_pDoc->GCB.pDrw->Delete(GTI.m_Entity);
         }
 
 #if dbgSvcConn
@@ -504,6 +504,12 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
             COLORREF(0), false, false);
 
           DO_EXIT_GG("DoDumbSymbolE", ModelGuid, GraphicGuid);
+          // Remove Original Symbol
+          if (GTI.m_Entity)
+            {
+            Grp.m_pDoc->GCB.pDsp->Draw(GTI.m_Entity, GrfHelper.GR_BACKGROUND);
+            Grp.m_pDoc->GCB.pDrw->Delete(GTI.m_Entity);
+            }
           }
         }
       }

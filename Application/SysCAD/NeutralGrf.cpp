@@ -715,7 +715,7 @@ void CNeutralGrfImportExport::WriteLink(LPCTSTR Group, CGrfTagInfo & GTI, CDblTr
   strcpy(m_pLl->m_sGroup, Group?Group:"");
   strcpy(m_pLl->m_sTag, AdjustTag(GTI.m_sTag()));
   strcpy(m_pLl->m_sPage, pPage);
-  for (int i=0; i<GTI.PointsCount; i++)
+  for (int i=0; i<GTI.m_PointsCount; i++)
     {
     m_pLl->m_lSeqNo = LPA[i].seq;
     m_pLl->m_Vertex.m_X = LPA[i].x-Org.m_X;
@@ -825,11 +825,11 @@ void CNeutralGrfImportExport::DoExport(eScdNDBOptions Opts, CGrfDoc * pDoc)
     for (int i=0; i<Cnt; i++)
       {
       CGrfTagInfo & I = GTIA[i];
-      if (I.xm_bHasTag && FindOldTag(I.m_sTag())<0)
+      if (I.m_bHasTag && FindOldTag(I.m_sTag())<0)
         continue;
 
       int TagTyp = -1; //error
-      if (I.xm_bHasTag)
+      if (I.m_bHasTag)
         {
         CXM_ObjectTag ObjTag(I.m_sTag(), TABOpt_Parms);
         CXM_ObjectData ObjData;
