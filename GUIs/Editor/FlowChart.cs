@@ -2012,7 +2012,8 @@ namespace SysCAD.Editor
     private void SendItemToBottom(object sender, EventArgs e)
     {
       (hoverBox.Tag as EditorNode).GraphicBox.ZBottom();
-      (hoverBox.Tag as EditorNode).ModelBox.ZBottom();
+      if ((hoverBox.Tag as EditorNode).ModelBox != null) (hoverBox.Tag as EditorNode).ModelBox.ZBottom();
+      if ((hoverBox.Tag as EditorNode).HiddenBox != null) (hoverBox.Tag as EditorNode).HiddenBox.ZBottom();
       fcFlowChart.Invalidate();
     }
 

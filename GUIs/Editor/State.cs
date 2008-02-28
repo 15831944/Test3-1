@@ -315,6 +315,8 @@ namespace SysCAD.Editor
           treeViewNode = tvNavigation.AddNodeByPath(graphicNode.Path + graphicNode.Tag, graphicNode.Guid.ToString());
           treeViewNode.AllowDrop = false;
 
+          treeViewNode.Tag = editorNode;
+
           NewElementSelection();
         }
 
@@ -326,7 +328,7 @@ namespace SysCAD.Editor
         GraphicStencil graphicStencil = GraphicStencil(graphicNode.Stencil);
 
 
-        Box textBox = null, graphicBox = null, modelBox = null;
+        Box textBox = null, graphicBox = null, modelBox = null, hiddenBox = null;
 
         {
           SysCAD.Protocol.Rectangle textArea = graphicNode.TagArea;
@@ -360,6 +362,8 @@ namespace SysCAD.Editor
             Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
             Handles.Move;
           textBox.Text = graphicNode.Tag;
+          textBox.Tag = editorNode;
+          editorNode.TextBox = textBox;
           // Don't set this yet, happens after every zoom because it needs to be scaled.
           //textBox.Font = graphicNode.TagFont.BaseFont;
         }
@@ -370,6 +374,9 @@ namespace SysCAD.Editor
           graphicBox.RotationAngle = (float)graphicNode.Angle;
           graphicBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicNode.Model";
           graphicBox.Style = BoxStyle.Shape;
+
+          graphicBox.Tag = editorNode;
+          editorNode.GraphicBox = graphicBox;
 
           if (GraphicStencil(graphicNode.Stencil) == null)
           // can't use graphicStencil because the above GraphicShape call will find a stencil even if the shape doesn't exist.
@@ -415,7 +422,8 @@ namespace SysCAD.Editor
           modelBox.Style = BoxStyle.Shape;
           modelBox.CustomDraw = CustomDraw.Additional;
 
-          //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
+          modelBox.Tag = editorNode;
+          editorNode.ModelBox = modelBox;
 
           modelStencil = ModelShape(modelNode.NodeClass);
 
@@ -446,38 +454,36 @@ namespace SysCAD.Editor
           graphicBox.EnabledHandles = Handles.None;
           graphicBox.HandlesStyle = HandlesStyle.Invisible;
         }
-
-        if (textBox != null && graphicBox != null)
+        else
         {
+          if ((graphicBox != null) && (graphicBox.Shape.Outline.Length == 0)) // we're going to need an invisible box to use for hit-testing.
+          {
+            hiddenBox = flowChart.CreateBox((float)graphicNode.X, (float)graphicNode.Y, (float)graphicNode.Width, (float)graphicNode.Height);
+            hiddenBox.RotationAngle = (float)graphicNode.Angle;
+            hiddenBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicNode.Model";
+            hiddenBox.Style = BoxStyle.Ellipse; // not sure whether to go with ellipse or rectangle here (without corners, it'll get in the way less...)
+            hiddenBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+            hiddenBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+            hiddenBox.AttachTo(graphicBox, 0, 0, 100, 100);
+            hiddenBox.ZBottom();
 
-          editorNode.GraphicBox = graphicBox;
-          editorNode.TextBox = textBox;
-          editorNode.Visible = ShowTags && isVisible;
-
-          graphicBox.Tag = editorNode;
-          textBox.Tag = editorNode;
-
-          editorNodes.Add(editorNode.Guid, editorNode);
-
-          treeViewNode.Tag = editorNode;
-
-          editorNode.UpdateVisibility();
+            hiddenBox.Tag = editorNode;
+            editorNode.HiddenBox = hiddenBox;
+          }
         }
 
         if (modelBox != null)
         {
           textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
-
           graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
-
-          editorNode.ModelBox = modelBox;
-
-          modelBox.Tag = editorNode;
         }
         else if (graphicBox != null)
         {
           textBox.AttachTo(graphicBox, AttachToNode.BottomCenter);
         }
+
+        editorNode.Visible = isVisible;
+        editorNodes.Add(editorNode.Guid, editorNode);
       }
     }
 
@@ -638,9 +644,9 @@ namespace SysCAD.Editor
             arrow.DestAnchor = (destination.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.DestinationPort + graphicLink.DestinationPortID.ToString()];
           else
           {
-            Console.WriteLine("(destination.ModelBox.Tag as EditorNode).modelNode : " + 
-              (destination.ModelBox.Tag as EditorNode).modelNode.Guid.ToString() + " : " + 
-              (destination.ModelBox.Tag as EditorNode).modelNode.NodeClass.ToString() + " : " + 
+            Console.WriteLine("(destination.ModelBox.Tag as EditorNode).modelNode : " +
+              (destination.ModelBox.Tag as EditorNode).modelNode.Guid.ToString() + " : " +
+              (destination.ModelBox.Tag as EditorNode).modelNode.NodeClass.ToString() + " : " +
               (destination.ModelBox.Tag as EditorNode).modelNode.Tag.ToString());
 
             Console.WriteLine("modelLink.DestinationPort : " + modelLink.DestinationPort);
@@ -716,7 +722,7 @@ namespace SysCAD.Editor
     //  return clientProtocol.DeleteLink(out requestId, guid);
     //}
 
-   internal void DeleteItem(Guid guid)
+    internal void DeleteItem(Guid guid)
     {
 
       if (flowChart.InvokeRequired)

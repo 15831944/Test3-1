@@ -19,6 +19,7 @@ namespace SysCAD.Editor
     private Box graphicBox;
     private Box modelBox;
     private Box textBox;
+    private Box hiddenBox; // used for hit-testing when no modelbox and graphicbox has no fill.
 
     private PureComponents.TreeView.Node node;
 
@@ -52,50 +53,50 @@ namespace SysCAD.Editor
     private delegate void SetOpacityDelegate(int opacity);
 
     internal void SetOpacity(int opacity)
-      {
+    {
       if (ModelBox != null)
-        {
+      {
         ModelBox.FillColor = Color.FromArgb(opacity, 222, 184, 136);
         ModelBox.FrameColor = Color.FromArgb(opacity, 111, 92, 68);
 
         foreach (AnchorPoint anchorPoint in ModelBox.AnchorPattern.Points)
           anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
-        }
-
-        GraphicBox.FillColor = Color.FromArgb(220 - opacity, GraphicBox.FillColor);
-        GraphicBox.FrameColor = Color.FromArgb(255 - opacity, GraphicBox.FrameColor);
-
       }
+
+      GraphicBox.FillColor = Color.FromArgb(220 - opacity, GraphicBox.FillColor);
+      GraphicBox.FrameColor = Color.FromArgb(255 - opacity, GraphicBox.FrameColor);
+
+    }
 
     public void opacityTimer_Elapsed(object source, ElapsedEventArgs e)
-      {
+    {
       if (ModelBox == null)
-        {
+      {
         opacityTimer.Stop();
         opacity = 1;
-        }
+      }
 
       if (visible && (Selected || state.ShowModels || hovered || linkHovered))
-        {
+      {
         opacity += 50;
         if (opacity > 170)
-          {
+        {
           opacityTimer.Stop();
           opacity = 220;
-          }
         }
+      }
       else
-        {
+      {
         opacity -= 50;
         if (opacity < 51)
-          {
+        {
           opacityTimer.Stop();
           opacity = 1;
-          }
         }
+      }
 
       state.FlowChart.BeginInvoke(new SetOpacityDelegate(SetOpacity), new object[] { opacity });
-      }
+    }
 
     public override string ToString()
     {
@@ -143,6 +144,12 @@ namespace SysCAD.Editor
     {
       get { return modelBox; }
       set { modelBox = value; }
+    }
+
+    public Box HiddenBox
+    {
+      get { return hiddenBox; }
+      set { hiddenBox = value; }
     }
 
     public PureComponents.TreeView.Node Node
@@ -211,12 +218,12 @@ namespace SysCAD.Editor
         visible = value;
 
         if (ModelBox != null)
-          {
+        {
           foreach (Arrow arrow in ModelBox.IncomingArrows)
             (arrow.Tag as EditorLink).UpdateVisibility();
           foreach (Arrow arrow in ModelBox.OutgoingArrows)
             (arrow.Tag as EditorLink).UpdateVisibility();
-          }
+        }
 
         UpdateVisibility();
       }
@@ -224,39 +231,39 @@ namespace SysCAD.Editor
 
     public bool Selected
     {
-    get
+      get
       {
-      if (ModelBox != null)
+        if (ModelBox != null)
         {
-        return ModelBox.Selected || GraphicBox.Selected || TextBox.Selected;
+          return ModelBox.Selected || GraphicBox.Selected || TextBox.Selected;
         }
-      else if (GraphicBox != null)
+        else if (GraphicBox != null)
         {
-        return GraphicBox.Selected || TextBox.Selected;
+          return GraphicBox.Selected || TextBox.Selected;
         }
-      else
+        else
         {
-        return TextBox.Selected;
+          return TextBox.Selected;
         }
       }
       set
       {
         selected = value;
         if (ModelBox != null)
-          {
+        {
           ModelBox.Selected = value;
           GraphicBox.Selected = false;
           TextBox.Selected = false;
-          }
+        }
         else if (GraphicBox != null)
-          {
+        {
           GraphicBox.Selected = value;
           TextBox.Selected = false;
-          }
+        }
         else
-          {
+        {
           TextBox.Selected = value;
-          }
+        }
 
         UpdateVisibility();
       }
@@ -273,44 +280,49 @@ namespace SysCAD.Editor
           (arrow.Tag as EditorLink).UpdateVisibility();
         foreach (Arrow arrow in ModelBox.OutgoingArrows)
           (arrow.Tag as EditorLink).UpdateVisibility();
-        
+
         UpdateVisibility();
       }
     }
 
     internal void UpdateVisibility()
-      {
+    {
       //Int64 requestId;
 
       if (ModelBox != null) ModelBox.Visible = visible;
       GraphicBox.Visible = visible && state.ShowGraphics;
       TextBox.Visible = visible && graphicNode.TagVisible && state.ShowTags;
 
-      if (ModelBox != null) 
-        {
+      if (ModelBox != null)
+      {
         ModelBox.ZIndex = GraphicBox.ZIndex + 100;
         //linkHovered = false;
         foreach (Arrow arrow in ModelBox.IncomingArrows)
-          {
+        {
           (arrow.Tag as EditorLink).UpdateVisibility();
           //arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
           //if ((arrow.Tag as EditorLink).Hovered) 
           //  linkHovered = true;
-          }
+        }
         foreach (Arrow arrow in ModelBox.OutgoingArrows)
-          {
+        {
           (arrow.Tag as EditorLink).UpdateVisibility();
           // arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
           //if ((arrow.Tag as EditorLink).Hovered) 
           //  linkHovered = true;
-          }
+        }
 
         ModelBox.CustomDraw = CustomDraw.Additional;
-        }
+      }
 
       TextBox.ZIndex = GraphicBox.ZIndex + 200;
 
-      opacityTimer.Start();
+      if (HiddenBox != null)
+      {
+        HiddenBox.ZBottom();
       }
+
+      opacityTimer.Start();
+    }
   }
 }
