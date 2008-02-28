@@ -1073,9 +1073,9 @@ void PopulateTextInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag,
     GTI.m_Tag.m_X = DXF_ATTRIB_PT(tag)[0]+0.5*(xmax-xmin);
     GTI.m_Tag.m_Y = DXF_ATTRIB_PT(tag)[1];//+0.5*(ymax-ymin);
     GTI.m_Tag.m_Z = DXF_ATTRIB_PT(tag)[2];
-    GTI.m_Tag.m_XScale = ti.height/3.0; // CNM a Kludge  XF_ATTRIB_X_SCALE(tag);
-    GTI.m_Tag.m_YScale = GTI.m_Tag.m_XScale;//DXF_ATTRIB_Y_SCALE(tag);
-    GTI.m_Tag.m_ZScale = GTI.m_Tag.m_XScale;//DXF_ATTRIB_Z_SCALE(tag);
+    GTI.m_Tag.m_XScale = ti.wfactor; // CNM a Kludge  XF_ATTRIB_X_SCALE(tag);
+    GTI.m_Tag.m_YScale = ti.height/3.0;//DXF_ATTRIB_Y_SCALE(tag);
+    GTI.m_Tag.m_ZScale = 1.0;//GTI.m_Tag.m_XScale;//DXF_ATTRIB_Z_SCALE(tag);
     GTI.m_Tag.m_Rotation = DXF_ATTRIB_ROT_ANG(tag);
     GTI.m_Tag.m_Visible = (DXF_ATTRIB_AFLAGS(tag)&DXF_ATTRIB_INVIS)==0;
     }
@@ -1123,6 +1123,11 @@ void CGrfLayer::CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagI
       //  DXF_TEXT_X_SCALE(e),                          //scale
       //  DXF_TEXT_VALUE_GET(e),                        //text
       //  DXF_TEXT_STYLE_GET(e));                       //style_name
+
+      double a=DXF_TEXT_ROT_ANG(e);
+      double x=DXF_TEXT_X_SCALE(e);
+      double h=DXF_TEXT_HEIGHT(e);
+
       CGrfTagInfo GTI;
       GTI.m_bHasSymbol      = false;
       GTI.xm_bHasTag        = true;
@@ -1131,6 +1136,8 @@ void CGrfLayer::CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagI
       GTI.m_Tag.m_Y         = DXF_TEXT_INS_PT(e)[1];
       GTI.m_Tag.m_Z         = DXF_TEXT_INS_PT(e)[2];
       GTI.m_Tag.m_XScale    = DXF_TEXT_X_SCALE(e);
+      GTI.m_Tag.m_YScale    = DXF_TEXT_HEIGHT(e)/3.0;
+      GTI.m_Tag.m_ZScale    = 1.0;//GTI.m_Tag.m_XScale;
       GTI.m_Tag.m_Rotation  = DXF_TEXT_ROT_ANG(e);
       //GTI.m_Tag.m_Rotation = DXF_TEXT_ROT_ANG(e);
       GTIA.Add(GTI);

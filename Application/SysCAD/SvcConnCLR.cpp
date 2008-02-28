@@ -485,8 +485,9 @@ ref class CSvcConnectCLRThread
         }
       
       bool HasModel = ModelGuid!=NULL && strlen(ModelGuid)>0;
+      bool HasGraphic = GraphicGuid!=NULL && strlen(GraphicGuid)>0;
       Guid MdlGuid = HasModel ? Guid(gcnew String(ModelGuid)) : Guid::Empty;
-      Guid GrfGuid = GraphicGuid!=NULL && strlen(GraphicGuid)>0 ? Guid(gcnew String(GraphicGuid)) : Guid::NewGuid();
+      Guid GrfGuid = HasGraphic ? Guid(gcnew String(GraphicGuid)) : Guid::NewGuid();
 
       GraphicNode ^ GNd = gcnew GraphicNode(GrfGuid, gcnew String(Tag), gcnew String(Path), MdlGuid, 
         gcSymbol, BndRect,

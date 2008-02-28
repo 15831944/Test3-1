@@ -431,7 +431,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           }
 
         float textBoxW = float(int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength()));
-        float textBoxH = float(int(GTI.m_Tag.m_YScale * 5.0));
+        float textBoxH = float(int(GTI.m_Tag.m_YScale * 3.0));
         float textBoxX = float(int(GTI.m_Tag.m_X + Grp.m_XOff + Grp.m_XShift - textBoxW / 2.0) + 0.5); // needs to be x.5mm to meet grid in 10.
         float textBoxY = float(int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - Grp.m_YShift - textBoxH) + 0.5); // needs to be x.5mm to meet grid in 10.
 
@@ -492,7 +492,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           float boxY = float(int(Grp.m_PageRct.Height() - GTI.m_HiBnd.m_Y + Grp.m_YOff - Grp.m_YShift) + 0.5); // needs to be x.5mm to meet grid in 10.
 
           float textBoxW = float(int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength()));
-          float textBoxH = float(int(GTI.m_Tag.m_YScale * 5.0));
+          float textBoxH = float(int(GTI.m_Tag.m_YScale * 3.0));
           float textBoxX = float(int(GTI.m_Tag.m_X + Grp.m_XOff + Grp.m_XShift - textBoxW / 2.0) + 0.5); // needs to be x.5mm to meet grid in 10.
           float textBoxY = float(int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - Grp.m_YShift - textBoxH) + 0.5); // needs to be x.5mm to meet grid in 10.
 
