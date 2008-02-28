@@ -490,7 +490,7 @@ ref class CSvcConnectCLRThread
 
       GraphicNode ^ GNd = gcnew GraphicNode(GrfGuid, gcnew String(Tag), gcnew String(Path), MdlGuid, 
         gcSymbol, BndRect,
-        Angle, TagArea, TagBlk.m_Angle, TagBlk.m_Area.Height(), TagBlk.m_Visible, Color::Empty, 
+        Angle, TagArea, TagBlk.m_Angle, gcnew SysCAD::Protocol::Font(TagBlk.m_Area.Height()), TagBlk.m_Visible, Color::Empty, 
         Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
       m_Action->Create->Add(GNd);
 
@@ -612,7 +612,7 @@ ref class CSvcConnectCLRThread
 
         GraphicLink ^ GLnk = gcnew GraphicLink(Guid(gcnew String(GraphicGuid)), Guid(gcnew String(ModelGuid)), gcnew String(Tag), 
           Guid(gcnew String(OriginGrfGuid)), 0, Guid(gcnew String(DestinationGrfGuid)), 0,  
-          Pts, gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height()), TagBlk.m_Angle, TagBlk.m_Visible);
+          Pts, gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height()), TagBlk.m_Angle, gcnew SysCAD::Protocol::Font(TagBlk.m_Area.Height()), TagBlk.m_Visible);
 
         ModelLink ^ MLnk = gcnew ModelLink(Guid(gcnew String(ModelGuid)), gcnew String(Tag), gcnew String(ClassId),
           Guid(gcnew String(OriginMdlGuid)), Guid(gcnew String(DestinationMdlGuid)), gcnew String(OriginPort), gcnew String(DestinationPort));

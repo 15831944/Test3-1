@@ -80,6 +80,7 @@
     <Compile Include="ClientServiceProtocol.cs" />
     <Compile Include="EngineProtocol.cs" />
     <Compile Include="EngineServiceProtocol.cs" />
+    <Compile Include="Font.cs" />
     <Compile Include="Graphic.cs" />
     <Compile Include="GraphicGroup.cs" />
     <Compile Include="GraphicItem.cs" />

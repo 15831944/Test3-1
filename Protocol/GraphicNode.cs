@@ -21,11 +21,6 @@ namespace SysCAD.Protocol
     private Rectangle boundingRect;
     private Double angle;
 
-    private Rectangle tagArea;
-    private Double tagAngle;
-    private double tagFontSize;
-    private Boolean tagVisible;
-
     private System.Drawing.Color fillColor;
     private FillMode fillMode;
     private bool mirrorX;
@@ -33,7 +28,7 @@ namespace SysCAD.Protocol
 
 
     public GraphicNode(Guid guid, String tag, String path, Guid modelGuid, Stencil stencil, Rectangle boundingRect,
-      Double angle, Rectangle tagArea, Double tagAngle, double tagFontSize, Boolean tagVisible, System.Drawing.Color fillColor,
+      Double angle, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, System.Drawing.Color fillColor,
       FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       this.Guid = guid;
@@ -47,10 +42,10 @@ namespace SysCAD.Protocol
       this.boundingRect = boundingRect;
       this.angle = angle;
 
-      this.tagArea = tagArea;
-      this.tagAngle = tagAngle;
-      this.tagFontSize = tagFontSize;
-      this.tagVisible = tagVisible;
+      this.TagArea = tagArea;
+      this.TagAngle = tagAngle;
+      this.TagFont = tagFont;
+      this.TagVisible = tagVisible;
 
       this.fillColor = fillColor;
       this.fillMode = fillMode;
@@ -68,54 +63,6 @@ namespace SysCAD.Protocol
     {
       get { return boundingRect; }
       set { boundingRect = value; }
-    }
-
-    public Double TagAngle
-    {
-      get { return tagAngle; }
-      set { tagAngle = value; }
-    }
-
-    public double TagFontSize
-    {
-      get { return tagFontSize; }
-      set { tagFontSize = value; }
-    }
-
-    public Rectangle TagArea
-    {
-      get { return tagArea; }
-      set { tagArea = value; }
-    }
-
-    public Double TagAreaX
-    {
-      get { return tagArea.X; }
-      set { tagArea.X = value; }
-    }
-
-    public Double TagAreaY
-    {
-      get { return tagArea.Y; }
-      set { tagArea.Y = value; }
-    }
-
-    public Double TagAreaWidth
-    {
-      get { return tagArea.Width; }
-      set { tagArea.Width = value; }
-    }
-
-    public Double TagAreaHeight
-    {
-      get { return tagArea.Height; }
-      set { tagArea.Height = value; }
-    }
-
-    public Boolean TagVisible
-    {
-      get { return tagVisible; }
-      set { tagVisible = value; }
     }
 
     public System.Drawing.Color FillColor
@@ -186,7 +133,7 @@ namespace SysCAD.Protocol
 
     public GraphicNode Clone()
     {
-      GraphicNode graphicNode = new GraphicNode(Guid, Tag, path, modelGuid, stencil, boundingRect, angle, tagArea, tagAngle, tagFontSize, tagVisible, fillColor, fillMode, mirrorX, mirrorY);
+      GraphicNode graphicNode = new GraphicNode(Guid, Tag, path, modelGuid, stencil, boundingRect, angle, TagArea, TagAngle, TagFont, TagVisible, fillColor, fillMode, mirrorX, mirrorY);
 
             return graphicNode;
     }

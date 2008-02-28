@@ -671,7 +671,7 @@ namespace SysCAD.Editor
       destinationAnchorChosen = null;
 
       ModelLink modelLink = new ModelLink(new Guid(), string.Empty, "Pipe-1", modelOrigin.Guid, modelDestination.Guid, originPort, destinationPort);
-      GraphicLink graphicLink = new GraphicLink(new Guid(), modelLink.Guid, string.Empty, origin.Guid, originPortID, destination.Guid, destinationPortID, controlPoints, textArea, 0.0, true);
+      GraphicLink graphicLink = new GraphicLink(new Guid(), modelLink.Guid, string.Empty, origin.Guid, originPortID, destination.Guid, destinationPortID, controlPoints, textArea, 0.0, new SysCAD.Protocol.Font(), true);
 
       SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
 

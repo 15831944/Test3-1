@@ -360,7 +360,7 @@ namespace SysCAD.Editor
             Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
             Handles.Move;
           textBox.Text = graphicNode.Tag;
-          textBox.Font = new Font("Arial", (float)graphicNode.TagFontSize, System.Drawing.GraphicsUnit.Millimeter);
+          textBox.Font = graphicNode.TagFont.BaseFont;
         }
 
         if (graphicNode.Stencil != null)

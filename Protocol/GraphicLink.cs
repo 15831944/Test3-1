@@ -24,17 +24,13 @@ namespace SysCAD.Protocol
     private Int16 originPortID;
     private Int16 destinationPortID;
 
-    private Rectangle tagArea;
-    private Double tagAngle;
-    private Boolean tagVisible;
-
     public GraphicLink()
     {
     }
 
     public GraphicLink(Guid guid, Guid modelGuid, String tag, Guid origin, Int16 originPortID, 
       Guid destination, Int16 destinationPortID, 
-      List<Point> controlPoints, Rectangle tagArea, Double tagAngle, Boolean tagVisible)
+      List<Point> controlPoints, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible)
     {
       this.Guid = guid;
       this.Tag = tag;
@@ -49,9 +45,10 @@ namespace SysCAD.Protocol
       foreach (Point controlPoint in controlPoints)
         this.controlPoints.Add(controlPoint);
 
-      this.tagArea = tagArea;
-      this.tagAngle = tagAngle;
-      this.tagVisible = tagVisible;
+      this.TagArea = tagArea;
+      this.TagAngle = tagAngle;
+      this.TagFont = tagFont;
+      this.TagVisible = tagVisible;
     }
 
     // Norm-1 distance between the closest side of the rectangle to the point.
@@ -116,24 +113,6 @@ namespace SysCAD.Protocol
       set { originPortID = value; }
     }
 
-    public Rectangle TagArea
-    {
-      get { return tagArea; }
-      set { tagArea = value; }
-    }
-
-    public Double TagAngle
-    {
-      get { return tagAngle; }
-      set { tagAngle = value; }
-    }
-
-    public Boolean TagVisible
-    {
-      get { return tagVisible; }
-      set { tagVisible = value; }
-    }
-
     public GraphicLink Clone()
     {
       GraphicLink graphicLink = new GraphicLink();
@@ -152,8 +131,8 @@ namespace SysCAD.Protocol
       foreach (Point controlPoint in controlPoints)
         graphicLink.controlPoints.Add(controlPoint);
 
-      graphicLink.tagArea = tagArea;
-      graphicLink.tagAngle = tagAngle;
+      graphicLink.TagArea = TagArea;
+      graphicLink.TagAngle = TagAngle;
       
       return graphicLink;
     }
