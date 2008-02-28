@@ -43,6 +43,12 @@ namespace SysCAD.Editor
       opacityTimer.Elapsed += new ElapsedEventHandler(opacityTimer_Elapsed);
     }
 
+    public GraphicNode GraphicNode
+    {
+      get { return graphicNode; }
+      set { graphicNode = value; }
+    }
+
     private delegate void SetOpacityDelegate(int opacity);
 
     internal void SetOpacity(int opacity)

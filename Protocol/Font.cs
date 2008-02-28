@@ -38,21 +38,26 @@ namespace SysCAD.Protocol
       gdiVerticalFont = tempFont.GdiVerticalFont;
     }
 
-    public System.Drawing.Font BaseFont
+    //public System.Drawing.Font BaseFont
+    //{
+    //  get
+    //  {
+    //    return new System.Drawing.Font(familyName, emSize, style, unit, gdiCharSet, gdiVerticalFont);
+    //  }
+    //  set
+    //  {
+    //    familyName = value.FontFamily.Name;
+    //    emSize = value.Size;
+    //    style = value.Style;
+    //    unit = value.Unit;
+    //    gdiCharSet = value.GdiCharSet;
+    //    gdiVerticalFont = value.GdiVerticalFont;
+    //  }
+    //}
+
+    public System.Drawing.Font ScaledFont(float zoomFactor)
     {
-      get
-      {
-        return new System.Drawing.Font(familyName, emSize, style, unit, gdiCharSet, gdiVerticalFont);
-      }
-      set
-      {
-        familyName = value.FontFamily.Name;
-        emSize = value.Size;
-        style = value.Style;
-        unit = value.Unit;
-        gdiCharSet = value.GdiCharSet;
-        gdiVerticalFont = value.GdiVerticalFont;
-      }
+      return new System.Drawing.Font(familyName, emSize * zoomFactor / 75.0F, style, unit, gdiCharSet, gdiVerticalFont);
     }
 
     public string FamilyName

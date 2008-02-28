@@ -168,12 +168,12 @@ namespace SysCAD.Editor
 
       foreach (EditorNode item in state.Items)
       {
-        item.TextBox.Font = standardFont;
+        item.TextBox.Font = item.GraphicNode.TagFont.ScaledFont(zoomFactor);
       }
 
       foreach (EditorLink link in state.Links)
       {
-        link.TextBox.Font = standardFont;
+        link.TextBox.Font = link.GraphicLink.TagFont.ScaledFont(zoomFactor);
       }
 
       fcFlowChart.Invalidate();

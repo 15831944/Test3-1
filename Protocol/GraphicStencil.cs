@@ -123,7 +123,7 @@ namespace SysCAD.Protocol
 
         graphicStencil = (GraphicStencil)sf.Deserialize(stream);
         stream.Close();
-        Serialize(path, graphicStencil);
+        //Serialize(path, graphicStencil);
       //}
       //catch
       //{

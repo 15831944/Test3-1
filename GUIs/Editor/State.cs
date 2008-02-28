@@ -360,7 +360,8 @@ namespace SysCAD.Editor
             Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
             Handles.Move;
           textBox.Text = graphicNode.Tag;
-          textBox.Font = graphicNode.TagFont.BaseFont;
+          // Don't set this yet, happens after every zoom because it needs to be scaled.
+          //textBox.Font = graphicNode.TagFont.BaseFont;
         }
 
         if (graphicNode.Stencil != null)
