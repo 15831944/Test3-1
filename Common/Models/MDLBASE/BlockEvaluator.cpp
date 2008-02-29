@@ -705,11 +705,13 @@ void CBlockEvaluator::EvalProducts(int iJoinNo, SpConduit & Fo, double Po, CFlwT
         break;
 
       case BEId_Evap:  
+        #if (WithSimpleEvap)
         if (pFTB)
           pFTB->AddEvapBegin();
         m_pEvap->EvalProducts(Fo, Po); 
         if (pFTB) 
           pFTB->AddEvapEnd();
+        #endif
         break;
 
       case BEId_Makeup:  
@@ -773,11 +775,13 @@ void CBlockEvaluator::EvalProductsInline(int iJoinNo, SpConduit & Fo, double Len
         break;
 
       case BEId_Evap:  
+        #if (WithSimpleEvap)
         if (pFTB)
           pFTB->AddEvapBegin();
         m_pEvap->EvalProducts(Fo, Po); 
         if (pFTB)
           pFTB->AddEvapEnd();
+        #endif
         break;
 
       case BEId_Makeup:  

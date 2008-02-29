@@ -2,6 +2,7 @@
 
 #define __EVAPBLOCK_CPP
 #include "EvapBlock.h"
+//#include "optoff.h"
 
 //=========================================================================
 //
@@ -261,6 +262,10 @@ class CEvapFinderQm : public MRootFinderBase
           {
           case EBT_Frac:    D=Liq*EC.m_QmFrac*x;             break;
           case EBT_Flow:    D=Min(EC.m_QmRqd*m_Scale*x, Liq);        break;
+          case EBT_TDiff: 
+            //NB NB NB This needs to be implemented!
+            _asm int 3;
+            break;
           default:
             _asm int 3;
             break;
