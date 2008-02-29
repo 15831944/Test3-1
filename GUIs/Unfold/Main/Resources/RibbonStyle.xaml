@@ -1,0 +1,12 @@
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="ButtonStyle.xaml"/>
+    <ResourceDictionary Source="TabControlStyle.xaml"/>
+    <ResourceDictionary Source="GroupBoxStyle.xaml"/>
+    <ResourceDictionary Source="ToolTipStyle.xaml"/>
+    <ResourceDictionary Source="RichTextBoxStyle.xaml"/>
+  </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

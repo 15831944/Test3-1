@@ -1,0 +1,162 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Orbifold.Unfold.ShapeLibrary"	
+    >
+ 
+  <!--
+_______________________________________________________________
+
+This is the default template for the SimpleRectangle.
+_______________________________________________________________
+-->
+  <Style TargetType="{x:Type local:SimpleRectangle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type local:SimpleRectangle}">
+            <Canvas>
+              <Rectangle Fill="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                 Stroke="DimGray" 
+                 Height="{Binding Path=Height, RelativeSource={RelativeSource TemplatedParent}}" 
+              Width="{Binding Path=Width, RelativeSource={RelativeSource TemplatedParent}}" 
+            RadiusX="5.5" RadiusY="5.5" StrokeThickness="1"  
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+              MinWidth="120" MinHeight="50" Margin="0,0,0,0" 
+              x:Name="Rectangle" RenderTransformOrigin="0.5,0.5"/>
+           
+            <TextBlock Name="BodyText" 
+                 TextTrimming="WordEllipsis" 
+                 TextWrapping="Wrap"
+                 Text="{Binding Path=Text, RelativeSource={RelativeSource TemplatedParent}}" 
+                 TextAlignment="{Binding Path=TextAlignment, RelativeSource={RelativeSource TemplatedParent}}"
+                 FontFamily="{Binding Path=FontFamily, RelativeSource={RelativeSource TemplatedParent}}"
+              Canvas.Left="0" Canvas.Top="0" Padding="10" 
+            Height="{Binding Path=Height, RelativeSource={RelativeSource TemplatedParent}}" 
+            Width="{Binding Path=Width, RelativeSource={RelativeSource TemplatedParent}}" 
+              />
+          </Canvas>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <!--
+_______________________________________________________________
+
+This is the default template for the SimpleEllipse.
+_______________________________________________________________
+-->
+  <Style TargetType="{x:Type local:SimpleEllipse}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type local:SimpleEllipse}">
+          <Canvas>
+            <Ellipse Fill="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                 Stroke="DimGray" 
+                 Height="{Binding Path=Height, RelativeSource={RelativeSource TemplatedParent}}" 
+              Width="{Binding Path=Width, RelativeSource={RelativeSource TemplatedParent}}"  
+             StrokeThickness="1"  
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+              MinWidth="120" MinHeight="50" Margin="0,0,0,0" 
+              x:Name="Ellipse" RenderTransformOrigin="0.5,0.5"/>
+            <TextBlock Name="BodyText" 
+                 TextTrimming="WordEllipsis" 
+                 TextWrapping="Wrap"
+                 Text="{Binding Path=Text, RelativeSource={RelativeSource TemplatedParent}}" 
+                 TextAlignment="{Binding Path=TextAlignment, RelativeSource={RelativeSource TemplatedParent}}"
+                 FontFamily="{Binding Path=FontFamily, RelativeSource={RelativeSource TemplatedParent}}"
+              Canvas.Left="0" Canvas.Top="0" Padding="30" 
+            Height="{Binding Path=Height, RelativeSource={RelativeSource TemplatedParent}}" 
+            Width="{Binding Path=Width, RelativeSource={RelativeSource TemplatedParent}}" 
+              />
+          </Canvas>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <!--
+  _______________________________________________________________
+  
+  This is the default template for the ClassShape
+  _______________________________________________________________
+  -->
+  <Style TargetType="{x:Type local:ClassShape}"  >
+    <Style.Resources>
+      <HierarchicalDataTemplate DataType    = "{x:Type local:ClassCategory}"
+                                ItemsSource = "{Binding Path=Members}">
+        <TextBlock FontFamily="Verdana" Text="{Binding Path=CategoryName}" />        
+      </HierarchicalDataTemplate>
+      <HierarchicalDataTemplate DataType = "{x:Type local:ClassMember}">
+        <BulletDecorator>
+          <BulletDecorator.Bullet>
+            <Image Source="{Binding Path=Image}"/>
+          </BulletDecorator.Bullet>
+          <TextBlock  FontFamily="Verdana" Background="WhiteSmoke" Text="{Binding Path=Name}" Padding="5,2,0,0"/>
+        </BulletDecorator>
+      </HierarchicalDataTemplate>
+    </Style.Resources>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type local:ClassShape}">
+          <Border Width="200" Name="Boordje" BorderThickness="1"
+                  BorderBrush="DimGray"    Background="WhiteSmoke" CornerRadius="10">
+
+            <StackPanel  ClipToBounds="True" >
+              <Canvas DockPanel.Dock="Top" Height="50">
+                <Rectangle  Width="200" Height="50" 
+                              Margin="0"  Name="Main" RadiusX="10" RadiusY="10">
+                  <Rectangle.Clip>
+                    <CombinedGeometry GeometryCombineMode="Union">
+                      <CombinedGeometry.Geometry2>
+                        <RectangleGeometry Rect="0,0,200,50" RadiusX="10" RadiusY="10"/>
+                      </CombinedGeometry.Geometry2>
+                      <CombinedGeometry.Geometry1>
+                        <RectangleGeometry Rect="0,10,200,40" />
+                      </CombinedGeometry.Geometry1>
+                    </CombinedGeometry>
+                  </Rectangle.Clip>
+                  <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                      <GradientStop Offset="0.0" Color="{Binding Path=ShapeColor, RelativeSource={RelativeSource TemplatedParent}}" />
+                      <GradientStop Offset="1.0" Color="WhiteSmoke" />
+                    </LinearGradientBrush>
+                  </Rectangle.Fill>
+                </Rectangle>
+                <TextBlock Name="Title" Canvas.Top="8" Canvas.Left="15" 
+                  MaxWidth="180" FontSize="11" 
+                  Text="{Binding Path=Title, RelativeSource={RelativeSource TemplatedParent}}"/>
+                <TextBlock Name="SubTitle" Canvas.Top="26" Canvas.Left="15" MaxWidth="180" FontSize="9" 
+                  Text="{Binding Path=SubTitle, RelativeSource={RelativeSource TemplatedParent}}"/>
+
+                <Image Source="images/collapse.gif" Canvas.Left="178"  Canvas.Top="8" Name="collapseImage" Cursor="Hand" Opacity="0.9" />
+                <Image Source="images/expand.gif" Canvas.Left="178"  Canvas.Top="8" Name="expandImage" Cursor="Hand"/>
+                <Button  Opacity="0"   BorderThickness="0"
+                        Width="16" Cursor="Hand" Height="16"
+                        Canvas.Left="178" Canvas.Top="8"  
+                      Command="{x:Static local:ClassShape.ShiftCommand}"/>
+              </Canvas>
+              <TreeView Name="BodyText"  Width="180" Padding="0,5,0,0" Visibility="Collapsed"
+                     BorderThickness="0" Background="Transparent"  ItemsSource="{Binding Path=TreeData, RelativeSource={RelativeSource TemplatedParent}}">
+              </TreeView>
+            </StackPanel>
+          </Border>
+
+
+          <ControlTemplate.Triggers >           
+            <DataTrigger Binding="{Binding Path=IsExpanded, RelativeSource={RelativeSource Self}}" Value="True" >
+              <Setter TargetName="expandImage" Property="Visibility"  Value="Hidden"  />
+              <Setter TargetName="BodyText" Property="Visibility"  Value="Visible"  />
+              <Setter TargetName="Main" Property="RadiusX"  Value="0"  />
+              <Setter TargetName="Main" Property="RadiusY"  Value="0"  />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Path=IsExpanded, RelativeSource={RelativeSource Self}}" Value="False" >
+              <Setter TargetName="expandImage" Property="Visibility"  Value="Visible"  />
+              <Setter TargetName="BodyText" Property="Visibility"  Value="Collapsed"  />
+              <Setter TargetName="Main" Property="RadiusX"  Value="10"  />
+              <Setter TargetName="Main" Property="RadiusY"  Value="10"  />
+            </DataTrigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>

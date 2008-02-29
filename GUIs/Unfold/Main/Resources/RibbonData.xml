@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--The data for the first tab in the ribbon. Use this for any other tab you wish to fill.-->
+<Ribbon>
+  <RibbonItem Name="CreateClassShape" Category="Special shapes">
+    <Header>Class shape(Ctrl+Q)</Header>
+    <Description>Create a class shape.</Description>
+    <Command>CreateClassShape</Command>
+  </RibbonItem>
+  <RibbonItem Name="CreateRectangle" Category="Simple shapes">
+    <Header>Rectangle(Ctrl+R)</Header>
+    <Description>Create a simple rectangular shape.</Description>
+    <Command>CreateRectangle</Command>
+  </RibbonItem>
+  <RibbonItem Name="CreateEllipse" Category="Simple shapes">
+    <Header>Ellipse(Ctrl+E)</Header>
+    <Description>Create a simple elliptic shape.</Description>
+    <Command>CreateEllipse</Command>
+  </RibbonItem>
+  <RibbonItem Name="CreateConnection" Category="Connections">
+    <Header>Ellipse(Ctrl+1)</Header>
+    <Description>Create a connection.</Description>
+    <Command>CreateConnection</Command>
+  </RibbonItem>
+  
+  
+  <RibbonItem Name="ToggleItalic" Category="Font">
+    <Header>Italic(Ctrl+I)</Header>
+    <Description>Make the selected text italic.</Description>
+  </RibbonItem>
+  <RibbonItem Name="ToggleUnderline" Category="Font">
+    <Header>Underline(Ctrl+U)</Header>
+    <Description>Underline the selected text.</Description>
+  </RibbonItem>
+  <RibbonItem Name="AlignLeft" Category="Paragraph">
+    <Header>Align Text Left(Ctrl+L)</Header>
+    <Description>Align text to the left.</Description>
+  </RibbonItem>
+  <RibbonItem Name="AlignCenter" Category="Paragraph">
+    <Header>Align Text Left(Ctrl+E)</Header>
+    <Description>Align text to the center.</Description>
+  </RibbonItem>
+  <RibbonItem Name="AlignRight" Category="Paragraph">
+    <Header>Align Text Right(Ctrl+R)</Header>
+    <Description>Align text to the right.</Description>
+  </RibbonItem>
+  <RibbonItem Name="AlignJustify" Category="Paragraph">
+    <Header>Justify(Ctrl+J)</Header>
+    <Description>
+      Align text to both the left and right margins.
+      adding extra space between words as necessary.
+      this creates a clean look along the left and right side of the page.
+    </Description>
+  </RibbonItem>  
+  <RibbonItem Name="Undo" Category="Edit">
+    <Header>Undo(Ctrl+Z)</Header>
+    <Description>Undo the previous operation.</Description>
+  </RibbonItem>
+  <RibbonItem Name="Redo" Category="Edit">
+    <Header>Redo(Ctrl+Y)</Header>
+    <Description>Redo the previous operation.</Description>
+  </RibbonItem>
+</Ribbon> 
