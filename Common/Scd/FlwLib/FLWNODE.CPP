@@ -3344,11 +3344,11 @@ long gs_ClosureOption    = CloseTest_Off;
 long gs_ClosureIterCnt   = -1;
 
 long   gs_SpillReport    = SplVntRpt_Cnds;
-long   gs_SpillAction    = SplVntAct_Idle|SplVntAct_Units|SplVntAct_Links;
+long   gs_SpillAction    = SplVntAct_Off;//SplVntAct_Idle|SplVntAct_Units|SplVntAct_Links;
 double gs_SpillTolerance = 1e-6;
 
 long   gs_VentReport     = SplVntRpt_Cnds;
-long   gs_VentAction     = SplVntAct_Idle|SplVntAct_Units|SplVntAct_Links;
+long   gs_VentAction     = SplVntAct_Off;
 double gs_VentTolerance  = 1e-9;
 
 byte   gs_SplVntActionRequested = 0;
