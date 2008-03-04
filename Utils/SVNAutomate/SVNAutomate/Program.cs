@@ -17,17 +17,26 @@ namespace SVNAutomate
       proc.StartInfo.RedirectStandardError = true;
       proc.StartInfo.CreateNoWindow = true;
 
+      String PLink = "C:\\Program Files\\TortoiseSVN\\bin\\TortoisePlink.exe";
+      String SVN = "C:\\Program Files\\Subversion\\bin\\svn.exe";
+
+      if (proc.StartInfo.EnvironmentVariables.ContainsKey("SVNAUTO_PLINK"))
+         PLink = proc.StartInfo.EnvironmentVariables["SVNAUTO_PLINK"];
+       
+      if (proc.StartInfo.EnvironmentVariables.ContainsKey("SVNAUTO_SVN"))
+         SVN = proc.StartInfo.EnvironmentVariables["SVNAUTO_SVN"];
+
       if (proc.StartInfo.EnvironmentVariables.ContainsKey("SVN_SSH"))
       {
         proc.StartInfo.EnvironmentVariables.Remove("SVN_SSH");
       }
-      proc.StartInfo.EnvironmentVariables.Add("SVN_SSH", @"C:\\Program Files\\TortoiseSVN\\bin\\TortoisePlink.exe");
+      proc.StartInfo.EnvironmentVariables.Add("SVN_SSH", PLink);//@"C:\\Program Files\\TortoiseSVN\\bin\\TortoisePlink.exe");
 
       output = "";
 
       try
       {
-        proc.StartInfo.FileName = "C:\\Program Files\\Subversion\\bin\\svn.exe";
+      proc.StartInfo.FileName = SVN;// "C:\\Program Files\\Subversion\\bin\\svn.exe";
         proc.StartInfo.Arguments = argument;
         proc.Start();
         proc.WaitForExit(100000);
