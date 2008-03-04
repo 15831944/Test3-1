@@ -668,17 +668,50 @@ ref class CSvcConnectCLRThread
     // ====================================================================
 
 
-    void AddModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, CSvcGuidPair & Guids, LPCSTR OriginPort, LPCSTR DestinationPort, 
-      CPointFList & ControlPoints, CSvcTagBlk & TagBlk)
+    void AddModifyLinkPts(__int64 & requestId, LPCSTR GraphicGuid, CPointFList & ControlPoints)
       {
-      List<SysCAD::Protocol::Point^> ^ Pts = gcnew List<SysCAD::Protocol::Point^>;
-      POSITION Pos=ControlPoints.GetHeadPosition();
-      while (Pos)
+      try
         {
-        CPointF & Pt=ControlPoints.GetNext(Pos);
-        Pts->Add(gcnew SysCAD::Protocol::Point(Pt.X(), Pt.Y()));
+        Guid graphicGuid(gcnew String(GraphicGuid));
+        GraphicLink ^ GLk;
+        if (clientProtocol->graphic->Links->TryGetValue(graphicGuid, GLk))
+          {
+          GraphicLink ^ newGLk = GLk->Clone();
+
+          List<SysCAD::Protocol::Point^> ^ Pts = newGLk->ControlPoints;//gcnew List<SysCAD::Protocol::Point^>;
+          Pts->Clear();
+          //List<SysCAD::Protocol::Point^> ^ Pts = gcnew List<SysCAD::Protocol::Point^>;
+          POSITION Pos=ControlPoints.GetHeadPosition();
+          while (Pos)
+            {
+            CPointF & Pt=ControlPoints.GetNext(Pos);
+            Pts->Add(gcnew SysCAD::Protocol::Point(Pt.X(), Pt.Y()));
+            }
+
+          SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
+
+          //newGLk->ControlPoints = Pts;
+
+          action->Modify->Add(newGLk);
+
+          clientProtocol->Change(requestId, action);
+          }
         }
-      SysCAD::Protocol::Rectangle^ TA = gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height());
+      catch (Exception^)
+        {
+        }
+
+      //void AddModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, CSvcGuidPair & Guids, LPCSTR OriginPort, LPCSTR DestinationPort, 
+      //  CPointFList & ControlPoints, CSvcTagBlk & TagBlk)
+      //  {
+      //  List<SysCAD::Protocol::Point^> ^ Pts = gcnew List<SysCAD::Protocol::Point^>;
+      //  POSITION Pos=ControlPoints.GetHeadPosition();
+      //  while (Pos)
+      //    {
+      //    CPointF & Pt=ControlPoints.GetNext(Pos);
+      //    Pts->Add(gcnew SysCAD::Protocol::Point(Pt.X(), Pt.Y()));
+      //    }
+      //  SysCAD::Protocol::Rectangle^ TA = gcnew SysCAD::Protocol::Rectangle(TagBlk.m_Area.Left(), TagBlk.m_Area.Bottom(), TagBlk.m_Area.Width(), TagBlk.m_Area.Height());
       };
 
     // ====================================================================
@@ -1036,17 +1069,22 @@ void CSvcConnectCLR::AddDeleteLink(__int64 & requestId, LPCSTR GraphicGuid)
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddDeleteLink(requestId, GraphicGuid);
   };
 
-void CSvcConnectCLR::AddModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, 
-                                  LPCSTR ClassId, 
-                                  CSvcGuidPair & Guids, 
-                                  LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                  CPointFList & ControlPoints, CSvcTagBlk & TagBlk)
+void CSvcConnectCLR::AddModifyLinkPts(__int64 & requestId, LPCSTR GraphicGuid, CPointFList & ControlPoints)
   {
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyLink(requestId, LinkGuid, Tag, Path, 
-    ClassId, 
-    Guids, OriginPort, DestinationPort, 
-    ControlPoints, TagBlk);
-  };
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyLinkPts(requestId, GraphicGuid, ControlPoints);
+  }
+
+//void CSvcConnectCLR::AddModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, 
+//                                  LPCSTR ClassId, 
+//                                  CSvcGuidPair & Guids, 
+//                                  LPCSTR OriginPort, LPCSTR DestinationPort, 
+//                                  CPointFList & ControlPoints, CSvcTagBlk & TagBlk)
+//  {
+//  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyLink(requestId, LinkGuid, Tag, Path, 
+//    ClassId, 
+//    Guids, OriginPort, DestinationPort, 
+//    ControlPoints, TagBlk);
+//  };
 
 
 //========================================================================

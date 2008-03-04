@@ -4422,7 +4422,6 @@ void GrfCmdBlk::DoMoveLink()
 #if SYSCAD10         
           if (gs_pPrj->SvcActive)
             {
-            SCD10ENTER;
             CPointFList ControlPoints;
             for (int i=0; i<TheLDH.NVerts(); i++)
               {
@@ -4430,9 +4429,14 @@ void GrfCmdBlk::DoMoveLink()
               ControlPoints.AddTail(CPointF(Pt.X, Pt.Y));
               }
 
-            CRectangleF TA(0.0, 0.0, 0.0, 0.0);
-            gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints, CSvcTagBlk(TA, 0.0, !bFlag1));
-            SCD10LEAVE;
+            //CRectangleF TA(0.0, 0.0, 0.0, 0.0);
+            LPCSTR pGrfGuid= Scd10GetGrfGuid(OldEntity);
+            if (pGrfGuid)
+              {
+              SCD10ENTER;
+              gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), OldEntity, pGrfGuid, ControlPoints);
+              SCD10LEAVE;
+              }
             }
           else
 #endif
@@ -6053,7 +6057,7 @@ void GrfCmdBlk::DoMoveEntity()
                   if (pGrfGuid)
                     {
                     SCD10ENTER;
-                    gs_pPrj->Svc.GCBModifyNodePosition((CGrfDoc*)pDoc, Like, pGrfGuid, Delta);
+                    gs_pPrj->Svc.GCBModifyNodePosition((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), Like, pGrfGuid, Delta);
                     SCD10LEAVE;
                     }
                   else
@@ -9368,7 +9372,7 @@ void GrfCmdBlk::DoUpdateTags()
                     //Delta.Y = pDsp->CurrentPt.World.Y - DXF_ATTRIB_PT(TAtt)[1];// Insert_BasePt(Ins)[1];
                     SCD10ENTER;
                     //What about Symbol only ??????????
-                    gs_pPrj->Svc.GCBModifyTagG((CGrfDoc*)pDoc, TAtt, Find_Attr_Value(Ins, GuidAttribStr),  
+                    gs_pPrj->Svc.GCBModifyTagG((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), TAtt, Find_Attr_Value(Ins, GuidAttribStr),  
                       Delta, 
                       CSvcTagBlk(CRectangleF(DXF_ATTRIB_PT(TAtt)[0], DXF_ATTRIB_PT(TAtt)[1], /*Width?*/ 0,
                       DXF_ATTRIB_HEIGHT(TAtt)), (float)DXF_ATTRIB_ROT_ANG(TAtt), (DXF_ATTRIB_AFLAGS(TAtt)&DXF_ATTRIB_INVIS)==0));

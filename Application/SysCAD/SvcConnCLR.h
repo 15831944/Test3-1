@@ -53,11 +53,7 @@ class CSvcConnectCLR
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
     void AddDeleteLink(__int64 & requestId, LPCSTR GraphicGuid);
-    void AddModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, 
-                      LPCSTR ClassId, 
-                      CSvcGuidPair & Guids, 
-                      LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
+    void AddModifyLinkPts(__int64 & requestId, LPCSTR GraphicGuid, CPointFList & ControlPoints);
 
 
     //----------------------------------------------------------------------------------

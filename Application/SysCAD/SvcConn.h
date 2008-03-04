@@ -109,7 +109,7 @@ class CSvcConnect
     // Operations
     void GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
     void GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GraphicGuid);
-    void GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta);
+    void GCBModifyNodePosition(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta);
    
     void GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR ClassId, 
                       LPCSTR SrcGrfGuid, LPCSTR DstGrfGuid, 
@@ -117,10 +117,9 @@ class CSvcConnect
                       LPCSTR SrcPort, LPCSTR DstPort, 
                       CPointFList & ControlPoints);//, const CRectangleF & tagArea);
     void GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR GraphicGuid);
-    void GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, 
-                      CPointFList & ControlPoints, CSvcTagBlk & TagBlk);
+    void GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, CPointFList & ControlPoints);
    
-    void GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk);
+    void GCBModifyTagG(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk);
 
     // CallBack's
     void OnCreateNodeM(__int64 eventId, __int64 requestId, CSvcHeaderBlk & Header);

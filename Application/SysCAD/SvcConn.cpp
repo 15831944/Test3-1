@@ -442,7 +442,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
           SrcGrfGuid, DstGrfGuid, 
           SrcPort, DstPort, 
           CtrlPts,
-          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)-GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible));
+          CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)-GTI.m_Tag.m_Rotation, GTI.m_Tag.m_Visible!=0));
 
 
         DO_EXIT_GG("DoCreateLinkE", ModelGuid, GraphicGuid);
@@ -892,7 +892,7 @@ void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, CSvcHeaderBl
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta)
+void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta)
   {
   DO_ENTRY_GT("GCBModifyNodePosition", GraphicGuid, "");//Tag);
 
@@ -905,7 +905,7 @@ void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCST
 
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBModifyTagG(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk)
+void CSvcConnect::GCBModifyTagG(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk)
   {
   DO_ENTRY_GT("GCBModifyTagG", GraphicGuid, "");//Tag);
 
@@ -1215,25 +1215,23 @@ void CSvcConnect::OnDeleteLinkG(__int64 eventId, __int64 requestId, CSvcHeaderBl
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag,
-                                   /*LPCSTR ClassId, LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort,*/ 
-                                   CPointFList & ControlPoints, CSvcTagBlk & TagBlk)
+void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, CPointFList & ControlPoints)
   {
 
-  Strng Guid;
-  if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
-    {
-    DO_ENTRY_GT("GCBModifyLinkPts", Guid(), Tag);
+  //Strng Guid;
+  //if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
+  //  {
+    DO_ENTRY_GT("GCBModifyLinkPts", GraphicGuid, Tag);
 
     CRectangleF PageRct = GetPageRect(Page);
 
-    FlwNode * pLink = gs_pSfeSrvr->FE_FindNode(Tag, NULL);
+    //FlwNode * pLink = gs_pSfeSrvr->FE_FindNode(Tag, NULL);
 
-    LPSTR     pClass  = pLink->ClassId();
-    FlwNode * pSrcNd  = pLink->Nd_Rmt(0);
-    LPSTR     pSrcIO  = pLink->IOArea_Rmt(0).IOName();
-    FlwNode * pDstNd  = pLink->Nd_Rmt(1);
-    LPSTR     pDstIO  = pLink->IOArea_Rmt(1).IOName();
+    //LPSTR     pClass  = pLink->ClassId();
+    //FlwNode * pSrcNd  = pLink->Nd_Rmt(0);
+    //LPSTR     pSrcIO  = pLink->IOArea_Rmt(0).IOName();
+    //FlwNode * pDstNd  = pLink->Nd_Rmt(1);
+    //LPSTR     pDstIO  = pLink->IOArea_Rmt(1).IOName();
 
     POSITION Pos=ControlPoints.GetHeadPosition();
     while (Pos)
@@ -1242,13 +1240,15 @@ void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCST
       Pt.Set(PageRct.Left()+Pt.X(),PageRct.Top()-Pt.Y());
       }
 
+
     //m_pCLR->AddModifyLink(m_lRequestIdRet, Guid(), Tag, "?Path?", pClass, pSrcNd->Guid(), pDstNd->Guid(), pSrcIO, pDstIO, ControlPoints, tagArea, tagAngle);
+    m_pCLR->AddModifyLinkPts(m_lRequestIdRet, GraphicGuid, ControlPoints);
 
     DO_EXIT("GCBModifyLinkPts");
-    }
-  else
-    {
-    }
+  //  }
+  //else
+  //  {
+  //  }
   }
 
 //------------------------------------------------------------------------
