@@ -44,6 +44,7 @@ namespace SysCAD.Protocol
 
       this.TagArea = tagArea;
       this.TagAngle = tagAngle;
+      if (tagFont == null) throw new NullReferenceException("TagFont cannot be null.");
       this.TagFont = tagFont;
       this.TagVisible = tagVisible;
 

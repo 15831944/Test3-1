@@ -28,7 +28,11 @@ namespace SysCAD.Protocol
     public Font TagFont
     {
       get { return tagFont; }
-      set { tagFont = value; }
+      set
+      {
+        if (value == null) throw new NullReferenceException("TagFont cannot be null.");
+        tagFont = value;
+      }
     }
 
     public Boolean TagVisible

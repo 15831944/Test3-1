@@ -102,7 +102,7 @@ namespace SysCAD.Service
       }
 
     public ConfigData ConfigData
-      {
+      { 
       get { return configData; }
       set { configData = value; }
       }

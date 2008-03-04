@@ -132,6 +132,7 @@ namespace SysCAD.Protocol
         graphicLink.controlPoints.Add(controlPoint);
 
       graphicLink.TagArea = TagArea;
+      graphicLink.TagFont = TagFont;
       graphicLink.TagAngle = TagAngle;
       
       return graphicLink;
