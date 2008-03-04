@@ -523,6 +523,7 @@ ref class CSvcConnectCLRThread
       {
       Guid graphicGuid(gcnew String(GraphicGuid));
       GraphicNode ^ GNd;
+      GraphicLink ^ GLk;
       if (clientProtocol->graphic->Nodes->TryGetValue(graphicGuid, GNd))
         {
 
@@ -535,6 +536,24 @@ ref class CSvcConnectCLRThread
         SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
 
         action->Modify->Add(newGNd);
+
+        clientProtocol->Change(requestId, action);
+        }
+      else if (clientProtocol->graphic->Links->TryGetValue(graphicGuid, GLk))
+        {
+
+        GraphicLink ^ newGLk = GLk->Clone();
+        for each (SysCAD::Protocol::Point^ Pt in newGLk->ControlPoints)
+          {
+          Pt->X = Pt->X + (float)Delta.X;
+          Pt->Y = Pt->Y + (float)Delta.Y;
+          }
+        newGLk->TagArea->X += (float)Delta.X;
+        newGLk->TagArea->Y += (float)Delta.Y;
+
+        SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
+
+        action->Modify->Add(newGLk);
 
         clientProtocol->Change(requestId, action);
         }
@@ -678,9 +697,8 @@ ref class CSvcConnectCLRThread
           {
           GraphicLink ^ newGLk = GLk->Clone();
 
-          List<SysCAD::Protocol::Point^> ^ Pts = newGLk->ControlPoints;//gcnew List<SysCAD::Protocol::Point^>;
+          List<SysCAD::Protocol::Point^> ^ Pts = newGLk->ControlPoints;
           Pts->Clear();
-          //List<SysCAD::Protocol::Point^> ^ Pts = gcnew List<SysCAD::Protocol::Point^>;
           POSITION Pos=ControlPoints.GetHeadPosition();
           while (Pos)
             {
@@ -689,8 +707,6 @@ ref class CSvcConnectCLRThread
             }
 
           SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
-
-          //newGLk->ControlPoints = Pts;
 
           action->Modify->Add(newGLk);
 
