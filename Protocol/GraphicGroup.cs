@@ -18,34 +18,58 @@ namespace SysCAD.Protocol
 
     private String path;
 
-    public GraphicArea(Guid guid, String tag)
+    public GraphicArea(Guid guid, String tag, Rectangle boundingRect, String path)
+      : base(guid, tag)
     {
-      this.Guid = guid;
-      this.Tag = tag;
+      BoundingRect = boundingRect;
+      Path = path;
     }
 
-    public GraphicArea(String tag)
+    public GraphicArea(String tag, Rectangle boundingRect, String path)
+      : base(tag)
     {
-      this.Guid = Guid.NewGuid();
-      this.Tag = tag;
+      BoundingRect = boundingRect;
+      Path = path;
+    }
+
+    public GraphicArea(Guid guid, String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Rectangle boundingRect, String path)
+      : base(guid, tag, tagArea, tagAngle, tagFont, tagVisible)
+    {
+      BoundingRect = boundingRect;
+      Path = path;
+    }
+
+    public GraphicArea(String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Rectangle boundingRect, String path)
+      : base(tag, tagArea, tagAngle, tagFont, tagVisible)
+    {
+      BoundingRect = boundingRect;
+      Path = path;
     }
 
     public Rectangle BoundingRect
     {
       get { return boundingRect; }
-      set { boundingRect = value; }
+      set
+      {
+        if (value == null) throw new NullReferenceException("BoundingRect cannot be null.");
+        boundingRect = value;
+      }
+    }
+
+    public String Path
+    {
+      get { return path; }
+      set
+      {
+        if (value == null) throw new NullReferenceException("Path cannot be null.");
+        path = value;
+      }
     }
 
     public Double Height
     {
       get { return boundingRect.Height; }
       set { boundingRect.Height = value; }
-    }
-
-    public String Path
-    {
-      get { return path; }
-      set { path = value; }
     }
 
     public Double Width
@@ -64,6 +88,11 @@ namespace SysCAD.Protocol
     {
       get { return boundingRect.Y; }
       set { boundingRect.Y = value; }
+    }
+
+    public GraphicArea Clone()
+    {
+      return new GraphicArea(Guid, Tag, BoundingRect, Path);
     }
   }
 }

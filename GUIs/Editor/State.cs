@@ -1487,7 +1487,7 @@ namespace SysCAD.Editor
     {
       if (flowChart.InvokeRequired)
       {
-        flowChart.BeginInvoke(new ModifyNodeDelegate(ModifyNode), new object[] { guid });
+        flowChart.BeginInvoke(new ModifyNodeDelegate(ModifyLink), new object[] { guid });
       }
       else
       {

@@ -13,10 +13,58 @@ namespace SysCAD.Protocol
     private Font tagFont;
     private Boolean tagVisible;
 
+    public GraphicItem()
+    {
+      tagArea = new Rectangle(0.0, 0.0, 0.0, 0.0);
+      tagAngle = 0.0;
+      tagFont = new Font();
+      tagVisible = false;
+    }
+
+    public GraphicItem(Guid guid, String tag)
+      : base(guid, tag)
+    {
+      tagArea = new Rectangle(0.0, 0.0, 0.0, 0.0);
+      tagAngle = 0.0;
+      tagFont = new Font();
+      tagVisible = false;
+    }
+
+    public GraphicItem(String tag)
+      : base(tag)
+    {
+      tagArea = new Rectangle(0.0, 0.0, 0.0, 0.0);
+      tagAngle = 0.0;
+      tagFont = new Font();
+      tagVisible = false;
+    }
+
+    public GraphicItem(Guid guid, String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible)
+      : base(guid, tag)
+    {
+      TagArea = tagArea;
+      TagAngle = tagAngle;
+      TagFont = tagFont;
+      TagVisible = tagVisible;
+    }
+
+    public GraphicItem(String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible)
+      : base(tag)
+    {
+      TagArea = tagArea;
+      TagAngle = tagAngle;
+      TagFont = tagFont;
+      TagVisible = tagVisible;
+    }
+
     public Rectangle TagArea
     {
       get { return tagArea; }
-      set { tagArea = value; }
+      set
+      {
+        if (value == null) throw new NullReferenceException("TagArea cannot be null.");
+        tagArea = value;
+      }
     }
 
     public Double TagAngle

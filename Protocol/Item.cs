@@ -10,16 +10,42 @@ namespace SysCAD.Protocol
     private Guid guid;
     private String tag;
 
+    public Item()
+    {
+      Guid = Guid.NewGuid();
+      Tag = Guid.ToString();
+    }
+
+    public Item(Guid guid, String tag)
+    {
+      Guid = guid;
+      Tag = tag;
+    }
+
+    public Item(String tag)
+    {
+      Guid = Guid.NewGuid();
+      Tag = tag;
+    }
+
     public Guid Guid
     {
       get { return guid; }
-      set { guid = value; }
+      set
+      {
+        if (value == null) throw new NullReferenceException("Guid cannot be null.");
+        guid = value;
+      }
     }
 
     public String Tag
     {
       get { return tag; }
-      set { tag = value; }
+      set
+      {
+        if (value == null) throw new NullReferenceException("Tag cannot be null.");
+        tag = value;
+      }
     }
   }
 }

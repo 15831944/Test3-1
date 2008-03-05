@@ -409,9 +409,9 @@ ref class CSvcConnectCLRThread
 
     void AddCreateGroup(__int64 & requestId, LPCSTR GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
       {
-      GraphicArea ^ Grp = gcnew GraphicArea(Guid(gcnew String(GrpGuid)), gcnew String(Tag));
-      Grp->Path = gcnew String(Path);
-      Grp->BoundingRect = gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+      GraphicArea ^ Grp = gcnew GraphicArea(Guid(gcnew String(GrpGuid)), gcnew String(Tag), 
+        gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height()),
+        gcnew String(Path));
 
       m_Action->Create->Add(Grp);
       }

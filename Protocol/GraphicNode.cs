@@ -26,14 +26,16 @@ namespace SysCAD.Protocol
     private bool mirrorX;
     private bool mirrorY;
 
+    public GraphicNode()
+    {
+
+    }
 
     public GraphicNode(Guid guid, String tag, String path, Guid modelGuid, Stencil stencil, Rectangle boundingRect,
       Double angle, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, System.Drawing.Color fillColor,
       FillMode fillMode, bool mirrorX, bool mirrorY)
+      : base(guid, tag, tagArea, tagAngle, tagFont, tagVisible)
     {
-      this.Guid = guid;
-      this.Tag = tag;
-
       this.path = path;
 
       this.modelGuid = modelGuid;
@@ -42,11 +44,24 @@ namespace SysCAD.Protocol
       this.boundingRect = boundingRect;
       this.angle = angle;
 
-      this.TagArea = tagArea;
-      this.TagAngle = tagAngle;
-      if (tagFont == null) throw new NullReferenceException("TagFont cannot be null.");
-      this.TagFont = tagFont;
-      this.TagVisible = tagVisible;
+      this.fillColor = fillColor;
+      this.fillMode = fillMode;
+      this.mirrorX = mirrorX;
+      this.mirrorY = mirrorY;
+    }
+
+    public GraphicNode(String tag, String path, Guid modelGuid, Stencil stencil, Rectangle boundingRect,
+      Double angle, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, System.Drawing.Color fillColor,
+      FillMode fillMode, bool mirrorX, bool mirrorY)
+      : base(tag, tagArea, tagAngle, tagFont, tagVisible)
+    {
+      this.path = path;
+
+      this.modelGuid = modelGuid;
+      this.stencil = stencil;
+
+      this.boundingRect = boundingRect;
+      this.angle = angle;
 
       this.fillColor = fillColor;
       this.fillMode = fillMode;
@@ -134,9 +149,7 @@ namespace SysCAD.Protocol
 
     public GraphicNode Clone()
     {
-      GraphicNode graphicNode = new GraphicNode(Guid, Tag, path, modelGuid, stencil, boundingRect, angle, TagArea, TagAngle, TagFont, TagVisible, fillColor, fillMode, mirrorX, mirrorY);
-
-            return graphicNode;
+      return new GraphicNode(Guid, Tag, path, ModelGuid, Stencil, BoundingRect, Angle, TagArea, TagAngle, TagFont, TagVisible, FillColor, FillMode, MirrorX, MirrorY);
     }
   }
 }

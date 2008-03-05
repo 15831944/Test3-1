@@ -200,8 +200,10 @@ namespace SysCAD.Protocol
 
     public static bool operator ==(Rectangle r1, Rectangle r2)
     {
-      return (r1.X == r2.X) && (r1.Y == r2.Y) &&
-                                (r1.Width == r2.Width) && (r1.Height == r2.Height);
+      if ((object)r2 == null)
+        return ((object)r1 == null); 
+      else
+        return (r1.X == r2.X) && (r1.Y == r2.Y) && (r1.Width == r2.Width) && (r1.Height == r2.Height);
     }
 
     /// <summary>
