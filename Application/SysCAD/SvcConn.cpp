@@ -290,6 +290,8 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
   if (m_pCLR->PrepareForUpgrade(projectPath, configPath))
     {
+    m_pCLR->ProcessChangeListsHold(true);
+
     CExistingItems GI;
 
     GI.Get();
@@ -514,6 +516,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
         }
       }
 
+    m_pCLR->ProcessChangeListsHold(false);
     if (!m_pCLR->ProcessChangeLists(m_lRequestIdRet))
       {
       _asm int 3;  // Some Error occurred
@@ -1011,15 +1014,29 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
   CString GuidRet;
 
+  CPointF tagPos;
+  CPointF prevPt;
+  double LongSegLen=0;
+  int SegCount=0;
   POSITION Pos=ControlPoints.GetHeadPosition();
   while (Pos)
     {
     CPointF & Pt=ControlPoints.GetNext(Pos);
     Pt.Set(PageRct.Left()+Pt.X(),PageRct.Top()-Pt.Y());
+    if (++SegCount>=2)
+      {
+      double SegLen = Sqr(Pt.X()-prevPt.X())+Sqr(Pt.Y()-prevPt.Y());
+      if (SegLen>LongSegLen)
+        {
+        LongSegLen=SegLen;
+        tagPos.Set(0.5*(Pt.X()+prevPt.X()), 0.5*(Pt.Y()+prevPt.Y()));
+        }
+      }
+    prevPt=Pt;
     }
 
-  CRectangleF textBox;//boundingRect.MidX(), boundingRect.Top(), 2.0*strlen(Tag), 3.0f);
-
+  //CRectangleF textBox;//boundingRect.MidX(), boundingRect.Top(), 2.0*strlen(Tag), 3.0f);
+  CRectangleF textBox(tagPos.X(), tagPos.Y(), 2.0f*strlen(Tag), 3.0f);
                                 
   m_pCLR->AddCreateLink(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId,  
           SrcMdlGuid, DstMdlGuid, 
@@ -1402,8 +1419,8 @@ bool CExistingItems::Get()
       if (DrwY<0.0 || DrwY+DrwH>PageH)
         PageYShift = -(DrwY+0.5*DrwH-0.5*PageH); 
 
-      Grp.m_XShift=PageXShift;
-      Grp.m_YShift=PageYShift;
+      Grp.m_XShift=(float)PageXShift;
+      Grp.m_YShift=(float)PageYShift;
       
       int xxx=0;
         //if (!FoundPageSz)

@@ -62,6 +62,7 @@ class CSvcConnectCLR
     //----------------------------------------------------------------------------------
 
     bool ProcessChangeLists(__int64 & requestId);
+    void ProcessChangeListsHold(bool On);
 
 
     void Load();

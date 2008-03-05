@@ -82,7 +82,7 @@
     <Compile Include="EngineServiceProtocol.cs" />
     <Compile Include="Font.cs" />
     <Compile Include="Graphic.cs" />
-    <Compile Include="GraphicGroup.cs" />
+    <Compile Include="GraphicArea.cs" />
     <Compile Include="GraphicItem.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />

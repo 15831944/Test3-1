@@ -97,6 +97,7 @@ ref class CSvcConnectCLRThread
       // There could be sharing problems - when importing and editing simultaneously -  unlikely
       m_pConn = pConn;
       m_Action = gcnew SysCAD::Protocol::Action();
+      m_iProcessChangeListsHold=0;
       };
     ~CSvcConnectCLRThread()
       {
@@ -287,6 +288,7 @@ ref class CSvcConnectCLRThread
       //  (clientProtocol->graphic->Links->Count == 0)&&
       //  (clientProtocol->graphic->Things->Count == 0)));
 
+      
       return true;
       };
 
@@ -413,7 +415,10 @@ ref class CSvcConnectCLRThread
         gcnew SysCAD::Protocol::Rectangle(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height()),
         gcnew String(Path));
 
+
       m_Action->Create->Add(Grp);
+
+      ProcessChangeLists(requestId);
       }
 
     // ====================================================================
@@ -500,7 +505,10 @@ ref class CSvcConnectCLRThread
         ModelNode ^ MNd = gcnew ModelNode(MdlGuid, gcnew String(Tag), gcnew String(ClassId));
         m_Action->Create->Add(MNd);
         }
+      
+      ProcessChangeLists(requestId);
       }
+
 
     // ====================================================================
     //
@@ -508,11 +516,9 @@ ref class CSvcConnectCLRThread
 
     void AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)
       {
-      SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
+      m_Action->Delete->Add(Guid(gcnew String(GraphicGuid)));
 
-      action->Delete->Add(Guid(gcnew String(GraphicGuid)));
-
-      clientProtocol->Change(requestId, action);
+      ProcessChangeLists(requestId);
       };
 
     // ====================================================================
@@ -533,11 +539,9 @@ ref class CSvcConnectCLRThread
         newGNd->TagArea->X += (float)Delta.X;
         newGNd->TagArea->Y += (float)Delta.Y;
 
-        SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
+        m_Action->Modify->Add(newGNd);
 
-        action->Modify->Add(newGNd);
-
-        clientProtocol->Change(requestId, action);
+        ProcessChangeLists(requestId);
         }
       else if (clientProtocol->graphic->Links->TryGetValue(graphicGuid, GLk))
         {
@@ -551,11 +555,8 @@ ref class CSvcConnectCLRThread
         newGLk->TagArea->X += (float)Delta.X;
         newGLk->TagArea->Y += (float)Delta.Y;
 
-        SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
-
-        action->Modify->Add(newGLk);
-
-        clientProtocol->Change(requestId, action);
+        m_Action->Modify->Add(newGLk);
+        ProcessChangeLists(requestId);
         }
       };
 
@@ -577,11 +578,8 @@ ref class CSvcConnectCLRThread
         newGNd->TagAngle = TagBlk.m_Angle;
         newGNd->TagVisible = TagBlk.m_Visible;
 
-        SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
-
-        action->Modify->Add(newGNd);
-
-        clientProtocol->Change(requestId, action);
+        m_Action->Modify->Add(newGNd);
+        ProcessChangeLists(requestId);
         return;
         }
 
@@ -599,11 +597,8 @@ ref class CSvcConnectCLRThread
         newLNd->TagAngle = TagBlk.m_Angle;
         newLNd->TagVisible = TagBlk.m_Visible;
 
-        SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
-
-        action->Modify->Add(newLNd);
-
-        clientProtocol->Change(requestId, action);
+        m_Action->Modify->Add(newLNd);
+        ProcessChangeLists(requestId);
         return;
         }
       };
@@ -639,6 +634,7 @@ ref class CSvcConnectCLRThread
 
         m_Action->Create->Add(MLnk);
         m_Action->Create->Add(GLnk);
+        ProcessChangeLists(requestId);
         }
       catch (Exception^)
         {
@@ -651,8 +647,6 @@ ref class CSvcConnectCLRThread
 
     void AddDeleteLink(__int64 & requestId, LPCSTR GraphicGuid)
       {
-      SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
-
       try
         {
 
@@ -661,7 +655,7 @@ ref class CSvcConnectCLRThread
 
         if (clientProtocol->graphic->Links->TryGetValue(*guid, GLnk))
           {
-          action->Delete->Add(GLnk->ModelGuid);
+          m_Action->Delete->Add(GLnk->ModelGuid);
 
           //m_pConn->dbgPrintLn("Init  Delete Lnk Mdl  : %s", ToCString(GLnk->ModelGuid.ToString()));
 
@@ -670,12 +664,12 @@ ref class CSvcConnectCLRThread
             SysCAD::Protocol::GraphicLink ^ GLnk1 = KVPair.Value;
             if (GLnk->ModelGuid == GLnk1->ModelGuid)
               {
-              action->Delete->Add(GLnk1->Guid);
+              m_Action->Delete->Add(GLnk1->Guid);
               //m_pConn->dbgPrintLn("Check Delete Lnk Grf  : %s", ToCString(GLnk1->Guid.ToString()));
               }
             } 
           }
-        clientProtocol->Change(requestId, action);
+        ProcessChangeLists(requestId);
         }
       catch (Exception^)
         {
@@ -706,11 +700,8 @@ ref class CSvcConnectCLRThread
             Pts->Add(gcnew SysCAD::Protocol::Point(Pt.X(), Pt.Y()));
             }
 
-          SysCAD::Protocol::Action ^action = gcnew SysCAD::Protocol::Action();
-
-          action->Modify->Add(newGLk);
-
-          clientProtocol->Change(requestId, action);
+          m_Action->Modify->Add(newGLk);
+          ProcessChangeLists(requestId);
           }
         }
       catch (Exception^)
@@ -752,10 +743,22 @@ ref class CSvcConnectCLRThread
 
     bool ProcessChangeLists(Int64 requestId)
       {
-      bool Ret=clientProtocol->Change(requestId, m_Action);
-      m_Action->Clear();
-      return Ret;
+      if (m_iProcessChangeListsHold<=0)
+        {
+        bool Ret=clientProtocol->Change(requestId, m_Action);
+        m_Action->Clear();
+        return Ret;
+        }
+      return true;
       }
+
+    void ProcessChangeListsHold(bool On)
+      {
+      if (On)
+        m_iProcessChangeListsHold++;
+      else
+        m_iProcessChangeListsHold--;
+      };
 
     void PortInfoRequested(Int64 eventId, Int64 requestId, Guid guid, String^ tag)
       {
@@ -964,7 +967,9 @@ ref class CSvcConnectCLRThread
 
     CSvcConnect   * m_pConn;
 
+    int                       m_iProcessChangeListsHold;
     SysCAD::Protocol::Action ^m_Action;
+
 
   };
 
@@ -1108,6 +1113,11 @@ void CSvcConnectCLR::AddModifyLinkPts(__int64 & requestId, LPCSTR GraphicGuid, C
 bool CSvcConnectCLR::ProcessChangeLists(__int64 & requestId)
   {
   return CSvcConnectCLRThreadGlbl::gs_SrvrThread->ProcessChangeLists(requestId);
+  }
+
+void CSvcConnectCLR::ProcessChangeListsHold(bool On)
+  {
+  return CSvcConnectCLRThreadGlbl::gs_SrvrThread->ProcessChangeListsHold(On);
   }
 
 //========================================================================
