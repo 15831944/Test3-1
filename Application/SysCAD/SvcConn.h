@@ -110,6 +110,7 @@ class CSvcConnect
     void GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
     void GCBDeleteNode(DXF_ENTITY eEntity, LPCSTR GraphicGuid);
     void GCBModifyNodePosition(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta);
+    void GCBModifyNodeSymbol(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, LPCSTR Symbol);
    
     void GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR ClassId, 
                       LPCSTR SrcGrfGuid, LPCSTR DstGrfGuid, 

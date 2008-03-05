@@ -2334,106 +2334,141 @@ void GrfCmdBlk::DoChangeUnit()
             ATag = pMdlDlg->m_Tag();
             Strng AssocTag;
 
-            int DeletesFailedCnt = 0;
-            int MdlDeletes = 0;
-            if (CB->m_EntInVw)
+#if SYSCAD10         
+            if (gs_pPrj->SvcActive)
               {
-              DXF_ENTITY e = CB->m_EntInVw->EntityPtr();
-              C3_CURVE   c = CB->m_EntInVw->CurvePtr();
-              if (1 && c && pDrw->Exists(c))
+              if (CB->m_EntInVw)
                 {
-                pDsp->Draw(c, GrfHelper.GR_BACKGROUND);
-                pDrw->Delete(c);
-                }
-              if (e && pDrw->Exists(e))
-                {
-                if (DXF_ENTITY_IS_INSERT(e))
-                  {                                   
-                  AssocTag = Find_Attr_Value(e, AssocTagAttribStr);
-                  
-                  Pos.Set(DXF_INSERT_PT(e)[0], DXF_INSERT_PT(e)[1], DXF_INSERT_PT(e)[2]);
-                  pDsp->SetCPtWorld(Pos, Pt1);
-                  }
-                //pchar pTag;
-                //if (0)//DelMdl)
-                //  {
-                //  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
-                //    {
-                //    CMdlValueSet::Clear();
-                //    int RetCode = gs_Exec.DeleteTags(Strng_List(pTag));
-                //    if (RetCode!=EODT_DONE)
-                //      {
-                //      LogError(pTag, 0, "Model not deleted");
-                //      DeletesFailedCnt++;
-                //      }
-                //    else
-                //      MdlDeletes++;
-                //    }
-                //  }
-                if (1)
+                DXF_ENTITY e = CB->m_EntInVw->EntityPtr();
+                C3_CURVE   c = CB->m_EntInVw->CurvePtr();
+                if (1 && c && pDrw->Exists(c))
                   {
-                  pDsp->Draw(e, GrfHelper.GR_BACKGROUND);
-                  pDrw->Delete(e);
+                  pDsp->Draw(c, GrfHelper.GR_BACKGROUND);
+                  pDrw->Delete(c);
+                  }
+                if (e && pDrw->Exists(e))
+                  {
+                  if (DXF_ENTITY_IS_INSERT(e))
+                    {                                   
+
+                    //CRectangleF TA(0.0, 0.0, 0.0, 0.0);
+                    LPCSTR pGrfGuid= Scd10GetGrfGuid(e);
+                    if (pGrfGuid)
+                      {
+                      SCD10ENTER;
+                      gs_pPrj->Svc.GCBModifyNodeSymbol((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), e, pGrfGuid, pMdlDlg->m_SymbolName());
+                      SCD10LEAVE;
+                      }
+                    }
                   }
                 }
               }
-            if (DeletesFailedCnt)
+            else
+#endif
               {
-              if (DeletesFailedCnt==1)
-                LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "A model was not deleted");
-              else
-                LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "%d models were not deleted.", DeletesFailedCnt);
+              int DeletesFailedCnt = 0;
+              int MdlDeletes = 0;
+
+
+              if (CB->m_EntInVw)
+                {
+                DXF_ENTITY e = CB->m_EntInVw->EntityPtr();
+                C3_CURVE   c = CB->m_EntInVw->CurvePtr();
+                if (1 && c && pDrw->Exists(c))
+                  {
+                  pDsp->Draw(c, GrfHelper.GR_BACKGROUND);
+                  pDrw->Delete(c);
+                  }
+                if (e && pDrw->Exists(e))
+                  {
+                  if (DXF_ENTITY_IS_INSERT(e))
+                    {                                   
+                    AssocTag = Find_Attr_Value(e, AssocTagAttribStr);
+
+                    Pos.Set(DXF_INSERT_PT(e)[0], DXF_INSERT_PT(e)[1], DXF_INSERT_PT(e)[2]);
+                    pDsp->SetCPtWorld(Pos, Pt1);
+                    }
+                  //pchar pTag;
+                  //if (0)//DelMdl)
+                  //  {
+                  //  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
+                  //    {
+                  //    CMdlValueSet::Clear();
+                  //    int RetCode = gs_Exec.DeleteTags(Strng_List(pTag));
+                  //    if (RetCode!=EODT_DONE)
+                  //      {
+                  //      LogError(pTag, 0, "Model not deleted");
+                  //      DeletesFailedCnt++;
+                  //      }
+                  //    else
+                  //      MdlDeletes++;
+                  //    }
+                  //  }
+                  if (1)
+                    {
+                    pDsp->Draw(e, GrfHelper.GR_BACKGROUND);
+                    pDrw->Delete(e);
+                    }
+                  }
+                }
+              if (DeletesFailedCnt)
+                {
+                if (DeletesFailedCnt==1)
+                  LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "A model was not deleted");
+                else
+                  LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "%d models were not deleted.", DeletesFailedCnt);
+                }
+
+              ASymbol = pMdlDlg->m_SymbolName();
+              TagBase = pMdlDlg->m_BaseTag;
+              NdScl.X = pMdlDlg->Scl_X();
+              NdScl.Y = pMdlDlg->Scl_Y();
+              Rotate = (float)pMdlDlg->Rotation();
+              HideTag = pMdlDlg->m_HideTag;
+              HideEqpId = True;//pMdlDlg->m_HideEqpId;
+
+
+              CB->ATag = pMdlDlg->m_Tag();
+              CB->AClass = pMdlDlg->m_ModelClass();
+              CB->ASymbol = pMdlDlg->m_SymbolName();
+              CB->ATagBase = pMdlDlg->m_BaseTag;
+
+              CB->Pt = Pt1;
+              CB->Scl = NdScl;
+              CB->Scl.Z = CB->Scl.X; //make Z scale same as X
+              CB->Rotate = Range(-360.0F, Rotate, 360.0F);
+
+              //pDsp->Show_Dig_Point(Pt1);
+              Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
+
+              CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), 
+                (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), CB->ATag(), AssocTag(),
+                CB->Pt.World, CB->Scl, CB->Rotate, True, Tag_Attr_Set);
+
+              pDsp->Draw(CB->e, -1);
+
+              pDsp->Vp1->ClearAllEntity();
+              pDsp->Vp1->ClrSelectionAllList();
+
+              BOOL AlreadySelected=false;
+              CEntInView *p = pDsp->Vp1->FindEntInView4Entity(CB->e);
+
+              CB->m_Entity=CB->e;
+              CB->m_EntInVw=p;
+
+              int iWork=CB->m_Items.GetUpperBound();
+              CB->m_Items[iWork].m_Entity  = CB->m_Entity;
+              CB->m_Items[iWork].m_EntInVw = CB->m_EntInVw;
+              CB->m_Items[iWork].m_Changed=true;
+
+              if (0 && CB->e)
+                {
+                //CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag());
+                //pDsp->Draw(CB->e, -1);
+                //            pDrw->EntityInvalidate(en, NULL);
+                }
               }
-
-            ASymbol = pMdlDlg->m_SymbolName();
-            TagBase = pMdlDlg->m_BaseTag;
-            NdScl.X = pMdlDlg->Scl_X();
-            NdScl.Y = pMdlDlg->Scl_Y();
-            Rotate = (float)pMdlDlg->Rotation();
-            HideTag = pMdlDlg->m_HideTag;
-            HideEqpId = True;//pMdlDlg->m_HideEqpId;
-
-
-            CB->ATag = pMdlDlg->m_Tag();
-            CB->AClass = pMdlDlg->m_ModelClass();
-            CB->ASymbol = pMdlDlg->m_SymbolName();
-            CB->ATagBase = pMdlDlg->m_BaseTag;
-
-            CB->Pt = Pt1;
-            CB->Scl = NdScl;
-            CB->Scl.Z = CB->Scl.X; //make Z scale same as X
-            CB->Rotate = Range(-360.0F, Rotate, 360.0F);
-
-            //pDsp->Show_Dig_Point(Pt1);
-            Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
-
-            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), 
-              (LPSTR)(LPCSTR)TaggedObject::CreateGuidStr(), CB->ATag(), AssocTag(),
-              CB->Pt.World, CB->Scl, CB->Rotate, True, Tag_Attr_Set);
-            
-            pDsp->Draw(CB->e, -1);
-
-            pDsp->Vp1->ClearAllEntity();
-            pDsp->Vp1->ClrSelectionAllList();
-
-            BOOL AlreadySelected=false;
-            CEntInView *p = pDsp->Vp1->FindEntInView4Entity(CB->e);
-
-            CB->m_Entity=CB->e;
-            CB->m_EntInVw=p;
-
-            int iWork=CB->m_Items.GetUpperBound();
-            CB->m_Items[iWork].m_Entity  = CB->m_Entity;
-            CB->m_Items[iWork].m_EntInVw = CB->m_EntInVw;
-            CB->m_Items[iWork].m_Changed=true;
-
-            if (0 && CB->e)
-              {
-              //CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag());
-              //pDsp->Draw(CB->e, -1);
-              //            pDrw->EntityInvalidate(en, NULL);
-              }
-          break;
+            break;
           }
         default :;
         }

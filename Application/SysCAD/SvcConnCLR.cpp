@@ -527,38 +527,70 @@ ref class CSvcConnectCLRThread
 
     void AddModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
       {
-      Guid graphicGuid(gcnew String(GraphicGuid));
-      GraphicNode ^ GNd;
-      GraphicLink ^ GLk;
-      if (clientProtocol->graphic->Nodes->TryGetValue(graphicGuid, GNd))
+      try
         {
-
-        GraphicNode ^ newGNd = GNd->Clone();
-        newGNd->BoundingRect->X += (float)Delta.X;
-        newGNd->BoundingRect->Y += (float)Delta.Y;
-        newGNd->TagArea->X += (float)Delta.X;
-        newGNd->TagArea->Y += (float)Delta.Y;
-
-        m_Action->Modify->Add(newGNd);
-
-        ProcessChangeLists(requestId);
-        }
-      else if (clientProtocol->graphic->Links->TryGetValue(graphicGuid, GLk))
-        {
-
-        GraphicLink ^ newGLk = GLk->Clone();
-        for each (SysCAD::Protocol::Point^ Pt in newGLk->ControlPoints)
+        Guid graphicGuid(gcnew String(GraphicGuid));
+        GraphicNode ^ GNd;
+        GraphicLink ^ GLk;
+        if (clientProtocol->graphic->Nodes->TryGetValue(graphicGuid, GNd))
           {
-          Pt->X = Pt->X + (float)Delta.X;
-          Pt->Y = Pt->Y + (float)Delta.Y;
-          }
-        newGLk->TagArea->X += (float)Delta.X;
-        newGLk->TagArea->Y += (float)Delta.Y;
 
-        m_Action->Modify->Add(newGLk);
-        ProcessChangeLists(requestId);
+          GraphicNode ^ newGNd = GNd->Clone();
+          newGNd->BoundingRect->X += (float)Delta.X;
+          newGNd->BoundingRect->Y += (float)Delta.Y;
+          newGNd->TagArea->X += (float)Delta.X;
+          newGNd->TagArea->Y += (float)Delta.Y;
+
+          m_Action->Modify->Add(newGNd);
+
+          ProcessChangeLists(requestId);
+          }
+        else if (clientProtocol->graphic->Links->TryGetValue(graphicGuid, GLk))
+          {
+
+          GraphicLink ^ newGLk = GLk->Clone();
+          for each (SysCAD::Protocol::Point^ Pt in newGLk->ControlPoints)
+            {
+            Pt->X = Pt->X + (float)Delta.X;
+            Pt->Y = Pt->Y + (float)Delta.Y;
+            }
+          newGLk->TagArea->X += (float)Delta.X;
+          newGLk->TagArea->Y += (float)Delta.Y;
+
+          m_Action->Modify->Add(newGLk);
+          ProcessChangeLists(requestId);
+          }
+        }
+      catch (Exception^)
+        {
         }
       };
+
+    void AddModifyNodeSymbol(__int64 & requestId, LPCSTR GraphicGuid, LPCSTR Symbol)
+      {
+      try
+        {
+        Guid graphicGuid(gcnew String(GraphicGuid));
+        GraphicNode ^ GNd;
+        if (clientProtocol->graphic->Nodes->TryGetValue(graphicGuid, GNd))
+          {
+
+          GraphicNode ^ newGNd = GNd->Clone();
+          newGNd->Stencil = gcnew Stencil(gcnew String(Symbol));
+          //newGNd->BoundingRect->X += (float)Delta.X;
+          //newGNd->BoundingRect->Y += (float)Delta.Y;
+          //newGNd->TagArea->X += (float)Delta.X;
+          //newGNd->TagArea->Y += (float)Delta.Y;
+
+          m_Action->Modify->Add(newGNd);
+
+          ProcessChangeLists(requestId);
+          }
+        }
+      catch (Exception^)
+        {
+        }
+       };
 
     void AddModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk)
       {
@@ -1061,6 +1093,11 @@ void CSvcConnectCLR::AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)
 void CSvcConnectCLR::AddModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyNodePosition(requestId, GraphicGuid, Delta);
+  }
+
+void CSvcConnectCLR::AddModifyNodeSymbol(__int64 & requestId, LPCSTR GraphicGuid, LPCSTR Symbol)
+  {
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyNodeSymbol(requestId, GraphicGuid, Symbol);
   }
 
 void CSvcConnectCLR::AddModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk)

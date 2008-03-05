@@ -908,6 +908,21 @@ void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, 
 
 //------------------------------------------------------------------------
 
+void CSvcConnect::GCBModifyNodeSymbol(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, LPCSTR Symbol)
+  {
+  DO_ENTRY_GT("GCBModifyNodeSymbol", GraphicGuid, Symbol);//Tag);
+
+  //Delta.Y=-Delta.Y; // Y is inverted
+
+  CString Shape = ExtractShape(Symbol);
+
+  m_pCLR->AddModifyNodeSymbol(m_lRequestIdRet, GraphicGuid, Shape);
+
+  DO_EXIT("GCBModifyNodeSymbol");
+  };
+
+//------------------------------------------------------------------------
+
 void CSvcConnect::GCBModifyTagG(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk)
   {
   DO_ENTRY_GT("GCBModifyTagG", GraphicGuid, "");//Tag);

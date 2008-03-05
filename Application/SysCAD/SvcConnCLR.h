@@ -42,6 +42,7 @@ class CSvcConnectCLR
     void AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid);
 
     void AddModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta);
+    void AddModifyNodeSymbol(__int64 & requestId, LPCSTR GraphicGuid, LPCSTR Symbol);
     void AddModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk);
 
     //----------------------------------------------------------------------------------

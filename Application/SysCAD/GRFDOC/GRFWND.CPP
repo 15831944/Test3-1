@@ -403,7 +403,7 @@ static CString FixShapeName(LPCSTR Shape)
   CString S(Shape);
   int iSlash=S.Find('/');
   if (iSlash>=0)
-    S.SetAt(iSlash, '$');
+    S.SetAt(iSlash, ':');
   return S;
   };
 
