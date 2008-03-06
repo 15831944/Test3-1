@@ -18,7 +18,7 @@ namespace SVNAutomate
       proc.StartInfo.CreateNoWindow = true;
 
       String PLink = "C:\\Program Files\\TortoiseSVN\\bin\\TortoisePlink.exe";
-      String SVN = "M:\\Program Files\\Subversion\\bin\\svn.exe";
+      String SVN = "C:\\Program Files\\Subversion\\bin\\svn.exe";
 
       if (proc.StartInfo.EnvironmentVariables.ContainsKey("SVNAUTO_PLINK"))
         PLink = proc.StartInfo.EnvironmentVariables["SVNAUTO_PLINK"];
