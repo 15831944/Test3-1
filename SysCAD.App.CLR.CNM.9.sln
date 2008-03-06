@@ -6,6 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{31D8AEF7
 		Common\BldCopyCOMDll.Cmd = Common\BldCopyCOMDll.Cmd
 		Common\BldCopyCOMExe.Cmd = Common\BldCopyCOMExe.Cmd
 		Common\BldCopyDll.Cmd = Common\BldCopyDll.Cmd
+		Common\BldCopyDllEx.Cmd = Common\BldCopyDllEx.Cmd
 		DelAllBins.Cmd = DelAllBins.Cmd
 		DelBins.Cmd = DelBins.Cmd
 		mkexc.lst = mkexc.lst
@@ -255,6 +256,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.Alumina1", "Common\Model
 	ProjectSection(ProjectDependencies) = postProject
 		{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6} = {8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}
 		{1E44FC34-651B-4C29-A53D-512FD627BCB2} = {1E44FC34-651B-4C29-A53D-512FD627BCB2}
+		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838} = {FAF21E45-D5A0-4812-8A6B-3373C1CFC838}
 		{33C50D7C-35A3-4E95-A23A-A9283A42455B} = {33C50D7C-35A3-4E95-A23A-A9283A42455B}
 		{8C5BFF90-6FED-4C82-9495-1FCF8802F52A} = {8C5BFF90-6FED-4C82-9495-1FCF8802F52A}
 	EndProjectSection

@@ -34,8 +34,8 @@ class CDlgBusyWin : public CDialog
 
     //{{AFX_DATA(CDlgBusyWin)
     enum { IDD = IDD_BUSYDLG };
-    CBitmapButton m_Logo;
-    CBitmapButton m_Icon;
+    //CBitmapButton m_Logo;
+    //CBitmapButton m_Icon;
     //}}AFX_DATA
     int Cnt;
     CString m_Msg[MaxMsgDepth];
@@ -70,8 +70,8 @@ CDlgBusyWin::CDlgBusyWin(pchar Msg, CWnd* pParent /*=NULL*/)
   //}}AFX_DATA_INIT
   Cnt=-1;
   //m_Msg[0] = Msg;
-  m_Icon.LoadBitmaps(IDB_BIGICON);
-  m_Logo.LoadBitmaps(IDB_LOGO);
+  //m_Icon.LoadBitmaps(IDB_BIGICON);
+  //m_Logo.LoadBitmaps(IDB_LOGO);
 
   Create(CDlgBusyWin::IDD, pParent);
   
@@ -131,10 +131,10 @@ END_MESSAGE_MAP()
 BOOL CDlgBusyWin::OnInitDialog() 
   {
   CDialog::OnInitDialog();
-  m_Icon.SubclassDlgItem(IDC_APPICON, this);
-  m_Icon.SizeToContent();
-  m_Logo.SubclassDlgItem(IDC_LOGO, this);
-  m_Logo.SizeToContent();
+  //m_Icon.SubclassDlgItem(IDC_APPICON, this);
+  //m_Icon.SizeToContent();
+  //m_Logo.SubclassDlgItem(IDC_LOGO, this);
+  //m_Logo.SizeToContent();
   SetDlgItemText(IDC_FULLVERSION, FullVersion());
   SetDlgItemText(IDC_UPDATE, UpdateString());
   SetDlgItemText(IDC_COPYRIGHT, CopyrightNotice());
