@@ -7882,7 +7882,7 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
       }
     FindClose(H);
 
-    if (!AllGrfLoaded())
+    if (!m_IsScd10Prj && !AllGrfLoaded())
       {
       //Copy all DXF files...
       s = m_sPrevPrjFiles;
@@ -7941,8 +7941,16 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
       }
     }
 
-  //save documents...
-  for (int j=iGraphTemplate; j<=iControlTemplate; j++)
+  if (m_IsScd10Prj && m_pSvc)
+    {
+    LPCSTR NewPath=PrjFiles();
+    //m_pSvc->SwitchPath(NewPath);
+    m_pSvc->Save();
+    }
+
+  //save documents...DONT save Grf if Scd10
+  for (int j=m_IsScd10Prj ? iTrendTemplate : iGraphTemplate; j<=iControlTemplate; j++)
+    {
     if (ScdApp()->TemplateExists(j))
       {
       Strng DocTypeName=DocumentTmplNames[j];
@@ -7990,71 +7998,71 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
         }
       PF.WrInt(DocumentSectNames[j], "DocumentCount", DocCount);
       }
+    }
+  gs_AccessWnds.SaveNdHist(-1);
 
-    gs_AccessWnds.SaveNdHist(-1);
+  //save list of all files referenced/used by project...
+  CDlgBusy::SetLine(3, "Copying 'Remote' files");
 
-    //save list of all files referenced/used by project...
-    CDlgBusy::SetLine(3, "Copying 'Remote' files");
+  int NCopied = CopyOtherFiles(PFL, PF);
 
-    int NCopied = CopyOtherFiles(PFL, PF);
+  CDlgBusy::SetLine(3, CompactPrj());
+  if (NCopied>0)
+    //LogNote("SysCAD", 0, "%i Files Copied to %s", NCopied, BackupFilesFolderName());
+    LogNote("SysCAD", 0, "%i Files Copied", NCopied);
 
-    CDlgBusy::SetLine(3, CompactPrj());
-    if (NCopied>0)
-      //LogNote("SysCAD", 0, "%i Files Copied to %s", NCopied, BackupFilesFolderName());
-      LogNote("SysCAD", 0, "%i Files Copied", NCopied);
+  SaveColours(PF);
 
-    SaveColours(PF);
+  DWORD Opts=0;
+  if (!m_Save.m_bRqstNew)
+    {
+    if (m_bRemoveRevs)
+      Opts |= DBO_RemovePrevRevs;
+    //if (m_bCopyDBFiles && (PrjFileVerNoAsLoaded()==PrjFileVerNo()))
+    //  Opts |= DBO_CopyOldDBFiles;
+    }
 
-    DWORD Opts=0;
-    if (!m_Save.m_bRqstNew)
-      {
-      if (m_bRemoveRevs)
-        Opts |= DBO_RemovePrevRevs;
-      //if (m_bCopyDBFiles && (PrjFileVerNoAsLoaded()==PrjFileVerNo()))
-      //  Opts |= DBO_CopyOldDBFiles;
-      }
-
-    gs_pPrj->DoSaveDB(XDBFormat(), Opts, PrjFiles(), (bDoingSaveAs||bDoingSaveAsNV ? m_sPrevPrjFiles() : NULL));
+  gs_pPrj->DoSaveDB(XDBFormat(), Opts, PrjFiles(), (bDoingSaveAs||bDoingSaveAsNV ? m_sPrevPrjFiles() : NULL));
 
 #if WITHEQUIPSPECS
-    SaveClassVariableStatus(PrjFiles());
+  SaveClassVariableStatus(PrjFiles());
 #endif
 
 #if WITHASSOCGRAPHICS
-    SaveAssocGrfsStatus(PrjFiles());
+  SaveAssocGrfsStatus(PrjFiles());
 #endif
 
-    CDlgBusy::SetLine(3, "Saving Window Layout");
-    SaveWindowLayout();
-    CDlgBusy::SetLine(3, CompactPrj());
+  CDlgBusy::SetLine(3, "Saving Window Layout");
+  SaveWindowLayout();
+  CDlgBusy::SetLine(3, CompactPrj());
 
-    CProfINIFile PFI(PrjIniFile());
-    PFI.WrLong("SnapShot", "Action", m_eSSAction);
-    PFI.WrStr("SnapShot", "Name", m_sSSName());
-    PFI.WrStr("SnapShot", "Prefix", m_sSSPrefix());
-    PFI.WrLong("SnapShot", "Number", m_iSSNumber);
-    PFI.WrLong("SnapShot", "DoZip", m_bSSDoZip);
+  CProfINIFile PFI(PrjIniFile());
+  PFI.WrLong("SnapShot", "Action", m_eSSAction);
+  PFI.WrStr("SnapShot", "Name", m_sSSName());
+  PFI.WrStr("SnapShot", "Prefix", m_sSSPrefix());
+  PFI.WrLong("SnapShot", "Number", m_iSSNumber);
+  PFI.WrLong("SnapShot", "DoZip", m_bSSDoZip);
 
-    DeleteFile(sPrjBac()); //saved all; delete backup
+  DeleteFile(sPrjBac()); //saved all; delete backup
 
-    if (CfgFile())
-      ScdPFUser.WrStr("General", "LastCfgFile", CfgFile());
+  if (CfgFile())
+    ScdPFUser.WrStr("General", "LastCfgFile", CfgFile());
 
-    WriteProjectSet();
+  WriteProjectSet();
 
-    SW.Stop();
-    long SaveMin = (long)floor(SW.Secs()/60.0);
-    Strng DtTm;
-    LogNote("Project", 0, "Saved at %s (save time %d:%02d)", CurDateTime(DtTm), SaveMin, (long)floor(SW.Secs()-(60.0*(double)SaveMin)));
-    CDlgBusy::Close();
-    bCmdSuccess = true;
+  SW.Stop();
+  long SaveMin = (long)floor(SW.Secs()/60.0);
+  Strng DtTm;
+  LogNote("Project", 0, "Saved at %s (save time %d:%02d)", CurDateTime(DtTm), SaveMin, (long)floor(SW.Secs()-(60.0*(double)SaveMin)));
+  CDlgBusy::Close();
+  bCmdSuccess = true;
 
-    // After the save is equivalent to just saved
-    SetPrjFileVerNoAsLoaded(PrjFileVerNo());
+  // After the save is equivalent to just saved
+  SetPrjFileVerNoAsLoaded(PrjFileVerNo());
 
-    bDoingSaveAs = false;
-    bDoingSaveAsNV = false;
-    return GoodSave();
+  bDoingSaveAs = false;
+  bDoingSaveAsNV = false;
+  return GoodSave();
   }
 
 //---------------------------------------------------------------------------
