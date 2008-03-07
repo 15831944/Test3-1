@@ -71,7 +71,7 @@ class CSvcConnect
     void Attach2Scd10();
     void Load();
     void Save();
-    void Save(LPCSTR name, LPCSTR path);
+    void SaveAs(LPCSTR name, LPCSTR path);
 
     void LogMessage(DWORD Type, LPCSTR Msg);
     void dbgPrintLn(LPCSTR Fmt, LPCSTR S0=NULL, LPCSTR S1=NULL, LPCSTR S2=NULL, LPCSTR S3=NULL, LPCSTR S4=NULL);
