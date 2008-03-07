@@ -7944,12 +7944,7 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   if (m_IsScd10Prj && m_pSvc)
     {
     LPCSTR NewPath=PrjFiles();
-//<<<<<<< .mine
-//    //m_pSvc->SwitchPath(NewPath);   
-//    m_pSvc->Save();
-//=======
     m_pSvc->SaveAs(NewPath, NewPath);
-//>>>>>>> .r3464
     }
 
   //save documents...DONT save Grf if Scd10
