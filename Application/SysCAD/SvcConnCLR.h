@@ -68,6 +68,7 @@ class CSvcConnectCLR
 
     void Load();
     void Save();
+    void SaveAs(LPCSTR name, LPCSTR path);
 
     void LogMessage(DWORD Type, LPCSTR Msg);
 

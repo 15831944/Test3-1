@@ -160,35 +160,68 @@ namespace SysCAD.Service
       }
 
     public bool SaveGraphics(out Int64 requestId)
-      {
+    {
       this.requestId++;
       requestId = this.requestId;
 
       try
+      {
         {
-          {
           BinaryFormatter bf = new BinaryFormatter();
           StreamWriter streamWriter = new StreamWriter(path + "Graphic.10");
           Stream stream = streamWriter.BaseStream;
           bf.Serialize(stream, graphic);
           stream.Close();
-          }
-
-            {
-            BinaryFormatter bf = new BinaryFormatter();
-            StreamWriter streamWriter = new StreamWriter(path + "Model.10");
-            Stream stream = streamWriter.BaseStream;
-            bf.Serialize(stream, model);
-            stream.Close();
-            }
-
-            return true;
         }
-      catch (Exception)
+
         {
-        return false;
+          BinaryFormatter bf = new BinaryFormatter();
+          StreamWriter streamWriter = new StreamWriter(path + "Model.10");
+          Stream stream = streamWriter.BaseStream;
+          bf.Serialize(stream, model);
+          stream.Close();
         }
+
+        return true;
       }
+      catch (Exception)
+      {
+        return false;
+      }
+    }
+
+    public bool SaveAsGraphics(String name, String path, out Int64 requestId)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+
+      try
+      {
+        configData.addProject(name, path);
+
+        {
+          BinaryFormatter bf = new BinaryFormatter();
+          StreamWriter streamWriter = new StreamWriter(path + "Graphic.10");
+          Stream stream = streamWriter.BaseStream;
+          bf.Serialize(stream, graphic);
+          stream.Close();
+        }
+
+        {
+          BinaryFormatter bf = new BinaryFormatter();
+          StreamWriter streamWriter = new StreamWriter(path + "Model.10");
+          Stream stream = streamWriter.BaseStream;
+          bf.Serialize(stream, model);
+          stream.Close();
+        }
+
+        return true;
+      }
+      catch (Exception)
+      {
+        return false;
+      }
+    }
 
     public bool Change(out Int64 requestId, SysCAD.Protocol.Action action)
       {
@@ -721,6 +754,7 @@ namespace SysCAD.Service
       {
       ClientServiceProtocol.LoadHandler clientLoad = new ClientServiceProtocol.LoadHandler(LoadGraphics);
       ClientServiceProtocol.SaveHandler clientSave = new ClientServiceProtocol.SaveHandler(SaveGraphics);
+      ClientServiceProtocol.SaveAsHandler clientSaveAs = new ClientServiceProtocol.SaveAsHandler(SaveAsGraphics);
 
       ClientServiceProtocol.ChangePermissionsHandler clientChangePermissions = new ClientServiceProtocol.ChangePermissionsHandler(ChangePermissions);
 
@@ -742,6 +776,7 @@ namespace SysCAD.Service
                                                               path,
                                                               clientLoad,
                                                               clientSave,
+                                                              clientSaveAs,
                                                               graphic,
                                                               model,
                                                               clientChangePermissions,

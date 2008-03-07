@@ -353,6 +353,26 @@ namespace SysCAD.Protocol
       }
     }
 
+    public bool SaveAs(String name, String path, out Int64 requestId)
+    {
+      try
+      {
+        return serviceGraphic.SaveAs(name, path, out requestId);
+      }
+      catch (Exception originalException)
+      {
+        try
+        {
+          Connect();
+          return serviceGraphic.SaveAs(name, path, out requestId);
+        }
+        catch (Exception subsequentException)
+        {
+          throw new ConnectionLostException(originalException, subsequentException);
+        }
+      }
+    }
+
     //public void ServiceGraphicAreaCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Rectangle boundingRect)
     //{
     //  if (!graphicAreas.ContainsKey(guid))

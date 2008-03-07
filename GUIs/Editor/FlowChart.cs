@@ -934,6 +934,13 @@ namespace SysCAD.Editor
 
           if (hoverBox.Tag is EditorNode)
           {
+            MenuItem arrangeMenu = theMenu.MenuItems.Add("Align Nodes...");
+            arrangeMenu.MenuItems.Add("Top", new EventHandler(AlignTop));
+            arrangeMenu.MenuItems.Add("Bottom", new EventHandler(RouteLinks));
+            arrangeMenu.MenuItems.Add("Left", new EventHandler(RouteLinks));
+            arrangeMenu.MenuItems.Add("Right", new EventHandler(RouteLinks));
+            arrangeMenu.MenuItems.Add("Center (H)", new EventHandler(RouteLinks));
+            arrangeMenu.MenuItems.Add("Center (V)", new EventHandler(RouteLinks));
             theMenu.MenuItems.Add("Route Links", new EventHandler(RouteLinks));
             theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseItemToTop));
             theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendItemToBottom));
@@ -2003,6 +2010,19 @@ namespace SysCAD.Editor
     private void RouteLink(object sender, EventArgs e)
     {
       RouteLink(hoverArrow);
+    }
+
+    private void AlignTop(object sender, EventArgs e)
+    {
+      foreach (Box box in fcFlowChart.Selection.Boxes)
+      {
+        if (box.Tag is EditorNode)
+        {
+          EditorNode editorNode = box.Tag as EditorNode;
+          GraphicNode graphicNode = editorNode.GraphicNode;
+          SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
+        }
+      }
     }
 
     private void RouteLinks(object sender, EventArgs e)

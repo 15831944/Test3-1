@@ -23,6 +23,7 @@ namespace SysCAD.Protocol
   {
     private LoadHandler loadHandler;
     private SaveHandler saveHandler;
+    private SaveAsHandler saveAsHandler;
 
     private ChangePermissionsHandler clientChangePermissions;
 
@@ -41,6 +42,7 @@ namespace SysCAD.Protocol
 
     public delegate bool LoadHandler(out Int64 requestId);
     public delegate bool SaveHandler(out Int64 requestId);
+    public delegate bool SaveAsHandler(String name, String path, out Int64 requestId);
 
     public delegate bool ChangePermissionsHandler(out Int64 requestId, Permissions permissions);
 
@@ -61,8 +63,9 @@ namespace SysCAD.Protocol
 
     public ClientServiceProtocol(String name,
       String path,
-      LoadHandler loadHandler, 
-      SaveHandler saveHandler, 
+      LoadHandler loadHandler,
+      SaveHandler saveHandler,
+      SaveAsHandler saveAsHandler,
       Graphic graphic,
       Model model,
       ChangePermissionsHandler clientChangePermissions, 
@@ -83,6 +86,7 @@ namespace SysCAD.Protocol
 
       this.loadHandler = loadHandler;
       this.saveHandler = saveHandler;
+      this.saveAsHandler = saveAsHandler;
 
       this.clientChangePermissions = clientChangePermissions;
 
@@ -165,6 +169,11 @@ namespace SysCAD.Protocol
     public bool Save(out Int64 requestId)
     {
       return saveHandler(out requestId);
+    }
+
+    public bool SaveAs(String name, String path, out Int64 requestId)
+    {
+      return saveAsHandler(name, path, out requestId);
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)

@@ -546,6 +546,11 @@ void CSvcConnect::Save()
   m_pCLR->Save();
   };
 
+void CSvcConnect::SaveAs(LPCSTR name, LPCSTR path)
+  {
+  m_pCLR->SaveAs(name, path);
+  };
+
 //========================================================================
 
 void CSvcConnect::LogMessage(DWORD Type, LPCSTR Msg)

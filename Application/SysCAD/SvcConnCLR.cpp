@@ -959,6 +959,12 @@ ref class CSvcConnectCLRThread
       clientProtocol->Save(requestId);
       };
 
+    void SaveAs(LPCSTR name, LPCSTR path)
+      {
+      Int64 requestId;
+      clientProtocol->SaveAs(gcnew String(name), gcnew String(path), requestId);
+      };
+
     void LogMessage(DWORD Type, LPCSTR Msg)
       {
       Int64 requestId;
@@ -1171,6 +1177,13 @@ void CSvcConnectCLR::Save()
   LogNote("CSvcConnectCLR", 0, "Save");
 
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->Save();
+  };
+
+void CSvcConnectCLR::SaveAs(LPCSTR name, LPCSTR path)
+  {
+  LogNote("CSvcConnectCLR", 0, "SaveAs");
+
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->SaveAs(name, path);
   };
 
 //========================================================================
