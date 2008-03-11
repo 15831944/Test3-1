@@ -416,7 +416,6 @@ void RandomFailure::SetSize(long size)
 		{
 			delete tasks.back();
 			tasks.pop_back();
-			tasks.at(i)->TagSubs.Tag = "";
 		}
 }
 

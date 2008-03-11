@@ -289,7 +289,7 @@ void FilterPress::EvalProducts()
 			case WM_ConstantEfficiency:
 				w = dReqWashEfficiency;
 			case WM_WashRatio:
-				dWashRatio = WL / CL;
+				dWashRatio = WL / NZ(CL);
 				w = 1 - pow(1-dReqWashEfficiency, dWashRatio);
 			}
 			switch (eFiltrateMethod) {
@@ -382,8 +382,8 @@ void FilterPress::EvalProducts()
 			dWashEfficiency = CL > 0 ? 1 - dCLtoCOFrac : dNAN;
 
 		  //MStream QWashingOutput = QCake; BAD idea, QWashingOutput becomes a reference to QCake!!!!
-		  MStreamI QWashingOutput;
-      QWashingOutput = QCake;
+			MStreamI QWashingOutput;
+			QWashingOutput = QCake;
 			QWashingOutput.ZeroMass();
 
 			for (int i = 0; i < gs_MVDefn.Count(); i++)
@@ -401,7 +401,7 @@ void FilterPress::EvalProducts()
 			double dInputHf;
 			
 			MStream* pQWashingOutput;
-			if (bWashingsConnected)
+			if (bWashingsConnected) //bWashingsConnected indicates whether OUTPUT washings are connected.
 			{
 				dInputHf = QUnwashedCake.totHf() + QWashWater.totHf();
 				pQWashingOutput = &QWashingOutput;
@@ -414,9 +414,12 @@ void FilterPress::EvalProducts()
 				pQWashingOutput = &QFiltrate;	//For thermal property managing
 			}
 
+			double dgbTi = pQWashingOutput->T;
 			bool converged = false;
 			for (int i = 0; i < 10 && !converged; i++)
 			{
+				double dbgTt = pQWashingOutput->T;
+
 				double dOutputHf = QCake.totHf() + pQWashingOutput->totHf();
 
 				double deltaT = -(dOutputHf - dInputHf) / NZ(pQWashingOutput->totCp() + QCake.totCp());
@@ -426,14 +429,25 @@ void FilterPress::EvalProducts()
 
 				converged = abs(dInputHf - dOutputHf) < 1; //TODO: Check what sort of convergence we require.
 			}
+
+			double dbgT = pQWashingOutput->T;
+			double dbgT2 = QWashingOutput.T;
+
 			if (bWashingsConnected)
 			{
 				MStream& QWashings = FlwIOs[FlwIOs.First[idWashings]].Stream;
 				QWashings = QWashingOutput;
 			}
 		}
-		else
+		else //If we have no washings
+		{
+			if (bWashingsConnected)
+			{
+				MStream& QWashings = FlwIOs[FlwIOs.First[idWashings]].Stream;
+				QWashings.ZeroMass();
+			}
 			QCake = QUnwashedCake;
+		}
 
 		//Vent:
 		if (FlwIOs.Count[idVent] > 0)
