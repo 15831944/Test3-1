@@ -30,7 +30,7 @@ struct MaintVariables
 
     double dDesiredDowntime, dDowntime;
     double dDesiredPeriod, dPeriod;
-    double dOffset, dNextShutdown, dNextAbsoluteShutdown;
+    double dOffset, dNextShutdown, dNextAbsoluteShutdown, dTimeToNextShutdown;
     CString sDescription;
 
     MTagIOSubscription tagSubs;

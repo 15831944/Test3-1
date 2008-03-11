@@ -165,7 +165,7 @@ void ScheduledEvents::BuildDataFields()
 		DD.Double("OutputValue", "Output", idDX_OutputVal + i, MF_RESULT|MF_NO_FILING, TagCnv);
 		DD.Text("");
 		DD.Double("", "TtlInactiveTime", &tasks.at(i)->dTotalDowntime, MF_RESULT, MC_Time("h"));
-		DD.Double("", "TimeToNextInactivePeriod", &tasks.at(i)->dNextShutdown, MF_RESULT, MC_Time("h"));
+		DD.Double("", "TimeToNextInactivePeriod", &tasks.at(i)->dTimeToNextShutdown, MF_RESULT, MC_Time("h"));
 		DD.Double("", "NextEvent", &tasks.at(i)->dNextAbsoluteShutdown, MF_RESULT, MC_TimeStr);
 		DD.Text("");
 		DD.ArrayElementEnd();
@@ -280,6 +280,7 @@ void ScheduledEvents::EvalCtrlActions(eScdCtrlTasks Tasks)
 					tasks.at(i)->dNextShutdown += tasks.at(i)->dPeriod;
 					tasks.at(i)->dNextAbsoluteShutdown = getTime() - dCurrentTime + tasks.at(i)->dNextShutdown;
 				}
+				tasks.at(i)->dTimeToNextShutdown = tasks.at(i)->dNextShutdown - dCurrentTime;
 				bool bNowRunning = tasks.at(i)->dBackedUpDowntime <= 0;
 				if (tasks.at(i)->tagSubs.IsActive)
 				{
@@ -363,8 +364,8 @@ void ScheduledEvents::SetSize(long size)
 void ScheduledEvents::SetState(MStatesToSet SS)
   {
   MBaseMethod::SetState(SS);
-  if (SS==MSS_DynStatsRunInit)
-    Reset();
+  //if (SS==MSS_DynStatsRunInit)
+  //  Reset();
   }
 
 //---------------------------------------------------------------------------
