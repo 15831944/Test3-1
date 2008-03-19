@@ -34,6 +34,14 @@ namespace SysCAD.Log
     public LogView(int maxEntries)
     {
       this.maxEntries = maxEntries;
+
+      if (Path.GetTempPath().Length > 0)
+        logFile = Path.GetTempPath();
+      else
+        logFile = "C:\\SysCAD\\";
+
+      logFile += "SysCAD10.log";
+
       Initialize();
     }
 
