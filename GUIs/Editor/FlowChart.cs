@@ -43,6 +43,7 @@ namespace SysCAD.Editor
 
     private Arrow hoverArrow;
     private Box hoverBox;
+    private PointF hoverPoint;
 
     ResourceManager stringManager;
 
@@ -922,6 +923,7 @@ namespace SysCAD.Editor
       MouseEventArgs me = e as MouseEventArgs;
       hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
       hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location), 2.0F);
+      hoverPoint = FlowChart.ClientToDoc(PointToClient(MousePosition));
 
       form1.ModeModify();
 
@@ -959,6 +961,8 @@ namespace SysCAD.Editor
         }
 
         theMenu.MenuItems.Add("Layout Flowchart (!!Broken in an interesting way in latest release!!)", new EventHandler(LayoutFlowchart));
+
+        theMenu.MenuItems.Add("Insert Symbol", new EventHandler(InsertSymbol));
 
         theMenu.Show(fcFlowChart, me.Location);
       }
@@ -1700,7 +1704,7 @@ namespace SysCAD.Editor
             }
             else
             {
-              state.ClientProtocol.LogMessage(out requestId, "Create: ModelNode missing for GraphcLink (Tag: " + graphicNode.Tag + ", Guid: " + graphicNode.Guid + ")", SysCAD.Log.MessageType.Error);
+              state.CreateNode(null, graphicNode);
             }
           }
 
@@ -1846,6 +1850,10 @@ namespace SysCAD.Editor
     public void AddAction(SysCAD.Protocol.Action newAction)
     {
       actionExpire.Stop();
+      foreach (Item item in newAction.Create)
+      {
+        action.Create.Add(item);
+      }
       foreach (Item item in newAction.Modify)
       {
         action.Modify.Add(item);
@@ -2005,6 +2013,28 @@ namespace SysCAD.Editor
       }
 
       fcFlowChart.Invalidate();
+    }
+
+    static int app = 0;
+
+    private void InsertSymbol(object sender, EventArgs e)
+    {
+      GraphicStencilChangeForm gscf = new GraphicStencilChangeForm(state.GraphicUnselectedThumbnails, state.GraphicSelectedThumbnails, state.ModelStencils, state.GraphicStencils, "");
+      if (gscf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+      {
+        GraphicStencil graphicStencil = null;
+        state.GraphicStencils.TryGetValue(gscf.Value, out graphicStencil);
+        if (graphicStencil != null)
+        {
+          SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(hoverPoint.X, hoverPoint.Y, 0.0, 0.0);
+          boundingRect.Inflate(graphicStencil.DefaultSize.Width, graphicStencil.DefaultSize.Height);
+          GraphicNode node = new GraphicNode("newSymbolTag" + app.ToString(), "/Spills-08/05_Flowsheet.scg/", Guid.NewGuid(), gscf.Value, boundingRect, 0.0, graphicStencil.TagArea, 0.0, new SysCAD.Protocol.Font(), true, Color.Beige, FillMode.Alternate, false, false);
+          SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
+          action.Create.Add(node);
+          AddAction(action);
+        }
+      }
+
     }
 
     private void RouteLink(object sender, EventArgs e)
