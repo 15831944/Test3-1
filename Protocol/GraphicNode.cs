@@ -32,9 +32,9 @@ namespace SysCAD.Protocol
     }
 
     public GraphicNode(Guid guid, String tag, String path, Guid modelGuid, Stencil stencil, Rectangle boundingRect,
-      Double angle, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, System.Drawing.Color fillColor,
-      FillMode fillMode, bool mirrorX, bool mirrorY)
-      : base(guid, tag, tagArea, tagAngle, tagFont, tagVisible)
+      Double angle, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Double opacity,
+      System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+      : base(guid, tag, tagArea, tagAngle, tagFont, tagVisible, opacity)
     {
       this.path = path;
 
@@ -51,9 +51,9 @@ namespace SysCAD.Protocol
     }
 
     public GraphicNode(String tag, String path, Guid modelGuid, Stencil stencil, Rectangle boundingRect,
-      Double angle, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, System.Drawing.Color fillColor,
-      FillMode fillMode, bool mirrorX, bool mirrorY)
-      : base(tag, tagArea, tagAngle, tagFont, tagVisible)
+      Double angle, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Double opacity,
+      System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+      : base(tag, tagArea, tagAngle, tagFont, tagVisible, opacity)
     {
       this.path = path;
 
@@ -149,7 +149,7 @@ namespace SysCAD.Protocol
 
     public GraphicNode Clone()
     {
-      return new GraphicNode(Guid, Tag, path, ModelGuid, Stencil, BoundingRect, Angle, TagArea, TagAngle, TagFont, TagVisible, FillColor, FillMode, MirrorX, MirrorY);
+      return new GraphicNode(Guid, Tag, path, ModelGuid, Stencil, BoundingRect, Angle, TagArea, TagAngle, TagFont, TagVisible, Opacity, FillColor, FillMode, MirrorX, MirrorY);
     }
   }
 }

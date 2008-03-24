@@ -32,15 +32,15 @@ namespace SysCAD.Protocol
       Path = path;
     }
 
-    public GraphicArea(Guid guid, String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Rectangle boundingRect, String path)
-      : base(guid, tag, tagArea, tagAngle, tagFont, tagVisible)
+    public GraphicArea(Guid guid, String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Rectangle boundingRect, String path, Double opacity)
+      : base(guid, tag, tagArea, tagAngle, tagFont, tagVisible, opacity)
     {
       BoundingRect = boundingRect;
       Path = path;
     }
 
-    public GraphicArea(String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Rectangle boundingRect, String path)
-      : base(tag, tagArea, tagAngle, tagFont, tagVisible)
+    public GraphicArea(String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Rectangle boundingRect, String path, Double opacity)
+      : base(tag, tagArea, tagAngle, tagFont, tagVisible, opacity)
     {
       BoundingRect = boundingRect;
       Path = path;

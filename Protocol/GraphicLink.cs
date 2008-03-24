@@ -26,8 +26,8 @@ namespace SysCAD.Protocol
 
     public GraphicLink(Guid guid, Guid modelGuid, String tag, Guid origin, Int16 originPortID,
       Guid destination, Int16 destinationPortID,
-      List<Point> controlPoints, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible)
-      : base(guid, tag, tagArea, tagAngle, tagFont, tagVisible)
+      List<Point> controlPoints, Double opacity, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible)
+      : base(guid, tag, tagArea, tagAngle, tagFont, tagVisible, opacity)
     {
       this.modelGuid = modelGuid;
       this.origin = origin;
@@ -43,8 +43,8 @@ namespace SysCAD.Protocol
 
     public GraphicLink(Guid modelGuid, String tag, Guid origin, Int16 originPortID,
       Guid destination, Int16 destinationPortID,
-      List<Point> controlPoints, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible)
-      : base(tag, tagArea, tagAngle, tagFont, tagVisible)
+      List<Point> controlPoints, Double opacity, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible)
+      : base(tag, tagArea, tagAngle, tagFont, tagVisible, opacity)
     {
       this.modelGuid = modelGuid;
       this.origin = origin;
@@ -122,7 +122,7 @@ namespace SysCAD.Protocol
 
     public GraphicLink Clone()
     {
-      return new GraphicLink(Guid, ModelGuid, Tag, Origin, OriginPortID, Destination, DestinationPortID, ControlPoints, TagArea, TagAngle, TagFont, TagVisible);
+      return new GraphicLink(Guid, ModelGuid, Tag, Origin, OriginPortID, Destination, DestinationPortID, ControlPoints, Opacity, TagArea, TagAngle, TagFont, TagVisible);
     }
   }
 }

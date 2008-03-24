@@ -12,6 +12,7 @@ namespace SysCAD.Protocol
     private Double tagAngle;
     private Font tagFont;
     private Boolean tagVisible;
+    private Double opacity;
 
     public GraphicItem()
     {
@@ -19,6 +20,7 @@ namespace SysCAD.Protocol
       tagAngle = 0.0;
       tagFont = new Font();
       tagVisible = false;
+      opacity = 1.0;
     }
 
     public GraphicItem(Guid guid, String tag)
@@ -28,6 +30,7 @@ namespace SysCAD.Protocol
       tagAngle = 0.0;
       tagFont = new Font();
       tagVisible = false;
+      opacity = 1.0;
     }
 
     public GraphicItem(String tag)
@@ -37,24 +40,27 @@ namespace SysCAD.Protocol
       tagAngle = 0.0;
       tagFont = new Font();
       tagVisible = false;
+      opacity = 1.0;
     }
 
-    public GraphicItem(Guid guid, String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible)
+    public GraphicItem(Guid guid, String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Double opacity)
       : base(guid, tag)
     {
       TagArea = tagArea;
       TagAngle = tagAngle;
       TagFont = tagFont;
       TagVisible = tagVisible;
+      Opacity = opacity;
     }
 
-    public GraphicItem(String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible)
+    public GraphicItem(String tag, Rectangle tagArea, Double tagAngle, Font tagFont, Boolean tagVisible, Double opacity)
       : base(tag)
     {
       TagArea = tagArea;
       TagAngle = tagAngle;
       TagFont = tagFont;
       TagVisible = tagVisible;
+      Opacity = opacity;
     }
 
     public Rectangle TagArea
@@ -111,6 +117,22 @@ namespace SysCAD.Protocol
     {
       get { return tagArea.Height; }
       set { tagArea.Height = value; }
+    }
+
+    public Double Opacity
+    {
+      get
+      {
+        if (opacity > 1.0) opacity = 1.0;
+        if (opacity < 0.0) opacity = 0.0;
+        return opacity;
+      }
+      set
+      {
+        opacity = value;
+        if (opacity > 1.0) opacity = 1.0;
+        if (opacity < 0.0) opacity = 0.0;
+      }
     }
 
   }

@@ -677,7 +677,7 @@ namespace SysCAD.Editor
       destinationAnchorChosen = null;
 
       ModelLink modelLink = new ModelLink(new Guid(), string.Empty, "Pipe-1", modelOrigin.Guid, modelDestination.Guid, originPort, destinationPort);
-      GraphicLink graphicLink = new GraphicLink(new Guid(), modelLink.Guid, string.Empty, origin.Guid, originPortID, destination.Guid, destinationPortID, controlPoints, textArea, 0.0, new SysCAD.Protocol.Font(), true);
+      GraphicLink graphicLink = new GraphicLink(new Guid(), modelLink.Guid, string.Empty, origin.Guid, originPortID, destination.Guid, destinationPortID, controlPoints, 1.0, textArea, 0.0, new SysCAD.Protocol.Font(), true);
 
       SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
 
@@ -2042,7 +2042,7 @@ namespace SysCAD.Editor
         {
           SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(hoverPoint.X, hoverPoint.Y, 0.0, 0.0);
           boundingRect.Inflate(graphicStencil.DefaultSize.Width, graphicStencil.DefaultSize.Height);
-          GraphicNode node = new GraphicNode("", hoverArea.GraphicArea.Path + hoverArea.GraphicArea.Tag, Guid.NewGuid(), gscf.Value, boundingRect, 0.0, graphicStencil.TagArea, 0.0, new SysCAD.Protocol.Font(), true, Color.Beige, FillMode.Alternate, false, false);
+          GraphicNode node = new GraphicNode("", hoverArea.GraphicArea.Path + hoverArea.GraphicArea.Tag, Guid.NewGuid(), gscf.Value, boundingRect, 0.0, graphicStencil.TagArea, 0.0, new SysCAD.Protocol.Font(), true, 1.0, Color.Beige, FillMode.Alternate, false, false);
           SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
           action.Create.Add(node);
           AddAction(action);
