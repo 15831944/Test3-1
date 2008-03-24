@@ -46,10 +46,10 @@ namespace SysCAD.Editor
       set { box = value; }
     }
 
-    //public GraphicArea GraphicArea
-    //{
-    //  get { return graphicArea; }
-    //}
+    public GraphicArea GraphicArea
+    {
+      get { return graphicArea; }
+    }
 
     public Guid Guid
     {

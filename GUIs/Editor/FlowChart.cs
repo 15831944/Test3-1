@@ -41,8 +41,9 @@ namespace SysCAD.Editor
 
     private EditorForm form1;
 
-    private Arrow hoverArrow;
-    private Box hoverBox;
+    private EditorLink hoverLink;
+    private EditorNode hoverNode;
+    private EditorArea hoverArea;
     private PointF hoverPoint;
 
     ResourceManager stringManager;
@@ -421,6 +422,8 @@ namespace SysCAD.Editor
 
     private void DisconnectDestination(object sender, EventArgs e)
     {
+      Arrow hoverArrow = hoverLink.Arrow;
+
       hoverArrow.DestAnchor = -1;
       hoverArrow.Destination = fcFlowChart.Dummy;
 
@@ -429,6 +432,8 @@ namespace SysCAD.Editor
 
     private void DisconnectOrigin(object sender, EventArgs e)
     {
+      Arrow hoverArrow = hoverLink.Arrow;
+
       hoverArrow.OrgnAnchor = -1;
       hoverArrow.Origin = fcFlowChart.Dummy;
 
@@ -921,8 +926,8 @@ namespace SysCAD.Editor
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
       MouseEventArgs me = e as MouseEventArgs;
-      hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
-      hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location), 2.0F);
+      Arrow hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
+      Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location), 2.0F);
       hoverPoint = FlowChart.ClientToDoc(PointToClient(MousePosition));
 
       form1.ModeModify();
@@ -1371,12 +1376,18 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
     {
-      hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2.0F);
+      Arrow hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2.0F);
 
-      hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2.0F);
+      Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2.0F);
+
+      if ((hoverArrow != null) && (hoverArrow.Tag is EditorLink))
+        hoverLink = hoverArrow.Tag as EditorLink;
 
       if ((hoverBox != null) && (hoverBox.Tag is EditorNode))
-        hoverBox = (hoverBox.Tag as EditorNode).ModelBox;
+        hoverNode = hoverBox.Tag as EditorNode;
+
+      if ((hoverBox != null) && (hoverBox.Tag is EditorArea))
+        hoverArea = (hoverBox.Tag as EditorArea);
 
       EditorNode editorNode = null;
       form1.fcHoverview.ClearAll();
@@ -1559,11 +1570,11 @@ namespace SysCAD.Editor
           }
         }
 
-        String hoverTag = (hoverBox.Tag as EditorNode).Tag;
+        String hoverTag = hoverNode.Tag;
         int hoverAnchor = closestI;
 
         String anchorString;
-        (hoverBox.Tag as EditorNode).anchorIntToTag.TryGetValue(hoverAnchor, out anchorString);
+        hoverNode.anchorIntToTag.TryGetValue(hoverAnchor, out anchorString);
 
         if (anchorString != null)
         {
@@ -1585,7 +1596,7 @@ namespace SysCAD.Editor
         (hoverArrow.Tag as EditorLink).Hovered = true;
 
       if ((hoverBox != null) && (hoverBox.Tag is EditorNode))
-        (hoverBox.Tag as EditorNode).Hovered = true;
+        hoverNode.Hovered = true;
 
       oldHoverArrow = hoverArrow;
       oldHoverBox = hoverBox;
@@ -1948,14 +1959,19 @@ namespace SysCAD.Editor
 
     private void RaiseItemToTop(object sender, EventArgs e)
     {
-      (hoverBox.Tag as EditorNode).GraphicBox.ZTop();
-      (hoverBox.Tag as EditorNode).ModelBox.ZTop();
+      hoverNode.GraphicBox.ZTop();
+      hoverNode.ModelBox.ZTop();
       fcFlowChart.Invalidate();
     }
 
     private void refreshConnectedObjects() //Arrow arrowBeingModified)
     {
       fcFlowChart.Invalidate();
+    }
+
+    private void RouteLink(EditorLink link)
+    {
+      RouteLink(link.Arrow);
     }
 
     private void RouteLink(Arrow arrow)
@@ -2015,8 +2031,6 @@ namespace SysCAD.Editor
       fcFlowChart.Invalidate();
     }
 
-    static int app = 0;
-
     private void InsertSymbol(object sender, EventArgs e)
     {
       GraphicStencilChangeForm gscf = new GraphicStencilChangeForm(state.GraphicUnselectedThumbnails, state.GraphicSelectedThumbnails, state.ModelStencils, state.GraphicStencils, "");
@@ -2028,7 +2042,7 @@ namespace SysCAD.Editor
         {
           SysCAD.Protocol.Rectangle boundingRect = new SysCAD.Protocol.Rectangle(hoverPoint.X, hoverPoint.Y, 0.0, 0.0);
           boundingRect.Inflate(graphicStencil.DefaultSize.Width, graphicStencil.DefaultSize.Height);
-          GraphicNode node = new GraphicNode("newSymbolTag" + app.ToString(), "/Spills-08/05_Flowsheet.scg/", Guid.NewGuid(), gscf.Value, boundingRect, 0.0, graphicStencil.TagArea, 0.0, new SysCAD.Protocol.Font(), true, Color.Beige, FillMode.Alternate, false, false);
+          GraphicNode node = new GraphicNode("", hoverArea.GraphicArea.Path + hoverArea.GraphicArea.Tag, Guid.NewGuid(), gscf.Value, boundingRect, 0.0, graphicStencil.TagArea, 0.0, new SysCAD.Protocol.Font(), true, Color.Beige, FillMode.Alternate, false, false);
           SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
           action.Create.Add(node);
           AddAction(action);
@@ -2039,7 +2053,7 @@ namespace SysCAD.Editor
 
     private void RouteLink(object sender, EventArgs e)
     {
-      RouteLink(hoverArrow);
+      RouteLink(hoverLink);
     }
 
     private void AlignTop(object sender, EventArgs e)
@@ -2057,8 +2071,8 @@ namespace SysCAD.Editor
 
     private void RouteLinks(object sender, EventArgs e)
     {
-      ArrowCollection incomingArrows = (hoverBox.Tag as EditorNode).IncomingArrows.Clone();
-      ArrowCollection outgoingArrows = (hoverBox.Tag as EditorNode).OutgoingArrows.Clone();
+      ArrowCollection incomingArrows = hoverNode.IncomingArrows.Clone();
+      ArrowCollection outgoingArrows = hoverNode.OutgoingArrows.Clone();
 
       foreach (Arrow arrow in incomingArrows)
       {
@@ -2073,9 +2087,9 @@ namespace SysCAD.Editor
 
     private void SendItemToBottom(object sender, EventArgs e)
     {
-      (hoverBox.Tag as EditorNode).GraphicBox.ZBottom();
-      if ((hoverBox.Tag as EditorNode).ModelBox != null) (hoverBox.Tag as EditorNode).ModelBox.ZBottom();
-      if ((hoverBox.Tag as EditorNode).HiddenBox != null) (hoverBox.Tag as EditorNode).HiddenBox.ZBottom();
+      hoverNode.GraphicBox.ZBottom();
+      if (hoverNode.ModelBox != null) hoverNode.ModelBox.ZBottom();
+      if (hoverNode.HiddenBox != null) hoverNode.HiddenBox.ZBottom();
       fcFlowChart.Invalidate();
     }
 

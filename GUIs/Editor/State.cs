@@ -278,7 +278,7 @@ namespace SysCAD.Editor
         box.Style = BoxStyle.Rectangle;
 
         // Make areas unmodifiable -- for now.
-        box.Locked = true;
+        //box.Locked = true;
 
         EditorArea area = new EditorArea(this, graphicArea);
         area.Box = box;
