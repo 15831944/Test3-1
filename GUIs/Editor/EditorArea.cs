@@ -42,7 +42,7 @@ namespace SysCAD.Editor
 
     public Box Box
     {
-      //get { return box; }
+      get { return box; }
       set { box = value; }
     }
 

@@ -320,9 +320,15 @@ namespace SysCAD.Editor
           NewElementSelection();
         }
 
+        EditorArea editorArea = null;
         bool isVisible = false;
         if (treeViewNode.Parent != null) // if we're not root, make visibility same as parent.
+        {
+          if (treeViewNode.Parent.Tag is EditorArea)
+            editorArea = treeViewNode.Parent.Tag as EditorArea;
+
           isVisible = treeViewNode.Parent.IsSelected;
+        }
 
         ModelStencil modelStencil;
         GraphicStencil graphicStencil = GraphicStencil(graphicNode.Stencil);
@@ -478,10 +484,14 @@ namespace SysCAD.Editor
         {
           textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
           graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
+          if (editorArea != null)
+            modelBox.AttachTo(editorArea.Box, AttachToNode.TopLeft);
         }
         else if (graphicBox != null)
         {
           textBox.AttachTo(graphicBox, AttachToNode.BottomCenter);
+          if (editorArea != null)
+            graphicBox.AttachTo(editorArea.Box, AttachToNode.TopLeft);
         }
 
         editorNode.Visible = isVisible;
