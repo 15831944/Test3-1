@@ -63,8 +63,8 @@ namespace SysCAD.Editor
           anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
       }
 
-      GraphicBox.FillColor = Color.FromArgb(220 - opacity, GraphicBox.FillColor);
-      GraphicBox.FrameColor = Color.FromArgb(255 - opacity, GraphicBox.FrameColor);
+      GraphicBox.FillColor = Color.FromArgb((int)((220 - opacity)*graphicNode.Opacity), GraphicBox.FillColor);
+      GraphicBox.FrameColor = Color.FromArgb((int)((255 - opacity)*graphicNode.Opacity), GraphicBox.FrameColor);
 
     }
 
@@ -276,10 +276,13 @@ namespace SysCAD.Editor
       {
         hovered = value;
 
-        foreach (Arrow arrow in ModelBox.IncomingArrows)
-          (arrow.Tag as EditorLink).UpdateVisibility();
-        foreach (Arrow arrow in ModelBox.OutgoingArrows)
-          (arrow.Tag as EditorLink).UpdateVisibility();
+        if (ModelBox != null)
+        {
+          foreach (Arrow arrow in ModelBox.IncomingArrows)
+            (arrow.Tag as EditorLink).UpdateVisibility();
+          foreach (Arrow arrow in ModelBox.OutgoingArrows)
+            (arrow.Tag as EditorLink).UpdateVisibility();
+        }
 
         UpdateVisibility();
       }
