@@ -625,9 +625,9 @@ namespace SysCAD.Editor
           else
           {
             Console.WriteLine("(origin.ModelBox.Tag as EditorNode).modelNode : " +
-              (origin.ModelBox.Tag as EditorNode).modelNode.Guid.ToString() + " : " +
-              (origin.ModelBox.Tag as EditorNode).modelNode.NodeClass.ToString() + " : " +
-              (origin.ModelBox.Tag as EditorNode).modelNode.Tag.ToString());
+              (origin.ModelBox.Tag as EditorNode).ModelNode.Guid.ToString() + " : " +
+              (origin.ModelBox.Tag as EditorNode).ModelNode.NodeClass.ToString() + " : " +
+              (origin.ModelBox.Tag as EditorNode).ModelNode.Tag.ToString());
 
             Console.WriteLine("modelLink.OriginPort : " + modelLink.OriginPort);
             Console.WriteLine("graphicLink.OriginPortID.ToString() : " + graphicLink.OriginPortID.ToString());
@@ -648,9 +648,9 @@ namespace SysCAD.Editor
           else
           {
             Console.WriteLine("(destination.ModelBox.Tag as EditorNode).modelNode : " +
-              (destination.ModelBox.Tag as EditorNode).modelNode.Guid.ToString() + " : " +
-              (destination.ModelBox.Tag as EditorNode).modelNode.NodeClass.ToString() + " : " +
-              (destination.ModelBox.Tag as EditorNode).modelNode.Tag.ToString());
+              (destination.ModelBox.Tag as EditorNode).ModelNode.Guid.ToString() + " : " +
+              (destination.ModelBox.Tag as EditorNode).ModelNode.NodeClass.ToString() + " : " +
+              (destination.ModelBox.Tag as EditorNode).ModelNode.Tag.ToString());
 
             Console.WriteLine("modelLink.DestinationPort : " + modelLink.DestinationPort);
             Console.WriteLine("graphicLink.DestinationPortID.ToString() : " + graphicLink.DestinationPortID.ToString());
@@ -1517,6 +1517,9 @@ namespace SysCAD.Editor
         clientProtocol.LogMessage(out requestId, "ModifyNode: EditorNode not found in library for GraphicNode \'" + graphicNode.Guid + ", " + graphicNode.Tag + "\'", SysCAD.Log.MessageType.Error);
         return;
       }
+
+      editorNode.GraphicNode = graphicNode;
+      editorNode.ModelNode = modelNode;
 
       Box graphicBox = editorNode.GraphicBox;
       Box modelBox = editorNode.ModelBox;

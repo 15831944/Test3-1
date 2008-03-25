@@ -798,7 +798,7 @@ namespace SysCAD.Editor
       this.graphicPropertyGrid.Name = "graphicPropertyGrid";
       this.graphicPropertyGrid.Size = new System.Drawing.Size(149, 222);
       this.graphicPropertyGrid.TabIndex = 0;
-      this.graphicPropertyGrid.NodeModified += new SysCAD.Editor.GraphicPropertyGrid.NodeChangedHandler(this.graphicPropertyGrid_NodeModified);
+      this.graphicPropertyGrid.NodeChanged += new SysCAD.Editor.GraphicPropertyGrid.NodeChangedHandler(this.graphicPropertyGrid_NodeChanged);
       // 
       // toolWindowContainer4
       // 

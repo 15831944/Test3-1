@@ -134,8 +134,8 @@ namespace SysCAD.Editor
 
         frmFlowChart.FlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
-        graphicPropertyGrid.LinkModified += frmFlowChart.PropertyGridLinkModified;
-        graphicPropertyGrid.NodeModified += frmFlowChart.PropertyGridNodeModified;
+        graphicPropertyGrid.LinkChanged += frmFlowChart.PropertyGridLinkChanged;
+        graphicPropertyGrid.NodeChanged += frmFlowChart.PropertyGridNodeChanged;
 
         {
           Dictionary<String, Bitmap> modelThumbnails = new Dictionary<String, Bitmap>();
@@ -989,7 +989,7 @@ namespace SysCAD.Editor
 
     }
 
-    private void graphicPropertyGrid_NodeModified(GraphicNode graphicNode)
+    private void graphicPropertyGrid_NodeChanged(GraphicNode graphicNode)
     {
       SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
       action.Modify.Add(graphicNode);

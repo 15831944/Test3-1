@@ -1301,7 +1301,7 @@ namespace SysCAD.Editor
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_LinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
+    private void fcFlowChart_LinkChanged(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<SysCAD.Protocol.Point> controlPoints, SysCAD.Protocol.Rectangle textArea, Double textAngle)
     {
       EditorLink link = state.Link(guid);
 
@@ -1419,7 +1419,7 @@ namespace SysCAD.Editor
 
       if (editorNode != null)
       {
-        ModelNode modelNode = editorNode.modelNode;
+        ModelNode modelNode = editorNode.ModelNode;
         if (modelNode != null)
         {
           ModelStencil modelStencil = State.ModelShape(modelNode.NodeClass);
@@ -2200,14 +2200,14 @@ namespace SysCAD.Editor
       }
     }
 
-    public void PropertyGridLinkModified(GraphicLink graphicLink)
+    public void PropertyGridLinkChanged(GraphicLink graphicLink)
     {
       SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
       action.Modify.Add(graphicLink);
       AddAction(action);
     }
 
-    public void PropertyGridNodeModified(GraphicNode graphicNode)
+    public void PropertyGridNodeChanged(GraphicNode graphicNode)
     {
       SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
       action.Modify.Add(graphicNode);

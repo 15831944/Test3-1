@@ -60,10 +60,10 @@ namespace SysCAD.Editor
     State state;
 
     public delegate void LinkChangedHandler(GraphicLink graphicLink);
-    public event LinkChangedHandler LinkModified;
+    public event LinkChangedHandler LinkChanged;
 
     public delegate void NodeChangedHandler(GraphicNode graphicNode);
-    public event NodeChangedHandler NodeModified;
+    public event NodeChangedHandler NodeChanged;
 
     protected override void OnPropertyButtonClicked(PropertyButtonClickedEventArgs e)
     {
@@ -77,7 +77,7 @@ namespace SysCAD.Editor
           if (gscf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
           {
             graphicNode.Stencil = gscf.Value;
-            NodeModified(graphicNode);
+            NodeChanged(graphicNode);
           }
         }
       }
@@ -88,7 +88,7 @@ namespace SysCAD.Editor
 
       if (graphicNode != null)
       {
-        NodeModified(graphicNode);
+        NodeChanged(graphicNode);
         //SysCAD.Protocol.Action action = new SysCAD.Protocol.Action();
         //action.Modify.Add(graphicNode);
 
@@ -101,7 +101,7 @@ namespace SysCAD.Editor
 
       if (graphicLink != null)
       {
-        LinkModified(graphicLink);
+        LinkChanged(graphicLink);
         //state.ModifyLink(graphicLink.Guid);
         //state.ModifyGraphicLink(out requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID,
         //  graphicLink.Origin, graphicLink.Destination,
@@ -154,6 +154,7 @@ namespace SysCAD.Editor
       ExpandProperty(itemGraphicBoungingRect, false);
       //itemGraphicAngle = 
       AppendProperty(itemGraphic, id++, "Angle", graphicNode, "Angle", "");
+      AppendProperty(itemGraphic, id++, "Opacity", graphicNode, "Opacity", "");
 
       itemGraphicShape = AppendProperty(itemGraphic, id++, "Stencil", graphicNode, "Stencil", "");
       itemGraphicShape.Property.Feel = GetRegisteredFeel(PropertyGrid.FeelButton);

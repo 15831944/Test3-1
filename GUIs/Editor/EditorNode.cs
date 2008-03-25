@@ -14,7 +14,7 @@ namespace SysCAD.Editor
   {
     private State state;
     private GraphicNode graphicNode;
-    public ModelNode modelNode;
+    private ModelNode modelNode;
 
     private Box graphicBox;
     private Box modelBox;
@@ -48,6 +48,12 @@ namespace SysCAD.Editor
     {
       get { return graphicNode; }
       set { graphicNode = value; }
+    }
+
+    public ModelNode ModelNode
+    {
+      get { return modelNode; }
+      set { modelNode = value; }
     }
 
     private delegate void SetOpacityDelegate(int opacity);
