@@ -10,7 +10,7 @@
 
 //==========================================================================
 /*#D:#T:Solvent Extraction Mixer-Settler model. 
-#X:#n#u<#l<#b<General Description>>>#N#NThe  Mixer-Settler model is designed for use as
+#X:#n#u<#l<#b<General Description>>>#N#NThe Mixer-Settler model is designed for use as
 a solvent extraction model which can also be configured to do organic stripping. It 
 consists conceptually of two containers. One can be considered the mixer tank and the 
 other the settler tank. The Mixer tank can accept two organic inputs and two aqueous 
@@ -405,6 +405,11 @@ flag MixerSettler::ValidateData(ValidateDataBlk & VDB)
     //  LogError(FullObjTag(), 0, "Method is Isotherm requires ReactionBlock to be On");
     //  OK=false;
     //  }
+
+    if (Extraction)
+      PriIsotherm.SetAxisNames("Aq", "Org");
+    else
+      PriIsotherm.SetAxisNames("Org", "Aq");
     }
 
   return OK;
@@ -829,11 +834,45 @@ double MixerSettler::MetalExtract(double StripMass, double StripVol, double ExtC
   {
 	const double YMax = PriIsotherm.ScanYMax();
 	const double YMin = PriIsotherm.ScanYMin();
-  IntersectPt1 = PriIsotherm.Xy(ExtConc);  
-  const double MinStrip = Max(0.0, ExtConc - Ratio * IntersectPt1);  // y-intercept of the operating curve
-	double Loaded   = Ratio * StripConc + MinStrip;        // Loaded conc from operating curve
-	if (Loaded>YMax) Loaded = YMax;
-	if (Loaded<YMin) Loaded = YMin;
+  IntersectPt1 = PriIsotherm.Xy(ExtConc);
+  if (Extraction)
+    {
+    //SetCI(3, (ExtConc<YMin || ExtConc>YMax));
+    if (ExtConc<YMin)
+      SetCI(3, "W\tFeed Organic concentration (%g) less than minimum specified data point (%g) for Extraction Isotherm", ExtConc, YMin);
+    else if (ExtConc>YMax)
+      SetCI(3, "W\tFeed Organic concentration (%g) greater than maximum specified data point (%g) for Extraction Isotherm", ExtConc, YMax);
+    else
+      ClrCI(3);
+    }
+  else
+    {
+    //SetCI(3, (ExtConc<YMin || ExtConc>YMax));
+    if (ExtConc<YMin)
+      SetCI(3, "W\tFeed Aqueous concentration (%g) less than minimum specified data point (%g) for Stripping Isotherm", ExtConc, YMin);
+    else if (ExtConc>YMax)
+      SetCI(3, "W\tFeed Aqueous concentration (%g) greater than maximum specified data point (%g) for Stripping Isotherm", ExtConc, YMax);
+    else
+      ClrCI(3);
+    }
+
+  double MinStrip = Max(0.0, ExtConc - Ratio * IntersectPt1);  // y-intercept of the operating curve
+  if (MinStrip<0.0)
+    {
+    SetCI(4, "W\tY Intercept (%s %g) is less than zero. (Use 0)", Extraction ? "MinOrgConc" : "MinAqsConc", MinStrip);
+    MinStrip = 0.0;
+    }
+  else
+    ClrCI(4);
+
+  double Loaded   = Ratio * StripConc + MinStrip;        // Loaded conc from operating curve
+  if (Loaded<YMin)
+    SetCI(5, "W\tConcentration (Y value %g) from operating curve is less than the minimum specified Isotherm data point. (Min %g used)", Loaded, YMin);
+  else if (Loaded>YMax)
+    SetCI(5, "W\tConcentration (Y value %g) from operating curve is greater than the maximum specified Isotherm data point. (Max %g used)", Loaded, YMax);
+  else
+    ClrCI(5);
+  Loaded = Range(YMin, Loaded, YMax);
   IntersectPt2 = PriIsotherm.Xy(Loaded); // Stripped conc. from equilibrium isotherm
 	const double Stripped = IntersectPt2;
 
@@ -946,6 +985,12 @@ ReTry1:
             }
           }
         }
+      else
+        {
+        ClrCI(3);
+        ClrCI(4);
+        ClrCI(5);
+        }
  		  SetCI(2, /*!m_AllowOveride &&*/ CI2On);
       
       //================================================
@@ -1035,7 +1080,8 @@ ReTry1:
       else
         OrgOutConc = 0.0;
 
-      MaxLoadedConc = (AqMass+OgMass)/GTZ((AqMass+OrgInQm)/Orgs.Rho(som_Liq));//Based on 100% Extraction
+      const double OrgsLDens = Orgs.Rho(som_Liq);
+      MaxLoadedConc = (AqMass+OgMass)/GTZ((AqMass+OrgInQm)/OrgsLDens);//Based on 100% Extraction
       MaxStripConc = OgMass/GTZ((OgMass+AqInQm)/Aqs.Rho(som_Liq));
 
       //MN_Surge::EvalProducts(CNodeEvalIndex & NEI);
@@ -1388,7 +1434,7 @@ void MixerSettler::EvalDiscrete(flag ControlEnabled, flag ControlDisabled)
 
    if (Extraction==True)
     {
-    double Aq1 = PriIsotherm.Xy(OrgInConc); // Stripped organic in
+    const double Aq1 = PriIsotherm.Xy(OrgInConc); // Stripped organic in
     MinOrgConc = Max(0.0, OrgInConc - OARatio * Aq1);  // y-intercept of the operating curve
     LOConc=FindNewYConc(&AqsInConc, &OrgInConc, &MinOrgConc);
     
@@ -1405,7 +1451,8 @@ void MixerSettler::EvalDiscrete(flag ControlEnabled, flag ControlDisabled)
 
 	  RemSpcMass=(AqsMass+OrgMass) - (LOConc * OrgVol);
 	  dSpcMass=AqsMass-RemSpcMass;
-	  if (AqsMass > 0.0) frac=(dSpcMass/AqsMass);
+	  if (AqsMass > 0.0) 
+      frac=(dSpcMass/AqsMass);
 	  }
 	 else  //Stripping
 	  {
@@ -1473,6 +1520,7 @@ void MixerSettler::EvalDiscrete(flag ControlEnabled, flag ControlDisabled)
   }
 
 //--------------------------------------------------------------------------
+
 double MixerSettler::FindNewYConc(double* InX, double* InY, double* Yintcpt)
   {
   const int n=20;
@@ -1631,6 +1679,9 @@ flag MixerSettler::CIStrng(int No, pchar & pS)
     {
     case  1: pS="W\tInvalid Solute for reaction (using Isotherm method)."; return 1;
     case  2: pS="W\tIsotherm Extent Override Active."; return 1;
+    case  3: pS="W\tFeed Organic/Aqueous concentration out of supplied data range for Extraction/Stripping Isotherm"; return 1;
+    case  4: pS="W\tY Intercept MinOrgConc (or MinAqsConc for Stripping) is less than zero (use 0)"; return 1;
+    case  5: pS="W\tConcentration (Y value) from operating curve is out of supplied data range for Isotherm."; return 1;
     default:                                               
       return MdlNode::CIStrng(No, pS);
     }

@@ -162,7 +162,7 @@ class MixerSettler : public MdlNode
     virtual dword  ModelStatus();
 
     // ConditionBlk Override
-    DEFINE_CI(MixerSettler, MdlNode, 4);
+    DEFINE_CI(MixerSettler, MdlNode, 8);
 
 #if DOPBSMOOTHING  
     virtual void   EvalMsAGDatas();
