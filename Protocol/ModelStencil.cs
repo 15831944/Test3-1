@@ -23,6 +23,14 @@ namespace SysCAD.Protocol
       info.AddValue("decorations", modelStencil.Decorations);
       info.AddValue("elements", modelStencil.Elements);
       info.AddValue("tag", modelStencil.Tag);
+      if (modelStencil.DefaultSize != null)
+      {
+        info.AddValue("defaultSize", modelStencil.DefaultSize);
+      }
+      else
+      {
+        info.AddValue("defaultSize", new Size(10.0, 10.0));
+      }
     }
 
     public object SetObjectData(Object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
@@ -41,6 +49,14 @@ namespace SysCAD.Protocol
       modelStencil.Decorations = (ArrayList)info.GetValue("decorations", typeof(ArrayList));
       modelStencil.Elements = (ArrayList)info.GetValue("elements", typeof(ArrayList));
       modelStencil.Tag = (String)info.GetValue("tag", typeof(String));
+      try
+      {
+        modelStencil.DefaultSize = (Size)info.GetValue("defaultSize", typeof(String));
+      }
+      catch
+      {
+        modelStencil.DefaultSize = new Size(10.0, 10.0);
+      }
       return modelStencil;
     }
   }
@@ -53,6 +69,7 @@ namespace SysCAD.Protocol
   [XmlInclude(typeof(Line)), XmlInclude(typeof(Arc)), XmlInclude(typeof(Bezier))]
   public class ModelStencil
   {
+    private Size defaultSize;
 
     private ArrayList groups;
 
@@ -64,6 +81,12 @@ namespace SysCAD.Protocol
 
     public ModelStencil()
     {
+    }
+
+    public Size DefaultSize
+    {
+      get { return defaultSize; }
+      set { defaultSize = value; }
     }
 
     public ArrayList Groups

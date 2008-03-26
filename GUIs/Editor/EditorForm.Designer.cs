@@ -31,12 +31,12 @@ namespace SysCAD.Editor
     private void InitializeComponent()
     {
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditorForm));
-      PureComponents.TreeView.ContextMenuStrings contextMenuStrings2 = new PureComponents.TreeView.ContextMenuStrings();
-      PureComponents.TreeView.TreeViewStyle treeViewStyle2 = new PureComponents.TreeView.TreeViewStyle();
-      PureComponents.TreeView.NodeStyle nodeStyle2 = new PureComponents.TreeView.NodeStyle();
-      PureComponents.TreeView.CheckBoxStyle checkBoxStyle2 = new PureComponents.TreeView.CheckBoxStyle();
-      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle2 = new PureComponents.TreeView.ExpandBoxStyle();
-      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle2 = new PureComponents.TreeView.NodeTooltipStyle();
+      PureComponents.TreeView.ContextMenuStrings contextMenuStrings1 = new PureComponents.TreeView.ContextMenuStrings();
+      PureComponents.TreeView.TreeViewStyle treeViewStyle1 = new PureComponents.TreeView.TreeViewStyle();
+      PureComponents.TreeView.NodeStyle nodeStyle1 = new PureComponents.TreeView.NodeStyle();
+      PureComponents.TreeView.CheckBoxStyle checkBoxStyle1 = new PureComponents.TreeView.CheckBoxStyle();
+      PureComponents.TreeView.ExpandBoxStyle expandBoxStyle1 = new PureComponents.TreeView.ExpandBoxStyle();
+      PureComponents.TreeView.NodeTooltipStyle nodeTooltipStyle1 = new PureComponents.TreeView.NodeTooltipStyle();
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editUndoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Undo", "&Undo", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editRedoBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Redo", "&Redo", -1);
       ActiproSoftware.UIStudio.Bar.BarButtonCommand editCutBarButtonCommand = new ActiproSoftware.UIStudio.Bar.BarButtonCommand("Edit", "Cut", "Cu&t", -1);
@@ -341,7 +341,7 @@ namespace SysCAD.Editor
       this.NavigationTreeView.AllowArranging = false;
       this.NavigationTreeView.AllowDeleting = false;
       this.NavigationTreeView.AllowEditing = false;
-      this.NavigationTreeView.ContextMenuStrings = contextMenuStrings2;
+      this.NavigationTreeView.ContextMenuStrings = contextMenuStrings1;
       this.NavigationTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
       this.NavigationTreeView.Location = new System.Drawing.Point(0, 0);
       this.NavigationTreeView.Margin = new System.Windows.Forms.Padding(2);
@@ -350,15 +350,16 @@ namespace SysCAD.Editor
       this.NavigationTreeView.PathSeparator = "/";
       this.NavigationTreeView.SelectionMode = PureComponents.TreeView.SelectionMode.MultipleExtended;
       this.NavigationTreeView.Size = new System.Drawing.Size(131, 349);
-      nodeStyle2.CheckBoxStyle = checkBoxStyle2;
-      nodeStyle2.ExpandBoxStyle = expandBoxStyle2;
-      nodeStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeTooltipStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      nodeStyle2.TooltipStyle = nodeTooltipStyle2;
-      treeViewStyle2.NodeStyle = nodeStyle2;
-      this.NavigationTreeView.Style = treeViewStyle2;
+      nodeStyle1.CheckBoxStyle = checkBoxStyle1;
+      nodeStyle1.ExpandBoxStyle = expandBoxStyle1;
+      nodeStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeTooltipStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+      nodeStyle1.TooltipStyle = nodeTooltipStyle1;
+      treeViewStyle1.NodeStyle = nodeStyle1;
+      this.NavigationTreeView.Style = treeViewStyle1;
       this.NavigationTreeView.TabIndex = 1;
       this.NavigationTreeView.Tooltips = false;
+      this.NavigationTreeView.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.NavigationTreeView_NodeMouseClick);
       // 
       // twNavigation
       // 

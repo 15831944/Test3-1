@@ -287,6 +287,7 @@ namespace SysCAD.Editor
         box.Tag = area;
         node.Tag = area;
 
+        area.Locked = true;
         area.Visible = isVisible;
       }
     }
@@ -432,7 +433,7 @@ namespace SysCAD.Editor
           modelBox.Tag = editorNode;
           editorNode.ModelBox = modelBox;
 
-          modelStencil = ModelShape(modelNode.NodeClass);
+          modelStencil = ModelStencil(modelNode.NodeClass);
 
           if (modelStencil == null)
           {
@@ -490,6 +491,8 @@ namespace SysCAD.Editor
         else if (graphicBox != null)
         {
           textBox.AttachTo(graphicBox, AttachToNode.BottomCenter);
+          if (hiddenBox != null)
+            hiddenBox.AttachTo(graphicBox, 0, 0, 100, 100);
           if (editorArea != null)
             graphicBox.AttachTo(editorArea.Box, AttachToNode.TopLeft);
         }
@@ -499,7 +502,7 @@ namespace SysCAD.Editor
       }
     }
 
-    public ModelStencil ModelShape(NodeClass nodeClass)
+    public ModelStencil ModelStencil(NodeClass nodeClass)
     {
       ModelStencil modelStencil;
       config.ModelStencils.TryGetValue(nodeClass, out modelStencil);

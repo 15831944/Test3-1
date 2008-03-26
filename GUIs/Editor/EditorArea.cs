@@ -17,6 +17,8 @@ namespace SysCAD.Editor
 
     private bool visible;
 
+    private bool locked;
+
     private State state;
 
     public EditorArea(State state, GraphicArea graphicArea)
@@ -44,6 +46,12 @@ namespace SysCAD.Editor
     {
       get { return box; }
       set { box = value; }
+    }
+
+    public bool Locked
+    {
+      get { return locked; }
+      set { locked = value; }
     }
 
     public GraphicArea GraphicArea
