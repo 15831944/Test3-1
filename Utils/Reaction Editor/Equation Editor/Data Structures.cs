@@ -1684,17 +1684,29 @@ namespace Reaction_Editor
 
         public List<Compound> Compounds
         {
-            get
-            {
-                List<Compound> ret = new List<Compound>();
-                foreach (Compound c in m_OrderedProducts)
-                    if (!ret.Contains(c))
-                        ret.Add(c);
-                foreach (Compound c in m_OrderedReactants)
-                    if (!ret.Contains(c))
-                        ret.Add(c);
-                return ret;
-            }
+          get
+          {
+            List<Compound> ret = new List<Compound>();
+            foreach (Compound c in m_OrderedProducts)
+              if (!ret.Contains(c))
+                ret.Add(c);
+            foreach (Compound c in m_OrderedReactants)
+              if (!ret.Contains(c))
+                ret.Add(c);
+            return ret;
+          }
+        }
+
+        public List<Compound> ReactantCompounds
+        {
+          get
+          {
+            List<Compound> ret = new List<Compound>();
+            foreach (Compound c in m_OrderedReactants)
+              if (!ret.Contains(c))
+                ret.Add(c);
+            return ret;
+          }
         }
 
         public Compound FirstReactant
