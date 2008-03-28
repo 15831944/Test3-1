@@ -51,7 +51,9 @@ namespace SysCAD.Editor
     public bool Locked
     {
       get { return locked; }
-      set { locked = value; }
+      set { locked = value;
+      box.Locked = value;
+      }
     }
 
     public GraphicArea GraphicArea

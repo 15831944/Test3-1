@@ -17,52 +17,56 @@ namespace SysCAD.Service
     [STAThread]
     static int Main(string[] args)
     {
-      //try
-      //{
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
+#if (DEBUG)
+      try
+      {
+#endif
+      Application.EnableVisualStyles();
+      Application.SetCompatibleTextRenderingDefault(false);
 
-        String stencilPath = "..\\BaseFiles\\Stencils"; 
+      String stencilPath = "..\\BaseFiles\\Stencils";
 
-        Dictionary<string, Project> projects = new Dictionary<string, Project>();
+      Dictionary<string, Project> projects = new Dictionary<string, Project>();
 
-        if (Properties.Service.Default.projects == null)
-        {
-          Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
-        }
+      if (Properties.Service.Default.projects == null)
+      {
+        Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
+      }
 
       if (args.Length == 2)
-        {
+      {
         Project project = new Project(args[1], args[0]);
         projects.Add(project.Path, project);
-        }
-      
+      }
+
       foreach (string projectString in Properties.Service.Default.projects)
-        {
-          string[] projectStrings = projectString.Split('\t');
-          Project project = new Project(projectStrings[0], projectStrings[1]);
-          projects.Add(project.Path, project);
-        }
+      {
+        string[] projectStrings = projectString.Split('\t');
+        Project project = new Project(projectStrings[0], projectStrings[1]);
+        projects.Add(project.Path, project);
+      }
 
-        ServiceTemporaryWindow serviceTemporaryWindow = new ServiceTemporaryWindow(stencilPath, projects);
-        Application.Run(serviceTemporaryWindow);
-        serviceTemporaryWindow.Dispose();
+      ServiceTemporaryWindow serviceTemporaryWindow = new ServiceTemporaryWindow(stencilPath, projects);
+      Application.Run(serviceTemporaryWindow);
+      serviceTemporaryWindow.Dispose();
 
-        foreach (Project project in projects.Values)
-        {
-          Properties.Service.Default.projects.Clear();
-          Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
-        }
+      foreach (Project project in projects.Values)
+      {
+        Properties.Service.Default.projects.Clear();
+        Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
+      }
 
-        Properties.Service.Default.Save();
+      Properties.Service.Default.Save();
 
-        return 0;
-      //}
-      //catch (Exception e)
-      //{
-      //  ShowStackTraceBox(e);
-      //  return -1;
-      //}
+      return 0;
+#if (DEBUG)
+      }
+      catch (Exception e)
+      {
+        ShowStackTraceBox(e);
+        return -1;
+      }
+#endif
     }
 
     private static void ShowStackTraceBox(Exception e)
@@ -70,7 +74,7 @@ namespace SysCAD.Service
       string messagePre = string.Empty;
       string messageBody = string.Empty;
       string messagePost = string.Empty;
-      messagePre += "3An error has occurred, please add this information to bugzilla\n";
+      messagePre += "An error has occurred, please add this information to bugzilla\n";
       messagePre += "or email a copy of this debug information along with what you\n";
       messagePre += "were doing to paul.hannah@syscad.net:\n\n";
       messageBody += "Exception message:\n" + e.Message + "\n\n";
@@ -97,7 +101,7 @@ namespace SysCAD.Service
 
       Clipboard.SetText(messageBody);
 
-      MessageBox.Show(messagePre + messageBody + messagePost, "4An error has occurred.");
+      MessageBox.Show(messagePre + messageBody + messagePost, "An error has occurred.");
     }
   }
 }
