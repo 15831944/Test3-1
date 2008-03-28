@@ -98,29 +98,6 @@ namespace SysCAD.Editor
       fcFlowChart.Selection.Style = SelectionStyle.SemiTransparent;
     }
 
-    public void NavigationTreeView_NodeMouseClick(EventArgs e, PureComponents.TreeView.Node oNode)
-    {
-      MouseEventArgs me = e as MouseEventArgs;
-      if (me.Button == MouseButtons.Right)
-      {
-        if (oNode.Tag is EditorArea)
-        {
-          EditorArea editorArea = oNode.Tag as EditorArea;
-          contextArea = editorArea;
-          ContextMenu theMenu = new ContextMenu();
-
-          if (editorArea.Locked)
-            theMenu.MenuItems.Add("Unlock", new EventHandler(UnlockArea));
-          else
-            theMenu.MenuItems.Add("Lock", new EventHandler(LockArea));
-
-          // All the PointTo... crap is because if we associate the Show with 'oNode.TreeView'
-          // then it ends up ignoring most of the calls.
-          theMenu.Show(this, this.PointToClient(oNode.TreeView.PointToScreen(me.Location)));
-        }
-      }
-    }
-
     public void FixDocExtents()
     {
       float minX = float.MaxValue, minY = float.MaxValue;
@@ -980,6 +957,12 @@ namespace SysCAD.Editor
           theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseAreaToTop));
           theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendAreaToBottom));
 
+          contextArea = hoverArea;
+          if (hoverArea.Locked)
+            theMenu.MenuItems.Add("Unlock", new EventHandler(UnlockArea));
+          else
+            theMenu.MenuItems.Add("Lock", new EventHandler(LockArea));
+
           form1.ModeModify();
         }
 
@@ -1621,23 +1604,39 @@ namespace SysCAD.Editor
 
     private void SetHoverMembers(MouseEventArgs e)
     {
-      Arrow hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2.0F);
-      Box hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2.0F);
+      PointF ptF = fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y));
+
+      Arrow hoverArrow = fcFlowChart.GetArrowAt(ptF, 2.0F);
+      Box hoverBox = fcFlowChart.GetBoxAt(ptF, 2.0F);
+
+      hoverLink = null;
+      hoverNode = null;
+      hoverArea = null;
 
       if ((hoverArrow != null) && (hoverArrow.Tag is EditorLink))
         hoverLink = hoverArrow.Tag as EditorLink;
       else
-        hoverLink = null;
+        return;
 
       if ((hoverBox != null) && (hoverBox.Tag is EditorNode))
         hoverNode = hoverBox.Tag as EditorNode;
       else
-        hoverNode = null;
+        return;
 
       if ((hoverBox != null) && (hoverBox.Tag is EditorArea))
         hoverArea = (hoverBox.Tag as EditorArea);
       else
-        hoverArea = null;
+      {
+        foreach (EditorArea area in state.Areas)
+        {
+          if (area.Box.BoundingRect.Contains(ptF))
+          {
+            hoverArea = area;
+            return;
+          }
+        }
+        return;
+      }
     }
 
     private PointF Flowchart2Hoverbox(RectangleF flowchartbb, RectangleF hoverboxbb, PointF pt)

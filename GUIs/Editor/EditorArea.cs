@@ -51,8 +51,10 @@ namespace SysCAD.Editor
     public bool Locked
     {
       get { return locked; }
-      set { locked = value;
-      box.Locked = value;
+      set
+      {
+        locked = value;
+        box.Locked = value;
       }
     }
 
@@ -87,8 +89,8 @@ namespace SysCAD.Editor
     public bool Visible
     {
       get { return visible; }
-      set 
-      { 
+      set
+      {
         visible = value;
         UpdateVisibility();
       }

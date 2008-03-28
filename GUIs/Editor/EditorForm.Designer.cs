@@ -359,7 +359,6 @@ namespace SysCAD.Editor
       this.NavigationTreeView.Style = treeViewStyle1;
       this.NavigationTreeView.TabIndex = 1;
       this.NavigationTreeView.Tooltips = false;
-      this.NavigationTreeView.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.NavigationTreeView_NodeMouseClick);
       // 
       // twNavigation
       // 

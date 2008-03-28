@@ -996,11 +996,6 @@ namespace SysCAD.Editor
       frmFlowChart.AddAction(action);
     }
 
-    private void NavigationTreeView_NodeMouseClick(EventArgs e, PureComponents.TreeView.Node oNode)
-    {
-      frmFlowChart.NavigationTreeView_NodeMouseClick(e, oNode);
-    }
-
     //private void fcHoverview_DrawBox(object sender, BoxDrawArgs e)
     //{
     //  if (hoverviewBox.Tag is EditorNode)

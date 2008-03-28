@@ -3923,8 +3923,8 @@ namespace PureComponents.TreeView
 		{
 			base.OnClick(e);
 
-//pkh			if (m_oButtonClicked == MouseButtons.Right)
-//pkh				return;
+			if (m_oButtonClicked == MouseButtons.Right)
+				return;
 
 			// check the place, get the object, its popup menu and show it
 			Component oComponent = this.GetSubObjectAtPoint(m_oMouseClickPoint);
