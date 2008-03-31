@@ -1429,7 +1429,7 @@ namespace SysCAD.Editor
       get { return editorAreas.Values; }
     }
 
-    internal IEnumerable<EditorNode> Items
+    internal IEnumerable<EditorNode> Nodes
     {
       get { return editorNodes.Values; }
     }

@@ -27,6 +27,7 @@ namespace SysCAD.Editor
     private bool hovered = false;
     private bool linkHovered = false;
     private bool visible = false;
+    private bool locked = false;
 
     public Dictionary<int, String> anchorIntToTag = new Dictionary<int, String>();
     public Dictionary<String, int> anchorTagToInt = new Dictionary<String, int>();
@@ -235,6 +236,16 @@ namespace SysCAD.Editor
       }
     }
 
+    public bool Locked
+    {
+      get { return locked; }
+      set
+      {
+        locked = value;
+        UpdateVisibility();
+      }
+    }
+
     public bool Selected
     {
       get
@@ -296,38 +307,70 @@ namespace SysCAD.Editor
 
     internal void UpdateVisibility()
     {
-      if (ModelBox != null) ModelBox.Visible = visible;
-      GraphicBox.Visible = visible && state.ShowGraphics;
-      if (HiddenBox != null) HiddenBox.Visible = visible && state.ShowGraphics;
-      TextBox.Visible = visible && graphicNode.TagVisible && state.ShowTags;
-
       if (ModelBox != null)
       {
-        ModelBox.ZIndex = GraphicBox.ZIndex + 100;
-        //linkHovered = false;
-        foreach (Arrow arrow in ModelBox.IncomingArrows)
-        {
-          (arrow.Tag as EditorLink).UpdateVisibility();
-          //arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
-          //if ((arrow.Tag as EditorLink).Hovered) 
-          //  linkHovered = true;
-        }
-        foreach (Arrow arrow in ModelBox.OutgoingArrows)
-        {
-          (arrow.Tag as EditorLink).UpdateVisibility();
-          // arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
-          //if ((arrow.Tag as EditorLink).Hovered) 
-          //  linkHovered = true;
-        }
-
-        ModelBox.CustomDraw = CustomDraw.Additional;
+        ModelBox.Visible = visible;
+        ModelBox.Locked = locked;
       }
 
-      TextBox.ZIndex = GraphicBox.ZIndex + 200;
-
+      GraphicBox.Visible = visible && state.ShowGraphics;
+      GraphicBox.Locked = locked;
+      
       if (HiddenBox != null)
       {
-        HiddenBox.ZBottom();
+        HiddenBox.Visible = visible && state.ShowGraphics;
+        HiddenBox.Locked = locked;
+      }
+
+      TextBox.Visible = visible && graphicNode.TagVisible && state.ShowTags;
+      TextBox.Locked = locked;
+
+      if (locked)
+      {
+        if (ModelBox != null)
+        {
+          ModelBox.ZBottom();
+        }
+
+        GraphicBox.ZBottom();
+
+        if (HiddenBox != null)
+        {
+          HiddenBox.ZBottom();
+        }
+
+        TextBox.ZBottom();
+      }
+      else
+      {
+        if (ModelBox != null)
+        {
+          ModelBox.ZIndex = GraphicBox.ZIndex + 100;
+          //linkHovered = false;
+          foreach (Arrow arrow in ModelBox.IncomingArrows)
+          {
+            (arrow.Tag as EditorLink).UpdateVisibility();
+            //arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
+            //if ((arrow.Tag as EditorLink).Hovered) 
+            //  linkHovered = true;
+          }
+          foreach (Arrow arrow in ModelBox.OutgoingArrows)
+          {
+            (arrow.Tag as EditorLink).UpdateVisibility();
+            // arrow.ZIndex = Math.Max(arrow.Origin.ZIndex, arrow.Destination.ZIndex) + 10000;
+            //if ((arrow.Tag as EditorLink).Hovered) 
+            //  linkHovered = true;
+          }
+
+          ModelBox.CustomDraw = CustomDraw.Additional;
+        }
+
+        TextBox.ZIndex = GraphicBox.ZIndex + 200;
+
+        if (HiddenBox != null)
+        {
+          HiddenBox.ZBottom();
+        }
       }
 
       opacityTimer.Start();

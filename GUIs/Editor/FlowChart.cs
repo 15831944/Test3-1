@@ -46,6 +46,7 @@ namespace SysCAD.Editor
     private EditorArea hoverArea;
     private PointF hoverPoint;
 
+    private EditorNode contextNode;
     private EditorArea contextArea;
 
     ResourceManager stringManager;
@@ -170,7 +171,7 @@ namespace SysCAD.Editor
 
       fcFlowChart.Font = standardFont;
 
-      foreach (EditorNode item in state.Items)
+      foreach (EditorNode item in state.Nodes)
       {
         item.TextBox.Font = item.GraphicNode.TagFont.ScaledFont(zoomFactor);
       }
@@ -938,31 +939,44 @@ namespace SysCAD.Editor
 
         if (hoverNode != null)
         {
-          MenuItem arrangeMenu = theMenu.MenuItems.Add("Align Nodes...");
-          arrangeMenu.MenuItems.Add("Top", new EventHandler(AlignTop));
-          arrangeMenu.MenuItems.Add("Bottom", new EventHandler(RouteLinks));
-          arrangeMenu.MenuItems.Add("Left", new EventHandler(RouteLinks));
-          arrangeMenu.MenuItems.Add("Right", new EventHandler(RouteLinks));
-          arrangeMenu.MenuItems.Add("Center (H)", new EventHandler(RouteLinks));
-          arrangeMenu.MenuItems.Add("Center (V)", new EventHandler(RouteLinks));
-          theMenu.MenuItems.Add("Route Links", new EventHandler(RouteLinks));
-          theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseNodeToTop));
-          theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendNodeToBottom));
+          contextNode = hoverNode;
+          if (hoverNode.Locked)
+            theMenu.MenuItems.Add("Unlock", new EventHandler(UnlockNode));
+          else
+          {
+            MenuItem arrangeMenu = theMenu.MenuItems.Add("Align Nodes...");
+            arrangeMenu.MenuItems.Add("Top", new EventHandler(AlignTop));
+            arrangeMenu.MenuItems.Add("Bottom", new EventHandler(RouteLinks));
+            arrangeMenu.MenuItems.Add("Left", new EventHandler(RouteLinks));
+            arrangeMenu.MenuItems.Add("Right", new EventHandler(RouteLinks));
+            arrangeMenu.MenuItems.Add("Center (H)", new EventHandler(RouteLinks));
+            arrangeMenu.MenuItems.Add("Center (V)", new EventHandler(RouteLinks));
+            theMenu.MenuItems.Add("-");
+            theMenu.MenuItems.Add("Route Links", new EventHandler(RouteLinks));
+            theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseNodeToTop));
+            theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendNodeToBottom));
 
+            theMenu.MenuItems.Add("-");
+
+            theMenu.MenuItems.Add("Lock", new EventHandler(LockNode));
+          }
           form1.ModeModify();
         }
 
         else if (hoverArea != null)
         {
-          theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseAreaToTop));
-          theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendAreaToBottom));
-
           contextArea = hoverArea;
           if (hoverArea.Locked)
             theMenu.MenuItems.Add("Unlock", new EventHandler(UnlockArea));
           else
-            theMenu.MenuItems.Add("Lock", new EventHandler(LockArea));
+          {
+            theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseAreaToTop));
+            theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendAreaToBottom));
 
+            theMenu.MenuItems.Add("-");
+
+            theMenu.MenuItems.Add("Lock", new EventHandler(LockArea));
+          }
           form1.ModeModify();
         }
 
@@ -975,6 +989,7 @@ namespace SysCAD.Editor
           form1.ModeModify();
         }
 
+        theMenu.MenuItems.Add("-");
         theMenu.MenuItems.Add("Layout Flowchart (!!Broken in an interesting way in latest release!!)", new EventHandler(LayoutFlowchart));
 
         theMenu.MenuItems.Add("Insert Symbol", new EventHandler(InsertSymbol));
@@ -1615,13 +1630,23 @@ namespace SysCAD.Editor
 
       if ((hoverArrow != null) && (hoverArrow.Tag is EditorLink))
         hoverLink = hoverArrow.Tag as EditorLink;
-      else
-        return;
 
       if ((hoverBox != null) && (hoverBox.Tag is EditorNode))
         hoverNode = hoverBox.Tag as EditorNode;
       else
-        return;
+      {
+        foreach (EditorNode node in state.Nodes)
+        {
+          if (((node.ModelBox != null) && (node.ModelBox.BoundingRect.Contains(ptF))) ||
+            ((node.GraphicBox != null) && (node.GraphicBox.BoundingRect.Contains(ptF))) ||
+            ((node.TextBox != null) && (node.TextBox.BoundingRect.Contains(ptF))) ||
+            ((node.HiddenBox != null) && (node.HiddenBox.BoundingRect.Contains(ptF))))
+          {
+            hoverNode = node;
+            return;
+          }
+        }
+      }
 
       if ((hoverBox != null) && (hoverBox.Tag is EditorArea))
         hoverArea = (hoverBox.Tag as EditorArea);
@@ -1635,7 +1660,6 @@ namespace SysCAD.Editor
             return;
           }
         }
-        return;
       }
     }
 
@@ -2122,6 +2146,18 @@ namespace SysCAD.Editor
     {
       contextArea.Locked = true;
       contextArea.Box.ZBottom();
+    }
+
+    private void UnlockNode(object sender, EventArgs e)
+    {
+      contextNode.Locked = false;
+      contextNode.UpdateVisibility();
+    }
+
+    private void LockNode(object sender, EventArgs e)
+    {
+      contextNode.Locked = true;
+      contextNode.UpdateVisibility();
     }
 
     private void RouteLinks(object sender, EventArgs e)

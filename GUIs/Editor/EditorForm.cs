@@ -405,7 +405,7 @@ namespace SysCAD.Editor
           }
         }
 
-        foreach (EditorNode item in frmFlowChart.State.Items)
+        foreach (EditorNode item in frmFlowChart.State.Nodes)
         {
           if (item.GraphicBox.Selected)
           {
@@ -704,7 +704,7 @@ namespace SysCAD.Editor
     {
       frmFlowChart.State.ShowGraphics = ((IBarCheckableCommand)barManager1.Commands["View.ShowGraphics"]).Checked;
 
-      foreach (EditorNode item in frmFlowChart.State.Items)
+      foreach (EditorNode item in frmFlowChart.State.Nodes)
       {
         item.UpdateVisibility();
       }
@@ -742,7 +742,7 @@ namespace SysCAD.Editor
     {
       frmFlowChart.State.ShowModels = ((IBarCheckableCommand)barManager1.Commands["View.ShowModels"]).Checked;
 
-      foreach (EditorNode item in frmFlowChart.State.Items)
+      foreach (EditorNode item in frmFlowChart.State.Nodes)
       {
         item.UpdateVisibility();
       }
@@ -757,7 +757,7 @@ namespace SysCAD.Editor
         link.UpdateVisibility();
       }
 
-      foreach (EditorNode item in frmFlowChart.State.Items)
+      foreach (EditorNode item in frmFlowChart.State.Nodes)
       {
         item.UpdateVisibility();
       }
