@@ -43,8 +43,8 @@ namespace SysCAD.Protocol
       this.tag = tag;
       this.type = type;
       this.look = look;
-      //this.min = min;
-      //this.max = max;
+      this.positions = new ArrayList();
+      this.positions.Add(new Point(0.5, 0.5));
     }
 
     public Anchor(String tag, AnchorType type, Int16 look, PointF position)//, uint min, uint max)

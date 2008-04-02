@@ -101,6 +101,7 @@ namespace SysCAD.Protocol
     //     false if sz1 and sz2 are equal.
     public static bool operator !=(Size sz1, Size sz2)
     {
+      if (!(sz2 is Size)) return false;
       return ((sz1.width != sz2.width) || (sz1.height != sz2.height));
     }
 

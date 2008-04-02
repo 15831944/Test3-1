@@ -22,16 +22,422 @@ namespace DXF2GS
            - x12 * x21 * x33;
     }
 
+    static Dictionary<String, ModelStencil> modelStencils;
+
     static void Main(string[] args)
     {
+      modelStencils = SetModelStencils(args[1]);
+
       foreach (String path in Directory.GetFiles(args[0], "*.TxtSym"))
       {
-        GraphicStencil graphicStencil = new GraphicStencil();
-        String tag = Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].Replace('_', ' ');
-        graphicStencil.Tags = new ArrayList();          
-        graphicStencil.Elements = new ArrayList();
-        graphicStencil.Decorations = new ArrayList();
-        graphicStencil.DefaultSize = new Size(0.0, 0.0);
+        if (path.EndsWith(".Default.TxtSym"))
+        {
+          ProcessModelStencil(args[1], path);
+        }
+        else
+        {
+          ProcessGraphicStencil(args[1], path);
+        }
+      }
+
+      foreach (String path in Directory.GetFiles(args[0], "*.TxtMdl"))
+      {
+        CheckModelStencils(args[1], path);
+      }
+
+      Console.WriteLine();
+      Console.WriteLine("Done.");
+      Console.ReadKey(false);
+    }
+
+    private static void CheckModelStencils(String upgradeSymbolPath, String path)
+    {
+      ModelStencil modelStencil = null;
+      string classID = "";
+      int id = -1;
+      string name = "";
+      int direction = -1;
+      int type = -1;
+      int ioRequired = -1;
+      int ioMax = -1;
+      double height = -1.0;
+      string description = "";
+
+      foreach (String line in (new StreamReader(path)).ReadToEnd().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+      {
+        string[] words = line.Split(" ,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length > 0)
+        {
+          switch (words[0])
+          {
+            case "ClassId":
+              classID = words[1];
+              if (!modelStencils.TryGetValue(classID, out modelStencil))
+              {
+                Console.WriteLine("ModelStencil '" + classID + "' missing.");
+              }
+              break;
+
+            case "Port0":
+            case "Port1":
+            case "Port2":
+            case "Port3":
+            case "Port4":
+            case "Port5":
+            case "Port6":
+            case "Port7":
+            case "Port8":
+            case "Port9":
+            case "Port10":
+            case "Port11":
+            case "Port12":
+            case "Port13":
+            case "Port14":
+            case "Port15":
+            case "Port16":
+            case "Port17":
+            case "Port18":
+            case "Port19":
+            case "Port20":
+            case "Port21":
+            case "Port22":
+            case "Port23":
+            case "Port24":
+            case "Port25":
+            case "Port26":
+            case "Port27":
+            case "Port28":
+            case "Port29":
+            case "Port30":
+            case "Port31":
+            case "Port32":
+            case "Port33":
+            case "Port34":
+            case "Port35":
+            case "Port36":
+            case "Port37":
+            case "Port38":
+            case "Port39":
+            case "Port40":
+            case "Port41":
+            case "Port42":
+            case "Port43":
+            case "Port44":
+            case "Port45":
+            case "Port46":
+            case "Port47":
+            case "Port48":
+            case "Port49":
+            case "Port50":
+            case "Port51":
+            case "Port52":
+            case "Port53":
+            case "Port54":
+            case "Port55":
+            case "Port56":
+            case "Port57":
+            case "Port58":
+            case "Port59":
+              {
+                //;Port,  Id, Name, Dirn, Type, IORqd, IOMax, Hgt,  Desc
+                // Port0, 0,  In,   0x30, 0x80, 1,     1,     0.00, Input
+                id = int.Parse(words[1]);
+                name = words[2];
+                direction = int.Parse(words[3].Remove(0, 2), NumberStyles.HexNumber);
+                type = int.Parse(words[4].Remove(0, 2), NumberStyles.HexNumber);
+                ioRequired = int.Parse(words[5]);
+                ioMax = int.Parse(words[6]);
+                height = double.Parse(words[7]);
+                description = "";
+                if (words.Length > 8)
+                  description = words[8];
+
+                if (modelStencil != null)
+                {
+                  bool found = false;
+                  foreach (Anchor anchor in modelStencil.Anchors)
+                  {
+                    if (anchor.Tag == name)
+                      found = true;
+                  }
+                  if (!found)
+                  {
+                    if (type == 128)
+                    {
+                      modelStencil.Anchors.Add(new Anchor(name, AnchorType.Process, 0, 50.0, 50.0));
+                    }
+                    else if (type == 8192)
+                    {
+                      modelStencil.Anchors.Add(new Anchor(name, AnchorType.Control, 0, 50.0, 50.0));
+                    }
+                  }
+
+                  ModelStencil.Serialize(upgradeSymbolPath + "\\" + classID + ".modelstencil", modelStencil);
+                }
+              }
+              break;
+
+            // Ignore.
+            case "ClassName":
+            case "CategoryGrp":
+            case "CategoryMdl":
+            case "ProgID":
+            case "ShortDesc":
+            case "Desc":
+            case ";Port":
+              //case "
+              break;
+
+            default:
+              break;
+          }
+        }
+      }
+    }
+
+    private static void ProcessGraphicStencil(String upgradeSymbolPath, String path)
+    {
+      GraphicStencil graphicStencil = new GraphicStencil();
+      String tag = Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].Replace('_', ' ');
+      graphicStencil.Tags = new ArrayList();
+      graphicStencil.Elements = new ArrayList();
+      graphicStencil.Decorations = new ArrayList();
+      graphicStencil.DefaultSize = new Size(0.0, 0.0);
+      Double xMin = 0.0;
+      Double xMax = 0.0;
+      Double yMin = 0.0;
+      Double yMax = 0.0;
+
+      // Extract min/max's for scaling on-the-fly.
+      foreach (String line in (new StreamReader(path)).ReadToEnd().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+      {
+        string[] words = line.Split(" ,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length > 0)
+        {
+          switch (words[0])
+          {
+            case "XMin":
+              xMin = Double.Parse(words[1]);
+              break;
+
+            case "XMax":
+              xMax = Double.Parse(words[1]);
+              break;
+
+            case "YMin":
+              yMax = -Double.Parse(words[1]);
+              break;
+
+            case "YMax":
+              yMin = -Double.Parse(words[1]);
+              break;
+
+            case "Group":
+              graphicStencil.Tags.Add(words[1] + "/" + tag);
+              break;
+          }
+        }
+      }
+
+      // Populate graphicStencil.
+      Point oldPt = new Point(Double.NaN, Double.NaN);
+      foreach (String line in (new StreamReader(path)).ReadToEnd().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+      {
+        string[] words = line.Split(" ,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length > 0)
+        {
+          ArrayList pCurvePts = new ArrayList();
+          switch (words[0])
+          {
+            case "MDrw_Poly":
+              int i = 1;
+              while (i + 3 < words.Length)
+              {
+                graphicStencil.Decorations.Add(
+                  new Line(
+                    (Double.Parse(words[i]) - xMin) / (xMax - xMin) * 100.0,
+                    (-Double.Parse(words[i + 1]) - yMin) / (yMax - yMin) * 100.0,
+                    (Double.Parse(words[i + 2]) - xMin) / (xMax - xMin) * 100.0,
+                    (-Double.Parse(words[i + 3]) - yMin) / (yMax - yMin) * 100.0
+                  )
+                );
+                i += 2;
+              }
+              break;
+
+            case "MDrw_Arc":
+              {
+                Double xc = Double.Parse(words[1]);
+                Double yc = Double.Parse(words[2]);
+                Double r = Double.Parse(words[3]);
+                Double s = Double.Parse(words[4]);
+                Double x1 = Double.Parse(words[5]);
+                Double y1 = Double.Parse(words[6]);
+                Double a = Math.Atan2(y1 - yc, x1 - xc);
+
+
+                if (s > 1.95 * Math.PI)
+                {
+                  graphicStencil.Decorations.Add(
+                    new Arc(
+                      ((xc - r) - xMin) / (xMax - xMin) * 100.0,
+                      ((-yc - r) - yMin) / (yMax - yMin) * 100.0,
+                      (2.0 * r) / (xMax - xMin) * 100.0,
+                      (2.0 * r) / (yMax - yMin) * 100.0,
+                      0.0,
+                      360.0
+                    )
+                  );
+                }
+                else
+                {
+                  Bezier bezier = new Bezier();
+                  bezier.x1 = x1;
+                  bezier.y1 = y1;
+                  bezier.x2 = xc + r * Math.Cos(a + s / 3.0);
+                  bezier.y2 = yc + r * Math.Sin(a + s / 3.0);
+                  bezier.x3 = xc + r * Math.Cos(a + 2.0 * s / 3.0);
+                  bezier.y3 = yc + r * Math.Sin(a + 2.0 * s / 3.0);
+                  bezier.x4 = xc + r * Math.Cos(a + s);
+                  bezier.y4 = yc + r * Math.Sin(a + s);
+
+                  bezier.x1 = (bezier.x1 - xMin) / (xMax - xMin) * 100.0;
+                  bezier.y1 = (-bezier.y1 - yMin) / (yMax - yMin) * 100.0;
+                  bezier.x2 = (bezier.x2 - xMin) / (xMax - xMin) * 100.0;
+                  bezier.y2 = (-bezier.y2 - yMin) / (yMax - yMin) * 100.0;
+                  bezier.x3 = (bezier.x3 - xMin) / (xMax - xMin) * 100.0;
+                  bezier.y3 = (-bezier.y3 - yMin) / (yMax - yMin) * 100.0;
+                  bezier.x4 = (bezier.x4 - xMin) / (xMax - xMin) * 100.0;
+                  bezier.y4 = (-bezier.y4 - yMin) / (yMax - yMin) * 100.0;
+
+                  graphicStencil.Decorations.Add(bezier);
+                }
+              }
+              break;
+
+            case "MDrw_Arc3":
+              graphicStencil.Decorations.Add(
+                Arc3(
+                Double.Parse(words[1]), -Double.Parse(words[2]),
+                Double.Parse(words[3]), -Double.Parse(words[4]),
+                Double.Parse(words[5]), -Double.Parse(words[6]),
+                xMin, xMax, yMin, yMax)
+              );
+              break;
+
+            case "MDrw_PCurve":
+              switch (words[1])
+              {
+                case "S":
+                  pCurvePts.Clear();
+                  oldPt = new Point(Double.Parse(words[3]), -Double.Parse(words[4]));
+                  break;
+
+                case "P":
+                  graphicStencil.Decorations.Add(
+                    new Line(
+                      (oldPt.X - xMin) / (xMax - xMin) * 100.0,
+                      (oldPt.Y - yMin) / (yMax - yMin) * 100.0,
+                      (Double.Parse(words[3]) - xMin) / (xMax - xMin) * 100.0,
+                      (-Double.Parse(words[4]) - yMin) / (yMax - yMin) * 100.0
+                    )
+                  );
+                  oldPt = new Point(Double.Parse(words[3]), -Double.Parse(words[4]));
+                  break;
+
+                case "A":
+                  Double x2 = Double.Parse(words[3]);
+                  Double y2 = -Double.Parse(words[4]);
+                  Double xc = Double.Parse(words[5]);
+                  Double yc = -Double.Parse(words[6]);
+                  Double r = Double.Parse(words[7]);
+
+
+                  graphicStencil.Decorations.Add(
+                    Arc3(
+                    oldPt.X, oldPt.Y,
+                    x2, y2,
+                    xc, yc, r,
+                    xMin, xMax, yMin, yMax)
+                  );
+                  break;
+
+                default:
+                  Message("Unknown MDrw_PCurve option", upgradeSymbolPath, path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", line);
+                  break;
+              }
+              break;
+
+            case "Width":
+              graphicStencil.DefaultSize.Width = Double.Parse(words[1]);
+              break;
+
+            case "Height":
+              graphicStencil.DefaultSize.Height = Double.Parse(words[1]);
+              break;
+
+            case "TextArea":
+              graphicStencil.TagArea =
+                new Rectangle(
+                  (Double.Parse(words[1]) - xMin) / (xMax - xMin) * 100.0,
+                  ((-Double.Parse(words[2]) - yMin) - (Double.Parse(words[4]) - yMin)) / (yMax - yMin) * 100.0,
+                  (Double.Parse(words[3])) / (xMax - xMin) * 100.0,
+                  (Double.Parse(words[4])) / (yMax - yMin) * 100.0
+                );
+              break;
+
+            // Already handled.
+            case "XMin":
+            case "XMax":
+            case "YMin":
+            case "YMax":
+            case "Group":
+              break;
+
+            // Ignore.
+            case "Insert":
+            case "Symbol":
+            case "MDrw_TagPos":
+            case "MDrw_End":
+            case "InsertX":
+            case "InsertY":
+              break;
+
+            default:
+              Message("Unknown command", upgradeSymbolPath, path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", line);
+              break;
+          }
+        }
+      }
+
+      GraphicStencil.Serialize(upgradeSymbolPath + "\\" + ((String)(graphicStencil.Tags[0])).Replace('/', '_').ToLower().Replace(' ', '_') + ".GraphicStencil", graphicStencil);
+
+      //Console.WriteLine(upgradeSymbolPath + "\\" + ((String)(graphicStencil.Tags[0])).Replace('/', '_').ToLower().Replace(' ', '_') + ".GraphicStencil");
+
+      if (xMin == xMax)
+        Message("Zero width", upgradeSymbolPath, path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");
+
+      if (yMin == yMax)
+        Message("Zero height", upgradeSymbolPath, path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");
+    }
+
+    private static void ProcessModelStencil(String upgradeSymbolPath, String path)
+    {
+      ModelStencil modelStencil;
+      try
+      {
+        modelStencil = ModelStencil.Deserialize(upgradeSymbolPath + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1].Replace('_', ' ') + ".ModelStencil");
+      }
+      catch
+      {
+        modelStencil = new ModelStencil();
+
+        modelStencil.Elements = new ArrayList();
+        modelStencil.Decorations = new ArrayList();
+        modelStencil.DefaultSize = new Size(0.0, 0.0);
+        modelStencil.Groups = new ArrayList();
+        modelStencil.Anchors = new ArrayList();
+
         Double xMin = 0.0;
         Double xMax = 0.0;
         Double yMin = 0.0;
@@ -62,297 +468,357 @@ namespace DXF2GS
                 break;
 
               case "Group":
-                graphicStencil.Tags.Add(words[1] + "/" + tag);
+                modelStencil.Groups.Add(words[1]);
+                break;
+
+              case "Symbol":
+                modelStencil.Tag = words[1];
                 break;
             }
           }
         }
 
-        // Populate graphicStencil.
-        Point oldPt = new Point(Double.NaN, Double.NaN);
-        foreach (String line in (new StreamReader(path)).ReadToEnd().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+        if (File.Exists(Path.GetDirectoryName(path) + "\\" + modelStencil.Tag.Replace('*', '_') + ".TxTMdl"))
         {
-          string[] words = line.Split(" ,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-          if (words.Length > 0)
+
+          // Populate graphicStencil.
+          Point oldPt = new Point(Double.NaN, Double.NaN);
+          foreach (String line in (new StreamReader(path)).ReadToEnd().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
           {
-            ArrayList pCurvePts = new ArrayList();
-            switch (words[0])
+            string[] words = line.Split(" ,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length > 0)
             {
-              case "MDrw_Poly":
-                int i = 1;
-                while (i + 3 < words.Length)
-                {
-                  graphicStencil.Decorations.Add(
-                    new Line(
-                      (Double.Parse(words[i]) - xMin) / (xMax - xMin) * 100.0,
-                      (-Double.Parse(words[i + 1]) - yMin) / (yMax - yMin) * 100.0,
-                      (Double.Parse(words[i + 2]) - xMin) / (xMax - xMin) * 100.0,
-                      (-Double.Parse(words[i + 3]) - yMin) / (yMax - yMin) * 100.0
-                    )
-                  );
-                  i += 2;
-                }
-                break;
-
-              case "MDrw_Arc":
-                {
-                  Double xc = Double.Parse(words[1]);
-                  Double yc = Double.Parse(words[2]);
-                  Double r = Double.Parse(words[3]);
-                  Double s = Double.Parse(words[4]);
-                  Double x1 = Double.Parse(words[5]);
-                  Double y1 = Double.Parse(words[6]);
-                  Double a = Math.Atan2(y1 - yc, x1 - xc);
-
-
-                  if (s > 1.95 * Math.PI)
+              ArrayList pCurvePts = new ArrayList();
+              switch (words[0])
+              {
+                case "MDrw_Poly":
+                  int i = 1;
+                  while (i + 3 < words.Length)
                   {
-                    graphicStencil.Decorations.Add(
-                      new Arc(
-                        ((xc - r) - xMin) / (xMax - xMin) * 100.0,
-                        ((-yc - r) - yMin) / (yMax - yMin) * 100.0,
-                        (2.0 * r) / (xMax - xMin) * 100.0,
-                        (2.0 * r) / (yMax - yMin) * 100.0,
-                        0.0,
-                        360.0
-                      )
-                    );
-                  }
-                  else
-                  {
-                    Bezier bezier = new Bezier();
-                    bezier.x1 = x1;
-                    bezier.y1 = y1;
-                    bezier.x2 = xc + r * Math.Cos(a + s / 3.0);
-                    bezier.y2 = yc + r * Math.Sin(a + s / 3.0);
-                    bezier.x3 = xc + r * Math.Cos(a + 2.0 * s / 3.0);
-                    bezier.y3 = yc + r * Math.Sin(a + 2.0 * s / 3.0);
-                    bezier.x4 = xc + r * Math.Cos(a + s);
-                    bezier.y4 = yc + r * Math.Sin(a + s);
-
-                    bezier.x1 = (bezier.x1 - xMin) / (xMax - xMin) * 100.0;
-                    bezier.y1 = (-bezier.y1 - yMin) / (yMax - yMin) * 100.0;
-                    bezier.x2 = (bezier.x2 - xMin) / (xMax - xMin) * 100.0;
-                    bezier.y2 = (-bezier.y2 - yMin) / (yMax - yMin) * 100.0;
-                    bezier.x3 = (bezier.x3 - xMin) / (xMax - xMin) * 100.0;
-                    bezier.y3 = (-bezier.y3 - yMin) / (yMax - yMin) * 100.0;
-                    bezier.x4 = (bezier.x4 - xMin) / (xMax - xMin) * 100.0;
-                    bezier.y4 = (-bezier.y4 - yMin) / (yMax - yMin) * 100.0;
-
-                    graphicStencil.Decorations.Add(bezier);
-                  }
-                }
-                break;
-
-              case "MDrw_Arc3":
-                graphicStencil.Decorations.Add(
-                  Arc3(
-                  Double.Parse(words[1]), -Double.Parse(words[2]),
-                  Double.Parse(words[3]), -Double.Parse(words[4]),
-                  Double.Parse(words[5]), -Double.Parse(words[6]),
-                  xMin, xMax, yMin, yMax)
-                );
-                break;
-
-              case "MDrw_PCurve":
-                switch (words[1])
-                {
-                  case "S":
-                    pCurvePts.Clear();
-                    oldPt = new Point(Double.Parse(words[3]), -Double.Parse(words[4]));
-                    break;
-
-                  case "P":
-                    graphicStencil.Decorations.Add(
+                    modelStencil.Decorations.Add(
                       new Line(
-                        (oldPt.X - xMin) / (xMax - xMin) * 100.0,
-                        (oldPt.Y - yMin) / (yMax - yMin) * 100.0,
-                        (Double.Parse(words[3]) - xMin) / (xMax - xMin) * 100.0,
-                        (-Double.Parse(words[4]) - yMin) / (yMax - yMin) * 100.0
+                        (Double.Parse(words[i]) - xMin) / (xMax - xMin) * 100.0,
+                        (-Double.Parse(words[i + 1]) - yMin) / (yMax - yMin) * 100.0,
+                        (Double.Parse(words[i + 2]) - xMin) / (xMax - xMin) * 100.0,
+                        (-Double.Parse(words[i + 3]) - yMin) / (yMax - yMin) * 100.0
                       )
                     );
-                    oldPt = new Point(Double.Parse(words[3]), -Double.Parse(words[4]));
+                    i += 2;
+                  }
+                  break;
+
+                case "MDrw_Arc":
+                  {
+                    Double xc = Double.Parse(words[1]);
+                    Double yc = Double.Parse(words[2]);
+                    Double r = Double.Parse(words[3]);
+                    Double s = Double.Parse(words[4]);
+                    Double x1 = Double.Parse(words[5]);
+                    Double y1 = Double.Parse(words[6]);
+                    Double a = Math.Atan2(y1 - yc, x1 - xc);
+
+
+                    if (s > 1.95 * Math.PI)
+                    {
+                      modelStencil.Decorations.Add(
+                        new Arc(
+                          ((xc - r) - xMin) / (xMax - xMin) * 100.0,
+                          ((-yc - r) - yMin) / (yMax - yMin) * 100.0,
+                          (2.0 * r) / (xMax - xMin) * 100.0,
+                          (2.0 * r) / (yMax - yMin) * 100.0,
+                          0.0,
+                          360.0
+                        )
+                      );
+                    }
+                    else
+                    {
+                      Bezier bezier = new Bezier();
+                      bezier.x1 = x1;
+                      bezier.y1 = y1;
+                      bezier.x2 = xc + r * Math.Cos(a + s / 3.0);
+                      bezier.y2 = yc + r * Math.Sin(a + s / 3.0);
+                      bezier.x3 = xc + r * Math.Cos(a + 2.0 * s / 3.0);
+                      bezier.y3 = yc + r * Math.Sin(a + 2.0 * s / 3.0);
+                      bezier.x4 = xc + r * Math.Cos(a + s);
+                      bezier.y4 = yc + r * Math.Sin(a + s);
+
+                      bezier.x1 = (bezier.x1 - xMin) / (xMax - xMin) * 100.0;
+                      bezier.y1 = (-bezier.y1 - yMin) / (yMax - yMin) * 100.0;
+                      bezier.x2 = (bezier.x2 - xMin) / (xMax - xMin) * 100.0;
+                      bezier.y2 = (-bezier.y2 - yMin) / (yMax - yMin) * 100.0;
+                      bezier.x3 = (bezier.x3 - xMin) / (xMax - xMin) * 100.0;
+                      bezier.y3 = (-bezier.y3 - yMin) / (yMax - yMin) * 100.0;
+                      bezier.x4 = (bezier.x4 - xMin) / (xMax - xMin) * 100.0;
+                      bezier.y4 = (-bezier.y4 - yMin) / (yMax - yMin) * 100.0;
+
+                      modelStencil.Decorations.Add(bezier);
+                    }
+                  }
+                  break;
+
+                case "MDrw_Arc3":
+                  modelStencil.Decorations.Add(
+                    Arc3(
+                    Double.Parse(words[1]), -Double.Parse(words[2]),
+                    Double.Parse(words[3]), -Double.Parse(words[4]),
+                    Double.Parse(words[5]), -Double.Parse(words[6]),
+                    xMin, xMax, yMin, yMax)
+                  );
+                  break;
+
+                case "MDrw_PCurve":
+                  switch (words[1])
+                  {
+                    case "S":
+                      pCurvePts.Clear();
+                      oldPt = new Point(Double.Parse(words[3]), -Double.Parse(words[4]));
+                      break;
+
+                    case "P":
+                      modelStencil.Decorations.Add(
+                        new Line(
+                          (oldPt.X - xMin) / (xMax - xMin) * 100.0,
+                          (oldPt.Y - yMin) / (yMax - yMin) * 100.0,
+                          (Double.Parse(words[3]) - xMin) / (xMax - xMin) * 100.0,
+                          (-Double.Parse(words[4]) - yMin) / (yMax - yMin) * 100.0
+                        )
+                      );
+                      oldPt = new Point(Double.Parse(words[3]), -Double.Parse(words[4]));
+                      break;
+
+                    case "A":
+                      Double x2 = Double.Parse(words[3]);
+                      Double y2 = -Double.Parse(words[4]);
+                      Double xc = Double.Parse(words[5]);
+                      Double yc = -Double.Parse(words[6]);
+                      Double r = Double.Parse(words[7]);
+
+
+                      modelStencil.Decorations.Add(
+                        Arc3(
+                        oldPt.X, oldPt.Y,
+                        x2, y2,
+                        xc, yc, r,
+                        xMin, xMax, yMin, yMax)
+                      );
+                      break;
+
+                    default:
+                      Message("Unknown MDrw_PCurve option", upgradeSymbolPath, path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", line);
+                      break;
+                  }
+                  break;
+
+                case "Width":
+                  modelStencil.DefaultSize.Width = Double.Parse(words[1]);
+                  break;
+
+                case "Height":
+                  modelStencil.DefaultSize.Height = Double.Parse(words[1]);
+                  break;
+
+                // Already handled.
+                case "XMin":
+                case "XMax":
+                case "YMin":
+                case "YMax":
+                case "Group":
+                  break;
+
+                // Ignore.
+                case "Insert":
+                case "TextArea":
+                case "Symbol":
+                case "MDrw_TagPos":
+                case "MDrw_End":
+                case "InsertX":
+                case "InsertY":
+                  break;
+
+                default:
+                  Message("Unknown command", upgradeSymbolPath, path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", line);
+                  break;
+              }
+            }
+          }
+
+          foreach (String line in (new StreamReader(Path.GetDirectoryName(path) + "\\" + modelStencil.Tag.Replace('*', '_') + ".TxTMdl")).ReadToEnd().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+          {
+            string[] words = line.Split(" ,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length > 0)
+            {
+              switch (words[0])
+              {
+                case "XMin":
+                  xMin = Double.Parse(words[1]);
+                  break;
+
+                case "XMax":
+                  xMax = Double.Parse(words[1]);
+                  break;
+
+                case "YMin":
+                  yMax = -Double.Parse(words[1]);
+                  break;
+
+                case "YMax":
+                  yMin = -Double.Parse(words[1]);
+                  break;
+
+                case "Group":
+                  modelStencil.Groups.Add(words[1]);
+                  break;
+
+                case "Symbol":
+                  modelStencil.Tag = words[1];
+                  break;
+              }
+            }
+          }
+
+          // Populate graphicStencil.
+          oldPt = new Point(Double.NaN, Double.NaN);
+          foreach (String line in (new StreamReader(Path.GetDirectoryName(path) + "\\" + modelStencil.Tag + ".TxTMdl")).ReadToEnd().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+          {
+            if (!line.StartsWith(";"))
+            {
+              string[] words = line.Split(" ,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+              if (words.Length > 0)
+              {
+                switch (words[0])
+                {
+                  case "Port0":
+                  case "Port1":
+                  case "Port2":
+                  case "Port3":
+                  case "Port4":
+                  case "Port5":
+                  case "Port6":
+                  case "Port7":
+                  case "Port8":
+                  case "Port9":
+                  case "Port10":
+                  case "Port11":
+                  case "Port12":
+                  case "Port13":
+                  case "Port14":
+                  case "Port15":
+                  case "Port16":
+                  case "Port17":
+                  case "Port18":
+                  case "Port19":
+                  case "Port20":
+                  case "Port21":
+                  case "Port22":
+                  case "Port23":
+                  case "Port24":
+                  case "Port25":
+                  case "Port26":
+                  case "Port27":
+                  case "Port28":
+                  case "Port29":
+                  case "Port30":
+                  case "Port31":
+                  case "Port32":
+                  case "Port33":
+                  case "Port34":
+                  case "Port35":
+                  case "Port36":
+                  case "Port37":
+                  case "Port38":
+                  case "Port39":
+                  case "Port40":
+                  case "Port41":
+                  case "Port42":
+                  case "Port43":
+                  case "Port44":
+                  case "Port45":
+                  case "Port46":
+                  case "Port47":
+                  case "Port48":
+                  case "Port49":
+                  case "Port50":
+                  case "Port51":
+                  case "Port52":
+                  case "Port53":
+                  case "Port54":
+                  case "Port55":
+                  case "Port56":
+                  case "Port57":
+                  case "Port58":
+                  case "Port59":
+                    {
+                      //;Port,  Id, Name, Dirn, Type, IORqd, IOMax, Hgt,  Desc
+                      // Port0, 0,  In,   0x30, 0x80, 1,     1,     0.00, Input
+                      int id = -1;
+                      string name = "";
+                      int direction = -1;
+                      int type = -1;
+                      int ioRequired = -1;
+                      int ioMax = -1;
+                      double height = -1.0;
+                      string description = "";
+
+                      id = int.Parse(words[1]);
+                      name = words[2];
+                      direction = int.Parse(words[3].Remove(0, 2), NumberStyles.HexNumber);
+                      type = int.Parse(words[4].Remove(0, 2), NumberStyles.HexNumber);
+                      ioRequired = int.Parse(words[5]);
+                      ioMax = int.Parse(words[6]);
+                      height = double.Parse(words[7]);
+                      description = "";
+                      if (words.Length > 8)
+                        description = words[8];
+                      AnchorType anchorType = AnchorType.Process;
+                      modelStencil.Anchors.Add(new Anchor(name, anchorType, 0));
+                    }
                     break;
 
-                  case "A":
-                    Double x2 = Double.Parse(words[3]);
-                    Double y2 = -Double.Parse(words[4]);
-                    Double xc = Double.Parse(words[5]);
-                    Double yc = -Double.Parse(words[6]);
-                    Double r = Double.Parse(words[7]);
-
-
-                    graphicStencil.Decorations.Add(
-                      Arc3(
-                      oldPt.X, oldPt.Y,
-                      x2, y2,
-                      xc, yc, r,
-                      xMin, xMax, yMin, yMax)
-                    );
+                  case "ClassName":
+                  case "ClassId":
+                  case "CategoryGrp":
+                  case "CategoryMdl":
+                  case "ProgID":
+                  case "ShortDesc":
+                  case "Desc":
+                  case "Symbol":
+                  case "Group":
                     break;
 
                   default:
-                    Message("Unknown MDrw_PCurve option", args[1], path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", line);
+                    Message("Unknown command", upgradeSymbolPath, path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", line);
                     break;
                 }
-                break;
-
-              case "Width":
-                graphicStencil.DefaultSize.Width = Double.Parse(words[1]);
-                break;
-
-              case "Height":
-                graphicStencil.DefaultSize.Height = Double.Parse(words[1]);
-                break;
-
-              case "TextArea":
-                graphicStencil.TagArea =
-                  new Rectangle(
-                    (Double.Parse(words[1]) - xMin) / (xMax - xMin) * 100.0,
-                    ((-Double.Parse(words[2]) - yMin) - (Double.Parse(words[4]) - yMin)) / (yMax - yMin) * 100.0,
-                    (Double.Parse(words[3])) / (xMax - xMin) * 100.0,
-                    (Double.Parse(words[4])) / (yMax - yMin) * 100.0
-                  );
-                break;
-
-              // Already handled.
-              case "XMin":
-              case "XMax":
-              case "YMin":
-              case "YMax":
-              case "Group":
-                break;
-
-              // Ignore.
-              case "Insert":
-              case "Symbol":
-              case "MDrw_TagPos":
-              case "MDrw_End":
-              case "InsertX":
-              case "InsertY":
-                break;
-
-              default:
-                Message("Unknown command", args[1], path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", line);
-                break;
+              }
             }
           }
+
+          ModelStencil.Serialize(upgradeSymbolPath + "\\" + ((String)(modelStencil.Tag)).Replace('/', '_').ToLower().Replace(' ', '_') + ".ModelStencil", modelStencil);
+
+          //Console.WriteLine(upgradeSymbolPath + "\\" + ((String)(graphicStencil.Tags[0])).Replace('/', '_').ToLower().Replace(' ', '_') + ".GraphicStencil");
+
+          if (xMin == xMax)
+            Message("Zero width", upgradeSymbolPath, path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");
+
+          if (yMin == yMax)
+            Message("Zero height", upgradeSymbolPath, path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");
         }
-
-        GraphicStencil.Serialize(args[1] + "\\" + ((String)(graphicStencil.Tags[0])).Replace('/', '_').ToLower().Replace(' ', '_') + ".GraphicStencil", graphicStencil);
-
-        //Console.WriteLine(args[1] + "\\" + ((String)(graphicStencil.Tags[0])).Replace('/', '_').ToLower().Replace(' ', '_') + ".GraphicStencil");
-
-        if (xMin == xMax)
-          Message("Zero width", args[1], path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");
-
-        if (yMin == yMax)
-          Message("Zero height", args[1], path + "\\" + Path.GetFileNameWithoutExtension(path).Split("().".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[1] + ".GraphicStencil", "");
       }
+    }
 
-      Dictionary<String, ModelStencil> modelStencils = new Dictionary<string, ModelStencil>();
+    private static Dictionary<string, ModelStencil> SetModelStencils(String upgradeSymbolPath)
+    {
+      Dictionary<string, ModelStencil> modelStencils = new Dictionary<string, ModelStencil>();
 
-      foreach (String path in Directory.GetFiles(args[1], "*.modelstencil"))
+      foreach (String path in Directory.GetFiles(upgradeSymbolPath, "*.modelstencil"))
       {
         ModelStencil modelStencil = ModelStencil.Deserialize(path);
         modelStencil = ModelStencil.Deserialize(path);
         modelStencils.Add(modelStencil.Tag, modelStencil);
       }
 
-      foreach (String path in Directory.GetFiles(args[0], "*.TxtMdl"))
-      {
-        ModelStencil modelStencil = null;
-        string classID = "";
-        int id = -1;
-        string name = "";
-        int direction = -1;
-        int type = -1;
-        int ioRequired = -1;
-        int ioMax = -1;
-        double height = -1.0;
-        string description = "";
-
-        foreach (String line in (new StreamReader(path)).ReadToEnd().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
-        {
-          string[] words = line.Split(" ,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-          if (words.Length > 0)
-          {
-            switch (words[0])
-            {
-              case "ClassId":
-                classID = words[1];
-                if (!modelStencils.TryGetValue(classID, out modelStencil))
-                {
-                  Console.WriteLine("ModelStencil '" + classID + "' missing.");
-                }
-                break;
-
-              case "Port0":  case "Port1":  case "Port2":  case "Port3":  case "Port4":  case "Port5":  case "Port6":  case "Port7":  case "Port8":  case "Port9":
-              case "Port10": case "Port11": case "Port12": case "Port13": case "Port14": case "Port15": case "Port16": case "Port17": case "Port18": case "Port19":
-              case "Port20": case "Port21": case "Port22": case "Port23": case "Port24": case "Port25": case "Port26": case "Port27": case "Port28": case "Port29":
-              case "Port30": case "Port31": case "Port32": case "Port33": case "Port34": case "Port35": case "Port36": case "Port37": case "Port38": case "Port39":
-              case "Port40": case "Port41": case "Port42": case "Port43": case "Port44": case "Port45": case "Port46": case "Port47": case "Port48": case "Port49":
-              case "Port50": case "Port51": case "Port52": case "Port53": case "Port54": case "Port55": case "Port56": case "Port57": case "Port58": case "Port59":
-                {
-                  //;Port,  Id, Name, Dirn, Type, IORqd, IOMax, Hgt,  Desc
-                  // Port0, 0,  In,   0x30, 0x80, 1,     1,     0.00, Input
-                  id = int.Parse(words[1]);
-                  name = words[2];
-                  direction = int.Parse(words[3].Remove(0, 2), NumberStyles.HexNumber);
-                  type = int.Parse(words[4].Remove(0,2), NumberStyles.HexNumber);
-                  ioRequired = int.Parse(words[5]);
-                  ioMax = int.Parse(words[6]);
-                  height = double.Parse(words[7]);
-                  description = "";
-                  if (words.Length > 8)
-                    description = words[8];
-
-                  if (modelStencil != null)
-                  {
-                    bool found = false;
-                    foreach (Anchor anchor in modelStencil.Anchors)
-                    {
-                      if (anchor.Tag == name)
-                        found = true;
-                    }
-                    if (!found)
-                    {
-                      if (type == 128)
-                      {
-                        modelStencil.Anchors.Add(new Anchor(name, AnchorType.Process, 0, 50.0, 50.0));
-                      }
-                      else if (type == 8192)
-                      {
-                        modelStencil.Anchors.Add(new Anchor(name, AnchorType.Control, 0, 50.0, 50.0));
-                      }
-                    }
-
-                    ModelStencil.Serialize(args[1] + "\\" + classID + ".modelstencil", modelStencil);
-                  }
-                }
-                break;
-
-              // Ignore.
-              case "ClassName":
-              case "CategoryGrp":
-              case "CategoryMdl":
-              case "ProgID":
-              case "ShortDesc":
-              case "Desc":
-              case ";Port":
-                //case "
-                break;
-
-              default:
-                break;
-            }
-          }
-        }
-      }
-
-      Console.WriteLine();
-      Console.WriteLine("Done.");
-      Console.ReadKey(false);
+      return modelStencils;
     }
 
     private static void Message(String message, String oldPath, String newPath, String line)

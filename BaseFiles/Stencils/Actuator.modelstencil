@@ -6,31 +6,35 @@
 <decorations href="#ref-5"/>
 <elements href="#ref-6"/>
 <tag id="ref-7">Actuator</tag>
+<defaultSize href="#ref-8"/>
 </a1:ModelStencil>
 <a2:ArrayList id="ref-3" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
-<_items href="#ref-8"/>
+<_items href="#ref-9"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
 <a2:ArrayList id="ref-4" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
-<_items href="#ref-9"/>
+<_items href="#ref-10"/>
 <_size>20</_size>
 <_version>299</_version>
 </a2:ArrayList>
 <a2:ArrayList id="ref-5" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
-<_items href="#ref-10"/>
+<_items href="#ref-11"/>
 <_size>0</_size>
 <_version>334</_version>
 </a2:ArrayList>
 <a2:ArrayList id="ref-6" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
-<_items href="#ref-11"/>
+<_items href="#ref-12"/>
 <_size>1</_size>
 <_version>541</_version>
 </a2:ArrayList>
-<SOAP-ENC:Array id="ref-8" SOAP-ENC:arrayType="xsd:anyType[4]">
+<a1:Size id="ref-8" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<width>10</width>
+<height>10</height>
+</a1:Size>
+<SOAP-ENC:Array id="ref-9" SOAP-ENC:arrayType="xsd:anyType[4]">
 </SOAP-ENC:Array>
-<SOAP-ENC:Array id="ref-9" SOAP-ENC:arrayType="xsd:anyType[32]">
-<item href="#ref-12"/>
+<SOAP-ENC:Array id="ref-10" SOAP-ENC:arrayType="xsd:anyType[32]">
 <item href="#ref-13"/>
 <item href="#ref-14"/>
 <item href="#ref-15"/>
@@ -50,133 +54,134 @@
 <item href="#ref-29"/>
 <item href="#ref-30"/>
 <item href="#ref-31"/>
-</SOAP-ENC:Array>
-<SOAP-ENC:Array id="ref-10" SOAP-ENC:arrayType="xsd:anyType[4]">
-</SOAP-ENC:Array>
-<SOAP-ENC:Array id="ref-11" SOAP-ENC:arrayType="xsd:anyType[4]">
 <item href="#ref-32"/>
 </SOAP-ENC:Array>
-<a1:Anchor id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-33"/>
-<tag id="ref-34">A0.Rqd</tag>
-<type>Control</type>
-<look>0</look>
-</a1:Anchor>
+<SOAP-ENC:Array id="ref-11" SOAP-ENC:arrayType="xsd:anyType[4]">
+</SOAP-ENC:Array>
+<SOAP-ENC:Array id="ref-12" SOAP-ENC:arrayType="xsd:anyType[4]">
+<item href="#ref-33"/>
+</SOAP-ENC:Array>
 <a1:Anchor id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-35"/>
-<tag id="ref-36">A1.Rqd</tag>
+<positions href="#ref-34"/>
+<tag id="ref-35">A0.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-37"/>
-<tag id="ref-38">A2.Rqd</tag>
+<positions href="#ref-36"/>
+<tag id="ref-37">A1.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-39"/>
-<tag id="ref-40">A3.Rqd</tag>
+<positions href="#ref-38"/>
+<tag id="ref-39">A2.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-41"/>
-<tag id="ref-42">A4.Rqd</tag>
+<positions href="#ref-40"/>
+<tag id="ref-41">A3.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-43"/>
-<tag id="ref-44">A5.Rqd</tag>
+<positions href="#ref-42"/>
+<tag id="ref-43">A4.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-45"/>
-<tag id="ref-46">A6.Rqd</tag>
+<positions href="#ref-44"/>
+<tag id="ref-45">A5.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-47"/>
-<tag id="ref-48">A7.Rqd</tag>
+<positions href="#ref-46"/>
+<tag id="ref-47">A6.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-20" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-49"/>
-<tag id="ref-50">A8.Rqd</tag>
+<positions href="#ref-48"/>
+<tag id="ref-49">A7.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-21" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-51"/>
-<tag id="ref-52">A9.Rqd</tag>
+<positions href="#ref-50"/>
+<tag id="ref-51">A8.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-22" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-53"/>
-<tag id="ref-54">A10.Rqd</tag>
+<positions href="#ref-52"/>
+<tag id="ref-53">A9.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-23" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-55"/>
-<tag id="ref-56">A11.Rqd</tag>
+<positions href="#ref-54"/>
+<tag id="ref-55">A10.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-24" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-57"/>
-<tag id="ref-58">A12.Rqd</tag>
+<positions href="#ref-56"/>
+<tag id="ref-57">A11.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-25" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-59"/>
-<tag id="ref-60">A13.Rqd</tag>
+<positions href="#ref-58"/>
+<tag id="ref-59">A12.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-26" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-61"/>
-<tag id="ref-62">A14.Rqd</tag>
+<positions href="#ref-60"/>
+<tag id="ref-61">A13.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-27" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-63"/>
-<tag id="ref-64">A15.Rqd</tag>
+<positions href="#ref-62"/>
+<tag id="ref-63">A14.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-28" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-65"/>
-<tag id="ref-66">A16.Rqd</tag>
+<positions href="#ref-64"/>
+<tag id="ref-65">A15.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-29" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-67"/>
-<tag id="ref-68">A17.Rqd</tag>
+<positions href="#ref-66"/>
+<tag id="ref-67">A16.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-30" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-69"/>
-<tag id="ref-70">A18.Rqd</tag>
+<positions href="#ref-68"/>
+<tag id="ref-69">A17.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-31" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<positions href="#ref-71"/>
-<tag id="ref-72">A19.Rqd</tag>
+<positions href="#ref-70"/>
+<tag id="ref-71">A18.Rqd</tag>
 <type>Control</type>
 <look>0</look>
 </a1:Anchor>
-<a1:Arc id="ref-32" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<a1:Anchor id="ref-32" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<positions href="#ref-72"/>
+<tag id="ref-73">A19.Rqd</tag>
+<type>Control</type>
+<look>0</look>
+</a1:Anchor>
+<a1:Arc id="ref-33" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <a>0</a>
 <h>100</h>
 <s>360</s>
@@ -184,109 +189,106 @@
 <x>0</x>
 <y>0</y>
 </a1:Arc>
-<a2:ArrayList id="ref-33" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
-<_items href="#ref-73"/>
-<_size>1</_size>
-<_version>1</_version>
-</a2:ArrayList>
-<a2:ArrayList id="ref-35" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-34" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-74"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-37" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-36" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-75"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-39" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-38" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-76"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-41" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-40" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-77"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-43" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-42" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-78"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-45" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-44" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-79"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-47" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-46" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-80"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-49" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-48" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-81"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-51" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-50" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-82"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-53" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-52" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-83"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-55" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-54" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-84"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-57" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-56" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-85"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-59" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-58" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-86"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-61" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-60" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-87"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-63" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-62" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-88"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-65" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-64" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-89"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-67" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-66" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-90"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-69" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-68" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-91"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<a2:ArrayList id="ref-71" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<a2:ArrayList id="ref-70" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-92"/>
 <_size>1</_size>
 <_version>1</_version>
 </a2:ArrayList>
-<SOAP-ENC:Array id="ref-73" SOAP-ENC:arrayType="xsd:anyType[4]">
-<item href="#ref-93"/>
-</SOAP-ENC:Array>
+<a2:ArrayList id="ref-72" xmlns:a2="http://schemas.microsoft.com/clr/ns/System.Collections">
+<_items href="#ref-93"/>
+<_size>1</_size>
+<_version>1</_version>
+</a2:ArrayList>
 <SOAP-ENC:Array id="ref-74" SOAP-ENC:arrayType="xsd:anyType[4]">
 <item href="#ref-94"/>
 </SOAP-ENC:Array>
@@ -344,10 +346,9 @@
 <SOAP-ENC:Array id="ref-92" SOAP-ENC:arrayType="xsd:anyType[4]">
 <item href="#ref-112"/>
 </SOAP-ENC:Array>
-<a1:Point id="ref-93" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
-<x>50</x>
-<y>50</y>
-</a1:Point>
+<SOAP-ENC:Array id="ref-93" SOAP-ENC:arrayType="xsd:anyType[4]">
+<item href="#ref-113"/>
+</SOAP-ENC:Array>
 <a1:Point id="ref-94" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x>50</x>
 <y>50</y>
@@ -421,6 +422,10 @@
 <y>50</y>
 </a1:Point>
 <a1:Point id="ref-112" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x>50</x>
+<y>50</y>
+</a1:Point>
+<a1:Point id="ref-113" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x>50</x>
 <y>50</y>
 </a1:Point>
