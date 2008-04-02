@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Kenwalt")]
 [assembly: AssemblyProduct("Reaction Editor")]
-[assembly: AssemblyCopyright("Copyright © Kenwalt 2007")]
+[assembly: AssemblyCopyright("Copyright © Kenwalt 2008")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
