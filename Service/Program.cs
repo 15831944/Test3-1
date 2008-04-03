@@ -53,7 +53,7 @@ namespace SysCAD.Service
         Properties.Service.Default.projects.Clear();
         foreach (Project project in projects.Values)
         {
-          //Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
+          Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
         }
 
         Properties.Service.Default.lastFolder = serviceTemporaryWindow.lastFolder;

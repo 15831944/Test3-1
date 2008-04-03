@@ -220,6 +220,18 @@ namespace SysCAD.Editor
       editorLinks.Add(graphicLink.Guid, link);
     }
 
+    static public void SetControlPoints(Arrow arrow, List<SysCAD.Protocol.Point> points, double dx, double dy)
+    {
+      List<SysCAD.Protocol.Point> offsetPoints = new List<SysCAD.Protocol.Point>();
+
+      foreach (SysCAD.Protocol.Point point in points)
+      {
+        offsetPoints.Add(new SysCAD.Protocol.Point(point.X + dx, point.Y + dy));
+      }
+
+      SetControlPoints(arrow, offsetPoints);
+    }
+
     static public void SetControlPoints(Arrow arrow, List<SysCAD.Protocol.Point> points)
     {
       if (points.Count % 2 == 0)

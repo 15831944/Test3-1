@@ -70,8 +70,8 @@ namespace SysCAD.Editor
           anchorPoint.Color = Color.FromArgb(opacity, anchorPoint.Color);
       }
 
-      GraphicBox.FillColor = Color.FromArgb((int)((220 - opacity)*graphicNode.Opacity), GraphicBox.FillColor);
-      GraphicBox.FrameColor = Color.FromArgb((int)((255 - opacity)*graphicNode.Opacity), GraphicBox.FrameColor);
+      GraphicBox.FillColor = Color.FromArgb((int)((220 - opacity) * graphicNode.Opacity), GraphicBox.FillColor);
+      GraphicBox.FrameColor = Color.FromArgb((int)((255 - opacity) * graphicNode.Opacity), GraphicBox.FrameColor);
 
     }
 
@@ -144,7 +144,11 @@ namespace SysCAD.Editor
 
     public ArrowCollection IncomingArrows
     {
-      get { return modelBox.IncomingArrows; }
+      get
+      {
+        if (modelBox == null) return null;
+        return modelBox.IncomingArrows;
+      }
     }
 
     public Box ModelBox
@@ -167,7 +171,11 @@ namespace SysCAD.Editor
 
     public ArrowCollection OutgoingArrows
     {
-      get { return modelBox.OutgoingArrows; }
+      get
+      {
+        if (modelBox == null) return null;
+        return modelBox.OutgoingArrows;
+      }
     }
 
     public String Tag
@@ -315,7 +323,7 @@ namespace SysCAD.Editor
 
       GraphicBox.Visible = visible && state.ShowGraphics;
       GraphicBox.Locked = locked;
-      
+
       if (HiddenBox != null)
       {
         HiddenBox.Visible = visible && state.ShowGraphics;

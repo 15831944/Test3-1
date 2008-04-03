@@ -1907,6 +1907,12 @@ namespace SysCAD.Editor
         AddAction(action);
       }
 
+      else if (e.Box.Tag is EditorArea)
+      { // move areas back to bottom after every operation so they stay out of the way.
+        EditorArea editorArea = e.Box.Tag as EditorArea;
+        editorArea.Box.ZBottom();
+      }
+
       form1.GraphicPropertyGrid.Refresh();
 
       ContextMenu propertyGridMenu = form1.GraphicPropertyGrid.ContextMenu;
@@ -1997,6 +2003,32 @@ namespace SysCAD.Editor
           Box graphicBox = (e.Box.Tag as EditorNode).GraphicBox;
           //graphicBox.BoundingRect = (e.Box.Tag as Item).Model.BoundingRect;
           graphicBox.RotationAngle = (e.Box.Tag as EditorNode).ModelBox.RotationAngle;
+        }
+      }
+
+      else if (e.Box.Tag is EditorArea)
+      { // specifically modify the links so that they mvoe as expected.
+        EditorArea editorArea = e.Box.Tag as EditorArea;
+
+        double dx = (double)e.Box.BoundingRect.X - editorArea.GraphicArea.BoundingRect.X;
+        double dy = (double)e.Box.BoundingRect.Y - editorArea.GraphicArea.BoundingRect.Y;
+
+        PureComponents.TreeView.Node treeViewNode = state.TVNavigation.GetNodeByKey(editorArea.Guid.ToString());
+
+        foreach (PureComponents.TreeView.Node subTreeViewNode in treeViewNode.Nodes)
+        {
+          if (subTreeViewNode.Tag is EditorNode)
+          {
+            EditorNode editorNode = subTreeViewNode.Tag as EditorNode;
+            if (editorNode.ModelBox != null)
+            {
+              foreach (Arrow arrow in editorNode.IncomingArrows)
+                State.SetControlPoints(arrow, (arrow.Tag as EditorLink).GraphicLink.ControlPoints, dx, dy);
+
+              foreach (Arrow arrow in editorNode.OutgoingArrows)
+                State.SetControlPoints(arrow, (arrow.Tag as EditorLink).GraphicLink.ControlPoints, dx, dy);
+            }
+          }
         }
       }
     }
