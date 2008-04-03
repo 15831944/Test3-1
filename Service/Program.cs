@@ -21,44 +21,46 @@ namespace SysCAD.Service
       try
       {
 #endif
-      Application.EnableVisualStyles();
-      Application.SetCompatibleTextRenderingDefault(false);
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
 
-      String stencilPath = "..\\BaseFiles\\Stencils";
+        String stencilPath = "..\\BaseFiles\\Stencils";
 
-      Dictionary<string, Project> projects = new Dictionary<string, Project>();
+        Dictionary<string, Project> projects = new Dictionary<string, Project>();
 
-      if (Properties.Service.Default.projects == null)
-      {
-        Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
-      }
+        if (Properties.Service.Default.projects == null)
+        {
+          Properties.Service.Default.projects = new System.Collections.Specialized.StringCollection();
+        }
 
-      if (args.Length == 2)
-      {
-        Project project = new Project(args[1], args[0]);
-        projects.Add(project.Path, project);
-      }
+        if (args.Length == 2)
+        {
+          Project project = new Project(args[1], args[0]);
+          projects.Add(project.Path, project);
+        }
 
-      foreach (string projectString in Properties.Service.Default.projects)
-      {
-        string[] projectStrings = projectString.Split('\t');
-        Project project = new Project(projectStrings[0], projectStrings[1]);
-        projects.Add(project.Path, project);
-      }
+        foreach (string projectString in Properties.Service.Default.projects)
+        {
+          string[] projectStrings = projectString.Split('\t');
+          Project project = new Project(projectStrings[0], projectStrings[1]);
+          projects.Add(project.Path, project);
+        }
 
-      ServiceTemporaryWindow serviceTemporaryWindow = new ServiceTemporaryWindow(stencilPath, projects);
-      Application.Run(serviceTemporaryWindow);
-      serviceTemporaryWindow.Dispose();
+        ServiceTemporaryWindow serviceTemporaryWindow = new ServiceTemporaryWindow(stencilPath, projects, Properties.Service.Default.lastFolder);
+        Application.Run(serviceTemporaryWindow);
+        serviceTemporaryWindow.Dispose();
 
-      foreach (Project project in projects.Values)
-      {
         Properties.Service.Default.projects.Clear();
-        Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
-      }
+        foreach (Project project in projects.Values)
+        {
+          //Properties.Service.Default.projects.Add(project.Name + '\t' + project.Path);
+        }
 
-      Properties.Service.Default.Save();
+        Properties.Service.Default.lastFolder = serviceTemporaryWindow.lastFolder;
 
-      return 0;
+        Properties.Service.Default.Save();
+
+        return 0;
 #if (DEBUG)
       }
       catch (Exception e)

@@ -125,7 +125,7 @@ namespace SysCAD
 
     private void addButton_Click(object sender, EventArgs e)
     {
-      AddProjectForm addProjectForm = new AddProjectForm();
+      AddProjectForm addProjectForm = new AddProjectForm("");
       if (addProjectForm.ShowDialog(this) == DialogResult.OK)
       {
         config.Syncxxx();

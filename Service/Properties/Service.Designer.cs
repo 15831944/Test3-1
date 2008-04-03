@@ -33,5 +33,17 @@ namespace SysCAD.Service.Properties {
                 this["projects"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string lastFolder {
+            get {
+                return ((string)(this["lastFolder"]));
+            }
+            set {
+                this["lastFolder"] = value;
+            }
+        }
     }
 }

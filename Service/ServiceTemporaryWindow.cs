@@ -24,9 +24,12 @@ namespace SysCAD.Service
   {
     private ConfigData configData;
     private Dictionary<string, Project> projects = new Dictionary<string,Project>();
+    public string lastFolder;
 
-    public ServiceTemporaryWindow(string stencilPath, Dictionary<string, Project> projects)
+    public ServiceTemporaryWindow(string stencilPath, Dictionary<string, Project> projects, string lastFolder)
     {
+      this.lastFolder = lastFolder;
+
       InitializeComponent();
 
       addProjectButton.Focus();
@@ -262,11 +265,12 @@ namespace SysCAD.Service
 
     private void addProjectButton_Click(object sender, EventArgs e)
     {
-      AddProjectForm addProjectForm = new AddProjectForm();
+      AddProjectForm addProjectForm = new AddProjectForm(lastFolder);
       if (addProjectForm.ShowDialog(this) == DialogResult.OK)
       {
         AddProject(new Project(addProjectForm.projectName, addProjectForm.projectPath));
       }
+      lastFolder = addProjectForm.lastFolder;
     }
   }
 }

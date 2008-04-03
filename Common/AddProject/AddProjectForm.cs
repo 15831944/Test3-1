@@ -13,18 +13,22 @@ namespace SysCAD
 
   public partial class AddProjectForm : Form
   {
+    public string lastFolder;
 
-    public AddProjectForm()
+    public AddProjectForm(string lastFolder)
     {
+      this.lastFolder = lastFolder;
+
       InitializeComponent();
     }
 
     private void browseButton_Click(object sender, EventArgs e)
     {
-      folderBrowserDialog1.SelectedPath = pathTextBox.Text;
+      folderBrowserDialog1.SelectedPath = lastFolder;
 
       while (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
       {
+        lastFolder = folderBrowserDialog1.SelectedPath;
         if (Directory.Exists(folderBrowserDialog1.SelectedPath))
         {
           // Just check for Project.spj at the moment, in future do full check.
