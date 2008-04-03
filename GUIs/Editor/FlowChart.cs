@@ -1637,13 +1637,16 @@ namespace SysCAD.Editor
       {
         foreach (EditorNode node in state.Nodes)
         {
-          if (((node.ModelBox != null) && (node.ModelBox.BoundingRect.Contains(ptF))) ||
-            ((node.GraphicBox != null) && (node.GraphicBox.BoundingRect.Contains(ptF))) ||
-            ((node.TextBox != null) && (node.TextBox.BoundingRect.Contains(ptF))) ||
-            ((node.HiddenBox != null) && (node.HiddenBox.BoundingRect.Contains(ptF))))
+          if (node.Locked)
           {
-            hoverNode = node;
-            return;
+            if (((node.ModelBox != null) && (node.ModelBox.BoundingRect.Contains(ptF))) ||
+              ((node.GraphicBox != null) && (node.GraphicBox.BoundingRect.Contains(ptF))) ||
+              ((node.TextBox != null) && (node.TextBox.BoundingRect.Contains(ptF))) ||
+              ((node.HiddenBox != null) && (node.HiddenBox.BoundingRect.Contains(ptF))))
+            {
+              hoverNode = node;
+              return;
+            }
           }
         }
       }
