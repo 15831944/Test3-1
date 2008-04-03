@@ -19,6 +19,7 @@ namespace SysCAD.Protocol
     {
       GraphicStencil graphicStencil = (GraphicStencil)obj;
       info.AddValue("defaultSize", graphicStencil.DefaultSize);
+      info.AddValue("anchors", graphicStencil.Anchors);
       info.AddValue("decorations", graphicStencil.Decorations);
       info.AddValue("elements", graphicStencil.Elements);
       info.AddValue("tags", graphicStencil.Tags);
@@ -29,6 +30,14 @@ namespace SysCAD.Protocol
     {
       GraphicStencil graphicStencil = (GraphicStencil)obj;
       graphicStencil.DefaultSize = (Size)info.GetValue("defaultSize", typeof(Size));
+      try
+      {
+        graphicStencil.Anchors = (ArrayList)info.GetValue("anchors", typeof(ArrayList));
+      }
+      catch
+      {
+        graphicStencil.Anchors = new ArrayList();
+      }
       graphicStencil.Decorations = (ArrayList)info.GetValue("decorations", typeof(ArrayList));
       graphicStencil.Elements = (ArrayList)info.GetValue("elements", typeof(ArrayList));
       graphicStencil.Tags = (ArrayList)info.GetValue("tags", typeof(ArrayList));
@@ -47,6 +56,8 @@ namespace SysCAD.Protocol
   {
     private Size defaultSize;
 
+    private ArrayList anchors;
+
     private ArrayList decorations;
 
     private ArrayList elements;
@@ -60,35 +71,36 @@ namespace SysCAD.Protocol
     public Size DefaultSize
     {
       get { return defaultSize; }
-
       set { defaultSize = value; }
+    }
+
+    public ArrayList Anchors
+    {
+      get { return anchors; }
+      set { anchors = value; }
     }
 
     public ArrayList Decorations
     {
       get { return decorations; }
-
       set { decorations = value; }
     }
 
     public ArrayList Elements
     {
       get { return elements; }
-
       set { elements = value; }
     }
 
     public ArrayList Tags
     {
       get { return tags; }
-
       set { tags = value; }
     }
 
     public Rectangle TagArea
     {
       get { return tagArea; }
-
       set { tagArea = value; }
     }
 
