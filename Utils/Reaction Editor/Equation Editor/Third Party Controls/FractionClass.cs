@@ -393,8 +393,8 @@
 					if (slashPos > -1)
 					{
 						// string is in the form of Numerator/Denominator
-						long numerator = Convert.ToInt64(inValue.Substring(0, slashPos));
-						long denominator = Convert.ToInt64(inValue.Substring(slashPos + 1));
+                        long numerator = Convert.ToInt64(inValue.Substring(0, slashPos), CultureInfo.InvariantCulture);
+                        long denominator = Convert.ToInt64(inValue.Substring(slashPos + 1), CultureInfo.InvariantCulture);
 
 						return new Fraction(numerator, denominator);
 					}
@@ -405,9 +405,9 @@
 						int decimalPos = inValue.IndexOf(".");
 
 						if (decimalPos > -1)
-							return new Fraction(Convert.ToDouble(inValue));
+							return new Fraction(Convert.ToDouble(inValue, CultureInfo.InvariantCulture));
 						else
-							return new Fraction(Convert.ToInt64(inValue));
+                            return new Fraction(Convert.ToInt64(inValue, CultureInfo.InvariantCulture));
 					}
 				}
 			}

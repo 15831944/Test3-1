@@ -14,7 +14,7 @@ namespace Reaction_Editor
         protected Matrix m_OriginalMatrix;
 
         protected bool m_bDoOnValueChanged = false;
-        
+
         protected List<CheckBox> m_Checkboxes = new List<CheckBox>();
         protected List<FractionalUpDown> m_NumericUDs = new List<FractionalUpDown>();
 
@@ -232,58 +232,58 @@ namespace Reaction_Editor
         {
             return; //We are now going to allow compounds to have negative values - it certainly makes the math and logic ALOT easier.
 
-            Matrix.Vector finalCol = m_OriginalMatrix.GetColumn(m_OriginalMatrix.Columns - 1);
+            //Matrix.Vector finalCol = m_OriginalMatrix.GetColumn(m_OriginalMatrix.Columns - 1);
 
-            for (int i = 0; i < m_Checkboxes.Count; i++)
-            {
-                if (m_Checkboxes[i].Checked)
-                    finalCol -= m_OriginalMatrix.GetColumn(i) * (Fraction)m_NumericUDs[i].Value;
-            }
+            //for (int i = 0; i < m_Checkboxes.Count; i++)
+            //{
+            //    if (m_Checkboxes[i].Checked)
+            //        finalCol -= m_OriginalMatrix.GetColumn(i) * (Fraction)m_NumericUDs[i].Value;
+            //}
 
-            Matrix currentMatrix = RemoveColumns(); //May be inefficient with particularly large matrices (Since this uses quite a bit of memory management)
-            for (int i = 0; i < m_Checkboxes.Count; i++)
-            {
-                if (m_Checkboxes[i].Checked)
-                {
-                    Matrix.Vector currentCol = m_OriginalMatrix.GetColumn(i);
-                    Matrix scratch = currentMatrix.InsertColumn(currentMatrix.Columns, currentCol);
-                    scratch.SetColumn(currentMatrix.Columns - 1, finalCol + currentCol * (Fraction)m_NumericUDs[i].Value);
-                    scratch.RowReduce();
-                    Fraction min = m_MinValues[i];
-                    Fraction max = m_MaxValues[i];
-                    if (!m_NumericUDs[i].Focused)
-                        for (int k = 0; k < scratch.Rank; k++)
-                        {
-                            if (scratch[k, scratch.Columns - 1] == 0)
-                                continue;
-                            Fraction val = scratch[k, scratch.Columns - 2] / scratch[k, scratch.Columns - 1];
-                            //Console.WriteLine(scratch[k, scratch.Columns - 1]);
-                            if (scratch[k, k] * scratch[k, scratch.Columns - 1] < 0)
-                            {
-                                if (val > min)
-                                    min = val;
-                            }
-                            else
-                                if (val < max)
-                                    max = val;
-                        }
-                    else
-                    {
-                        min = m_MinValues[i];
-                        max = m_MaxValues[i];
-                    }
-                    m_NumericUDs[i].Minimum = min;
-                    m_NumericUDs[i].Maximum = max;
+            //Matrix currentMatrix = RemoveColumns(); //May be inefficient with particularly large matrices (Since this uses quite a bit of memory management)
+            //for (int i = 0; i < m_Checkboxes.Count; i++)
+            //{
+            //    if (m_Checkboxes[i].Checked)
+            //    {
+            //        Matrix.Vector currentCol = m_OriginalMatrix.GetColumn(i);
+            //        Matrix scratch = currentMatrix.InsertColumn(currentMatrix.Columns, currentCol);
+            //        scratch.SetColumn(currentMatrix.Columns - 1, finalCol + currentCol * (Fraction)m_NumericUDs[i].Value);
+            //        scratch.RowReduce();
+            //        Fraction min = m_MinValues[i];
+            //        Fraction max = m_MaxValues[i];
+            //        if (!m_NumericUDs[i].Focused)
+            //            for (int k = 0; k < scratch.Rank; k++)
+            //            {
+            //                if (scratch[k, scratch.Columns - 1] == 0)
+            //                    continue;
+            //                Fraction val = scratch[k, scratch.Columns - 2] / scratch[k, scratch.Columns - 1];
+            //                //Console.WriteLine(scratch[k, scratch.Columns - 1]);
+            //                if (scratch[k, k] * scratch[k, scratch.Columns - 1] < 0)
+            //                {
+            //                    if (val > min)
+            //                        min = val;
+            //                }
+            //                else
+            //                    if (val < max)
+            //                        max = val;
+            //            }
+            //        else
+            //        {
+            //            min = m_MinValues[i];
+            //            max = m_MaxValues[i];
+            //        }
+            //        m_NumericUDs[i].Minimum = min;
+            //        m_NumericUDs[i].Maximum = max;
 
-                    m_Checkboxes[i].Text = m_Checkboxes[i].Tag + " " + (min == Fraction.MinValue ? "(\u221E" : "[" + min) + ", " + (max == Fraction.MaxValue ? "\u221E)" : max + "]");
-                }
-                else
-                {
-                    m_NumericUDs[i].Minimum = Fraction.MinValue;
-                    m_NumericUDs[i].Maximum = Fraction.MaxValue;
-                    m_Checkboxes[i].Text = m_Checkboxes[i].Tag.ToString();
-                }
-            }
+            //        m_Checkboxes[i].Text = m_Checkboxes[i].Tag + " " + (min == Fraction.MinValue ? "(\u221E" : "[" + min) + ", " + (max == Fraction.MaxValue ? "\u221E)" : max + "]");
+            //    }
+            //    else
+            //    {
+            //        m_NumericUDs[i].Minimum = Fraction.MinValue;
+            //        m_NumericUDs[i].Maximum = Fraction.MaxValue;
+            //        m_Checkboxes[i].Text = m_Checkboxes[i].Tag.ToString();
+            //    }
+            //}
         }
 
         private void chk_CheckedChanged(object sender, EventArgs e)

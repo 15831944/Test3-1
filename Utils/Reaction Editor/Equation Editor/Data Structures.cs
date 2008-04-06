@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Text;
 using Mehroz;
+using System.Globalization;
 
 namespace Reaction_Editor
 {
@@ -168,7 +169,7 @@ namespace Reaction_Editor
       if (m.Groups["Specie"].Success)
         ret.Specie = Compound.FromString(m.Groups["Specie"].Value);
 
-      double tmp = double.Parse(m.Groups["Value"].Value);
+      double tmp = double.Parse(m.Groups["Value"].Value, CultureInfo.InvariantCulture);
       if (m.Groups["Percent"].Success)
         tmp *= 0.01;
       ret.Value = tmp;
@@ -250,14 +251,14 @@ namespace Reaction_Editor
       catch (Exception ex) { Program.Log.Message(ex.Message, MessageType.Error); }
       try { ret.m_Specie2 = Compound.FromString(m.Groups["Specie2"].Value); }
       catch (Exception ex) { Program.Log.Message(ex.Message, MessageType.Error); }
-      try { ret.m_dValue = double.Parse(m.Groups["Value2"].Value) / double.Parse(m.Groups["Value1"].Value); }
-      catch (Exception ex) { Program.Log.Message("Unable to parse ratio", MessageType.Error); }
+      try { ret.m_dValue = double.Parse(m.Groups["Value2"].Value, CultureInfo.InvariantCulture) / double.Parse(m.Groups["Value1"].Value, CultureInfo.InvariantCulture); }
+      catch (Exception) { Program.Log.Message("Unable to parse ratio", MessageType.Error); }
       if (m.Groups["Time"].Success)
       {
-        try { ret.m_Time = double.Parse(m.Groups["Time"].Value); }
-        catch (Exception ex) { Program.Log.Message("Unable to parse time", MessageType.Error); }
-        try { ret.Ratio2 = double.Parse(m.Groups["Value3"].Value) / double.Parse(m.Groups["Value4"].Value); }
-        catch (Exception ex) { Program.Log.Message("Unable to parse ratio", MessageType.Error); }
+          try { ret.m_Time = double.Parse(m.Groups["Time"].Value, CultureInfo.InvariantCulture); }
+        catch (Exception) { Program.Log.Message("Unable to parse time", MessageType.Error); }
+          try { ret.Ratio2 = double.Parse(m.Groups["Value3"].Value, CultureInfo.InvariantCulture) / double.Parse(m.Groups["Value4"].Value, CultureInfo.InvariantCulture); }
+        catch (Exception) { Program.Log.Message("Unable to parse ratio", MessageType.Error); }
       }
       return ret;
 #if false   //Old method of going about it.
@@ -269,17 +270,17 @@ namespace Reaction_Editor
             if (subs.Length > 1)
             {
                 string[] subSec = subs[1].Split(new char[] { '=', ':' }, StringSplitOptions.RemoveEmptyEntries);
-                ret.Time = double.Parse(subSec[0].Trim());
-                double r1 = double.Parse(subSec[1].Trim());
-                double r2 = double.Parse(subSec[2].Trim());
+                ret.Time = double.Parse(subSec[0].Trim(), CultureInfo.InvariantCulture);
+                double r1 = double.Parse(subSec[1].Trim(), CultureInfo.InvariantCulture);
+                double r2 = double.Parse(subSec[2].Trim(), CultureInfo.InvariantCulture);
                 ret.Ratio2 = r2 / r1;
             }
             string[] subPri = subs[0].Split(new char[] { '=', ':' }, StringSplitOptions.RemoveEmptyEntries);
             try { ret.Specie = Compound.FromString(subPri[0].Trim()); }
             catch { }
             ret.Specie2 = Compound.FromString(subPri[1].Trim());
-            double r3 = double.Parse(subPri[2].Trim());
-            double r4 = double.Parse(subPri[3].Trim());
+            double r3 = double.Parse(subPri[2].Trim(), CultureInfo.InvariantCulture);
+            double r4 = double.Parse(subPri[3].Trim(), CultureInfo.InvariantCulture);
             ret.Value = r4 / r3;
             return ret;
 #endif
@@ -309,7 +310,7 @@ namespace Reaction_Editor
         throw new RxnEdException("EquilibriumExtent.Parse called with invalid string");
       EquilibriumExtent ret = new EquilibriumExtent();
       s = s.Remove(0, ("equilibrium").Length).Trim();
-      ret.Value = double.Parse(s);
+      ret.Value = double.Parse(s, CultureInfo.InvariantCulture);
       return ret;
     }
 
@@ -358,9 +359,9 @@ namespace Reaction_Editor
       Final_ConcExtent ret = new Final_ConcExtent();
       if (m.Groups["Specie"].Success)
         ret.Specie = Compound.FromString(m.Groups["Specie"].Value);
-      ret.Value = double.Parse(m.Groups["Value"].Value);
+      ret.Value = double.Parse(m.Groups["Value"].Value, CultureInfo.InvariantCulture);
       if (m.Groups["T"].Success)
-        ret.T = double.Parse(m.Groups["T"].Value);
+          ret.T = double.Parse(m.Groups["T"].Value, CultureInfo.InvariantCulture);
       return ret;
     }
   }
@@ -429,7 +430,7 @@ namespace Reaction_Editor
       if (m.Groups["Phase"].Success && m.Groups["Phase"].Value.ToLowerInvariant() == "total")
         ret.m_bByPhase = false;
 
-      ret.Value = double.Parse(m.Groups["Value"].Value);
+      ret.Value = double.Parse(m.Groups["Value"].Value, CultureInfo.InvariantCulture);
       if (m.Groups["Percent"].Success)
         ret.Value *= 0.01;
 
@@ -1772,7 +1773,7 @@ namespace Reaction_Editor
       {
         Match sequenceMatch = SimpleReaction.s_SequenceRegex.Match(grpSequence.Captures[0].Value.Trim());
         if (sequenceMatch.Success)
-          m_nSequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value);
+            m_nSequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value, CultureInfo.InvariantCulture);
         else
           Program.Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
       }
@@ -2294,7 +2295,7 @@ namespace Reaction_Editor
       Match m = s_HORRegex.Match(HORString);
       if (!m.Success)
         throw new Exception("Unable to parse string");
-      HeatOfReactionValue = double.Parse(m.Groups["Value"].Value);
+      HeatOfReactionValue = double.Parse(m.Groups["Value"].Value, CultureInfo.InvariantCulture);
       Exception MaybeEx = null;
       if (m.Groups["Specie"].Success)
         try { HeatOfReactionSpecie = Compound.FromString(m.Groups["Specie"].Value); }

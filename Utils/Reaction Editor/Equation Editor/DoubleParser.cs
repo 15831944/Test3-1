@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace Reaction_Editor
 {
@@ -17,12 +18,12 @@ namespace Reaction_Editor
                 throw new FormatException("Input string was not in a correct format");
             double ret = 0;
             if (m.Groups["Whole"].Length > 0)
-                ret = (double)long.Parse(m.Groups["Whole"].Value);
+                ret = (double)long.Parse(m.Groups["Whole"].Value, CultureInfo.InvariantCulture);
             if (m.Groups["Fraction"].Success && m.Groups["Fraction"].Length > 0)
-                ret += (double)long.Parse(m.Groups["Fraction"].Value) /
+                ret += (double)long.Parse(m.Groups["Fraction"].Value, CultureInfo.InvariantCulture) /
                     Math.Pow(10, m.Groups["Fraction"].Length);
             if (m.Groups["Exponent"].Success)
-                ret *= Math.Pow(10, long.Parse(m.Groups["Exponent"].Value));
+                ret *= Math.Pow(10, long.Parse(m.Groups["Exponent"].Value, CultureInfo.InvariantCulture));
             return ret;
         }
     }

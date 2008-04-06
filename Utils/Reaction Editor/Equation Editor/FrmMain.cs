@@ -11,6 +11,7 @@ using Microsoft.Win32;
 using System.Collections;
 using Mehroz;
 using System.Reflection;
+using System.Globalization;
 
 namespace Reaction_Editor
 {
@@ -78,8 +79,8 @@ namespace Reaction_Editor
                 for (Match m = s_ElementRegex.Match(db); m.Success; m = m.NextMatch())
                 {
                     Element elem = new Element();
-                    elem.AtmoicNo = int.Parse(m.Groups["AtmNo"].Value);
-                    elem.AtomicMass = double.Parse(m.Groups["AtmWt"].Value);
+                    elem.AtmoicNo = int.Parse(m.Groups["AtmNo"].Value, CultureInfo.InvariantCulture);
+                    elem.AtomicMass = double.Parse(m.Groups["AtmWt"].Value, CultureInfo.InvariantCulture);
                     elem.Name = elem.Symbol = m.Groups["Sym"].Value;
                     if (Element.AddElement(elem))
                         elementCount++;
@@ -89,7 +90,7 @@ namespace Reaction_Editor
                 Dictionary<int, string> groupNames = new Dictionary<int, string>();
                 for (Match m = s_GroupRegex.Match(db); m.Success; m = m.NextMatch())
                 {
-                    int i = int.Parse(m.Groups["Index"].Value);
+                    int i = int.Parse(m.Groups["Index"].Value, CultureInfo.InvariantCulture);
                     groupIndices.Add(i);
                     groupNames.Add(i, m.Groups["Name"].Value);
                     if (lstSpecies.Groups[m.Groups["Name"].Value] == null)
@@ -103,7 +104,7 @@ namespace Reaction_Editor
                     Compound comp = new Compound();
                     comp.Name = m.Groups["Name"].Value;
                     comp.Symbol = m.Groups["Sym"].Value;
-                    comp.Index = int.Parse(m.Groups["Index"].Value);
+                    comp.Index = int.Parse(m.Groups["Index"].Value, CultureInfo.InvariantCulture);
                     int HfOK, CpOK;
                     int.TryParse(m.Groups["HfOK"].Value, out HfOK);
                     int.TryParse(m.Groups["CpOK"].Value, out CpOK);

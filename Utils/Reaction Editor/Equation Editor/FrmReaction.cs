@@ -11,6 +11,7 @@ using System.Collections;
 using Auto_Complete;
 using System.Threading;
 using Mehroz;
+using System.Globalization;
 
 namespace Reaction_Editor
 {
@@ -1100,7 +1101,7 @@ namespace Reaction_Editor
               if (sequenceMatch.Success)
               {
                 sequenceFound = true;
-                lastSequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value);
+                lastSequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value, CultureInfo.InvariantCulture);
               }
               else
                 Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
@@ -2236,7 +2237,7 @@ namespace Reaction_Editor
     private void numHX_TextChanged(object sender, EventArgs e)
     {
       if (m_HX != null)
-        try { m_HX.Value = double.Parse(numHX.Text); }
+          try { m_HX.Value = double.Parse(numHX.Text, CultureInfo.InvariantCulture); }
         catch { }
       //ChangeOccured();
     }
