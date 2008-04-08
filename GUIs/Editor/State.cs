@@ -479,7 +479,8 @@ namespace SysCAD.Editor
             hiddenBox = flowChart.CreateBox((float)graphicNode.X, (float)graphicNode.Y, (float)graphicNode.Width, (float)graphicNode.Height);
             hiddenBox.RotationAngle = (float)graphicNode.Angle;
             hiddenBox.ToolTip = modelNode.Tag + "\n\nClassID: " + "modelNode.Model";
-            hiddenBox.Style = BoxStyle.Ellipse; // not sure whether to go with ellipse or rectangle here (without corners, it'll get in the way less...)
+            hiddenBox.Style = BoxStyle.Shape; //BoxStyle.Ellipse; // not sure whether to go with ellipse or rectangle here (without corners, it'll get in the way less...)
+            hiddenBox.Shape = GetShapeTemplate(ModelStencil("Tank-1"), graphicNode.MirrorX, graphicNode.MirrorY);
             hiddenBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
             hiddenBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
             hiddenBox.ZBottom();
@@ -487,7 +488,7 @@ namespace SysCAD.Editor
             hiddenBox.Tag = editorNode;
             editorNode.HiddenBox = hiddenBox;
 
-            modelBox.AttachTo(hiddenBox, 0, 0, 100, 100);
+            graphicBox.AttachTo(hiddenBox, 0, 0, 100, 100);
           }
         }
         else
@@ -497,7 +498,8 @@ namespace SysCAD.Editor
             hiddenBox = flowChart.CreateBox((float)graphicNode.X, (float)graphicNode.Y, (float)graphicNode.Width, (float)graphicNode.Height);
             hiddenBox.RotationAngle = (float)graphicNode.Angle;
             hiddenBox.ToolTip = graphicNode.Tag + "\n\nClassID: " + "graphicNode.Model";
-            hiddenBox.Style = BoxStyle.Ellipse; // not sure whether to go with ellipse or rectangle here (without corners, it'll get in the way less...)
+            hiddenBox.Style = BoxStyle.Shape; //BoxStyle.Ellipse; // not sure whether to go with ellipse or rectangle here (without corners, it'll get in the way less...)
+            hiddenBox.Shape = GetShapeTemplate(ModelStencil("Tank-1"), graphicNode.MirrorX, graphicNode.MirrorY);
             hiddenBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
             hiddenBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
             hiddenBox.ZBottom();
@@ -1575,6 +1577,7 @@ namespace SysCAD.Editor
       Box graphicBox = editorNode.GraphicBox;
       Box modelBox = editorNode.ModelBox;
       Box textBox = editorNode.TextBox;
+      Box hiddenBox = editorNode.HiddenBox;
 
       if (graphicBox != null)
       {
@@ -1611,6 +1614,11 @@ namespace SysCAD.Editor
         textBox.BoundingRect = graphicNode.TagArea;
         textBox.RotationAngle = (float)graphicNode.TagAngle;
         // We're only rotating the boundingbox, not the action text.
+      }
+      if (hiddenBox != null)
+      {
+        hiddenBox.BoundingRect = graphicNode.BoundingRect;
+        hiddenBox.RotationAngle = (float)graphicNode.Angle;
       }
 
 
