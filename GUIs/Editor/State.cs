@@ -473,6 +473,22 @@ namespace SysCAD.Editor
 
           graphicBox.EnabledHandles = Handles.None;
           graphicBox.HandlesStyle = HandlesStyle.Invisible;
+
+          if (modelBox.Shape.Outline.Length == 0) // we're going to need an invisible box to use for hit-testing.
+          {
+            hiddenBox = flowChart.CreateBox((float)graphicNode.X, (float)graphicNode.Y, (float)graphicNode.Width, (float)graphicNode.Height);
+            hiddenBox.RotationAngle = (float)graphicNode.Angle;
+            hiddenBox.ToolTip = modelNode.Tag + "\n\nClassID: " + "modelNode.Model";
+            hiddenBox.Style = BoxStyle.Ellipse; // not sure whether to go with ellipse or rectangle here (without corners, it'll get in the way less...)
+            hiddenBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+            hiddenBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+            hiddenBox.ZBottom();
+
+            hiddenBox.Tag = editorNode;
+            editorNode.HiddenBox = hiddenBox;
+
+            modelBox.AttachTo(hiddenBox, 0, 0, 100, 100);
+          }
         }
         else
         {
@@ -640,10 +656,20 @@ namespace SysCAD.Editor
           }
 
           if (origin != null)
-            arrow.Origin = origin.ModelBox;
+          {
+            if (origin.HiddenBox != null)
+              arrow.Origin = origin.HiddenBox;
+            else
+              arrow.Origin = origin.ModelBox;
+          }
 
           if (destination != null)
-            arrow.Destination = destination.ModelBox;
+          {
+            if (destination.HiddenBox != null)
+              arrow.Destination = destination.HiddenBox;
+            else
+              arrow.Destination = destination.ModelBox;
+          }
 
           if ((modelLink.OriginPort != null) && ((origin.ModelBox.Tag as EditorNode).anchorTagToInt.ContainsKey(modelLink.OriginPort + graphicLink.OriginPortID.ToString())))
             arrow.OrgnAnchor = (origin.ModelBox.Tag as EditorNode).anchorTagToInt[modelLink.OriginPort + graphicLink.OriginPortID.ToString()];
@@ -752,7 +778,7 @@ namespace SysCAD.Editor
       {
         // This isn't perfect -- I'm only handling the GraphicNode delete and ignoring the ModelNode delete.
         PureComponents.TreeView.Node treeViewNode = tvNavigation.GetNodeByKey(guid.ToString());
-          
+
         if (treeViewNode != null)
           treeViewNode.Remove();
 
@@ -761,10 +787,10 @@ namespace SysCAD.Editor
 
         if (editorNodes.TryGetValue(guid, out editorItem))
         {
-          if (editorItem.ModelBox != null)   flowChart.DeleteObject(editorItem.ModelBox);
+          if (editorItem.ModelBox != null) flowChart.DeleteObject(editorItem.ModelBox);
           if (editorItem.GraphicBox != null) flowChart.DeleteObject(editorItem.GraphicBox);
-          if (editorItem.TextBox != null)    flowChart.DeleteObject(editorItem.TextBox);
-          if (editorItem.HiddenBox != null)  flowChart.DeleteObject(editorItem.HiddenBox);
+          if (editorItem.TextBox != null) flowChart.DeleteObject(editorItem.TextBox);
+          if (editorItem.HiddenBox != null) flowChart.DeleteObject(editorItem.HiddenBox);
           editorNodes.Remove(guid);
         }
       }

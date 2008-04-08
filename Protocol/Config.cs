@@ -50,7 +50,7 @@ namespace SysCAD.Protocol
           if (ConfirmModelStencil(modelStencil))
           {
             TrimAnchorPoints(modelStencil);
-            ModelStencils.Add(System.IO.Path.GetFileNameWithoutExtension(fullpath), modelStencil);
+            ModelStencils.Add(modelStencil.Tag, modelStencil);
           }
 
           //Console.WriteLine("  {0}] {1}", iStencil++, Path.GetFileNameWithoutExtension(fullpath));
