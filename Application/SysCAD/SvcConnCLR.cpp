@@ -525,7 +525,7 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
-    void AddModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
+    void AddModifyNodeG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f DeltaPos, Pt_3f DeltaScl, double DeltaRot)
       {
       try
         {
@@ -536,10 +536,15 @@ ref class CSvcConnectCLRThread
           {
 
           GraphicNode ^ newGNd = GNd->Clone();
-          newGNd->BoundingRect->X += (float)Delta.X;
-          newGNd->BoundingRect->Y += (float)Delta.Y;
-          newGNd->TagArea->X += (float)Delta.X;
-          newGNd->TagArea->Y += (float)Delta.Y;
+          newGNd->BoundingRect->X += (float)DeltaPos.X;
+          newGNd->BoundingRect->Y += (float)DeltaPos.Y;
+          newGNd->TagArea->X += (float)DeltaPos.X;
+          newGNd->TagArea->Y += (float)DeltaPos.Y;
+
+          newGNd->Angle += (float)DeltaRot;
+          double X=newGNd->BoundingRect->Width;
+          double Y=newGNd->BoundingRect->Height;
+          newGNd->BoundingRect->Inflate(X*(DeltaScl[0]-1.0), Y*(DeltaScl[1]-1.0));
 
           m_Action->Modify->Add(newGNd);
 
@@ -551,11 +556,11 @@ ref class CSvcConnectCLRThread
           GraphicLink ^ newGLk = GLk->Clone();
           for each (SysCAD::Protocol::Point^ Pt in newGLk->ControlPoints)
             {
-            Pt->X = Pt->X + (float)Delta.X;
-            Pt->Y = Pt->Y + (float)Delta.Y;
+            Pt->X = Pt->X + (float)DeltaPos.X;
+            Pt->Y = Pt->Y + (float)DeltaPos.Y;
             }
-          newGLk->TagArea->X += (float)Delta.X;
-          newGLk->TagArea->Y += (float)Delta.Y;
+          newGLk->TagArea->X += (float)DeltaPos.X;
+          newGLk->TagArea->Y += (float)DeltaPos.Y;
 
           m_Action->Modify->Add(newGLk);
           ProcessChangeLists(requestId);
@@ -1096,9 +1101,9 @@ void CSvcConnectCLR::AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddDeleteNode(requestId, GraphicGuid);
   };
 
-void CSvcConnectCLR::AddModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta)
+void CSvcConnectCLR::AddModifyNodeG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f DeltaPos, Pt_3f DeltaScl, double DeltaRot)
   {
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyNodePosition(requestId, GraphicGuid, Delta);
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddModifyNodeG(requestId, GraphicGuid, DeltaPos, DeltaScl, DeltaRot);
   }
 
 void CSvcConnectCLR::AddModifyNodeSymbol(__int64 & requestId, LPCSTR GraphicGuid, LPCSTR Symbol)

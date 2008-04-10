@@ -6083,16 +6083,17 @@ void GrfCmdBlk::DoMoveEntity()
 #if SYSCAD10         
                 if (gs_pPrj->SvcActive)
                   {
-                  Pt_3f Delta=pDsp->CurrentPt.World;
-                  Delta=Delta-pDsp->StartPt.World;
-
+                  Pt_3f DeltaPos=pDsp->CurrentPt.World;
+                  DeltaPos=DeltaPos-pDsp->StartPt.World;
+                  Pt_3f DeltaScl(1,1,1);
+                  double DeltaRot=0.0;
                   gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
 
                   LPCSTR pGrfGuid= Scd10GetGrfGuid(Like);
                   if (pGrfGuid)
                     {
                     SCD10ENTER;
-                    gs_pPrj->Svc.GCBModifyNodePosition((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), Like, pGrfGuid, Delta);
+                    gs_pPrj->Svc.GCBModifyNodeG((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), Like, pGrfGuid, DeltaPos, DeltaScl, DeltaRot);
                     SCD10LEAVE;
                     }
                   else
@@ -6256,16 +6257,41 @@ void GrfCmdBlk::DoAlterEntity()
               if (p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()))
                 {
                 DXF_ENTITY en = p->EntityPtr();
-                pDsp->Draw(en, GrfHelper.GR_BACKGROUND);
-                DXF_INSERT_ROT_ANG(en) = pSclRotDlg->Data.Rotation;
-                DXF_INSERT_X_SCALE(en) = pSclRotDlg->Data.XScale;
-                DXF_INSERT_Y_SCALE(en) = pSclRotDlg->Data.YScale;
-                DXF_INSERT_Z_SCALE(en) = pSclRotDlg->Data.XScale; //make Z scale same as X
-                DXF_INSERT_PT(en)[0] = pSclRotDlg->Data.XPos;
-                DXF_INSERT_PT(en)[1] = pSclRotDlg->Data.YPos;
-                pDrw->EntityInvalidate(en, NULL);
-                CEntInView* pEnt = pDsp->Vp1->Draw(en, -1);
-                List.Add(pEnt);
+#if SYSCAD10         
+                if (gs_pPrj->SvcActive)
+                  {
+                  Pt_3f DeltaPos(0,0,0);
+                  Pt_3f DeltaScl(
+                    pSclRotDlg->Data.XScale/DXF_INSERT_X_SCALE(en),
+                    pSclRotDlg->Data.YScale/DXF_INSERT_Y_SCALE(en),
+                    pSclRotDlg->Data.XScale/DXF_INSERT_Z_SCALE(en));
+                  double DeltaRot=pSclRotDlg->Data.Rotation-DXF_INSERT_ROT_ANG(en);
+                  gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
+
+                  LPCSTR pGrfGuid= Scd10GetGrfGuid(en);
+                  if (pGrfGuid)
+                    {
+                    SCD10ENTER;
+                    gs_pPrj->Svc.GCBModifyNodeG((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), en, pGrfGuid, DeltaPos, DeltaScl, DeltaRot);
+                    SCD10LEAVE;
+                    }
+                  else
+                    LogError("MoveNode", 0, "Guid does not exist");
+                  }
+                else
+#endif
+                  {
+                  pDsp->Draw(en, GrfHelper.GR_BACKGROUND);
+                  DXF_INSERT_ROT_ANG(en) = pSclRotDlg->Data.Rotation;
+                  DXF_INSERT_X_SCALE(en) = pSclRotDlg->Data.XScale;
+                  DXF_INSERT_Y_SCALE(en) = pSclRotDlg->Data.YScale;
+                  DXF_INSERT_Z_SCALE(en) = pSclRotDlg->Data.XScale; //make Z scale same as X
+                  DXF_INSERT_PT(en)[0] = pSclRotDlg->Data.XPos;
+                  DXF_INSERT_PT(en)[1] = pSclRotDlg->Data.YPos;
+                  pDrw->EntityInvalidate(en, NULL);
+                  CEntInView* pEnt = pDsp->Vp1->Draw(en, -1);
+                  List.Add(pEnt);
+                  }
                 }
               p = pDsp->Vp1->NextSelectedEntity();
               }
@@ -6298,18 +6324,46 @@ void GrfCmdBlk::DoAlterEntity()
               if (p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()))
                 {
                 DXF_ENTITY en = p->EntityPtr();
-                pDsp->Draw(en, GrfHelper.GR_BACKGROUND);
-                if (Scaling)
+#if SYSCAD10         
+                if (gs_pPrj->SvcActive)
                   {
-                  DXF_INSERT_X_SCALE(en) *= Factor;
-                  DXF_INSERT_Y_SCALE(en) *= Factor;
-                  DXF_INSERT_Z_SCALE(en) *= Factor;
+                  Pt_3f DeltaPos(0,0,0);
+                  Pt_3f DeltaScl(1,1,1);
+                  double DeltaRot=0.0;
+
+                  if (Scaling)
+                    DeltaScl = Pt_3f(Factor, Factor, Factor);
+                  else
+                    DeltaRot = (Modifier==8 ? -45.0 : 45.0);
+
+                  gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
+
+                  LPCSTR pGrfGuid= Scd10GetGrfGuid(en);
+                  if (pGrfGuid)
+                    {
+                    SCD10ENTER;
+                    gs_pPrj->Svc.GCBModifyNodeG((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), en, pGrfGuid, DeltaPos, DeltaScl, DeltaRot);
+                    SCD10LEAVE;
+                    }
+                  else
+                    LogError("MoveNode", 0, "Guid does not exist");
                   }
                 else
-                  DXF_INSERT_ROT_ANG(en) += (Modifier==8 ? -45.0 : 45.0);
-                pDrw->EntityInvalidate(en, NULL);
-                CEntInView* pEnt = pDsp->Vp1->Draw(en, -1);
-                List.Add(pEnt);
+#endif
+                  {
+                  pDsp->Draw(en, GrfHelper.GR_BACKGROUND);
+                  if (Scaling)
+                    {
+                    DXF_INSERT_X_SCALE(en) *= Factor;
+                    DXF_INSERT_Y_SCALE(en) *= Factor;
+                    DXF_INSERT_Z_SCALE(en) *= Factor;
+                    }
+                  else
+                    DXF_INSERT_ROT_ANG(en) += (Modifier==8 ? -45.0 : 45.0);
+                  pDrw->EntityInvalidate(en, NULL);
+                  CEntInView* pEnt = pDsp->Vp1->Draw(en, -1);
+                  List.Add(pEnt);
+                  }
                 }
               p = pDsp->Vp1->NextSelectedEntity();
               }

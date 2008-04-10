@@ -41,7 +41,7 @@ class CSvcConnectCLR
                       bool MirrorX, bool MirrorY);
     void AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid);
 
-    void AddModifyNodePosition(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta);
+    void AddModifyNodeG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f DeltaPos, Pt_3f DeltaScl, double DeltaRot);
     void AddModifyNodeSymbol(__int64 & requestId, LPCSTR GraphicGuid, LPCSTR Symbol);
     void AddModifyTagG(__int64 & requestId, LPCSTR GraphicGuid, Pt_3f Delta, CSvcTagBlk & TagBlk);
 

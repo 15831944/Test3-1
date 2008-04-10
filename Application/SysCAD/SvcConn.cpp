@@ -900,15 +900,15 @@ void CSvcConnect::OnDeleteNodeG(__int64 eventId, __int64 requestId, CSvcHeaderBl
 //
 //------------------------------------------------------------------------
 
-void CSvcConnect::GCBModifyNodePosition(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f Delta)
+void CSvcConnect::GCBModifyNodeG(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_ENTITY eEntity, LPCSTR GraphicGuid, Pt_3f DeltaPos, Pt_3f DeltaScl, double DeltaRot)
   {
-  DO_ENTRY_GT("GCBModifyNodePosition", GraphicGuid, "");//Tag);
+  DO_ENTRY_GT("GCBModifyNodeG", GraphicGuid, "");//Tag);
 
-  Delta.Y=-Delta.Y; // Y is inverted
+  DeltaPos.Y=-DeltaPos.Y; // Y is inverted
 
-  m_pCLR->AddModifyNodePosition(m_lRequestIdRet, GraphicGuid, Delta);
+  m_pCLR->AddModifyNodeG(m_lRequestIdRet, GraphicGuid, DeltaPos, DeltaScl, DeltaRot);
 
-  DO_EXIT("GCBModifyNodePosition");
+  DO_EXIT("GCBModifyNodeG");
   };
 
 //------------------------------------------------------------------------
