@@ -13,94 +13,94 @@ using Microsoft.Win32;
 
 namespace MindFusion.FlowChartX
 {
-	public class RegistryLicenseProvider: LicenseProvider
-	{
-        public override License GetLicense(LicenseContext context, 
-            Type type, object instance, bool allowExceptions)
-		{
-      return new RegLicense(this, type);
-            if (context.UsageMode == LicenseUsageMode.Designtime)
-			{
-				RegistryKey licenseKey = Registry.LocalMachine.
-					OpenSubKey("Software\\MindFusion Limited\\ComponentLicenses");
+  public class RegistryLicenseProvider : LicenseProvider
+  {
+    public override License GetLicense(LicenseContext context,
+        Type type, object instance, bool allowExceptions)
+    {
+//      return new RegLicense(this, type);
+//      if (context.UsageMode == LicenseUsageMode.Designtime)
+//      {
+//        RegistryKey licenseKey = Registry.LocalMachine.
+//          OpenSubKey("Software\\MindFusion Limited\\ComponentLicenses");
 
-				if (licenseKey == null)
-				{
-					// the conrol might be installed on a 64-bit system
-					licenseKey = Registry.LocalMachine.
-						OpenSubKey("Software\\Wow6432Node\\MindFusion Limited\\ComponentLicenses");
-				}
+//        if (licenseKey == null)
+//        {
+//          // the conrol might be installed on a 64-bit system
+//          licenseKey = Registry.LocalMachine.
+//            OpenSubKey("Software\\Wow6432Node\\MindFusion Limited\\ComponentLicenses");
+//        }
 
-                if (licenseKey != null)
-				{
-					object keyVal = licenseKey.GetValue(type.FullName);
-					if (keyVal != null)
-					{
-#if DEMO_VERSION
-						return new RegLicense(this, type);
-#else
+//        if (licenseKey != null)
+//        {
+//          object keyVal = licenseKey.GetValue(type.FullName);
+//          if (keyVal != null)
+//          {
+//#if DEMO_VERSION
+//            return new RegLicense(this, type);
+//#else
 
-#if FCNET_STD
-						if (keyVal.ToString() == "fcxstd_lic_sG9VJ4sL")
-							return new RegLicense(this, type);
-#else
-						if (keyVal.ToString() == "fcxpro_lic_FO7cGAk")
-							return new RegLicense(this, type);
-#endif
-#endif
-					}
-				}
+//#if FCNET_STD
+//            if (keyVal.ToString() == "fcxstd_lic_sG9VJ4sL")
+//              return new RegLicense(this, type);
+//#else
+//            if (keyVal.ToString() == "fcxpro_lic_FO7cGAk")
+//              return new RegLicense(this, type);
+//#endif
+//#endif
+//          }
+//        }
 
-                if (allowExceptions)
-				{
-                    throw new LicenseException(type, instance,
-                        "Couldn''t get design-time license for ''" + type.FullName + "''");
-				}
+//        if (allowExceptions)
+//        {
+//          throw new LicenseException(type, instance,
+//              "Couldn''t get design-time license for ''" + type.FullName + "''");
+//        }
 
-				return null;
-			}
-            else
-			{
-				return new RuntimeRegLicense(this, type);
-			}
-		}
+//        return null;
+//      }
+//      else
+      {
+        return new RuntimeRegLicense(this, type);
+      }
+    }
 
-		private class RuntimeRegLicense : License
-		{
-			private RegistryLicenseProvider owner;
-            private Type type;
+    private class RuntimeRegLicense : License
+    {
+      private RegistryLicenseProvider owner;
+      private Type type;
 
-			public RuntimeRegLicense(RegistryLicenseProvider owner, Type type)
-			{
-                this.owner = owner;
-                this.type = type;
-			}
+      public RuntimeRegLicense(RegistryLicenseProvider owner, Type type)
+      {
+        this.owner = owner;
+        this.type = type;
+      }
 
-            public override string LicenseKey
-			{
-                get { return type.FullName; }
-			}
+      public override string LicenseKey
+      {
+        get { return type.FullName; }
+      }
 
-			public override void Dispose() {}
-		}
+      public override void Dispose() { }
+    }
 
-        private class RegLicense : License
-		{
-            private RegistryLicenseProvider owner;
-            private Type type;
+    private class RegLicense : License
+    {
+      private RegistryLicenseProvider owner;
+      private Type type;
 
-            public RegLicense(RegistryLicenseProvider owner, Type type)
-			{
-                this.owner = owner;
-                this.type = type;
-			}
+      public RegLicense(RegistryLicenseProvider owner, Type type)
+      {
+        this.owner = owner;
+        this.type = type;
+      }
 
-			public override string LicenseKey
-			{
-                get { return type.FullName; }
-			}
-            
-			public override void Dispose() {}
-		}      
-	}
+      public override string LicenseKey
+      {
+        get { return type.FullName; }
+      }
+
+      public override void Dispose() { }
+    }
+  }
 }

@@ -52,19 +52,19 @@ namespace MindFusion.FlowChartX
       get { return layoutSuspended; }
     }
 
-    public void SuspendLayout()
+    new public void SuspendLayout()
     {
       layoutSuspended = true;
       base.SuspendLayout();
     }
 
-    public void ResumeLayout()
+    new public void ResumeLayout()
     {
       layoutSuspended = false;
       base.ResumeLayout();
     }
 
-    public void ResumeLayout(bool performLayout)
+    new public void ResumeLayout(bool performLayout)
     {
       layoutSuspended = false;
       base.ResumeLayout(performLayout);
