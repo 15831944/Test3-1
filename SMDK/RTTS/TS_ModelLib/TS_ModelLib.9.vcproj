@@ -119,7 +119,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="SMDK License"
-				CommandLine="&quot;..\..\LinkSMDK.exe&quot;   /f:&quot;$(TargetPath)&quot;"
+				CommandLine="&quot;..\..\LinkSMDK.exe&quot;  /q /f:&quot;$(TargetPath)&quot;"
 			/>
 		</Configuration>
 		<Configuration
