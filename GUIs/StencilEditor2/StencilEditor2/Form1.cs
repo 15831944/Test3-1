@@ -287,7 +287,7 @@ namespace StencilEditor2
           i++;
         }
 
-        return (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.FillMode, stencil.Tag));
+        return (new ShapeTemplate(elementTemplate, decorationTemplate, null, System.Drawing.Drawing2D.FillMode.Alternate, stencil.Tag));
       }
 
       else
@@ -753,13 +753,13 @@ namespace StencilEditor2
     private void editPropertiesToolStripMenuItem_Click(object sender, EventArgs e)
     {
       EditProperties editProperties = new EditProperties();
-      editProperties.group = modelStencil.GroupName;
+      editProperties.group = modelStencil.Groups[0] as string;
       editProperties.tag = modelStencil.Tag;
       editProperties.anchors = modelStencil.Anchors;
 
       if (editProperties.ShowDialog() == DialogResult.OK)
       {
-        modelStencil.GroupName = editProperties.group;
+        modelStencil.Groups[0] = editProperties.group;
         modelStencil.Tag = editProperties.tag;
 
         ArrayList newAnchors = new ArrayList();
