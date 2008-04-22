@@ -106,7 +106,7 @@ namespace NightlyBuild
               batStream.WriteLine(@"@echo off");
               batStream.WriteLine(@"Mode Con: Cols=120 Lines=1");
               batStream.WriteLine(@"color 8f");
-              batStream.WriteLine(@"TITLE " + slnFile + " -- " + configuration);
+              batStream.WriteLine(@"TITLE NightlyBuild: " + slnFile + " -- " + configuration);
               batStream.WriteLine(@"call ""C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\vsvars32.bat""");
               batStream.WriteLine();
               batStream.WriteLine(@"devenv """ + slnFile + @""" /Clean");
@@ -132,6 +132,7 @@ namespace NightlyBuild
         // start process
         System.Diagnostics.Process p = System.Diagnostics.Process.Start(psi);
 
+        p.PriorityClass = System.Diagnostics.ProcessPriorityClass.Idle;
         // instruct process to wait for exit
         p.WaitForExit();
 
@@ -245,7 +246,7 @@ namespace NightlyBuild
         if (sendEmail)
         {
           Console.Out.WriteLine("Emailing:  " + batFile);
-          SendGMail(gmailSecrets[0], gmailSecrets[1], gmailSecrets[0], Path.GetFileNameWithoutExtension(batFile), body, Path.GetFileNameWithoutExtension(batFile) + ".txt");
+          SendGMail(gmailSecrets[0], gmailSecrets[1], "NightlyBuild@syscad.net", "NightlyBuild Fault: " + Path.GetFileNameWithoutExtension(batFile), body, Path.GetFileNameWithoutExtension(batFile) + ".txt");
         }
 
         Console.Out.WriteLine("Finishing: " + batFile);
