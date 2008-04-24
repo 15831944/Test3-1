@@ -1092,11 +1092,15 @@ namespace Configuration_Editor
         foreach (DataRow r in toAdd)
         {
           string symb = (string)r["Compound"] + "(" + (string)r["Phase"] + ")";
-          ListViewItem lvi = new ListViewItem(new string[] { symb, (string)r["Name"] });
-          lvi.Tag = r;
-          if (usedRows.Contains(r))
-            lvi.Font = new Font(lvi.Font, FontStyle.Bold);
-          lstDBSpecies.Items.Add(lvi);
+
+          if (!lstDBSpecies.Items.ContainsKey(symb))
+          {
+            ListViewItem lvi = lstDBSpecies.Items.Add(symb, symb, 0);
+            lvi.SubItems.Add((string)r["Name"]);
+            lvi.Tag = r;
+            if (usedRows.Contains(r))
+              lvi.Font = new Font(lvi.Font, FontStyle.Bold);
+          }
         }
       }
       lstDBSpecies.EndUpdate(); m_UpdateCalls--; ;
