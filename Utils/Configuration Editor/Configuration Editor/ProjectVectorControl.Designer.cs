@@ -34,8 +34,6 @@ namespace Configuration_Editor
           this.pnlActiveList = new System.Windows.Forms.Panel();
           this.lstProjectVector = new System.Windows.Forms.ListView();
           this.chProjSymbol = new System.Windows.Forms.ColumnHeader();
-          this.chProjMinTemp = new System.Windows.Forms.ColumnHeader();
-          this.chProjMaxTemp = new System.Windows.Forms.ColumnHeader();
           this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
           this.menuAdd = new System.Windows.Forms.ToolStripMenuItem();
           this.menuRemove = new System.Windows.Forms.ToolStripMenuItem();
@@ -135,9 +133,7 @@ namespace Configuration_Editor
           // 
           this.lstProjectVector.AllowDrop = true;
           this.lstProjectVector.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.chProjSymbol,
-            this.chProjMinTemp,
-            this.chProjMaxTemp});
+            this.chProjSymbol});
           this.lstProjectVector.ContextMenuStrip = this.contextMenuStrip1;
           this.lstProjectVector.Dock = System.Windows.Forms.DockStyle.Fill;
           this.lstProjectVector.FullRowSelect = true;
@@ -148,6 +144,7 @@ namespace Configuration_Editor
           this.lstProjectVector.TabIndex = 0;
           this.lstProjectVector.UseCompatibleStateImageBehavior = false;
           this.lstProjectVector.View = System.Windows.Forms.View.Details;
+          this.lstProjectVector.Resize += new System.EventHandler(this.lstProjectVector_Resize);
           this.lstProjectVector.SelectedIndexChanged += new System.EventHandler(this.lstProjectVector_SelectedIndexChanged);
           this.lstProjectVector.DragDrop += new System.Windows.Forms.DragEventHandler(this.lstProjectVector_DragDrop);
           this.lstProjectVector.DragEnter += new System.Windows.Forms.DragEventHandler(this.lstProjectVector_DragEnter);
@@ -158,17 +155,7 @@ namespace Configuration_Editor
           // chProjSymbol
           // 
           this.chProjSymbol.Text = "Symbol";
-          this.chProjSymbol.Width = 296;
-          // 
-          // chProjMinTemp
-          // 
-          this.chProjMinTemp.Text = "Minimum Temperature";
-          this.chProjMinTemp.Width = 129;
-          // 
-          // chProjMaxTemp
-          // 
-          this.chProjMaxTemp.Text = "Maximum Temperature";
-          this.chProjMaxTemp.Width = 123;
+          this.chProjSymbol.Width = 442;
           // 
           // contextMenuStrip1
           // 
@@ -769,9 +756,7 @@ namespace Configuration_Editor
         private System.Windows.Forms.GroupBox grpProjectList;
         private System.Windows.Forms.Panel pnlActiveList;
         private System.Windows.Forms.ListView lstProjectVector;
-        private System.Windows.Forms.ColumnHeader chProjSymbol;
-        private System.Windows.Forms.ColumnHeader chProjMinTemp;
-        private System.Windows.Forms.ColumnHeader chProjMaxTemp;
+      private System.Windows.Forms.ColumnHeader chProjSymbol;
         private System.Windows.Forms.Panel pnlListButtons;
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.Button btnRemove;

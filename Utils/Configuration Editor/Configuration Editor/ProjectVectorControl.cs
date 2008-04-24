@@ -984,6 +984,12 @@ namespace Configuration_Editor
             Sort();
         }
         #endregion Event Handling
+
+      private void lstProjectVector_Resize(object sender, EventArgs e)
+      {
+        lstProjectVector.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+      }
+
     }
 
     public class PVIOrderer
