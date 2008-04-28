@@ -228,14 +228,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SysCAD Configuration Editor"
-        "ProductCode" = "8:{D881D4A2-DD48-405C-B7E4-6344A4B4EA21}"
-        "PackageCode" = "8:{D51DF029-0EF3-427B-AB3A-42FFC80D2AC7}"
+        "ProductCode" = "8:{232AF4F0-930E-4E99-919D-A35C656B5902}"
+        "PackageCode" = "8:{B33C32D8-936E-430D-9390-6E2CBDBBF13F}"
         "UpgradeCode" = "8:{E316FA17-5517-472C-BF4A-4EBC33349084}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.2"
+        "ProductVersion" = "8:1.0.3"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -789,6 +789,9 @@
                 {
                 }
             }
+        }
+        "VJSharpPlugin"
+        {
         }
     }
 }

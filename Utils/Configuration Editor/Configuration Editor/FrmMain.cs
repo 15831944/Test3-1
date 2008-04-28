@@ -434,8 +434,12 @@ namespace Configuration_Editor
       return ret;
     }
 
+    bool oldFormat = false;
+    Regex oldformatCheck = new Regex(@"S\d\d\d\d=\d,[^,]*,\d*,\d*,\d*");
+
     protected void LoadFile(string filename)
     {
+      oldFormat = false;
       if (m_ConfigFile != null)
         try { m_ConfigFile.Close(); }
         catch { }
@@ -443,6 +447,14 @@ namespace Configuration_Editor
       m_ConfigFile = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8192, FileOptions.SequentialScan);
 
       string contents = new StreamReader(m_ConfigFile).ReadToEnd();
+
+      if (oldformatCheck.IsMatch(contents))
+      {
+        if (MessageBox.Show("Old configuration file found.\nUpgrade to new configuration version format?", "Old configuration found.", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
+          return;
+        else
+          oldFormat = true;
+      }
 
       List<string> errors = LoadFromDictionary(ReadIni(contents, m_DefaultIniDictionary));
       if (errors.Count != 0)
@@ -453,6 +465,9 @@ namespace Configuration_Editor
         MessageBox.Show(sb.ToString(), "Load Configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
     }
+
+    Regex oldRegexSpecie = new Regex(@"(?<param1>\d),(?<param2>[^,]*),(?<param3>\d*),(?<param4>\d*),(?<param5>\d*)");
+    Regex oldRegexText = new Regex(@"^(?<param1>[12345]),(?<param2>[^\b\n\r]*)$");
 
     protected List<string> LoadFromDictionary(Dictionary<string, Dictionary<string, string>> data)
     {
@@ -487,6 +502,44 @@ namespace Configuration_Editor
 
       if (data.ContainsKey("species"))
       {
+        if (oldFormat)
+          data.Add("oldspecies", new Dictionary<string, string>());
+
+        foreach (string specieKey in new List<string>(data["species"].Keys))
+        {
+          if (oldFormat)
+          {
+            string specieValue = data["species"][specieKey];
+
+            data["oldspecies"].Add(specieKey, "**Old Species***: " + specieValue);
+
+            Match oldRegexSpecieMatch = oldRegexSpecie.Match(specieValue);
+            if (oldRegexSpecieMatch.Success)
+            {
+              data["species"][specieKey] = "Specie,,,"
+                + oldRegexSpecieMatch.Groups["param2"].ToString() + ","
+                + oldRegexSpecieMatch.Groups["param2"].ToString() + ",*,,,,"
+                + oldRegexSpecieMatch.Groups["param3"].ToString() + ","
+                + oldRegexSpecieMatch.Groups["param4"].ToString() + ","
+                + oldRegexSpecieMatch.Groups["param5"].ToString();
+            }
+
+            Match oldRegexTextMatch = oldRegexText.Match(specieValue);
+            if (oldRegexTextMatch.Success)
+            {
+              if (oldRegexTextMatch.Groups["param1"].ToString() == "5")
+              {
+                data["species"][specieKey] = oldRegexTextMatch.Groups["param0"] + "="
+                  + "Text,,"
+                  + oldRegexTextMatch.Groups["param2"].ToString() + ",,,,,,,";
+              }
+              else
+              {
+                data["species"].Remove(specieKey);
+              }
+            }
+          }
+        }
         projectVectorControl1.LoadSpecies(data["species"], ret);
         data.Remove("species");
       }
