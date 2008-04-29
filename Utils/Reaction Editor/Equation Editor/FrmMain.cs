@@ -978,7 +978,7 @@ namespace Reaction_Editor
         private void lstSpecies_ItemDrag(object sender, ItemDragEventArgs e)
         {
             if (e.Item != null && ((ListViewItem) e.Item).Tag is Compound)
-                DoDragDrop(((ListViewItem)e.Item).Tag, DragDropEffects.Link);
+                DoDragDrop(((ListViewItem)e.Item).Tag, DragDropEffects.All);
         }
 
         private void treeFiles_ItemDrag(object sender, ItemDragEventArgs e)

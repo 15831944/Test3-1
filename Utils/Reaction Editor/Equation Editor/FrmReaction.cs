@@ -2006,7 +2006,7 @@ namespace Reaction_Editor
         if (m_CurrentReaction.Compounds.Contains((Compound)e.Data.GetData(typeof(Compound))))
           e.Effect = DragDropEffects.None;
         else
-          e.Effect = DragDropEffects.Link;
+          e.Effect = DragDropEffects.Copy;
       }
       else if (e.Data.GetDataPresent(typeof(CompoundDrag)) &&
           ((CompoundDrag)e.Data.GetData(typeof(CompoundDrag))).frm == this)
@@ -2066,7 +2066,7 @@ namespace Reaction_Editor
         if (m_CurrentReaction.Compounds.Contains((Compound)e.Data.GetData(typeof(Compound))))
           e.Effect = DragDropEffects.None;
         else
-          e.Effect = DragDropEffects.Link;
+          e.Effect = DragDropEffects.Copy;
       }
       else if (e.Data.GetDataPresent(typeof(CompoundDrag)) &&
           ((CompoundDrag)e.Data.GetData(typeof(CompoundDrag))).frm == this)
