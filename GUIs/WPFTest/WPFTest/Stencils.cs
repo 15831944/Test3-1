@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace WPFApplication1
+namespace WPFTest
 {
 
     internal class Stencils

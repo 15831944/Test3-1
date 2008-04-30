@@ -4,14 +4,14 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace WPFApplication1
+namespace WPFTest
 {
 
     internal class Selection : Canvas
     {
 
         private Canvas canvas;
-        private double initialAngle;
+        //private double initialAngle;
         private Point initialCenter;
         private Size initialExtent;
         private Point initialMousePosition;

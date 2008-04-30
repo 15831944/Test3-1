@@ -1,10 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Root;
 using System;
 
-namespace WPFApplication1
+namespace WPFTest
 {
 
     internal class Item : Canvas
@@ -57,9 +56,9 @@ namespace WPFApplication1
 
         public Item(Point center, Size extent, double angle, Selection selection)
         {
-            this.center = new Point(0.0, 0.0);
-            this.extent = new Size(50.0, 50.0);
-            this.angle = 0.0;
+            //this.center = new Point(0.0, 0.0);
+            //this.extent = new Size(50.0, 50.0);
+            //this.angle = 0.0;
             stencil = new Tank();
             viewbox = new Viewbox();
             viewbox.StretchDirection = StretchDirection.Both;

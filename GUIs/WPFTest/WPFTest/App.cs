@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows;
+using WPFApplication1;
 
-namespace WPFApplication1
+namespace WPFTest
 {
     public class App : Application
     {

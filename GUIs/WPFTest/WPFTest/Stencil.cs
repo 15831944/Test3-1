@@ -1,94 +1,89 @@
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Collections.Generic;
+using System;
 
-namespace Root
+namespace WPFTest
 {
+  public abstract class Stencil : Canvas
+  {
+    private Dictionary<String, Parameter> parameters;
 
-    public class Stencil : Canvas
+    //protected void AddParameter(String key, double value, double min, double max, String tag, String description)
+    //{
+//
+//    }
+
+    public bool ContainsKey(String key)
     {
+      return parameters.ContainsKey(key);
+    }
 
-        private double temperature;
-        private double temperatureMax;
-        private double temperatureMin;
+    public double Value(String key)
+    {
+      return parameters[key].Value;
+    }
 
-        public virtual bool MaxTemperature
-        {
-            get
-            {
-                return temperature >= temperatureMax;
-            }
-        }
+    public double Min(String key)
+    {
+      return parameters[key].Min;
+    }
 
-        public virtual bool MinTemperature
-        {
-            get
-            {
-                return temperature <= temperatureMin;
-            }
-        }
+    public double Max(String key)
+    {
+      return parameters[key].Max;
+    }
 
-        public virtual double Temperature
-        {
-            get
-            {
-                double d;
+    //public double Tag(String key)
+    //{
+    //  return parameters[key].Tag;
+    //}
 
-                bool flag = temperature >= temperatureMin;
-                if (!flag)
-                {
-                    d = temperatureMin;
-                }
-                else
-                {
-                    flag = temperature <= temperatureMax;
-                    if (!flag)
-                        d = temperatureMax;
-                    else
-                        d = temperature;
-                }
-                return d;
-            }
-            set
-            {
-                temperature = value;
-            }
-        }
+    public double Portion(String key)
+    {
+      return parameters[key].Portion;
+    }
 
-        public virtual double TemperatureMax
-        {
-            get
-            {
-                return temperatureMax;
-            }
-            set
-            {
-                temperatureMax = value;
-            }
-        }
+    public void Set(String key, double value, double min, double max, String tag)
+    {
+      parameters[key].Value = value;
+      parameters[key].Min = min;
+      parameters[key].Max = max;
+      parameters[key].Tag = tag;
+      Update();
+    }
 
-        public virtual double TemperatureMin
-        {
-            get
-            {
-                return temperatureMin;
-            }
-            set
-            {
-                temperatureMin = value;
-            }
-        }
+    public void SetValue(String key, double value)
+    {
+      Set(key, value, parameters[key].Min, parameters[key].Max, parameters[key].Tag);
+    }
 
-        public Stencil()
-        {
-            temperatureMin = 0.0;
-            temperatureMax = 0.0;
-            temperature = 0.0;
-            Width = 100.0;
-            Height = 100.0;
-            Background = Brushes.Transparent;
-        }
+    public void SetMin(String key, double min)
+    {
+      Set(key, parameters[key].Value, min, parameters[key].Max, parameters[key].Tag);
+    }
 
-    } // class Stencil
+    public void SetMax(String key, double max)
+    {
+      Set(key, parameters[key].Value, parameters[key].Min, max, parameters[key].Tag);
+    }
+
+    public void SetTag(String key, String tag)
+    {
+      Set(key, parameters[key].Value, parameters[key].Min, parameters[key].Max, tag);
+    }
+
+    public abstract void Update();
+
+    public Stencil(Dictionary<String, Parameter> parameters)
+    {
+      this.parameters = parameters;
+      Width = 100.0;
+      Height = 100.0;
+      Background = Brushes.Transparent;
+    }
+
+  } // class Stencil
 
 }
 
