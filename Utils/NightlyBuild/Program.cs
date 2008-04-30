@@ -62,7 +62,7 @@ namespace NightlyBuild
 
       try
       {
-        //foreach (string txtFile in Directory.GetFiles(Directory.GetCurrentDirectory() + "\log", "*.NB.txt"))
+        //foreach (string txtFile in Directory.GetFiles(Directory.GetCurrentDirectory() + "\log", "*.txt"))
         //{
         //  File.Delete(txtFile);
         //}
@@ -73,13 +73,13 @@ namespace NightlyBuild
       }
       catch (Exception)
       {
-        Console.Out.WriteLine("Error deleting *.NB.txt files (is there another instance running?)");
+        Console.Out.WriteLine("Error deleting *.txt files (is there another instance running?)");
         return;
       }
 
       try
       {
-        //foreach (string batFile in Directory.GetFiles(Directory.GetCurrentDirectory() + "\bat", "*.NB.bat"))
+        //foreach (string batFile in Directory.GetFiles(Directory.GetCurrentDirectory() + "\bat", "*.bat"))
         //{
         //  File.Delete(batFile);
         //}
@@ -90,7 +90,7 @@ namespace NightlyBuild
       }
       catch (Exception)
       {
-        Console.Out.WriteLine("Error deleting *.NB.bat files (is there another instance running?)");
+        Console.Out.WriteLine("Error deleting *.bat files (is there another instance running?)");
         return;
       }
 
@@ -116,7 +116,7 @@ namespace NightlyBuild
             if ((configuration.Length > 0) && (!configuration.Contains("HideSolutionNode")) && (!configuration.Contains("GlobalSection")) && (!configuration.Contains("{")))
             {
               i++;
-              StreamWriter batStream = new StreamWriter(batPath + @"\" + i.ToString("000") + " - " + argPathSafe + " -- " + configuration + ".NB.bat");
+              StreamWriter batStream = new StreamWriter(batPath + @"\" + i.ToString("000") + " - " + argPathSafe + " -- " + configuration + ".bat");
               batStream.WriteLine(@"@echo off");
               batStream.WriteLine(@"Mode Con: Cols=120 Lines=1");
               batStream.WriteLine(@"color 8f");
@@ -124,7 +124,7 @@ namespace NightlyBuild
               batStream.WriteLine(@"call ""C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\vsvars32.bat""");
               batStream.WriteLine();
               batStream.WriteLine(@"devenv """ + slnFile + @""" /Clean");
-              batStream.WriteLine(@"devenv """ + slnFile + @""" /Rebuild """ + configuration.Replace(" -- ", "|") + @""" /Out ""log\" + i.ToString("000") + " - " + argPathSafe + @" -- " + configuration + @".NB.txt""");
+              batStream.WriteLine(@"devenv """ + slnFile + @""" /Rebuild """ + configuration.Replace(" -- ", "|") + @""" /Out ""log\" + i.ToString("000") + " - " + argPathSafe + @" -- " + configuration + @".txt""");
               batStream.Close();
             }
             configurationMatch = configurationRegex.Match(configurations, configurationMatch.Groups["configuration"].Index);
@@ -132,7 +132,7 @@ namespace NightlyBuild
         }
       }
 
-      foreach (string batFile in Directory.GetFiles(batPath, "*.NB.bat"))
+      foreach (string batFile in Directory.GetFiles(batPath, "*.bat"))
       {
         Console.Out.WriteLine("Starting:  " + batFile);
 
@@ -260,7 +260,7 @@ namespace NightlyBuild
         if (sendEmail)
         {
           Console.Out.WriteLine("Emailing:  " + batFile);
-          SendGMail(gmailSecrets[0], gmailSecrets[1], "paul.hannah@syscad.net", "NightlyBuild Fault: " + Path.GetFileNameWithoutExtension(batFile), body, Path.GetFileNameWithoutExtension(batFile) + ".txt");
+          SendGMail(gmailSecrets[0], gmailSecrets[1], "nightlybuild@syscad.net", "NightlyBuild Fault: " + Path.GetFileNameWithoutExtension(batFile), body, @"log\" + Path.GetFileNameWithoutExtension(batFile) + ".txt");
         }
 
         Console.Out.WriteLine("Finishing: " + batFile);
