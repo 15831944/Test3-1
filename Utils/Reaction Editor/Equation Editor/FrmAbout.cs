@@ -15,7 +15,7 @@ namespace Reaction_Editor
         {
             InitializeComponent();
 
-            label1.Text = string.Format(Reaction_Editor.Properties.Resources.About, Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
+            label1.Text = string.Format(Reaction_Editor.Properties.Resources.About, Assembly.GetExecutingAssembly().GetName().Version.ToString(4));
         }
     }
 }
