@@ -41,6 +41,13 @@ namespace NightlyBuild
 
     static void Main(string[] args)
     {
+      string rootPath = Directory.GetCurrentDirectory();
+      if (args.Count() == 1)
+        rootPath = args[0];
+
+      string logPath = rootPath + @"\log";
+      string batPath = rootPath + @"\bat";
+
       string[] gmailSecrets = new string[0];
       try
       {
@@ -55,10 +62,14 @@ namespace NightlyBuild
 
       try
       {
-        foreach (string txtFile in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.NB.txt"))
-        {
-          File.Delete(txtFile);
-        }
+        //foreach (string txtFile in Directory.GetFiles(Directory.GetCurrentDirectory() + "\log", "*.NB.txt"))
+        //{
+        //  File.Delete(txtFile);
+        //}
+        if (Directory.Exists(logPath))
+          Directory.Delete(logPath, true);
+
+        Directory.CreateDirectory(logPath);
       }
       catch (Exception)
       {
@@ -68,10 +79,14 @@ namespace NightlyBuild
 
       try
       {
-        foreach (string batFile in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.NB.bat"))
-        {
-          File.Delete(batFile);
-        }
+        //foreach (string batFile in Directory.GetFiles(Directory.GetCurrentDirectory() + "\bat", "*.NB.bat"))
+        //{
+        //  File.Delete(batFile);
+        //}
+        if (Directory.Exists(batPath))
+          Directory.Delete(batPath, true);
+
+        Directory.CreateDirectory(batPath);
       }
       catch (Exception)
       {
@@ -79,16 +94,14 @@ namespace NightlyBuild
         return;
       }
 
-      string rootPath = Directory.GetCurrentDirectory();
-      if (args.Count() == 1)
-        rootPath = args[0];
 
       List<string> slnList = new List<string>();
       SlnFiles(rootPath, ref slnList);
 
+      int i = 0;
       foreach (string slnFile in slnList)
       {
-        string argNameOnly = Path.GetFileName(slnFile);
+        string argPathSafe = slnFile.Remove(0, rootPath.Length + 1).Replace('\\', '-');
         string sln = System.IO.File.OpenText(slnFile).ReadToEnd().Replace('\n', '\t').Replace('\r', '\t');
         Regex versionRegex = new Regex(@"Microsoft Visual Studio Solution File, Format Version 10.00");
         Regex sectionRegex = new Regex(@"\tGlobalSection\(SolutionConfigurationPlatforms\) = preSolution\t(?<configurations>.*)\tEndGlobalSection");
@@ -102,7 +115,8 @@ namespace NightlyBuild
             string configuration = configurationMatch.Groups["configuration"].Value.TrimEnd(' ').Replace("|", " -- ");
             if ((configuration.Length > 0) && (!configuration.Contains("HideSolutionNode")) && (!configuration.Contains("GlobalSection")) && (!configuration.Contains("{")))
             {
-              StreamWriter batStream = new StreamWriter(argNameOnly + " -- " + configuration + ".NB.bat");
+              i++;
+              StreamWriter batStream = new StreamWriter(batPath + @"\" + i.ToString("000") + " - " + argPathSafe + " -- " + configuration + ".NB.bat");
               batStream.WriteLine(@"@echo off");
               batStream.WriteLine(@"Mode Con: Cols=120 Lines=1");
               batStream.WriteLine(@"color 8f");
@@ -110,7 +124,7 @@ namespace NightlyBuild
               batStream.WriteLine(@"call ""C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\vsvars32.bat""");
               batStream.WriteLine();
               batStream.WriteLine(@"devenv """ + slnFile + @""" /Clean");
-              batStream.WriteLine(@"devenv """ + slnFile + @""" /Rebuild """ + configuration.Replace(" -- ", "|") + @""" /Out """ + argNameOnly + @" -- " + configuration + @".NB.txt""");
+              batStream.WriteLine(@"devenv """ + slnFile + @""" /Rebuild """ + configuration.Replace(" -- ", "|") + @""" /Out ""log\" + i.ToString("000") + " - " + argPathSafe + @" -- " + configuration + @".NB.txt""");
               batStream.Close();
             }
             configurationMatch = configurationRegex.Match(configurations, configurationMatch.Groups["configuration"].Index);
@@ -118,7 +132,7 @@ namespace NightlyBuild
         }
       }
 
-      foreach (string batFile in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.NB.bat"))
+      foreach (string batFile in Directory.GetFiles(batPath, "*.NB.bat"))
       {
         Console.Out.WriteLine("Starting:  " + batFile);
 
@@ -144,7 +158,7 @@ namespace NightlyBuild
 
         bool sendEmail = false;
 
-        string output = System.IO.File.OpenText(Path.GetFileNameWithoutExtension(batFile) + ".txt").ReadToEnd();
+        string output = System.IO.File.OpenText(logPath + @"\" + Path.GetFileNameWithoutExtension(batFile) + ".txt").ReadToEnd();
 
 
 
@@ -246,7 +260,7 @@ namespace NightlyBuild
         if (sendEmail)
         {
           Console.Out.WriteLine("Emailing:  " + batFile);
-          SendGMail(gmailSecrets[0], gmailSecrets[1], "NightlyBuild@syscad.net", "NightlyBuild Fault: " + Path.GetFileNameWithoutExtension(batFile), body, Path.GetFileNameWithoutExtension(batFile) + ".txt");
+          SendGMail(gmailSecrets[0], gmailSecrets[1], "paul.hannah@syscad.net", "NightlyBuild Fault: " + Path.GetFileNameWithoutExtension(batFile), body, Path.GetFileNameWithoutExtension(batFile) + ".txt");
         }
 
         Console.Out.WriteLine("Finishing: " + batFile);
