@@ -3258,7 +3258,7 @@ void CMainFrame::OnViewDynamicinfo()
 
 void CMainFrame::OnUpdateViewDynamicinfo(CCmdUI* pCmdUI)
   {
-  pCmdUI->Enable(EnablePrjOK() && EnableNotStopped());
+  pCmdUI->Enable(EnablePrjOK() && EnableNotStopped() && !DefNetProbalMode());
   }
 
 //---------------------------------------------------------------------------
@@ -3295,7 +3295,7 @@ void CMainFrame::OnViewProbalinfo()
 
 void CMainFrame::OnUpdateViewProbalinfo(CCmdUI* pCmdUI)
   {
-  pCmdUI->Enable(EnablePrjOK() && EnableNotStopped());
+  pCmdUI->Enable(EnablePrjOK() && EnableNotStopped() && DefNetProbalMode());
   }
 
 //---------------------------------------------------------------------------

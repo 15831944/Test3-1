@@ -426,7 +426,7 @@ ref class CSvcConnectCLRThread
     // ====================================================================
 
     void AddCreateNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid, LPCSTR Tag, LPCSTR Path, 
-      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
+      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, const CPointF & Scale,
       double Angle, CSvcTagBlk & TagBlk, COLORREF FillColor, 
       bool MirrorX, bool MirrorY)
       {
@@ -475,7 +475,7 @@ ref class CSvcConnectCLRThread
         {
         if (BndRect->Width==0.0)
           {
-          BndRect->Inflate(Gs->DefaultSize->Width/2.0, Gs->DefaultSize->Height/2.0);
+          BndRect->Inflate(Gs->DefaultSize->Width*Scale.X()/2.0, Gs->DefaultSize->Height*Scale.Y()/2.0);
           }
         if (TagArea->Width==0.0)
           {
@@ -832,7 +832,8 @@ ref class CSvcConnectCLRThread
 
         else if (clientProtocol->model->Nodes->TryGetValue(*guid, MNd))
           {
-          m_pConn->OnCreateNodeM(eventId, requestId, CSvcHeaderBlk(ToCString(MNd->Guid.ToString()), ToCString(MNd->Tag), "", ToCString(MNd->NodeClass)));
+          if (MNd->NodeClass->ToString()->Length>0)
+            m_pConn->OnCreateNodeM(eventId, requestId, CSvcHeaderBlk(ToCString(MNd->Guid.ToString()), ToCString(MNd->Tag), "", ToCString(MNd->NodeClass)));
           }
 
         else if (clientProtocol->graphic->Nodes->TryGetValue(*guid, GNd))
@@ -1088,12 +1089,12 @@ void CSvcConnectCLR::AddCreateGroup(__int64 & requestId, LPCSTR GrpGuid, LPCSTR 
 //========================================================================
 
 void CSvcConnectCLR::AddCreateNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid, LPCSTR Tag, LPCSTR Path,  
-                                   LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
+                                   LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, const CPointF & scale,
                                    double Angle, CSvcTagBlk & TagBlk, COLORREF FillColor, 
                                    bool MirrorX, bool MirrorY)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->AddCreateNode(requestId, ModelGuid, GraphicGuid, Tag, Path, 
-    ClassId, Symbol, boundingRect, Angle, TagBlk, FillColor, MirrorX, MirrorY);
+    ClassId, Symbol, boundingRect, scale, Angle, TagBlk, FillColor, MirrorX, MirrorY);
   };
 
 void CSvcConnectCLR::AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid)

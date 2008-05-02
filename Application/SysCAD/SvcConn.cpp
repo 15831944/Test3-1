@@ -28,7 +28,7 @@ static bool dbgConnect() { return 1; }
 //
 //========================================================================
 
-#define WITHDBGLINES  0
+#define WITHDBGLINES  01
 
 #if WITHDBGLINES
 
@@ -373,7 +373,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
         m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, I.m_sTag,
           MakePath(projectPath, Grp.m_sTitle), Model, Shape,
-          CRectangleF(boxX, boxY, boxW, boxH),
+          CRectangleF(boxX, boxY, boxW, boxH), CPointF(1.0,1.0),
           GTI.m_Node.m_Rotation, 
           CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)GTI.m_Tag.m_Rotation, (float)GTI.m_Tag.m_Visible!=0),
           COLORREF(0), false, false);
@@ -486,7 +486,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
           CString ModelGuid = "";//TaggedObject::CreateGuidStr();//pNode->Guid(); // Cannot be blank
 
-          DO_ENTRY_GGTPSM("DoDumbSymbolE", ModelGuid, GraphicGuid, GTI.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
+          DO_ENTRY_GGTPSM("DoDumbSymbolE", ModelGuid, GraphicGuid, GTI.m_sTag(), MakePath(projectPath, Grp.m_sTitle), Shape, Model);
 
           float boxW = float(int(GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X));
           float boxH = float(int(GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y));
@@ -500,7 +500,7 @@ void CSvcConnect::Upgrade2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
           m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, GTI.m_sTag(),
             MakePath(projectPath, Grp.m_sTitle), Model, Shape,
-            CRectangleF(boxX, boxY, boxW, boxH),
+            CRectangleF(boxX, boxY, boxW, boxH), CPointF(1.0,1.0),
             GTI.m_Node.m_Rotation, 
             CSvcTagBlk(CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH), (float)-GTI.m_Tag.m_Rotation, (float)GTI.m_Tag.m_Visible!=0),
             COLORREF(0), false, false);
@@ -738,8 +738,10 @@ void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
   double Width=0;      //FIX
   double Height=0;
 
+  Angle = - Angle;     // Reverse Angle;
+
   CRectangleF PageRct = GetPageRect(Page);
-  CRectangleF boundingRect(PageRct.Left()+Pt.x()-0.5*Width,PageRct.Top()-Pt.y()-0.5*Height,Width, Height);
+  CRectangleF boundingRect(PageRct.Left()+Pt.x()-0.5*Width*Scl.X,PageRct.Top()-Pt.y()-0.5*Height*Scl.Y,Width*Scl.X, Height*Scl.Y);
   // TO Fix
   //CString Shape = ExtractShape(ClassId);//Symbol);
   CString Shape = ExtractShape(Symbol);
@@ -751,7 +753,7 @@ void CSvcConnect::GCBCreateNode(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
   CRectangleF textBox(boundingRect.MidX(), boundingRect.Top(), 2.0f*strlen(Tag), 3.0f);
 
-  m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CSvcTagBlk(textBox, 0.0, true), 0, false, false); // !!! tagArea not used.
+  m_pCLR->AddCreateNode(m_lRequestIdRet, ModelGuid, GraphicGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, CPointF(Scl.X, Scl.Y), Angle, CSvcTagBlk(textBox, 0.0, true), 0, false, false); // !!! tagArea not used.
 
   if (!m_pCLR->ProcessChangeLists(m_lRequestIdRet))
     {
@@ -778,12 +780,12 @@ void CSvcConnect::OnCreateNodeG(__int64 eventId, __int64 requestId, CSvcHeaderBl
 
     if (RetCode!=EOSC_DONE)
       {
-      LogError(NETSERVERNAME, 0, "CreateNode '%s' failed!", Header.m_Tag);
+      LogError(NETSERVERNAME, 0, "CreateNodeGraphic '%s' failed!", Header.m_Tag);
       }
     }
   catch(...)
     {
-    LogError(NETSERVERNAME, 0, "Exception in CreateNode '%s'", Header.m_Tag);
+    LogError(NETSERVERNAME, 0, "Exception in CreateNodeGraphic '%s'", Header.m_Tag);
     }
 
   ON_EXIT_G("OnCreateNodeG", Header.m_Guid);
@@ -803,12 +805,12 @@ void CSvcConnect::OnCreateNodeM(__int64 eventId, __int64 requestId, CSvcHeaderBl
 
     if (RetCode!=EOSC_DONE)
       {
-      LogError(NETSERVERNAME, 0, "CreateNode '%s' failed!", Header.m_Tag);
+      LogError(NETSERVERNAME, 0, "CreateNodeModel '%s' failed!", Header.m_Tag);
       }
     }
   catch(...)
     {
-    LogError(NETSERVERNAME, 0, "Exception in CreateNode '%s'", Header.m_Tag);
+    LogError(NETSERVERNAME, 0, "Exception in CreateNodeModel '%s'", Header.m_Tag);
     }
 
   ON_EXIT_G("OnCreateNodeM", Header.m_Guid);
@@ -833,12 +835,12 @@ void CSvcConnect::OnDeleteNodeM(__int64 eventId, __int64 requestId, CSvcHeaderBl
 
         if (RetCode!=EOSC_DONE)
           {
-          LogError(NETSERVERNAME, 0, "DeleteNode '%s' failed!", Tag());
+          LogError(NETSERVERNAME, 0, "DeleteNodeModel '%s' failed!", Tag());
           }
         }
       catch(...)
         {
-        LogError(NETSERVERNAME, 0, "Exception in CreateNode '%s'", Tag());
+        LogError(NETSERVERNAME, 0, "Exception in DeleteNodeModel '%s'", Tag());
         }
 
       ON_EXIT_G("OnDeleteNodeM", Header.m_Guid);
@@ -1258,7 +1260,7 @@ void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, DXF_E
   //Strng Guid;
   //if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
   //  {
-    DO_ENTRY_GT("GCBModifyLinkPts", GraphicGuid, Tag);
+    DO_ENTRY_GT("GCBModifyLinkPts", GraphicGuid, "");
 
     CRectangleF PageRct = GetPageRect(Page);
 

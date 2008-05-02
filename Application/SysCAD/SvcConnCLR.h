@@ -36,7 +36,7 @@ class CSvcConnectCLR
     //----------------------------------------------------------------------------------
     //Nodes
     void AddCreateNode(__int64 & requestId, LPCSTR ModelGuid, LPCSTR GraphicGuid, LPCSTR Tag, LPCSTR Path, 
-                      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
+                      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, const CPointF & scale,
                       double Angle, CSvcTagBlk & TagBlk, COLORREF FillColor, 
                       bool MirrorX, bool MirrorY);
     void AddDeleteNode(__int64 & requestId, LPCSTR GraphicGuid);

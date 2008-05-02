@@ -1986,9 +1986,21 @@ void CExploreScd::AddTagToTree(CXTTag *pTag, CXTTag * pPrev)
         m_Tree.SetItemImage(pTH->m_hTag, pTH->m_pTag->Icon(), pTH->m_pTag->Icon());
         hPrev=pTH->m_hTag;
         }
+      }                                    
+    }
+
+  m_Tree.SetItemImage(pTag->m_hTreeItem, pTag->Icon(), pTag->Icon());
+
+  for (int p=0; p<pTag->m_Pages.GetCount(); p++)
+    {
+    CXTPage *pPage=pTag->m_Pages[p]->m_pPage;
+    for (int t=0; t<pPage->m_TagHs.GetCount(); t++)
+      {
+      CXTTagHPair *pTH=pPage->m_TagHs[t];
+      m_Tree.SetItemImage(pTH->m_hTag, pTH->m_pTag->Icon(), pTH->m_pTag->Icon());
       }
     }
-  m_Tree.SetItemImage(pTag->m_hTreeItem, pTag->Icon(), pTag->Icon());
+
 #if dbgAdd   
   dbgpln("");
 #endif

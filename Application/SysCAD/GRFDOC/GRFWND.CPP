@@ -443,7 +443,7 @@ int CGrfWnd::EO_SCInsertNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcN
 
     //if (m_bExportBusy)
     //  {
-    pGDoc->GCB.DoInsertNodeGrf(&CB);
+    pGDoc->GCB.DoInsertNodeGrf(&CB, Header.m_ClassId==NULL || strlen(Header.m_ClassId)==0);
 
     CB.m_Rect=CRectangleF(); // clear it
     //pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
@@ -543,7 +543,7 @@ int CGrfWnd::EO_SCModifyNodeG(CSvcExecCtrl & Ctrl, CSvcHeaderBlk & Header, CSvcN
             CB.ASymbol=CB.ASymbol.Left(iDash);
           // ????????????????????????????????????????????????????????????????????
 
-          if (pGDoc->GCB.DoInsertNodeGrf(&CB))
+          if (pGDoc->GCB.DoInsertNodeGrf(&CB, Header.m_ClassId==NULL || strlen(Header.m_ClassId)==0))
             eInsert=CB.e;
 
           //CB.m_Rect=CRectangleF(); // clear it

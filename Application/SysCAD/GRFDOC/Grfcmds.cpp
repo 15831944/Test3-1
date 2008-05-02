@@ -2184,8 +2184,7 @@ void GrfCmdBlk::DoInsert()
             if (gs_pPrj->SvcActive)
               {
               SCD10ENTER;
-              //What about Symbol only ??????????
-              gs_pPrj->Svc.GCBCreateNode((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
+              gs_pPrj->Svc.GCBCreateNode((CGrfDoc*)pDoc, PrjName(), pDoc->GetTitle(), CB->ATag(), CB->ASymbol(), DoMdl ? CB->AClass():"", CB->Pt.World, CB->NdScl, (float)CB->Rotate);
 
               SCD10LEAVE;
               }
