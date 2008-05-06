@@ -116,35 +116,24 @@ namespace Configuration_Editor
 
     private void HandleArgs(string[] args)
     {
-      int DatabaseLoc = -1;
-      for (int i = 0; i < args.Length - 1; i++)
-        if (args[i].ToLower() == "-d")
-        {
-          DatabaseLoc = i + 1;
-          break;
-        }
+      //int DatabaseLoc = -1;
+      //for (int i = 0; i < args.Length - 1; i++)
+      //  if (args[i].ToLower() == "-d")
+      //  {
+      //    DatabaseLoc = i + 1;
+      //    break;
+      //  }
 
-      if (DatabaseLoc != -1)
-      {
-        if (File.Exists(args[DatabaseLoc]))
-          PKHOpenDatabase(args[DatabaseLoc]);
-        else
-        {
-          MessageBox.Show("Specified database does not exist.", "Command Line Parameters", MessageBoxButtons.OK, MessageBoxIcon.Error);
-          DatabaseLoc = -1;
-        }
-      }
-
-      if (DatabaseLoc == -1)
-      {
-        if (dlgOpenDB.ShowDialog() == DialogResult.Cancel)
-        {
-          this.Close();
-          return;
-        }
-        else
-          PKHOpenDatabase(dlgOpenDB.FileName);
-      }
+      //if (DatabaseLoc != -1)
+      //{
+      //  if (File.Exists(args[DatabaseLoc]))
+      //    PKHOpenDatabase(args[DatabaseLoc]);
+      //  else
+      //  {
+      //    MessageBox.Show("Specified database does not exist.", "Command Line Parameters", MessageBoxButtons.OK, MessageBoxIcon.Error);
+      //    DatabaseLoc = -1;
+      //  }
+      //}
 
       int ConfigLoc = -1;
       for (int i = 0; i < args.Length - 1; i++)
@@ -157,10 +146,49 @@ namespace Configuration_Editor
       if (ConfigLoc != -1)
       {
         if (File.Exists(args[ConfigLoc]))
-          LoadFile(args[ConfigLoc]);
+          PKHLoadFile(args[ConfigLoc]);
         else
           MessageBox.Show("Specified configuration file does not exist.", "Command Line Parameters", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
+
+      if (ConfigLoc == -1)
+      {
+        if (dlgOpenConfig.ShowDialog() == DialogResult.Cancel)
+        {
+          this.Close();
+          return;
+        }
+        else
+          PKHLoadFile(dlgOpenConfig.FileName);
+      }
+    }
+
+    void PKHLoadFile(string filename)
+    {
+      //if (DatabaseLoc == -1)
+      //{
+      string directoryName = Path.GetDirectoryName(filename);
+      string mdbFilename = directoryName + @"\SysCAD.MDB";
+      if (File.Exists(mdbFilename))
+      {
+        PKHOpenDatabase(mdbFilename);
+      }
+      else
+      {
+        MessageBox.Show("SysCAD.MDB not found in " + directoryName + "\n" + "Closing application.", "SysCAD.MDB not found.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        Application.Exit();
+      }
+
+      //if (dlgOpenDB.ShowDialog() == DialogResult.Cancel)
+      //{
+      //  this.Close();
+      //  return;
+      //}
+      //else
+      //  PKHOpenDatabase(dlgOpenDB.FileName);
+      //}
+
+      LoadFile(filename);
     }
 
     private void SetupConversions()
