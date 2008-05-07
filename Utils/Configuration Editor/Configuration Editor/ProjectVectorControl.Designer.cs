@@ -48,19 +48,6 @@ namespace Configuration_Editor
           this.tcIDE = new System.Windows.Forms.TabControl();
           this.tabIDESpecie = new System.Windows.Forms.TabPage();
           this.grpSpecie = new System.Windows.Forms.GroupBox();
-          this.grpTempRange = new System.Windows.Forms.GroupBox();
-          this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-          this.numLowerTempTolerance = new System.Windows.Forms.NumericUpDown();
-          this.label6 = new System.Windows.Forms.Label();
-          this.label4 = new System.Windows.Forms.Label();
-          this.txtDefinedMinTemp = new System.Windows.Forms.TextBox();
-          this.txtDefinedMaxTemp = new System.Windows.Forms.TextBox();
-          this.txtAllowedMaxTemp = new System.Windows.Forms.TextBox();
-          this.txtAllowedMinTemp = new System.Windows.Forms.TextBox();
-          this.label2 = new System.Windows.Forms.Label();
-          this.label3 = new System.Windows.Forms.Label();
-          this.label5 = new System.Windows.Forms.Label();
-          this.numGreaterTempTolerance = new System.Windows.Forms.NumericUpDown();
           this.chkIdeal = new System.Windows.Forms.CheckBox();
           this.tabIDECalculation = new System.Windows.Forms.TabPage();
           this.grpCalculation = new System.Windows.Forms.GroupBox();
@@ -93,10 +80,6 @@ namespace Configuration_Editor
           this.tcIDE.SuspendLayout();
           this.tabIDESpecie.SuspendLayout();
           this.grpSpecie.SuspendLayout();
-          this.grpTempRange.SuspendLayout();
-          this.tableLayoutPanel1.SuspendLayout();
-          ((System.ComponentModel.ISupportInitialize)(this.numLowerTempTolerance)).BeginInit();
-          ((System.ComponentModel.ISupportInitialize)(this.numGreaterTempTolerance)).BeginInit();
           this.tabIDECalculation.SuspendLayout();
           this.grpCalculation.SuspendLayout();
           this.tabIDELabel.SuspendLayout();
@@ -292,7 +275,6 @@ namespace Configuration_Editor
           // 
           // grpSpecie
           // 
-          this.grpSpecie.Controls.Add(this.grpTempRange);
           this.grpSpecie.Controls.Add(this.chkIdeal);
           this.grpSpecie.Dock = System.Windows.Forms.DockStyle.Fill;
           this.grpSpecie.Location = new System.Drawing.Point(3, 3);
@@ -301,164 +283,6 @@ namespace Configuration_Editor
           this.grpSpecie.TabIndex = 1;
           this.grpSpecie.TabStop = false;
           this.grpSpecie.Text = "grpSpecie";
-          // 
-          // grpTempRange
-          // 
-          this.grpTempRange.Controls.Add(this.tableLayoutPanel1);
-          this.grpTempRange.Location = new System.Drawing.Point(104, 19);
-          this.grpTempRange.Name = "grpTempRange";
-          this.grpTempRange.Size = new System.Drawing.Size(334, 100);
-          this.grpTempRange.TabIndex = 1;
-          this.grpTempRange.TabStop = false;
-          this.grpTempRange.Text = "Temperature Range (°C)";
-          // 
-          // tableLayoutPanel1
-          // 
-          this.tableLayoutPanel1.ColumnCount = 4;
-          this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-          this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-          this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-          this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-          this.tableLayoutPanel1.Controls.Add(this.numLowerTempTolerance, 1, 1);
-          this.tableLayoutPanel1.Controls.Add(this.label6, 0, 2);
-          this.tableLayoutPanel1.Controls.Add(this.label4, 0, 0);
-          this.tableLayoutPanel1.Controls.Add(this.txtDefinedMinTemp, 1, 0);
-          this.tableLayoutPanel1.Controls.Add(this.txtDefinedMaxTemp, 3, 0);
-          this.tableLayoutPanel1.Controls.Add(this.txtAllowedMaxTemp, 3, 2);
-          this.tableLayoutPanel1.Controls.Add(this.txtAllowedMinTemp, 1, 2);
-          this.tableLayoutPanel1.Controls.Add(this.label2, 2, 0);
-          this.tableLayoutPanel1.Controls.Add(this.label3, 2, 2);
-          this.tableLayoutPanel1.Controls.Add(this.label5, 0, 1);
-          this.tableLayoutPanel1.Controls.Add(this.numGreaterTempTolerance, 3, 1);
-          this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 16);
-          this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-          this.tableLayoutPanel1.RowCount = 3;
-          this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-          this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-          this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-          this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-          this.tableLayoutPanel1.Size = new System.Drawing.Size(328, 81);
-          this.tableLayoutPanel1.TabIndex = 0;
-          // 
-          // numLowerTempTolerance
-          // 
-          this.numLowerTempTolerance.DecimalPlaces = 1;
-          this.numLowerTempTolerance.Location = new System.Drawing.Point(64, 29);
-          this.numLowerTempTolerance.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-          this.numLowerTempTolerance.Name = "numLowerTempTolerance";
-          this.numLowerTempTolerance.Size = new System.Drawing.Size(116, 20);
-          this.numLowerTempTolerance.TabIndex = 1;
-          this.numLowerTempTolerance.ValueChanged += new System.EventHandler(this.numLowerTempTolerance_ValueChanged);
-          // 
-          // label6
-          // 
-          this.label6.AutoSize = true;
-          this.label6.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.label6.Location = new System.Drawing.Point(3, 52);
-          this.label6.Name = "label6";
-          this.label6.Size = new System.Drawing.Size(55, 29);
-          this.label6.TabIndex = 10;
-          this.label6.Text = "Allowed";
-          this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-          // 
-          // label4
-          // 
-          this.label4.AutoSize = true;
-          this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.label4.Location = new System.Drawing.Point(3, 0);
-          this.label4.Name = "label4";
-          this.label4.Size = new System.Drawing.Size(55, 26);
-          this.label4.TabIndex = 8;
-          this.label4.Text = "Defined";
-          this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-          // 
-          // txtDefinedMinTemp
-          // 
-          this.txtDefinedMinTemp.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.txtDefinedMinTemp.Location = new System.Drawing.Point(64, 3);
-          this.txtDefinedMinTemp.Name = "txtDefinedMinTemp";
-          this.txtDefinedMinTemp.ReadOnly = true;
-          this.txtDefinedMinTemp.Size = new System.Drawing.Size(116, 20);
-          this.txtDefinedMinTemp.TabIndex = 0;
-          // 
-          // txtDefinedMaxTemp
-          // 
-          this.txtDefinedMaxTemp.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.txtDefinedMaxTemp.Location = new System.Drawing.Point(208, 3);
-          this.txtDefinedMaxTemp.Name = "txtDefinedMaxTemp";
-          this.txtDefinedMaxTemp.ReadOnly = true;
-          this.txtDefinedMaxTemp.Size = new System.Drawing.Size(117, 20);
-          this.txtDefinedMaxTemp.TabIndex = 1;
-          // 
-          // txtAllowedMaxTemp
-          // 
-          this.txtAllowedMaxTemp.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.txtAllowedMaxTemp.Location = new System.Drawing.Point(208, 55);
-          this.txtAllowedMaxTemp.Name = "txtAllowedMaxTemp";
-          this.txtAllowedMaxTemp.ReadOnly = true;
-          this.txtAllowedMaxTemp.Size = new System.Drawing.Size(117, 20);
-          this.txtAllowedMaxTemp.TabIndex = 5;
-          // 
-          // txtAllowedMinTemp
-          // 
-          this.txtAllowedMinTemp.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.txtAllowedMinTemp.Location = new System.Drawing.Point(64, 55);
-          this.txtAllowedMinTemp.Name = "txtAllowedMinTemp";
-          this.txtAllowedMinTemp.ReadOnly = true;
-          this.txtAllowedMinTemp.Size = new System.Drawing.Size(116, 20);
-          this.txtAllowedMinTemp.TabIndex = 3;
-          // 
-          // label2
-          // 
-          this.label2.AutoSize = true;
-          this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.label2.Location = new System.Drawing.Point(186, 0);
-          this.label2.Name = "label2";
-          this.label2.Size = new System.Drawing.Size(16, 26);
-          this.label2.TabIndex = 6;
-          this.label2.Text = "to";
-          this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-          // 
-          // label3
-          // 
-          this.label3.AutoSize = true;
-          this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.label3.Location = new System.Drawing.Point(186, 52);
-          this.label3.Name = "label3";
-          this.label3.Size = new System.Drawing.Size(16, 29);
-          this.label3.TabIndex = 7;
-          this.label3.Text = "to";
-          this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-          // 
-          // label5
-          // 
-          this.label5.AutoSize = true;
-          this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.label5.Location = new System.Drawing.Point(3, 26);
-          this.label5.Name = "label5";
-          this.label5.Size = new System.Drawing.Size(55, 26);
-          this.label5.TabIndex = 9;
-          this.label5.Text = "Tolerance";
-          this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-          // 
-          // numGreaterTempTolerance
-          // 
-          this.numGreaterTempTolerance.DecimalPlaces = 1;
-          this.numGreaterTempTolerance.Location = new System.Drawing.Point(208, 29);
-          this.numGreaterTempTolerance.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-          this.numGreaterTempTolerance.Name = "numGreaterTempTolerance";
-          this.numGreaterTempTolerance.Size = new System.Drawing.Size(117, 20);
-          this.numGreaterTempTolerance.TabIndex = 2;
-          this.numGreaterTempTolerance.ValueChanged += new System.EventHandler(this.numGreaterTempTolerance_ValueChanged);
           // 
           // chkIdeal
           // 
@@ -732,11 +556,6 @@ namespace Configuration_Editor
           this.tcIDE.ResumeLayout(false);
           this.tabIDESpecie.ResumeLayout(false);
           this.grpSpecie.ResumeLayout(false);
-          this.grpTempRange.ResumeLayout(false);
-          this.tableLayoutPanel1.ResumeLayout(false);
-          this.tableLayoutPanel1.PerformLayout();
-          ((System.ComponentModel.ISupportInitialize)(this.numLowerTempTolerance)).EndInit();
-          ((System.ComponentModel.ISupportInitialize)(this.numGreaterTempTolerance)).EndInit();
           this.tabIDECalculation.ResumeLayout(false);
           this.grpCalculation.ResumeLayout(false);
           this.grpCalculation.PerformLayout();
@@ -765,20 +584,7 @@ namespace Configuration_Editor
         private System.Windows.Forms.Panel pnlActive;
         private System.Windows.Forms.TabControl tcIDE;
         private System.Windows.Forms.TabPage tabIDESpecie;
-        private System.Windows.Forms.GroupBox grpSpecie;
-        private System.Windows.Forms.GroupBox grpTempRange;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.NumericUpDown numLowerTempTolerance;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox txtDefinedMinTemp;
-        private System.Windows.Forms.TextBox txtDefinedMaxTemp;
-        private System.Windows.Forms.TextBox txtAllowedMaxTemp;
-        private System.Windows.Forms.TextBox txtAllowedMinTemp;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.NumericUpDown numGreaterTempTolerance;
+      private System.Windows.Forms.GroupBox grpSpecie;
         private System.Windows.Forms.CheckBox chkIdeal;
         private System.Windows.Forms.TabPage tabIDECalculation;
         private System.Windows.Forms.GroupBox grpCalculation;

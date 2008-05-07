@@ -331,6 +331,16 @@ namespace Configuration_Editor
       StreamWriter sw = null;
       try
       {
+        //if (false) // Create backup...
+        //{
+        //  string filename = m_ConfigFile.Name;
+        //  m_ConfigFile.Close();
+        //  if (File.Exists(filename + ".bak"))
+        //    File.Delete(filename + ".bak");
+        //  File.Move(filename, filename + ".bak");
+        //  File.Create(filename).Close();
+        //  m_ConfigFile = new FileStream(filename, FileMode.Open, FileAccess.Write, FileShare.Read, 8192, FileOptions.SequentialScan);
+        //}
         m_ConfigFile.SetLength(0);
         sw = new StreamWriter(m_ConfigFile);
       }
@@ -648,22 +658,22 @@ namespace Configuration_Editor
     #region Specie database stuff
     protected void SaveDatabase()
     {
-      //Determine max lengths for each column:
-      Dictionary<string, int> MaxLengths = new Dictionary<string, int>();
-      Dictionary<string, string> MaxLengthNames = new Dictionary<string, string>();
-      foreach (DataColumn c in m_SpecieDataTable.Columns)
-        MaxLengths[c.ColumnName] = 0;
+      ////Determine max lengths for each column:
+      //Dictionary<string, int> MaxLengths = new Dictionary<string, int>();
+      //Dictionary<string, string> MaxLengthNames = new Dictionary<string, string>();
+      //foreach (DataColumn c in m_SpecieDataTable.Columns)
+      //  MaxLengths[c.ColumnName] = 0;
 
-      foreach (DataRow r in m_SpecieDataTable.Rows)
-        if (r.RowState != DataRowState.Deleted)
-          foreach (DataColumn c in m_SpecieDataTable.Columns)
-            if (r[c] is string && MaxLengths[c.ColumnName] < ((string)r[c]).Length)
-            {
-              MaxLengths[c.ColumnName] = ((string)r[c]).Length;
-              MaxLengthNames[c.ColumnName] = (string)r["Name"];
-            }
-      if (m_SpecieDataAdapter != null)
-        m_SpecieDataAdapter.Update(m_SpecieDataTable);
+      //foreach (DataRow r in m_SpecieDataTable.Rows)
+      //  if (r.RowState != DataRowState.Deleted)
+      //    foreach (DataColumn c in m_SpecieDataTable.Columns)
+      //      if (r[c] is string && MaxLengths[c.ColumnName] < ((string)r[c]).Length)
+      //      {
+      //        MaxLengths[c.ColumnName] = ((string)r[c]).Length;
+      //        MaxLengthNames[c.ColumnName] = (string)r["Name"];
+      //      }
+      //if (m_SpecieDataAdapter != null)
+      //  m_SpecieDataAdapter.Update(m_SpecieDataTable);
     }
 
     protected void PKHOpenDatabase(string filename)
