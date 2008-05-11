@@ -265,6 +265,7 @@ namespace Configuration_Editor
           // 
           // menuOpenDatabase
           // 
+          this.menuOpenDatabase.Enabled = false;
           this.menuOpenDatabase.Name = "menuOpenDatabase";
           this.menuOpenDatabase.Size = new System.Drawing.Size(179, 22);
           this.menuOpenDatabase.Text = "Open &Database";
@@ -310,14 +311,16 @@ namespace Configuration_Editor
           // 
           this.menuView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuUnits});
+          this.menuView.Enabled = false;
           this.menuView.Name = "menuView";
           this.menuView.Size = new System.Drawing.Size(41, 20);
           this.menuView.Text = "&View";
           // 
           // menuUnits
           // 
+          this.menuUnits.Enabled = false;
           this.menuUnits.Name = "menuUnits";
-          this.menuUnits.Size = new System.Drawing.Size(121, 22);
+          this.menuUnits.Size = new System.Drawing.Size(152, 22);
           this.menuUnits.Text = "&Units...";
           this.menuUnits.Click += new System.EventHandler(this.menuUnits_Click);
           // 
