@@ -72,9 +72,7 @@ namespace Configuration_Editor
           this.label1 = new System.Windows.Forms.Label();
           this.tcSpecies = new System.Windows.Forms.TabControl();
           this.tabProjectSpecies = new System.Windows.Forms.TabPage();
-          this.projectVectorControl1 = new Configuration_Editor.ProjectVectorControl();
           this.tabDatabase = new System.Windows.Forms.TabPage();
-          this.specieDatabaseControl1 = new Configuration_Editor.SpecieDatabaseControl();
           this.tabMisc = new System.Windows.Forms.TabPage();
           this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
           this.grpDefaults = new System.Windows.Forms.GroupBox();
@@ -138,6 +136,8 @@ namespace Configuration_Editor
           this.dlgOpenConfig = new System.Windows.Forms.OpenFileDialog();
           this.dlgSaveConfig = new System.Windows.Forms.SaveFileDialog();
           this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+          this.projectVectorControl1 = new Configuration_Editor.ProjectVectorControl();
+          this.specieDatabaseControl1 = new Configuration_Editor.SpecieDatabaseControl();
           this.ssMain.SuspendLayout();
           this.menuMain.SuspendLayout();
           this.tcMain.SuspendLayout();
@@ -288,6 +288,7 @@ namespace Configuration_Editor
           this.menuEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuSort,
             this.menuAdvancedSort});
+          this.menuEdit.Enabled = false;
           this.menuEdit.Name = "menuEdit";
           this.menuEdit.Size = new System.Drawing.Size(37, 20);
           this.menuEdit.Text = "&Edit";
@@ -295,6 +296,7 @@ namespace Configuration_Editor
           // 
           // MenuSort
           // 
+          this.MenuSort.Enabled = false;
           this.MenuSort.Name = "MenuSort";
           this.MenuSort.Size = new System.Drawing.Size(168, 22);
           this.MenuSort.Text = "Quick &Sort";
@@ -302,6 +304,7 @@ namespace Configuration_Editor
           // 
           // menuAdvancedSort
           // 
+          this.menuAdvancedSort.Enabled = false;
           this.menuAdvancedSort.Name = "menuAdvancedSort";
           this.menuAdvancedSort.Size = new System.Drawing.Size(168, 22);
           this.menuAdvancedSort.Text = "&Advanced Sort...";
@@ -320,7 +323,7 @@ namespace Configuration_Editor
           // 
           this.menuUnits.Enabled = false;
           this.menuUnits.Name = "menuUnits";
-          this.menuUnits.Size = new System.Drawing.Size(152, 22);
+          this.menuUnits.Size = new System.Drawing.Size(121, 22);
           this.menuUnits.Text = "&Units...";
           this.menuUnits.Click += new System.EventHandler(this.menuUnits_Click);
           // 
@@ -465,7 +468,7 @@ namespace Configuration_Editor
           // 
           this.menuSpDBAddToProject.Name = "menuSpDBAddToProject";
           this.menuSpDBAddToProject.Size = new System.Drawing.Size(190, 22);
-          this.menuSpDBAddToProject.Text = "&Add To Project Vector";
+          this.menuSpDBAddToProject.Text = "&Add To Project Species";
           this.menuSpDBAddToProject.Click += new System.EventHandler(this.menuSpDBAddToProject_Click);
           // 
           // toolStripMenuItem5
@@ -478,6 +481,7 @@ namespace Configuration_Editor
           this.menuDelete.Name = "menuDelete";
           this.menuDelete.Size = new System.Drawing.Size(190, 22);
           this.menuDelete.Text = "Delete";
+          this.menuDelete.Enabled = false;
           this.menuDelete.Click += new System.EventHandler(this.menuDelete_Click);
           // 
           // menuNewSpecies
@@ -485,6 +489,7 @@ namespace Configuration_Editor
           this.menuNewSpecies.Name = "menuNewSpecies";
           this.menuNewSpecies.Size = new System.Drawing.Size(190, 22);
           this.menuNewSpecies.Text = "New Species...";
+          this.menuNewSpecies.Enabled = false;
           this.menuNewSpecies.Click += new System.EventHandler(this.menuNewSpecies_Click);
           // 
           // pnlFilter
@@ -540,22 +545,6 @@ namespace Configuration_Editor
           this.tabProjectSpecies.Text = "Project Species";
           this.tabProjectSpecies.UseVisualStyleBackColor = true;
           // 
-          // projectVectorControl1
-          // 
-          this.projectVectorControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.projectVectorControl1.ListDBSpecies = null;
-          this.projectVectorControl1.Location = new System.Drawing.Point(3, 3);
-          this.projectVectorControl1.Name = "projectVectorControl1";
-          this.projectVectorControl1.Size = new System.Drawing.Size(695, 506);
-          this.projectVectorControl1.Sorter = pviOrderer1;
-          this.projectVectorControl1.SpecieDataTable = null;
-          this.projectVectorControl1.StatusColour = System.Drawing.Color.Empty;
-          this.projectVectorControl1.StatusMessage = null;
-          this.projectVectorControl1.TabIndex = 0;
-          this.projectVectorControl1.TempFormatter = null;
-          this.projectVectorControl1.TempParser = null;
-          this.projectVectorControl1.UnitBindingSource = null;
-          // 
           // tabDatabase
           // 
           this.tabDatabase.Controls.Add(this.specieDatabaseControl1);
@@ -566,18 +555,6 @@ namespace Configuration_Editor
           this.tabDatabase.TabIndex = 3;
           this.tabDatabase.Text = "Specie Database";
           this.tabDatabase.UseVisualStyleBackColor = true;
-          // 
-          // specieDatabaseControl1
-          // 
-          this.specieDatabaseControl1.DataSource = null;
-          this.specieDatabaseControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.specieDatabaseControl1.Enabled = false;
-          this.specieDatabaseControl1.Location = new System.Drawing.Point(3, 3);
-          this.specieDatabaseControl1.Name = "specieDatabaseControl1";
-          this.specieDatabaseControl1.Size = new System.Drawing.Size(695, 506);
-          this.specieDatabaseControl1.StatusColour = System.Drawing.SystemColors.WindowText;
-          this.specieDatabaseControl1.StatusMessage = "";
-          this.specieDatabaseControl1.TabIndex = 0;
           // 
           // tabMisc
           // 
@@ -1265,6 +1242,34 @@ namespace Configuration_Editor
           // errorProvider1
           // 
           this.errorProvider1.ContainerControl = this;
+          // 
+          // projectVectorControl1
+          // 
+          this.projectVectorControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+          this.projectVectorControl1.ListDBSpecies = null;
+          this.projectVectorControl1.Location = new System.Drawing.Point(3, 3);
+          this.projectVectorControl1.Name = "projectVectorControl1";
+          this.projectVectorControl1.Size = new System.Drawing.Size(695, 506);
+          this.projectVectorControl1.Sorter = pviOrderer1;
+          this.projectVectorControl1.SpecieDataTable = null;
+          this.projectVectorControl1.StatusColour = System.Drawing.Color.Empty;
+          this.projectVectorControl1.StatusMessage = null;
+          this.projectVectorControl1.TabIndex = 0;
+          this.projectVectorControl1.TempFormatter = null;
+          this.projectVectorControl1.TempParser = null;
+          this.projectVectorControl1.UnitBindingSource = null;
+          // 
+          // specieDatabaseControl1
+          // 
+          this.specieDatabaseControl1.DataSource = null;
+          this.specieDatabaseControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+          this.specieDatabaseControl1.Enabled = false;
+          this.specieDatabaseControl1.Location = new System.Drawing.Point(3, 3);
+          this.specieDatabaseControl1.Name = "specieDatabaseControl1";
+          this.specieDatabaseControl1.Size = new System.Drawing.Size(695, 506);
+          this.specieDatabaseControl1.StatusColour = System.Drawing.SystemColors.WindowText;
+          this.specieDatabaseControl1.StatusMessage = "";
+          this.specieDatabaseControl1.TabIndex = 0;
           // 
           // FrmMain
           // 

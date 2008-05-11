@@ -1278,7 +1278,7 @@ namespace Configuration_Editor
 
     private void menuSpDBContext_Opening(object sender, CancelEventArgs e)
     {
-      menuDelete.Enabled = lstDBSpecies.SelectedItems.Count > 0;
+      //menuDelete.Enabled = lstDBSpecies.SelectedItems.Count > 0;
 
       DataRow[] values = new DataRow[lstDBSpecies.SelectedItems.Count];
       int i = 0;
