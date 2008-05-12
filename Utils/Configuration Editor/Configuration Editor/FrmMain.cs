@@ -492,7 +492,7 @@ namespace Configuration_Editor
       if (oldformatCheck.IsMatch(contents))
       {
         if (MessageBox.Show("Old configuration file found.\nUpgrade to new configuration version format?", "Old configuration found.", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-          return;
+          Application.Exit();
         else
           oldFormat = true;
       }
