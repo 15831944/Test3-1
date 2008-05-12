@@ -195,8 +195,8 @@ namespace Configuration_Editor
     {
       ReadConversions();
 
-      specieDatabaseControl1.Formatters = m_Formatters;
-      specieDatabaseControl1.UnitBindingSource = m_UnitBindings;
+      //specieDatabaseControl1.Formatters = m_Formatters;
+      //specieDatabaseControl1.UnitBindingSource = m_UnitBindings;
 
       projectVectorControl1.TempFormatter = m_Formatters["temperature"].Formatter;
       projectVectorControl1.TempParser = m_Formatters["temperature"].Parser;
@@ -247,9 +247,9 @@ namespace Configuration_Editor
       errorProvider1.DataSource = m_SpecieDataTable;
       #endregion Database stuff
 
-      specieDatabaseControl1.DataSource = m_SpecieDataTable;
+      //specieDatabaseControl1.DataSource = m_SpecieDataTable;
 
-      specieDatabaseControl1.UpdateLVIsRequired += new EventHandler(specieDatabaseControl1_UpdateLVIsRequired);
+      //specieDatabaseControl1.UpdateLVIsRequired += new EventHandler(specieDatabaseControl1_UpdateLVIsRequired);
 
       return true;
     }
@@ -712,10 +712,10 @@ namespace Configuration_Editor
       if (m_SpecieDataTable.Rows.Count == 0)
       {
         CreateSpecies();
-        tcSpecies.SelectedTab = tabDatabase;
+        //tcSpecies.SelectedTab = tabDatabase;
       }
 
-      specieDatabaseControl1.DatabaseChanged();
+      //specieDatabaseControl1.DatabaseChanged();
     }
 
     protected void OldOpenDatabase(string filename)
@@ -883,10 +883,10 @@ namespace Configuration_Editor
       if (m_SpecieDataTable.Rows.Count == 0)
       {
         CreateSpecies();
-        tcSpecies.SelectedTab = tabDatabase;
+        //tcSpecies.SelectedTab = tabDatabase;
       }
 
-      specieDatabaseControl1.DatabaseChanged();
+      //specieDatabaseControl1.DatabaseChanged();
     }
 
     protected void CreateNewTable(OleDbConnection conn)
@@ -1083,7 +1083,7 @@ namespace Configuration_Editor
     {
       string s = new StreamReader(new FileStream(filename, FileMode.Open)).ReadToEnd();
       Dictionary<string, Dictionary<string, string>> data = ReadIni(s, new Dictionary<string, Dictionary<string, string>>());
-      specieDatabaseControl1.LoadDBIni(data);
+      //specieDatabaseControl1.LoadDBIni(data);
     }
 
     protected void UpdateDBLVIs()
@@ -1520,7 +1520,7 @@ namespace Configuration_Editor
           lvi.EnsureVisible();
           lvi.Selected = true;
         }
-      tcSpecies.SelectedTab = tabDatabase;
+      //tcSpecies.SelectedTab = tabDatabase;
     }
 
     private void menuNewSpecies_Click(object sender, EventArgs e)

@@ -72,7 +72,7 @@ namespace Configuration_Editor
           this.label1 = new System.Windows.Forms.Label();
           this.tcSpecies = new System.Windows.Forms.TabControl();
           this.tabProjectSpecies = new System.Windows.Forms.TabPage();
-          this.tabDatabase = new System.Windows.Forms.TabPage();
+          this.projectVectorControl1 = new Configuration_Editor.ProjectVectorControl();
           this.tabMisc = new System.Windows.Forms.TabPage();
           this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
           this.grpDefaults = new System.Windows.Forms.GroupBox();
@@ -136,8 +136,6 @@ namespace Configuration_Editor
           this.dlgOpenConfig = new System.Windows.Forms.OpenFileDialog();
           this.dlgSaveConfig = new System.Windows.Forms.SaveFileDialog();
           this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-          this.projectVectorControl1 = new Configuration_Editor.ProjectVectorControl();
-          this.specieDatabaseControl1 = new Configuration_Editor.SpecieDatabaseControl();
           this.ssMain.SuspendLayout();
           this.menuMain.SuspendLayout();
           this.tcMain.SuspendLayout();
@@ -150,7 +148,6 @@ namespace Configuration_Editor
           this.pnlFilter.SuspendLayout();
           this.tcSpecies.SuspendLayout();
           this.tabProjectSpecies.SuspendLayout();
-          this.tabDatabase.SuspendLayout();
           this.tabMisc.SuspendLayout();
           this.tableLayoutPanel2.SuspendLayout();
           this.grpDefaults.SuspendLayout();
@@ -436,7 +433,7 @@ namespace Configuration_Editor
             this.menuDelete,
             this.menuNewSpecies});
           this.menuSpDBContext.Name = "menuSpDBContext";
-          this.menuSpDBContext.Size = new System.Drawing.Size(191, 126);
+          this.menuSpDBContext.Size = new System.Drawing.Size(196, 126);
           this.menuSpDBContext.Opening += new System.ComponentModel.CancelEventHandler(this.menuSpDBContext_Opening);
           // 
           // menuSortSpDBAlph
@@ -445,7 +442,7 @@ namespace Configuration_Editor
           this.menuSortSpDBAlph.CheckOnClick = true;
           this.menuSortSpDBAlph.CheckState = System.Windows.Forms.CheckState.Checked;
           this.menuSortSpDBAlph.Name = "menuSortSpDBAlph";
-          this.menuSortSpDBAlph.Size = new System.Drawing.Size(190, 22);
+          this.menuSortSpDBAlph.Size = new System.Drawing.Size(195, 22);
           this.menuSortSpDBAlph.Text = "Sort Alphabetically";
           this.menuSortSpDBAlph.CheckedChanged += new System.EventHandler(this.menuSortSpDBAlph_CheckedChanged);
           // 
@@ -455,41 +452,41 @@ namespace Configuration_Editor
           this.menuSortSpDBPhase.CheckOnClick = true;
           this.menuSortSpDBPhase.CheckState = System.Windows.Forms.CheckState.Checked;
           this.menuSortSpDBPhase.Name = "menuSortSpDBPhase";
-          this.menuSortSpDBPhase.Size = new System.Drawing.Size(190, 22);
+          this.menuSortSpDBPhase.Size = new System.Drawing.Size(195, 22);
           this.menuSortSpDBPhase.Text = "Sort By Phase";
           this.menuSortSpDBPhase.CheckedChanged += new System.EventHandler(this.menuSortSpDBAlph_CheckedChanged);
           // 
           // toolStripMenuItem4
           // 
           this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-          this.toolStripMenuItem4.Size = new System.Drawing.Size(187, 6);
+          this.toolStripMenuItem4.Size = new System.Drawing.Size(192, 6);
           // 
           // menuSpDBAddToProject
           // 
           this.menuSpDBAddToProject.Name = "menuSpDBAddToProject";
-          this.menuSpDBAddToProject.Size = new System.Drawing.Size(190, 22);
+          this.menuSpDBAddToProject.Size = new System.Drawing.Size(195, 22);
           this.menuSpDBAddToProject.Text = "&Add To Project Species";
           this.menuSpDBAddToProject.Click += new System.EventHandler(this.menuSpDBAddToProject_Click);
           // 
           // toolStripMenuItem5
           // 
           this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-          this.toolStripMenuItem5.Size = new System.Drawing.Size(187, 6);
+          this.toolStripMenuItem5.Size = new System.Drawing.Size(192, 6);
           // 
           // menuDelete
           // 
-          this.menuDelete.Name = "menuDelete";
-          this.menuDelete.Size = new System.Drawing.Size(190, 22);
-          this.menuDelete.Text = "Delete";
           this.menuDelete.Enabled = false;
+          this.menuDelete.Name = "menuDelete";
+          this.menuDelete.Size = new System.Drawing.Size(195, 22);
+          this.menuDelete.Text = "Delete";
           this.menuDelete.Click += new System.EventHandler(this.menuDelete_Click);
           // 
           // menuNewSpecies
           // 
-          this.menuNewSpecies.Name = "menuNewSpecies";
-          this.menuNewSpecies.Size = new System.Drawing.Size(190, 22);
-          this.menuNewSpecies.Text = "New Species...";
           this.menuNewSpecies.Enabled = false;
+          this.menuNewSpecies.Name = "menuNewSpecies";
+          this.menuNewSpecies.Size = new System.Drawing.Size(195, 22);
+          this.menuNewSpecies.Text = "New Species...";
           this.menuNewSpecies.Click += new System.EventHandler(this.menuNewSpecies_Click);
           // 
           // pnlFilter
@@ -525,7 +522,6 @@ namespace Configuration_Editor
           // tcSpecies
           // 
           this.tcSpecies.Controls.Add(this.tabProjectSpecies);
-          this.tcSpecies.Controls.Add(this.tabDatabase);
           this.tcSpecies.Dock = System.Windows.Forms.DockStyle.Fill;
           this.tcSpecies.Location = new System.Drawing.Point(0, 0);
           this.tcSpecies.Name = "tcSpecies";
@@ -545,16 +541,21 @@ namespace Configuration_Editor
           this.tabProjectSpecies.Text = "Project Species";
           this.tabProjectSpecies.UseVisualStyleBackColor = true;
           // 
-          // tabDatabase
+          // projectVectorControl1
           // 
-          this.tabDatabase.Controls.Add(this.specieDatabaseControl1);
-          this.tabDatabase.Location = new System.Drawing.Point(4, 22);
-          this.tabDatabase.Name = "tabDatabase";
-          this.tabDatabase.Padding = new System.Windows.Forms.Padding(3);
-          this.tabDatabase.Size = new System.Drawing.Size(701, 512);
-          this.tabDatabase.TabIndex = 3;
-          this.tabDatabase.Text = "Specie Database";
-          this.tabDatabase.UseVisualStyleBackColor = true;
+          this.projectVectorControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+          this.projectVectorControl1.ListDBSpecies = null;
+          this.projectVectorControl1.Location = new System.Drawing.Point(3, 3);
+          this.projectVectorControl1.Name = "projectVectorControl1";
+          this.projectVectorControl1.Size = new System.Drawing.Size(695, 506);
+          this.projectVectorControl1.Sorter = pviOrderer1;
+          this.projectVectorControl1.SpecieDataTable = null;
+          this.projectVectorControl1.StatusColour = System.Drawing.Color.Empty;
+          this.projectVectorControl1.StatusMessage = null;
+          this.projectVectorControl1.TabIndex = 0;
+          this.projectVectorControl1.TempFormatter = null;
+          this.projectVectorControl1.TempParser = null;
+          this.projectVectorControl1.UnitBindingSource = null;
           // 
           // tabMisc
           // 
@@ -1243,34 +1244,6 @@ namespace Configuration_Editor
           // 
           this.errorProvider1.ContainerControl = this;
           // 
-          // projectVectorControl1
-          // 
-          this.projectVectorControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.projectVectorControl1.ListDBSpecies = null;
-          this.projectVectorControl1.Location = new System.Drawing.Point(3, 3);
-          this.projectVectorControl1.Name = "projectVectorControl1";
-          this.projectVectorControl1.Size = new System.Drawing.Size(695, 506);
-          this.projectVectorControl1.Sorter = pviOrderer1;
-          this.projectVectorControl1.SpecieDataTable = null;
-          this.projectVectorControl1.StatusColour = System.Drawing.Color.Empty;
-          this.projectVectorControl1.StatusMessage = null;
-          this.projectVectorControl1.TabIndex = 0;
-          this.projectVectorControl1.TempFormatter = null;
-          this.projectVectorControl1.TempParser = null;
-          this.projectVectorControl1.UnitBindingSource = null;
-          // 
-          // specieDatabaseControl1
-          // 
-          this.specieDatabaseControl1.DataSource = null;
-          this.specieDatabaseControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-          this.specieDatabaseControl1.Enabled = false;
-          this.specieDatabaseControl1.Location = new System.Drawing.Point(3, 3);
-          this.specieDatabaseControl1.Name = "specieDatabaseControl1";
-          this.specieDatabaseControl1.Size = new System.Drawing.Size(695, 506);
-          this.specieDatabaseControl1.StatusColour = System.Drawing.SystemColors.WindowText;
-          this.specieDatabaseControl1.StatusMessage = "";
-          this.specieDatabaseControl1.TabIndex = 0;
-          // 
           // FrmMain
           // 
           this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1298,7 +1271,6 @@ namespace Configuration_Editor
           this.pnlFilter.PerformLayout();
           this.tcSpecies.ResumeLayout(false);
           this.tabProjectSpecies.ResumeLayout(false);
-          this.tabDatabase.ResumeLayout(false);
           this.tabMisc.ResumeLayout(false);
           this.tableLayoutPanel2.ResumeLayout(false);
           this.grpDefaults.ResumeLayout(false);
@@ -1434,9 +1406,7 @@ namespace Configuration_Editor
         private System.Windows.Forms.ToolStripMenuItem menuNewSpecies;
         private System.Windows.Forms.ToolStripStatusLabel statusLabel;
         private System.Windows.Forms.TabPage tabProjectSpecies;
-        private ProjectVectorControl projectVectorControl1;
-        private System.Windows.Forms.TabPage tabDatabase;
-        private SpecieDatabaseControl specieDatabaseControl1;
+      private ProjectVectorControl projectVectorControl1;
         private System.Windows.Forms.ToolStripMenuItem menuView;
         private System.Windows.Forms.ToolStripMenuItem menuUnits;
     }
