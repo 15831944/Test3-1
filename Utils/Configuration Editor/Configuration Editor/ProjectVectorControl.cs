@@ -911,6 +911,8 @@ namespace Configuration_Editor
       }
       lstProjectVector.EndUpdate();
 
+      lstProjectVector.EnsureVisible(lstProjectVector.SelectedItems[0].Index);
+
       SetBtnEnables();
     }
 
@@ -932,6 +934,9 @@ namespace Configuration_Editor
         lstProjectVector.Items.Insert(insertionIndex++, lvi);
       }
       lstProjectVector.EndUpdate();
+
+      lstProjectVector.EnsureVisible(lstProjectVector.SelectedItems[lstProjectVector.SelectedItems.Count - 1].Index);
+
       SetBtnEnables();
     }
 
