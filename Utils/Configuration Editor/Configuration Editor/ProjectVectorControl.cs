@@ -404,11 +404,13 @@ namespace Configuration_Editor
       {
         grpTextValue.Visible = true;
         txtText.Text = item.Value;
+        this.grpTextValue.Text = "Label";
       }
       else if (item.GetType() == typeof(ProjectPage))
       {
         grpTextValue.Visible = true;
         txtText.Text = item.Value;
+        this.grpTextValue.Text = "Page Break Label";
       }
       else if (item.GetType() == typeof(ProjectAttribute))
       {
@@ -703,6 +705,7 @@ namespace Configuration_Editor
     private void lstProjectVector_SelectedIndexChanged(object sender, EventArgs e)
     {
       if (lstProjectVector.SelectedItems.Count == 1)
+
         LoadItem((ProjectVectorItem)lstProjectVector.SelectedItems[0].Tag);
       else
         LoadItem(null);
