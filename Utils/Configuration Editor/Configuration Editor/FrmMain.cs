@@ -313,7 +313,7 @@ namespace Configuration_Editor
         m_ConfigFile = new FileStream(dlgSaveConfig.FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
 
         this.Text = "SysCAD Configuration Editor - " + dlgSaveConfig.FileName;
-        
+
         if (m_ConfigFile != null)
           Save();
       }
@@ -330,6 +330,91 @@ namespace Configuration_Editor
         SaveAs();
         return;
       }
+
+
+      string faults = string.Empty;
+      bool allValid = true;
+
+      foreach (ListViewItem lvi in projectVectorControl1.lstProjectVector.Items)
+      {
+        ProjectVectorItem lviProjectVectorItem = lvi.Tag as ProjectVectorItem;
+        if (!lviProjectVectorItem.Valid)
+              {
+                faults += lviProjectVectorItem.ToString() + "\n";
+                allValid = false;
+              }
+        //switch (lvi.Tag.GetType().FullName)
+        //{
+        //  case "Configuration_Editor.ProjectText":
+        //    //{ // Do no checking here.
+        //    //  if (false)
+        //    //    allValid = false;
+        //    //}
+        //    break;
+        //  case "Configuration_Editor.ProjectSpecie":
+        //    {
+        //      ProjectSpecie lviProjectSpecie = lvi.Tag as ProjectSpecie;
+        //      if (!lviProjectSpecie.Valid)
+        //      {
+        //        faults += lviProjectSpecie.ToString() + "\n";
+        //        allValid = false;
+        //      }
+        //      //if (!lstDBSpecies.Items.ContainsKey(lviProjectSpecie.Symbol))
+        //      //  allValid = false;
+        //    }
+        //    break;
+        //  case "Configuration_Editor.ProjectCalculation":
+        //    {
+        //      ProjectCalculation lviProjectCalculation = lvi.Tag as ProjectCalculation;
+        //      if (!lviProjectCalculation.Valid)
+        //      {
+        //        faults += lviProjectCalculation.ToString() + "\n";
+        //        allValid = false;
+        //      }
+        //    }
+        //    break;
+        //  case "Configuration_Editor.ProjectAttribute":
+        //    {
+        //      ProjectAttribute lviProjectAttribute = lvi.Tag as ProjectAttribute;
+        //      if (!lviProjectAttribute.Valid)
+        //      {
+        //        faults += lviProjectAttribute.ToString() + "\n";
+        //        allValid = false;
+        //      }
+        //    }
+        //    break;
+        //  case "Configuration_Editor.ProjectPage":
+        //    {
+        //      ProjectPage lviProjectPage = lvi.Tag as ProjectPage;
+        //      if (!lviProjectPage.Valid)
+        //      {
+        //        faults += lviProjectPage.ToString() + "\n";
+        //        allValid = false;
+        //      }
+        //    }
+        //    break;
+        //  case "Configuration_Editor.ProjectSum":
+        //    {
+        //      ProjectSum lviProjectSum = lvi.Tag as ProjectSum;
+        //      if (!lviProjectSum.Valid)
+        //      {
+        //        faults += lviProjectSum.ToString() + "\n";
+        //        allValid = false;
+        //      }
+        //    }
+        //    break;
+        //  default:
+        //    throw new Exception();
+        //    //break;
+        //}
+      }
+
+      if (!allValid)
+      {
+        if (MessageBox.Show("The following entries are invalid:\n\n" + faults + "\n\nSave anyway?", "Entries invalid.", MessageBoxButtons.YesNo, MessageBoxIcon.Error) == DialogResult.No)
+          return;
+      }
+
 
       StreamWriter sw = null;
       try

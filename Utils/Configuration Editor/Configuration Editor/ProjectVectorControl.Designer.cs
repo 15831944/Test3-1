@@ -574,7 +574,7 @@ namespace Configuration_Editor
 
         private System.Windows.Forms.GroupBox grpProjectList;
         private System.Windows.Forms.Panel pnlActiveList;
-        private System.Windows.Forms.ListView lstProjectVector;
+        public System.Windows.Forms.ListView lstProjectVector;
       private System.Windows.Forms.ColumnHeader chProjSymbol;
         private System.Windows.Forms.Panel pnlListButtons;
         private System.Windows.Forms.Button btnAdd;
