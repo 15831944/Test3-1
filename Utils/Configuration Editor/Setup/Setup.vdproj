@@ -96,6 +96,11 @@
             "ComponentsUrl" = "8:"
                 "Items"
                 {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.2.0"
+                    {
+                    "Name" = "8:Windows Installer 2.0"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.2.0"
+                    }
                 }
             }
         }
@@ -234,7 +239,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SysCAD Configuration Editor"
         "ProductCode" = "8:{2BA4CD21-BB44-4161-9D55-BE86DCAFD040}"
-        "PackageCode" = "8:{55F9C8AB-07C5-40C4-81E4-FB4E5C182023}"
+        "PackageCode" = "8:{3985969F-E443-44CD-8654-F3911FB7C1EC}"
         "UpgradeCode" = "8:{E316FA17-5517-472C-BF4A-4EBC33349084}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -768,7 +773,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_94D1E3B6DD6F47E3A1A100692096B0D0"
             {
-            "SourcePath" = "8:..\\Configuration Editor\\obj\\Debug\\Configuration Editor.exe"
+            "SourcePath" = "8:..\\Configuration Editor\\obj\\Release\\Configuration Editor.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E7FB5ED90924422F93FBFBA29D84BCC1"

@@ -311,6 +311,9 @@ namespace Configuration_Editor
         if (m_ConfigFile != null) try { m_ConfigFile.Close(); }
           catch { }
         m_ConfigFile = new FileStream(dlgSaveConfig.FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+
+        this.Text = "SysCAD Configuration Editor - " + dlgSaveConfig.FileName;
+        
         if (m_ConfigFile != null)
           Save();
       }
@@ -501,6 +504,10 @@ namespace Configuration_Editor
         foreach (string error in errors)
           sb.AppendLine(error);
         MessageBox.Show(sb.ToString(), "Load Configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
+      }
+      else
+      {
+        this.Text = "SysCAD Configuration Editor - " + filename;
       }
     }
 
@@ -1417,6 +1424,9 @@ namespace Configuration_Editor
       Dictionary<string, Dictionary<string, string>> tmp = new Dictionary<string, Dictionary<string, string>>();
       foreach (KeyValuePair<string, Dictionary<string, string>> kvp in m_DefaultIniDictionary)
         tmp[kvp.Key] = new Dictionary<string, string>(kvp.Value);
+
+      this.Text = "SysCAD Configuration Editor - " + "New File";
+
       LoadFromDictionary(tmp);
     }
 
@@ -1432,7 +1442,7 @@ namespace Configuration_Editor
 
     private void fileToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
     {
-      menuSave.Enabled = menuSaveAs.Enabled = m_ConfigFile != null;
+      menuSave.Enabled = m_ConfigFile != null;
     }
 
     private void menuExit_Click(object sender, EventArgs e)
