@@ -759,6 +759,24 @@ namespace Configuration_Editor
       UpdateStatusMessage();
     }
 
+    private void txtCalculation_DragEnter(object sender, DragEventArgs e)
+    {
+      if (e.Data.GetDataPresent(typeof(SpecieDrag)))
+        e.Effect = DragDropEffects.Copy;
+    }
+
+    private void txtCalculation_DragDrop(object sender, DragEventArgs e)
+    {
+      if (e.Data.GetDataPresent(typeof(SpecieDrag)))
+      {
+        foreach (DataRow dataRow in ((SpecieDrag)e.Data.GetData(typeof(SpecieDrag))).Value)
+        {
+          txtCalculation.Text.Trim();
+          txtCalculation.Text += " [" + dataRow.ItemArray[1] + "]";
+        }
+      }
+    }
+    
     private void txtCalculation_TextChanged(object sender, EventArgs e)
     {
       List<string> availableVariables = GetAvailableVariables();
@@ -870,7 +888,7 @@ namespace Configuration_Editor
       {
         drag.items[i] = (ProjectVectorItem)lstProjectVector.SelectedItems[i].Tag;
       }
-      DoDragDrop(drag, DragDropEffects.Move);
+      DoDragDrop(drag, DragDropEffects.Move | DragDropEffects.Link);
     }
 
     private void lstProjectVector_DragOver(object sender, DragEventArgs e)

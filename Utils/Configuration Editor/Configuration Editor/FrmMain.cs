@@ -1360,7 +1360,7 @@ namespace Configuration_Editor
       SpecieDrag drag = new SpecieDrag(new DataRow[lstDBSpecies.SelectedItems.Count]);
       for (int i = 0; i < lstDBSpecies.SelectedItems.Count; i++)
         drag.Value[i] = (DataRow)lstDBSpecies.SelectedItems[i].Tag;
-      DoDragDrop(drag, DragDropEffects.Link);
+      DoDragDrop(drag, DragDropEffects.Move | DragDropEffects.Link);
     }
 
     private void FireUpdateStatusBar(object sender, EventArgs e)

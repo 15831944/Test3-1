@@ -369,6 +369,7 @@ namespace Configuration_Editor
           // 
           // txtCalculation
           // 
+          this.txtCalculation.AllowDrop = true;
           this.txtCalculation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                       | System.Windows.Forms.AnchorStyles.Right)));
           this.txtCalculation.CompSelection = false;
@@ -381,6 +382,8 @@ namespace Configuration_Editor
           this.txtCalculation.Text = "";
           this.txtCalculation.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.PreventCommas);
           this.txtCalculation.TextChanged += new System.EventHandler(this.txtCalculation_TextChanged);
+          this.txtCalculation.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtCalculation_DragEnter);
+          this.txtCalculation.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtCalculation_DragDrop);
           // 
           // tabIDELabel
           // 
