@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{41259FBA-4939-495B-BDF8-7B75F3B7DB98}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -44,7 +44,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>..\..\SMDK\SVNAutomate.exe SVNVersion.cs</PreBuildEvent>
+    <PreBuildEvent>..\..\SMDK\SVNAutomate.exe ..\..  SVNVersion.cs</PreBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="SVNVersion.cs" />
