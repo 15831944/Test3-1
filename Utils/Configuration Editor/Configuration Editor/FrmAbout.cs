@@ -15,7 +15,7 @@ namespace About
         {
             InitializeComponent();
 
-            label1.Text = string.Format(Configuration_Editor.Properties.Resources.About, Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
+            label1.Text = string.Format(Configuration_Editor.Properties.Resources.About, Assembly.GetExecutingAssembly().GetName().Version.ToString(4));
         }
     }
 }

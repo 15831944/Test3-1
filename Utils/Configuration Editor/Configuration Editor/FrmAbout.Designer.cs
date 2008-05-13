@@ -123,7 +123,7 @@ namespace About
             this.Name = "FrmAbout";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
-            this.Text = "About SysCAD Reaction Editor";
+            this.Text = "About SysCAD Configuration Editor";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
