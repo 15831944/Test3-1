@@ -1008,6 +1008,7 @@ namespace Configuration_Editor
       menuRemove.Enabled = lstProjectVector.SelectedItems.Count > 0;
       menuSort.Text = lstProjectVector.SelectedItems.Count > 1 ?
           "&Sort Selection" : "&Sort";
+      menuSort.Enabled = false;
     }
 
     private void menuAdd_Click(object sender, EventArgs e)
