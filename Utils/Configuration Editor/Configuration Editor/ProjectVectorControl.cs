@@ -772,7 +772,7 @@ namespace Configuration_Editor
         foreach (DataRow dataRow in ((SpecieDrag)e.Data.GetData(typeof(SpecieDrag))).Value)
         {
           txtCalculation.Text.Trim();
-          txtCalculation.Text += " [" + dataRow.ItemArray[1] + "]";
+          txtCalculation.Text += " [" + dataRow.ItemArray[1] + "(" + dataRow.ItemArray[2] + ")" + "]";
         }
       }
     }
