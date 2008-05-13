@@ -302,12 +302,12 @@ namespace Configuration_Editor
     #endregion Constructors
 
     #region File Operations
-    protected void SaveAs()
+    protected bool SaveAs()
     {
       try
       {
         if (dlgSaveConfig.ShowDialog(this) != DialogResult.OK)
-          return;
+          return false;
         if (m_ConfigFile != null) try { m_ConfigFile.Close(); }
           catch { }
         m_ConfigFile = new FileStream(dlgSaveConfig.FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
@@ -315,20 +315,21 @@ namespace Configuration_Editor
         this.Text = "SysCAD Configuration Editor - " + dlgSaveConfig.FileName;
 
         if (m_ConfigFile != null)
-          Save();
+          return Save();
       }
       catch (Exception ex)
       {
         MessageBox.Show(ex.ToString());
+        return false;
       }
+      return true;
     }
 
-    protected void Save()
+    protected bool Save()
     {
       if (m_ConfigFile == null)
       {
-        SaveAs();
-        return;
+        return SaveAs();
       }
 
 
@@ -339,80 +340,16 @@ namespace Configuration_Editor
       {
         ProjectVectorItem lviProjectVectorItem = lvi.Tag as ProjectVectorItem;
         if (!lviProjectVectorItem.Valid)
-              {
-                faults += lviProjectVectorItem.ToString() + "\n";
-                allValid = false;
-              }
-        //switch (lvi.Tag.GetType().FullName)
-        //{
-        //  case "Configuration_Editor.ProjectText":
-        //    //{ // Do no checking here.
-        //    //  if (false)
-        //    //    allValid = false;
-        //    //}
-        //    break;
-        //  case "Configuration_Editor.ProjectSpecie":
-        //    {
-        //      ProjectSpecie lviProjectSpecie = lvi.Tag as ProjectSpecie;
-        //      if (!lviProjectSpecie.Valid)
-        //      {
-        //        faults += lviProjectSpecie.ToString() + "\n";
-        //        allValid = false;
-        //      }
-        //      //if (!lstDBSpecies.Items.ContainsKey(lviProjectSpecie.Symbol))
-        //      //  allValid = false;
-        //    }
-        //    break;
-        //  case "Configuration_Editor.ProjectCalculation":
-        //    {
-        //      ProjectCalculation lviProjectCalculation = lvi.Tag as ProjectCalculation;
-        //      if (!lviProjectCalculation.Valid)
-        //      {
-        //        faults += lviProjectCalculation.ToString() + "\n";
-        //        allValid = false;
-        //      }
-        //    }
-        //    break;
-        //  case "Configuration_Editor.ProjectAttribute":
-        //    {
-        //      ProjectAttribute lviProjectAttribute = lvi.Tag as ProjectAttribute;
-        //      if (!lviProjectAttribute.Valid)
-        //      {
-        //        faults += lviProjectAttribute.ToString() + "\n";
-        //        allValid = false;
-        //      }
-        //    }
-        //    break;
-        //  case "Configuration_Editor.ProjectPage":
-        //    {
-        //      ProjectPage lviProjectPage = lvi.Tag as ProjectPage;
-        //      if (!lviProjectPage.Valid)
-        //      {
-        //        faults += lviProjectPage.ToString() + "\n";
-        //        allValid = false;
-        //      }
-        //    }
-        //    break;
-        //  case "Configuration_Editor.ProjectSum":
-        //    {
-        //      ProjectSum lviProjectSum = lvi.Tag as ProjectSum;
-        //      if (!lviProjectSum.Valid)
-        //      {
-        //        faults += lviProjectSum.ToString() + "\n";
-        //        allValid = false;
-        //      }
-        //    }
-        //    break;
-        //  default:
-        //    throw new Exception();
-        //    //break;
-        //}
+        {
+          faults += lviProjectVectorItem.ToString() + "\n";
+          allValid = false;
+        }
       }
 
       if (!allValid)
       {
         if (MessageBox.Show("The following entries are invalid:\n\n" + faults + "\n\nSave anyway?", "Entries invalid.", MessageBoxButtons.YesNo, MessageBoxIcon.Error) == DialogResult.No)
-          return;
+          return false;
       }
 
 
@@ -435,7 +372,7 @@ namespace Configuration_Editor
       catch (Exception ex)
       {
         MessageBox.Show(ex.Message);
-        return;
+        return false;
       }
 
       try
@@ -457,6 +394,7 @@ namespace Configuration_Editor
           foreach (KeyValuePair<string, string> kvp in temp["general"])
             sw.WriteLine(kvp.Key + "=" + kvp.Value);
           temp.Remove("general");
+          return false;
         }
 
         sw.WriteLine("[ModelDLLs]");
@@ -538,6 +476,7 @@ namespace Configuration_Editor
       catch (Exception ex)
       {
         MessageBox.Show(ex.Message);
+        return false;
       }
       finally
       {
@@ -551,6 +490,7 @@ namespace Configuration_Editor
             MessageBox.Show(ex.Message);
           }
       }
+      return true;
     }
 
     protected string Pop(Dictionary<string, string> source, string key)
@@ -1540,7 +1480,7 @@ namespace Configuration_Editor
       if (m_ConfigFile != null)
         switch (MessageBox.Show("Do you wish to save changes to " + Path.GetFileName(m_ConfigFile.Name) + "?", "SysCAD Configuration Editor", MessageBoxButtons.YesNoCancel))
         {
-          case DialogResult.Yes: Save(); break;
+          case DialogResult.Yes: e.Cancel = !Save(); break;
           case DialogResult.Cancel: e.Cancel = true; break;
           case DialogResult.No: break;
         }
