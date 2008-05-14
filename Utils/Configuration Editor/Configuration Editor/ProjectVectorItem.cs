@@ -24,7 +24,8 @@ namespace Configuration_Editor
 
       if ((tag[0] == '\\') || (tag[0] == '=')) return false;
 
-      if ((tag.Contains("."))
+      if ((tag.Contains(" "))
+        || (tag.Contains("."))
         || (tag.Contains(","))
         || (tag.Contains("%"))
         || (tag.Contains("\t"))

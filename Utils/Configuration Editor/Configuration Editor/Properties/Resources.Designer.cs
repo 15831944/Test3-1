@@ -151,7 +151,8 @@ namespace Configuration_Editor.Properties {
         ///Probal_Allowed=1
         ///Probal_NodeMode=Direct
         ///Probal_FlowMode=Transfer
-        ///Probal_HeatMode=Rigorous        /// [rest of string was truncated]&quot;;.
+        ///Probal_HeatMode=Rigorous
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DefaultInI {
             get {
