@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-05-08 02:23:42 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2008-08-20 10:03:45 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -23,7 +23,7 @@ static MAqSpeciePtr spCausticSoda   (InitTest, "NaOH(l)", false);
 static MSpeciePtr   spOccSoda       (InitTest, "Na2O(s)", false);
 static MAqSpeciePtr spCarbonate     (InitTest, "Na2CO3(l)", false);
 static MSpeciePtr   spBoundSoda     (InitTest, "NaOH*(s)", false);
-static MSpeciePtr   spOrganics      (InitTest, "Na2C5.2O7.2(l)", false);
+static MAqSpeciePtr spOrganics      (InitTest, "Na2C5.2O7.2(l)", false);
 static MSpeciePtr   spBoundOrganics (InitTest, "Na2C5.2O7.2*(s)", false);
 
 
